@@ -1,0 +1,143 @@
+
+#
+#  ================ profile: desktop
+#
+
+logging.config: classpath:log4j2-desktop.yml
+
+csap-core:
+
+  installation-folder: target/csap-platform
+  
+  docker: 
+    url: "tcp://localhost:4243"
+  
+  definition-folder: "src/main/resources/csap-templates/application-definition/"  # "../../dev-definition"
+
+server:
+#  port: 7011
+  tomcat:
+    accesslog:
+      enabled: true
+      pattern: "%h %l %u %t &quot;%r&quot; %s %b"
+      
+# log will be pushed to java temp      
+  
+    
+csap:
+
+  security: 
+    enabled: true
+
+#    rest-api-filter:
+#      token: ${restToken:demoToken}    
+      
+  performance:
+    enabled: true
+        
+    alert: 
+        
+      limits:
+        
+        # agent refreshes are triggered by admin
+        - 
+          id: csap.host-status
+          occurences-min: 2
+          collect-time: 2 # allows for migrations
+          collect-units: MINUTES
+          max-time: 7
+          max-units: SECONDS
+          
+        - 
+          id: csap.exception
+          ignore-null: true
+          occurences-max: 2
+          collect-time: 1
+          collect-units: MINUTES
+  
+        # Log Rotations
+        - 
+          id: csap.service-jobs.logs
+          occurences-min: 1
+          collect-time: 60
+          collect-units: MINUTES
+          max-time: 30
+          max-units: SECONDS
+  
+
+          
+        # OS Commands and scripts
+        - 
+          id: csap.os-commands
+          collect-time: 2
+          collect-units: MINUTES
+          occurences-max: 200
+          max-time: 5
+          max-units: SECONDS
+        - 
+          id: csap.service.jobs
+          ignore-null: true
+          occurences-max: 2
+          max-time: 8
+          max-units: MINUTES
+        - 
+          id: csap.os-commands.userScript
+          ignore-null: true
+          max-time: 10
+          max-units: SECONDS
+          
+        # agent collection thresholds
+        - 
+          id: csap.collect-http
+          collect-time: 1
+          collect-units: MINUTES
+          occurences-min: 1
+          max-time: 3
+          max-units: SECONDS
+          
+        - 
+          id: csap.collect-http.failures
+          ignore-null: true
+          occurences-max: 0
+          
+          
+        - 
+          id: csap.collect-jmx
+          ignore-null: true
+          collect-time: 1
+          collect-units: MINUTES
+          occurences-min: 1
+          max-time: 3
+          max-units: SECONDS
+          
+        - 
+          id: csap.collect-jmx.failures
+          ignore-null: true
+          occurences-max: 0
+        - 
+          id: csap.collect-jmx.service.failures
+          ignore-null: true
+          occurences-max: 0
+  
+        # agent posting data to csaptools analytics service
+        - 
+          id: csap.event-publish
+          max-time: 5
+          max-units: SECONDS
+          
+        - 
+          id: csap.event-publish.failures
+          occurences-max: 1
+          ignore-null: true
+#        - 
+#          id: csap.event-publish.csap-metrics
+#          collect-time: 30
+#          collect-units: MINUTES
+#          occurences-min: 1
+#        - 
+#          id: csap.event-publish.csap-reports
+#          collect-time: 30
+#          collect-units: MINUTES
+#          occurences-min: 1
+      
+        

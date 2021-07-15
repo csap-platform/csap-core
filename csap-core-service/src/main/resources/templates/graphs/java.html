@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+
+<head>
+
+<title th:inline="text">CSAP Java</title>
+
+
+<script th:replace="/graphs/head :: pageContent"></script>
+
+<script th:inline="javascript">
+
+var agentHostUrlPattern = [[${ agentHostUrlPattern }]];
+
+var uiSettings = {
+	baseUrl: BASE_URL,
+		life:	 [[ ${ life } ]],
+		eventUser: [[ ${ eventUser } ]],
+		testHost: [[ ${ testHostOnDesktop } ]],
+		isForceHostToLocalhost: [[ ${ testHostForceLocalHost } ]],
+		// eventMetricsUrl: [[ ${ eventMetricsUrl } ]],
+		eventMetricsUrl: SERVICE_URL + "/metricsApi/"
+}
+
+var serviceName = $.urlParam("service");
+if (serviceName != null) {
+serviceName = serviceName.substr(0, serviceName.indexOf("_"));
+
+document.title = [[${pageTitle}]] ;
+
+$("header").html('<div class="noteHighlight" >' + serviceName + " : Java Graphs" + '</div>');
+//		$("#csapPageLabel").text( serviceName + ":"  );
+//		$("#csapPageVersion").text("").css("margin-right", "3em");
+}
+
+// Support for custom views
+var customViews = {
+"Java Heap": {
+graphs: ["Cpu_As_Reported_By_JVM", "heapUsed", "minorGcInMs"],
+		graphMerged: { "heapUsed": "heapMax", "minorGcInMs": "majorGcInMs" },
+		graphSize: {
+		Cpu_As_Reported_By_JVM: { "width": "100%", "height": "100" },
+				heapUsed: { "width": "100%", "height": "45%" },
+				minorGcInMs: { "width": "100%", "height": "45%" }
+		}
+},
+		"Tomcat Http": { graphs:
+		["Cpu_As_Reported_By_JVM", "sessionsCount", "httpRequestCount", "httpKbytesReceived", "httpProcessingTime"],
+				graphMerged: { "httpKbytesReceived": "httpKbytesSent", "sessionsCount": "sessionsActive", "httpRequestCount": "tomcatConnections" } },
+		"Java Thread": { graphs: ["Cpu_As_Reported_By_JVM", "jvmThreadCount", "tomcatThreadsBusy"], graphMerged: { "jvmThreadCount": "jvmThreadsMax", "tomcatThreadsBusy": "tomcatThreadCount" } }
+}
+
+
+$(document).ready(function () {
+	require([ "ResourceGraph" ],
+			function (ResourceGraph) {
+			var serviceGraph = new ResourceGraph(
+					"#javaGraphs", 
+					[[ ${ collectionJava } ]], 
+					uiSettings.life,
+					uiSettings.eventUser,
+					uiSettings.eventMetricsUrl);
+			serviceGraph.addCustomViews(customViews);
+			});
+}) ;
+</script>
+<style>
+#csapPageVersion, header>div:first-of-type {
+	display: none;
+}
+
+.ui-widget {
+	font-size: 0.8em;
+}
+
+footer {
+	display: none;
+}
+</style>
+</head>
+
+
+<body
+	id=graph-local
+	th:inline="text"
+	class="grap-local csap-scrollable theme-dark">
+
+	<header th:replace="csap/fragments/page :: header"></header>
+
+
+	<article class=content>
+		<div
+			id="javaGraphs"
+			class=scrolling-graphs
+			style="font-size: 0.9em"></div>
+
+		<aside>
+			<div th:replace="/graphs/template :: pageContent"></div>
+
+		</aside>
+
+	</article>
+
+</body>
+
+</html>

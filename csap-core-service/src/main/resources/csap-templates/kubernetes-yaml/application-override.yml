@@ -1,0 +1,106 @@
+#
+# Any Spring Boot configuration placed here will override the settings package with the application or placed in other files
+# - the order is based on the profile name listed in the JVM start up parameters
+#
+
+#
+#  Sample: csap alert limits can customized based on deployment target
+#
+
+csap:
+        
+    alert:
+      
+      limits:
+        
+        # Note: collection time is the MINIMUM time alert will be displayed unless disabled
+        - 
+          id: csap.host-status
+          occurences-min: 2
+          collect-time: 2 # allows for migrations
+          collect-units: MINUTES
+          max-time: 7
+          max-units: SECONDS
+          
+        - 
+          id: csap.exception
+          ignore-null: true
+          occurences-max: 2
+          collect-time: 1
+          collect-units: MINUTES
+  
+        # Log Rotations
+        - 
+          id: csap.service-jobs.logs
+          occurences-min: 1
+          collect-time: 60
+          collect-units: MINUTES
+          max-time: 30
+          max-units: SECONDS
+  
+
+          
+        # OS Commands and scripts
+        - 
+          id: csap.os-commands
+          collect-time: 2
+          collect-units: MINUTES
+          occurences-max: 200
+          max-time: 25
+          max-units: SECONDS
+          
+        - 
+          id: csap.service.jobs
+          ignore-null: true
+          occurences-max: 2
+          max-time: 8
+          max-units: MINUTES
+        - 
+          id: csap.os-commands.userScript
+          ignore-null: true
+          max-time: 10
+          max-units: SECONDS
+          
+        # agent collection thresholds
+        - 
+          id: csap.collect-http
+          collect-time: 1
+          collect-units: MINUTES
+          occurences-min: 1
+          max-time: 3
+          max-units: SECONDS
+          
+        - 
+          id: csap.collect-http.failures
+          ignore-null: true
+          occurences-max: 0
+          
+          
+        - 
+          id: csap.collect-jmx
+          ignore-null: true
+          collect-time: 1
+          collect-units: MINUTES
+          occurences-min: 1
+          max-time: 3
+          max-units: SECONDS
+          
+        - 
+          id: csap.collect-jmx.failures
+          ignore-null: true
+          occurences-max: 0
+        - 
+          id: csap.collect-jmx.service.failures
+          ignore-null: true
+          occurences-max: 0
+  
+        # agent posting data to csaptools analytics service
+        - 
+          id: csap.event-publish
+          max-time: 5
+          max-units: SECONDS
+          
+        - 
+          id: csap.event-publish.failures
+          occurences-max: 1
+          ignore-null: true

@@ -1,0 +1,4 @@
+Active connections: 3
+server accepts handled requests
+ 4 5 6 
+Reading: 7 Writing: 8 Waiting: 9 

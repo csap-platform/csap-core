@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+
+<head>
+
+<title th:inline="text">[[ ${ targetFile.getName() } ]] Edit [[ ${ host } ]]</title>
+
+<script th:replace="~{ csap/fragments/csap-common-includes :: pageContent }"></script>
+
+<script th:src="@{/js/csapLibs/csap-misc.js}"></script>
+<script th:src="@{/js/csapLibs/csapUtils/CsapUser.js}"></script>
+
+
+<script th:replace="csap-constants-include :: includeSection"></script>
+
+<script th:inline="javascript">
+const FE_SETTINGS = {
+	serviceName: [[ ${ serviceName }  ]],
+	rootFile: [[ ${ rootFile } ]],
+	fromFolder: [[ ${ fromFolder }  ]],
+	hasResults: false,
+	saveResult: ""
+}
+
+ var hasResults = false ;
+ var saveResult = "" ;
+ if ( [[ ${ result != null } ]] )  {
+  hasResults = true ;
+  saveResult = [[    ${ result }   ]] ;
+ }
+
+/*
+     var baseUrl = [[@{ / }]] ;
+
+     var isAdmin = [[ ${ adminRole } ]] ;
+     var rootFile = [[ ${ rootFile } ]] ;
+     var user = [[ ${ user } ]] ;
+     var serviceName = [[ ${ serviceName }  ]] ;
+     var hostName = [[ ${ host }  ]] ;
+     var commandScreen = [[ @{${ T( org.csap.agent.CsapCoreService ).OS_URL + '/command'}}]] ;
+     var fromFolder = [[ ${ fromFolder }  ]] ;
+
+     
+     */
+
+ </script>
+
+
+<link
+	th:href="@{ ${csapApp.versionedUrl('/js/file/file-monitor.css')} }"
+	rel="stylesheet"
+	type="text/css"
+	media="screen" />
+
+<script
+	th:attr="data-main=@{ ${csapApp.requiresUrl('/js/file/modules/file-edit.js')}   }"
+	th:src="@{/webjars/requirejs/2.1.20/require.min.js}"></script>
+
+
+<style>
+.resp {
+	padding: 2px;
+	text-align: left;
+	width: 220px;
+	word-break: break-all;
+	word-wrap: break-word;
+}
+
+.formControls {
+	position: absolute;
+	top: 0.8em;
+	right: 2em;
+	font-size: 9pt;
+}
+
+.csap-scrollable header {
+	font-size: 10pt;
+	justify-content: flex-start;
+}
+
+#ace-settings select {
+	width: 7em;
+	font-size: 10px;
+	margin-right: 2px;
+}
+
+.csap-scrollable article.content {
+	overflow: hidden;
+}
+
+#ace-editor-settings {
+	font-size: 8pt;
+	opacity: 0.7;
+	display: inline;
+}
+
+.csap-scrollable article.content, form, pre#ace-editor {
+	height: 100%;
+	width: 100%;
+	padding: 0;
+	margin: 0;
+}
+
+label {
+	color: var(--nav-color) ;
+}
+
+#csrf {
+	visibility: hidden;
+}
+</style>
+
+</head>
+
+
+
+<body class="stand-alone csap-scrollable theme-dark agent">
+
+
+
+
+
+	<header style="">
+		CS-AP File Editor:
+		<div class="noteHighlight">
+			<span th:title="${ targetFile.getAbsolutePath() }"> [[ ${ targetFile.getName() } ]] </span>
+			<span th:if="${ rootFile != null }"> (system) </span>
+		</div>
+
+
+		<button
+			id="save-file-button"
+			class="csap-button"
+			title="save changes to file - enabled after changes are made">Save</button>
+		<span
+			class=""
+			style="font-size: 8pt; margin-left: 2em">Host: [[ ${ host } ]]</span>
+	</header>
+
+	<section>
+		<article class="content">
+			<form
+				id="editForm"
+				action="saveChanges"
+				method="post">
+
+				<!--<input type="submit"  class="submit" value="Update File"/>  -->
+				<div class="formControls">
+
+					<input
+						name="fromFolder"
+						th:value="${ fromFolder }"
+						type="hidden" />
+
+					<input
+						name="serviceName"
+						th:if="${ serviceName } != null"
+						th:value="${ serviceName }"
+						type="hidden" />
+
+
+					<label class="csap">
+					User:
+					<select
+						id="chownUserid"
+						name="chownUserid"
+						title="File will be chowned to the selected user">
+						<option
+							th:each="osUser : ${osUsers}"
+							th:selected="${ osUser == user }"
+							th:value="${ osUser }"
+							th:text="${ osUser }">will be replaced</option>
+
+					</select>
+					</label>
+
+					<button
+						id="sync-file-button"
+						class="csap-button"
+						title="Copy to other hosts">Copy</button>
+
+
+					<button
+						id="encodeButton"
+						class="csap-button"
+						title="Generate Encoded Values. File is a property file with 1 a=b entry per line">Encrypt</button>
+
+
+					<button
+						id="decodeButton"
+						class="csap-button"
+						title="Decode previous values."
+						th:if="${ infraRole }">Decrypt</button>
+
+
+					<a
+						id="helpButton"
+						target="_blank"
+						href="https://github.com/csap-platform/csap-core/wiki#updateRefProperty+Files"
+						class="csap-link">
+						<img
+							class="but"
+							src="../images/16x16/help.png" />
+					</a>
+					<a
+						id="replaceButton"
+						href="#"
+						class="csap-link-button "
+						title="Toggle Encoded Values">Toggle</a>
+
+
+					<div th:replace="/file/ace-settings :: pageContent"></div>
+
+
+					<input
+						id="csrf"
+						style="font-size: 0.8em; padding: 0; width: 1em"
+						th:if="${_csrf != null}"
+						th:name="${_csrf.parameterName}"
+						th:value="${_csrf.token}" />
+				</div>
+				<textarea
+					id="contents"
+					name="contents"
+					style="width: 100%; height: 20em; display: none;"></textarea>
+
+
+				<pre id="ace-editor">[[${contents}]]</pre>
+			</form>
+
+		</article>
+	</section>
+
+	<div
+		id="ajaxResults"
+		style="display: none">
+		<table
+			class="bordered"
+			style="table-layout: fixed; width: 770px; font-size: 0.8em;">
+			<thead>
+				<tr>
+					<th
+						style=""
+						class="resp">&nbsp;Key</th>
+					<th
+						style=""
+						class="resp">Original</th>
+					<th
+						style=""
+						class="resp">Encoded</th>
+				</tr>
+			</thead>
+			<tbody style="display: block; border: 1px solid green; height: 300px; overflow: auto; width: 760px">
+			</tbody>
+		</table>
+	</div>
+
+</body>
+</html>

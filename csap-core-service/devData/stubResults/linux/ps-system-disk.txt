@@ -1,0 +1,17 @@
+#
+# Never run as root  df -PT -BM  | sed 's/  */ /g' |  awk '{print $4 "/" $3 " " $7 " " $6 " " $1}'
+#
+
+Used/1048576-blocks Mounted Capacity Filesystem
+2235M/50269M / 5% /dev/mapper/vg0-root
+0M/15994M /dev 0% devtmpfs
+0M/16006M /dev/shm 0% tmpfs
+1634M/16006M /run 11% tmpfs
+0M/16006M /sys/fs/cgroup 0% tmpfs
+147M/976M /boot 16% /dev/sda1
+1546M/25071M /opt 7% /dev/mapper/vg0-opt
+405M/9952M /var 5% /dev/mapper/vg0-var
+45M/30110M /var/lib/kubelet 1% /dev/mapper/vg0-var_lib_kubelet
+2340M/70428M /var/lib/docker 4% /dev/mapper/vg0-var_lib_docker
+39265M/204800M /mnt/CSAP_DEV01_NFS 20% 10.22.10.59:/CSAP_DEV01_NFS
+0M/3202M /run/user/0 0% tmpfs

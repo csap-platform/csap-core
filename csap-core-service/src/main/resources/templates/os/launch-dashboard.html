@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+<title>Kubernetes Dashboard</title>
+ <script th:replace="~{ csap/fragments/libsAndStyles :: pageContent }"></script>
+<style>
+body {
+	font-family: helvetica, arial, sans-serif;
+	font-size: 14pt;
+	width: 100%;
+	padding: 0;
+	margin: 0;
+	background-color: #ddeeff;
+}
+
+section {
+	position: absolute;
+	left: 50%;
+	top: 40%;
+	margin-left: -18em;
+	margin-top: -5em;
+	padding-left: 2em;
+	padding-right: 2em
+}
+section ol {
+	list-style: inside;
+	margin: 1em;
+	margin-left: 2em;
+	font-size: 10pt;
+}
+</style>
+</head>
+
+<body>
+
+	<section>
+		To access kubernetes dashboard:
+
+		<ol>
+			<li>Click in text box</li>
+			<li>Copy (ctrl-c)</li>
+			<li>Proceed to login page</li>
+			<li>Select token - paste in</li>
+		</ol>
+
+		<textarea style="margin: 1em;" onClick="this.focus();this.select();" rows="3" cols="50">[[${token}]]</textarea>
+
+		<br />
+		<a class="pushButton" th:href="@{ ${dashUrl} }">Click here to proceed to kubernetes login page</a>
+	</section>
+</body>
+
+</html>

@@ -1,0 +1,193 @@
+
+
+#projects-tab-environment, #projects-tab-environment #lifeEditor {
+	height: 100%;
+}
+
+ #projects-tab-environment #lifeEditorWrapper {
+	height: 100%;
+	width: 100% ;
+	display: grid;
+	grid-template-rows: var(--option-height) auto;
+	margin: 0;
+	padding: 0;
+}
+
+article.content #projects-tab-content #lifeEditorWrapper #life-table-container {
+	overflow: auto;
+	padding-right: 5px;
+}
+
+.svcHighlight {
+	background-color: yellow;
+}
+
+span.cluster-details {
+	font-weight: bold;
+	font-size: 10pt;
+	margin-bottom: 3px;
+	display: inline-block;
+}
+
+
+
+#test-life-page #lifeEditorWrapper {
+	padding: 10px;
+}
+
+.lifeContents {
+	margin-top: 5px;
+}
+
+.lifeContents input {
+	vertical-align: middle;
+	margin-left: 3em;
+	font-size: 10pt;
+	margin-bottom: 0;
+}
+
+.lifeContents label {
+	margin-left: 5px;
+	font-weight: bold;
+}
+
+.lifeContents label a, .lifeContents label a:hover {
+	vertical-align: middle;
+}
+
+
+#lifeEdit-button {
+	vertical-align: text-bottom;
+}
+
+#lifeFormTab {
+	padding: 5px;
+	padding-right: 15px;
+}
+
+#editLifeTable {
+	width: 100%;
+	min-width: 800px;
+	margin: 0;
+}
+
+div.cluster-items {
+	margin-bottom: 1em;
+}
+
+div.cluster-items>div {
+	columns: 15em 4;
+}
+
+#editLifeTable div.clusterHostName {
+	color: gray;
+	margin-bottom: 5px;
+	display: grid;
+	grid-template-columns: 14em;
+	break-inside: avoid;
+}
+
+#editLifeTable div.clusterHostName a.csap-link{
+	white-space: normal;
+}
+
+
+#editLifeTable th:nth-child(1) {
+	width: 15em;
+}
+
+#editLifeTable th:nth-child(2) span>span {
+	padding-left: 0.5em;
+	font-size: 12pt;
+}
+
+#editLifeTable th:nth-child(2) span>label {
+	font-size: 8pt;
+}
+
+#env-controls a {
+	vertical-align: text-top;
+}
+#env-controls button.csap-button-icon {
+	margin-left: 1em;
+}
+
+#env-controls button.csap-button-icon img {
+	height: 12px;
+	width: 12px;
+}
+
+#env-controls #editSettingsButton {
+	margin-left: 3em ;
+	font-size: 11pt;
+	vertical-align: bottom;
+}
+
+#env-controls #editSettingsButton img {
+	width: 14px;
+	height: 14px;
+}
+
+#env-controls {
+	margin-bottom: 3px;
+}
+
+#version-controls, #env-controls, #editLifeTable th span {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+#editLifeTable tr.low td {
+	background-color: #EDEDED;
+}
+
+#editLifeTable tr.modjk td {
+	background-color: #d2f0ff;
+}
+
+#editLifeTable tr.kubernetes td {
+	background-color: #d5ffd5;
+}
+
+#editLifeTable tr.simple td {
+	background-color: #ffffff;
+}
+
+#editLifeTable tr.high td {
+	background-color: #FCFAF0;
+}
+
+#editLifeTable tr.normal td {
+	background-color: #ffffff;;
+}
+
+#editLifeTable tr.normal td:nth-child(1) {
+	font-size: 11pt;
+	padding: 5px;
+}
+
+#editLifeTable  th {
+	text-align: left;
+	padding: 5px;
+}
+
+#editLifeTable a.csap-link-button {
+	margin-top: 0;
+	margin-bottom: 0;
+	vertical-align: text-top;
+}
+
+#editLifeTable td:nth-child(1) div.heading {
+	font-size: 10pt;
+	font-weight: normal;
+	font-style: italic;
+}
+
+#editLifeTable td:nth-child(3) {
+	min-width: 35em;
+}
+
+.addServiceClusterButton img, .addNewClusterButton img {
+	vertical-align: middle;
+}

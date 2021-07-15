@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+
+<head>
+
+<title th:inline="text">Csap Encryption</title>
+
+<script th:replace="~{ csap/fragments/csap-common-includes :: pageContent }"></script>
+
+
+<script th:src="@{ ${csapApp.versionedUrl('/js/csapLibs/csap-misc.js')} }"></script>
+
+
+<script th:src="@{ ${csapApp.versionedUrl('/js/csapLibs/csapUtils/CsapUser.js')} }"></script>
+
+
+<script th:src="@{ ${csapApp.versionedUrl('/js/csapLibs/jquery.autosize.js')} }"></script>
+
+<script th:replace="csap-constants-include :: includeSection"></script>
+
+
+<script
+	th:attr="data-main=@{ ${csapApp.requiresUrl('/js/misc/modules/property-encoder.js')}   }"
+	th:src="@{/webjars/requirejs/2.1.20/require.min.js}"></script>
+
+<script th:inline="javascript">
+
+$( document ).ready( function () {
+
+    CsapCommon.configureCsapAlertify() ;
+    // let csapEncoder = new CsapEncoder() ;
+    // csapEncoder.appInit() ;
+   	require([ "property-encoder" ],
+		function (csapEncoder) {
+		
+ 			csapEncoder.appInit() ;
+		});
+    
+} ) ;
+    
+
+</script>
+
+<style>
+.resp {
+	padding: 2px;
+	text-align: left;
+	word-break: break-all;
+	word-wrap: break-word;
+}
+
+#helpButton {
+	margin-left: 5em;
+	display: inline;
+}
+
+#customToken {
+	vertical-align: bottom;
+	width: 20em;
+}
+
+div.notes {
+	white-space: normal;
+	font-size: 8pt;
+	margin-left: 5em;
+}
+</style>
+</head>
+
+<body
+	id=graph-local
+	th:inline="text"
+	class="csap-scrollable agent theme-dark">
+
+	<header>
+		<div class="noteHighlight">CS-AP Property Encrypter</div>
+
+		<div class="notes">Paste in the contents of your
+			property file to retrieve the encoded values. Alternately - add a single item per line, ensuring it does not contain
+			an "=".</div>
+	</header>
+
+
+	<article class=content>
+
+		<div th:if="${ adminRole != null }">
+			<button
+				id="encodeButton"
+				class="csap-button"
+				title="Generate Encoded Values. File is a property file with 1 a=b entry per line">Encrypt</button>
+
+			<button
+				id="decodeButton"
+				class="csap-button"
+				title="Decode previous values."
+				th:if="${ infraRole }">Decrypt</button>
+
+			<input
+				id="customToken"
+				placeholder="encoding token"
+				title="Only needed when updating csapSecurity.properties and token file" />
+
+			<a
+				id="helpButton"
+				target="_blank"
+				href="https://github.com/csap-platform/csap-core/wiki#updateRefProperty+Files"
+				class="simple ">
+				Learn More <img
+					class="but"
+					src="../images/16x16/help.png">
+			</a>
+
+			<a
+				id="replaceButton"
+				href="#"
+				class="csap-link-button "
+				title="Toggle Encoded Values">Toggle</a>
+
+
+		</div>
+
+		<div
+			th:if="${ adminRole == null }"
+			class="info">Your userid does not have access to encode - contact your administrator if this is incorrect</div>
+
+		<div
+			class="quote"
+			style="margin-top: 1em; margin-bottom: 0">
+			Enter one item per line to be encrypted. If a=b is used - then b will be encrypted.
+			<span style="font-weight: bold">For yaml:</span>
+			Place # yaml on the first line
+		</div>
+		<textarea
+			id="contents"
+			name="contents"
+			style="width: 100%; margin-top: 0.8em; min-height: 30em; white-space: pre"></textarea>
+
+
+
+
+		<aside>
+
+
+
+			<div
+				id="ajaxResults"
+				style="display: none">
+				<table
+					class="bordered"
+					style="margin-bottom: 3em">
+					<thead>
+						<tr>
+							<th
+								style=""
+								class="resp">&nbsp;Key</th>
+							<th
+								style=""
+								class="resp">Original</th>
+							<th
+								style=""
+								class="resp">Encoded - General</th>
+							<th
+								style=""
+								class="resp">Encoded - API specific</th>
+						</tr>
+					</thead>
+					<tbody style="">
+					</tbody>
+				</table>
+			</div>
+
+		</aside>
+
+	</article>
+
+
+
+</body>
+</html>

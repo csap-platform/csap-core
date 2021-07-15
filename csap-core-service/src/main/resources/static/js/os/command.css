@@ -1,0 +1,533 @@
+body header {
+	display: flex;
+	justify-content: space-between;
+}
+
+body article.content {
+	padding: 0;
+	margin: 0;
+}
+
+.ajs-content {
+ 	background-color: var(--theme-bg) ;
+ 	color: var(--theme-color) ;
+	left: 10px;
+	right: 10px;
+	padding: 5px; 
+	border: var(--theme-border);
+	border-radius: var(--border-radius-small);
+}
+
+.ajs-frameless .ajs-content {
+ 	background-color: transparent ;
+	left: 0px;
+	right: 0px;
+	padding: 0px; 
+	border: none;
+}
+
+
+#tabs {
+	padding: 0;
+	height: 100%;
+	width: 100% ;
+	margin : 0;
+	display: grid;
+	grid-template-rows: 1.6em auto;
+	visibility: hidden;
+	overflow: hidden;
+}
+#tabs>div {
+	overflow: auto;
+	padding: 0;
+	margin: 0;
+}
+
+/*
+*
+*    customize for scripts with large header...
+*	
+*/
+#tabs>#scriptTab, #scriptTab #script  {
+	height: 100%;
+	overflow: hidden;
+}
+#scriptTab #script form {
+	height: 100%;
+	display: grid;
+	grid-template-rows: 3em auto;
+	
+}
+
+#scriptTab #script form pre, #scriptTab #script textarea {
+	height: 100% ;
+	width: 100% ;
+	display: none;
+}
+
+
+#resultsContainer {
+	margin: 1em;
+	height: 85%;
+}
+
+#resultsTab textarea {
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: 10pt;
+	white-space: pre;
+	width: 100%;
+	height: 100%;
+}
+
+
+button.csap-button-icon {
+	font-size: 8pt;
+	padding-left: 10px;
+}
+
+#open-files-button, #help-link-hover, #host-dash-button {
+	display: inline-block;
+	font-size: 10pt;
+	margin-right: 1em;
+	vertical-align: middle;
+}
+
+#help-link-hover {
+	color: white;
+}
+#help-link-hover img{
+	vertical-align: middle;
+}
+
+#quick-search {
+	display: none;
+	margin-left: 3em;
+}
+
+
+#search-file-listing, #search-settings, #search-command, #upload, #sync,  #delete {
+	margin: 1em;
+	margin-top: 0;
+}
+#search-settings, #upload, #sync, #delete {
+	margin-top: 2em;
+}
+#delete div.csap-blue, #sync div.csap-blue, #sync div.csap-green  {
+	padding: 1em;
+}
+
+#scriptTab div.quote {
+	text-align: right;
+	margin: 0;
+	margin-bottom: 3px;
+	margin-right: 2em;
+}
+
+#quick-search-select-button {
+	font-weight: bold;
+}
+
+#help-hover-notes {
+	position: absolute;
+	color: grey;
+	z-index: 2;
+	font-size: 11pt;;
+	text-align: left;
+	right: 0;
+	width: 400px;
+	top: 2em;
+	display: none;
+}
+
+button.csap-button-icon img {
+	width: 12px;
+	height: 12px;
+}
+
+
+div.settings input {
+	vertical-align: middle;
+}
+
+#tabs>div {
+	display: none;
+}
+
+#ace-editor {
+	border: 1px solid grey;
+}
+
+#script-source-name {
+	font-size: 9pt;
+	font-style: italic;
+}
+
+.hostLabel, .hostCustom, .hostCheckbox {
+	vertical-align: middle;
+	margin-right: 4px;
+	font-size: 10pt;
+}
+
+.hostCustom {
+	margin-bottom: 3px;
+	display: inline-block;
+}
+
+#command-table-filter {
+	margin-left: 2em;
+	margin-right: 3em;
+}
+
+#hostSelection {
+	display: inline-block;
+}
+
+
+
+
+/*
+*
+*    Agent commands: host selection
+*	
+*/
+
+#hostDialogContainer #hostDisplay {
+	display: block;
+	columns: 15em 5;
+}
+
+#hostDialogContainer #hostDisplay .hostCustom {
+	display: grid;
+	grid-template-columns: 2.5em auto;
+	align-items: start;
+	break-inside: avoid;
+}
+
+
+#search-file-listing {
+	display: grid;
+	color: black;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+#search-file-listing button {
+	min-width: 15em;
+	text-align: left;
+	font-size: 9pt;
+	margin-bottom: 5px;
+}
+
+input, select {
+	margin-left: 0
+}
+
+.matchTarget {
+	background-color: yellow;
+	font-weight: bold;
+}
+
+.matchLabel {
+	font-size: 0.8em;
+	margin-top: 1em;
+}
+
+.fileInSearchFolder {
+	display: inline-block;
+	min-width: 10em;
+}
+
+.osTemplate {
+	display: none;
+}
+
+
+select {
+	border-radius: 3px;
+}
+
+input {
+	margin-right: 1em;
+}
+
+input.radio {
+	margin-right: 3em;
+	margin-left: 0;
+}
+
+#resultsSection pre {
+	width: 95%;
+}
+
+.progress {
+	position: absolute;
+	top: 2.5em;
+	right: 3em;
+	width: 200px;
+	border: 1px solid black;
+	padding: 0px;
+	border-radius: 7px;
+}
+
+.bar {
+	background-color: red;
+	width: 0%;
+	height: 15px;
+	border-radius: 7px;
+}
+
+.percent {
+	position: absolute;
+	display: inline-block;
+	padding: 0;
+	text-align: center;
+	width: 100%;
+	top: 4px;
+	font-weight: bold;
+	font-size: 0.6em;
+}
+
+.butImage {
+	width: 12px;
+	margin-left: 2px;
+	position: relative;
+	top: 3px;
+}
+
+#cancelButton {
+	font-style: italic;
+	margin-left: 0.5em;
+	vertical-align: middle;
+	display: inline-block;
+	position: absolute;
+	top: 0;
+	left: -8em;
+	font-size: 0.8em;
+}
+
+#outputButton {
+	font-style: italic;
+	margin-left: 1em;
+	vertical-align: middle;
+	display: none;
+	font-size: 0.8em;
+}
+
+thead, tbody {
+	overflow: auto;
+	display: block;
+}
+
+
+.col1 {
+	width: 200px;
+}
+
+tr.selected {
+	background-color: "red";
+}
+
+
+#command-header {
+	display: grid;
+	font-size: 8pt;
+	grid-template-rows: 2em 2em;
+	grid-template-columns: 12em 24em auto;
+	grid-column-gap: 10px;
+	padding: 1em;
+}
+
+#command-header label>span {
+	display: inline-block;
+	min-width: 7em;
+}
+
+button#show-templates-button, button#hostSelectButton {
+	width: 10em;
+}
+
+#command-header div:nth-child(1) {
+	grid-column-start: 1;
+	grid-column-end: 1;
+	grid-row-start: 1;
+	grid-row-end: span 2;
+}
+
+#command-header div:nth-child(2) {
+	grid-column-start: 2;
+	grid-column-end: 2;
+	grid-row-start: 1;
+	grid-row-end: span 2;
+}
+
+#command-header div:nth-child(3) {
+	grid-column-start: 3;
+	grid-column-end: 3;
+	grid-row-start: 1;
+	grid-row-end: 1;
+}
+
+#command-header div:nth-child(4) {
+	grid-column-start: 3;
+	grid-column-end: 3;
+	grid-row-start: 2;
+	grid-row-end: 2;
+}
+
+#command-header #ace-editor-settings {
+	float: right;
+	font-size: 10px;
+	margin-right: 1em;
+	opacity: 0.8;
+}
+
+#command-header #ace-editor-settings input {
+	margin:0;
+}
+#command-header #ace-editor-settings label {
+	margin-right: 1em;
+}
+
+#command-header #ace-editor-settings a.csap-link {
+	color: var(--nav-color) ;
+}
+
+form {
+	background-color: inherit;
+	padding: 0;
+	margin-top: 0;
+}
+
+form input {
+	vertical-align: middle;
+}
+
+#templateTable td:nth-child(1), #templateTable td:nth-child(2),
+	#templateTable td:nth-child(3), #templateTable th:nth-child(1),
+	#templateTable th:nth-child(2), #templateTable th:nth-child(3) {
+	padding-left: 20px;
+	padding-right: 0;
+	width: 12em;
+}
+
+#templateTable td:nth-child(3), #templateTable th:nth-child(3) {
+	width: 50em;
+}
+
+#uploadFileSelect {
+	background-color: white;
+	color: black;
+}
+
+#templateTable tbody tr:hover {
+	text-decoration: underline;
+	cursor: pointer;
+	background-color: #C4E8F2;
+}
+
+#upload label.csap,  #sync label.csap{
+	display: grid;
+	grid-template-columns: 10em auto;
+	align-items: flex-start;
+	justify-items: left;
+	margin: 5px;
+}
+
+#syncSubmitButton, #uploadButton {
+	font-size: 14pt;
+	padding: 5px;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+/*
+*
+*
+*    Navigation bar
+*	
+*/
+
+
+#resultsTable {
+	margin-top: 2em;
+	width: 100%;
+}
+
+#resultsTable tr {
+	text-align: left;
+}
+#resultsTable td:nth-child(1), #resultsTable th:nth-child(1) {
+	min-width: 15em;
+}
+
+
+#resultsTable td:nth-child(2), #resultsTable th:nth-child(2) {
+	white-space: pre;
+	font-family: Menlo, Consolas, Monaco, monospace;
+	width: 100%; 
+}
+
+#results-table-container {
+	display: none;
+}
+
+
+.description, #logSearchForm label {
+	display: inline-block;
+	font-weight: bold;
+	width: 10em;
+	text-align: right;
+	padding-top: 0.25em;
+}
+
+#logSearchForm label {
+	width: auto;
+	margin-left: 1em;
+	margin-right: 1em;
+}
+
+#logSearchForm input {
+	width: 40em;
+	margin-right: 0em;
+}
+
+#quickSearch {
+	display: none;
+}
+
+#quickSearch-button {
+	margin-left: 2em;
+}
+
+.ui-selectmenu-button {
+	vertical-align: middle;
+}
+
+#quickSearch-button .ui-selectmenu-text, #logSearchForm  .ui-selectmenu-text
+	{
+	padding-top: 2px;
+	padding-bottom: 2px;
+	background-color: white;
+}
+
+#submitSearchButton, #deleteButton, #executeSubmitButton {
+	font-size: 1.5em;
+	font-weight: bold;
+	height: 52px;
+	width: 250px;
+	vertical-align: top;
+	margin-top: 0px;
+	margin-bottom: 5px;
+}
+
+#executeSubmitButton {
+	height: 85%;
+	width: 90%;
+}
+
+label {
+	font-weight: bold;
+}
+
+#hostDialogContainer {
+	font-size: 10pt;
+}

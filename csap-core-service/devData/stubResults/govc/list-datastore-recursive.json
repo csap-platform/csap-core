@@ -1,0 +1,831 @@
+[
+	{
+		"about": "govc datastore.ls -ds CSAP_DS1_NFS  -json=true -l=true -R=true",
+		"Datastore": {
+			"Type": "Datastore",
+			"Value": "datastore-117663"
+		},
+		"FolderPath": "[CSAP_DS1_NFS] catalog/tidy/v1/",
+		"File": [
+			{
+				"Path": "6.dat",
+				"FriendlyName": "",
+				"FileSize": 599,
+				"Modification": "2019-08-12T20:08:44Z",
+				"Owner": "root"
+			}
+		]
+	},
+	{
+		"Datastore": {
+			"Type": "Datastore",
+			"Value": "datastore-117663"
+		},
+		"FolderPath": "[CSAP_DS1_NFS] catalog/",
+		"File": [
+			{
+				"Path": "mutex",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-12T15:33:44Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "tidy",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-12T15:04:00Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "shard",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-12T15:34:14Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "vclock",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-12T15:33:44Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "catalog.log",
+				"FriendlyName": "",
+				"FileSize": 1782,
+				"Modification": "2019-08-12T15:33:44Z",
+				"Owner": "root"
+			}
+		]
+	},
+	{
+		"Datastore": {
+			"Type": "Datastore",
+			"Value": "datastore-117663"
+		},
+		"FolderPath": "[CSAP_DS1_NFS] fcd/",
+		"File": [
+			{
+				"Path": "a737c0eb899e481faff2a3a0aaf07699.vmdk",
+				"FriendlyName": "",
+				"FileSize": 0,
+				"Modification": "2019-08-12T15:06:31Z",
+				"Owner": "root",
+				"DiskType": "",
+				"CapacityKb": 0,
+				"HardwareVersion": 0,
+				"ControllerType": "",
+				"DiskExtents": null,
+				"Thin": null,
+				"Encryption": null
+			},
+			{
+				"Path": "68baf9a79a8b43108b6ecdcd8a9b69cc.vmdk",
+				"FriendlyName": "",
+				"FileSize": 0,
+				"Modification": "2019-08-12T15:04:00Z",
+				"Owner": "root",
+				"DiskType": "",
+				"CapacityKb": 0,
+				"HardwareVersion": 0,
+				"ControllerType": "",
+				"DiskExtents": null,
+				"Thin": null,
+				"Encryption": null
+			},
+			{
+				"Path": "39033724504f42ee8ee288ba830c0aba.vmdk",
+				"FriendlyName": "",
+				"FileSize": 0,
+				"Modification": "2019-08-12T15:08:28Z",
+				"Owner": "root",
+				"DiskType": "",
+				"CapacityKb": 0,
+				"HardwareVersion": 0,
+				"ControllerType": "",
+				"DiskExtents": null,
+				"Thin": null,
+				"Encryption": null
+			},
+			{
+				"Path": "6dad28ef8ec14f53982658a7f06a0c0a.vmdk",
+				"FriendlyName": "",
+				"FileSize": 0,
+				"Modification": "2019-08-12T15:33:44Z",
+				"Owner": "root",
+				"DiskType": "",
+				"CapacityKb": 0,
+				"HardwareVersion": 0,
+				"ControllerType": "",
+				"DiskExtents": null,
+				"Thin": null,
+				"Encryption": null
+			},
+			{
+				"Path": "10aa6470c4f24afb9939da23a3ab216b.vmdk",
+				"FriendlyName": "",
+				"FileSize": 0,
+				"Modification": "2019-08-12T15:09:29Z",
+				"Owner": "root",
+				"DiskType": "",
+				"CapacityKb": 0,
+				"HardwareVersion": 0,
+				"ControllerType": "",
+				"DiskExtents": null,
+				"Thin": null,
+				"Encryption": null
+			}
+		]
+	},
+	{
+		"Datastore": {
+			"Type": "Datastore",
+			"Value": "datastore-117663"
+		},
+		"FolderPath": "[CSAP_DS1_NFS] catalog/tidy/",
+		"File": [
+			{
+				"Path": "v1",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-12T20:09:15Z",
+				"Owner": "root"
+			}
+		]
+	},
+	{
+		"Datastore": {
+			"Type": "Datastore",
+			"Value": "datastore-117663"
+		},
+		"FolderPath": "[CSAP_DS1_NFS] csap-dev12/",
+		"File": [
+			{
+				"Path": "csap-dev12.vmx",
+				"FriendlyName": "",
+				"FileSize": 3318,
+				"Modification": "2019-08-14T18:13:14Z",
+				"Owner": "root",
+				"ConfigVersion": 0,
+				"Encryption": null
+			},
+			{
+				"Path": "csap-dev12.vmdk",
+				"FriendlyName": "",
+				"FileSize": 137087668224,
+				"Modification": "2019-08-14T18:13:16Z",
+				"Owner": "root",
+				"DiskType": "",
+				"CapacityKb": 0,
+				"HardwareVersion": 0,
+				"ControllerType": "",
+				"DiskExtents": null,
+				"Thin": null,
+				"Encryption": null
+			},
+			{
+				"Path": "csap-dev12.nvram",
+				"FriendlyName": "",
+				"FileSize": 8684,
+				"Modification": "2019-08-07T16:11:58Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev12.vmsd",
+				"FriendlyName": "",
+				"FileSize": 0,
+				"Modification": "2019-08-07T15:49:25Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev12-1c327f5c.hlog",
+				"FriendlyName": "",
+				"FileSize": 92,
+				"Modification": "2019-08-14T18:13:14Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev12.vmx.lck",
+				"FriendlyName": "",
+				"FileSize": 0,
+				"Modification": "2019-08-14T18:13:14Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev12-6f09a106.vswp",
+				"FriendlyName": "",
+				"FileSize": 34359738368,
+				"Modification": "2019-08-07T15:49:25Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "vmx-csap-dev12-1862902022-1.vswp",
+				"FriendlyName": "",
+				"FileSize": 115343360,
+				"Modification": "2019-08-14T18:13:00Z",
+				"Owner": "root"
+			}
+		]
+	},
+	{
+		"Datastore": {
+			"Type": "Datastore",
+			"Value": "datastore-117663"
+		},
+		"FolderPath": "[CSAP_DS1_NFS] csap-dev10/",
+		"File": [
+			{
+				"Path": "csap-dev10.vmx",
+				"FriendlyName": "",
+				"FileSize": 3321,
+				"Modification": "2019-08-15T16:09:10Z",
+				"Owner": "root",
+				"ConfigVersion": 0,
+				"Encryption": null
+			},
+			{
+				"Path": "csap-dev10.vmdk",
+				"FriendlyName": "",
+				"FileSize": 146458972160,
+				"Modification": "2019-08-15T16:09:16Z",
+				"Owner": "root",
+				"DiskType": "",
+				"CapacityKb": 0,
+				"HardwareVersion": 0,
+				"ControllerType": "",
+				"DiskExtents": null,
+				"Thin": null,
+				"Encryption": null
+			},
+			{
+				"Path": "csap-dev10.nvram",
+				"FriendlyName": "",
+				"FileSize": 8684,
+				"Modification": "2019-08-07T16:11:39Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev10.vmx.lck",
+				"FriendlyName": "",
+				"FileSize": 0,
+				"Modification": "2019-08-15T16:09:10Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev10-6f09a104.vswp",
+				"FriendlyName": "",
+				"FileSize": 34359738368,
+				"Modification": "2019-08-07T15:49:25Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev10.vmsd",
+				"FriendlyName": "",
+				"FileSize": 0,
+				"Modification": "2019-08-07T15:49:25Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev10-1c327f9e.hlog",
+				"FriendlyName": "",
+				"FileSize": 92,
+				"Modification": "2019-08-15T16:09:10Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "vmx-csap-dev10-1862902020-1.vswp",
+				"FriendlyName": "",
+				"FileSize": 115343360,
+				"Modification": "2019-08-15T16:08:52Z",
+				"Owner": "root"
+			}
+		]
+	},
+	{
+		"Datastore": {
+			"Type": "Datastore",
+			"Value": "datastore-117663"
+		},
+		"FolderPath": "[CSAP_DS1_NFS] csap-dev08/",
+		"File": [
+			{
+				"Path": "csap-dev08.vmx",
+				"FriendlyName": "",
+				"FileSize": 3320,
+				"Modification": "2019-08-15T14:42:35Z",
+				"Owner": "root",
+				"ConfigVersion": 0,
+				"Encryption": null
+			},
+			{
+				"Path": "csap-dev08.vmdk",
+				"FriendlyName": "",
+				"FileSize": 126097850368,
+				"Modification": "2019-08-15T14:42:41Z",
+				"Owner": "root",
+				"DiskType": "",
+				"CapacityKb": 0,
+				"HardwareVersion": 0,
+				"ControllerType": "",
+				"DiskExtents": null,
+				"Thin": null,
+				"Encryption": null
+			},
+			{
+				"Path": "csap-dev08.nvram",
+				"FriendlyName": "",
+				"FileSize": 8684,
+				"Modification": "2019-08-12T21:27:40Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "vmx-csap-dev08-1862901995-1.vswp",
+				"FriendlyName": "",
+				"FileSize": 115343360,
+				"Modification": "2019-08-15T14:42:21Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev08-1c3282d7.hlog",
+				"FriendlyName": "",
+				"FileSize": 92,
+				"Modification": "2019-08-15T14:42:35Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev08.vmx.lck",
+				"FriendlyName": "",
+				"FileSize": 0,
+				"Modification": "2019-08-15T14:42:35Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev08-6f09a0eb.vswp",
+				"FriendlyName": "",
+				"FileSize": 34359738368,
+				"Modification": "2019-08-07T15:49:25Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev08.vmsd",
+				"FriendlyName": "",
+				"FileSize": 0,
+				"Modification": "2019-08-07T15:49:24Z",
+				"Owner": "root"
+			}
+		]
+	},
+	{
+		"Datastore": {
+			"Type": "Datastore",
+			"Value": "datastore-117663"
+		},
+		"FolderPath": "[CSAP_DS1_NFS] catalog/vclock/",
+		"File": [
+			{
+				"Path": "vclock-6",
+				"FriendlyName": "",
+				"FileSize": 0,
+				"Modification": "2019-08-12T15:04:00Z",
+				"Owner": "root"
+			}
+		]
+	},
+	{
+		"Datastore": {
+			"Type": "Datastore",
+			"Value": "datastore-117663"
+		},
+		"FolderPath": "[CSAP_DS1_NFS] csap-dev20/",
+		"File": [
+			{
+				"Path": "csap-dev20.vmx",
+				"FriendlyName": "",
+				"FileSize": 3085,
+				"Modification": "2019-08-12T15:05:06Z",
+				"Owner": "root",
+				"ConfigVersion": 0,
+				"Encryption": null
+			},
+			{
+				"Path": "csap-dev20.vmdk",
+				"FriendlyName": "",
+				"FileSize": 36188602368,
+				"Modification": "2019-08-12T15:05:06Z",
+				"Owner": "root",
+				"DiskType": "",
+				"CapacityKb": 0,
+				"HardwareVersion": 0,
+				"ControllerType": "",
+				"DiskExtents": null,
+				"Thin": null,
+				"Encryption": null
+			},
+			{
+				"Path": "csap-dev20.nvram",
+				"FriendlyName": "",
+				"FileSize": 8684,
+				"Modification": "2019-08-12T14:22:30Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev20.vmx.lck",
+				"FriendlyName": "",
+				"FileSize": 0,
+				"Modification": "2019-08-12T15:05:06Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev20-6f09a125.vswp",
+				"FriendlyName": "",
+				"FileSize": 34359738368,
+				"Modification": "2019-08-12T14:11:01Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev20.vmsd",
+				"FriendlyName": "",
+				"FileSize": 0,
+				"Modification": "2019-08-07T15:49:24Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev20-1c327b5d.hlog",
+				"FriendlyName": "",
+				"FileSize": 92,
+				"Modification": "2019-08-12T15:05:06Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "vmx-csap-dev20-1862902053-2.vswp",
+				"FriendlyName": "",
+				"FileSize": 115343360,
+				"Modification": "2019-08-12T15:04:24Z",
+				"Owner": "root"
+			}
+		]
+	},
+	{
+		"Datastore": {
+			"Type": "Datastore",
+			"Value": "datastore-117663"
+		},
+		"FolderPath": "[CSAP_DS1_NFS] csap-dev11/",
+		"File": [
+			{
+				"Path": "csap-dev11.vmx",
+				"FriendlyName": "",
+				"FileSize": 3320,
+				"Modification": "2019-08-13T09:27:57Z",
+				"Owner": "root",
+				"ConfigVersion": 0,
+				"Encryption": null
+			},
+			{
+				"Path": "csap-dev11.vmdk",
+				"FriendlyName": "",
+				"FileSize": 119887339520,
+				"Modification": "2019-08-13T09:27:59Z",
+				"Owner": "root",
+				"DiskType": "",
+				"CapacityKb": 0,
+				"HardwareVersion": 0,
+				"ControllerType": "",
+				"DiskExtents": null,
+				"Thin": null,
+				"Encryption": null
+			},
+			{
+				"Path": "csap-dev11.nvram",
+				"FriendlyName": "",
+				"FileSize": 8684,
+				"Modification": "2019-08-09T20:51:52Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev11.vmx.lck",
+				"FriendlyName": "",
+				"FileSize": 0,
+				"Modification": "2019-08-13T09:27:57Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev11-6f09a105.vswp",
+				"FriendlyName": "",
+				"FileSize": 34359738368,
+				"Modification": "2019-08-07T15:49:25Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev11-1c327f7d.hlog",
+				"FriendlyName": "",
+				"FileSize": 92,
+				"Modification": "2019-08-13T09:27:57Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "vmx-csap-dev11-1862902021-2.vswp",
+				"FriendlyName": "",
+				"FileSize": 115343360,
+				"Modification": "2019-08-13T09:27:40Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev11.vmsd",
+				"FriendlyName": "",
+				"FileSize": 0,
+				"Modification": "2019-08-07T15:49:24Z",
+				"Owner": "root"
+			}
+		]
+	},
+	{
+		"Datastore": {
+			"Type": "Datastore",
+			"Value": "datastore-117663"
+		},
+		"FolderPath": "[CSAP_DS1_NFS] csap-dev09/",
+		"File": [
+			{
+				"Path": "csap-dev09.vmx",
+				"FriendlyName": "",
+				"FileSize": 3320,
+				"Modification": "2019-08-15T15:29:10Z",
+				"Owner": "root",
+				"ConfigVersion": 0,
+				"Encryption": null
+			},
+			{
+				"Path": "csap-dev09.vmdk",
+				"FriendlyName": "",
+				"FileSize": 125501116416,
+				"Modification": "2019-08-15T15:29:13Z",
+				"Owner": "root",
+				"DiskType": "",
+				"CapacityKb": 0,
+				"HardwareVersion": 0,
+				"ControllerType": "",
+				"DiskExtents": null,
+				"Thin": null,
+				"Encryption": null
+			},
+			{
+				"Path": "csap-dev09.nvram",
+				"FriendlyName": "",
+				"FileSize": 8684,
+				"Modification": "2019-08-14T08:21:47Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev09-6f09a0ec.vswp",
+				"FriendlyName": "",
+				"FileSize": 34359738368,
+				"Modification": "2019-08-07T15:50:36Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev09.vmx.lck",
+				"FriendlyName": "",
+				"FileSize": 0,
+				"Modification": "2019-08-15T15:29:10Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev09-1c3282b6.hlog",
+				"FriendlyName": "",
+				"FileSize": 92,
+				"Modification": "2019-08-15T15:29:10Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "vmx-csap-dev09-1862901996-1.vswp",
+				"FriendlyName": "",
+				"FileSize": 115343360,
+				"Modification": "2019-08-15T15:28:52Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev09.vmsd",
+				"FriendlyName": "",
+				"FileSize": 0,
+				"Modification": "2019-08-07T15:50:33Z",
+				"Owner": "root"
+			}
+		]
+	},
+	{
+		"Datastore": {
+			"Type": "Datastore",
+			"Value": "datastore-117663"
+		},
+		"FolderPath": "[CSAP_DS1_NFS] catalog/shard/",
+		"File": [
+			{
+				"Path": "shard_1.dat",
+				"FriendlyName": "",
+				"FileSize": 575,
+				"Modification": "2019-08-12T15:33:44Z",
+				"Owner": "root"
+			}
+		]
+	},
+	{
+		"Datastore": {
+			"Type": "Datastore",
+			"Value": "datastore-117663"
+		},
+		"FolderPath": "[CSAP_DS1_NFS] csap-dev07/",
+		"File": [
+			{
+				"Path": "csap-dev07.vmx",
+				"FriendlyName": "",
+				"FileSize": 3774,
+				"Modification": "2019-08-14T19:58:12Z",
+				"Owner": "root",
+				"ConfigVersion": 0,
+				"Encryption": null
+			},
+			{
+				"Path": "csap-dev07.vmdk",
+				"FriendlyName": "",
+				"FileSize": 102103367680,
+				"Modification": "2019-08-13T12:17:42Z",
+				"Owner": "root",
+				"DiskType": "",
+				"CapacityKb": 0,
+				"HardwareVersion": 0,
+				"ControllerType": "",
+				"DiskExtents": null,
+				"Thin": null,
+				"Encryption": null
+			},
+			{
+				"Path": "csap-dev07.nvram",
+				"FriendlyName": "",
+				"FileSize": 8684,
+				"Modification": "2019-08-07T16:01:36Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "vmx-csap-dev07-1862901994-2.vswp",
+				"FriendlyName": "",
+				"FileSize": 115343360,
+				"Modification": "2019-08-13T12:17:12Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev07.vmsd",
+				"FriendlyName": "",
+				"FileSize": 0,
+				"Modification": "2019-08-07T15:49:24Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev07-1c3282f8.hlog",
+				"FriendlyName": "",
+				"FileSize": 92,
+				"Modification": "2019-08-13T12:17:41Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev07.vmx.lck",
+				"FriendlyName": "",
+				"FileSize": 0,
+				"Modification": "2019-08-13T12:17:41Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev07-6f09a0ea.vswp",
+				"FriendlyName": "",
+				"FileSize": 34359738368,
+				"Modification": "2019-08-07T15:49:25Z",
+				"Owner": "root"
+			}
+		]
+	},
+	{
+		"Datastore": {
+			"Type": "Datastore",
+			"Value": "datastore-117663"
+		},
+		"FolderPath": "[CSAP_DS1_NFS]",
+		"File": [
+			{
+				"Path": "peter.vmdk",
+				"FriendlyName": "",
+				"FileSize": 1597440,
+				"Modification": "2019-08-14T19:58:20Z",
+				"Owner": "root",
+				"DiskType": "",
+				"CapacityKb": 0,
+				"HardwareVersion": 0,
+				"ControllerType": "",
+				"DiskExtents": null,
+				"Thin": null,
+				"Encryption": null
+			},
+			{
+				"Path": "csap-dev09",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-15T15:29:13Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev11",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-13T09:27:59Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev20",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-12T15:05:06Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev08",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-15T14:42:41Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev10",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-15T16:09:16Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "fcd",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-12T15:33:44Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "jeff",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-12T15:01:16Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev12",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-14T18:13:16Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "kubevols",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-14T19:52:55Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev07",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-14T19:58:12Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "catalog",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-12T15:04:00Z",
+				"Owner": "root"
+			}
+		]
+	},
+	{
+		"Datastore": {
+			"Type": "Datastore",
+			"Value": "datastore-117663"
+		},
+		"FolderPath": "[CSAP_DS1_NFS] kubevols/",
+		"File": [
+			{
+				"Path": "kubernetes-dynamic-pvc-6833a00c-9326-4e56-b7df-be4e13b95db1.vmdk",
+				"FriendlyName": "",
+				"FileSize": 1589248,
+				"Modification": "2019-08-14T19:52:55Z",
+				"Owner": "root",
+				"DiskType": "",
+				"CapacityKb": 0,
+				"HardwareVersion": 0,
+				"ControllerType": "",
+				"DiskExtents": null,
+				"Thin": null,
+				"Encryption": null
+			}
+		]
+	}
+]

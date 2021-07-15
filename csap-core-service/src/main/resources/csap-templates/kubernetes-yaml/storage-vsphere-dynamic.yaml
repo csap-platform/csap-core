@@ -1,0 +1,142 @@
+#
+# Notes:
+#   - https://kubernetes.io/docs/concepts/storage/volumes/#vspherevolume
+#   - https://vmware.github.io/vsphere-storage-for-kubernetes/documentation/policy-based-mgmt.html
+#
+# Setup: 
+# - kubernete cloud provider configuration for vsphere: https://vmware.github.io/vsphere-storage-for-kubernetes/documentation/
+#
+
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: vsphere-dynamic-class
+provisioner: kubernetes.io/vsphere-volume
+parameters:
+  # https://github.com/vmware/vsphere-storage-for-kubernetes/blob/master/documentation/storageclass.md
+  diskformat: zeroedthick
+  # policy defined using VCenter
+  #storagePolicyName: gold
+    
+---
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: test-vsphere-dynamic-pvc
+
+spec:
+
+  storageClassName: "vsphere-dynamic-class"
+  
+  accessModes: 
+    - ReadWriteOnce
+  
+  resources:
+    requests:
+      storage: 10Mi
+
+---
+
+
+
+kind: Deployment
+
+apiVersion: apps/v1
+
+metadata:
+  name: nginx-with-vsphere-dynamic
+  namespace: default
+  labels:
+    csap-deploy-sample: nginx-dynamic-id
+    
+spec:
+  selector:
+    matchLabels:
+      csap-deploy-sample: nginx-dynamic-id
+      
+  replicas: 1
+  
+  template:
+  
+    metadata:
+      name: "nginx-demo-pod-template"
+      labels:
+        csap-deploy-sample: nginx-dynamic-id
+        matchForDemoService: nginx-dyamic-target
+
+      annotations:     
+        "sample-1": "value-1" 
+        
+    spec:
+    
+      terminationGracePeriodSeconds: 5
+      
+      containers:
+      - name: nginx-container
+        image: nginx:latest
+        
+        ports:
+        - containerPort: 80
+        
+        command:
+          - "/bin/sh"
+          
+        args:
+          - "-c"
+          - "
+          htmlFolder=/usr/share/nginx/html;
+          ls -al $htmlFolder ; NOW=$(date +'%h-%d-%I-%M-%S'); 
+          
+          touch $htmlFolder/SUCCESS-$NOW; 
+          echo hi >> $htmlFolder/SUCCESS-$NOW ; 
+          
+          echo creating $htmlFolder/index.html;
+          echo hi there from a nginx-with-vsphere-dynamic at $NOW >> $htmlFolder/index.html; 
+          
+          nginx -g 'daemon off;'
+          "
+          
+        readinessProbe:
+          initialDelaySeconds: 3
+          timeoutSeconds: 3
+          periodSeconds: 3
+          failureThreshold: 1
+          httpGet:
+            path: /
+            port: 80
+            
+        livenessProbe:
+          initialDelaySeconds: 3
+          timeoutSeconds: 3
+          periodSeconds: 3
+          failureThreshold: 1
+          httpGet:
+            path: /
+            port: 80
+            
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html
+          name: my-vsphere-volume
+          
+      volumes:
+      - name: my-vsphere-volume
+        persistentVolumeClaim: 
+          claimName: test-vsphere-dynamic-pvc
+
+        
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-with-vsphere-dynamic-service
+  namespace: default
+spec:
+  type: NodePort # defaults to clusterip
+  selector:
+    matchForDemoService: nginx-dyamic-target
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    

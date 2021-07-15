@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+<title th:replace="~{ os/command-head  :: pageContent }"></title>
+
+</head>
+
+<body class="csap-scrollable theme-dark agent">
+
+	<script th:replace="~{ os/command-banner :: pageContent }"></script>
+
+
+	<div id="hostSelection">
+
+		<label
+			title="Select Host(s) for display. If multiple hosts are selected, graphs may be viewed per VM or stacked into a single panel">
+			<button
+				id="hostSelectButton"
+				class="csap-button-icon">
+				<img th:src="@{ /images/16x16/tools.svg }" />
+				<span id="hostSelectCount">1</span>
+				Host(s)
+			</button>
+		</label>
+
+		<label style="margin-left: 2em">
+			Separate Output:
+			<input
+				id="separateOutput"
+				type="checkBox"
+				checked="checked"
+				title="By default output from all VMs is consolidated into a single html table. Check this for separated output."
+				style="width: 1em;" />
+		</label>
+
+		<div
+			id="hostDialogContainer"
+			style="display: none">
+			<div id="hostCusomizeDialog">
+
+				<div style="">
+					<select
+						id="selectHostByCluster"
+						style="margin: 0; padding: 0; font-size: 1em">
+						<option value="none">Select By Cluster...</option>
+					</select>
+
+					<a
+						id="hostUnCheckAll"
+						href="#"
+						style="margin-left: 3em;"
+						class=csap-link>Clear All</a> <a
+						id="hostCheckAll"
+						href="#"
+						style="margin-left: 3em;"
+						class=csap-link>Select All</a>
+
+					<label
+						id="serviceHostFilter"
+						style="margin-left: 2em">
+						<input
+							type="checkBox"
+							checked="checked"
+							title="By default only hosts matching the service are shown."
+							style="margin-right: 3px" />
+						Filter using
+						<span th:text="${ serviceName }"></span>
+						in same package
+					</label>
+
+
+				</div>
+
+
+				<br />
+
+				<div id="hostDisplay">
+					<input
+						data-host=""
+						class="instanceCheck"
+						style="margin-right: 0.2em"
+						type="checkbox"
+						title="Select to include in operations" />
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+
+	<section>
+		<article class="content">
+
+			<div id="tabs">
+
+				<ul>
+					<li data-tab="commandTab"><a
+						id=""
+						href="#scriptTab"
+						title="Docker">Command</a></li>
+					<li
+						style="display: block"
+						data-tab="resultsTab"><a
+						id=""
+						href="#resultsTab"
+						title="">Results</a></li>
+				</ul>
+
+				<div
+					id="scriptTab"
+					style="display: block">
+
+					<div
+						th:switch="${ command }"
+						th:remove="tag">
+
+						<div
+							th:case="'script'"
+							th:remove="tag">
+							<div th:replace="~{ os/script :: pageContent }"></div>
+						</div>
+
+						<div
+							th:case="'logSearch'"
+							th:remove="tag">
+							<div th:replace="~{ os/search :: pageContent }"></div>
+						</div>
+
+						<div
+							th:case="'sync'"
+							th:remove="tag">
+							<div th:replace="~{ os/sync :: pageContent }"></div>
+						</div>
+
+						<div
+							th:case="'upload'"
+							th:remove="tag">
+							<div th:replace="~{ os/upload :: pageContent }"></div>
+						</div>
+
+						<div
+							th:case="'delete'"
+							th:remove="tag">
+							<div th:replace="~{ os/delete :: pageContent }"></div>
+						</div>
+
+					</div>
+
+				</div>
+
+
+				<div
+					id="resultsTab"
+					style="display: block">
+
+					<div
+						id="resultsContainer"
+						class="commandSection">
+						<div class="progress">
+							<div class="bar"></div>
+							<div class="percent">0%</div>
+
+							<a
+								id="cancelButton"
+								class=csap-link
+								style="color: white"
+								href="#cancel"
+								title="Cancel in progress command"> Cancel<img
+								class="butImage"
+								src="../images/16x16/process-stop.png" />
+							</a>
+
+						</div>
+
+						<a
+							id="outputButton"
+							class=csap-link
+							href="clear"
+							title="Excessive output will be truncated in view below"> Show Full Output<img
+							class="butImage"
+							src="../images/16x16/os.png" />
+						</a>
+
+						<label>
+							<input
+								id="wrapTextLines"
+								type="checkbox"
+								style="margin-left: 3em; vertical-align: middle; margin-right: 0" />
+							Wrap lines
+						</label>
+
+
+						<label style="margin-left: 2em">
+							Display:
+							<select id="results-select">
+								<option>loading</option>
+							</select>
+						</label>
+
+						<textarea
+							id="resultsTextArea"
+							name="results"
+							readonly="readonly"></textarea>
+
+						<div id=results-table-container>
+
+							<table
+								id="resultsTable"
+								class="csap">
+								<thead>
+
+									<tr>
+										<th class="hostColumn">Host</th>
+										<th
+											class="outputColumn">Command Output</th>
+									</tr>
+								</thead>
+
+								<tbody id="resultsTableBody">
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+				</div>
+
+			</div>
+
+		</article>
+	</section>
+
+
+
+</body>
+
+</html>

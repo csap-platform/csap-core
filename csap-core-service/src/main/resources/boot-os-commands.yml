@@ -1,0 +1,238 @@
+
+csap-core:
+  os-commands: 
+  
+    #
+    #  OS Shared collections
+    #
+    process-status: |
+      bash
+      -c
+      ps -e --no-heading --sort=-pid -o pcpu,rss,vsz,nlwp,ruser,pid,nice,ppid,args
+      
+    system-process-metrics: |
+      bash
+      -c
+      top -b -d $seconds
+      
+    system-network-devices: |
+      #!/bin/bash
+      ip addr
+      #ip -oneline a | sed 's/  */ /g'
+      
+    system-network-ports: |
+      #!/bin/bash
+      ss --numeric --processes --tcp --no-header 
+    
+    # --numeric is better for port filtering, --resolve is good for finding hosts
+    system-network-listen-ports: |
+      #!/bin/bash
+      ss --listen --numeric --processes --tcp --no-header 
+      
+    system-disk-with-rate-only: |
+      bash
+      -c
+      iostat -dm
+      
+    system-disk-with-utilization: |
+      #!/bin/bash
+      #iostat -dx 1 2
+      iostat -dx | awk '{ print $1 " " $NF}' | grep --invert-match 'util\|Linux'
+      
+    disk-usage-system: |
+      #!/bin/bash
+      timeout 2s df --print-type --portability --human-readable  | sed 's/  */ /g'
+      
+    disk-nfs-mount-location: |
+      #!/bin/bash
+      timeout 2s df --portability --human-readable | grep -v -e /var/lib/docker/ -e /var/lib/kubelet/ | grep $mountSource | awk '{ print $6}'
+      
+    disk-usage-about: |
+      #!/bin/bash
+      timeout 2s df --portability --human-readable | grep -v -e /var/lib/docker/ -e /var/lib/kubelet/ | awk '{ print $2,$3,$4,$5,$6}'
+      #| column -t
+      
+    disk-usage-csap: |
+      #!/bin/bash
+      timeout 2s df --portability --human-readable $CSAP_FOLDER | tail -1 | grep -o '[0-9]*%'
+      
+    system-network-stats: |
+      #!/bin/bash
+      cat /proc/net/dev |  grep '$interfacePattern.*:' | sed 's/  */ /g'
+      
+    system-packages: |
+      #!/bin/bash
+      rpm -qa
+      
+    system-package-details: |
+      #!/bin/bash
+      rpm -qi $package
+    
+    system-service-listing: |
+      #!/bin/bash
+      source $$platform/bin/csap-environment.sh
+      print_with_date systemctl status
+      systemctl status --no-pager --full
+      print_with_head systemctl list-units
+      systemctl list-units --type=service --no-pager
+        
+    system-services: |
+      #!/bin/bash
+      systemctl --no-pager list-unit-files --state=enabled | grep enabled | cut -f1 -d' '
+      
+    system-service-details: |
+      #!/bin/bash
+      systemctl --no-pager status -l $serviceName
+      
+    #
+    # Service collections
+    #  
+    service-disk-io: |
+      #!/bin/bash
+      pidstat -hd 15 1 | sed 's/  */ /g'
+      
+    service-sockets: |
+      #!/bin/bash
+      ss --no-header --numeric --processes | grep ESTAB | awk '{print $NF }'
+      
+    service-sockets-docker: |
+      #!/bin/bash
+      nsenter --net --target $pid ss --no-header --numeric --processes  | awk '{print $2 }' | grep ESTAB | wc --lines
+      
+    service-disk-usage: |
+      #!/bin/bash
+      #du --summarize --block-size=1M --one-file-system $servicePaths  2>&1 | grep -v '^du:' | awk '{print $1 " "  $2}'
+      # support for timeouts
+      for servicePath in $servicePaths; do
+        serviceTotalMb="-1" ;
+        if test -e $servicePath ; then
+          serviceDiskUsage=$(timeout 5s du --summarize --block-size=1M --one-file-system $servicePath 2>&1) ;
+          if [ "$serviceDiskUsage" != "" ] ; then
+            serviceTotalMb=$(echo $serviceDiskUsage | awk '{print $1}') ;
+          fi ;
+          echo $serviceTotalMb $servicePath;
+        fi ;
+      done ;
+      
+    service-disk-usage-df: |
+      #!/bin/bash
+      timeout 2s df --portability --block-size=M --print-type | sed 's/  */ /g' |  awk '{print $4 "/" $3 " " $7 " " $6 " " $1}'
+      #df -PT -BM  
+      
+      
+    #
+    #  File access
+    #
+    file-read-permissions: |
+      #!/bin/bash
+      setfacl -m u:$user:r '$file'
+      
+    #
+    #  Docker commands
+    #
+    docker-image-export: |
+      #!/bin/bash
+      docker save --output $destination $imageName
+      
+    docker-image-load: |
+      #!/bin/bash
+      docker load --input $sourceTar
+      
+    docker-socket-stats: |
+      #!/bin/bash
+      nsenter -t $pid -n ss -pr
+      
+    docker-container-pids: |
+      bash
+      -c
+      docker ps -q | xargs docker inspect --format '{{.State.Pid}} {{.Name}}'; docker ps -q | xargs docker inspect --format '{{.State.Pid}} {{ index .Config.Labels "io.kubernetes.container.name"}}'
+
+    #
+    #  infra tests
+    #      
+    infra-test-disk: |
+      #!/bin/bash
+      cd ~
+      time dd oflag=nocache,sync if=/dev/zero of=csap_test_file bs=$blockSize count=$numBlocks
+      ls -l csap_test_file
+      rm -rf  csap_test_file
+      timeout 10s df --portability --human-readable
+
+    infra-test-cpu: |
+      #!/bin/bash
+      time $(i=$numLoops; while (( i > 0 )); do (( i=i-1 )); done)
+      
+    
+    #
+    #  disk cleanup
+    #      
+    service-jobs-disk-clean: |
+      #!/bin/bash
+      type="f" ;
+      if $pruneByFolder ; then type="d" ; fi ;
+      
+      numberFound=$(find $jobPath -maxdepth $maxDepth -mtime +$numDays -type $type  | wc -l ) ;
+      echo "number of items to be removed: $numberFound"
+      
+      find $jobPath -maxdepth $maxDepth -mtime +$numDays -type $type | xargs \rm  --recursive --force ;
+      
+      if $runPrune; then
+        find $jobPath -maxdepth $maxDepth -mtime +$numDays -type d | xargs \rm  --recursive --force ;
+      fi
+      
+
+    #
+    #  Vsphere integration via govc
+    #      
+    govc-datastore-list: |
+      govc
+      datastore.info
+      
+    govc-vm-find: |
+      govc
+      find
+      $vmFilter
+      -type
+      m
+      
+    govc-vm-list: |
+      govc
+      ls
+      -l=true
+      $path
+      
+    govc-vm-info: |
+      govc
+      vm.info
+      -json=true
+      $path
+
+    govc-datastore-info: |
+      govc
+      datastore.info
+      -json=true
+      $datastore
+
+
+    govc-datastore-recurse: |
+      govc
+      datastore.ls
+      -ds
+      $datastore
+      -R=true
+      -json=true
+      -l=true
+      
+    govc-datastore-ls: |
+      govc
+      datastore.ls
+      -ds
+      $datastore
+      -json=true
+      -l=true
+      $path
+
+
+
+
+

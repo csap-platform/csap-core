@@ -1,0 +1,4 @@
+====================================================================
+== Running /opt/csap/staging/bin/getVmStats.sh as root
+dos2unix: converting file /opt/csap/staging/bin/getVmStats.sh to Unix format ...
+openFiles: 3936 totalThreads: 939 csapThreads 164 totalFileDescriptors: 5869 csapFileDescriptors: 1643 networkConns: 247 networkWait: 5 networkTimeWait: 300

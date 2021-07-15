@@ -1,0 +1,60 @@
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: stress-container
+  labels:
+    name: test
+---
+
+kind: Deployment
+
+apiVersion: apps/v1
+
+metadata:
+  name: linux-stress
+  namespace: stress-container
+  labels:
+    run: linux-stress-id
+    
+spec:
+  selector:
+    matchLabels:
+      run: linux-stress-id
+      
+  replicas: 1
+  
+  template:
+  
+    metadata:
+      name: linux-stress-pod-template
+      labels:
+        run: linux-stress-id
+        
+    spec:
+      containers:
+      - name: linux-stress
+        image: csap/csap-stress:latest
+        
+        command:
+          - "/bin/sh"
+          
+        args:
+          - "-c"
+          - |
+            echo "running stress" ; 
+            /usr/bin/stress --help 
+            # /usr/bin/stress --cpu 1 
+            /usr/bin/stress --vm 1 --vm-hang 1 --vm-bytes 10M
+        
+        # https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-resource/
+        resources:
+          # 
+          limits:
+            cpu: 3
+            memory: "20Mi"
+          requests:
+            cpu: 1
+            memory: "10Mi"
+            
+---

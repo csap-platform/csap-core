@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head>
+</head>
+
+<body th:fragment="pageContent">
+
+	<div
+		th:if="${ ( infraRole == null) }"
+		class="options">
+		<div
+			class="settings"
+			style="margin-top: 2em; font-weight: bold; font-size: 12pt">View Mode Only: your account is not a member of
+			infra admins</div>
+	</div>
+
+
+	<div
+		th:if="${ ( infraRole != null) }"
+		class="options">
+
+		<div class=button-header>
+			<span class=page-title>
+				Application Definition Activation
+				<span th:if="${agentOnly}">(Host Only)</span>
+			</span>
+
+
+
+			<label
+				class="csap templates"
+				title="Include services from csap-templates">
+				<input
+					id="include-csap-templates-checkbox"
+					type="checkbox" />
+				Include Csap Templates
+			</label>
+
+
+
+			<a
+				id="cleanFsButton"
+				title="Remove the application definition build location"
+				class="csap-link flex-right-info"
+				href="#cleanDefButton">
+				<img th:src="@{/images/16x16/clean.png}">Clean
+			</a>
+		</div>
+
+		<div id="definition-operations">
+
+			<div
+				th:if="${ ( infraRole == null) }"
+				class="settings"
+				style="margin-top: 2em; font-weight: bold; font-size: 12pt">View Mode Only: your account is not a member of
+				infra admins</div>
+			<div th:if="${ ( infraRole != null) }">
+
+				<div id="version-controls">
+
+
+					<button
+						id="validateConfig"
+						class="csap-button-icon csap-play"
+						title="Validate Definition">
+						Validate
+					</button>
+
+					<button
+						id="applyButton"
+						class="csap-button-icon csap-reload"
+						title="Apply changes to all application hosts without checking in">
+						Test
+					</button>
+
+					<button
+						id="showCiButton"
+						class="csap-button-icon csap-upload"
+						title="Check editor changes into source control and apply to cluster. Git: commit & push">
+						Check In
+					</button>
+
+
+					<button
+						id="showReloadButton"
+						th:if="${ ( infraRole != null) }"
+						title="Replace current application with latest from specified branch"
+						class="csap-button-icon csap-download">
+						Check Out
+					</button>
+
+
+
+
+				</div>
+
+
+			</div>
+
+
+		</div>
+
+		<div class=quote>After making changes to the application definition using the editor, the above operations are
+			used to activate the definition. The updated definition will be transferred to each host, and loaded by the agent on
+			each host.</div>
+
+
+		<div
+			id="editor-notes"
+			class="info"
+			style="font-size: 10pt; width: auto; margin: 2em; padding-bottom: 1em"
+			th:if="${editorNotes != null} ">
+			<div
+				class="quote"
+				style="margin: 1em">
+				<span th:text="${editorTitle}"></span>
+			</div>
+			<ul style="list-style-type: disc; padding-left: 3em">
+				<li
+					th:each="note : ${editorNotes}"
+					th:utext="${note}"></li>
+			</ul>
+		</div>
+
+		<table
+			class="csap"
+			id="reload-summary">
+
+			<tr>
+				<td>Application</td>
+				<td>Name:
+					<div class="noteHighlight">[[ ${ csapApp.getName() } ]]</div> , Source:
+					<div class="noteHighlight">
+						<a
+							class="csap-link"
+							target="_blank"
+							th:href="${csapApp.getRootProjectDefinitionUrl()}"> [[ ${csapApp.getRootProjectDefinitionUrl()} ]] </a>
+					</div>
+				</td>
+			</tr>
+
+
+			<tr>
+				<td>Project</td>
+				<td>Name:
+					<div class="noteHighlight">[[ ${ csapApp.getActiveProject().getName() } ]]</div> <span class="current">[[
+						${csapApp.serviceNameToAllInstances().size()} ]] services </span> on <span class="current">[[
+						${csapApp.getActiveProject().getAllPackagesModel().getHostsInAllLifecycles().size()} ]] hosts</span> , using <span
+						class="current">[[ ${csapApp.rootProjectEnvSettings().getNumberWorkerThreads() } ]] threads</span> to perform CSAP
+					management operations.
+				</td>
+			</tr>
+
+
+			<tr>
+				<td>Environments</td>
+				<td>Current: <span class="current"> [[ ${lifecycle} ]]</span> All: <span
+						th:each="entry : ${csapApp.getActiveProject().getLifecycleToClusterMap()}"> [[ ${entry.key} ]] </span>
+				</td>
+			</tr>
+
+
+			<tr>
+				<td>Alert Defaults: [[ ${lifecycle} ]]</td>
+				<td>Max Cpu Load: <span class="current"> [[ ${ environmentSettings.getMaxHostCpuLoad("dummy") } ]]</span> Max
+					Cpu Use: <span class="current"> [[ ${ environmentSettings.getMaxHostCpu("dummy") } ]]</span> Max Cpu IoWait: <span
+						class="current"> [[ ${ environmentSettings.getMaxHostCpuIoWait("dummy") } ]]</span> Max Disk %: <span
+						class="current"> [[ ${ environmentSettings.getMaxDiskPercent("dummy") } ]]</span> Min Memory Mb: <span
+						class="current"> [[ ${ environmentSettings.getMinFreeMemoryMb("dummy") } ]]</span>
+				</td>
+			</tr>
+
+
+		</table>
+
+	</div>
+
+	<img
+		id="summary-slide"
+		th:src="@{/images/application-definition.png}">
+
+
+
+
+
+	<div id="editor-templates">
+
+		<div id="resultsSection">
+
+			<pre id="edit-results-content">[[ ${result} ]]</pre>
+
+		</div>
+
+		<div
+			id=reloadDiv
+			th:if="${ ( infraRole != null) }">
+			
+			<label class=csap-form >
+				<span>userid:</span>
+				<input
+					id=edit-user
+					th:value="${scmUser}" />
+			</label>
+
+			<label class=csap-form >
+				<span>password:</span>
+				
+				<input
+					id=edit-pass
+					value=""
+					type="password" />
+
+			</label>
+
+			<label class=csap-form >
+				<span>branch:</span>
+				
+				<input
+					id=edit-branch
+					th:value="${ applicationBranch }"
+					title="Either trunk, or branches/yourbranchName" />
+			</label>
+			
+
+			<div class=hquote>
+				Application will be checked out from repository, and reloaded by csap.
+				<br/>
+				<span>Existing definition will be moved to csap-platform/saved/definitionBackups</span>
+			</div>
+		</div>
+
+
+		<div id=ciDiv>
+
+			<div
+				class="infoWarn"
+				style="font-size: 1em; width: auto; margin: 2em"
+				th:if="${showCheckinWarning != null} ">
+				<br />
+				Capability modification not recommended in current lifecycle: [[ ${lifecycle} ]]
+				<br />
+				<br />
+				Editor should only be used for reloading or viewing in non-dev lifecycles. CS-AP best practice is to follow
+				lifecycle deployments for all artifacts (jars, wars, application definitions, property files, etc).
+				<br />
+				<br />
+			</div>
+
+			<div class="hquote"></div>
+
+			<label class=csap-form >
+				<span>userid:</span>
+				<input
+					id="ciUser"
+					th:value="${scmUser}" />
+			</label>
+
+			<label class=csap-form >
+				<span>password:</span>
+				
+				<input
+					id="ciPass"
+					value=""
+					type="password" />
+
+			</label>
+
+			<label class=csap-form >
+				<span>branch:</span>
+				
+				<input
+					id="ciBranch"
+					th:value="${ applicationBranch }"
+					title="Either trunk, or branches/yourbranchName" />
+			</label>
+			
+			
+			<label class=csap-form >
+				<span>comments:</span>
+				<textarea
+					id="comment"
+					placeholder="Enter comment(s) describing changes"
+					name="comment"></textarea>
+			</label>
+			
+			
+
+			<label  class=csap-form  title="Replace all GIT folders/files with contents of current session">
+				<span>Replace All:</span>
+				
+				<input
+					id="ciUpdateAll"
+					checked="checked"
+					type="checkbox" />
+			</label>
+		</div>
+
+	</div>
+
+</body>
+</html>

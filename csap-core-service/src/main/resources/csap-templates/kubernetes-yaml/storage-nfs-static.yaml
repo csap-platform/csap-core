@@ -1,0 +1,160 @@
+#
+# Notes:
+#   - nfs static volume
+#
+
+apiVersion: v1
+kind: PersistentVolume
+
+metadata:
+  name: "test-nfs-static-pv"
+  labels:
+    disk: "test-nfs-static-disk"
+  
+spec: 
+  
+  capacity: 
+    storage: 10Mi
+    
+  accessModes:
+    - ReadWriteMany
+    
+  persistentVolumeReclaimPolicy: Retain
+  
+  mountOptions: 
+    - rsize=4096
+    - wsize=4096
+    
+  volumeMode: Filesystem
+  
+  nfs: 
+    server: 10.22.10.59
+    path: /CSAP_DEV01_NFS/kubernetes-direct-nfs/nginx-static-nfs
+    
+---
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+
+metadata:
+  name: test-nfs-static-pvc
+  
+spec:
+  # must be explictly blanked out or default class will be used
+  storageClassName: ""
+  
+  selector:
+      matchLabels:
+        disk: "test-nfs-static-disk"
+  
+  accessModes:
+    - ReadWriteMany
+    
+  resources:
+    requests:
+      storage: 10Mi
+
+---
+
+
+
+kind: Deployment
+
+apiVersion: apps/v1
+
+metadata:
+  name: nginx-with-nfs-static
+  namespace: default
+  
+  labels:
+    csap-deploy-sample: nginx-with-nfs-static-id
+    
+spec:
+  selector:
+    matchLabels:
+      csap-deploy-sample: nginx-with-nfs-static-id
+      
+  replicas: 1
+  
+  template:
+  
+    metadata:
+      name: "nginx-demo-pod-template"
+      labels:
+        csap-deploy-sample: nginx-with-nfs-static-id
+        matchForDemoService: nginx-with-nfs-static-target
+
+      annotations:     
+        "sample-1": "value-1" 
+        
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: nginx-container
+        image: nginx:latest
+        
+        ports:
+        - containerPort: 80
+        
+        command:
+          - "/bin/sh"
+          
+        args:
+          - "-c"
+          - "
+          htmlFolder=/usr/share/nginx/html;
+          ls -al $htmlFolder ; NOW=$(date +'%h-%d-%I-%M-%S'); 
+          
+          touch $htmlFolder/SUCCESS-$NOW; 
+          echo hi >> $htmlFolder/SUCCESS-$NOW ; 
+          
+          echo creating $htmlFolder/index.html;
+          echo hi there from a nginx-with-nfs-static at $NOW >> $htmlFolder/index.html; 
+          
+          nginx -g 'daemon off;'
+          "
+          
+        readinessProbe:
+          initialDelaySeconds: 3
+          timeoutSeconds: 3
+          periodSeconds: 3
+          failureThreshold: 1
+          httpGet:
+            path: /
+            port: 80
+            
+        livenessProbe:
+          initialDelaySeconds: 3
+          timeoutSeconds: 3
+          periodSeconds: 3
+          failureThreshold: 1
+          httpGet:
+            path: /
+            port: 80
+          
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html
+          name: my-nfs-pvc
+          
+      volumes:
+      - name: my-nfs-pvc
+        persistentVolumeClaim: 
+          claimName: test-nfs-static-pvc
+
+        
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-with-nfs-static-service
+  namespace: default
+spec:
+  type: NodePort # defaults to clusterip
+  selector:
+    matchForDemoService: nginx-with-nfs-static-target
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    

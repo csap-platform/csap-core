@@ -1,0 +1,43 @@
+
+
+=== searching file for HostRequests, ignoring case , maxMatches: 10
+	=== category: /csap/ui/os/windows		 summary: User interface
+
+2015-04-13 09:42:58,078 ==== HostRequests.java ==== thread: http-nio-8011-exec-2 ==== INFO    >
+__CSAPDELIM__
+	Deleting/opt/csap/staging/scripts/SearchsomeDeveloper_script.sh_
+
+2015-04-13 09:42:58,080 ==== HostRequests.java ==== thread: http-nio-8011-exec-2 ==== INFO    >
+__CSAPDELIM__
+	jobCount: 1
+
+2015-04-13 09:42:58,129 ==== HostRequests.java ==== thread: http-nio-8011-exec-5 ==== INFO    >
+__CSAPDELIM__
+	Upload multiPartFile SearchsomeDeveloper_script.sh_.tgz size: 631 extractToken:/opt/csap/staging/scripts extractDir:/opt/csap/staging/scripts chownUserid: ssadmin timeoutSeconds: 30
+
+2015-04-13 09:42:58,131 ==== HostRequests.java ==== thread: http-nio-8011-exec-5 ==== INFO    >
+__CSAPDELIM__
+	Found /opt/csap in target extract, so forcing using to: ssadmin
+
+2015-04-13 09:42:58,156 ==== HostRequests.java ==== thread: http-nio-8011-exec-5 ==== INFO    >
+__CSAPDELIM__
+	=== category: /csap/ui/os/fileUpload		 summary: SearchsomeDeveloper_script.sh_.tgz
+
+2015-04-13 09:42:58,158 ==== HostRequests.java ==== thread: http-nio-8011-exec-5 ==== INFO    >
+__CSAPDELIM__
+	Completed job 1 of 1: , summary of response: {"host":"csap-dev01","transferResults":{"host":"csap-dev01","coreResults":["\n==  Host:csap-dev01 uploaded file: SearchsomeDeveloper_script.sh_.
+
+2015-04-13 09:43:20,867 ==== HostRequests.java ==== thread: http-nio-8011-exec-5 ==== INFO    >
+__CSAPDELIM__
+	Deleting/opt/csap/staging/scripts/SearchsomeDeveloper_script.sh_
+
+2015-04-13 09:43:20,867 ==== HostRequests.java ==== thread: http-nio-8011-exec-5 ==== INFO    >
+__CSAPDELIM__
+	jobCount: 4
+
+2015-04-13 09:43:20,901 ==== HostRequests.java ==== thread: http-nio-8011-exec-6 ==== INFO    >
+__CSAPDELIM__
+	Upload multiPartFile SearchsomeDeveloper_script.sh_.tgz size: 631 extractToken:/opt/csap/staging/scripts extractDir:/opt/csap/staging/scripts chownUserid: ssadmin timeoutSeconds: 30
+
+2015-04-13 09:43:20,902 ==== HostRequests.java ==== thread: http-nio-8011-exec-6 ==== INFO    >
+grep: unrecognized option

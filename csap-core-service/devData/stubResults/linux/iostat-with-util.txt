@@ -1,0 +1,11 @@
+
+#  iostat -dx | awk '{ print $1 " " $NF}' | grep --invert-match 'util\|Linux'
+
+sdb    99.54
+sda      0.50
+sdc    47.54
+dm-0   0.50
+dm-1     47.58
+dm-2       0.44
+dm-3     0.49
+

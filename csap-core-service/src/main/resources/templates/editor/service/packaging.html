@@ -1,0 +1,434 @@
+<div
+	id="package"
+	class="group textGroup json-form-autosize-panel">
+
+	<div
+		id="osExtended"
+		class="package-os group textGroup">
+
+
+		<div
+			id="containerConfig"
+			class="csap-green">
+			<div class="heading">
+				OS packages enable any software package to be deployed and managed. Learn more:
+				<a
+					target="_blank"
+					title="View Help"
+					class="simple"
+					href="https://github.com/csap-platform/csap-core/wiki#updateRefCSAP+Packages"> CSAP Package Reference Guide </a>
+
+			</div>
+			<label
+				class=csap-form-inline
+				title="User is used when launching and monitoring services running under OS user accounts other then Agent">
+				<span>OS User:</span>
+				<input
+					class=words
+					placeholder="CSAP User"
+					data-path="user" />
+			</label>
+
+			<label
+				class=csap-form-inline
+				title="Port is used for resource reservations - duplicates will generate warnings. It may be used for http, or any other purpose based on service profile.">
+				<span>Primary Port:</span>
+				<input
+					placeholder="0"
+					data-path="port" />
+			</label>
+
+			<label
+				class=csap-form-inline
+				title="JMX Port is used for java collections. If specified - jmx will be enabled">
+				<span>JMX Port:</span>
+				<input
+					placeholder="disabled"
+					data-path="jmxPort" />
+			</label>
+
+
+			<div class="heading">The following paths are leveraged in CSAP File Browser. Docker services may specify paths
+				relative to the root of the container. /var will display the container files. To reference the host filesystem,
+				double slashes can be used. eg. //var will display the host path.</div>
+
+
+			<label
+				class=csap-form
+				title="Property folder will be the first link when file manager is launched. ">
+				<span>Property Folder:</span>
+				<input
+					placeholder="Package Folder"
+					data-path="propDirectory" />
+			</label>
+			<label
+				class=csap-form
+				title="Property folder will be the first link when file manager is launched">
+				<span>Application Folder:</span>
+				<input
+					placeholder="$processing/$instance"
+					data-path="appDirectory" />
+			</label>
+		</div>
+
+		<div
+			id="containerConfig"
+			class="csap-blue">
+
+			<div class="heading">
+				Log configuration
+				<br>
+				Note that CSAP looks for log rotation policy in the specified log folder. Learn more:
+				<a
+					target="_blank"
+					title="View Help"
+					class="simple"
+					href="https://github.com/csap-platform/csap-core/wiki/Service-Settings"> CSAP Log Rotation Reference Guide </a>
+
+			</div>
+
+			<label
+				class=csap-form
+				title="Folder containing log files.">
+				<span>Log Folder:</span>
+				<input
+					placeholder="$workingFolder/logs; note docker service paths starting with '//' will use host folder"
+					data-path="logDirectory" />
+			</label>
+
+			<label
+				class=csap-form
+				title="When logs are launched - specified file is displayed with others selectable">
+				<span>Default Log File:</span>
+				<input
+					placeholder="First text file found"
+					data-path="defaultLogToShow" />
+			</label>
+
+			<label
+				class=csap-form
+				title="Only files matching regular expression will be included in log viewer">
+				<span>Log Filter:</span>
+				<input
+					placeholder=".*"
+					data-path="logRegEx" />
+			</label>
+
+		</div>
+
+	</div>
+
+
+	<div class="package-tomcat">
+
+
+		<div class="bootTomcat heading hquote">
+
+			While all Spring Boot components (including embedded Tomcat containers) are highly configurable,
+			<span>domain expertise and reviews are strongly recommended</span>
+			. Refer to:
+			<a
+				class="simple"
+				th:href="${@csapCoreService.getHelpUrl('service-template-help') }"
+				target="_blank"> CSAP Service Definitions </a>
+
+
+		</div>
+
+		<div class="tomcatWar heading hquote">Tomcat configuration can be customized by adding environment variables.
+			Use CSAP file manager to review: csap_working/tomcat/TomcatWrapper.sh</div>
+
+		<!-- 		<div class="tomcatWar">
+			<div class="info">
+				While apache Tomcat runtimes are highly configurable,
+				<span>domain expertise and reviews are strongly recommended</span>
+				prior to modifying defaults. CSAP can auto-configure the most common settings shown below, if additional
+				configuration is needed, teams can optionally package their own server.xml, or use a
+				<a
+					class="simple"
+					href="https://github.com/csap-platform/csap-core/wiki#updateRefCSAP+Packages"
+					target="_blank"> completely custom distribution </a>
+				<br /> <br /> References: CSAP
+				<a
+					class="simple"
+					href="https://github.com/csap-platform/csap-core/wiki#updateRefTomcat+Advanced+Configuration"
+					target="_blank"> Advanced Tomcat Guide </a>
+				and Apache
+				<a
+					class="simple"
+					href="https://tomcat.apache.org/tomcat-8.0-doc/config/ajp.html"
+					target="_blank"> Tomcat Connector Configuration </a>
+
+			</div>
+
+
+			<div
+				id="containerConfig"
+				class="csap-green">
+
+
+				<div class="heading">CSAP has global compression enabled for all csap web server traffic, including Tomcat
+					AJP. Tomcat Http direct traffic can also be enabled if bypassing AJP.</div>
+				<label
+					class=""
+					title="Compression will be performed if response is larger then bytes specified">
+					<span>Compression Minimum Bytes:</span>
+					<input
+						placeholder="disabled"
+						class=""
+						data-path="compression" />
+				</label>
+
+				<label
+					class=""
+					title="Http Types to apply compression">
+					<span>Mime Types:</span>
+					<input
+						placeholder="text/html,text/xml,text/javascript,text/css"
+						class="medium"
+						data-path="compressableMimeType" />
+				</label>
+
+
+				<div class="heading">Extended cookie configuration: It is strongly recommended to keep defaults and not
+					override unless atypical use cases require it.</div>
+				<label
+					class=""
+					title="Connections are limited to prevent overloading services">
+					<span>Cookie Name:</span>
+					<input
+						placeholder="JSESSIONID"
+						class=""
+						data-path="cookieName" />
+				</label>
+				<label
+					class=""
+					title="Connections are limited to prevent overloading services">
+					<span>Cookie Path:</span>
+					<input
+						placeholder="servlet context root"
+						class=""
+						data-path="cookiePath" />
+				</label>
+				<label
+					class=""
+					title="Connections are limited to prevent overloading services">
+					<span>Cookie Domain:</span>
+					<input
+						placeholder="server name"
+						class=""
+						data-path="cookieDomain" />
+				</label>
+
+			</div>
+			<div
+				id="containerConfig"
+				class="csap-red">
+
+				<div class="heading">Prevent run away resource consumption and cascading outages by carefully configuring and
+					testing tom limits</div>
+				<label
+					class=""
+					title="Connections are limited to prevent overloading services">
+					<span>max Connections(active):</span>
+					<input
+						placeholder="50"
+						class="smallJson"
+						data-path="servletMaxConnections" />
+				</label>
+
+				<label
+					class=""
+					title="The maximum queue length for incoming connection requests.">
+					<span>accept count (Queued):</span>
+					<input
+						placeholder="0"
+						class="smallJson"
+						data-path="servletAccept" />
+				</label>
+
+
+				<label
+					class=""
+					title="The maximum number of request processing threads to be created.">
+					<span>max Threads (servlet):</span>
+					<input
+						placeholder="50"
+						class="smallJson"
+						data-path="servletThreadCount" />
+				</label>
+
+
+				<label
+					class=""
+					title="The number of milliseconds this Connector will wait, after accepting a connection.">
+					<span>connection Timeout (ms ):</span>
+					<input
+						placeholder="30000"
+						class="smallJson"
+						data-path="servletTimeoutMs" />
+				</label>
+			</div> 
+
+		</div>
+
+
+
+
+		<div
+			id="common-tomcat"
+			class="csap-blue">
+
+			<label
+				class=""
+				title="JEE Servlet Context: the base path for all http requests">
+				<span>jee context path:</span>
+				<input
+					placeholder="$$service-name"
+					class=""
+					data-path="context" />
+			</label>
+
+			<label
+				class=""
+				title="Dashboard launch: relative to java servlet context - by default root context is used">
+				<span>Launch Url:</span>
+				<input
+					class="medium"
+					data-path="launchUrl"
+					placeholder="http://$$service-fqdn-host:$$service-primary-port/$$service-context" />
+			</label>
+
+		</div>
+-->
+		<div
+			id="tomcat-loadbalancer"
+			class="csap-grey">
+
+			<div class="heading">
+				<label style="color: black; font-size: 12pt">
+					Load balancer:
+					<select
+						data-path="isTomcatAjp"
+						style="margin-right: 2px">
+						<option selected="selected">false</option>
+						<option>true</option>
+					</select>
+				</label>
+				Optional: Leverage apache modjk plugin for sticky session load balancing. All LB configuration is auto generated.
+			</div>
+
+
+			<div class="heading">Recommended: if cluster port is xxx1, set to xxx6 JMX Port is used for java collections.
+				($$service-primary-port+5) If specified - jmx will be enabled</div>
+
+			<label
+				class=""
+				title="Used for http traffic; will be passed as ">
+				<span>Port:</span>
+				<input
+					placeholder="recommended: 85x1"
+					class=""
+					data-path="port" />
+			</label>
+
+			<label
+				class=""
+				title="">
+				<span>JMX Port:</span>
+				<input
+					placeholder="optional: $$service-primary-port+5"
+					class=""
+					data-path="jmxPort" />
+			</label>
+			<div class="heading">Optional: Default log settings are strongly recommend. Carefully review prior to modifying
+			</div>
+			<label
+				class=""
+				title="Folder containing log files">
+				<span>Log Folder</span>
+				<input
+					placeholder="$workingFolder/logs"
+					class="wide"
+					data-path="logDirectory" />
+			</label>
+
+			<label
+				class=""
+				title="When logs are launched - specified file is displayed with others selectable">
+				<span>Default Log File:</span>
+				<input
+					placeholder="console.log"
+					class="medium"
+					data-path="defaultLogToShow" />
+			</label>
+
+			<label
+				class=""
+				title="Only files matching regular expression will be included in log viewer">
+				<span>Log Filter:</span>
+				<input
+					placeholder=".*"
+					class="smallJson"
+					data-path="logRegEx" />
+			</label>
+
+
+
+			<div>
+				<div class="heading">Optional: instance can be configured as a remote collection service.</div>
+				<textarea
+					id="editor-jmx-remote"
+					rows="1"
+					spellcheck=false
+					data-fit="true"
+					data-path="remoteCollections"></textarea>
+
+			</div>
+
+
+			<div>
+				<div class="heading">
+					Optional: Apache ModJk Loadbalancing Configuration. Note that loadbalance array is cluster level rules, while
+					connection array is applied to every ajp instance
+					<br />
+					For more information, refer to:
+					<a
+						class="simple"
+						target="_blank"
+						href="http://tomcat.apache.org/connectors-doc/reference/workers.html">Modjk Configuration</a>
+				</div>
+				<textarea
+					id="editor-apache-modjk"
+					rows="2"
+					spellcheck=false
+					data-fit="true"
+					data-path="apacheModJk"></textarea>
+
+			</div>
+			<div>
+				<div class="heading">
+					Optional: Apache mod_rewrite enables custom routing
+					<br />
+					For more information, refer to:
+					<a
+						class="simple"
+						target="_blank"
+						href="http://httpd.apache.org/docs/current/mod/mod_rewrite.html">Mod Rewrite Configuration</a>
+				</div>
+				<textarea
+					id="editor-apache-modrewrite"
+					rows="2"
+					spellcheck=false
+					data-convert_lines="true"
+					data-fit="true"
+					data-path="apacheModRewrite"></textarea>
+			</div>
+		</div>
+
+	</div>
+
+
+
+
+</div>

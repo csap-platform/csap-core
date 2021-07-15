@@ -1,0 +1,488 @@
+{
+	"about": "govc device.info  -vm '/MOC RNI Lab/vm/RNIs/CSAP-DEV_p/csap-dev2/csap-dev11' -json=true",
+	"Devices": [
+		{
+			"Name": "ide-200",
+			"Type": "VirtualIDEController",
+			"Key": 200,
+			"DeviceInfo": {
+				"Label": "IDE 0",
+				"Summary": "IDE 0"
+			},
+			"Backing": null,
+			"Connectable": null,
+			"SlotInfo": null,
+			"ControllerKey": 0,
+			"UnitNumber": null,
+			"BusNumber": 0,
+			"Device": null
+		},
+		{
+			"Name": "ide-201",
+			"Type": "VirtualIDEController",
+			"Key": 201,
+			"DeviceInfo": {
+				"Label": "IDE 1",
+				"Summary": "IDE 1"
+			},
+			"Backing": null,
+			"Connectable": null,
+			"SlotInfo": null,
+			"ControllerKey": 0,
+			"UnitNumber": null,
+			"BusNumber": 1,
+			"Device": null
+		},
+		{
+			"Name": "ps2-300",
+			"Type": "VirtualPS2Controller",
+			"Key": 300,
+			"DeviceInfo": {
+				"Label": "PS2 controller 0",
+				"Summary": "PS2 controller 0"
+			},
+			"Backing": null,
+			"Connectable": null,
+			"SlotInfo": null,
+			"ControllerKey": 0,
+			"UnitNumber": null,
+			"BusNumber": 0,
+			"Device": [
+				600,
+				700
+			]
+		},
+		{
+			"Name": "pci-100",
+			"Type": "VirtualPCIController",
+			"Key": 100,
+			"DeviceInfo": {
+				"Label": "PCI controller 0",
+				"Summary": "PCI controller 0"
+			},
+			"Backing": null,
+			"Connectable": null,
+			"SlotInfo": null,
+			"ControllerKey": 0,
+			"UnitNumber": null,
+			"BusNumber": 0,
+			"Device": [
+				500,
+				12000,
+				1000,
+				15000,
+				4000
+			]
+		},
+		{
+			"Name": "sio-400",
+			"Type": "VirtualSIOController",
+			"Key": 400,
+			"DeviceInfo": {
+				"Label": "SIO controller 0",
+				"Summary": "SIO controller 0"
+			},
+			"Backing": null,
+			"Connectable": null,
+			"SlotInfo": null,
+			"ControllerKey": 0,
+			"UnitNumber": null,
+			"BusNumber": 0,
+			"Device": [
+				8000
+			]
+		},
+		{
+			"Name": "keyboard-600",
+			"Type": "VirtualKeyboard",
+			"Key": 600,
+			"DeviceInfo": {
+				"Label": "Keyboard ",
+				"Summary": "Keyboard"
+			},
+			"Backing": null,
+			"Connectable": null,
+			"SlotInfo": null,
+			"ControllerKey": 300,
+			"UnitNumber": 0
+		},
+		{
+			"Name": "pointing-700",
+			"Type": "VirtualPointingDevice",
+			"Key": 700,
+			"DeviceInfo": {
+				"Label": "Pointing device",
+				"Summary": "Pointing device; Device"
+			},
+			"Backing": {
+				"DeviceName": "",
+				"UseAutoDetect": false,
+				"HostPointingDevice": "autodetect"
+			},
+			"Connectable": null,
+			"SlotInfo": null,
+			"ControllerKey": 300,
+			"UnitNumber": 1
+		},
+		{
+			"Name": "video-500",
+			"Type": "VirtualMachineVideoCard",
+			"Key": 500,
+			"DeviceInfo": {
+				"Label": "Video card ",
+				"Summary": "Video card"
+			},
+			"Backing": null,
+			"Connectable": null,
+			"SlotInfo": null,
+			"ControllerKey": 100,
+			"UnitNumber": 0,
+			"VideoRamSizeInKB": 8192,
+			"NumDisplays": 1,
+			"UseAutoDetect": false,
+			"Enable3DSupport": false,
+			"Use3dRenderer": "automatic",
+			"GraphicsMemorySizeInKB": 262144
+		},
+		{
+			"Name": "vmci-12000",
+			"Type": "VirtualMachineVMCIDevice",
+			"Key": 12000,
+			"DeviceInfo": {
+				"Label": "VMCI device",
+				"Summary": "Device on the virtual machine PCI bus that provides support for the virtual machine communication interface"
+			},
+			"Backing": null,
+			"Connectable": null,
+			"SlotInfo": {
+				"PciSlotNumber": 32
+			},
+			"ControllerKey": 100,
+			"UnitNumber": 17,
+			"Id": 1372244999,
+			"AllowUnrestrictedCommunication": false,
+			"FilterEnable": true,
+			"FilterInfo": null
+		},
+		{
+			"Name": "pvscsi-1000",
+			"Type": "ParaVirtualSCSIController",
+			"Key": 1000,
+			"DeviceInfo": {
+				"Label": "SCSI controller 0",
+				"Summary": "VMware paravirtual SCSI"
+			},
+			"Backing": null,
+			"Connectable": null,
+			"SlotInfo": {
+				"PciSlotNumber": 160
+			},
+			"ControllerKey": 100,
+			"UnitNumber": 3,
+			"BusNumber": 0,
+			"Device": [
+				2000,
+				2001
+			],
+			"HotAddRemove": true,
+			"SharedBus": "noSharing",
+			"ScsiCtlrUnitNumber": 7
+		},
+		{
+			"Name": "ahci-15000",
+			"Type": "VirtualAHCIController",
+			"Key": 15000,
+			"DeviceInfo": {
+				"Label": "SATA controller 0",
+				"Summary": "AHCI"
+			},
+			"Backing": null,
+			"Connectable": null,
+			"SlotInfo": {
+				"PciSlotNumber": 33
+			},
+			"ControllerKey": 100,
+			"UnitNumber": 24,
+			"BusNumber": 0,
+			"Device": [
+				16000
+			]
+		},
+		{
+			"Name": "cdrom-16000",
+			"Type": "VirtualCdrom",
+			"Key": 16000,
+			"DeviceInfo": {
+				"Label": "CD/DVD drive 1",
+				"Summary": "Remote device"
+			},
+			"Backing": {
+				"DeviceName": "",
+				"UseAutoDetect": false,
+				"Exclusive": false
+			},
+			"Connectable": {
+				"MigrateConnect": "",
+				"StartConnected": false,
+				"AllowGuestControl": true,
+				"Connected": false,
+				"Status": "ok"
+			},
+			"SlotInfo": null,
+			"ControllerKey": 15000,
+			"UnitNumber": 0
+		},
+		{
+			"Name": "disk-1000-0",
+			"Type": "VirtualDisk",
+			"Key": 2000,
+			"DeviceInfo": {
+				"Label": "Hard disk 1",
+				"Summary": "209,715,200 KB"
+			},
+			"Backing": {
+				"FileName": "[CSAP_DS1_NFS] csap-dev11/csap-dev11.vmdk",
+				"Datastore": {
+					"Type": "Datastore",
+					"Value": "datastore-117663"
+				},
+				"BackingObjectId": "",
+				"DiskMode": "persistent",
+				"Split": false,
+				"WriteThrough": false,
+				"ThinProvisioned": true,
+				"EagerlyScrub": null,
+				"Uuid": "6000C290-6d93-1770-b4ba-6f13cc260ae9",
+				"ContentId": "abcb16e7e158bac5b8cd92dfcbdf1106",
+				"ChangeId": "",
+				"Parent": null,
+				"DeltaDiskFormat": "",
+				"DigestEnabled": false,
+				"DeltaGrainSize": 0,
+				"DeltaDiskFormatVariant": "",
+				"Sharing": "sharingNone",
+				"KeyId": null
+			},
+			"Connectable": null,
+			"SlotInfo": null,
+			"ControllerKey": 1000,
+			"UnitNumber": 0,
+			"CapacityInKB": 209715200,
+			"CapacityInBytes": 214748364800,
+			"Shares": {
+				"Shares": 1000,
+				"Level": "normal"
+			},
+			"StorageIOAllocation": {
+				"Limit": -1,
+				"Shares": {
+					"Shares": 1000,
+					"Level": "normal"
+				},
+				"Reservation": 0
+			},
+			"DiskObjectId": "436-2000",
+			"VFlashCacheConfigInfo": null,
+			"Iofilter": null,
+			"VDiskId": null,
+			"NativeUnmanagedLinkedClone": false
+		},
+		{
+			"Name": "floppy-8000",
+			"Type": "VirtualFloppy",
+			"Key": 8000,
+			"DeviceInfo": {
+				"Label": "Floppy drive 1",
+				"Summary": "Remote"
+			},
+			"Backing": {
+				"DeviceName": "",
+				"UseAutoDetect": false
+			},
+			"Connectable": {
+				"MigrateConnect": "",
+				"StartConnected": false,
+				"AllowGuestControl": true,
+				"Connected": false,
+				"Status": "ok"
+			},
+			"SlotInfo": null,
+			"ControllerKey": 400,
+			"UnitNumber": 0
+		},
+		{
+			"Name": "ethernet-0",
+			"Type": "VirtualVmxnet3",
+			"Key": 4000,
+			"DeviceInfo": {
+				"Label": "Network adapter 1",
+				"Summary": "DVSwitch: 50 15 be f8 bf b0 70 e7-28 ef 49 9b 11 7d 2e d6"
+			},
+			"Backing": {
+				"Port": {
+					"SwitchUuid": "50 15 be f8 bf b0 70 e7-28 ef 49 9b 11 7d 2e d6",
+					"PortgroupKey": "dvportgroup-5209",
+					"PortKey": "4909",
+					"ConnectionCookie": 660745959
+				}
+			},
+			"Connectable": {
+				"MigrateConnect": "unset",
+				"StartConnected": true,
+				"AllowGuestControl": true,
+				"Connected": true,
+				"Status": "ok"
+			},
+			"SlotInfo": {
+				"PciSlotNumber": 192
+			},
+			"ControllerKey": 100,
+			"UnitNumber": 7,
+			"AddressType": "assigned",
+			"MacAddress": "00:50:56:95:5a:9a",
+			"WakeOnLanEnabled": true,
+			"ResourceAllocation": {
+				"Reservation": 0,
+				"Share": {
+					"Shares": 50,
+					"Level": "normal"
+				},
+				"Limit": -1
+			},
+			"ExternalId": "",
+			"UptCompatibilityEnabled": true
+		},
+		{
+			"Name": "disk-1000-1",
+			"Type": "VirtualDisk",
+			"Key": 2001,
+			"DeviceInfo": {
+				"Label": "Hard disk 2",
+				"Summary": "10,240 KB"
+			},
+			"Backing": {
+				"FileName": "[CSAP_DS1_NFS] demo-folder/demo-disk.vmdk",
+				"Datastore": {
+					"Type": "Datastore",
+					"Value": "datastore-117663"
+				},
+				"BackingObjectId": "",
+				"DiskMode": "independent_persistent",
+				"Split": false,
+				"WriteThrough": false,
+				"ThinProvisioned": true,
+				"EagerlyScrub": null,
+				"Uuid": "6000C291-0600-7473-dea7-e87ca458f15c",
+				"ContentId": "17d472142fe58eb92e8c9f59794a5f1a",
+				"ChangeId": "",
+				"Parent": null,
+				"DeltaDiskFormat": "",
+				"DigestEnabled": false,
+				"DeltaGrainSize": 0,
+				"DeltaDiskFormatVariant": "",
+				"Sharing": "sharingNone",
+				"KeyId": null
+			},
+			"Connectable": null,
+			"SlotInfo": null,
+			"ControllerKey": 1000,
+			"UnitNumber": 1,
+			"CapacityInKB": 10240,
+			"CapacityInBytes": 10485760,
+			"Shares": {
+				"Shares": 1000,
+				"Level": "normal"
+			},
+			"StorageIOAllocation": {
+				"Limit": -1,
+				"Shares": {
+					"Shares": 1000,
+					"Level": "normal"
+				},
+				"Reservation": 0
+			},
+			"DiskObjectId": "436-2001",
+			"VFlashCacheConfigInfo": null,
+			"Iofilter": null,
+			"VDiskId": null,
+			"NativeUnmanagedLinkedClone": false
+		},
+		{
+			"Name": "disk-1000-1",
+			"Type": "VirtualDisk",
+			"Key": 2001,
+			"DeviceInfo": {
+				"Label": "Hard disk 2",
+				"Summary": "10,240 KB"
+			},
+			"Backing": {
+				"FileName": "[CSAP_DS1_NFS] csap-dev11/csap-dev11_1.vmdk",
+				"Datastore": {
+					"Type": "Datastore",
+					"Value": "datastore-117663"
+				},
+				"BackingObjectId": "",
+				"DiskMode": "independent_persistent",
+				"Split": false,
+				"WriteThrough": false,
+				"ThinProvisioned": true,
+				"EagerlyScrub": null,
+				"Uuid": "6000C292-935f-7d38-39b4-aa6b568cded7",
+				"ContentId": "f8a07875322a4ecf9ea31319fffffffe",
+				"ChangeId": "",
+				"Parent": {
+					"FileName": "[CSAP_DS1_NFS] demo-folder/demo-disk2.vmdk",
+					"Datastore": {
+						"Type": "Datastore",
+						"Value": "datastore-117663"
+					},
+					"BackingObjectId": "",
+					"DiskMode": "independent_persistent",
+					"Split": null,
+					"WriteThrough": null,
+					"ThinProvisioned": true,
+					"EagerlyScrub": null,
+					"Uuid": "6000C292-935f-7d38-39b4-aa6b568cded7",
+					"ContentId": "f8a07875322a4ecf9ea31319fffffffe",
+					"ChangeId": "",
+					"Parent": null,
+					"DeltaDiskFormat": "",
+					"DigestEnabled": false,
+					"DeltaGrainSize": 0,
+					"DeltaDiskFormatVariant": "",
+					"Sharing": "",
+					"KeyId": null
+				},
+				"DeltaDiskFormat": "redoLogFormat",
+				"DigestEnabled": false,
+				"DeltaGrainSize": 0,
+				"DeltaDiskFormatVariant": "vmfsSparseVariant",
+				"Sharing": "sharingNone",
+				"KeyId": null
+			},
+			"Connectable": null,
+			"SlotInfo": null,
+			"ControllerKey": 1000,
+			"UnitNumber": 1,
+			"CapacityInKB": 10240,
+			"CapacityInBytes": 10485760,
+			"Shares": {
+				"Shares": 1000,
+				"Level": "normal"
+			},
+			"StorageIOAllocation": {
+				"Limit": -1,
+				"Shares": {
+					"Shares": 1000,
+					"Level": "normal"
+				},
+				"Reservation": 0
+			},
+			"DiskObjectId": "436-2001",
+			"VFlashCacheConfigInfo": null,
+			"Iofilter": null,
+			"VDiskId": null,
+			"NativeUnmanagedLinkedClone": false
+		}
+	]
+}

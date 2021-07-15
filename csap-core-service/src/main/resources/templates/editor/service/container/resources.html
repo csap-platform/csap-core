@@ -1,0 +1,100 @@
+
+<div class="csap-blue primary">
+	<div class="heading">Container Resources</div>
+
+	<div style="margin-top: 2em">
+
+		<div>
+			<label
+				title="csap instance variables be used"
+				style="font-weight: bold; vertical-align: top"> Environment Variables: </label>
+		</div>
+		<div class="floating-ace-editor">
+			<textarea
+				id="service-docker-environment"
+				data-path="docker.environmentVariables"
+				data-fit="true"
+				data-adjustwidth="200"
+				spellcheck=false
+				placeholder="default from image"></textarea>
+		</div>
+	</div>
+
+
+	<div style="margin-top: 2em">
+
+		<div style="margin-top: 0.5em">
+			<div
+				title=""
+				style="display: inline-block; width: 40em; vertical-align: top">
+				<div>
+					<label style="font-weight: bold;"> Volumes: </label>
+
+					<button
+						class="csap-button code-samples"
+						data-type="volumes">CSAP Samples</button>
+						
+					
+					<a
+					class="csap-link-button"
+					style="display: inline"
+					target="_blank"
+					title="View help on creating volumes"
+					href="https://docs.docker.com/storage/volumes/">docker</a>
+						
+					
+					<a
+					class="csap-link-button"
+					style="display: inline"
+					target="_blank"
+					title="View help on creating volumes"
+					href="https://kubernetes.io/docs/concepts/storage/">kubernetes</a>
+		
+				</div>
+				<div class="floating-ace-editor" style="min-height: 500px">
+					<textarea
+						id="volumesDocker"
+						data-path="docker.volumes"
+						data-fit="true"
+						data-fixedwidth="500"
+						spellcheck=false
+						placeholder="default from image"></textarea>
+
+				</div>
+
+			</div>
+
+
+
+			<div
+				title=""
+				style="display: inline-block; width: 40em; vertical-align: top">
+
+				<div>
+					<label style="font-weight: bold;"> Port Mappings: </label>
+
+					<button
+						class="csap-button code-samples"
+						data-type="portMappings">View Samples</button>
+
+				</div>
+				<div class="floating-ace-editor">
+					<textarea
+						id="service-edit-docker-ports"
+						rows="2"
+						spellcheck=false
+						data-fit="true"
+						data-fixedwidth="500"
+						data-path="docker.portMappings"></textarea>
+				</div>
+
+			</div>
+		</div>
+
+
+	</div>
+
+
+
+</div>
+

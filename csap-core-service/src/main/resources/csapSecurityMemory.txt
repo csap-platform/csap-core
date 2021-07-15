@@ -1,0 +1,6 @@
+#
+# Simple command delimited access file to use when LDAP is not available or configured
+# userid,password,role1,role2,role...
+#
+admin,password,AUTHENTICATED,dummy1,dummy2
+user,password,AUTHENTICATED,dummy3,dummy4

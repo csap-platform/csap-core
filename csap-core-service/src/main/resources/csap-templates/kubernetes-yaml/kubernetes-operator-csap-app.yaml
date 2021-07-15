@@ -1,0 +1,101 @@
+#
+# https://github.com/coreos/prometheus-operator/tree/master/example/user-guides/getting-started
+#
+
+
+---
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: csap-reference-monitor
+  namespace: default # promtheius operator 
+  labels:
+    team: csap-monitor-label
+spec:
+  selector:
+    matchLabels:
+      csap-service: test-k8s-csap-reference-service
+      
+  namespaceSelector:
+    # matchNames:
+    # - default
+    any: true
+  endpoints:
+  - port: http-6090
+    interval: 10s
+    path: /test-k8s-csap-reference/devOps/prometheus
+  
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: csap-promethius-account
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: csap-promethius-role
+rules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  - services
+  - endpoints
+  - pods
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources:
+  - configmaps
+  verbs: ["get"]
+- nonResourceURLs: ["/metrics"]
+  verbs: ["get"]
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: csap-promethius-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: csap-promethius-role
+subjects:
+- kind: ServiceAccount
+  name: csap-promethius-account
+  namespace: default
+
+---
+
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: csap-promethius
+spec:
+  serviceAccountName: csap-promethius-account
+  serviceMonitorSelector:
+    matchLabels:
+      team: csap-monitor-label
+  resources:
+    requests:
+      memory: 400Mi
+      
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: csap-promethius-service
+spec:
+  type: NodePort
+  ports:
+  - name: web
+    nodePort: 30900
+    port: 9090
+    protocol: TCP
+    targetPort: web
+  selector:
+    prometheus: csap-promethius

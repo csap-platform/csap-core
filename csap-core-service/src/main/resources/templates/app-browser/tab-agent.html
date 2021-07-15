@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+
+
+
+	<div id="agent-tab-explorer">
+		<header class=related>
+			<a
+				th:href="${ healthUrl} "
+				class="csap-link-icon launch-window"
+				target="_blank"
+				title="View all events on Host"> Health </a>
+			<a
+				th:href="${ activityUrl } "
+				class="csap-link-icon launch-window"
+				target="_blank"
+				title="View all events on Host"> Events </a>
+			<a
+				id="hostInfo"
+				class="csap-link-icon csap-play"
+				href="#hostInfo"
+				title="Show uname, version, etc">Summary</a>
+			<a
+				title="systemctl status output"
+				class="csap-link-icon csap-play commandRunner"
+				th:attr="data-targeturl=@{/explorer/os/systemctl(noArgs='true' )}"
+				href="#systemctl-status">systemctl status</a>
+			<a
+				title="linux kernel settings and limits"
+				target="#"
+				class="csap-link-icon csap-play commandRunner"
+				th:attr="data-targeturl=@{/os/kernel/limits}"
+				href="#systemLimits"> system limits </a>
+			<a
+				title="calicoctl command runner: used to troubleshoot kuberntes network"
+				target="#"
+				class="csap-link-icon csap-play commandRunner"
+				th:attr="data-targeturl=@{/explorer/os/calico}"
+				data-parameters="calicoctl command=eg. node status. leave blank for default commands and help"
+				href="#calico-command-editor"> calicoctl </a>
+
+
+			<div id=tree-controls>
+
+				<input
+					id="last-selected-text"
+					title="last opened item (click to copy to clipboard"
+					placeholder="last selected" />
+
+				<label id="cpuTimestamp">--:--:--</label>
+
+				<button
+					id="close-all-explorer-tree"
+					title="Close All Open Folders"
+					class="csap-icon csap-back"></button>
+
+			</div>
+
+		</header>
+		<div id="dockerTree"></div>
+	</div>
+
+
+	<div id="agent-tab-explorer-pod-logs">
+		<div th:replace="/app-browser/pod-logs :: pageContent"></div>
+	</div>
+
+
+	<div id="agent-tab-memory">
+
+
+		<header class="related">
+
+			<a
+				class="csap-link-icon csap-play commandRunner"
+				th:attr="data-targeturl=@{/os/getMemInfo}"
+				href="getMemInfo">/proc/meminfo</a>
+			<a
+				class="csap-link-icon csap-play commandRunner"
+				th:attr="data-targeturl=@{/os/getMemFree}"
+				href="#run-command">free -m</a>
+			<a
+				class="csap-link-icon csap-edit script-runner"
+				data-template=linux-vmstat.sh
+				title="view linux virtual memory metrics">vmstat</a>
+			<a
+				class="csap-link-icon csap-edit script-runner"
+				data-template=memory-clear.sh
+				title="Some OS commands can fill memory buffers; they can be cleared.">Clear Buffers</a>
+
+
+			<label
+				id="memReloadTime"
+				class=flex-right-info> --:--:-- </label>
+
+		</header>
+
+		<div id=memory-tables>
+
+
+			<!--  Autorefreshed by javascript-->
+			<div id="memTableDiv">
+				<table class="csap">
+					<thead>
+
+						<tr>
+							<th>Type</th>
+							<th>% Used</th>
+							<th>Used / Total Mb</th>
+							<th>shared/buffer+cache Mb</th>
+						</tr>
+					</thead>
+
+					<tbody>
+					</tbody>
+
+
+				</table>
+			</div>
+
+			<div
+				class="quote"
+				style="margin-top: 3em">Swap Space: swapon -s (Auto-Refreshed 20s)</div>
+
+
+			<!--  Autorefreshed by javascript-->
+			<div id="swapTableDiv">
+				<table
+					class="csap"
+					style="width: 800px;">
+					<thead>
+
+						<tr>
+							<th>Mount Point</th>
+							<th>Type</th>
+							<th>% Used</th>
+							<th>Used/Available</th>
+							<th>Priority</th>
+						</tr>
+					</thead>
+
+
+					<tbody>
+					</tbody>
+
+				</table>
+			</div>
+			<br />
+			<div
+				class="news"
+				style="">
+				Notes:
+				<br />
+				Linux aggressively caches/buffers io (and will release if needed).
+			</div>
+		</div>
+
+
+
+	</div>
+
+
+	<div id=agent-tab-files>
+
+		<header class="related">
+			<label
+				class=csap
+				title="Exclude filter for disks. Useful for filtering temporary mount">
+				Exclude:
+				<input
+					id="disk-exclude-pattern"
+					value="pods,overlay,devicemapper,containers,kubernetes.io" />
+			</label>
+
+			<label
+				class=csap
+				title="Include filter for disks. Useful for filtering temporary mount">
+				Include:
+				<input
+					id="disk-include-pattern"
+					value="" />
+			</label>
+
+			<a
+				target="_blank"
+				class="csap-link-icon csap-edit script-runner"
+				data-template=linux-iostat.sh
+				href="#command-runner"
+				title="Show VM wide disk statistics">iostat</a>
+			<a
+				target="_blank"
+				class="csap-link-icon csap-edit script-runner"
+				data-template=process-pidstat.sh
+				href="#command-runner"
+				title="Show disk statistics per process">pidstat</a>
+			<a
+				target="_blank"
+				class="csap-link-icon csap-edit script-runner"
+				data-template=disk-df.sh
+				href="#command-runner"
+				title="show inodes, file counts, etc">disk info</a>
+
+		</header>
+
+
+		<div id="dfTableDiv">
+			<table class="csap sticky-header">
+				<thead>
+					<tr>
+						<th>Mount Point (Browse)</th>
+						<th class="sorter-false"></th>
+						<th>Used (du)</th>
+						<th>Used/Available</th>
+						<th>Device</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>Loading</td>
+						<td>Loading</td>
+						<td>Loading</td>
+						<td>Loading</td>
+						<td>Loading</td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="quote">
+				<label>File Systems out gathered by: df -PTh (Auto-Refreshed 60s)</label>
+			</div>
+		</div>
+	</div>
+
+	<div id="agent-tab-file-browser">Loading Browser</div>
+
+	<div id="agent-tab-logs">loading template</div>
+
+
+
+
+
+
+	<div id="agent-tab-processes">
+
+		<div th:replace="/app-browser/agent/dashboard-process-tab :: pageContent"></div>
+
+	</div>
+
+
+
+	<div id="agent-tab-cpus">
+
+		<div class=quote>Collected via mpstat</div>
+
+		<div
+			id="mpTableDiv"
+			class="inlineDiv">
+			<!--  hack for IE in standards mode. It wants all content in table -->
+			<table
+				id="mpTable"
+				class="csap">
+				<thead>
+					<tr>
+						<th style="width: 5em">Cpu</th>
+						<th>%user</th>
+						<th>%sys</th>
+						<th>%iowait</th>
+						<th>%idle</th>
+						<th>intr/s</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>Loading</td>
+						<td>Loading</td>
+						<td>Loading</td>
+						<td>Loading</td>
+						<td>Loading</td>
+						<td>Loading</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+	</div>
+
+
+	<div id="agent-tab-system">
+
+		<header class="related">
+			<a
+				target="_blank"
+				class="csap-link-icon csap-play commandRunner"
+				href="#last-collected"
+				th:attr="data-targeturl=@{/api/agent/collection/osShared/30/1}"
+				title="Last collection open file count, socket count, etc."> last collected </a>
+			<a
+				target="_blank"
+				class="csap-link-icon csap-play commandRunner"
+				th:attr="data-targeturl=@{/os/getCpuInfo}"
+				title="Provided by /proc/cpuinfo">Cpu Info</a>
+			<a
+				href="#host-performance-cpu.sh&"
+				class="csap-link-icon csap-edit script-runner"
+				data-template=host-performance-cpu.sh
+				title="Verify CPU performance">CPU Test</a>
+			<a
+				href="#host-performance-disk.sh&"
+				class="csap-link-icon csap-edit script-runner"
+				data-template=host-performance-disk.sh
+				title="Verify DISK performance">Disk Test</a>
+			<a
+				href="#a-network-test.sh"
+				class="csap-link-icon csap-edit script-runner"
+				data-template=a-network-test.sh
+				title="Verify network connectivity">Network Test</a>
+			<a
+				href="command?command=script&template=network-socket-wait.sh&"
+				class="csap-link-icon csap-edit script-runner"
+				data-template=network-socket-wait.sh
+				title="View the open sockets/ports, view process">Show connections</a>
+
+
+
+		</header>
+
+
+		<div
+			id="vmGraphs"
+			class=scrolling-graphs></div>
+
+	</div>
+
+
+	<div id="agent-tab-service">
+
+		<header class="related">
+
+			<a
+				th:href="@{/csap/health?pattern=service-jobs&}"
+				class="csap-link-icon csap-window"
+				target="_blank"
+				title="View agent times taken to complete">Service Jobs</a>
+			<a
+				th:href="@{/csap/health?pattern=os-commands&}"
+				class="csap-link-icon csap-window"
+				target="_blank"
+				title="View agent times taken to complete">Os Command Times</a>
+			<a
+				th:href="@{/csap/health?pattern=fail&}"
+				class="csap-link-icon csap-window"
+				target="_blank"
+				title="View agent failures (collections, commands, etc)">Agent Failures</a>
+
+		</header>
+
+		<div
+			id="serviceGraphs"
+			class=scrolling-graphs></div>
+
+	</div>
+
+
+	<div id="agent-tab-java">
+
+		<header class="related">
+			<label class=csap> Java Performance </label>
+			<label class=csap>
+				<select class=java-service-names>
+					<option>loaded-dynamically-using-graph-attributes</option>
+				</select>
+			</label>
+		</header>
+
+		<div
+			id="java-graphs"
+			class=scrolling-graphs></div>
+
+	</div>
+
+
+
+	<div id="agent-tab-application">
+
+		<header class="related">
+			<label class=csap> Application Performance </label>
+			<label class=csap>
+
+				<select class=app-service-names>
+					<option>loaded-dynamically-using-graph-attributes</option>
+				</select>
+			</label>
+		</header>
+
+		<div
+			id="application-graphs"
+			class=scrolling-graphs></div>
+
+	</div>
+
+	<div id="agent-tab-live">
+		<div th:replace="~{ /app-browser/agent/live :: pageContent }"></div>
+	</div>
+
+
+	<div id="agent-tab-script">
+
+		<div th:replace="~{ /app-browser/agent/command-runner :: pageContent }"></div>
+		<aside>
+			<div th:replace="~{ /app-browser/agent/command-host :: pageContent }"></div>
+		</aside>
+
+	</div>
+
+	<div id="agent-tab-command-output">
+
+		<div
+			id="resultsContainer"
+			class="commandSection">
+
+			<div id=command-output-header>
+
+
+				<button
+					id=cancel-command
+					title="Cancel in progress command"
+					class="csap-button-icon csap-loading">Cancel</button>
+
+				<a
+					href="#close"
+					id="hide-output"
+					class="csap-link-icon csap-remove"
+					title="Remove Output"> Close </a>
+
+				<span>
+					<label class=csap>
+						Output:
+						<select id="results-select">
+							<option>loading</option>
+						</select>
+					</label>
+
+					<button
+						id="download-output"
+						class="csap-icon csap-download"
+						title="Download complete output"></button>
+						
+					<label
+						class=csap>
+						<input
+							id=scroll-command-results
+							type="checkbox" checked="checked" />
+						Auto Scroll
+					</label>
+						
+					<label
+						class=csap>
+						<input
+							id=wrap-command-results
+							type="checkbox" />
+						Wrap
+					</label>
+						
+					
+				</span>
+
+
+
+			</div>
+
+			<div id=command-output-results>
+
+				<pre id="ace-results-viewer"></pre>
+				<div>
+					<table
+						id="resultsTable"
+						class="csap">
+						<thead>
+
+							<tr>
+								<th class="hostColumn">Host</th>
+								<th
+									class="outputColumn"
+									style="width: 100%">Command Output</th>
+							</tr>
+						</thead>
+
+						<tbody id="resultsTableBody">
+						</tbody>
+					</table>
+				</div>
+
+			</div>
+		</div>
+
+	</div>
+
+
+
+
+
+
+</body>
+</html>

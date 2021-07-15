@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>TODO supply a title</title>
+</head>
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+
+
+
+	<div id="sync">
+
+
+		<form
+			id="syncScriptForm"
+			action="syncFiles"
+			method="post">
+
+			<span class="quote">Sync to other hosts</span>
+			<div class=csap-blue>
+				<label class=csap>
+					[[ ${ host } ]] folder:
+					<input
+						name="location"
+						th:value="${ defaultLocation}"
+						style="width: 80%;" />
+				</label>
+
+
+
+				<label class=csap style="display: none">
+					Sync to:
+					<input
+						name="extractDir"
+						th:value="${ sameLocation }"
+						style="width: 80%" />
+				</label>
+
+
+				<label class=csap>
+					Target Hosts:
+
+					<span id="hostButtonTarget"></span>
+				</label>
+
+				<label
+					class=csap
+					style="margin-top: 1em;">
+					<button
+						id="syncSubmitButton"
+						class="csap-button">Copy File(s)</button>
+				</label>
+
+
+			</div>
+
+			<span class="quote">Optional settings</span>
+			<div class=csap-green>
+
+				<label class=csap>
+					Chown User:
+					<select
+						id="syncUserid"
+						name="chownUserid">
+						<option
+							th:each="optionUser : ${osUsers}"
+							th:selected="${ optionUser == csapUser }"
+							th:value="${ optionUser }"
+							th:text="${ optionUser }">will be replaced</option>
+
+					</select>
+				</label>
+
+
+				<label class=csap>
+					Delete Existing:
+					<input
+						type="checkbox"
+						name="deleteExisting"
+						style=""
+						title="If destination exists, it will be renamed to .old. By default - content is merged with exisiting files overwritten" />
+				</label>
+
+
+				<label class=csap>
+					Time Out (seconds):
+					<input
+						type="number"
+						name="timeoutSeconds"
+						style="width: 4em"
+						value="30"
+						title="Commands will be aborted if not completed in specified interval" />
+
+				</label>
+			</div>
+
+		</form>
+
+	</div>
+
+
+	<div class="quote">Regardless of destination set above - files are ALWAYS forced to same location</div>
+
+
+
+
+</body>
+</html>

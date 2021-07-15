@@ -1,0 +1,43 @@
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: alarm-punisher-1620224171504
+  namespace: punisher
+spec:
+  ttlSecondsAfterFinished: 10
+  activeDeadlineSeconds: 60000
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+        - name: alarm-punisher-1620224171504
+          image: flexnet/rni481/static-data:4.8.1-11
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+          command: ["/opt/flexnet/dk/dataextraction/de_commands/alarm.sh"]
+          args: ['-AdHoc', 'false', '-CustomerId', 'ACME', '-Output', '/output/{1}_{2}{3}.txt']
+          volumeMounts:
+            - mountPath: /opt/flexnet/install
+              name: rni-data
+              subPath: opt/flexnet/install
+            - mountPath: /opt/flexnet/security
+              name: rni-data
+              subPath: opt/flexnet/security
+              readOnly: true
+            - mountPath: /output
+              name: rni-data
+              subPath: data/data-extraction
+            - mountPath: /var/log/flexnet
+              name: rni-data
+              subPath: data/logs
+          terminationMessagePath: /tmp/job_results.txt
+      restartPolicy: Never
+      volumes:
+        - name: rni-data
+          persistentVolumeClaim:
+            claimName: punisher-pvc

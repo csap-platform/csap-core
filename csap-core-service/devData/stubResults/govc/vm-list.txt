@@ -1,0 +1,40 @@
+# govc ls -l=true "vm"
+/MOC RNI Lab/vm/ws-JeffW-WS (VirtualMachine)
+/MOC RNI Lab/vm/RNI-WS-XDL1 (VirtualMachine)
+/MOC RNI Lab/vm/SecureCommandServer/
+/MOC RNI Lab/vm/NAInterOp/
+/MOC RNI Lab/vm/SolutionsTest/
+/MOC RNI Lab/vm/NetMet/
+/MOC RNI Lab/vm/Arqiva_ScaleHA_Dev/
+/MOC RNI Lab/vm/Build Infrastructure Test/
+/MOC RNI Lab/vm/Build Infrastructure/
+/MOC RNI Lab/vm/Build NonEssentials/
+/MOC RNI Lab/vm/Engineering ROW/
+/MOC RNI Lab/vm/QA_Perf_RNIs/
+/MOC RNI Lab/vm/QAT/
+/MOC RNI Lab/vm/HandHeld/
+/MOC RNI Lab/vm/NMS_Dev/
+/MOC RNI Lab/vm/Templates/
+/MOC RNI Lab/vm/SLC_Dev/
+/MOC RNI Lab/vm/Documentation/
+/MOC RNI Lab/vm/Prof Services/
+/MOC RNI Lab/vm/BaseOs/
+/MOC RNI Lab/vm/Security/
+/MOC RNI Lab/vm/Lab Infrastructure-Test/
+/MOC RNI Lab/vm/RNIs/
+/MOC RNI Lab/vm/Workspaces/
+/MOC RNI Lab/vm/QA/
+/MOC RNI Lab/vm/Escrow/
+/MOC RNI Lab/vm/Business Automation/
+/MOC RNI Lab/vm/QA Infrastructure/
+/MOC RNI Lab/vm/Build Nodes/
+/MOC RNI Lab/vm/Field Logic/
+/MOC RNI Lab/vm/Discovered virtual machine/
+/MOC RNI Lab/vm/Lab Infrastructure/
+/MOC RNI Lab/vm/Proof of Concept/
+/MOC RNI Lab/vm/Perf RNIs/
+/MOC RNI Lab/vm/NMS/
+/MOC RNI Lab/vm/NB_IoT/
+/MOC RNI Lab/vm/BuildOS/
+/MOC RNI Lab/vm/TGB(ROW)/
+/MOC RNI Lab/vm/Flex Net Sim/

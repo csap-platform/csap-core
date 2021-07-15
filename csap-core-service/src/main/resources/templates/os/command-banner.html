@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>TODO supply a title</title>
+</head>
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+
+
+	<header>
+
+
+		<span>
+			CSAP Command Runner:
+			<div class="noteHighlight">[[ ${ host } ]]</div>
+
+			<span id="quick-search">
+				<select
+					id="quick-search-select"
+					title="Select a template for common searches">
+					<option value="none">Search Templates...</option>
+					<option value="lastException">Last Exception</option>
+					<option value="allException">All Exceptions</option>
+					<option value="last100Exception">Exceptions in Last 100 Lines</option>
+					<option value="Server startup">Last Tomcat start</option>
+					<option value="StartupInfoLogger.logStarted">Last Spring Boot start</option>
+					<option value="CsapBootConfig.java">@CsapMicroService Configuration</option>
+					<option value="last10Lines">Last 10 Lines</option>
+					<option value="Exception">Last Exception</option>
+					<option value="ERROR">Last ERROR</option>
+					<option value="WARN">Last WARN</option>
+					<option value="OutOfMemoryError">Last OutOfMemoryError</option>
+				</select>
+			</span>
+
+		</span>
+
+
+		<div
+			id="nonAdminWarning"
+			class="infoWarn"
+			th:if='${adminRole == false && !command.equals("logSearch") } '>OS Commands disabled as your userid is not a
+			member of admin group: [[ ${ adminGroup } ]]</div>
+
+
+		<a
+			id="portal-help"
+			target="_blank"
+			title="CSAP command runner"
+			class="csap-link-icon csap-help flex-right-info"
+			th:href="${@csapCoreService.getHelpUrl('command-runner') }"></a>
+
+	</header>
+
+</body>
+</html>

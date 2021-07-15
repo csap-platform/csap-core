@@ -1,0 +1,11 @@
+{
+	"about-csap-service-json": [
+		"Any field in service definition can be selectively overridden.",
+		"Alternately - the entire service definition may be placed  here to externalize from Application.json"
+	],
+	"monitors": {
+		"max_diskUtil": "100m"
+	}
+}
+
+

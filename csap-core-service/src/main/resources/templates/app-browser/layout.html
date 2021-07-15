@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="/app-browser/browser-head :: pageContent">
+<title>thymeleaf replaced</title>
+</head>
+
+
+<body
+	id="manager"
+	class="csap-scrollable theme-ocean">
+
+	<header>
+
+		<span
+			id=agent-mode
+			title="Used for host maintenance only - application deployments should utilize the admin service.">csap-agent</span>
+		<span th:text=${applicationName}></span>
+		<span id=environment-name>[[ ${csapHostEnvironmentName} ]]</span>
+		
+	</header>
+
+	<section>
+
+		<article class="navigation">
+
+			<div id="bar">
+				<span>
+					<span>Alerts:</span>
+					<span
+						id="bar-alerts"
+						class="launch-nav"
+						title="Alerts found"> </span>
+				</span>
+
+				<span>
+					<span>Backlog:</span>
+					<span
+						id="bar-backlog"
+						class="launch-nav"
+						title="Deployment backlog"> </span>
+				</span>
+
+
+				<span id="bar-message">navigation bar</span>
+
+
+
+			</div>
+
+			<div id="tabs">
+
+
+
+				<div
+					id="performance-tab"
+					class="active">
+
+					<div class="tab-primary">
+						<span>Performance</span>
+						<span
+							title="Active alerts on system"
+							class="count"
+							id="alert-count">0</span>
+					</div>
+
+					<div class="tab-menu">
+						<span
+							class="active"
+							data-path="metrics">meters & trends</span>
+						<span
+							id="nav-performance-alert"
+							data-path="alerts">alerts</span>
+					</div>
+
+				</div>
+
+
+
+				<div id="services-tab">
+					<div class="tab-primary">
+						<span>Services</span>
+						<span
+							class="count"
+							id="service-count"></span>
+					</div>
+					<div class="tab-menu">
+						<span
+							id="nav-service-status"
+							class="active"
+							data-path="status">status</span>
+
+						<span
+							id="instances-for-service"
+							class="service-selected"
+							data-path="instances"
+							data-name="csap-verify-service">csap-verify-service</span>
+
+
+						<!-- 						<span
+							class="service-selected"
+							data-path="logs">logs</span>
+						<span
+							class="service-selected"
+							data-path="files">files</span>
+						<span
+							class="service-selected"
+							data-path="events">events</span> -->
+
+
+
+						<span data-path="batch">batch</span>
+						<span
+							id="nav-performance-backlog"
+							data-path="backlog">
+							backlog
+							<span id="backlog-count">0</span>
+						</span>
+					</div>
+				</div>
+
+
+
+
+
+
+				<div id="hosts-tab">
+
+					<div class="tab-primary">
+
+						<span>Hosts</span>
+						<span
+							class="count"
+							id="host-count"></span>
+					</div>
+
+					<div class="tab-menu">
+						<span
+							class="active"
+							data-path="cpu">cpu</span>
+						<span data-path="file-systems">file systems</span>
+						<span data-path="infrastructure">infrastructure</span>
+						<span data-path="network">network</span>
+						<span data-path="services">services</span>
+						<span data-path="summary">summary</span>
+					</div>
+				</div>
+
+
+
+
+
+				<div id="projects-tab">
+					<div class="tab-primary">
+						<span>Projects</span>
+						<span
+							class="count"
+							id="project-count"
+							th:text="${projectNames.size()}"></span>
+					</div>
+
+
+					<div class="tab-menu">
+						<span
+							class="active"
+							data-path="environments">environments</span>
+						<span data-path="files">files</span>
+					</div>
+				</div>
+
+
+
+
+				<div id="preferences-tab">
+
+
+					<div class="tab-primary">
+
+						<span>Settings &amp; Tools</span>
+
+					</div>
+				</div>
+			</div>
+		</article>
+
+		<article class="content">
+		
+			<div class="csap-scrollable">
+				<header> my-title
+				</header>
+				<section>
+					<article class="content">
+						<div
+						class=csap-green
+						style="height: 80em"></div>
+					</article>
+				</section>
+				
+			</div>
+
+		</article>
+
+	</section>
+
+	<aside>
+		<div id="loading-project-message">
+			<div class=loading-message-large>Loading Application</div>
+		</div>
+	</aside>
+
+	<footer>
+		<span id="users"> </span>
+
+
+
+		<span id="right-footer">
+			<span id="last-operation"></span>
+			<span id="admin-host">[[${ csapHostName }]]</span>
+		</span>
+
+
+	</footer>
+
+</body>
+
+</html>

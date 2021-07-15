@@ -1,0 +1,194 @@
+
+
+<div>
+
+	<label
+		id="container-use-spec"
+		style="width: 28em"
+		title="One or more files can be used to provide deployment specification">
+		<span>Only Use Kubernetes Specification(s):</span>
+
+		<select
+			id="service-docker-deployment-files-use"
+			data-path="docker.deployment-files-use"
+			style="margin-right: 2px">
+			<option selected="selected">false</option>
+			<option>true</option>
+		</select>
+	</label>
+
+
+	<div class="csap-purple use-deployment-file-panel">
+
+		<div class="service-locator-items">
+			<label
+				id="dockerContainerSelect"
+				style="width: 20em"
+				class=""
+				title="">
+				<span>Use Kubernetes Locator:</span>
+
+				<select
+					class="dockerEnabled"
+					data-path="runUsingDocker"
+					style="margin-right: 2px">
+					<option selected="selected">false</option>
+					<option>true</option>
+				</select>
+			</label>
+
+			<div class=csap-green>
+
+				<div class="heading">
+					Kubernetes Container Matching:
+
+					<a
+						th:href="${@csapCoreService.getHelpUrl('process-match-help') }"
+						target="_blank"
+						class="csap-link-icon csap-help"></a>
+				</div>
+
+				<div>
+					<!--
+			<label title="Docker container label name">
+				<span>Label Type:</span>
+				<input
+					class="wide"
+					placeholder="io.kubernetes.container.name"
+					data-plaintext="true"
+					data-path="docker.locator.type" />
+			</label>
+  -->
+					<label 
+						class=csap-form
+						title="kubernetes namespace: uses the docker container namespace label. eg: io.kubernetes.pod.namespace match">
+						<span>Match Namepace:</span>
+						<input
+							placeholder="default: all namespaces"
+							data-path="docker.locator.podNamespace" />
+					</label>
+					
+
+					<label
+						class=csap-form
+						title="Match using EXACT docker container label io.kubernetes.container.name; multiple containers using (container1|container2), or ANY using '*'">
+						<span>&amp;&amp; ( Container Name:</span>
+						<input
+							placeholder="default: $$service-name-container; ignored if pod match specified"
+							data-path="docker.locator.value" />
+					</label>
+
+					<label 
+						class=csap-form
+						title="Match using REGULAR EXPRESSION docker container label: io.kubernetes.pod.name match: eg. my-pod-.*">
+						<span>|| Pod Name):</span>
+						<input
+							placeholder="default: ignored. Example: $$service-name-.*"
+							data-path="docker.locator.podName" />
+					</label>
+
+				</div>
+
+				<div class="heading">Collection Settings:</div>
+
+
+					<label 
+						class=csap-form-inline
+						title="total number of container instances on all hosts">
+						<span>Container Count:</span>
+						<input
+							placeholder="container host count"
+							data-path="docker.container-count" />
+					</label>
+					
+					<label 
+						class=csap-form-inline
+						title="merge all matched container metrics; useful for tracking resource consumption across groups of related processes">
+						<span>Container Metric Merge:</span>
+						<input
+							placeholder="false"
+							data-path="docker.aggregateContainers" />
+					</label>
+					
+					<label 
+						class=csap-form-inline
+						title="By default - all container sockets are counted. to count using pid, specify global">
+						<span>Socket Namespace:</span>
+						<input
+							class=words
+							placeholder="container"
+							data-path="docker.socketNamespace" />
+					</label>
+
+
+					<label
+						class=csap-form
+						title="Runtime version command: run in docker container and output will be assigned as runtime version. For java jar: ls /path/to/some*.jar | cut -d- -f3 | cat . For nginx docker: nginx -v 2>&1 | cut -d/ -f2 | cat">
+						<span>Version Command:</span>
+						<input
+							placeholder="echo 1.2.3"
+							data-path="docker.versionCommand" />
+					</label>
+
+
+
+			</div>
+		</div>
+
+
+
+		<div class="service-deploy-files">
+			<div class="heading">
+				Kubernetes Deployment Files:
+				<ol style="list-style: lower-alpha; padding-left: 3em">
+					<li>Specifications will be deployed in the order listed, and removed in the reverse order.</li>
+					<li><a
+							target="_blank"
+							title="Learn more about CSAP Runtime Support"
+							class="simple"
+							href="https://github.com/csap-platform/csap-core/wiki/Service-Settings#service-variables"> csap definition
+							variables </a> may be used to specify path. eg. 'SEARCH_FOR_RESOURCE:my.yaml' will search in definition resource
+						folders using the following precedence: lifecycle, common, then /. $$service-resources is the location csap
+						service files Specifying image, and using $$service-image in the templates is strongly recommended.</li>
+					<li>File paths that include '*deploy-only*' (eg. /path/to/volume-create-deploy-only.yaml) will NOT be removed
+						unless clean option is checked. Typically used for persistent volumes, etc.</li>
+				</ol>
+			</div>
+
+			<div>
+
+				<div>
+					<label 
+						class=csap-form-inline
+						title="container image name: specify, and use $$service-image in your deployment templates">
+						<span>Image:</span>
+						<input
+							placeholder="optional"
+							data-path="docker.image" />
+
+					</label>
+				</div>
+
+				<label
+						class=csap-form-inline
+					title="List of files that will be loaded during deployment"
+					style="vertical-align: top">
+					<span>File names:</span>
+
+				</label>
+				<div class="floating-ace-editor">
+					<textarea
+						id="container-deploy-files"
+						data-path="docker.deployment-file-names"
+						data-fit="true"
+						rows="1"
+						data-adjust="30"
+						data-adjustwidth="200"
+						spellcheck=false
+						placeholder="deployment filenames. specify as JSON array elements"></textarea>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,990 @@
+/*
+*
+*
+*    Navigation bar
+*	
+*/
+
+
+#manager .ajs-content {
+ 	background-color: var(--theme-bg) ;
+ 	color: var(--theme-color) ;
+	left: 10px;
+	right: 10px;
+	padding: 5px; 
+	border: var(--theme-border);
+	border-radius: var(--border-radius-small);
+}
+
+#manager .ajs-frameless .ajs-content {
+ 	background-color: transparent ;
+	left: 0px;
+	right: 0px;
+	padding: 0px; 
+	border: none;
+}
+
+
+
+article.content .options {
+	padding-bottom: 5px;
+	margin-bottom: 0.25em;
+	border-bottom: var(--theme-border);
+	display: flex;
+	gap: var(--small-padding);
+	font-weight: bold;
+	white-space: nowrap;
+	
+}
+article.content .options .page-title {
+	padding-right: 2em;
+}
+article.content .options span.quote {
+	margin: 0;
+}
+
+article.navigation #agent-tab {
+	display: none ;
+}
+
+body.agent article.navigation #agent-tab {
+	display: block ;
+}
+
+#projects-tab.show-selector div.tab-primary {
+	padding-bottom: 0;
+}
+
+article.navigation #projects-tab #projects  {
+	display: none;
+}
+article.navigation #projects-tab.show-selector #projects {
+	display: block;
+	margin-left: 0.8em;
+	margin-right: 0.3em;
+	margin-bottom: 0.5em;
+	margin-top: 0em;
+}
+
+
+header span.ui-selectmenu-button.ui-button {
+	font-size: 9pt;
+}
+
+header #logout {
+	position: relative;
+	top: 4px;
+}
+
+header #agent-mode {
+	font-size: 10pt;
+	font-weight: normal;
+	background-color: var(--nav-active-background);
+	color: black;
+	padding: 3px;
+	font-style: italic;
+	border-radius: var(--border-radius-small);
+	display: none;
+	transition: opacity 500ms ease-in-out 300ms;
+}
+
+#manager>header a#portal-help {
+	margin-right: 1em;
+	color: var(--nav-theme-color);
+	align-self: baseline;
+}
+#manager>header a#portal-help:hover {
+	color: var(--nav-hover-color);
+}
+
+header #environment-name {
+	margin-left: 4px;
+	min-width: 14em;
+	font-size: 8pt;
+	text-align: center;
+}
+
+header #environment-name select {
+	width: 12.8em;
+	margin-left: 4px;
+	font-size: 9pt;
+	top: 2px;
+	padding: 0;
+}
+
+header #portal-help  {
+	font-size: 8pt;
+	text-align: center;
+	min-width: 6em;
+}
+
+
+#portal-help-select-menu .csap-logout {
+	text-align: right;
+	display: block;
+	background-position: right;
+	padding-right: 2em;
+	background-size: 16px 16px;
+	font-weight: bold;
+}
+
+header #portal-help select  {
+	width: 4.5em;
+	margin-left: 4px;
+	font-size: 9pt;
+	top: 2px;
+	padding: 0;
+}
+
+#portal-help-select-menu li.hidden, header #portal-help select option.hidden{
+ 	display: none;
+ }
+
+ header #portal-help select option.logout{
+ 	color: red;
+ 	font-weight: bold;
+ 	font-style: italic;
+	background-image: url('../../images/16x16/check.svg');
+ }
+
+header #environment-name select .env-spacer {
+	background-color: white ;
+	font-size: 5px;
+}
+
+header #environment-name select .env-spacer-label {
+	background-color: #90bff0 ;
+}
+
+header #environment-name select .env-spacer-label option {
+	background-color: white ;
+}
+
+header #application-name {
+	margin-left: 0em;
+}
+
+
+#manager footer {
+	display: grid ;
+	grid-template-columns: minmax(20em, 1fr) auto;
+	grid-column-gap: 3em;
+	
+}
+#manager footer span {
+	overflow: hidden;
+}
+
+footer #last-operation {
+	max-width: 35em;
+	overflow: hidden;
+	
+}
+footer #admin-host {
+	font-weight: bold;
+	padding-left: 1em;
+}
+
+footer #right-footer {
+	display: flex;
+}
+
+article.content div.options label {
+	margin-right: 2em;
+	position: relative;
+}
+
+
+/*
+*
+*
+*    browser wide
+*	
+*/
+
+
+#loading-project-message {
+	position: absolute;
+	width: 60em;
+	left: 50%;
+	top: 30%;
+	margin-left: -20em;
+	margin-top: -5em;
+	padding-left: 2em;
+	padding-right: 2em;
+	left: 50%;
+	z-index: 100;
+}
+
+
+/*
+*
+*
+*    Meters
+*	
+*/
+
+/* #performance-tab-meters #applications {
+	margin-bottom: 1em;
+	font-weight: bold;
+	font-size: 11pt;
+	
+	background-color: var(--panel-header-bg);
+	border-top-right-radius: var(--border-radius-small);
+	border-bottom-right-radius: var(--border-radius-small);
+	display: grid ;
+	grid-template-columns: 3em auto;
+}
+
+#performance-tab-meters #applications div.label {
+	background-color: var(--panel-header-select-bg );
+	border-radius: none ;
+	border-top-right-radius: var(--border-radius-small);
+	border-bottom-right-radius: var(--border-radius-small);
+	writing-mode: tb-rl;
+	transform: rotate(180deg);
+	font-variant: small-caps;
+	padding: 8px;
+}
+
+#performance-tab-meters #applications div.buttons {
+	display: grid ;
+	grid-template-columns: repeat(auto-fit, 12em	);
+	align-items: start;
+	grid-column-gap: 5px;
+	grid-row-gap: 5px;
+	margin: 5px;
+	text-align: center;
+} */
+
+
+#performance-tab-meters #applications div.buttons button {
+	white-space: nowrap;
+	overflow: hidden;
+	text-align: justify;
+}
+
+
+#performance-tab-meters #analyticsMeters .meterContainer {
+	position: relative;
+}
+
+
+#performance-tab-meters #analyticsMeters input {
+	position: absolute;
+	top: 2px;
+	z-index: 1;
+	display: none;
+}
+
+#performance-tab-meters #applications {
+	display: grid;
+	color: black;
+	grid-template-columns: repeat(auto-fit, 14em);
+	grid-column-gap: 1em;
+	grid-row-gap: 10px;
+	margin-bottom: 2em;
+}
+#performance-tab-meters #applications button {
+	text-align: left;
+	white-space: nowrap;
+	overflow: hidden;
+	text-transform: capitalize;
+}
+
+#performance-tab-meters #analyticsMeters {
+	display: grid;
+	color: black;
+	grid-template-columns: repeat(auto-fit, 14em);
+	grid-template-rows: repeat(auto-fit, 140px);
+	padding: 5px;
+	grid-column-gap: 1em;
+	grid-row-gap: 10px;
+	margin-bottom: 1em;
+	align-items: self-end;
+}
+
+
+#performance-tab-meters .meterGraph {
+	width: 200px;
+	height: 150px;
+	font-size: 10pt;
+	background-color: var(--panel-header-bg);
+	border: 3px solid var(--panel-header-bg);
+	border-radius: var(--border-radius-small);
+}
+
+#performance-tab-meters .selected .meterGraph {
+	border: 3px solid var(--nav-active-color);
+}
+
+#performance-tab-meters div.meter-ok {
+	background-image: url('../../images/16x16/check.svg');
+	background-position: 50% 30%;
+	background-size: 80px 75px;
+	background-repeat: no-repeat;
+}
+
+#performance-tab-meters div.meter-warning {
+	background-image: url('../../images/16x16/caution.svg');
+	background-position: 50% 30%;
+	background-size: 70px 70px;
+	background-repeat: no-repeat;
+}
+
+#performance-tab-meters .jqplot-meterGauge-label {
+	color: var(--panel-header-color) ;
+}
+
+#performance-tab-meters div.meter-label {
+	position: relative;
+	top: 78px;
+	width: 200px;
+	text-align: center;
+	font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+#performance-tab-meters div.meter-value {
+	position: relative;
+	top: 108px;
+	width: 200px;
+	text-align: center;
+	font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+#performance-tab-meters .meterGraph:hover {
+	opacity: 0.8 ;
+}
+
+#performance-tab-meters .jqplot-meterGauge-label, #performance-tab-meters .meter-value, #performance-tab-meters .meter-label {
+	color: var(--panel-header-color) ;
+}
+
+#performance-tab-meters .meterGraph:hover .jqplot-meterGauge-label, #performance-tab-meters .meterGraph:hover .meter-value, #performance-tab-meters .meterGraph:hover .meter-label {
+	color: var(--nav-hover-color) ;
+}
+
+#performance-tab-meters #analyticsMeters .jqplot-title {
+	height: 0;
+}
+
+#performance-tab-meters #selected-meter {
+	margin-left: 5px;
+	display: none;
+}
+#performance-tab-content #performance-tab-meters table.jqplot-table-legend {
+	height: auto;
+	margin-top: -3em;
+	margin-left: -6em;
+	font-size: 12pt;
+	display: table;
+}
+
+#performance-tab-meters #selected-meter button {
+	vertical-align: text-top;
+}
+#performance-tab-meters #selected-meter .flex-container {
+	margin-top: 1em;
+}
+
+
+#performance-tab-meters #meterHistogram {
+	vertical-align: top ;
+	background-color: white ;
+	border-radius: var(--border-radius-small);
+	border: var(--theme-border);
+	font-size: 10pt;
+	margin-bottom: 1em;
+	margin-top: 0;
+	margin-left: 2em;
+	padding: 20px;
+}
+
+
+/*
+*
+*    performance - kuberntes rt
+*	
+*/
+
+#kubernetes-metrics-service #node-table-div {
+	position: relative;
+	margin-bottom: 1em;
+	overflow: auto;
+	max-height: 10em ;
+}
+#kubernetes-metrics-service #node-table-div #node-table-height {
+	position: absolute;
+	right: 1em;
+	top: 5px;
+	z-index: 2;
+}
+
+#kubernetes-metrics-service #node-table-div table th  {
+	text-align: center;
+}
+
+#kubernetes-metrics-service #node-table-div table td:nth-child(1), #kubernetes-metrics-service #node-table-div table th:nth-child(1)  {
+	text-align: left;
+	white-space: nowrap;
+	padding-left: 1em;
+	
+}
+
+#kubernetes-metrics-service #node-table-div table td {
+	min-width: 7em ;
+}
+
+
+#performance-tab-kubernetes-rt #container-tables {
+	display: flex;
+	gap: 1em;
+} 
+
+#performance-tab-kubernetes-rt #container-tables > div{
+	
+	position: relative;
+}
+#performance-tab-kubernetes-rt #container-tables table th:first-child {
+	min-width: 17em;
+}
+
+#performance-tab-kubernetes-rt label.flex-right-info{
+	right: -2em;
+}
+#performance-tab-kubernetes-rt #k8-top-filter {
+	width: 30em;
+}
+
+#performance-tab-kubernetes-rt #container-tables td {
+	position: relative;
+}
+
+#performance-tab-kubernetes-rt #summary-column-header, #performance-tab-kubernetes-rt #detail-column-header  {
+	position: absolute;
+	top: 0.25em;
+	left: 0.5em;
+}
+
+
+
+#performance-tab-kubernetes-rt table td:first-child, 
+#performance-tab-kubernetes-rt #pod-table-div td:nth-child(2) {
+	padding-left: 0;
+}
+
+#performance-tab-kubernetes-rt #container-tables span.flex-right-info{
+	color: grey;
+}
+
+
+#performance-tab-kubernetes-rt #pod-table-div span.container-name{
+	color: grey;
+	display:none;
+}
+
+
+#performance-tab-kubernetes-rt table button.csap-icon {
+	visibility: hidden;
+}
+
+#performance-tab-kubernetes-rt table div.flex-container {
+	gap: 4px;
+}
+
+#performance-tab-kubernetes-rt #container-tables button.right-2 {
+	position: absolute;
+	top: 1px;
+	right: 5px;
+}
+
+#performance-tab-kubernetes-rt table tr:hover button.csap-icon {
+	visibility: visible;
+}
+
+#performance-tab-kubernetes-rt button#clear-pod-filter {
+	visibility: hidden;
+}
+
+/*
+*
+*    performance - health
+*	
+*/
+#performance-tab-health-reports table {
+	width: 100%;
+	margin-bottom: 2em;
+	margin-top: 1em;
+}
+#performance-tab-health-reports .source-locations {
+	display: grid ;
+	grid-template-columns: repeat(auto-fit, 10em);
+	column-gap: 1em;
+}
+
+#performance-tab-health-reports table#health td:nth-child(5){
+	max-width: 9em ;
+}
+
+#performance-tab-health-reports table#health td:first-child{
+	white-space: nowrap;
+}
+
+
+
+/*
+*
+*    performance - trends
+*	
+*/
+
+
+#manager .jqplot-highlighter-tooltip, #manager .jqplot-canvasOverlay-tooltip {
+	border: 1px solid black;
+	border-radius: 3px;
+	white-space: nowrap;
+	background: var(--theme-bg);
+	color: var(--theme-color);
+	font-size: 10pt;
+	font-weight: bold;
+	padding: 10px;
+	z-index: 10;
+	min-width: 6em;
+}
+
+#manager .jqplot-highlighter-tooltip .tip-legend {
+	color: var(--nav-active-color);
+	font-weight: bold;
+}
+#performance-tab-content table.jqplot-table-legend {
+	position: relative;
+	display: block;
+	overflow: auto;
+	height: 100%;
+	border: none;
+	margin: 0;
+}
+
+#performance-tab-content table.jqplot-table-legend td {
+	height: 1.5em;
+}
+
+#performance-tab-content table.jqplot-table-legend td:first-child {
+	padding-left: 1em;
+}
+
+#performance-tab-content table.jqplot-table-legend td:last-child {
+	padding-right: 1em;
+}
+
+#performance-tab-metrics table.jqplot-table-legend {
+	display: none;
+	background-color: rgba(255, 255, 255, 1);
+	z-index: 9999;
+}
+
+
+#performance-tab-content .jqplot-title button.csap-button-icon {
+	padding: 2px;
+}
+#performance-tab-content .jqplot-title button.csap-button-icon:hover {
+	background-color: var(--nav-hover-background);
+	border-color: var(--nav-hover-background);
+}
+
+#performance-tab-content select.trend-top {
+	visibility: hidden;	
+	margin-left: 0.5em;
+}
+
+#performance-tab-content .jqplot-title {
+	font-size: 12pt;
+	font-weight: bold;
+	margin-left: 5px;
+	margin-bottom: 10px;
+	color: black;
+	z-index: 1;
+	display: flex;
+	justify-content: space-between;
+	white-space: nowrap;
+	font-family: arial, helvetica, sans-serif;
+}
+
+#performance-tab-content .jqplot-title span {
+	text-align: left;
+}
+
+#performance-tab-content .jqplot-title span:hover{
+	cursor: pointer;
+	color: red;
+}
+
+
+
+
+/*
+*
+*    Hosts Tab
+*	
+*/
+
+
+#hosts-tab-content label {
+	margin-right: 2em;	
+}
+
+article.content a.host-command {
+	background-image: url("../../images/16x16/shell.png");
+	background-repeat: no-repeat;
+	background-position: center left;
+	padding-left: 16px;
+	background-size: 14px 14px;
+}
+ 
+article.content a.host-files {
+	background-image: url("../../images/folder.png");
+	background-repeat: no-repeat;
+	background-position: center left;
+	padding-left: 18px;
+	background-size: 14px 14px;
+}
+ 
+article.content a.host-infra {
+	background-image: url("../../images/16x16/sysMon.png");
+	background-repeat: no-repeat;
+	background-position: center left;
+	padding-left: 18px;
+	background-size: 14px 14px;
+}
+
+article.content a.host-infra:hover, article.content a.host-files:hover, article.content a.host-command:hover {
+	background-image: url("../../images/16x16/window-hover.svg");
+}
+ 
+ 
+ 
+ 
+#hosts-tab-content table {
+	width: auto;
+}
+
+#hosts-tab-content table td, #hosts-tab-content th {
+	text-align: right ;
+	vertical-align: top ;
+}
+
+#hosts-tab-content table td:nth-child(1), #hosts-tab-content th:nth-child(1) {
+	text-align: left ;
+}
+
+
+#hosts-tab-content  .host-pair {
+	text-align: left ;
+	display: grid;
+	grid-template-columns: 3em minmax(20em, 3fr);
+	padding: 4px;
+	padding-top: 0;
+}
+
+#hosts-tab-content  .host-pair:hover {
+	background-color: var(--nav-hover-background);
+}
+
+
+
+
+
+/*
+*
+*
+*    Events Tab
+*	
+*/
+
+#performance-tab-events {
+	display: grid ;
+	grid-template-rows:  var(--option-height) auto;
+	height: 100% ;
+}
+#performance-tab-events #events-panel {
+	overflow: auto;
+}
+
+#performance-tab .event-details-selected {
+	display: none ;
+}
+
+#performance-tab-content, #performance-tab-event-details.describe-container {
+	height: 100% ;
+}
+#performance-tab-event-details.describe-container pre {
+	height: 100% ;
+	margin: 0;
+}
+
+
+#performance-tab-events .options #event-refresh {
+    vertical-align: text-bottom;
+}
+
+#performance-tab-events .options #event-refresh:hover {
+	background-color: var(--nav-hover-background);;
+}
+
+#performance-tab-events .options #event-category-combo {
+	width: 16em;
+}
+
+#performance-tab-events #event-filter-container {
+	float: right;
+}
+#performance-tab-events #event-filter {
+	width: 16em;
+}
+
+#performance-tab-events #date-controls input {
+	width: 6em;
+	
+}
+
+#performance-tab-events .options #csap-event-count {
+	font-style: italic ;
+	font-weight: normal;
+	font-size: 9pt;
+}
+
+#performance-tab-events .options #event-category {
+	position: absolute;
+	right: 1.7em;
+	padding: 0;
+	border: none;
+	width: 14em;
+	top: 2px;
+}
+
+
+#performance-tab-events .options input#event-limit {
+	width: 3em;
+}
+
+
+#performance-tab-events .event-details {
+	display: flex ;
+	justify-content: space-between;
+	font-style: italic;
+	font-size: 11pt;
+}
+
+
+#performance-tab-events .event-summary {
+	display: flex ;
+	justify-content: space-between;
+	font-weight: bold ;
+}
+#performance-tab-events table {
+	min-width: 44em;
+	margin-left: 2em ;
+}
+#performance-tab-events table.csap thead {
+	text-align: left;
+	padding: 10px;
+}
+#performance-tab-events table.csap th {
+	text-align: left;
+	padding: 10px;
+}
+#performance-tab-events table.csap td {
+	border-left: none;
+}
+
+#performance-tab-events table td:nth-child(1) {
+	padding-left: 5px ;
+	width: 6em;
+}
+#performance-tab-events table td:nth-child(2) {
+	min-width: 14em;
+	max-width: 18em;
+}
+
+#performance-tab-events table td:nth-child(3) {
+	min-width: 30em;
+}
+
+#performance-tab-events table .event-date-label {
+	font-size: 12pt ;
+	font-weight: bold;
+	color: var(--theme-color);
+	background-color: var(--nav-hover-background);
+	border-right: none;
+}
+#performance-tab-events table tr:hover td.event-date-label  {
+	background: var(--nav-hover-background);
+}
+
+#performance-tab-events table button.event-time {
+	border-color: white;
+	background-color: inherit;
+	color: black;
+	padding-left: 2px;
+}
+
+#performance-tab-events table tr:hover button.event-time {
+	color: var(--nav-hover-color);
+	background: #f6f6f6;
+	border: var(--theme-border);
+}
+
+
+/*
+*
+*    Alerts Tab
+*	
+*/
+
+#performance-tab-content div.infra-trends {
+	position: relative ;
+}
+#performance-tab-content div.comment {
+	position: absolute;
+	left: 15em;
+	color: grey;
+	font-size: 9pt;
+	font-style: italic;
+}
+#performance-tab-content .the-plot {
+	background-color: white;
+	border: var(--theme-border);
+	border-radius: var(--border-radius-small);
+	padding: 1em;
+	margin-bottom: 0.75em;
+	margin-right: 5px;
+	display: grid;
+	grid-template-columns: auto 10em;
+	overflow: visible;
+}
+
+.flex-centered {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+}
+
+#performance-tab-alerts .alert-trends {
+	margin-bottom: 3em;
+}
+
+
+#performance-tab-alerts .alerts .csap-white {
+	padding: 1em;
+	padding-left: 5px;
+	font-size: 10pt;
+	overflow: auto;
+}
+
+#performance-tab-alerts .alerts .csap-white span.status-red, #performance-tab-alerts .alerts .csap-white span.status-green {
+	font-weight: bold;
+	font-size: 12pt;
+}
+
+
+#performance-tab-alerts div.alert-listing {
+	margin-top: 1em;
+	display: grid;
+	grid-template-columns: 7px auto minmax(10em, 1fr);
+	align-items: start;
+	grid-column-gap: 1em;
+	grid-row-gap: 1em;
+}
+
+#performance-tab-alerts div.alert-listing div.sub-alert {
+	text-indent: -15px;
+	margin-left: 15px;
+	margin-top: 5px;
+}
+
+
+
+/*
+*
+*
+*    Trends Tab
+*	
+*/
+div.options-scroller {
+	display: grid ;
+	grid-template-rows:  var(--option-height) auto;
+	height: 100% ;
+}
+
+div.options-scroller div:first-child {
+	white-space: nowrap;
+}
+
+div.options-scroller div:nth-child(2) {
+	overflow: auto;
+}
+
+
+
+/*
+*
+*
+*    Preferences Tab
+*	
+*/
+#preferences-tab-content .options .csap-link-icon {
+	margin-left: 2em;
+	background-size: 18px 18px;
+	padding-right: 22px;
+    background-position: right center;
+    font-style: normal;
+}
+
+#preferences-tab-content .preferences  {
+	display: grid;
+	color: black;
+	grid-template-columns:  8em  12em  minmax(15em, 1fr);
+	padding: 5px;
+	grid-column-gap: 1em;
+	grid-row-gap: 10px;
+	margin-bottom: 2em;
+	align-items: baseline ;
+	justify-items: start ;  
+}
+#preferences-tab-content .preferences input {
+	max-width: 6em ;
+}
+
+#preferences-tab-content .preferences select {
+	justify-self: start ; 
+}
+
+#preferences-tab-content .preferences span {
+	font-style: italic;
+}
+
+#preferences-tab-content .preferences >label {
+	justify-self: right ;
+	text-align: right;
+}
+
+#preferences-tab-content .preferences >label::after {
+	content: ":";
+}
+
+
+#preferences-tab-content #ace-editor-settings label {
+	margin-right: 3px;
+	width: auto;
+}
+#preferences-tab-content #editor-settings-demo {
+	height: 20em;
+	width: 40em;
+	border: var(--theme-border);
+	border-radius: var(--border-radius-small);
+}
+
+
+
+

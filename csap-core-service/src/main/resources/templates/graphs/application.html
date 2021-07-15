@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+
+<head>
+
+<title th:inline="text">Service Data</title>
+
+
+<script th:replace="/graphs/head :: pageContent"></script>
+
+<script th:inline="javascript">
+
+var agentHostUrlPattern = [[${ agentHostUrlPattern }]];
+var uiSettings = {
+	baseUrl: BASE_URL,
+	life:	 [[ ${ life } ]],
+	testHost: [[ ${ testHostOnDesktop } ]],
+	isForceHostToLocalhost: [[ ${ testHostForceLocalHost } ]],
+	eventUser: [[ ${ eventUser } ]],
+	// eventMetricsUrl: [[ ${ eventMetricsUrl } ]],
+	eventMetricsUrl: SERVICE_URL + "/metricsApi/",
+	localApplicationService: [[ ${ serviceName } ]] 
+}
+
+
+var serviceName = [[ ${ serviceName } ]];
+document.title = serviceName + " : " + document.title;
+
+
+// $("header").html('<div class="noteHighlight" >' + serviceName + " : Application Graphs" + '</div>') ;
+
+
+
+$(document).ready(function () {
+	CsapCommon.configureCsapAlertify();
+	
+require([ "ResourceGraph" ],
+		function (ResourceGraph) {
+		var serviceGraph = new ResourceGraph(
+				"#applicationGraphs",
+				[[ ${ collectionApplication } ]], 
+				uiSettings.life,
+				uiSettings.eventUser,
+				uiSettings.eventMetricsUrl);
+		});
+});
+</script>
+<style>
+#csapPageVersion, header>div:first-of-type {
+	display: none;
+}
+
+.ui-widget {
+	font-size: 0.8em;
+}
+
+footer {
+	display: none;
+}
+</style>
+</head>
+
+<body
+	id=graph-local
+	th:inline="text"
+	class="grap-local csap-scrollable theme-dark">
+
+	<header th:replace="csap/fragments/page :: header"></header>
+
+
+	<article class=content>
+		<div
+			id="applicationGraphs"
+			class=scrolling-graphs
+			style="font-size: 0.9em"></div>
+
+		<aside>
+			<div th:replace="/graphs/template :: pageContent"></div>
+
+		</aside>
+
+	</article>
+
+</body>
+
+</html>

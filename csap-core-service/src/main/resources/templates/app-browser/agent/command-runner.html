@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>include page</title>
+</head>
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+
+
+	<form
+		id="executeScriptForm"
+		th:action="@{/os/executeScript}"
+		method="post">
+
+		<div>
+
+			<div id="command-header">
+
+				<button
+					id=run-command-script
+					class="csap-button-icon csap-play">Run</button>
+
+
+				<span id=hostButtonTarget>
+					<button class=csap-button-icon>
+						<img th:src="@{ /images/16x16/tools.svg }" />1 Hosts(s)
+					</button>
+				</span>
+
+
+				<div
+					id=templates-panel
+					title="Click to browse template library">
+					<button
+						id="show-templates-button"
+						class="csap-button-icon csap-folder"
+						style="">Library</button>
+				</div>
+
+
+				<span id=run-settings-panel>
+					<label
+						id=use-root-panel
+						class=csap>
+						<input
+							class="show-root-warning"
+							name="runAsRoot"
+							type="checkbox" />
+						Root User
+					</label>
+
+
+					<span>
+						<input
+							id="jobIdInput"
+							type="hidden"
+							name="jobId"
+							value="" />
+
+						<input
+							id="cancelInput"
+							type="hidden"
+							name="cancel"
+							value="" />
+					</span>
+
+						<label
+							id=timeout-label
+							class=csap
+							title="script will be killed if it exceeds specified number of seconds">
+
+							<span>Time Out:</span>
+							
+							<select
+								id=command-timeout
+								title="Commands will be aborted if not completed in specified interval">
+								<option>5s</option>
+								<option>10s</option>
+								<option>30s</option>
+								<option>1m</option>
+								<option selected="selected">5m</option>
+								<option>15m</option>
+								<option>30m</option>
+								<option>60m</option>
+							</select>
+							
+							<input id=form-timeout
+								name="timeoutSeconds"
+								value="300"
+								 />
+						</label>
+
+						<span th:replace="/file/ace-settings :: pageContent"></span>
+
+
+				</span>
+
+				<div id=run-info-panel>
+
+
+
+					<label
+						class="csap small"
+						title="script will will stored and executed in csap-platform/saved/scripts-run">
+						<span>Script Name:</span>
+						<input
+							id="scriptName"
+							class=small
+							name="scriptName"
+							th:value="${  userid + '-' + scriptLabel }" />
+
+
+					</label>
+
+
+					<input
+						style="display: none"
+						th:if="${_csrf != null}"
+						th:name="${_csrf.parameterName}"
+						th:value="${_csrf.token}" />
+
+					<span
+						id="script-source-name"
+						class=small
+						th:text="${scriptLabel}"></span>
+
+
+				</div>
+
+			</div>
+
+
+		</div>
+		<textarea
+			id="scriptText"
+			name="contents"
+			style=""
+			spellcheck="false">[[ ${ contents } ]]</textarea>
+
+		<pre
+			id="ace-editor"
+			style="">[[${contents}]]</pre>
+
+	</form>
+
+
+	<aside>
+		<div id="templatePrompt">
+			<div class="infoBlock">
+				<label id="command-table-filter">
+					Filter:
+					<input />
+				</label>
+
+				Click on any line to load the template
+
+			</div>
+			<div id=template-table-panel>
+				<table
+					id="templateTable"
+					class="csap sticky-header">
+					<thead>
+
+						<tr>
+							<th>Command</th>
+							<th>Source</th>
+							<th>Description</th>
+						</tr>
+					</thead>
+
+					<tbody id="template-body">
+
+					</tbody>
+
+				</table>
+			</div>
+		</div>
+
+	</aside>
+
+
+
+</body>
+</html>

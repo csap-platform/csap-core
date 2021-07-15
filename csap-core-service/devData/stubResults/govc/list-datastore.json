@@ -1,0 +1,103 @@
+[
+	{
+		"about": "govc datastore.ls -ds CSAP_DS1_NFS  -json=true -l=true",
+		"Datastore": {
+			"Type": "Datastore",
+			"Value": "datastore-117663"
+		},
+		"FolderPath": "[CSAP_DS1_NFS]",
+		"File": [
+			{
+				"Path": "peter.vmdk",
+				"FriendlyName": "",
+				"FileSize": 1597440,
+				"Modification": "2019-08-14T19:58:20Z",
+				"Owner": "root",
+				"DiskType": "",
+				"CapacityKb": 0,
+				"HardwareVersion": 0,
+				"ControllerType": "",
+				"DiskExtents": null,
+				"Thin": null,
+				"Encryption": null
+			},
+			{
+				"Path": "csap-dev09",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-15T15:29:13Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev11",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-13T09:27:59Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev20",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-12T15:05:06Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev08",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-15T14:42:41Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev10",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-15T13:25:11Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "fcd",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-12T15:33:44Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "jeff",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-12T15:01:16Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev12",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-14T18:13:16Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "kubevols",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-14T19:52:55Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev07",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-14T19:58:12Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "catalog",
+				"FriendlyName": "",
+				"FileSize": 4096,
+				"Modification": "2019-08-12T15:04:00Z",
+				"Owner": "root"
+			}
+		]
+	}
+]

@@ -1,0 +1,100 @@
+
+spring:
+  
+  devtools.restart.additional-exclude: "**/*.jmx,**/*.csv,**/*.json,**/csap-templates/**"
+
+  servlet:
+    multipart:
+      max-file-size: 1000MB
+      max-request-size: 1000MB
+      
+  cache:
+    jcache:
+      config: "classpath:ehcache3.xml"  
+
+# NOTE: must match agent endpoint when used by csap-admin
+# overridden by application-admin.yaml when used by admin
+server:
+  
+  port: 8011
+  servlet:
+    context-path: /
+    
+  tomcat:
+    # Note: FileRequests.getMaxEdit subtracts 500 for other parameters
+    max-http-form-post-size: 8MB
+#  error:
+#    include-message: always
+      
+# Common configuration for agent and admin
+csap-core:
+
+  #    definition-strict-mode: true
+  # Note: on agent only - this is ignored in favor of server.port and server.context
+  agent-port: 8011
+  agent-context-path: "/"
+
+  min-version-kubelet: "1.16."
+  min-version-docker: "19.03."
+  min-version-csap: "2.1.1"
+
+  screen-cast-server-url: "http://csap-dev01.lab.sensus.net:7080/"
+
+  # http://CSAP_HOST.yourcompany.com:8011/CsAgent
+  host-url-pattern: "${hostUrlPattern:auto}"
+
+  disable-ssl-validation: false
+  
+  installation-folder: ${CSAP_FOLDER}
+#  staging: ${STAGING:} 
+#  processing: ${PROCESSING:}
+ 
+  docker-ui-default-images:
+    - docker.io/hello-world
+    - ${csapDockerRepository:docker.io}/stress
+    - ${csapDockerRepository:docker.io}/csap-activemq
+    - ${csapDockerRepository:docker.io}/csap-base
+    - ${csapDockerRepository:docker.io}/csap-test-app
+    - ${csapDockerRepository:docker.io}/csap-tomcat
+    - docker.io/nginx
+    - docker.io/postgres:12.1
+    - docker.io/webcenter/activemq
+    - docker.io/httpd
+    - docker.io/jenkins/jenkins
+    - docker.bintray.io/jfrog/artifactory-oss:latest
+    
+  help-urls: 
+    release-notes: https://xyleminc.atlassian.net/wiki/spaces/CSAP/pages/1560871480/Release+Notes
+    reference-guide: https://xyleminc.atlassian.net/wiki/spaces/CSAP
+    training: https://xyleminc.atlassian.net/wiki/spaces/CSAP/pages/258211876/CSAP+Training
+    service-template-help: https://xyleminc.atlassian.net/wiki/spaces/CSAP/pages/398101161/CSAP+Service+Templates
+    service-variables: https://xyleminc.atlassian.net/wiki/spaces/CSAP/pages/398101161/CSAP+Service+Templates#Runtime-Variables
+    process-match-help: https://xyleminc.atlassian.net/wiki/spaces/CSAP/pages/2596373912/CSAP+Service+Processing+Mapping
+    cluster-help: https://xyleminc.atlassian.net/wiki/spaces/CSAP/pages/258211869/Cluster+Templates
+    environment-help: https://xyleminc.atlassian.net/wiki/spaces/CSAP/pages/399835244/CSAP+Environment+Definitions
+    configuration-map-help: https://xyleminc.atlassian.net/wiki/spaces/CSAP/pages/399835244/CSAP+Environment+Definitions#Configuration-Maps
+    editor-help: https://xyleminc.atlassian.net/wiki/spaces/CSAP/pages/258211875/CSAP+Application+Editor
+    performance-help: https://xyleminc.atlassian.net/wiki/spaces/CSAP/pages/286261563/CSAP+Service+Health
+    package-help: https://xyleminc.atlassian.net/wiki/spaces/CSAP/pages/258211867/CSAP+Packages
+    service-live-help: https://xyleminc.atlassian.net/wiki/spaces/CSAP/pages/258211862/CsapMicroMeter
+    autoplay-help: https://xyleminc.atlassian.net/wiki/spaces/CSAP/pages/655822606/CSAP+Auto+Play
+    command-runner: https://xyleminc.atlassian.net/wiki/spaces/CSAP/pages/347996320/CSAP+Host+Portal#Command-Runner
+    
+  
+    
+csap:
+
+  security:
+
+    rest-api-filter:
+      enabled: true
+      urls:
+        - /api/*
+      group: "$CSAP_ADMIN_GROUP"
+      cache-seconds: 300
+      
+  locator:
+    enabled: true
+    active-urls-locator: "${csapLbUrl:https://csap-secure.yourcompany.com}/admin/api/service/urls/active/"
+    low-resources-url-locator: "${csapLbUrl:https://csap-secure.yourcompany.com}/admin/api/service/url/low/"
+    low-resource: "lowCpu"  #lowLoad, lowCpu, ...

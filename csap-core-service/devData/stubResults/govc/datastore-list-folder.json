@@ -1,0 +1,76 @@
+[
+	{
+		"Datastore": {
+			"Type": "Datastore",
+			"Value": "datastore-117663"
+		},
+		"FolderPath": "[CSAP_DS1_NFS] csap-dev07/",
+		"File": [
+			{
+				"Path": "csap-dev07.vmx",
+				"FriendlyName": "",
+				"FileSize": 3346,
+				"Modification": "2019-08-23T19:17:10Z",
+				"Owner": "root",
+				"ConfigVersion": 0,
+				"Encryption": null
+			},
+			{
+				"Path": "csap-dev07.vmdk",
+				"FriendlyName": "",
+				"FileSize": 102133563392,
+				"Modification": "2019-08-23T19:17:11Z",
+				"Owner": "root",
+				"DiskType": "",
+				"CapacityKb": 0,
+				"HardwareVersion": 0,
+				"ControllerType": "",
+				"DiskExtents": null,
+				"Thin": null,
+				"Encryption": null
+			},
+			{
+				"Path": "csap-dev07.nvram",
+				"FriendlyName": "",
+				"FileSize": 8684,
+				"Modification": "2019-08-23T19:29:55Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev07.vmsd",
+				"FriendlyName": "",
+				"FileSize": 0,
+				"Modification": "2019-08-07T15:49:24Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "vmx-csap-dev07-1862901994-1.vswp",
+				"FriendlyName": "",
+				"FileSize": 115343360,
+				"Modification": "2019-08-23T19:16:48Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev07-1c3282f8.hlog",
+				"FriendlyName": "",
+				"FileSize": 92,
+				"Modification": "2019-08-23T19:17:10Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev07.vmx.lck",
+				"FriendlyName": "",
+				"FileSize": 0,
+				"Modification": "2019-08-23T19:17:10Z",
+				"Owner": "root"
+			},
+			{
+				"Path": "csap-dev07-6f09a0ea.vswp",
+				"FriendlyName": "",
+				"FileSize": 34359738368,
+				"Modification": "2019-08-07T15:49:25Z",
+				"Owner": "root"
+			}
+		]
+	}
+]

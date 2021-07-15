@@ -1,0 +1,591 @@
+
+/*
+*
+*    Editor - file browser
+*	
+*/
+
+
+body.stand-alone #loading-project-message {
+	position: absolute;
+	width: 60em;
+	left: 50%;
+	top: 10%;
+	margin-left: -20em;
+	margin-top: -5em;
+	padding-left: 2em;
+	padding-right: 2em;
+	left: 50%;
+	z-index: 9;
+	display: none;
+}
+
+.dnd-upload .quote {
+    color: gray ;
+}
+
+.dnd-upload .csap-remove {
+	position: relative;
+	top: -7px;
+}
+
+body.stand-alone article.content {
+	padding: 0;
+	background-color: white;
+	border-radius: 0;
+}
+
+.csap-file-browser article.content {
+	margin-right: 0;
+}
+
+.csap-file-browser ul.fancytree-container {
+	border: none;
+}
+.csap-file-browser header {
+	display: none;
+	font-size: 10pt;
+}
+
+.csap-file-browser header select {
+	font-size: 8pt;
+	max-width: 6em;
+}
+
+.csap-file-browser header select#files-in-editor {
+	max-width: 14em;
+}
+
+.csap-file-browser header #file-size {
+	font-size: 8pt;
+}
+
+
+.csap-file-browser header label {
+	margin-right: 1em;
+}
+
+.csap-file-browser header {
+	position: relative;
+}
+
+.csap-file-browser header button.launch-window {
+	padding-left: 0;
+}
+
+.csap-file-browser header .fb-title{
+	min-width: 12em;
+}
+
+.csap-file-browser header input {
+	vertical-align: middle;
+}
+
+.csap-file-browser header input[type="checkbox"] {
+	margin-left: 0;
+  	margin-top: 1px;
+}
+.csap-file-browser header input[type="radio"] {
+	margin: 0;
+  	margin-top: -2px;
+}
+
+body#manager .copy-buffer {
+	top: 2.2em;
+}
+
+.csap-file-browser header .copy-buffer {
+    font-family: "Lucida Console", Menlo;
+    font-size: 8pt;
+    width: 0px;
+    max-width: 80%;
+    padding: 0;
+	color: grey;
+	border: none;
+	background-color: white;
+    position: absolute;
+    right: 2em;
+    top: 3em;
+    opacity: 0.85;
+    z-index: 1;
+}
+
+
+.csap-file-browser .show-csap-shortcuts {
+	margin-left: 1em;	
+	opacity: 0.5;
+}
+
+.csap-file-browser .show-csap-shortcuts:hover {
+	opacity: 1.0;
+}
+
+.csap-file-browser .copy-buffer-message {	
+	color: var(--theme-color);
+	background-color: var(--theme-bg);
+	display: none;
+	position: absolute;
+	top: 4em;
+	right: 5em;
+	font-size: 10pt;
+	padding: 0.25em;
+	border-radius: 5px;
+	font-style: italic;
+	z-index: 1;
+}
+
+
+.csap-file-browser .dnd-upload {
+	position: absolute;
+	width: 40em;
+	left: 50%;
+	top: 30%;
+	margin-left: -20em;
+	margin-top: -5em;
+	padding: 10px;
+	color: var(--theme-color);
+	background-color: var(--theme-bg);
+	border-radius: var(--border-radius-small);
+	border: var(--theme-border);
+}
+
+.csap-file-browser .dnd-upload .title {
+	display: flex;
+	justify-content: space-between;
+}
+
+.file-browser-templates >div {
+	display: none
+}
+
+.csap-file-browser .usage-note {
+	position: absolute;
+	width: 20em;
+	right: 1em;
+	top: 8em;
+	z-index: 99;
+	padding: 1em;
+	font-weight: normal;
+}
+.csap-file-browser .usage-note button {
+	position: absolute;
+	top: 5px;
+	right: 5px;
+}
+.csap-file-browser .usage-note li {
+	margin-bottom: 5px;
+}
+
+.csap-file-browser .filterControls {
+    display: inline-block;
+    font-size: 11pt;
+}
+
+.csap-file-browser .listing-filter {
+	text-align: center;
+	padding: 0px;
+	padding-left: 5px;
+	padding-right: 5px;
+	width: 14em;
+	font-size: 8pt;
+	margin-top: 2px;
+	margin-bottom: 2px;
+	margin-left: 1em;
+	margin-right: 1em;
+}
+
+
+
+.csap-file-browser .file-browser span.fancytree-node.run>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/folder.png');
+}
+
+.csap-file-browser .file-browser span.fancytree-node.ft_folderopen>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/folder-open.png');
+}
+
+.csap-file-browser .file-browser span.fancytree-node.ft_homedir>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/home.png');
+}
+
+.csap-file-browser .file-browser span.fancytree-node.ft_docker>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/docker.png');
+}
+
+.csap-file-browser .file-browser span.fancytree-node.ft_jmeter>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/jmeter.jpg');
+	background-size: 16px 16px;
+}
+
+.csap-file-browser .file-browser span.fancytree-node.ft_shortcuts>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/goWiki.png');
+	background-size: 16px 16px;
+}
+
+.csap-file-browser .file-browser span.fancytree-node.root>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/logs.png');
+}
+
+.csap-file-browser .file-browser span.fancytree-node.boot>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/bootSmall.png');
+}
+
+.csap-file-browser .file-browser span.fancytree-node.logs>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/format-justify-center.png');
+}
+
+.csap-file-browser .file-browser span.fancytree-node.properties>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/run2.png');
+}
+
+.csap-file-browser .file-browser span.fancytree-node.shell>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/run3.png');
+}
+
+.csap-file-browser .file-browser span.fancytree-node.compressed>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/zipIcon.png');
+}
+
+.csap-file-browser .file-browser span.fancytree-node.java>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/javaSmall.png');
+}
+
+.csap-file-browser .file-browser span.fancytree-node.ml>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/dbSmall.png');
+}
+
+.csap-file-browser .file-browser span.fancytree-node.json>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/text-x-script.png');
+}
+
+.newWindow {
+	padding: 0;
+	margin-left: 3em;
+	height: 18px;
+	vertical-align: middle;
+}
+
+
+.fileOptions {
+	font-size: 8pt;
+	vertical-align: middle;
+	display: inline-block;
+	padding: 0px;
+	margin-top: 2px;
+}
+
+
+.file-browser .fancytree-container {
+	border: none;
+}
+
+.file-browser .fancytree-container:focus {
+	outline: none;
+	border: none;
+}
+
+.file-browser .fileHidden {
+	display: none;
+}
+
+.fileControls {
+	display: inline-block;
+	margin-left: 3em;
+	font-size: 8pt;
+	border: 1px dashed grey;
+	padding-left: 1em;
+}
+
+
+.meta {
+	display: inline-block;
+	padding-left: 1em;
+	font-style: italic;
+	color: black;
+}
+
+.metaSize {
+	display: inline-block;
+	padding-left: 2em;
+	min-width: 5em;
+	text-align: right;
+	margin-right: 1em;
+}
+
+.metaExtra {
+	display: inline-block;
+	padding-left: 2em;
+}
+
+.metaTitle {
+	display: inline-block;
+	min-width: 10em;
+}
+
+
+
+
+
+/*
+*
+*    Editor - file browser - editor
+*	
+*/
+
+div.auto-play-header {
+	font-size: 12pt;
+	font-weight: bold;
+	padding: 1em;
+	color: var(--theme-color);
+	background-color: var(--theme-bg);
+	border-radius: var(--border-radius-small);
+	border: var(--theme-border);
+}
+
+body div.auto-play-header .quote {
+	color: var(--nav-color);
+	font-weight: normal;
+	font-size: 10pt;
+}
+
+
+.csap-file-browser header #ace-editor-settings {
+	font-size: 8pt;
+	opacity: 0.7;
+	display: inline;
+}
+
+body.stand-alone .csap-file-browser header #ace-editor-settings a.csap-link {
+	color: white;
+}
+
+.csap-file-browser .file-viewer-text {
+	display: none;
+	margin: 0;
+	height: 100%;
+	width: 100% ;
+}
+
+.csap-file-browser header .toggle-editor {
+	opacity: 0;
+	transition: opacity 500ms ease-in-out, width 500ms linear;
+	min-width: 1.5em;
+	padding-left: 0;
+	background-position: center center;
+	background-image: url('../../images/16x16/go-back.svg');
+	background-color: white;
+	background-size: 16px 16px;
+}
+
+.csap-file-browser header .autoplay-file-button {
+	opacity: 0;
+	transition: opacity 500ms ease-in-out, width 500ms linear;
+	min-width: 1.5em;
+	padding-left: 0;
+	background-position: center center;
+	background-image: url('../../images/16x16/autoplay.svg');
+	background-color: white;
+	background-size: 16px 16px;
+}
+
+.csap-file-browser header .toggle-editor.file-edit {
+	background-image: url('../../images/16x16/edit.png');
+}
+
+.ace-editor-settings input {
+	margin: 0;
+	margin-right: 0px;
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.file-viewer-title span {
+	vertical-align: middle;
+	max-width: 18em;
+	white-space: nowrap;
+	color: black;
+	font-weight: bold;
+	font-size: 12pt;
+	margin-left: 0;
+	direction: ltr;
+	margin-right: 3em;
+}
+
+.file-viewer-head label {
+	margin-left: 2px;
+	display: inline-block;
+}
+
+.file-viewer-head .edit-in-new-window {
+    font-size: 8pt;
+    margin-left: 2em;
+}
+
+.file-viewer-head label input {
+	margin-right: 2px;
+}
+
+.file-viewer-head .ace-editor-settings {
+	font-size: 9pt;
+	position: relative;
+	top: 0px;
+	margin-right: 7em;
+}
+
+.file-viewer-head .ace-editor-settings label {
+	margin-left: 0;
+	display: inline-block;
+	width: 5em;
+	font-weight: bold;
+}
+
+.ft-csap-menu-title:before {
+	content: attr(data-menutitle);
+	display: block;
+	position: absolute;
+	top: 0;
+	right: 0;
+	left: 0;
+	background: #DDD;
+	padding: 2px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-weight: bold;
+	height: 20px;
+	padding-top: 4px;
+	padding-left: 10px;
+}
+
+.ft-csap-menu-title {
+	padding-top: 20px;
+}
+
+.file-viewer-head select {
+	margin-bottom: 0;
+	font-weight: bold;
+	margin-right: 2em;
+	font-size: 10px;
+}
+
+
+.fb-dialog input {
+	width: 40em;
+}
+
+.fb-dialog input[type="checkbox"] {
+	width: 2em;
+}
+
+.fb-dialog span.right {
+	width: 10em;
+	text-align: right;
+	display: inline-block;
+}
+
+
+
+.file-system-dialog > div {
+    margin: 1em;
+}
+
+.file-system-dialog label {
+	font-weight: bold ;
+}
+
+.csap-file-browser button.tool-menu, .csap-file-browser button.delete-items {
+	margin-left: 3em
+}
+.csap-file-browser button.delete-items {
+	background-image: url('../../images/16x16/trash.svg');
+	margin-left: 1em;
+	padding-left: 6px;
+}
+
+.csap-file-browser button.tool-menu:hover, .csap-file-browser button.delete-items:hover {
+	background-color: #e6f7db;
+}
+
+.csap-file-browser div.csap-button-menu  {
+	grid-template-columns: 15em
+}
+
+
+.csap-file-browser div.csap-button-menu .auto-play {
+	display: none;
+}
+
+.csap-file-browser div.csap-button-menu button.auto-preview {
+	background-image: url(../../images/16x16/autoplay.svg);
+}
+
+.csap-file-browser div.csap-button-menu button.auto-play {
+	background-image: url(../../images/16x16/play.svg);
+}
+
+
+
+.csap-file-browser div.csap-button-menu .edit {
+	background-image: url(../../images/16x16/edit.png);
+}
+
+.csap-file-browser div.csap-button-menu .search {
+	background-image: url(../../images/16x16/search.svg);
+}
+
+.csap-file-browser div.csap-button-menu .upload {
+	background-image: url(../../images/16x16/upload.svg);
+}
+
+.csap-file-browser div.csap-button-menu .monitor {
+	background-image: url(../../images/16x16/refresh.svg);
+}
+
+.csap-file-browser div.csap-button-menu .download {
+	background-image: url(../../images/16x16/mail-send-receive.png);
+}
+
+.csap-file-browser div.csap-button-menu .run {
+	background-image: url(../../images/16x16/shell.png);
+}
+
+.csap-file-browser div.csap-button-menu .new {
+	background-image: url(../../images/16x16/document-new.png);
+}
+
+
+.csap-file-browser div.csap-button-menu .copy {
+	background-image: url(../../images/16x16/edit-select-all.png);
+}
+
+
+.csap-file-browser div.csap-button-menu .delete {
+	background-image: url(../../images/16x16/deleteFolder.png);
+}
+
+
+.csap-file-browser div.csap-button-menu .browser {
+	background-image: url(../../images/16x16/window.svg);
+}
+.csap-file-browser div.csap-button-menu .collapse {
+	background-image: url(../../images/16x16/collapse.svg);
+}
+
+.csap-file-browser div.csap-button-menu .new-browser, .csap-file-browser div.csap-button-menu .new-browser {
+	background-image: url(../../images/16x16/window.svg);
+}
+

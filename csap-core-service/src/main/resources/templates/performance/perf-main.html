@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+<title th:replace="~{ performance/perf-head :: pageContent }">loaded from template</title>
+
+</head>
+
+<body id=analytics-portal
+	th:inline="text"
+	class="csap-scrollable agent theme-dark">
+
+
+	<header>
+
+		<span>CSAP Analytics</span>
+		<label>
+			Project:
+			<select
+				id="projectSelect"
+				title="Projects"></select>
+		</label>
+
+		<label>
+			Environment:
+			<select
+				id="lifeSelect"
+				title="">
+			</select>
+		</label>
+
+		<label id="appIdDiv">
+			<label title="Filter project selection by Application Generics registered in ADAM">Tenant:</label>
+			<select id="appIdFilterSelect"></select>
+		</label>
+	</header>
+
+	<article class=content>
+
+		<aside>
+			<div id="timeOutWarning"></div>
+			<div
+				class="loadingLargePanel"
+				id="loadMessage">Data is being loaded - time taken is proportional to time period selected.</div>
+				
+			<article id="loading-project-message">
+			<div class=loading-message-large>Loading View</div>
+		</article>
+
+		</aside>
+
+
+
+
+
+		<div id="reportTabs">
+			<ul>
+				<li
+					data-tab="tableCompute"
+					data-report="compute"
+					title="Show compute resources">
+					<a href="#computeDiv"> Overview </a>
+				</li>
+
+				<li
+					data-tab="tableHost"
+					data-report="host"
+					title="Show hosts Summary Table - view/compare host resource consumption">
+					<a href="#hostDiv"> Hosts </a>
+				</li>
+
+				<li
+					data-tab="tableService"
+					data-report="os-process"
+					title="Show Services OS Summary Table - view/compare service resource consumption">
+					<a href="#os-processDiv"> Services </a>
+				</li>
+
+				<li
+					data-tab="tableUser"
+					data-report="userid"
+					title="Show User activity counts">
+					<a href="#useridDiv"> Users </a>
+				</li>
+
+				<li
+					data-tab="graphHost"
+					data-metric="host"
+					title="Host Performance Graphs: including load, cpu, sockets,...">
+					<a href="#hostGraphDiv"> Graphs: Host </a>
+				</li>
+
+				<li
+					data-tab="graphOsProcess"
+					data-metric="os-process"
+					title="Host Service Performance Graphs: including top, openfiles, memory, .. ">
+					<a href="#os-processGraphDiv"> Graphs: Service </a>
+				</li>
+
+				<li
+					data-tab="graphJava"
+					data-metric="java"
+					title="Application Graphs (JMX,HTTP): including heap usage, tomcat connections, custom attributes, ...">
+					<a href="#javaGraphDiv"> Graphs: Application </a>
+				</li>
+			</ul>
+
+
+			<div th:replace="~{ performance/perf-graphs :: pageContent }"></div>
+
+
+			<div th:replace="~{ performance/perf-service :: pageContent }"></div>
+
+
+			<div id="computeDiv">
+
+				<div id="vmSummary">
+
+					<label class=csap>
+						Show:
+						<select
+							id="coreTrendingSelect"
+							title="Show Trending"
+							style="">
+							<option value="7">1 Week</option>
+							<option
+								value="14"
+								selected="selected">2 Weeks</option>
+							<option value="21">3 Weeks</option>
+							<option value="28">4 Weeks</option>
+							<option value="56">8 Weeks</option>
+							<option value="112">16 Weeks</option>
+							<option value="224">32 Weeks</option>
+							<option value="365">1 Year</option>
+							<option value="3650">All</option>
+						</select>
+					</label>
+
+					<label class=csap>
+						<input
+							id="isAllCoreLife"
+							type="checkbox"
+							title="Click to view all Environments" />
+						All Environments
+					</label>
+
+					<label class=csap>
+						<input
+							id="isCustomPerVm"
+							type="checkbox"
+							title="Click to show hosts with options to select high/low" />
+						Show Hosts
+					</label>
+
+					<label class="csap entry">
+						Top:
+
+						<select
+							id="topVmCustom"
+							title="Enter to filter by highest compute"
+							style="width: 5em">
+							<option>0</option>
+							<option>1</option>
+							<option>2</option>
+							<option>3</option>
+							<option>4</option>
+							<option selected="selected">5</option>
+							<option>10</option>
+							<option>20</option>
+							<option value="999">All</option>
+						</select>
+
+					</label>
+					<label class="csap entry">
+						Bottom:
+
+						<select
+							id="lowVmCustom"
+							title="Enter to filter by least compute"
+							style="width: 5em">
+							<option selected="selected">0</option>
+							<option>1</option>
+							<option>2</option>
+							<option>3</option>
+							<option>4</option>
+							<option>5</option>
+							<option>10</option>
+							<option>20</option>
+							<option value="999">All</option>
+						</select>
+
+					</label>
+
+
+
+
+					<label
+						class=csap
+						style="font-size: 0.8em"
+						title="Switch view from stacked graphs to line graphs on ALL analytics tabs. Use settings on graphs tabs.">
+						<input
+							id="isLineGraph"
+							type="checkbox"
+							checked="checked" />
+						Line Graphs
+					</label>
+
+
+					<label
+						class=csap
+						style="font-size: 0.8em"
+						title="Force Plot to Show 0">
+						<input
+							id="isZeroGraph"
+							type="checkbox" />
+						Plot 0
+					</label>
+
+
+					<div
+						id="coreSummaryTemplate"
+						style="display: none">
+						<div
+							id="compute24Hour"
+							style="float: right; font-size: 0.8em">
+							<label>
+								24Hour CPU Cores:
+								<span id="coresActive"></span>
+							</label>
+
+
+							<label>
+								Recommended:
+								<span id="vmRecommend"></span>
+								<a
+									class="csap-link-icon csap-help"
+									href="https://github.com/csap-platform/csap-core/wiki#updateRefVirtualized+Infrastructure"
+									title="Learn more about configuration of virtualized infrastructure"
+									style=""
+									target="_blank">
+								</a>
+							</label>
+						</div>
+					</div>
+
+					<div id="coreTrending"></div>
+
+
+				</div>
+
+
+			</div>
+
+
+
+
+
+
+			<div id="useridDiv">
+
+				<div class="metricHistogram"></div>
+
+				<div style="display: inline-block;">
+					<table
+						id="useridTable"
+						class="csap reports fixed">
+						<thead>
+
+							<tr>
+								<th>Users</th>
+								<th class="numeric">Events Logged</th>
+							</tr>
+
+						</thead>
+
+						<tbody></tbody>
+
+
+						<tfoot>
+							<tr>
+								<td
+									style="text-align: right"
+									data-math="col-count"
+									data-suffix=" Users"></td>
+								<td
+									class="numeric"
+									data-math="col-sum"></td>
+							</tr>
+							<tr class="averageRow">
+								<td style="text-align: right">Average</td>
+								<td
+									class="numeric"
+									data-math="col-mean"></td>
+							</tr>
+							<tr class="medianRow">
+								<td style="text-align: right">Median</td>
+								<td
+									class="numeric"
+									data-math="col-median"></td>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+				<div style="display: inline-block; vertical-align: top;">
+					<a
+						href="#email"
+						class="simple"
+						id="generateEmailButton"
+						title="Click to view userids in email format">
+						<img th:src="@{/images/mail-reply-all.png}" />
+						Show Email Addresses
+					</a>
+					<br />
+
+					<div id="emailDialog">
+						<div class="noteHighlight">Copy and paste the addresses below into your email client</div>
+						<br />
+						<textarea id="emailText"></textarea>
+
+					</div>
+				</div>
+			</div>
+
+
+			<div id="hostDiv">
+
+				<div id="reportOptions">
+
+					<label id="reportLabel"> Host Resources: </label>
+
+					<select id="visualizeSelect">
+						<option value="table">View Summary Table</option>
+					</select>
+
+					<!-- table or  totalUsrCpu -->
+					<label>
+
+					<label style="margin-left: 0">
+						When:
+						<input
+							type="text"
+							id="reportStartInput"
+							class="datepicker"
+							placeholder="Now"
+							title="Select date to run report" />
+					</label>
+
+					<label>
+						Amount:
+						<select
+							id="numReportDays"
+							title="Number of Days to view">
+							<option value="1">24 hours</option>
+							<option value="2">2 Days</option>
+							<option value="7">1 Week</option>
+							<option value="14">2 Weeks</option>
+							<option value="28">4 Weeks</option>
+							<option value="56">8 Weeks</option>
+							<option value="112">16 Weeks</option>
+							<option value="224">32 Weeks</option>
+							<option value="365">1 Year</option>
+							<option value="3650">All</option>
+						</select>
+					</label>
+
+
+					<label
+						id="compareLabel"
+						style="margin-left: 0">
+						Compare:
+						<input
+							type="text"
+							id="compareStartInput"
+							class="datepicker"
+							style="margin-right: 0"
+							title="Select date to run report"
+							placeholder="none" />
+						<a
+							href="#clear"
+							id="clearCompareButton"
+							class="csap-link-icon csap-remove"
+							title="Clear Compare">
+						</a>
+					</label>
+					</label>
+
+					<button
+						id="reportCustomizeButton"
+						title="Modify columns shown, Environments etc."
+						class="csap-button-icon csap-edit">
+						Customize
+					</button>
+
+
+					<div
+						id="sampleCount"
+						style="margin-left: 0">
+						Samples:
+						<span></span>
+					</div>
+
+
+					<div
+						id="reportSettingsContainer"
+						style="display: none">
+						<div
+							id="reportSettingsDialog"
+							class="">
+							<label>Reports:</label>
+
+							Clusters:
+							<select
+								id="clusterSelect"
+								title="Only differences greater then selected will be displayed">
+								<option value="all">All</option>
+								<option value="cluster1">cluster1</option>
+							</select>
+
+							Histogram:
+							<select
+								id="histogramSort"
+								title="Sort by host/service or by value of selected metric">
+								<option value="metric">Sortby Value</option>
+								<option value="label">Sort by Label</option>
+							</select>
+
+							<div style="margin-left: 14em">
+								<label title="By default averages are display. If checked totals will be displayed">
+									<input
+										id="isUseTotal"
+										name="isUseAverage"
+										type="checkbox" />
+									Totals
+								</label>
+								<label title="Remove Project Filter - all results are aggregated">
+									<input
+										id="isAllProjects"
+										name="isAllProject"
+										type="checkbox" />
+									All Projects
+								</label>
+								<label title="Remove Environment Filter - all results are aggregated">
+									<input
+										id="isAllLifes"
+										name="isAllLife"
+										type="checkbox" />
+									All Environments
+								</label>
+								<label title="Remove ADAM generic Filter - all results are aggregated">
+									<input
+										id="isAllAppIds"
+										name="isAllLife"
+										type="checkbox" />
+									All App Ids
+								</label>
+							</div>
+
+							<div style="margin-top: 2em">
+								<label style="margin-bottom: 0">Compare configuration:</label>
+
+								Minimum Value Filter:
+								<input
+									id="compareMinimum"
+									value="3"
+									style="margin-left: 10px; width: 2em; margin-right: 2em; padding: 0;"
+									title="Use to ignore low / insignifcant absolute values." />
+
+								Difference Amount:
+								<select
+									id="compareThreshold"
+									title="Only differences greater then selected will be displayed">
+									<option value="5">5%</option>
+									<option value="10">10%</option>
+									<option value="15">15%</option>
+									<option
+										value="20"
+										selected="selected">20%</option>
+									<option value="30">30%</option>
+									<option value="40">40%</option>
+									<option value="50">50%</option>
+									<option value="100">100%</option>
+									<option value="200">200%</option>
+								</select>
+
+								<div style="margin-left: 14em">
+									<label title="Rows not showing matches will not be display">
+										<input
+											id="isCompareRemoveRows"
+											name="isCompareRemoveRows"
+											type="checkbox"
+											checked="checked" />
+										Show only Rows With Differences
+									</label>
+									<label title="Remove Rows not showing matches">
+										<input
+											id="isCompareEmptyCells"
+											name="isCompareRemoveRows"
+											type="checkbox"
+											checked="checked" />
+										Show only Cells With Differences
+									</label>
+								</div>
+							</div>
+
+							<div style="margin-top: 2em">
+
+								<div class="noteHighlight">
+									Column Selection:
+
+
+									<button
+										id="showAllColsButton"
+										class="pushButton">Check/Uncheck All</button>
+								</div>
+
+								<div
+									id="hostColumnSelector"
+									class="columnSelector"></div>
+								<div
+									id="os-processColumnSelector"
+									class="columnSelector"></div>
+								<div
+									id="javaColumnSelector"
+									class="columnSelector"></div>
+								<div
+									id="javadetailColumnSelector"
+									class="columnSelector"></div>
+								<div
+									id="os-processdetailColumnSelector"
+									class="columnSelector"></div>
+								<div
+									id="applicationdetailColumnSelector"
+									class="columnSelector"></div>
+
+							</div>
+						</div>
+
+					</div>
+
+				</div>
+
+
+
+				<div id="metricsTrendingContainer">
+
+					<label>
+						Analysis:
+						<select
+							id="metricsTrendingSelect"
+							title="Show Trending">
+							<option value="0">Resource Comparison</option>
+							<option value="7">1 Week Aggregate Trending</option>
+							<option value="14">2 Week Aggregate Trending</option>
+							<option value="21">3 Week Aggregate Trending</option>
+							<option value="28">4 Week Aggregate Trending</option>
+							<option value="56">8 Week Aggregate Trending</option>
+							<option value="112">16 Week Aggregate Trending</option>
+							<option value="224">32 Week Aggregate Trending</option>
+							<option value="365">1 Year Aggregate Trending</option>
+							<option value="3650">All Aggregate Trending</option>
+						</select>
+					</label>
+
+					<label class="csap trendOption">
+						<input
+							id="isUseVmTotal"
+							type="checkbox"
+							title="Uncheck to view per vm average"
+							checked="checked" />
+						All Hosts
+					</label>
+
+					<label class=csap title="Total for day - use for data which is delta collected" >
+						<input
+							id="isUseDailyTotal"
+							type="checkbox"
+							/>
+						Total
+					</label>
+
+					<label class="csap trendOption">
+						<input
+							id="isTrendAll"
+							type="checkbox"
+							title="Total for day" />
+						All Environments
+					</label>
+
+
+					<label
+						class=csap
+						id="nomalizeContainer"
+						style="font-size: 0.7em;"
+						title="Useful for counters, 30s collected values will be multiplied to reflect collection in minutes/hours/or days">
+						Unit:
+						<select>
+							<option value="1">Default (30s)</option>
+							<option value="2">Per Minute</option>
+							<option value="120">Per Hour</option>
+							<option value="2880">Per Day</option>
+						</select>
+					</label>
+				</div>
+
+				<div class="metricHistogram"></div>
+
+				<table
+					id="hostTable"
+					class="csap reports">
+					<thead>
+					
+						<tr class=header-only>
+							<th class="sorter-false"></th>
+							<th class="sorter-false"></th>
+							<th class="sorter-false"></th>
+							<th class="sorter-false" colspan=3>Memory (GB)</th>
+							<th class="sorter-false">IO</th>
+							<th class="sorter-false" colspan=7>Host Resources</th>
+							<th class="sorter-false" colspan=2>Threads</th>
+							<th class="sorter-false" colspan=2>Sockets</th>
+							<th class="sorter-false" colspan=2>Network KB</th>
+							<th class="sorter-false" colspan=2>Open Files</th>
+							<th class="sorter-false" colspan=2>Infra Test (s)</th>
+							<th class="sorter-false" colspan=3>System IO (MB)</th>
+						</tr>
+					
+						<tr class=header-sorter>
+							<th class="projectColumn">Project</th>
+							<th>Host</th>
+							<th class="numeric alt">Samples</th>
+							
+							<th class="numeric alt">Total</th>
+							<th class="numeric alt">Swap</th>
+							<th
+								class="numeric alt"
+								title="Memory Available">Available</th>
+								
+							<th
+								class="numeric alt"
+								title="mpstat io wait: Show the percentage of time that the CPU or CPUs were idle during which the system had an outstanding disk I/O request">
+								Wait</th>
+								
+							<th
+								class="numeric"
+								title="mpstat usr and sys: Show the percentage of CPU utilization that occurred while executing">Cpu</th>
+							<th
+								class="numeric"
+								title="User Activity from CSAP audit records">Activity</th>
+							<th class="numeric">Usr Cpu</th>
+							<th class="numeric">Sys Cpu</th>
+							<th class="numeric alt">Cores</th>
+							<th class="numeric">Load</th>
+							<th
+								class="numeric"
+								title="Any time Cpu > 60%, or load > core count, alert count is incremented">Alerts</th>
+
+							<th
+								class="numeric"
+								title="Csap Thread count - based on csap install user">CSAP</th>
+							<th
+								class="numeric"
+								title="Total Threads on host">Host</th>
+
+							<th class="numeric">Active</th>
+							<th
+								class="numeric"
+								title="Sockets In Wait State"> Wait</th>
+								
+							<th class="numeric">In</th>
+							<th class="numeric">Out</th>
+							<th
+								class="numeric alt"
+								title="Csap open file count - based on csap install user">CSAP</th>
+							<th
+								class="numeric alt"
+								title="All Open files on host">Host</th>
+
+							<th
+								class="numeric alt"
+								title="Time to run CPU loop test, measured in seconds. Shorter is better.">Cpu</th>
+							<th
+								class="numeric alt"
+								title="Time to run Disk Write test, measured in seconds. Shorter is better.">Disk</th>
+
+							<th
+								class="numeric alt"
+								title="iostat - device utilization">%</th>
+							<th
+								class="numeric alt"
+								title="iostat - total device reads (MB)">Reads</th>
+							<th
+								class="numeric alt"
+								title="iostat - total device writes (MB)">Writes</th>
+						</tr>
+					</thead>
+
+					<tbody></tbody>
+
+					<tfoot>
+
+						<tr>
+							<td class="projectColumn totalRow"></td>
+							<td
+								class="col1"
+								style="text-align: right"
+								data-math="col-count"
+								data-suffix=" Hosts"
+								data-prefix=" Totals: "></td>
+							<td
+								class="numeric alt"
+								data-math="col-sum"></td>
+							<td
+								class="numeric alt"
+								data-math="col-sum"></td>
+							<td
+								class="numeric alt"
+								data-math="col-sum"></td>
+							<td
+								class="numeric alt"
+								data-math="col-sum"></td>
+							<td
+								class="numeric alt"
+								data-math="col-sum"></td>
+							<td
+								class="numeric"
+								data-math="col-sum"></td>
+							<td
+								class="numeric"
+								data-math="col-sum"></td>
+							<td
+								class="numeric"
+								data-math="col-sum"></td>
+							<td
+								class="numeric"
+								data-math="col-sum"></td>
+							<td
+								class="numeric alt"
+								data-math="col-sum"></td>
+							<td
+								class="numeric"
+								data-math="col-sum"></td>
+							<td
+								class="numeric"
+								data-math="col-sum"></td>
+							<td
+								class="numeric"
+								data-math="col-sum"></td>
+							<td
+								class="numeric"
+								data-math="col-sum"></td>
+							<td
+								class="numeric"
+								data-math="col-sum"></td>
+							<td
+								class="numeric"
+								data-math="col-sum"></td>
+							<td
+								class="numeric"
+								data-math="col-sum"></td>
+							<td
+								class="numeric"
+								data-math="col-sum"></td>
+							<td
+								class="numeric alt"
+								data-math="col-sum"></td>
+							<td
+								class="numeric alt"
+								data-math="col-sum"></td>
+							<td
+								class="numeric alt"
+								data-math="col-sum"></td>
+							<td
+								class="numeric alt"
+								data-math="col-sum"></td>
+							<td
+								class="numeric alt"
+								data-math="col-sum"></td>
+							<td
+								class="numeric alt"
+								data-math="col-sum"></td>
+							<td
+								class="numeric alt"
+								data-math="col-sum"></td>
+						</tr>
+
+						<tr class="averageRow">
+							<td class="projectColumn"></td>
+							<td style="text-align: right">Average</td>
+							<td
+								class="numeric alt"
+								data-math="col-mean"></td>
+							<td
+								class="numeric alt"
+								data-math="col-mean"></td>
+							<td
+								class="numeric alt"
+								data-math="col-mean"></td>
+							<td
+								class="numeric alt"
+								data-math="col-mean"></td>
+							<td
+								class="numeric alt"
+								data-math="col-mean"></td>
+							<td
+								class="numeric alt"
+								data-math="col-mean"></td>
+							<td
+								class="numeric alt"
+								data-math="col-mean"></td>
+							<td
+								class="numeric alt"
+								data-math="col-mean"></td>
+							<td
+								class="numeric"
+								data-math="col-mean"></td>
+							<td
+								class="numeric alt"
+								data-math="col-mean"></td>
+							<td
+								class="numeric"
+								data-math="col-mean"></td>
+							<td
+								class="numeric"
+								data-math="col-mean"></td>
+							<td
+								class="numeric"
+								data-math="col-mean"></td>
+							<td
+								class="numeric"
+								data-math="col-mean"></td>
+							<td
+								class="numeric"
+								data-math="col-mean"></td>
+							<td
+								class="numeric"
+								data-math="col-mean"></td>
+							<td
+								class="numeric"
+								data-math="col-mean"></td>
+							<td
+								class="numeric"
+								data-math="col-mean"></td>
+							<td
+								class="numeric alt"
+								data-math="col-mean"></td>
+							<td
+								class="numeric alt"
+								data-math="col-mean"></td>
+							<td
+								class="numeric alt"
+								data-math="col-mean"></td>
+							<td
+								class="numeric alt"
+								data-math="col-mean"></td>
+							<td
+								class="numeric alt"
+								data-math="col-mean"></td>
+							<td
+								class="numeric alt"
+								data-math="col-mean"></td>
+							<td
+								class="numeric alt"
+								data-math="col-mean"></td>
+						</tr>
+
+						<tr class="medianRow">
+							<td class=projectColumn></td>
+							<td class="tableBottomLeft" style="text-align: right">Median</td>
+							<td
+								class="numeric alt"
+								data-math="col-median"></td>
+							<td
+								class="numeric alt"
+								data-math="col-median"></td>
+							<td
+								class="numeric alt"
+								data-math="col-median"></td>
+							<td
+								class="numeric alt"
+								data-math="col-median"></td>
+							<td
+								class="numeric alt"
+								data-math="col-median"></td>
+							<td
+								class="numeric alt"
+								data-math="col-median"></td>
+							<td
+								class="numeric alt"
+								data-math="col-median"></td>
+							<td
+								class="numeric alt"
+								data-math="col-median"></td>
+							<td
+								class="numeric"
+								data-math="col-median"></td>
+							<td
+								class="numeric alt"
+								data-math="col-median"></td>
+							<td
+								class="numeric"
+								data-math="col-median"></td>
+							<td
+								class="numeric"
+								data-math="col-median"></td>
+							<td
+								class="numeric"
+								data-math="col-median"></td>
+							<td
+								class="numeric"
+								data-math="col-median"></td>
+							<td
+								class="numeric"
+								data-math="col-median"></td>
+							<td
+								class="numeric"
+								data-math="col-median"></td>
+							<td
+								class="numeric"
+								data-math="col-median"></td>
+							<td
+								class="numeric"
+								data-math="col-median"></td>
+							<td
+								class="numeric alt"
+								data-math="col-median"></td>
+							<td
+								class="numeric alt"
+								data-math="col-median"></td>
+							<td
+								class="numeric alt"
+								data-math="col-median"></td>
+							<td
+								class="numeric alt"
+								data-math="col-median"></td>
+							<td
+								class="numeric alt"
+								data-math="col-median"></td>
+							<td
+								class="numeric alt"
+								data-math="col-median"></td>
+							<td
+								class="numeric alt"
+								data-math="col-median"></td>
+						</tr>
+					</tfoot>
+				</table>
+
+
+
+			</div>
+
+
+		</div>
+
+
+	</article>
+</body>
+
+</html>

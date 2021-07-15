@@ -1,0 +1,23 @@
+{
+	"k8sApiServer": {
+		"description": "Kubernetes dashboard UI",
+		"docUrl": "https://kubernetes.io/docs/reference/generated/kube-apiserver/",
+		"url": "https://kubernetes.io/docs/reference/generated/kube-apiserver/",
+		"scmVersion": "os",
+		"server": "os",
+		"runUsingDocker": "true",
+		"docker": {
+			"locator": {
+				"type": "io.kubernetes.container.name",
+				"value": "kube-apiserver"
+			}
+		},
+		"propDirectory": "/etc",
+		"version": {
+			"1": {
+				
+			}
+		},
+		"lastModifiedBy": "pnightingale"
+	}
+}

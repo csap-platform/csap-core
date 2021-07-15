@@ -1,0 +1,241 @@
+{
+	"project": {
+		"api-version": 2.1,
+		"project-version": 1.0,
+		"name": "main",
+		"architect": "yourEmail@notConfigured.com",
+		"emailNotifications": "support@notConfigured.com"
+	},
+	"environments": {
+		"defaults": {
+			"settings": {
+				"base-env-only": true,
+				"application": {
+					"name": "multi-default",
+					"definition-repo-url": "https://path/to/your.git",
+					"sub-projects": [
+						"a-sub-project.json"
+					]
+				},
+				"configuration-maps": {
+					"global": {
+						"test1": "test1",
+						"test2": "test2",
+						"test3": "test3",
+						"$$test-csap-name": "test-csap-name-value",
+						"$$test-csap-nested": "base-$$test-csap-name",
+						"testDefaultAutoplay": "xxxx"
+					}
+				},
+				"monitorDefaults": {
+					"jvm_jmxHeartbeat": true,
+					"maxDiskPercent": "79",
+					"max_threadCount": "999",
+					"max_diskUtil": "50g",
+					"autoStopServiceThreshold": 5
+				},
+				"csap-data": {
+					"user": "event-user",
+					"credential": "event-pass",
+					"service-url": "http://event-default-url"
+				}
+			},
+			"base-os": {
+				"type": "simple",
+				"hosts": [],
+				"template-references": [
+					"csap-package-linux",
+					"csap-agent"
+				]
+			},
+			"test-cluster1": {
+				"type": "simple",
+				"hosts": [],
+				"template-references": [
+					"csap-verify-service"
+				]
+			}
+		},
+		"dev": {
+			"settings": {
+				"imports": [
+					"defaults"
+				],
+				"configuration-maps": {
+					"global": {
+						"test1": "test1-overridden",
+						"$$test-base": "test-base"
+					},
+					"simple-map": {
+						"$$ingress-host": "the-ingress-host",
+						"$$test-inherit": "$$test-base-resolution",
+						"$$test-script": "$$test-base-script"
+					}
+				},
+				"csap-data": {
+					"user": "event-user",
+					"credential": "event-pass",
+					"service-url": "http://event-dev-url"
+				}
+			},
+			"base-os": {
+				"hosts": [
+					"cluster1-host"
+				]
+			},
+			"test-cluster1": {
+				"hosts": [
+					"cluster1-host"
+				]
+			},
+			"test-cluster2": {
+				"type": "simple",
+				"hosts": [
+					"localhost"
+				],
+				"template-references": [
+					"docker",
+					"csap-verify-service",
+					"simple-service"
+				]
+			}
+		},
+		"test": {
+			"settings": {
+				"imports": [
+					"defaults"
+				],
+				"csap-collection": {
+					"host": [
+						30,
+						300,
+						3600
+					]
+				},
+				"application": {
+					"name": "multi-test",
+					"sub-projects": [
+						"a-sub-project.json"
+					]
+				},
+				"configuration-maps": {
+					"global": {
+						"test1": "test1-overridden", 
+						"test-not-replaced": "value-not-replaced",
+						"$$-test-template-variable": "default"
+					}
+				}
+			},
+			"base-os": {
+				"hosts": [
+					"stage-host-1"
+				]
+			},
+			"test-cluster2": {
+				"type": "kubernetes-provider",
+				"hosts": [
+					"stage-host-1"
+				],
+				"masters": [
+					"stage-host-1"
+				],
+				"template-references": [
+					"kubelet"
+				]
+			}, 
+			"cluster-to-be-deleted": {
+				"type": "simple",
+				"hosts": [ "delete-host-1" ],
+				"template-references": [
+					"csap-verify-service"
+				]
+			}
+		},
+		"simple": {
+			"settings": {
+				"imports": [
+					"defaults"
+				],
+				"csap-collection": {
+					"host": [
+						30,
+						300,
+						3600
+					]
+				},
+				"configuration-maps": {
+					"global": {
+						"test1": "simple-overridden"
+					}
+				}
+			},
+			"base-os": {
+				"hosts": [
+					"simple-host-1"
+				]
+			}
+		}
+	},
+	"service-templates": {
+		"simple-service": {
+			"server": "docker",
+			"docker": {
+				"image": "nginx:1.2.3",
+				"deployment-files-use": "true",
+				"deployment-file-names": [
+					"SEARCH_FOR_RESOURCE:sample-deploy.yaml"
+				],
+				"network": {
+					"name": "nginx-network",
+					"createPersistent": {
+						"enabled": true,
+						"driver": "bridge"
+					}
+				}
+			},
+			"parameters": "test-parameter",
+			"port": 9999,
+			"environmentVariables": {
+				"test-simple": "test-val",
+				"configuration-maps": [
+					"simple-map"
+				]
+			},
+			"autoStart": "41",
+			"osProcessPriority": "0",
+			"scheduledJobs": {
+				"scripts": [
+					{
+						"description": "wait for pod startup",
+						"frequency": "event-post-deploy",
+						"script": "wait_for_pod_log $$service-name 'junit user template: $$test-script' $$service-replica-count"
+					}
+				]
+			},
+			"environment-overload": {
+				"dev": {
+					"docker": {
+						"network": {
+							"test-new": "new-value",
+							"name": "nginx-network-over",
+							"createPersistent": {
+								"enabled": false
+							}
+						}
+					}
+				},
+				"simple": {
+					"autoStart": 99,
+					"docker": {
+						"network": {
+							"name": "nginx-network-over",
+							"createPersistent": {
+								"enabled": false
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

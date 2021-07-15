@@ -1,0 +1,194 @@
+Executing OS command on host csap-dev01:[bash, -c, free -g]_P_
+
+              total        used        free      shared  buff/cache   available
+Mem:             15           8           1           0           5           6
+Swap:             9           0           9
+Executing OS command on host csap-dev01:[bash, -c, free -m]_P_
+
+              total        used        free      shared  buff/cache   available
+Mem:          15883        8597        1432         518        5853        6409
+Swap:         10235           9       10226
+
+
+Executing OS command on host csap-dev01:[bash, -c, ps -e --sort nice -o nice,pmem,rss,vsz,size,nlwp,ruser,pid,args | sed 's/  */ /g' | sed 's/,/ /g' |awk '{ for(i=1;i<=8;i++){$i=$i","}; print }']_P_
+
+NI, %MEM, RSS, VSZ, SIZE, NLWP, RUSER, PID, COMMAND
+-20, 0.0, 0, 0, 0, 1, root, 5, [kworker/0:0H]
+-20, 0.0, 0, 0, 0, 1, root, 15, [kworker/1:0H]
+-20, 0.0, 0, 0, 0, 1, root, 20, [kworker/2:0H]
+-20, 0.0, 0, 0, 0, 1, root, 25, [kworker/3:0H]
+-20, 0.0, 0, 0, 0, 1, root, 30, [kworker/4:0H]
+-20, 0.0, 0, 0, 0, 1, root, 40, [kworker/6:0H]
+-20, 0.0, 0, 0, 0, 1, root, 45, [kworker/7:0H]
+-20, 0.0, 0, 0, 0, 1, root, 47, [khelper]
+-20, 0.0, 0, 0, 0, 1, root, 49, [netns]
+-20, 0.0, 0, 0, 0, 1, root, 51, [writeback]
+-20, 0.0, 0, 0, 0, 1, root, 52, [kintegrityd]
+-20, 0.0, 0, 0, 0, 1, root, 53, [bioset]
+-20, 0.0, 0, 0, 0, 1, root, 54, [kblockd]
+-20, 0.0, 0, 0, 0, 1, root, 55, [md]
+-20, 0.0, 0, 0, 0, 1, root, 65, [crypto]
+-20, 0.0, 0, 0, 0, 1, root, 73, [kthrotld]
+-20, 0.0, 0, 0, 0, 1, root, 76, [kmpath_rdacd]
+-20, 0.0, 0, 0, 0, 1, root, 77, [kpsmoused]
+-20, 0.0, 0, 0, 0, 1, root, 79, [ipv6_addrconf]
+-20, 0.0, 0, 0, 0, 1, root, 98, [deferwq]
+-20, 0.0, 0, 0, 0, 1, root, 262, [rpciod]
+-20, 0.0, 0, 0, 0, 1, root, 411, [ata_sff]
+-20, 0.0, 0, 0, 0, 1, root, 413, [scsi_tmf_0]
+-20, 0.0, 0, 0, 0, 1, root, 415, [scsi_tmf_1]
+-20, 0.0, 0, 0, 0, 1, root, 418, [mpt_poll_0]
+-20, 0.0, 0, 0, 0, 1, root, 419, [mpt/0]
+-20, 0.0, 0, 0, 0, 1, root, 455, [scsi_tmf_2]
+-20, 0.0, 0, 0, 0, 1, root, 457, [ttm_swap]
+-20, 0.0, 0, 0, 0, 1, root, 492, [kworker/6:1H]
+-20, 0.0, 0, 0, 0, 1, root, 506, [xfsalloc]
+-20, 0.0, 0, 0, 0, 1, root, 507, [xfs_mru_cache]
+-20, 0.0, 0, 0, 0, 1, root, 508, [xfs-buf/sda1]
+-20, 0.0, 0, 0, 0, 1, root, 509, [xfs-data/sda1]
+-20, 0.0, 0, 0, 0, 1, root, 510, [xfs-conv/sda1]
+-20, 0.0, 0, 0, 0, 1, root, 511, [xfs-cil/sda1]
+-20, 0.0, 0, 0, 0, 1, root, 512, [xfs-reclaim/sda]
+-20, 0.0, 0, 0, 0, 1, root, 513, [xfs-log/sda1]
+-20, 0.0, 0, 0, 0, 1, root, 514, [xfs-eofblocks/s]
+-20, 0.0, 0, 0, 0, 1, root, 626, [kworker/7:1H]
+-20, 0.0, 0, 0, 0, 1, root, 706, [kworker/3:1H]
+-20, 0.0, 0, 0, 0, 1, root, 707, [kdmflush]
+-20, 0.0, 0, 0, 0, 1, root, 708, [bioset]
+-20, 0.0, 0, 0, 0, 1, root, 709, [kdmflush]
+-20, 0.0, 0, 0, 0, 1, root, 710, [bioset]
+-20, 0.0, 0, 0, 0, 1, root, 711, [kdmflush]
+-20, 0.0, 0, 0, 0, 1, root, 712, [bioset]
+-20, 0.0, 0, 0, 0, 1, root, 755, [ext4-rsv-conver]
+-20, 0.0, 0, 0, 0, 1, root, 756, [ext4-rsv-conver]
+-20, 0.0, 0, 0, 0, 1, root, 850, [kworker/1:1H]
+-20, 0.0, 0, 0, 0, 1, root, 1103, [kworker/0:1H]
+-20, 0.0, 0, 0, 0, 1, root, 1166, [kworker/4:1H]
+-20, 0.0, 0, 0, 0, 1, root, 1261, [kworker/5:0H]
+-20, 0.0, 0, 0, 0, 1, root, 10942, [kworker/2:1H]
+-20, 0.0, 0, 0, 0, 1, root, 32191, [kworker/5:1H]
+-12, 0.0, 9724, 43276, 7240, 1, ssadmin, 14529, /opt/csap/processing/httpd_8080/bin/httpd -k restart
+-12, 3.4, 567168, 6067664, 5894644, 83, ssadmin, 17997, /opt/java/jdk1.8.0_111/bin/java -DcsapJava8 -Dspring.profiles.active=dev agent limits -Dsun.rmi.transport.tcp.responseTimeout=3000 -XX:MaxMetaspaceSize=96M -Xms256M -Xmx256M -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8016 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csap/processing/CsAgent_8011/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csap/processing/CsAgent_8011/jmxremote.access -DcsapProcessId=CsAgent_8011 -DcsapEnvironmentVariables=arePresent -Dyourcompany.life=dev -DSTAGING=/opt/csap/staging -Djava.io.tmpdir=temp org.springframework.boot.loader.JarLauncher --server.port=8011
+-12, 0.0, 7392, 43248, 7240, 1, ssadmin, 18078, /opt/csap/processing/httpd_8080/bin/httpd -k restart
+-12, 0.1, 22356, 2175508, 2137336, 44, ssadmin, 18079, /opt/csap/processing/httpd_8080/bin/httpd -k restart
+-12, 0.1, 20392, 1978836, 1940664, 28, ssadmin, 18176, /opt/csap/processing/httpd_8080/bin/httpd -k restart
+-4, 0.0, 1768, 55416, 8672, 2, root, 23105, /sbin/auditd -n
+-1, 3.8, 629760, 6305644, 6132624, 66, ssadmin, 18565, /opt/java/jdk1.8.0_111/bin/java -DcsapJava8 -Dspring.profiles.active=dev admin -XX:MaxMetaspaceSize=96M -Xms512M -Xmx512M -Dserver.context-path=/admin -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8916 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csap/processing/admin_8911/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csap/processing/admin_8911/jmxremote.access -DcsapProcessId=admin_8911 -DcsapEnvironmentVariables=arePresent -Dyourcompany.life=dev -DSTAGING=/opt/csap/staging -Djava.io.tmpdir=temp org.springframework.boot.loader.JarLauncher --server.port=8911
+0, 0.0, 5932, 193364, 149956, 1, root, 1, /usr/lib/systemd/systemd --system --deserialize 28
+0, 0.0, 0, 0, 0, 1, root, 2, [kthreadd]
+0, 0.0, 0, 0, 0, 1, root, 3, [ksoftirqd/0]
+-, 0.0, 0, 0, 0, 1, root, 7, [migration/0]
+0, 0.0, 0, 0, 0, 1, root, 8, [rcu_bh]
+0, 0.0, 0, 0, 0, 1, root, 9, [rcu_sched]
+-, 0.0, 0, 0, 0, 1, root, 10, [watchdog/0]
+-, 0.0, 0, 0, 0, 1, root, 11, [watchdog/1]
+-, 0.0, 0, 0, 0, 1, root, 12, [migration/1]
+0, 0.0, 0, 0, 0, 1, root, 13, [ksoftirqd/1]
+-, 0.0, 0, 0, 0, 1, root, 16, [watchdog/2]
+-, 0.0, 0, 0, 0, 1, root, 17, [migration/2]
+0, 0.0, 0, 0, 0, 1, root, 18, [ksoftirqd/2]
+-, 0.0, 0, 0, 0, 1, root, 21, [watchdog/3]
+-, 0.0, 0, 0, 0, 1, root, 22, [migration/3]
+0, 0.0, 0, 0, 0, 1, root, 23, [ksoftirqd/3]
+-, 0.0, 0, 0, 0, 1, root, 26, [watchdog/4]
+-, 0.0, 0, 0, 0, 1, root, 27, [migration/4]
+0, 0.0, 0, 0, 0, 1, root, 28, [ksoftirqd/4]
+-, 0.0, 0, 0, 0, 1, root, 31, [watchdog/5]
+-, 0.0, 0, 0, 0, 1, root, 32, [migration/5]
+0, 0.0, 0, 0, 0, 1, root, 33, [ksoftirqd/5]
+-, 0.0, 0, 0, 0, 1, root, 36, [watchdog/6]
+-, 0.0, 0, 0, 0, 1, root, 37, [migration/6]
+0, 0.0, 0, 0, 0, 1, root, 38, [ksoftirqd/6]
+-, 0.0, 0, 0, 0, 1, root, 41, [watchdog/7]
+-, 0.0, 0, 0, 0, 1, root, 42, [migration/7]
+0, 0.0, 0, 0, 0, 1, root, 43, [ksoftirqd/7]
+0, 0.0, 0, 0, 0, 1, root, 48, [kdevtmpfs]
+0, 0.0, 0, 0, 0, 1, root, 50, [khungtaskd]
+0, 0.0, 0, 0, 0, 1, root, 61, [kswapd0]
+0, 0.0, 0, 0, 0, 1, root, 64, [fsnotify_mark]
+0, 0.0, 0, 0, 0, 1, root, 143, [kauditd]
+0, 0.0, 0, 0, 0, 1, root, 412, [scsi_eh_0]
+0, 0.0, 0, 0, 0, 1, root, 414, [scsi_eh_1]
+0, 0.0, 0, 0, 0, 1, root, 454, [scsi_eh_2]
+0, 0.0, 0, 0, 0, 1, root, 515, [xfsaild/sda1]
+0, 0.2, 34344, 81992, 468, 1, root, 597, /usr/lib/systemd/systemd-journald
+0, 0.0, 0, 0, 0, 1, root, 753, [jbd2/dm-2-8]
+0, 0.0, 0, 0, 0, 1, root, 754, [jbd2/dm-1-8]
+0, 0.0, 0, 0, 0, 1, root, 779, [kworker/3:0]
+0, 0.0, 1836, 26636, 612, 1, root, 805, /usr/lib/systemd/systemd-logind
+0, 0.0, 2196, 100748, 74700, 2, dbus, 810, /bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation
+0, 0.0, 704, 8532, 340, 1, libstor+, 831, /usr/bin/lsmd -d
+0, 0.0, 5068, 212696, 980, 1, root, 901, /usr/sbin/abrtd -d -s
+0, 0.0, 6608, 434616, 222252, 3, root, 928, /usr/sbin/NetworkManager --no-daemon
+0, 0.0, 4324, 210196, 592, 1, root, 931, /usr/bin/abrt-watch-log -F BUG: WARNING: at WARNING: CPU: INFO: possible recursive locking detected ernel BUG at list_del corruption list_add corruption do_IRQ: stack overflow: ear stack overflow (cur: eneral protection fault nable to handle kernel ouble fault: RTNL: assertion failed eek! page_mapcount(page) went negative! adness at NETDEV WATCHDOG ysctl table check failed : nobody cared IRQ handler type mismatch Machine Check Exception: Machine check events logged divide error: bounds: coprocessor segment overrun: invalid TSS: segment not present: invalid opcode: alignment check: stack segment: fpu exception: simd exception: iret exception: /var/log/messages -- /usr/bin/abrt-dump-oops -xtD
+0, 0.0, 0, 0, 0, 1, root, 960, [kworker/4:0]
+0, 0.2, 46208, 256800, 41904, 2, root, 1468, /usr/bin/ruby /usr/bin/puppet agent --no-daemonize
+0, 0.0, 564, 107912, 316, 1, root, 1522, rhnsd
+0, 0.0, 0, 0, 0, 1, root, 2002, [kworker/2:0]
+0, 0.0, 2060, 91144, 776, 1, root, 2536, /usr/libexec/postfix/master -w
+0, 0.0, 2928, 91424, 884, 1, postfix, 2601, qmgr -l -t unix -u
+0, 4.0, 666104, 6028260, 5855780, 63, ssadmin, 4021, /opt/java/jdk1.8.0_111/bin/java -DcsapJava8 -Dspring.profiles.active=dev limits -Xms256M -Xmx256M -XX:MaxMetaspaceSize=96M -XX:+ExitOnOutOfMemoryError -Dserver.context-path=/data -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8286 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csap/processing/data_8281/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csap/processing/data_8281/jmxremote.access -DcsapProcessId=data_8281 -DcsapEnvironmentVariables=arePresent -Dyourcompany.life=dev -DSTAGING=/opt/csap/staging -Djava.io.tmpdir=temp org.springframework.boot.loader.JarLauncher --server.port=8281
+0, 10.6, 1728548, 7415212, 7242732, 61, ssadmin, 5262, /opt/java/jdk1.8.0_111/bin/java -DcsapJava8 -Dspring.profiles.active=dev limits -Xms1500m -Xmx1500m -XX:MaxMetaspaceSize=96M -XX:+ExitOnOutOfMemoryError -Dserver.context-path=/analytics -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8236 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csap/processing/analytics_8231/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csap/processing/analytics_8231/jmxremote.access -DcsapProcessId=analytics_8231 -DcsapEnvironmentVariables=arePresent -Dyourcompany.life=dev -DSTAGING=/opt/csap/staging -Djava.io.tmpdir=temp org.springframework.boot.loader.JarLauncher --server.port=8231
+0, 0.0, 720, 110036, 348, 1, root, 6900, /sbin/agetty --keep-baud 115200 38400 9600 ttyS0 vt220
+0, 0.0, 720, 110036, 348, 1, root, 6901, /sbin/agetty --noclear tty1 linux
+0, 0.0, 0, 0, 0, 1, root, 7595, [kworker/u64:0]
+0, 0.0, 0, 0, 0, 1, root, 9952, [kworker/7:1]
+0, 0.0, 0, 0, 0, 1, root, 10293, [kworker/0:0]
+0, 0.0, 0, 0, 0, 1, root, 10341, [kworker/6:0]
+0, 0.0, 0, 0, 0, 1, root, 10580, [kworker/u64:1]
+0, 0.0, 0, 0, 0, 1, root, 11336, [kworker/1:2]
+0, 0.0, 0, 0, 0, 1, root, 11353, [kworker/4:2]
+0, 0.0, 1740, 126256, 1352, 1, root, 11416, /usr/sbin/crond -n
+0, 0.0, 3764, 45968, 1588, 1, root, 11588, /usr/lib/systemd/systemd-udevd
+0, 0.0, 0, 0, 0, 1, root, 12037, [kworker/0:2]
+0, 0.0, 0, 0, 0, 1, root, 12423, [kworker/7:0]
+0, 0.0, 2792, 193340, 860, 1, root, 13096, /usr/bin/sudo /opt/csap/staging/bin/scriptRunAsRoot.sh /opt/csap/processing/_pTemp/pidStat.sh root
+0, 0.0, 1412, 113124, 344, 1, root, 13097, /bin/bash /opt/csap/staging/bin/scriptRunAsRoot.sh /opt/csap/processing/_pTemp/pidStat.sh root
+0, 0.0, 1188, 113120, 340, 1, root, 13103, /bin/bash /opt/csap/processing/_pTemp/pidStat.sh
+0, 0.0, 1052, 108324, 708, 1, root, 13104, pidstat -hd 15 1
+0, 0.0, 968, 116880, 388, 1, root, 13105, sed s/ */ /g
+0, 0.0, 1376, 113128, 348, 1, ssadmin, 13119, bash -c ps -e --sort nice -o nice pmem rss vsz size nlwp ruser pid args | sed 's/ */ /g' | sed 's/ / /g' |awk '{ for(i=1;i<=8;i++){$i=$i" "}; print }'
+0, 0.0, 1912, 151200, 1168, 1, ssadmin, 13120, ps -e --sort nice -o nice pmem rss vsz size nlwp ruser pid args
+0, 0.0, 708, 116884, 392, 1, ssadmin, 13121, sed s/ */ /g
+0, 0.0, 712, 116884, 392, 1, ssadmin, 13122, sed s/ / /g
+0, 0.0, 972, 113492, 356, 1, ssadmin, 13123, awk { for(i=1;i<=8;i++){$i=$i" "}; print }
+0, 0.0, 2804, 33600, 1912, 1, root, 14601, /usr/bin/perl -x /usr/local/tools/trends2
+0, 0.0, 10068, 138968, 22972, 3, ssadmin, 15607, bin/redis-server *:6379
+0, 0.0, 6140, 139044, 20948, 3, ssadmin, 15655, bin/redis-sentinel *:26379 [sentinel]
+0, 0.0, 0, 0, 0, 1, root, 15711, [kworker/0:1]
+0, 2.6, 429812, 5625548, 5452852, 55, ssadmin, 15880, /opt/java/jdk1.8.0_111/bin/java -DcsapJava8 -Xms128M -Xmx133M -XX:MaxMetaspaceSize=96M -Dserver.context-path=/RedisServices -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8316 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csap/processing/RedisServices_8311/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csap/processing/RedisServices_8311/jmxremote.access -DcsapProcessId=RedisServices_8311 -DcsapEnvironmentVariables=arePresent -Dyourcompany.life=dev -DSTAGING=/opt/csap/staging -Djava.io.tmpdir=temp org.springframework.boot.loader.JarLauncher --spring.profiles.active=dev --server.port=8311
+0, 3.2, 523124, 6043672, 5873744, 52, ssadmin, 16511, /opt/java/jdk1.8.0_111/bin/java -DcsapJava8 -Xms256M -Xmx256M -XX:MaxMetaspaceSize=96M -XX:+ExitOnOutOfMemoryError -Dserver.context-path=/BootEntDefault -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8356 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csap/processing/BootEntDefault_8351/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csap/processing/BootEntDefault_8351/jmxremote.access -DcsapProcessId=BootEntDefault_8351 -DcsapEnvironmentVariables=arePresent -Dyourcompany.life=dev -DSTAGING=/opt/csap/staging -Djava.io.tmpdir=temp org.springframework.boot.loader.JarLauncher --spring.profiles.active=dev --server.port=8351
+0, 2.5, 412408, 5282156, 4929032, 45, ssadmin, 16940, /opt/java/jdk1.8.0_111/bin/java -Djava.util.logging.config.file=/opt/csap/processing/Cssp3ReferenceTibco_8261/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -DcsapJava8 -Xms16M -Xmx256M -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8266 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csap/processing/Cssp3ReferenceTibco_8261/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csap/processing/Cssp3ReferenceTibco_8261/jmxremote.access -DcsapProcessId=Cssp3ReferenceTibco_8261 -DcsapEnvironmentVariables=arePresent -Dyourcompany.life=dev -DSTAGING=/opt/csap/staging -Djava.endorsed.dirs=/opt/csap/processing/appsTomcat/cssp3-3.1.4/endorsed -classpath /opt/csap/processing/appsTomcat/cssp3-3.1.4/bin/bootstrap.jar:/opt/csap/processing/appsTomcat/cssp3-3.1.4/bin/tomcat-juli.jar -Dcatalina.base=/opt/csap/processing/Cssp3ReferenceTibco_8261 -Dcatalina.home=/opt/csap/processing/appsTomcat/cssp3-3.1.4 -Djava.io.tmpdir=/opt/csap/processing/Cssp3ReferenceTibco_8261/temp org.apache.catalina.startup.Bootstrap start
+0, 1.8, 304276, 4378772, 4221556, 38, ssadmin, 17637, /opt/java/jdk1.8.0_111/bin/java -Djava.util.logging.config.file=/opt/csap/processing/springmvc-showcase_8211/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Xms128M -Xmx128M -XX:MaxPermSize=128m -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8216 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csap/processing/springmvc-showcase_8211/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csap/processing/springmvc-showcase_8211/jmxremote.access -DcsapProcessId=springmvc-showcase_8211 -DcsapEnvironmentVariables=arePresent -Dyourcompany.life=dev -DSTAGING=/opt/csap/staging -Djava.endorsed.dirs=/opt/csap/processing/appsTomcat/apache-tomcat-7.0.68/endorsed -classpath /opt/csap/processing/appsTomcat/apache-tomcat-7.0.68/bin/bootstrap.jar:/opt/csap/processing/appsTomcat/apache-tomcat-7.0.68/bin/tomcat-juli.jar -Dcatalina.base=/opt/csap/processing/springmvc-showcase_8211 -Dcatalina.home=/opt/csap/processing/appsTomcat/apache-tomcat-7.0.68 -Djava.io.tmpdir=/opt/csap/processing/springmvc-showcase_8211/temp org.apache.catalina.startup.Bootstrap start
+0, 0.0, 2208, 157584, 1056, 1, ssadmin, 18138, top -b -d 15
+0, 0.0, 864, 107932, 328, 1, ssadmin, 18212, mpstat 30
+0, 0.0, 860, 107932, 328, 1, ssadmin, 18836, mpstat 300
+0, 0.0, 820, 107932, 328, 1, ssadmin, 19118, mpstat 3600
+0, 0.0, 0, 0, 0, 1, root, 22295, [kworker/3:1]
+0, 0.0, 1424, 82468, 748, 1, root, 22564, /usr/sbin/sshd
+0, 0.1, 20688, 244144, 16892, 1, root, 22856, /usr/bin/vmtoolsd
+0, 0.0, 5196, 201212, 41548, 6, root, 22908, /usr/sbin/gssproxy -D
+0, 0.0, 5696, 129588, 83400, 1, root, 22948, /usr/sbin/lvmetad -f
+0, 0.0, 1896, 127868, 620, 1, root, 23031, /usr/sbin/smartd -n -q never
+0, 0.1, 23648, 531792, 156332, 3, root, 23050, /usr/sbin/rsyslogd -n
+0, 0.0, 2184, 50912, 404, 1, root, 23193, /usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf -u -f /var/log/wpa_supplicant.log -P /var/run/wpa_supplicant.pid
+0, 0.0, 1412, 64948, 440, 1, rpc, 23252, /sbin/rpcbind -w
+0, 0.0, 0, 0, 0, 1, root, 23315, [kworker/5:2]
+0, 0.0, 2060, 29408, 848, 1, ntp, 23320, /usr/sbin/ntpd -u ntp:ntp -u ntp:ntp -p /var/run/ntpd.pid -g
+0, 0.0, 908, 25844, 420, 1, root, 23340, /usr/sbin/atd -f
+0, 0.0, 1292, 19300, 476, 1, root, 23463, /usr/sbin/irqbalance --foreground
+0, 0.0, 0, 0, 0, 1, root, 23575, [kworker/7:2]
+0, 0.0, 0, 0, 0, 1, root, 24513, [kworker/1:1]
+0, 0.0, 0, 0, 0, 1, root, 24568, [kworker/2:1]
+0, 0.0, 0, 0, 0, 1, root, 25232, [kworker/5:0]
+0, 2.5, 415776, 4818132, 4649980, 45, ssadmin, 25622, /opt/java/jdk1.8.0_111/bin/java -DcsapJava8 -Xms128M -Xmx133M -XX:MaxMetaspaceSize=96M -XX:+ExitOnOutOfMemoryError -Dserver.context-path=/BootReference -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8336 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csap/processing/BootReference_8331/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csap/processing/BootReference_8331/jmxremote.access -DcsapProcessId=BootReference_8331 -DcsapEnvironmentVariables=arePresent -Dyourcompany.life=dev -DSTAGING=/opt/csap/staging -Djava.io.tmpdir=temp org.springframework.boot.loader.JarLauncher --spring.profiles.active=dev --server.port=8331
+0, 2.6, 428688, 5084388, 4916236, 48, ssadmin, 25804, /opt/java/jdk1.8.0_111/bin/java -DcsapJava8 -Xms128M -Xmx133M -XX:MaxMetaspaceSize=96M -XX:+ExitOnOutOfMemoryError -Dserver.context-path=/BootReference -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8296 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csap/processing/BootReference_8291/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csap/processing/BootReference_8291/jmxremote.access -DcsapProcessId=BootReference_8291 -DcsapEnvironmentVariables=arePresent -Dyourcompany.life=dev -DSTAGING=/opt/csap/staging -Djava.io.tmpdir=temp org.springframework.boot.loader.JarLauncher --spring.profiles.active=dev --server.port=8291
+0, 0.0, 0, 0, 0, 1, root, 28327, [kworker/6:1]
+0, 0.0, 3932, 89080, 780, 1, postfix, 28407, pickup -l -t unix -u
+0, 14.1, 2302896, 3035468, 2853356, 76, ssadmin, 32025, /opt/csap/processing/mongoDb_27017/mongodatabase/bin/mongod --config /opt/csap/processing/mongoDb_27017/conf/mongodb.conf --wiredTigerCacheSizeGB 4 --setParameter enableTestCommands=1
+0, 0.0, 9536, 527512, 450076, 6, polkitd, 32429, /usr/lib/polkit-1/polkitd --no-debug
+0, 0.1, 16268, 553164, 304384, 5, root, 32491, /usr/bin/python -Es /usr/sbin/tuned -l -P
+2, 1.1, 179912, 4437192, 4279928, 40, ssadmin, 20631, /opt/java/jdk1.8.0_111/bin/java -Djava.util.logging.config.file=/opt/csap/processing/ServletSample_8041/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -DcsapJava8 -Xms128M -Xmx128M -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8046 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csap/processing/ServletSample_8041/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csap/processing/ServletSample_8041/jmxremote.access -DcsapProcessId=ServletSample_8041 -DcsapEnvironmentVariables=arePresent -Dyourcompany.life=dev -DSTAGING=/opt/csap/staging -Djdk.tls.ephemeralDHKeySize=2048 -Djava.endorsed.dirs=/opt/csap/processing/appsTomcat/apache-tomcat-8.0.35/endorsed -classpath /opt/csap/processing/appsTomcat/apache-tomcat-8.0.35/bin/bootstrap.jar:/opt/csap/processing/appsTomcat/apache-tomcat-8.0.35/bin/tomcat-juli.jar -Dcatalina.base=/opt/csap/processing/ServletSample_8041 -Dcatalina.home=/opt/csap/processing/appsTomcat/apache-tomcat-8.0.35 -Djava.io.tmpdir=/opt/csap/processing/ServletSample_8041/temp org.apache.catalina.startup.Bootstrap start
+5, 0.0, 0, 0, 0, 1, root, 62, [ksmd]
+19, 0.0, 0, 0, 0, 1, root, 63, [khugepaged]
+

@@ -1,0 +1,153 @@
+#
+#  Simple deployement of nginx, replacing page with hello world 
+#
+
+---
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nginx-simple-namespace
+  labels:
+    name: test
+---
+
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: nginx-simple-config-map
+  namespace: nginx-simple-namespace
+  
+  labels:
+    somekey: some-value
+
+data:
+  simpleKey: simpleValue
+  
+  multiLineKey: |-
+    line1:
+    - got: here
+      and:
+        - now: here
+        
+---
+#
+# Cron job: https://kubernetes.io/docs/tasks/job/automated-tasks-with-cron-jobs/
+# format: minute hour.... below is run EVERY minute
+#
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: nginx-cron
+  namespace: nginx-simple-namespace
+spec: 
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: nginx-cron-container
+            image: busybox:1.32.0
+            args:
+            - /bin/sh
+            - -c
+            - date; echo Hello from nginx-cron-container
+          restartPolicy: OnFailure
+
+---
+kind: Deployment
+
+apiVersion: apps/v1
+
+metadata:
+  name: nginx-simple
+  namespace: nginx-simple-namespace
+  labels:
+    csap-deploy-sample: nginx-simple-id
+    
+spec:
+  selector:
+    matchLabels:
+      csap-deploy-sample: nginx-simple-id
+      
+  replicas: 1
+  
+  template:
+  
+    metadata:
+      name: "nginx-simple-template"
+      labels:
+        csap-deploy-sample: nginx-simple-id
+        matchForDemoService: nginx-simple-target
+
+      annotations:     
+        "sample-1": "value-1" 
+        
+    spec:
+    
+      terminationGracePeriodSeconds: 5
+      
+      containers:
+      - name: nginx-container
+        image: nginx:latest
+        
+        envFrom:
+        - configMapRef:
+            name: nginx-simple-config-map
+        
+        ports:
+        - containerPort: 80
+        
+        command:
+          - "/bin/sh"
+          
+        args:
+          - "-c"
+          - |
+            echo "variable from config map: multiLineKey $multiLineKey" ; 
+          
+            indexFile=/usr/share/nginx/html/index.html;
+          
+            mv $indexFile $indexFile.original ;
+            echo 'hi from nginx-simple' > $indexFile ; 
+          
+            nginx -g 'daemon off;'
+          
+        readinessProbe:
+          initialDelaySeconds: 3
+          timeoutSeconds: 3
+          periodSeconds: 3
+          failureThreshold: 1
+          httpGet:
+            path: /
+            port: 80
+            
+        livenessProbe:
+          initialDelaySeconds: 3
+          timeoutSeconds: 3
+          periodSeconds: 3
+          failureThreshold: 1
+          httpGet:
+            path: /
+            port: 80
+            
+
+
+        
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-simple-service
+  namespace: nginx-simple-namespace
+spec:
+  type: NodePort # defaults to clusterip
+  selector:
+    matchForDemoService: nginx-simple-target
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    

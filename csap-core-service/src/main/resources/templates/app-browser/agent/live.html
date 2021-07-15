@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>include page</title>
+</head>
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+
+
+	<header class=related id=service-live-header>
+
+		<span>
+
+
+			<span>
+
+				<label class=csap>
+					Current Status:
+					<span id="healthStatus">pending</span>
+					<button
+						id="show-health-issues"
+						title="View Health Report"
+						class="csap-icon csap-tools"></button>
+				</label>
+
+				<label
+					id="uptime"
+					class=csap> </label>
+			</span>
+
+			<label
+				class=csap
+				title="Data refresh interval">
+				Interval:
+				<select id="refreshData">
+					<option
+						title="Auto refresh disabled"
+						value="-1">-</option>
+					<option value="1">1s</option>
+					<option value="2">2s</option>
+					<option
+						value="5"
+						selected="selected">5s</option>
+					<option value="10">10s</option>
+					<option value="30">30s</option>
+				</select>
+				<button
+					id="refreshMetrics"
+					class="csap-icon refresh-window csap-activity"
+					title="Get values since latest reset"></button>
+			</label>
+
+
+			<label
+				class=csap
+				title="Select meter type and detail level">
+				Report:
+				<select id="meter-view">
+					<option
+						title="meters tagged with csap-collection"
+						value="starter">Alarms View</option>
+					<option
+						selected="selected"
+						title="all exported meters"
+						value="api">Meter View</option>
+					<option
+						title="all exported meters with titles, tags, etc"
+						value="apiDetails">Include Details</option>
+					<option
+						title="all meters with option to specify tag"
+						value="apiAggregated">Specified tag</option>
+				</select>
+
+				<button
+					id="switch-table-view"
+					class="csap-icon csap-recycle"
+					title="Toggle view between alarm listing and metrics"></button>
+			</label>
+		</span>
+
+		<label id="meter-table-summary">
+			<span id=meter-source></span>
+			<select id=health-service-names>
+				<option>&nbsp;</option>
+			</select>
+			:
+			<span id=meter-count>-</span>
+			Meter(s)
+
+			<a
+				class="csap-link-icon csap-help"
+				target="_blank"
+				th:href="${@csapCoreService.getHelpUrl('service-live-help') }">
+			</a>
+		</label>
+
+
+	</header>
+
+
+	<div id="data-panel">
+
+
+		<div id="meter-plots"></div>
+
+		<div style="position: relative">
+			<div id="meter-filters">
+				<input
+					id="metricFilter"
+					placeholder="filter meters"
+					value="" />
+
+				<input
+					title="filter tag"
+					id="meter-tag-filter"
+					type="text"
+					value="csap-collection">
+
+			</div>
+		</div>
+
+		<table
+			id="metricTable"
+			class="csap sticky-header">
+
+			<thead>
+				<tr>
+					<th style="min-width: 30em">Name</th>
+
+					<th
+						title="CSAP Micro Alerts defined in service limits"
+						class="sorter-raw simon-only">Alerts</th>
+
+					<th class="sorter-raw">Count</th>
+					<th
+						title="Mean of every sample since process started"
+						class="sorter-raw">Mean</th>
+					<th
+						title="50th percentile of recent samples"
+						class="sorter-raw">Snap50</th>
+					<th
+						title="95th percentile of recent samples"
+						class="sorter-raw">Snap95</th>
+					<th
+						title="Maximum of recent samples"
+						class="sorter-raw">SnapMax</th>
+					<th class="sorter-raw">Total</th>
+				</tr>
+			</thead>
+
+			<tbody id="metricBody">
+			</tbody>
+		</table>
+
+
+		<table
+			id="health"
+			class="csap sticky-header">
+			<thead>
+				<tr>
+					<th
+						class="sorter-raw"
+						style="width: 10em">Time</th>
+					<th>Alert Id</th>
+					<th>Type</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+
+			<tbody id="alertsBody">
+
+			</tbody>
+
+		</table>
+
+
+
+		<aside>
+
+
+			<div
+				id="meter-plot-template"
+				class="meter-panel">
+				<div class="graph-controls">
+					<span class="graph-title"></span>
+					<button
+						title="close panel"
+						class="csap-icon csap-remove close-panel"></button>
+				</div>
+				<div class="graph-selections">
+
+					<label title="count of items since last restart">
+						<input
+							class="select-count"
+							data-type="count"
+							type="checkbox">
+						Count
+					</label>
+
+					<label title="count in interval">
+						<input
+							class="select-change"
+							data-type="change"
+							type="checkbox">
+						Change
+					</label>
+
+					<label title="count in interval / interval time">
+						<input
+							class="select-rate"
+							data-type="rate"
+							type="checkbox">
+						Rate
+					</label>
+
+					<label title="count in interval / server time">
+						<input
+							class="select-throughput"
+							data-type="throughput"
+							type="checkbox">
+						Throughput
+					</label>
+
+					<label title="mean, max, and distribution">
+						<input
+							class="select-distribution"
+							data-type="distribution"
+							type="checkbox">
+						Time Distribution
+					</label>
+
+					<label title="delta in total time; useful for java garbage collection">
+						<input
+							class="select-timechange"
+							data-type="timechange"
+							type="checkbox">
+						Time Change
+					</label>
+				</div>
+				<div class="meter-graph"></div>
+			</div>
+
+		</aside>
+
+	</div>
+
+
+
+</body>
+</html>

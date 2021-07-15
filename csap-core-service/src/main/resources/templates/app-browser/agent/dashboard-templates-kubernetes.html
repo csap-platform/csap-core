@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>explorer fragment</title>
+</head>
+
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+
+	<div id=kubernetes-dashboard-templates>
+
+		<span
+			class=k8-dash-templates
+			id="kubernetes-namespace"
+			style="display: inline-block">
+			version:
+			<span style="margin-right: 2em"></span>
+			namespace:
+			<select
+				id="kubernetes-namespace-select"
+				title="Filter by namespaces">
+
+				<option>all</option>
+			</select>
+		</span>
+
+		<div id="kubernetes-deploy-controls">
+
+			<button
+				id="deployment-remove"
+				title="Delete deployment"
+				class="csap-icon csap-trash"></button>
+		</div>
+
+
+
+		<div id="kubernetes-statefulset-controls">
+
+			<button
+				id="statefulset-remove"
+				title="Delete Stateful Set"
+				class="csap-icon csap-trash"></button>
+		</div>
+
+
+		<div id="kubernetes-daemonset-controls">
+
+			<button
+				id="daemonset-remove"
+				title="Delete Daemon Set"
+				class="csap-icon csap-trash">></button>
+		</div>
+
+
+		<div id="kubernetes-replicaset-controls">
+
+			<button
+				id="replicaset-remove"
+				title="Delete Daemon Set"
+				class="csap-icon csap-trash"></button>
+		</div>
+
+		<div id="kubernetes-service-controls">
+
+			<button
+				id="service-k8-delete"
+				title="Delete service"
+				class="csap-icon csap-trash"></button>
+
+		</div>
+
+
+		<div id="kubernetes-volume-claim-controls">
+
+			<button
+				id="volume-claim-remove"
+				title="Delete Volume"
+				class="csap-icon csap-trash"></button>
+
+		</div>
+
+
+
+		<div id="kubernetes-pod-controls">
+
+			<button
+				id="pod-logs"
+				title="Show Pod Logs..."
+				class="csap-icon">
+				<img th:src="@{ /images/format-justify-center.png }" />
+			</button>
+
+			<button
+				id="pod-commands"
+				title="Run pod commands..."
+				class="csap-icon">
+				<img th:src="@{ /images/16x16/shell.png }" />
+			</button>
+			<button
+				id="pod-delete"
+				title="Delete pod"
+				class="csap-icon csap-trash"></button>
+		</div>
+
+
+		<div id="service-proxy-dialog">
+
+			<header> Kubernetes Http Proxy Service </header>
+
+			<div class=csap-green>
+<!-- 				<label> -->
+<!-- 					Service: -->
+<!-- 					<input id=proxy-name /> -->
+<!-- 				</label> -->
+<!-- 				<label> -->
+<!-- 					Port: -->
+<!-- 					<input id=proxy-port /> -->
+<!-- 				</label> -->
+				<label class=csap>
+					<span>proxy url:</span>
+					<input id=proxy-url />
+				</label>
+				<label class=csap>
+					<span>path:</span>
+					<input id=proxy-path />
+				</label>
+				<br/>
+				<label>
+					<button class="csap-button-icon csap-window" title="Open path in a new window">Launch</button>
+				</label>
+
+			</div>
+
+
+			<div class=csap-white>
+				kubectl proxy enables access to the kubernetes api which include support for http service proxying. For other tcp
+				services - use pod port forwarding.
+				<br>
+				<br>
+				Best practice: kubectl proxy exposes the management plane, and is intended only for short term debugging
+			</div>
+			
+			<div>
+				<button
+					title="Start a new instance"
+					class="csap-button-icon csap-go">add proxy instance</button>
+			</div>
+
+			<div id=process-container>
+				<table class="csap sticky-header">
+					<thead>
+						<tr>
+							<th>Pid</th>
+							<th>Current proxy and port forward processes</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>1234</td>
+							<td>kubectl proxy...</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+		</div>
+
+
+
+		<div id="jsonDisplay-editor-dialog">
+		
+			<div
+				class=flex-container>
+				<label class=csap>
+					<input id=jde-json-mode type="checkbox" /> 
+					<span>Json</span>
+				</label>
+				<label class=csap>
+					<input id=jde-fold-mode type="checkbox" /> 
+					<span>Fold</span>
+				</label>
+			</div>
+		
+
+			<pre id="jsonDisplay-editor-container">LOADING</pre>
+		</div>
+
+
+
+		<div id="yaml-editor-dialog">
+			<div
+				id="yaml-editor-head"
+				class=flex-container>
+
+				<span
+					id="yaml-editor-operations"
+					class=flex-container>
+
+					<button
+						id="yaml-op-create"
+						class="csap-button-icon csap-file-code">Create</button>
+
+					<button
+						id="yaml-op-update"
+						class="csap-button-icon csap-edit">Update</button>
+
+					<button
+						id="yaml-op-delete"
+						class="csap-button-icon csap-trash">Delete</button>
+					<label
+						class=csap
+						title="when enabled --force will be used when deleting">
+						<input
+							id="yaml-op-delete-force"
+							type="checkbox" />
+						Force
+					</label>
+
+
+					
+					<label class="csap" title="removes managedFields, and adds spacing. Close/reopen to view changes" style="margin-right: 3em">
+						<input id=yaml-op-spacing type="checkbox" checked="checked" /> 
+						<span>yaml tidy</span>
+					</label>
+
+
+				</span>
+
+				<span
+					id="yaml-editor-settings"
+					class="flex-right-info flex-container">
+
+					<span id="last-loaded-yaml"></span>
+
+					<input
+						id="kubernetes-yaml-clone"
+						placeholder=" "
+						title="Contents will be cloned, replacing XXX with an integer" />
+
+					<select id="kubernetes-yaml-select">
+						<option
+							value="load"
+							selected="selected">Load Sample</option>
+						<optgroup label="General">
+
+							<option>dns-utils.yaml</option>
+							<option>stress.yaml</option>
+							<option>nginx-simple.yaml</option>
+							<option>csap-simple-app.yaml</option>
+							<option>csap-full-app.yaml</option>
+							<option>nginx-route-demo.yaml</option>
+							<option>nginx-namespace-demo.yaml</option>
+							<option>nginx-statefulset-demo.yaml</option>
+							<option>kernel-config-using-privileged.yaml</option>
+							<option>rni.yaml</option>
+						</optgroup>
+
+						<optgroup label="storage">
+							<option>storage-nginx-pvc.yaml</option>
+							<option>storage-nfs-static.yaml</option>
+							<option>storage-local.yaml</option>
+							<option>storage-vsphere-dynamic.yaml</option>
+							<option>storage-vsphere-static.yaml</option>
+							<option>storage-vsphere-direct.yaml</option>
+							<option>storage-simple-pvc.yaml</option>
+						</optgroup>
+
+						<optgroup label="Prometheus">
+							<option>kubernetes-operator-bundle.yaml</option>
+							<option>kubernetes-operator-demo.yaml</option>
+							<option>kubernetes-operator-csap-app.yaml</option>
+						</optgroup>
+					</select>
+					<span th:replace="/file/ace-settings :: pageContent"></span>
+				</span>
+
+			</div>
+
+
+
+
+			<pre id="yaml-editor-container">#
+# Load a sample template or enter text
+#</pre>
+		</div>
+
+
+
+		<div id="k8-deploy-delete">
+			<div
+				class="info"
+				style="font-size: 1.5em">
+				Proceed with deployment deletion:
+				<br />
+				<br />
+				Ingress and service will be deleted if prefixed with the deployment name
+			</div>
+		</div>
+
+	</div>
+
+</body>
+</html>

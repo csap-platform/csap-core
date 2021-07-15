@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+
+
+
+	<div id="performance-tab-meters">
+
+		<div class="options">Applications</div>
+
+		<div id=applications>
+
+			<div></div>
+
+
+		</div>
+
+
+		<div class="options">
+
+			<span
+				class=page-title
+				title="Collected within last 30 seconds, click a meter to open real time dashboard showing last collected from each host">
+				Performance - Real Time </span>
+
+			<label>
+				<span class=quote>Select meter(s) to view details </span>
+			</label>
+
+		</div>
+
+		<div id="analyticsMeters"></div>
+
+		<div id="selected-meter">
+
+			<div class=flex-container>
+
+				<label class="csap">
+					<button
+						id=close-meter-details
+						title="Close Meter details"
+						data-name=""
+						class="csap-icon csap-remove"></button>
+					<span>Meter Details</span>
+				</label>
+
+				<label
+					class="csap flex-right-info"
+					title="When checked - multiple meters will be included details table; the last item selected will be shown in the histogram">
+					<input
+						id=include-multiple-meters
+						type="checkbox" />
+					Multiple Meters
+
+				</label>
+			</div>
+
+			<div class=flex-container>
+
+				<div id="meterTable">
+
+					<table
+						id="meter-detail-table"
+						class="csap">
+						<thead>
+							<tr>
+								<th>Host</th>
+							</tr>
+						</thead>
+
+						<tbody></tbody>
+
+						<tfoot>
+
+							<tr class="totalRow">
+								<td
+									style="text-align: right"
+									data-math="col-count"
+									data-suffix=" Hosts"
+									data-prefix=" Totals: "></td>
+							</tr>
+
+
+							<tr class="meanRow">
+								<td style="text-align: right">Average:</td>
+							</tr>
+
+						</tfoot>
+					</table>
+				</div>
+
+
+				<div id="meterHistogram"></div>
+
+			</div>
+
+
+		</div>
+
+	</div>
+
+
+	<div id="performance-tab-kubernetes-rt">
+
+
+		<div class="options flex-container">
+
+			<span
+				class=page-title
+				title="Collected within last 30 seconds, click a meter to open real time dashboard showing last collected from each host">
+				Kubernetes Metrics Server</span>
+			<label
+				title="Filter"
+				class=flex-right-info>
+				<input
+					id="k8-top-filter"
+					placeholder="filter rows"
+					value="" />
+				<button
+					id=clear-pod-filter
+					title="clear filter"
+					class="csap-icon csap-remove"></button>
+			</label>
+
+		</div>
+
+		<div id="kubernetes-metrics-service">
+
+			<div id="node-table-div">
+				<select
+					id=node-table-height
+					title="Select the number of nodes to display in scrolled region">
+					<option value="10em">scroll</option>
+					<option value="5em">less</option>
+					<option value="20em">more</option>
+					<option value="99em">all</option>
+				</select>
+				<table class="csap sticky-header">
+					<thead>
+
+						<tr>
+							<th>Node</th>
+							<th>Cpu (cores)</th>
+							<th class=sorter-csap-sort-value>Memory</th>
+							<th>Pods (Running)</th>
+							<th>Pods (Other)</th>
+						</tr>
+					</thead>
+
+					<tbody>
+					</tbody>
+
+
+				</table>
+			</div>
+
+
+			<div id="container-tables">
+
+				<div id="container-table-div">
+
+					<label id=summary-column-header>
+						Summary View:
+						<select id=metric-summary-category>
+							<option>Container</option>
+							<option>Namespace</option>
+						</select>
+					</label>
+					<table class="csap">
+						<thead>
+
+							<tr>
+								<th></th>
+								<th>Cpu (cores)</th>
+								<th class=sorter-csap-sort-value>Memory</th>
+							</tr>
+						</thead>
+
+						<tbody>
+						</tbody>
+
+
+					</table>
+				</div>
+
+
+				<div id="pod-table-div">
+
+					<label id=detail-column-header>
+						Detail View:
+						<select id=metric-detail-category>
+							<option>Pod</option>
+							<option>Container</option>
+						</select>
+					</label>
+					<table class="csap">
+						<thead>
+
+							<tr>
+								<th></th>
+								<th>Namespace</th>
+								<th>Cpu (cores)</th>
+								<th class=sorter-csap-sort-value>Memory</th>
+							</tr>
+						</thead>
+
+						<tbody>
+						</tbody>
+
+
+					</table>
+				</div>
+			</div>
+
+
+		</div>
+
+	</div>
+
+
+	<div id="performance-tab-alerts">
+
+
+		<div class="options">
+			<span class=page-title>Daily Alerts</span>
+			<label class=csap>
+				<select>
+					<option>1</option>
+					<option selected="selected">2</option>
+					<option>4</option>
+					<option>8</option>
+					<option>16</option>
+				</select>
+				weeks
+			</label>
+			<label class=csap>
+				<input
+					class="by-host"
+					type="checkbox" />
+				Host
+
+				<select
+					title="Filter based on sum of values"
+					class=trend-top>
+					<option value="1">Top/Low 1</option>
+					<option value="3">Top 3</option>
+					<option
+						value="5"
+						selected="selected">Top 5</option>
+					<option value="10">Top 10</option>
+					<option value="20">Top 20</option>
+					<option value="-2">Low 2</option>
+					<option value="-5">Low 5</option>
+					<option value="0">All</option>
+				</select>
+			</label>
+			<label class=csap>
+				<span class="quote">Click on the graph to open alert explorer</span>
+			</label>
+		</div>
+		<div class="alert-trends">
+			<div
+				id=alert-trend-plot
+				class=the-plot></div>
+		</div>
+
+
+
+		<div class="options">
+			<span class=page-title>Active Alerts</span>
+			<label>
+				<span class="quote">Resources are collected and reviewed per environment settings, default is 30 seconds</span>
+			</label>
+		</div>
+
+		<div class="alerts"></div>
+
+	</div>
+
+
+
+
+	<div id="performance-tab-events">
+
+		<div class="options">
+
+			<label title="Select max number of events to review">
+				History:
+
+				<select id="event-limit">
+					<option>10</option>
+					<option>50</option>
+					<option selected="selected">200</option>
+					<option>1000</option>
+					<option>2000</option>
+					<option>4000</option>
+				</select>
+				<button
+					title="refresh: get latest events"
+					id="event-refresh"
+					class="csap-icon csap-refresh"></button>
+			</label>
+
+			<label class=csap>
+				Category:
+
+				<input
+					id="event-category"
+					placeholder=""
+					value="/csap/ui/*">
+
+				<select
+					id="event-category-combo"
+					title="Categories">
+					<option>/csap/*</option>
+					
+					<optgroup label="User Actions">
+						<option>/csap/ui/*</option>
+						<option>/csap/ui/access/*</option>
+						<option>/csap/ui/os/*</option>
+						<option>/csap/ui/os/definition/*</option>
+						<option>/csap/ui/os/FileManager</option>
+						<option>/csap/ui/service/*</option>
+						<option>/csap/ui/service/kubernetes/*</option>
+					</optgroup>
+					
+					
+					<optgroup label="System Actions">
+						<option>/csap/system/*</option>
+						<option>/csap/system/agent-start-up</option>
+						<option>/csap/system/service/kubernetes/api/*</option>
+					</optgroup>
+					
+					<optgroup label="Performance Data">	
+						<option>/csap/reports/*</option>
+						<option>/csap/reports/host/daily</option>
+						<option>/csap/reports/os-process/daily</option>
+						<option>/csap/metrics/*</option>
+						<option>/csap/metrics/host/*</option>
+						<option>/csap/metrics/application/*</option>
+						<option>/csap/metrics/application/csap-agent/3600/attributes</option>
+						<option>/csap/metrics/application/csap-agent/3600/data</option>
+					</optgroup>
+				</select>
+			</label>
+
+			<label
+				id=date-controls
+				title="Display events after date">
+				From:
+				<input
+					type="text"
+					id=from
+					placeholder="---"
+					class="columnSearchFilter" />
+
+				To:
+				<input
+					type="text"
+					id="to"
+					placeholder="---"
+					class="columnSearchFilter" />
+			</label>
+
+			<span id=csap-event-count></span>
+
+
+
+			<button
+				title="Click to view application events"
+				id="user-events"
+				class="csap-button-icon launch-window flex-right-info">Event Portal</button>
+
+		</div>
+		<div id="events-panel">
+
+			<table class="csap sticky-header">
+				<thead>
+					<tr>
+						<th>Time</th>
+						<th>Source</th>
+						<th>Summary <span id=event-filter-container>
+								<input 
+									id="event-filter"
+									placeholder="Filter category, user, summary">
+							</span>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+
+				</tbody>
+
+			</table>
+
+		</div>
+
+	</div>
+
+
+	<div
+		id="performance-tab-event-details"
+		class="describe-container csap-scrollable">
+		<div class="options">
+			<label class=csap>
+
+				<button
+					title="Close event details"
+					id="close-details"
+					data-name=""
+					class="csap-icon csap-remove"></button>
+				Event Details
+			</label>
+			<label class=csap>
+				<input
+					class=code-fold
+					type="checkbox">
+				Fold
+			</label>
+		</div>
+		<pre class=describe-editor>
+		</pre>
+	</div>
+
+
+
+
+	<div id="performance-tab-activity-trends">
+
+
+		<div class="options">
+			<span class=page-title>Daily User Activity</span>
+
+			<label class=csap>
+				<select>
+					<option>1</option>
+					<option selected="selected">2</option>
+					<option>4</option>
+					<option>8</option>
+					<option>16</option>
+				</select>
+				weeks
+			</label>
+
+			<label class=csap>
+				<input
+					class="by-host"
+					type="checkbox" />
+				Host
+
+				<select
+					title="Filter based on sum of values"
+					class=trend-top>
+					<option value="1">Top/Low 1</option>
+					<option value="3">Top 3</option>
+					<option
+						value="5"
+						selected="selected">Top 5</option>
+					<option value="10">Top 10</option>
+					<option value="20">Top 20</option>
+					<option value="-2">Low 2</option>
+					<option value="-5">Low 5</option>
+					<option value="0">All</option>
+				</select>
+			</label>
+
+		</div>
+
+		<div class="activity-trends">
+			<div
+				id=activity-trend-plot
+				class=the-plot></div>
+		</div>
+
+
+
+		<span class="quote">User activity includes any deployment activities, commands run via dashboards, etc.</span>
+
+
+
+	</div>
+
+
+	<div
+		id="performance-tab-app"
+		class=options-scroller>
+
+		<div class="options">
+			<span class=page-title>Application Trends</span>
+			<label class=csap>
+				<select class=trend-time>
+					<option value="-1">24 hours</option>
+					<option value="1">1 week</option>
+					<option
+						selected="selected"
+						value="2">2 weeks</option>
+					<option value="4">4 weeks</option>
+					<option value="8">8 weeks</option>
+					<option value="16">16 weeks</option>
+					<option value="32">32 weeks</option>
+					<option value="52">52 weeks</option>
+					<option value="99">All</option>
+				</select>
+			</label>
+
+
+			<label class=csap>
+				<input
+					class="by-host"
+					type="checkbox" />
+				Hosts
+
+				<select
+					title="Filter based on sum of values"
+					class=trend-top>
+					<option value="1">Top/Low 1</option>
+					<option value="3">Top 3</option>
+					<option
+						value="5"
+						selected="selected">Top 5</option>
+					<option value="10">Top 10</option>
+					<option value="20">Top 20</option>
+					<option value="-2">Low 2</option>
+					<option value="-5">Low 5</option>
+					<option value="0">All</option>
+				</select>
+			</label>
+
+			<label
+				class=csap
+				title="Switch to slideshow mode">
+				<input
+					class="slide-show"
+					type="checkbox" />
+				Slide Show
+			</label>
+
+			<input
+				id=app-trend-filter
+				class=flex-right-info
+				placeholder="Filter By Title" />
+
+		</div>
+
+
+		<div class="app-trends"></div>
+
+	</div>
+
+	<div id="performance-tab-service">
+
+
+
+		<div class="options">
+			<span class=page-title>Service OS Resources</span>
+			<label class=csap>
+				<select class=trend-time>
+					<option value="1">1 week</option>
+					<option
+						selected="selected"
+						value="2">2 weeks</option>
+					<option value="4">4 weeks</option>
+					<option value="8">8 weeks</option>
+					<option value="16">16 weeks</option>
+					<option value="32">32 weeks</option>
+					<option value="52">52 weeks</option>
+					<option value="99">All</option>
+				</select>
+			</label>
+
+			<label class=csap>
+				<input
+					class="by-host"
+					type="checkbox" />
+				Services
+
+				<select
+					title="Filter based on sum of values"
+					class=trend-top>
+					<option value="1">Top/Low 1</option>
+					<option value="3">Top 3</option>
+					<option
+						value="5"
+						selected="selected">Top 5</option>
+					<option value="10">Top 10</option>
+					<option value="20">Top 20</option>
+					<option value="-2">Low 2</option>
+					<option value="-5">Low 5</option>
+					<option value="0">All</option>
+				</select>
+			</label>
+
+			<label
+				class=csap
+				title="Switch to slideshow mode">
+				<input
+					class="slide-show"
+					type="checkbox" />
+				Slide Show
+			</label>
+		</div>
+
+
+		<div class="service-trends">
+
+			<div
+				id="service-slide"
+				class="trend-slide the-plot"></div>
+
+			<div
+				id="service-cpu"
+				class="the-plot"></div>
+
+			<div
+				id="service-threads"
+				class="the-plot"></div>
+
+			<div
+				id="service-sockets"
+				class="the-plot"></div>
+
+			<div
+				id="service-memory"
+				class="the-plot"></div>
+
+			<div
+				id="service-files"
+				class="the-plot"></div>
+
+			<div
+				id="service-disk"
+				class="the-plot"></div>
+
+			<div
+				id="service-reads"
+				class="the-plot"></div>
+
+			<div
+				id="service-writes"
+				class="the-plot"></div>
+		</div>
+
+	</div>
+
+	<div id="performance-tab-host">
+
+
+		<div class="options">
+			<span class=page-title>Host Resources</span>
+			<label class=csap>
+				<select class=trend-time>
+					<option value="-1">24 hours</option>
+					<option value="1">1 week</option>
+					<option
+						selected="selected"
+						value="2">2 weeks</option>
+					<option value="4">4 weeks</option>
+					<option value="8">8 weeks</option>
+					<option value="16">16 weeks</option>
+					<option value="32">32 weeks</option>
+					<option value="52">52 weeks</option>
+					<option value="99">All</option>
+				</select>
+			</label>
+			<label class=csap>
+				<input
+					class="by-host"
+					type="checkbox" />
+				Host
+
+				<select
+					title="Filter based on sum of values"
+					class=trend-top>
+					<option value="1">Top/Low 1</option>
+					<option value="3">Top 3</option>
+					<option
+						value="5"
+						selected="selected">Top 5</option>
+					<option value="10">Top 10</option>
+					<option value="20">Top 20</option>
+					<option value="-2">Low 2</option>
+					<option value="-5">Low 5</option>
+					<option value="0">All</option>
+				</select>
+			</label>
+
+			<label
+				class=csap
+				title="Switch to slideshow mode">
+				<input
+					class="slide-show"
+					type="checkbox" />
+				Slide Show
+			</label>
+		</div>
+
+		<div class="host-trends">
+
+			<div
+				id="host-slide"
+				class="trend-slide the-plot"></div>
+
+			<div
+				id="host-cores"
+				class="the-plot"></div>
+
+			<div
+				id="host-load"
+				class="the-plot"></div>
+
+			<div
+				id="host-threads"
+				class="the-plot"></div>
+
+			<div
+				id="host-files"
+				class="the-plot"></div>
+
+			<div
+				id="host-sockets-active"
+				class="the-plot"></div>
+
+			<div
+				id="host-sockets-wait"
+				class="the-plot"></div>
+
+			<div
+				id="host-sockets-time-wait"
+				class="the-plot"></div>
+
+
+			<div
+				id="host-network-received"
+				class="the-plot"></div>
+			<div
+				id="host-network-transmitted"
+				class="the-plot"></div>
+
+			<div
+				id="host-io-reads"
+				class="the-plot"></div>
+			<div
+				id="host-io-writes"
+				class="the-plot"></div>
+
+			<div
+				id="host-alerts"
+				class="the-plot"></div>
+
+
+		</div>
+
+	</div>
+
+
+
+	<div id="performance-tab-infra">
+
+		<div class="options">
+
+			<span class=page-title>Infrastructure Response Times</span>
+			<label class=csap>
+				<select class=trend-time>
+					<option value="-1">24 hours</option>
+					<option value="1">1 week</option>
+					<option
+						selected="selected"
+						value="2">2 weeks</option>
+					<option value="4">4 weeks</option>
+					<option value="8">8 weeks</option>
+					<option value="16">16 weeks</option>
+					<option value="32">32 weeks</option>
+					<option value="52">52 weeks</option>
+					<option value="99">All</option>
+				</select>
+			</label>
+			<label class=csap>
+				<input
+					class="by-host"
+					type="checkbox" />
+				Host
+
+				<select
+					title="Filter based on sum of values"
+					class=trend-top>
+					<option value="1">Top/Low 1</option>
+					<option value="3">Top 3</option>
+					<option
+						value="5"
+						selected="selected">Top 5</option>
+					<option value="10">Top 10</option>
+					<option value="20">Top 20</option>
+					<option value="-2">Low 2</option>
+					<option value="-5">Low 5</option>
+					<option value="0">All</option>
+				</select>
+			</label>
+
+			<label
+				class=csap
+				title="Switch to slideshow mode">
+				<input
+					class="slide-show"
+					type="checkbox" />
+				Slide Show
+			</label>
+
+
+			<label
+				class=csap
+				title="show all environments; this will impact all trends">
+				<input
+					class="show-by-env"
+					type="checkbox" />
+				Environment
+			</label>
+		</div>
+
+
+		<div class="infra-trends">
+			<div
+				id="infra-slide"
+				class="trend-slide the-plot"></div>
+
+			<div class=comment>bash: ($(i=$numLoops; while (( i > 0 )); do (( i=i-1 )); done))</div>
+			<div
+				id="infra-cpu"
+				class="the-plot"></div>
+
+			<div class=comment>bash: dd oflag=nocache,sync if=/dev/zero of=csap_test_file bs=$blockSize count=$numBlocks</div>
+			<div
+				id="infra-disk"
+				class="the-plot"></div>
+
+			<div class=comment>csap-admin collections from csap-agent</div>
+			<div
+				id="agent-ms"
+				class="the-plot"></div>
+		</div>
+
+
+	</div>
+
+
+	<div id="performance-tab-docker">
+
+		<div class="options">
+			<span class=page-title>Docker Resources</span>
+			<label class=csap>
+				<select class=trend-time>
+					<option value="-1">24 hours</option>
+					<option value="1">1 week</option>
+					<option
+						selected="selected"
+						value="2">2 weeks</option>
+					<option value="4">4 weeks</option>
+					<option value="8">8 weeks</option>
+					<option value="16">16 weeks</option>
+					<option value="32">32 weeks</option>
+					<option value="52">52 weeks</option>
+					<option value="99">All</option>
+				</select>
+			</label>
+			<label class=csap>
+				<input
+					class="by-host"
+					type="checkbox" />
+				Host
+
+				<select
+					title="Filter based on sum of values"
+					class=trend-top>
+					<option value="1">Top/Low 1</option>
+					<option value="3">Top 3</option>
+					<option
+						value="5"
+						selected="selected">Top 5</option>
+					<option value="10">Top 10</option>
+					<option value="20">Top 20</option>
+					<option value="-2">Low 2</option>
+					<option value="-5">Low 5</option>
+					<option value="0">All</option>
+				</select>
+			</label>
+
+			<label
+				class=csap
+				title="Switch to slideshow mode">
+				<input
+					class="slide-show"
+					type="checkbox" />
+				Slide Show
+			</label>
+		</div>
+
+
+		<div class="docker-trends">
+			<div
+				id="docker-slide"
+				class="trend-slide the-plot"></div>
+
+			<div
+				id="is-healthy"
+				class="the-plot"></div>
+
+			<div
+				id="running-containers"
+				class="the-plot"></div>
+
+			<div
+				id="all-containers"
+				class="the-plot"></div>
+
+			<div
+				id="volumes"
+				class="the-plot"></div>
+
+			<div
+				id="images"
+				class="the-plot"></div>
+		</div>
+
+
+	</div>
+
+
+
+	<div id="performance-tab-kubelet">
+
+		<div class="options">
+			<span class=page-title>Kubernetes Resources</span>
+			<label class=csap>
+				<select class=trend-time>
+					<option value="-1">24 hours</option>
+					<option value="1">1 week</option>
+					<option
+						selected="selected"
+						value="2">2 weeks</option>
+					<option value="4">4 weeks</option>
+					<option value="8">8 weeks</option>
+					<option value="16">16 weeks</option>
+					<option value="32">32 weeks</option>
+					<option value="52">52 weeks</option>
+					<option value="99">All</option>
+				</select>
+			</label>
+			<label class=csap>
+				<input
+					class="by-host"
+					type="checkbox" />
+				Host
+
+				<select
+					title="Filter based on sum of values"
+					class=trend-top>
+					<option value="1">Top/Low 1</option>
+					<option value="3">Top 3</option>
+					<option
+						value="5"
+						selected="selected">Top 5</option>
+					<option value="10">Top 10</option>
+					<option value="20">Top 20</option>
+					<option value="-2">Low 2</option>
+					<option value="-5">Low 5</option>
+					<option value="0">All</option>
+				</select>
+			</label>
+
+			<label
+				class=csap
+				title="Switch to slideshow mode">
+				<input
+					class="slide-show"
+					type="checkbox" />
+				Slide Show
+			</label>
+		</div>
+
+
+		<div class="kubelet-trends">
+
+			<div
+				id="kubelet-slide"
+				class="trend-slide the-plot"></div>
+
+			<div
+				id="is-healthy"
+				class="the-plot"></div>
+				
+
+			<div
+				id="event-count"
+				class="the-plot"></div>
+
+			<div
+				id="running-pods"
+				class="the-plot"></div>
+				
+
+				
+			<div
+				id="node-cores"
+				class="the-plot"></div>
+
+			<div
+				id="node-memory"
+				class="the-plot"></div>
+				
+			<div
+				id="resources-cores-available"
+				class="the-plot"></div>
+
+			<div
+				id="resources-cores-requested"
+				class="the-plot"></div>
+
+			<div
+				id="resources-coresPercent-requested"
+				class="the-plot"></div>
+
+			<div
+				id="resources-cores-limits"
+				class="the-plot"></div>
+				
+
+			<div
+				id="resources-memory-available"
+				class="the-plot"></div>
+
+			<div
+				id="resources-memory-requested"
+				class="the-plot"></div>
+
+
+			<div
+				id="resources-memoryPercent-requested"
+				class="the-plot"></div>
+
+			<div
+				id="resources-memory-limits"
+				class="the-plot"></div>
+				
+
+
+		</div>
+
+
+	</div>
+
+
+
+
+
+	<div id="performance-tab-health-reports">
+
+		<div class="options">
+			<span class=page-title>Service Reports</span>
+			<label class=csap>
+				Filter:
+				<input
+					id="health-report-filter"
+					placeholder="service or host">
+			</label>
+		</div>
+		<div id="health-reports">
+
+			<div
+				id="health-tabs"
+				style="margin-top: 1em;">
+				<ul>
+					<li data-tab="alertsTab"><a
+							id=""
+							href="#alertsTab"
+							title="Alerts Recorded">Alert History</a></li>
+					<li data-tab="settingsTab"><a
+							id=""
+							href="#settingsTab"
+							title="Settings">Settings</a></li>
+				</ul>
+
+
+				<div
+					id="alertsTab"
+					style="display: block">
+
+
+					<div id="config">
+
+						<button
+							id="refreshAlerts"
+							class="csap-button-icon refresh-window"
+							title="Refresh Alerts">&nbsp;</button>
+
+						Show Alerts from:
+						<label>
+							<select
+								id="numberHoursSelect"
+								style="padding-right: 0">
+								<option>1</option>
+								<option>2</option>
+								<option>3</option>
+								<option>4</option>
+								<option>8</option>
+								<option>12</option>
+								<option selected="selected">24</option>
+								<option>48</option>
+								<option value="-1">all</option>
+							</select>
+							Hours
+						</label>
+						<span
+							id="filterCounts"
+							style="font-style: italic; padding-left: 3em;">
+							Displaying:
+							<span></span>
+							of
+							<span></span>
+							.
+						</span>
+					</div>
+
+					<table
+						id="health"
+						class="csap">
+						<thead>
+							<tr>
+								<th
+									class="sorter-raw">Time</th>
+								<th>Service</th>
+								<th>Host</th>
+								<th>Alert</th>
+								<th>Type</th>
+								<th>Description</th>
+							</tr>
+						</thead>
+						<tbody id="alertsBody">
+
+						</tbody>
+
+					</table>
+
+
+				</div>
+
+
+				<div
+					id="settingsTab"
+					style="display: block">
+
+
+					<table class="csap">
+						<thead>
+							<tr>
+								<th class="sorter-raw">Item</th>
+								<th>Setting</th>
+							</tr>
+						</thead>
+						<tbody id="settingBody">
+						</tbody>
+
+					</table>
+
+					<table
+						id="healthUrls"
+						class="csap">
+						<thead>
+							<tr>
+								<th
+									class="sorter-raw"
+									style="width: 15em;">Service</th>
+								<th>Health Portal By Host</th>
+							</tr>
+						</thead>
+						<tbody id="sourceBody">
+
+
+						</tbody>
+
+					</table>
+
+				</div>
+
+
+
+			</div>
+
+
+
+
+
+		</div>
+
+	</div>
+
+
+
+
+
+
+</body>
+</html>

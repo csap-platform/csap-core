@@ -1,0 +1,20 @@
+{
+	"data": [
+		{
+			"numberOfSamples": 2515,
+			"topCpu": 85,
+			"threadCount": 85439,
+			"fileCount": 87827,
+			"socketCount": 20059,
+			"rssMemory": 150063,
+			"diskUtil": 683536,
+			"diskReadKb": 2,
+			"diskWriteKb": 3592,
+			"appId": "csapeng.gen",
+			"lifecycle": "dev",
+			"project": "CSAP Engineering",
+			"serviceName": "stub"
+		}
+	],
+	"numDaysAvailable": 364
+}

@@ -1,0 +1,16 @@
+#
+# Target file
+#
+operator: modify
+target: default
+
+environments:
+  # environment name; required for environment processing
+  base: simple
+  name: xxx # optional, defaults to base
+  
+service-templates:
+  # csap compressed syntax
+  simple-service.docker.image: nginx:17.17
+  
+ 

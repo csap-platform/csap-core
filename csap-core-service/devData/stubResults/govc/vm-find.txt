@@ -1,0 +1,14 @@
+# govc  find '/MOC RNI Lab/vm/RNIs/CSAP-DEV_p'  -type m
+/MOC RNI Lab/vm/RNIs/CSAP-DEV_p/csap-dev2/csap-dev11
+/MOC RNI Lab/vm/RNIs/CSAP-DEV_p/csap-dev2/csap-dev07
+/MOC RNI Lab/vm/RNIs/CSAP-DEV_p/csap-dev2/csap-dev12
+/MOC RNI Lab/vm/RNIs/CSAP-DEV_p/csap-dev2/csap-dev09
+/MOC RNI Lab/vm/RNIs/CSAP-DEV_p/csap-dev2/csap-dev20
+/MOC RNI Lab/vm/RNIs/CSAP-DEV_p/csap-dev2/csap-dev08
+/MOC RNI Lab/vm/RNIs/CSAP-DEV_p/csap-dev2/csap-dev10
+/MOC RNI Lab/vm/RNIs/CSAP-DEV_p/csap-dev/csap-dev04
+/MOC RNI Lab/vm/RNIs/CSAP-DEV_p/csap-dev/csap-dev02
+/MOC RNI Lab/vm/RNIs/CSAP-DEV_p/csap-dev/csap-dev03
+/MOC RNI Lab/vm/RNIs/CSAP-DEV_p/csap-dev/csap-dev05
+/MOC RNI Lab/vm/RNIs/CSAP-DEV_p/csap-dev/csap-dev06
+/MOC RNI Lab/vm/RNIs/CSAP-DEV_p/csap-dev/csap-dev01

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>csap-core-service</artifactId>
+	<version>2-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>csap-core-service</name>
+	<description>CSAP core service provides agent collection and management portals</description>
+
+	<ciManagement></ciManagement>
+
+	<url>https://github.com/csap-platform/csap-core</url>
+	
+	<parent>
+		<groupId>org.csap</groupId>
+		<artifactId>csap-starter-parent</artifactId>
+		<version>2-SNAPSHOT</version>
+		<relativePath>../../oss-csap-starter/csap-starter/csap-starter-parent</relativePath>
+		<!-- ../csap-starter/csap-starter-parent</relativePath> for use on desktop -->
+	</parent>
+
+	<properties>
+		<!-- Defaults from csap-starter to java 8 <java.version>9</java.version> 
+			<jersey.version>2.29</jersey.version> -->
+	</properties>
+
+
+	<dependencies>
+
+		<!-- Build your own, or use managed. Managed includes log4j2 with yaml, 
+			security integration with ldap, etc. -->
+		<dependency>
+			<groupId>org.csap</groupId>
+			<artifactId>csap-starter</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+
+
+		<!-- <dependency> -->
+		<!-- <groupId>org.tmatesoft.svnkit</groupId> -->
+		<!-- <artifactId>svnkit</artifactId> -->
+		<!-- <version>1.8.7</version> -->
+		<!-- </dependency> -->
+
+
+		<dependency>
+			<groupId>org.eclipse.jgit</groupId>
+			<artifactId>org.eclipse.jgit</artifactId>
+			<version>5.8.1.202007141445-r</version>
+
+		</dependency>
+
+
+		<!-- <dependency> <groupId>io.sundr</groupId> <artifactId>builder-annotations</artifactId> 
+			<version>0.14.5</version> <exclusions> <exclusion> <groupId>com.sun</groupId> 
+			<artifactId>tools</artifactId> </exclusion> </exclusions> </dependency> -->
+
+		<dependency>
+			<groupId>io.kubernetes</groupId>
+			<artifactId>client-java</artifactId>
+			<version>12.0.0</version> <!-- 6.0.1 -->
+			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>ch.qos.logback</groupId>
+					<artifactId>logback-classic</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>io.sundr</groupId>
+					<artifactId>builder-annotations</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.squareup.okhttp3</groupId>
+					<artifactId>okhttp</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>4.9.1</version>
+		</dependency>
+		
+
+		<!-- Kuberntes Integration: support large doc partial processing -->
+		<dependency>
+			<groupId>com.jayway.jsonpath</groupId>
+			<artifactId>json-path</artifactId>
+		</dependency>
+
+
+		<!-- DOCKER DEPENENCIES -->
+
+		<dependency>
+			<groupId>com.github.docker-java</groupId>
+			<artifactId>docker-java-transport-httpclient5</artifactId>
+			<version>3.2.8</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.github.docker-java</groupId>
+			<artifactId>docker-java</artifactId>
+			<version>3.2.8</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.github.docker-java</groupId>
+					<artifactId>
+						docker-java-transport-jersey
+					</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.github.docker-java</groupId>
+					<artifactId>docker-java-transport-netty</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-boot-starter</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>net.sourceforge.htmlunit</groupId>
+			<artifactId>htmlunit</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+
+	</dependencies>
+
+	<build>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+			</testResource>
+		</testResources>
+
+
+					<!-- include tags
+					<groups>integration, feature-168</groups> -->
+					<!-- exclude tags -->
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+<!-- 					<excludedGroups>containers</excludedGroups> -->
+				</configuration>
+			</plugin>
+
+		</plugins>
+
+	</build>
+
+</project>

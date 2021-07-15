@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+
+<head>
+
+<title th:inline="text">CSAP Screencast</title>
+
+<script th:replace="csap/fragments/libsAndStyles :: pageContent"></script>
+
+
+
+<script th:src="@{/js/csapLibs/csap-misc.js}"></script>
+<script th:src="@{/js/csapLibs/csapUtils/CsapUser.js}"></script>
+
+
+<link
+	th:href="@{/js/csapLibs/qtip/jquery.qtip.min.css}"
+	rel="stylesheet"
+	type="text/css"
+	media="screen" />
+<script th:src="@{/js/csapLibs/qtip/jquery.qtip.min.js}"></script>
+
+<script th:src="@{/js/csapLibs/jquery.autosize.js}"></script>
+
+
+<script th:src="@{/js/misc/screencast.js}"></script>
+<style>
+.resp {
+	padding: 2px;
+	text-align: left;
+	word-break: break-all;
+	word-wrap: break-word;
+}
+
+.csap-link-button {
+	background-color: white;
+}
+</style>
+</head>
+
+
+
+<body th:inline="text">
+
+
+	<header>
+		CS-AP Training:
+		<a
+			class="csap-link-button"
+			th:href="${ wiki }">Related Content</a>
+
+		<a
+			class="csap-link-button"
+			th:href="${@csapCoreService.getHelpUrl('reference-guide') }">CSAP Confluence</a>
+		<a
+			class="csap-link-button"
+			th:href="${@csapCoreService.getHelpUrl('training') }">Training Screencasts</a>
+
+		<a
+			class="csap-link-button"
+			th:download="${ filename}"
+			th:href="${ mp4 }">Download Screencast</a>
+
+
+	</header>
+
+
+	<!-- 
+			<div id="vidFrame" style="padding: 1em;">
+				<span id="vidWiki" style="padding: 1em;"></span>
+				<div id="vid" style="padding: 1em;"></div>
+			</div>
+		-->
+
+	<div
+		id="vidFrame"
+		style="padding: 1em; background-color:white">
+		<div class="hquote">
+
+
+			Video Height:
+			<select
+				id="vidSize"
+				class="choices"
+				title="Select resolution in window, or use browser controls on video to maximize">
+				<option>300</option>
+				<option>500</option>
+				<option selected="selected">700</option>
+				<option>1080</option>
+			</select>
+
+			Note:
+			<span style="margin-right: 2em">Content best viewed full screen,</span>
+			Browser: <span>Latest versions of firefox, chrome, edge</span>
+
+		</div>
+
+
+		<div style="padding: 1em;">
+			<video
+				id="theVideo"
+				controls="controls"
+				height="700">
+				<source
+					th:src="${ mp4 }"
+					type="video/mp4">
+				Your browser does not support the video tag.
+			</video>
+		</div>
+	</div>
+
+
+</body>
+</html>

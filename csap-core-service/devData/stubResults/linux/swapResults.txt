@@ -1,0 +1,7 @@
+
+
+Result from executing on host csap-dev01:[bash, -c, swapon -s ]
+
+Filename				Type		Size	Used	Priority
+/dev/sda2                               partition	4080500	104	-1
+

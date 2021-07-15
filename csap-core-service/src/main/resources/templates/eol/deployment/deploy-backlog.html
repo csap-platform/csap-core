@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+
+	<div
+		id="backlog-template"
+		style="display: none">
+		<div>
+			<div id="backlog-header">
+				<label>
+					<input
+						id="filter-backlog-checkbox"
+						type="checkbox" />
+					Hide Empty items
+				</label>
+				<label>
+					<div
+						class="quote"
+						style="display: inline-block; margin: 0; margin-left: 5em;">
+
+						<button
+							id="refresh-backlog-now"
+							class="csap-button-icon"
+							title="click to manually refresh status; auto update occurs every 15 seconds">
+							<img
+								id="backlog-refresh-image"
+								th:src="@{/images/16x16/view-refresh.png}" />
+							<img
+								id="backlog-busy-image"
+								th:src="@{/images/animated/loadSmall.gif}" />
+						</button>
+
+						<a
+							title="View using csap api"
+							target="_blank"
+							class="simple"
+							th:href="@{/api/application/deployment-backlog}">Backlog Api</a>
+
+
+					</div>
+				</label>
+			</div>
+			<table
+				class="bordered"
+				id="backlog-table-alertify">
+				<thead>
+					<tr>
+						<th>Host</th>
+						<th>Queue</th>
+					</tr>
+				</thead>
+
+				<tbody>
+				
+					<tr>
+						<td>-</td>
+						<td>loading...</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+
+</body>

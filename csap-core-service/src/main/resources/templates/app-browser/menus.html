@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+
+	<span class=flex-right-info>
+
+
+
+		<select id="tools">
+			<option value="default">Tools</option>
+
+
+			<optgroup label="Service Health">
+
+				<option th:value="@{/api/application/health?alertLevel=1.0&details=false}">&nbsp;&nbsp;&nbsp;&nbsp;API:
+					health summary</option>
+				<option th:value="@{/api/application/health?alertLevel=1.0&details=true}">&nbsp;&nbsp;&nbsp;&nbsp;API:
+					health details</option>
+
+
+			</optgroup>
+
+
+			<optgroup label="Related Content">
+
+				<option th:value="@{/file/propertyEncoder}">&nbsp;&nbsp;&nbsp;&nbsp;Property Encrypter</option>
+				<option th:value="@{/os/showRoles}">&nbsp;&nbsp;&nbsp;&nbsp;User Roles</option>
+				<option th:value="@{/test}">&nbsp;&nbsp;&nbsp;&nbsp;Test Page</option>
+				<option th:value="@{/service/genHttpdWorkers}">&nbsp;&nbsp;&nbsp;&nbsp;Generate Http LoadBalance</option>
+				<option th:value="@{/login?local=true}">&nbsp;&nbsp;&nbsp;&nbsp;Local login</option>
+				
+			</optgroup>
+		</select>
+
+
+		<select id="devOps">
+			<option value="default">Dev Ops</option>
+			<option
+				th:each="toolEntry : ${ toolsMap }"
+				th:value="@{ ${toolEntry.value} }"
+				th:text="${ toolEntry.key }"></option>
+		</select>
+
+	</span>
+
+</body>

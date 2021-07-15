@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="/app-browser/browser-head :: pageContent">
+<title>thymeleaf replaced</title>
+</head>
+
+
+<body
+	id="manager"
+	th:class="${'csap-scrollable ' + theme }"> 
+
+	<header>
+
+		<label
+			id=environment-name
+			class=hover-select
+			title="Switch to another environment">
+			[[ ${csapHostEnvironmentName} ]]
+
+			<select
+				id="environment-select"
+				title="Select Environment">
+				<optgroup
+					id="definition-group"
+					class="env-spacer-label"
+					label="Environments: Definition">
+				</optgroup>
+				<optgroup
+					id="discovery-group"
+					class="env-spacer-label"
+					label="Environments: Discovered">
+				</optgroup>
+			</select>
+		</label>
+
+		<span id=application-name th:text=${applicationName}></span>
+		
+		
+
+		<label
+			id=portal-help
+			class="hover-select flex-right-info"
+			title="Select help category">
+			<a href=#open-menu class="csap-link-icon csap-help">[[ ${ deployedArtifact } ]]</a>
+			
+
+			<select
+				id="portal-help-select">
+				
+				<!-- placeholder for when the menu is closed: csap version is displayed --> 
+				<option class=hidden>Help</option>
+				
+				<!-- <option>local login</option> moved to tools-->
+				
+				<option class="csap-logout" value="logout" data-target="_self">Log Out</option>
+				
+				<!-- Application definition -->
+				<optgroup label="Application Help">
+					<option
+							class="csap-window"
+							th:each="toolEntry : ${ helpMap }"
+							th:value="@{ ${toolEntry.value} }"
+							th:text="${ toolEntry.key }"></option>
+				</optgroup>
+				
+				<!-- csap help defaults-->	
+				<optgroup label="CSAP Help">
+					<option
+						th:each="helpItem : ${@csapCoreService.getHelpUrls().entrySet()}"
+						th:value="${helpItem.value}"
+						th:text="${helpItem.key}">updated-by-eval</option>
+				</optgroup>
+					
+			</select>
+		</label>
+		
+<!-- 		<a
+			id=portal-help
+			target="_blank"
+			title="Learn more about CSAP"
+			class="csap-link-icon csap-help flex-right-info"
+			th:href="${@csapCoreService.getHelpUrl('reference-guide') }">
+			[[ ${ deployedArtifact } ]]
+		</a> -->
+
+	</header>
+
+	<section>
+
+		<article class="navigation">
+
+			<div id="bar">
+				<span>
+					<span>Alerts:</span>
+					<span
+						id="bar-alerts"
+						class="launch-nav"
+						title="Alerts found"> </span>
+				</span>
+
+				<span>
+					<span>Backlog:</span>
+					<span
+						id="bar-backlog"
+						class="launch-nav"
+						title="Deployment backlog"> </span>
+				</span>
+
+
+				<span id="bar-message">navigation bar</span>
+
+
+
+			</div>
+
+			<div id="tabs">
+
+
+				<div th:if="${ agentProfile == true }"
+					id="agent-tab"
+					class="">
+
+					<div class="tab-primary">
+						<span> Agent <br/>Dashboard </span>
+						<span id=cpu-load-count
+							title="Cpu Load"
+							class="count">0</span>
+					</div>
+
+
+					<div class="tab-menu">
+
+						<span
+							class="active level2"
+							data-path="explorer">OS Explorer</span>
+							
+						<span
+							class="agent-pod-selected level4"
+							data-path="explorer-pod-logs">pod logs</span>
+							
+						<span
+							class=" level2"
+							data-path="script">Command Runner</span>
+
+						<span
+							id=command-output-nav
+							class=" level3"
+							data-path="command-output">Output</span>
+
+						<span
+							class=" level2"
+							data-path="processes">Top ++</span>
+
+						<span
+							class=" level2"
+							data-path="files">File Systems</span>
+
+						<span
+							class=" level2"
+							data-path="file-browser">File Manager</span>
+
+						<span
+							class=" level2"
+							data-path="system">OS Performance</span>
+
+						<span
+							class=" level2"
+							data-path="cpus">CPU Cores</span>
+
+						<span
+							class=" level2"
+							data-path="memory">Memory</span>
+
+
+						<label>Service Views</label>
+						<label
+							id=agent-service
+							class=hover-select>
+							<span> default </span>
+
+							<select
+								title="default selection for views. If a service is selected, it will be used when views are first opened or refreshed"
+								id=host-service-names>
+								<option>default</option>
+							</select>
+						</label>
+
+						<span
+							class=" level2"
+							data-path="logs">Logs</span>
+							
+						<span
+							class=" level2"
+							data-path="service">Process Metrics</span>
+
+						<span
+							class=" level2"
+							data-path="java">Java Metrics</span>
+
+						<span
+							class=" level2"
+							data-path="application">Application</span>
+
+						<span
+							class=" level2"
+							data-path="live">CSAP Live</span>
+
+
+
+					</div>
+
+				</div>
+
+
+				<div id="performance-tab">
+
+					<div class="tab-primary">
+						<span>Performance</span>
+						<span
+							title="Active alerts on system"
+							class="count alert-count">0</span>
+					</div>
+
+
+
+					<div class="tab-menu">
+
+						<label>Real Time</label>
+						<span
+							class="active level2"
+							data-path="meters">Application RT</span>
+
+						<span
+							class="kubernetes-active level2"
+							title="Kubernetes Metrics Service"
+							data-path="kubernetes-rt">Kubernetes RT</span>
+
+
+
+						<label>Events</label>
+
+						<span
+							class=level2
+							data-path="events">
+							Event Browser
+							<span
+								title="24 hour user Event Count"
+								class="count"
+								id="event-count"></span>
+						</span>
+						<span
+							class="event-details-selected level4"
+							data-path="event-details">Details</span>
+
+						<span
+							class=level2
+							id="nav-performance-alert"
+							data-path="alerts">
+							Alerts
+							<span
+								title="Active alerts on system"
+								class="count alert-count">0</span>
+						</span>
+
+						<span
+							class=level2
+							data-path="health-reports">Service Reports</span>
+
+						<span
+							class=level2
+							data-path="activity-trends">User Activity</span>
+
+
+						<label>Trends</label>
+
+						<span
+							class=level2
+							data-path="app">Application</span>
+
+						<span
+							class=level2
+							data-path="service">Service Resources</span>
+
+						<span
+							class=level2
+							data-path="host">Host Resources</span>
+
+						<span
+							class=level2
+							data-path="docker">Docker</span>
+
+						<span
+							class="kubernetes-active level2"
+							data-path="kubelet">Kubernetes</span>
+
+						<span
+							class=level2
+							data-path="infra">Infrastructure</span>
+
+					</div>
+
+				</div>
+
+
+
+				<div id="services-tab">
+					<div class="tab-primary">
+						<span>Deployments</span>
+						<span
+							class="count"
+							id="service-count"></span>
+					</div>
+					<div class="tab-menu">
+
+						<label>CSAP View and Deploy</label>
+
+						<span
+							id="nav-service-status"
+							class="active level2"
+							data-path="status">Services</span>
+
+						<span
+							id="instances-for-service"
+							class="service-selected level3"
+							data-path="instances"
+							data-name="not-initialized-yet">
+							<span id="instance-name"></span>
+
+						</span>
+
+
+						<span
+							class="service-selected level4"
+							data-path="logs">Logs</span>
+
+
+						<span
+							class="service-selected level4"
+							data-path="analytics">Metrics</span>
+
+						<span
+							class="service-selected level4"
+							data-path="resources">
+							Definition Files
+
+							<span
+								class="count"
+								id="resource-count"></span>
+						</span>
+
+						<span
+							class="service-selected level4"
+							data-path="jobs">
+							Jobs
+							<span
+								class="count"
+								id="job-count"></span>
+						</span>
+
+
+						<!-- 						<span
+							class="service-selected"
+							data-path="logs">logs</span>
+						<span
+							class="service-selected"
+							data-path="files">files</span>
+						<span
+							class="service-selected"
+							data-path="events">events</span> -->
+
+
+						<span
+							class=level2
+							data-path="batch">Batch Operations</span>
+						<span
+							class=level2
+							id="nav-performance-backlog"
+							data-path="backlog">
+							Backlog
+							<span
+								id="backlog-count"
+								class="count">0</span>
+						</span>
+
+
+
+
+
+
+						<label class=kubernetes-active>Kubernetes Summary View</label>
+
+						<span
+							class="kubernetes-active level2"
+							data-path="knodes">
+							Nodes
+
+							<span
+								id="node-count"
+								class="count icon">0</span>
+						</span>
+
+						<span
+							class="node-selected level4"
+							data-path="node-describe">Details</span>
+
+
+
+
+						<span
+							class="kubernetes-active level2"
+							data-path="kvolumes">
+							Volumes
+
+							<span
+								id="volume-count"
+								class="count icon">0</span>
+						</span>
+						<span
+							class="volume-selected level4"
+							data-path="volume-describe">Details</span>
+
+
+						<span
+							class="kubernetes-active level2"
+							data-path="kpods">
+							Pods
+
+							<span
+								id="pod-count"
+								class="count icon">0</span>
+						</span>
+
+						<span
+							id="instances-for-pod"
+							class="pod-selected level3"
+							data-path="kpod-instances"
+							data-name="not-initialized-yet">
+							<span id="pod-name">pod-name</span>
+
+						</span>
+
+						<span
+							class="pod-selected level4"
+							data-path="pod-logs">Logs</span>
+						<span
+							class="pod-selected level4"
+							data-path="pod-describe">Details</span>
+
+
+
+						<span
+							class="kubernetes-active level2"
+							data-path="kevents">
+							Events
+
+							<span
+								id="kevent-count"
+								class="count icon">0</span>
+						</span>
+
+						<span
+							class="kevent-details-selected level4"
+							data-path="kevent-details">Details</span>
+
+					</div>
+				</div>
+
+
+
+
+
+
+				<div id="hosts-tab">
+
+					<div class="tab-primary">
+
+						<span>Hosts</span>
+						<span
+							class="count"
+							id="host-count"></span>
+					</div>
+
+					<div class="tab-menu">
+						<label>Real Time Reports</label>
+						<span
+							class="active level2"
+							data-path="summary">Summary</span>
+						<span
+							class=level2
+							data-path="kubernetes">Kubernetes</span>
+						<span
+							class=" level2"
+							data-path="cpu">CPU</span>
+						<span
+							class=level2
+							data-path="file-systems">File Systems</span>
+						<span
+							class=level2
+							data-path="infrastructure">Infrastructure</span>
+						<span
+							class=level2
+							data-path="network">Network</span>
+						<span
+							class=level2
+							data-path="services">Services</span>
+						<span
+							class=level2
+							data-path="os">OS</span>
+					</div>
+				</div>
+
+
+
+
+
+				<div id="projects-tab">
+					<div class="tab-primary">
+						<span>Projects</span>
+						<span
+							class="count"
+							id="project-count"
+							th:text="${projectNames.size()}"></span>
+					</div>
+
+					<label
+						id=projects
+						class=hover-select
+						title="Currently selected project">
+						<span th:text=${activeProject}> </span>
+						<select id="active-project">
+							<option
+								th:each="name : ${projectNames}"
+								th:selected="${name == activeProject }"
+								th:value="${name}"
+								th:text="${name}">replaced by template</option>
+							<option
+								th:value="${T(org.csap.agent.model.Application).ALL_PACKAGES}"
+								th:selected="${ T(org.csap.agent.model.Application).ALL_PACKAGES == selectedRelease }">All Projects</option>
+						</select>
+					</label>
+
+
+
+
+					<div class="tab-menu">
+
+						<label>
+							Editor
+							<span
+								class="count"
+								id="pending-edits"></span>
+						</label>
+						<span
+							class="active level2"
+							data-path="editor"> Activate </span>
+						<span
+							class="level2"
+							data-path="environment">Environment View</span>
+						<span
+							class="level2"
+							data-path="attribute">Attribute View</span>
+						<span
+							class="level2"
+							data-path="code">Project View</span>
+						<span
+							class="level2"
+							data-path="files">File View</span>
+
+						<label>Tools</label>
+						<span
+							class="level2"
+							data-path="listing">Locator</span>
+						<span
+							class="level2"
+							data-path="summary">Summary Report</span>
+					</div>
+				</div>
+
+
+
+
+				<div id="preferences-tab">
+
+
+					<div class="tab-primary">
+
+						<span>Settings &amp; Tools</span>
+
+					</div>
+				</div>
+
+
+				<button
+					title="toggle display of navigation bar"
+					class="csap-icon csap-hide-control"></button>
+
+			</div>
+		</article>
+
+		<article class="content"></article>
+
+
+	</section>
+
+	<aside>
+
+		<div
+			id="manager-inactive-content"
+			th:include="/app-browser/tab-all :: pageContent"></div>
+
+
+		<div th:replace="/app-browser/agent/dashboard-templates :: pageContent"></div>
+
+	</aside>
+
+
+	<footer>
+		<span id="users"> </span>
+
+
+
+		<span id="right-footer">
+			<span id="last-operation"></span>
+			<span id="admin-host">[[${ csapHostName }]]</span>
+		</span>
+
+
+	</footer>
+
+</body>
+
+</html>

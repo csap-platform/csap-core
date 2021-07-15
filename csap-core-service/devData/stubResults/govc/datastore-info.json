@@ -1,0 +1,713 @@
+{
+	"about": "govc datastore.info -json=true CSAP_DS1_NFS",
+	"Datastores": [
+		{
+			"Self": {
+				"Type": "Datastore",
+				"Value": "datastore-117663"
+			},
+			"Value": null,
+			"AvailableField": null,
+			"Parent": {
+				"Type": "Folder",
+				"Value": "group-s117666"
+			},
+			"CustomValue": null,
+			"OverallStatus": "green",
+			"ConfigStatus": "gray",
+			"ConfigIssue": null,
+			"EffectiveRole": [
+				-1
+			],
+			"Permission": [
+				{
+					"Entity": {
+						"Type": "Datastore",
+						"Value": "datastore-117663"
+					},
+					"Principal": "LAB\\csapstorage",
+					"Group": false,
+					"RoleId": -1,
+					"Propagate": true
+				}
+			],
+			"Name": "CSAP_DS1_NFS",
+			"DisabledMethod": [
+				"DatastoreExitMaintenanceMode_Task"
+			],
+			"RecentTask": null,
+			"DeclaredAlarmState": [
+				{
+					"Key": "alarm-35.datastore-117663",
+					"Entity": {
+						"Type": "Datastore",
+						"Value": "datastore-117663"
+					},
+					"Alarm": {
+						"Type": "Alarm",
+						"Value": "alarm-35"
+					},
+					"OverallStatus": "gray",
+					"Time": "2019-08-07T15:46:20.795855Z",
+					"Acknowledged": false,
+					"AcknowledgedByUser": "",
+					"AcknowledgedTime": null,
+					"EventKey": 0
+				},
+				{
+					"Key": "alarm-39.datastore-117663",
+					"Entity": {
+						"Type": "Datastore",
+						"Value": "datastore-117663"
+					},
+					"Alarm": {
+						"Type": "Alarm",
+						"Value": "alarm-39"
+					},
+					"OverallStatus": "gray",
+					"Time": "2019-08-07T15:46:20.795976Z",
+					"Acknowledged": false,
+					"AcknowledgedByUser": "",
+					"AcknowledgedTime": null,
+					"EventKey": 0
+				},
+				{
+					"Key": "alarm-40.datastore-117663",
+					"Entity": {
+						"Type": "Datastore",
+						"Value": "datastore-117663"
+					},
+					"Alarm": {
+						"Type": "Alarm",
+						"Value": "alarm-40"
+					},
+					"OverallStatus": "gray",
+					"Time": "2019-08-07T15:46:20.796021Z",
+					"Acknowledged": false,
+					"AcknowledgedByUser": "",
+					"AcknowledgedTime": null,
+					"EventKey": 0
+				},
+				{
+					"Key": "alarm-66.datastore-117663",
+					"Entity": {
+						"Type": "Datastore",
+						"Value": "datastore-117663"
+					},
+					"Alarm": {
+						"Type": "Alarm",
+						"Value": "alarm-66"
+					},
+					"OverallStatus": "gray",
+					"Time": "2019-08-07T15:46:20.796057Z",
+					"Acknowledged": false,
+					"AcknowledgedByUser": "",
+					"AcknowledgedTime": null,
+					"EventKey": 0
+				},
+				{
+					"Key": "alarm-717.datastore-117663",
+					"Entity": {
+						"Type": "Datastore",
+						"Value": "datastore-117663"
+					},
+					"Alarm": {
+						"Type": "Alarm",
+						"Value": "alarm-717"
+					},
+					"OverallStatus": "gray",
+					"Time": "2019-08-07T15:46:20.796109Z",
+					"Acknowledged": false,
+					"AcknowledgedByUser": "",
+					"AcknowledgedTime": null,
+					"EventKey": 0
+				},
+				{
+					"Key": "alarm-8.datastore-117663",
+					"Entity": {
+						"Type": "Datastore",
+						"Value": "datastore-117663"
+					},
+					"Alarm": {
+						"Type": "Alarm",
+						"Value": "alarm-8"
+					},
+					"OverallStatus": "green",
+					"Time": "2019-08-07T15:46:20.796251Z",
+					"Acknowledged": false,
+					"AcknowledgedByUser": "",
+					"AcknowledgedTime": null,
+					"EventKey": 0
+				},
+				{
+					"Key": "alarm-93.datastore-117663",
+					"Entity": {
+						"Type": "Datastore",
+						"Value": "datastore-117663"
+					},
+					"Alarm": {
+						"Type": "Alarm",
+						"Value": "alarm-93"
+					},
+					"OverallStatus": "gray",
+					"Time": "2019-08-07T15:46:20.796353Z",
+					"Acknowledged": false,
+					"AcknowledgedByUser": "",
+					"AcknowledgedTime": null,
+					"EventKey": 0
+				},
+				{
+					"Key": "alarm-94.datastore-117663",
+					"Entity": {
+						"Type": "Datastore",
+						"Value": "datastore-117663"
+					},
+					"Alarm": {
+						"Type": "Alarm",
+						"Value": "alarm-94"
+					},
+					"OverallStatus": "gray",
+					"Time": "2019-08-07T15:46:20.796413Z",
+					"Acknowledged": false,
+					"AcknowledgedByUser": "",
+					"AcknowledgedTime": null,
+					"EventKey": 0
+				},
+				{
+					"Key": "alarm-98.datastore-117663",
+					"Entity": {
+						"Type": "Datastore",
+						"Value": "datastore-117663"
+					},
+					"Alarm": {
+						"Type": "Alarm",
+						"Value": "alarm-98"
+					},
+					"OverallStatus": "gray",
+					"Time": "2019-08-07T15:46:20.796449Z",
+					"Acknowledged": false,
+					"AcknowledgedByUser": "",
+					"AcknowledgedTime": null,
+					"EventKey": 0
+				}
+			],
+			"TriggeredAlarmState": null,
+			"AlarmActionsEnabled": true,
+			"Tag": null,
+			"Info": {
+				"Name": "CSAP_DS1_NFS",
+				"Url": "ds:///vmfs/volumes/663e81f3-efa5ce84/",
+				"FreeSpace": 453198282752,
+				"MaxFileSize": 17557623775232,
+				"MaxVirtualDiskCapacity": 17383785916071,
+				"MaxMemoryFileSize": 17557623775232,
+				"Timestamp": "2019-08-13T17:54:56.304263Z",
+				"ContainerId": "",
+				"AliasOf": "",
+				"Nas": {
+					"Type": "NFS",
+					"Name": "CSAP_DS1_NFS",
+					"Capacity": 536870912000,
+					"RemoteHost": "1.1.11.133",
+					"RemotePath": "/CSAP_DS1_NFS",
+					"UserName": "",
+					"RemoteHostNames": [
+						"1.1.11.133"
+					],
+					"SecurityType": "",
+					"ProtocolEndpoint": false
+				}
+			},
+			"Summary": {
+				"Datastore": {
+					"Type": "Datastore",
+					"Value": "datastore-117663"
+				},
+				"Name": "CSAP_DS1_NFS",
+				"Url": "ds:///vmfs/volumes/663e81f3-efa5ce84/",
+				"Capacity": 536870912000,
+				"FreeSpace": 453198282752,
+				"Uncommitted": 709963173888,
+				"Accessible": true,
+				"MultipleHostAccess": true,
+				"Type": "NFS",
+				"MaintenanceMode": "normal"
+			},
+			"Host": [
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-118316"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-8669"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-8372"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-8130"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-8810"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-7966"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-7662"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-7466"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-5212"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-21799"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-22416"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-21795"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-21788"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-114957"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-6882"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-114949"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-21813"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-6435"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-6576"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-6728"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-8254"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-7265"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-29715"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-21803"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-41285"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-5224"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-8528"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-114998"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-5231"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-21804"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-6352"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				},
+				{
+					"Key": {
+						"Type": "HostSystem",
+						"Value": "host-7070"
+					},
+					"MountInfo": {
+						"Path": "/vmfs/volumes/663e81f3-efa5ce84",
+						"AccessMode": "readWrite",
+						"Mounted": true,
+						"Accessible": true,
+						"InaccessibleReason": ""
+					}
+				}
+			],
+			"Vm": [
+				{
+					"Type": "VirtualMachine",
+					"Value": "vm-55641"
+				},
+				{
+					"Type": "VirtualMachine",
+					"Value": "vm-55347"
+				},
+				{
+					"Type": "VirtualMachine",
+					"Value": "vm-55348"
+				},
+				{
+					"Type": "VirtualMachine",
+					"Value": "vm-55643"
+				},
+				{
+					"Type": "VirtualMachine",
+					"Value": "vm-55644"
+				},
+				{
+					"Type": "VirtualMachine",
+					"Value": "vm-56528"
+				},
+				{
+					"Type": "VirtualMachine",
+					"Value": "vm-55346"
+				}
+			],
+			"Browser": {
+				"Type": "HostDatastoreBrowser",
+				"Value": "datastoreBrowser-datastore-117663"
+			},
+			"Capability": {
+				"DirectoryHierarchySupported": true,
+				"RawDiskMappingsSupported": false,
+				"PerFileThinProvisioningSupported": true,
+				"StorageIORMSupported": true,
+				"NativeSnapshotSupported": true,
+				"TopLevelDirectoryCreateSupported": true,
+				"SeSparseSupported": true,
+				"VmfsSparseSupported": true,
+				"VsanSparseSupported": false,
+				"UpitSupported": null,
+				"VmdkExpandSupported": true
+			},
+			"IormConfiguration": {
+				"Enabled": false,
+				"CongestionThresholdMode": "automatic",
+				"CongestionThreshold": 30,
+				"PercentOfPeakThroughput": 90,
+				"StatsCollectionEnabled": false,
+				"ReservationEnabled": true,
+				"StatsAggregationDisabled": false,
+				"ReservableIopsThreshold": 0
+			}
+		}
+	]
+}

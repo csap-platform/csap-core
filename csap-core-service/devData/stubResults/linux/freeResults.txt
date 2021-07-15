@@ -1,0 +1,8 @@
+
+
+Result from executing on host csap-dev01:[bash, -c, free -m]
+
+             total       used       free     shared    buffers     cached
+Mem:         16051       6333       9718          0       1604       3118
+-/+ buffers/cache:       1609      14441
+Swap:         3984          0       3984

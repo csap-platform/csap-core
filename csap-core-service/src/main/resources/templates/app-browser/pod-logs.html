@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+
+	<div id="k8s-logs-controls">
+
+		<button
+			id="hide-pod-logs"
+			class="csap-icon csap-remove"
+			title="Close log view"></button>
+			
+		<span>
+			
+			<button
+				title="Open in new window"
+				class="csap-button-icon launch-window">CSAP Monitor</button>
+
+			<button
+				title="Clear Display"
+				class="csap-button-icon csap-clear">Clear</button>
+				
+		</span>
+
+		<span>
+			<label
+				class=csap
+				title="Containers found in pod">
+				Container:
+				<select id="pod-log-container-name">
+				</select>
+				
+	
+			</label>
+	
+			<label
+				class=csap
+				title="related pods">
+				Pod:
+				<select id="pod-log-pod-name">
+				</select>
+			</label>
+		</span>
+
+	
+		<span>
+			<label
+				class=csap
+				title="If checked logs of the last terminated container will be displayed.">
+				<input
+					id="pod-previous-terminated"
+					type='checkbox' />
+				Previous
+			</label>
+			<label
+				class=csap
+				title="If checked, logs will be tailed">
+				<input
+					id="pod-tail"
+					type='checkbox'
+					checked="checked" />
+				Tail
+			</label>
+
+
+			<label
+				class=csap
+				title="Selects the initial lines to display; after 2x this value oldest content is truncated">
+				<span style="margin-right: 0;">Lines:</span>
+				<select id="pod-log-line-count">
+					<option>10</option>
+					<option>50</option>
+					<option>500</option>
+					<option>1000</option>
+					<option>2000</option>
+					<option selected="selected">5000</option>
+					<option>10000</option>
+				</select>
+	
+			</label>
+		</span>
+
+		<span class=flex-right-info>
+			(
+			<span id=pod-log-count></span>
+			)
+			<span id="pod-load-time"></span>
+
+		</span>
+
+	</div>
+
+
+	<pre id="kubernetes-log-viewer">loading</pre>
+
+</body>

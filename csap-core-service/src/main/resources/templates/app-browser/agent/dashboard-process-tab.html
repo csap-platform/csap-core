@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>process tab fragment</title>
+</head>
+
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+	<div>
+		<header class=related>
+			<a
+				title="Last os collection - along with service mapping"
+				target="#"
+				class="csap-link-icon csap-play commandRunner"
+				th:attr="data-targeturl=@{/os/processes/ps/collected}"
+				href="#ps"> process mapping </a>
+
+			<a
+				title="linux top command"
+				target="#"
+				class="csap-link-icon csap-play  commandRunner"
+				th:attr="data-targeturl=@{/os/processes/top}"
+				href="#top"> top </a>
+
+			<a
+				href="#flex-kill"
+				class="csap-link-icon csap-edit script-runner"
+				data-template=process-pkill.sh
+				target="_blank"
+				title="open script runner with pkill tempate">flex kill</a>
+
+			<a
+				title="Processes: sorted by memory"
+				target="_blank"
+				class="csap-link-icon csap-window "
+				href="/os/showProcesses?csapFilter=false&sortByNice=false&">ps</a>
+				
+			<label id="processReloadTime" class=flex-right-info>--:--:--</label>
+		</header>
+
+
+		<div id=process-table-header class=flex-container>
+			<label class=csap>
+				Refresh:
+				<select
+					id="cpuIntervalId"
+					style="margin-left: 1em; margin-bottom: 0.5em; width: 5em">
+					<option value="5">5s</option>
+					<option
+						value="10"
+						selected="selected">10s</option>
+					<option value="20">20s</option>
+					<option value="60">60s</option>
+					<option value="999">disabled</option>
+				</select>
+			</label>
+			<label class=csap>
+				Filter:
+				<input
+					id="processFilter"
+					placeholder="comma separated filter(s)" />
+			</label>
+			<label class=csap title="When selected - only csap processes will be displayed, with extended collection information">
+				CSAP:
+				<input
+					id="filterCsap"
+					type="checkbox"
+					name="filter"
+					value="filter"
+					checked="checked" />
+
+			</label>
+			<label class=flex-right-info
+				title="Note: Some processes use significant amounts of shared memory, and may be double counted. Oracle has been excluded.">
+				Memory(RSS):
+				<span id="totalMem">total</span>
+				GB
+			</label>
+		</div>
+	</div>
+
+	<div id="process-tables-container">
+
+			<table
+				id="processTable"
+				class="csap sticky-header">
+				<thead>
+					<tr>
+						<th class="osProcess">OS <br />Process</th>
+						<th
+							class="csap-only">
+							Sockets
+							<br />
+							(ss)
+						</th>
+						<th >
+							ps cpu%
+							<br />
+							(pidstat)
+						</th>
+						<th
+							class="csap-only">
+							top cpu%
+						</th>
+						<th >
+							Priority
+							<br />
+							(nice)
+						</th>
+						<th >
+							Threads
+							<br />
+							(jstack)
+						</th>
+						<th 
+							class=sorter-csap-sort-value>
+							Memory
+							<br />
+							RSS
+						</th>
+						<th 
+								class=sorter-csap-sort-value>
+							Memory
+							<br />
+							Virtual
+						</th>
+						<th
+							class="csap-only">
+							Files
+							<br />
+							(/proc)
+						</th>
+						<th
+							class="csap-only"
+							style="margin: 0; padding: 0; min-width: 8em; text-align: center">
+							Parameters
+							<br />
+							(Process Report)
+						</th>
+						<th
+							id="diskAndArgsHeader"
+							class=sorter-csap-sort-value>
+							style="">...</th>
+						<!-- updated by js -->
+						<th
+							class="csap-only"
+							title="15 second sample">Disk Reads</th>
+						<th
+							class="csap-only"
+							title="15 second sample">Disk Writes</th>
+					</tr>
+				</thead>
+				<tbody class="template">
+					<tr>
+						<td></td>
+						<td class="num csap-only"></td>
+						<td class="num"></td>
+						<td class="num csap-only"></td>
+						<td class="num"></td>
+						<td class="num"></td>
+						<td class="num"></td>
+						<td class="num"></td>
+						<td class="num csap-only"></td>
+						<td class="num csap-only"></td>
+						<td class="num"></td>
+
+						<td class="num csap-only"></td>
+						<td class="num csap-only"></td>
+					</tr>
+				</tbody>
+				<tbody id="loadRow">
+					<tr>
+						<td colspan="99">
+							<div class="loadingLargePanel">
+								Retrieving process data and
+								<br />
+								correlating OS resources
+							</div>
+						</td>
+					</tr>
+				</tbody>
+				<tbody class="content"></tbody>
+			</table>
+	
+
+	</div>
+</body>
+</html>

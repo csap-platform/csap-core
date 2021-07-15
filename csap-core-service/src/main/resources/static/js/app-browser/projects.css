@@ -1,0 +1,661 @@
+/*
+*
+*    Manager - project listing
+*	
+*/
+
+#projects-tab-listing .options.flex {
+	display: flex;
+	justify-content: space-between;
+}
+
+#projects-tab-listing #environment-discovery table {
+	width: 100%;
+	margin-bottom: 3em;
+}
+
+
+#projects-tab-listing #environment-discovery table td:first-child {
+	width: 12em ;
+}
+#projects-tab-listing #environment-discovery table td div {
+	column-count: 3;
+	column-width: auto;
+/* 	display: grid;
+	grid-template-columns: repeat(auto-fit, 12em);
+	column-gap: 1em; */
+}
+
+#projects-tab-listing #environment-discovery table td div a {
+	display: block;
+}
+
+
+#projects-tab-listing #project-selection  {
+	display: grid;
+	color: black;
+	grid-template-columns: repeat( auto-fit, minmax(20em, 1fr));
+/* 	grid-template-columns: repeat(auto-fit, minmax(20em, 0fr)); */
+	/*grid-template-rows: repeat(auto-fit, minmax(3em, 0fr));*/
+	padding: 5px;
+	grid-column-gap: 10px;
+	grid-row-gap: 10px;
+}
+
+#projects-tab-listing #project-selection div.project {
+	background: var(--panel-bg);
+	border-radius: var(--border-radius-small);
+}
+
+
+#projects-tab-content ol {
+	list-style: none;
+}
+
+
+#projects-tab-content .clusterType {
+	font-size: 0.8em;
+	color: red;
+}
+#projects-tab-listing a.project:hover {
+	color: var(--nav-hover-color);
+	background-color: var(--nav-hover-background);
+}
+#projects-tab-listing a.project {
+	display: block;
+	white-space: normal ;
+	text-align: left;
+	padding-left: 3em;
+	font-size: 15pt;
+	font-weight: bold;
+	min-height: 2em;
+	padding-top: 0.5em;
+	word-break: break-all;
+	
+	background-image: url('../../images/32x32/preferences-system-session.png');
+	background-repeat: no-repeat;
+	background-position: 10px 10px;
+}
+
+#projects-tab-listing a.project.active {
+	background-color: var(--nav-active-background);
+	color: var(--nav-active-color);
+}
+
+#projects-tab-listing a.launch-window {
+	background-image: none;
+	
+}
+
+#projects-tab-listing a.launch-window:hover {
+	background-image: url(/csap-admin/images/16x16/window.svg);
+}
+
+
+#projects-tab-content li.about {
+	margin-bottom: .5em;
+}
+
+#projects-tab-content li.about span {
+	font-weight: bold;
+	margin-right: 2em;
+}
+
+#projects-tab-content .archName {
+	position: relative;
+	top: 2px;
+	line-height: 1.1em;
+}
+
+
+/*
+*
+*    Manager - project summary
+*	
+*/
+
+#projects-tab-summary #application-summary a.csap-link {
+	display: block;
+	margin-bottom: 1em;
+}
+#projects-tab-summary div.title {
+	font-size: 14pt;
+	font-weight: bold;
+	margin-top: 2em;
+	border-bottom: 3px solid black;
+}
+#projects-tab-summary pre.scroll {
+	max-height: 600px;
+	overflow: auto;
+	background-color: black;
+	color: white;
+	border-radius: 5px;
+	margin: 1em;
+	padding: 5px;
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+#projects-tab-summary table {
+	width: 100%;
+}
+
+
+#projects-tab-summary table td {
+	word-wrap: break-word
+}
+
+#projects-tab-summary div.gridded {
+	min-width: 300px;
+	display: grid;
+	color: red;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+#projects-tab-summary div.gridded>span {
+	display: block;
+	min-height: 3em;
+	width: 80%;
+}
+
+#projects-tab-summary div.gridded>span a.csap-link {
+	word-break: break-all;
+	width: 80%;
+}
+
+
+/*
+*
+*    Manager - editor summary
+*	
+*/
+
+article.content #projects-tab-editor .options {
+	white-space: normal;
+	display: block;
+}
+
+article.navigation div.tab-menu #pending-edits {
+	font-size: 8pt;
+	color: red;
+	font-style: italic;
+}
+
+#projects-tab-editor  #summary-slide, #projects-tab-editor table {
+	width: 100% ;
+	margin: 0em;
+}
+
+
+.ajs-content #edit-results {
+	background-color: white;
+	color: black;
+	padding: 10px;
+}
+
+.ajs-content #edit-results a { 
+	color: blue;
+}
+
+.ajs-content #edit-results #edit-results-content{
+	white-space: pre-wrap;
+}
+
+#projects-tab-editor #reload-summary {
+	margin-top: 3em; 
+	margin-bottom: 3em; 
+	font-size: 11pt;
+}
+
+#projects-tab-editor #reload-summary td span {
+	font-weight: bold;
+}
+
+#projects-tab-editor .options .button-header {
+	display: flex;
+	margin-bottom: 1em;
+}
+
+#projects-tab-editor .options .button-header a.csap-link {
+	font-size: 10pt;
+}
+
+#projects-tab-editor .options  #definition-operations button  {
+	padding: 0.5em;
+	padding-left: 30px;
+	padding-right: 20px;
+	font-size: 12pt;
+	margin-right: 1.5em;
+	margin-bottom: 1em;
+	background-size: 18px 18px;
+}
+#projects-tab-editor .options  #definition-operations button#applyButton {
+	background-size: 24px 24px;
+}
+
+#definition-operations #version-controls{
+	display: block;
+}
+
+#projects-tab-editor .options #definition-operations {
+	margin: 1em;
+}
+
+#projects-tab-editor #showReloadButton span {
+    color: #008000;
+}
+
+
+
+#projects-tab-editor #editor-templates {
+	display: none;
+}
+
+
+/*
+*
+*    attribute editor
+*	
+*/
+
+
+
+#projects-tab-attribute .options label {
+	margin-right: 4em;
+}
+
+#projects-tab-attribute  #attribute-content table {
+	width: 100% ;
+	margin: 0em;
+	margin-bottom: 5em;
+}
+
+#projects-tab-attribute #attribute-content table .releaseVersion {
+	display: inline-block;
+	float: right;
+	font-size: 0.8em;
+	font-style: italic;
+	font-weight: normal;
+}
+
+#projects-tab-attribute #attribute-content table td:first-child {
+	width: 23em; 
+	padding: 5px ;
+}
+
+#projects-tab-attribute #attribute-content table td:last-child {
+	text-align: left; 
+	padding: 5px ;
+}
+
+#projects-tab-attribute #attribute-content .releaseInput, #projects-tab-attribute #attribute-content .releaseDiv {
+	width: 98%;
+}
+
+#projects-tab-attribute #attribute-content .releaseDiv {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 10pt;
+    border: 1px solid grey;
+    padding: 3px;
+    color: grey;
+    background-color: #e0e0e0;
+}
+
+
+/*
+*
+*    Editor shared settings
+*	
+*/
+
+
+/*
+*
+*    Editor - environment view
+*	
+*/
+
+#dialogOpsContainer {
+	display: grid;
+	grid-template-columns: 18em auto 16em ;
+	align-items: baseline;
+	margin-bottom: 5px;
+	margin-left: 1em;
+	margin-right: 1em;
+}
+
+#dialogOpsContainer.small-final {
+	grid-template-columns: 18em auto 9em ;
+}
+
+#dialogOpsContainer span:last-child label.csap {
+	position: relative;
+	top: 2px;
+}
+
+#dialogOpsContainer button, button.dialog {
+	margin-left: 0.5em;
+	min-width: 6em;
+	padding: 0;
+	color: var(--theme-color) ;
+	background-color: var(--theme-bg) ;
+}
+
+#settingsEditor pre.ace_editor, #serviceEditor pre.ace_editor, #clusterEditor pre.ace_editor {
+	border: 1px solid grey;
+}
+
+
+div.ajs-content > div.warning {
+    font-size: 11pt;
+    max-height: 30em;
+    overflow: auto;
+}
+
+
+.editDialog {
+	position: relative;
+	background-color: transparent;
+	color: black;
+	border: 1px none;
+	border-radius: 0;
+	margin: 1em;
+	margin-top: 2em;
+	padding: 0.5em;
+}
+
+#csap-main .editDialog {
+	margin-top: 1em;
+}
+
+#serviceEditor .heading,  #clusterEditor .heading {
+	font-style: italic;
+	margin-bottom: 0.25em;
+}
+
+
+#dialogResult {
+	display: none;
+	border: 1px none;
+	border-radius: 5px;
+	border: 1px solid black;
+}
+
+
+
+.tedit {
+	color: #3666A8;
+}
+
+.tedit:hover {
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.tedit input {
+	width: 100%;
+	position: relative;
+	left: -10px;
+}
+
+.tedit select {
+	max-width: 15em;
+}
+
+
+
+/*
+*
+*    Editor - project code view
+*	
+*/
+#projects-tab-content {	
+	height: 100%;
+}
+
+#projects-tab-code {
+	height: 100%;
+}
+
+#projects-tab-code #jsonFileBrowser {
+	width: 100%;
+	height: 100%;
+	background-color: white;
+}
+
+#projects-tab-code #jsonFileBrowser ul.fancytree-container {
+	border: none;
+}
+
+#projects-tab-code .fancytree-title label {
+	min-width: 15em;
+	display: inline-block;
+	padding-right: 1em;
+}
+
+#projects-tab-code #jsonFileBrowser>ul {
+	padding-top: 1em;
+}
+
+#projects-tab-code .fancytree-title span.spacer-description {
+	font-style: italic;
+}
+
+#projects-tab-code .fancytree-title span.spacer-description>span {
+	padding-left: 2em;
+}
+
+#projects-tab-code .fancytree-title input {
+	top: 2px;
+	width: 40em;
+}
+
+#projects-tab-code  span.fancytree-node.fancytree-folder>span.fancytree-icon, #projects-tab-code span.fancytree-node.fancytree-folder:hover>span.fancytree-icon
+	{
+	background-position: 0 0;
+	background-image: url('../../images/format-indent-more.png');
+}
+
+#projects-tab-code #jsonFileBrowser span.fancytree-node.default>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/packages.png');
+}
+
+#projects-tab-code #jsonFileBrowser span.fancytree-node.ft_application>span.fancytree-icon
+	{
+	background-position: 0 0;
+	background-image: url('../../images/folder.png');
+}
+
+#projects-tab-code #jsonFileBrowser span.fancytree-node.ft_environment>span.fancytree-icon
+	{
+	background-position: 0 0;
+	background-image: url('../../images/16x16/user-desktop.png');
+}
+
+#projects-tab-code #jsonFileBrowser span.fancytree-node.ft_cluster>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/sysMon.png');
+}
+
+#projects-tab-code #jsonFileBrowser span.fancytree-node.ft_kubelet>span.fancytree-icon {
+	background-image: url('../../images/kubernetes.svg');
+	background-size: 16px 16px;
+	background-position: left center; 
+	background-repeat: no-repeat;
+	background-color: black ;
+	border-radius: 2px;
+}
+
+#projects-tab-code #jsonFileBrowser span.fancytree-node.ft_hosts>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/network-workgroup.png');
+}
+
+#projects-tab-code #jsonFileBrowser span.fancytree-node.ft_kubernetes>span.fancytree-icon {
+	background-image: url('../../images/kubernetes.svg');
+	background-size: 16px 16px;
+	background-position: left center; 
+	background-repeat: no-repeat;
+}
+
+#projects-tab-code #jsonFileBrowser span.fancytree-node.ft_db>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/dbSmall.png');
+}
+
+#projects-tab-code #jsonFileBrowser span.fancytree-node.ft_jms>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/mail-send-receive.png');
+}
+
+#projects-tab-code #jsonFileBrowser span.fancytree-node.ft_script>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/files.png');
+}
+
+#projects-tab-code #jsonFileBrowser span.fancytree-node.ft_docker>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/docker.png');
+}
+
+#projects-tab-code #jsonFileBrowser span.fancytree-node.ft_java>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/javaSmall.png');
+}
+
+#projects-tab-code #jsonFileBrowser span.fancytree-node.ft_SpringBoot>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/bootSmall.png');
+}
+
+#projects-tab-code #jsonFileBrowser span.fancytree-node.ft_tomcatEol>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/tomcatEol.png');
+	background-size: 16px;
+}
+
+#projects-tab-code #jsonFileBrowser span.fancytree-node.ft_tomcatLatest>span.fancytree-icon
+	{
+	background-position: 0 0;
+	background-image: url('../../images/tomcatLarge.png');
+	background-size: 16px;
+}
+
+#projects-tab-code #jsonFileBrowser span.fancytree-node.ft_os>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/run2.png');
+}
+
+#projects-tab-code #jsonFileBrowser span.fancytree-node.ft_csap_api>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/run.png');
+}
+
+#projects-tab-code #jsonFileBrowser span.fancytree-node.ft_settings>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/preferences-system.png');
+}
+
+#projects-tab-code #jsonFileBrowser span.fancytree-node.ft_performance>span.fancytree-icon
+	{
+	background-position: 0 0;
+	background-image: url('../../images/16x16/x-office-spreadsheet.png');
+}
+
+#projects-tab-code #jsonFileBrowser span.fancytree-node.ft_monitor>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/note.png');
+}
+
+#projects-tab-code #jsonFileBrowser span.fancytree-node.ft_jsonedit>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/edit.svg');
+	background-repeat: no-repeat;
+}
+
+#projects-tab-code #jsonFileBrowser span.fancytree-node.ft_jsonedit:hover>span.fancytree-icon {
+	background-image: url('../../images/16x16/edit-hover.svg');
+}
+
+
+
+.treeText {
+	spellcheck: false;
+	background-color: #EDF3F5;
+}
+
+
+
+#project-json-editor-dialog .flex-container {
+	margin-left: 1em;
+	gap: 3em;
+}
+
+.folderDesc {
+	display: inline-block;
+	border: 1px solid black;
+	color: black;
+	margin: 0em;
+	padding-top: 1px;
+	padding-bottom: 3px;
+	padding-right: 1em;
+	padding-left: 1em;
+	margin-left: 1em;
+	border-radius: 2px;
+	background-color: #E6E6E6;
+}
+
+.serviceNavigate img {
+	width: 12px;
+}
+
+#settingsEditor button.moveRow, #serviceEditor button.moveRow {
+	left: 5px;
+	cursor: move;
+}
+
+button.newRow {
+	right: 25px;
+	top: 3px;
+	width: 14px;
+}
+
+button.deleteRow {
+	right: 5px;
+	top: 3px;
+	width: 14px;
+}
+
+#textEditWarning {
+	display: inline;
+	position: absolute;
+	right: 3em;
+	top: -5px;
+	padding-left: 3em;
+	white-space: normal;
+}
+
+
+/*
+*
+*    Editor - file browser ; scrolling via the included content
+*	
+*/
+
+div#projects-tab-files {
+	height: 100% ;
+}
+
+div#projects-tab-files .csap-scrollable article.content {
+	background-color: white;
+}
+
+
+
+
+
+
+

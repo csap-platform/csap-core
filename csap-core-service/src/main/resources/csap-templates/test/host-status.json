@@ -1,0 +1,25 @@
+{
+
+    "vm": {
+        "cpuCount": 8,
+        "cpuLoad": 0.1,
+        "host": "csap-dev01",
+        "packageName": "CSAP Engineering",
+        "capabilityName": "CSAP Development",
+        "lifecycle": "dev"
+    },
+    "Healthy": false,
+    "errors": {
+        "csap-dev01": [
+            "csap-dev01: mongoDb: rssMemory Value: \"3491236\" Exceeds configured maximum: 768000",
+            "csap-dev01: mongoArbiter: diskUtil Value: \"415\" Exceeds configured maximum: 400",
+            "csap-dev01: CsAgent: threadCount Value: \"125\" Exceeds configured maximum: 100"
+        ],
+        "states": null
+    },
+    "services": {
+        "total": 19,
+        "active": 17
+    }
+
+}
