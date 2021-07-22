@@ -1,0 +1,236 @@
+<div
+	id="alerts"
+	class="group json-form-autosize-panel">
+
+	<div class="csap-green">
+		<div class="heading">
+			Alert Thresholds: Defaults and optional override. Note lifecycle settings are used to set warning and kill
+			thresholds. For more information, refer to:
+			<a
+				href="https://github.com/csap-platform/csap-core/wiki/Performance"
+				class="simple"
+				target="_blank"> Reference Guide </a>
+			.
+		</div>
+		<label class=csap-form-inline >
+			<span>Cpu: </span>
+			<input data-path="alerts.max_topCpu" />
+			<div
+				class="noteAlt"
+				th:text="${ limits.get('topCpu') }"></div>
+		</label>
+		<label class=csap-form-inline >
+			<span>Threads: </span>
+			<input data-path="alerts.max_threadCount" />
+			<div
+				class="noteAlt"
+				th:text="${ limits.get('threadCount') }"></div>
+		</label>
+
+		<label
+			class=csap-form-inline 
+			title="No unit indicates bytes, best practice is to use m (megabytes) or g(gigabytes)">
+			<span>Memory(|m|g): </span>
+			<input data-path="alerts.max_rssMemory" />
+			<div
+				class="noteAlt"
+				th:text="${ limits.get('rssMemory') }"></div>
+		</label>
+
+
+
+
+
+		<label class=csap-form-inline >
+			<span>Open Sockets: </span>
+			<input data-path="alerts.max_socketCount" />
+			<div
+				class="noteAlt"
+				th:text="${ limits.get('socketCount') }"></div>
+		</label>
+
+		<label class=csap-form-inline >
+			<span>Tomcat Connections: </span>
+			<input data-path="alerts.max_tomcatConnections" />
+			<div
+				class="noteAlt"
+				th:text="${ limits.get('tomcatConnections') }"></div>
+		</label>
+
+		<label class=csap-form-inline >
+			<span>Open Files: </span>
+			<input data-path="alerts.max_fileCount" />
+			<div
+				class="noteAlt"
+				th:text="${ limits.get('fileCount') }"></div>
+		</label>
+
+
+
+		<label class=csap-form-inline >
+			<span>Heartbeat Enabled:</span>
+			<input data-path="alerts.jvm_jmxHeartbeat" />
+			<div
+				class="noteAlt"
+				th:text="${ limits.get('jvm_jmxHeartbeat')  }"></div>
+		</label>
+
+
+	</div>
+	<div class="csap-blue">
+		<div class="heading">Service folder(s) to be monitored, delimited by space. eg. $workingFolder
+			/opt/csapUser/someFolder1. device names also supported: sda1 vg3-opt, etc</div>
+
+		<label 
+			class=csap-form
+			title="OS Disk usage will be collected and checked against limits.">
+			<span>Service Disk:</span>
+			<input
+				placeholder="$workingFolder"
+				data-path="disk" />
+		</label>
+
+		<label
+			class=csap-form-inline 
+			title="No unit indicates mb, best practice is to use m (megabytes) or g(gigabytes). eg. 10m or 5g">
+			<span>Disk Alert(m|g): </span>
+			<input data-path="alerts.max_diskUtil" />
+			<div
+				class="noteAlt"
+				th:text="${ limits.get('diskUtil') }"></div>
+		</label>
+
+		<label
+			class=csap-form-inline 
+			title="Unit is KiloBytes per second as report for linux pidstat">
+			<span>Disk Writes(Kb): </span>
+			<input data-path="alerts.max_diskWriteKb" />
+			<div
+				class="noteAlt"
+				th:text="${ limits.get('diskWriteKb') }"></div>
+		</label>
+
+
+	</div>
+	<div class="csap-grey">
+		<div class="heading">Optional: CSAP Health Report Integration</div>
+
+
+		<div>
+			<div class="heading">Http Health Urls: All urls may be the same, and leverage $$service-fqdn-host, $podIp,...</div>
+
+			<label
+				class=csap-form 
+				title="csapMicroUrl will set Application, Java, and Health urls by appending: /csap/metrics/micrometers?aggregate=true&encode=true&tagFilter=csap-collection">
+				<span>csapMicroUrl:</span>
+				<input
+					placeholder="optional"
+					data-path="performance.config.csapMicroUrl" />
+			</label>
+
+			<div>
+				<label>
+					<span>OR:</span>
+				</label>
+			</div>
+
+			<label 
+				class=csap-form >
+				<span>Application:</span>
+				<input
+					value=''
+					placeholder="generated using csapMicroUrl "
+					data-path="performance.config.httpCollectionUrl" />
+			</label>
+
+			<label 
+				class=csap-form >
+				<span>Java:</span>
+				<input
+					value=''
+					placeholder="generated using csapMicroUrl"
+					data-path="performance.config.javaCollectionUrl" />
+			</label>
+
+			<label 
+				class=csap-form >
+				<span>Health Report:</span>
+				<input
+					value=''
+					placeholder="generated using csapMicroUrl"
+					data-path="performance.config.healthCollectionUrl" />
+			</label>
+		</div>
+
+
+		<div class="heading">Optional: Nagios Integration enables automated integration with external systems.</div>
+		<label 
+				class=csap-form >
+			<span>Nagios Monitor:</span>
+			<input
+				value=''
+				placeholder="*sample: check_http! -v -u /your/service/url --regex \&quot;.*Healthy.*true.*\&quot;"
+				data-path="alerts.nagiosCommand" />
+		</label>
+
+		<br />
+
+		<div class="heading">Notifications: email will be sent when service alerts are triggered.</div>
+		<label
+				class=csap-form 
+			title="comma separated email addresses. specify disabled to terminate notifications">
+			<span>Addresses:</span>
+			<input
+				placeholder="disabled"
+				data-path="notifications.csapAddresses" />
+		</label>
+
+
+
+		<label
+				class=csap-form-inline
+			title="Email is sent on first occurence of alert, then minimum time before another email is sent">
+			<span>frequency:</span>
+			<input
+				placeholder="4"
+				data-path="notifications.csapFrequency" />
+		</label>
+
+		<label
+				class=csap-form-inline
+			title="Time unit of email intervals: hours or minutes">
+			<span>time-units:</span>
+			<input
+				placeholder="hours"
+				data-path="notifications.csapTimeUnit" />
+		</label>
+
+		<label
+				class=csap-form-inline
+			title="Maximum number of items to be included in email">
+			<span>Max Items:</span>
+			<input
+				placeholder="100"
+				data-path="notifications.csapMaxBacklog" />
+		</label>
+
+		<br />
+	</div>
+
+
+
+
+	<div
+		id="javaWarnings"
+		class="javaWarnings csap-red">
+		<div class="heading">Java limits: shown on service-portal UI only (does not trigger monitored alerts)</div>
+		<textarea
+			id="javaJmxLimits"
+			data-fit="true"
+			data-adjust="50"
+			spellcheck=false
+			data-path="javaWarnings"></textarea>
+
+	</div>
+
+</div>

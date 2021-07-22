@@ -1,0 +1,78 @@
+#
+# nginx with nodeport service
+#
+
+
+kind: Deployment
+
+apiVersion: apps/v1
+
+metadata:
+  name: nginx-nodeport-demo
+  namespace: default
+  labels:
+    run: nginx-demo-id
+    
+spec:
+  selector:
+    matchLabels:
+      run: nginx-demo-id
+      
+  replicas: 1
+  
+  template:
+  
+    metadata:
+      name: "nginx-demo-pod-template"
+      labels:
+        run: nginx-demo-id
+        serviceTarget: nginx-service-target
+
+      annotations:     
+        "sample-1": "value-1" 
+        
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx:latest
+        ports:
+        - name: nginx-http-port
+          containerPort: 80
+          
+        readinessProbe:
+          initialDelaySeconds: 3
+          timeoutSeconds: 3
+          periodSeconds: 3
+          httpGet:
+            path: /
+            port: 80
+            
+        livenessProbe:
+          initialDelaySeconds: 3
+          timeoutSeconds: 3
+          periodSeconds: 3
+          failureThreshold: 10
+          httpGet:
+            path: /
+            port: 80
+        
+---
+kind: Service
+apiVersion: v1
+
+metadata:
+  name: nginx-demo-service
+  namespace: default
+  
+spec:
+
+  type: NodePort
+  
+  selector:
+    serviceTarget: nginx-service-target
+    
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: nginx-http-port
+    

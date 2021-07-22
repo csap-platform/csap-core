@@ -1,0 +1,2922 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml">
+
+
+<head>
+
+<title>Service Editor Template</title>
+
+
+
+<!-- requirejs can have side effects -->
+<!--  <script th:src="@{/webjars/requirejs/2.1.20/require.min.js}"  ></script>-->
+
+<script src="/csap-admin/webjars/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- menus and several other items break in jqueryui, which are used extensively. Test post update jqueryui release 
+<script th:src="@{ ${@mvcResourceUrlProvider.getForLookupPath('/js/csapLibs/jquery-migrate-3.0.0.min.js')} }"></script>
+-->
+
+<!--
+<script th:src="@{ ${@mvcResourceUrlProvider.getForLookupPath('/js/csapLibs/jquery-ui-1.12.0-rc.2/jquery-ui.min.js')} }"></script>
+<link  th:href="@{ ${@mvcResourceUrlProvider.getForLookupPath('/js/csapLibs/jquery-ui-1.12.0-rc.2/jquery-ui.min.css')} }" rel="stylesheet" type="text/css" media="screen" />
+-->
+
+<!-- -->
+<link href="/csap-admin/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" type="text/css" media="screen" />
+<script src="/csap-admin/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+
+<!--  webjar not available with latest fixes -->
+<script src="/csap-admin/webjars/tablesorter/2.31.3/js/jquery.tablesorter.js"></script>
+<script src="/csap-admin/webjars/tablesorter/2.31.3/js/jquery.tablesorter.widgets.js"></script>
+<script src="/csap-admin/webjars/tablesorter/2.31.3/js/widgets/widget-math.js"></script>
+<script src="/csap-admin/webjars/tablesorter/2.31.3/js/widgets/widget-scroller.js"></script>
+<script src="/csap-admin/webjars/tablesorter/2.31.3/js/widgets/widget-columnSelector.js"></script>
+<link class="theme default" rel="stylesheet" href="/csap-admin/webjars/tablesorter/2.31.3/css/theme.default.css" >
+<link href="/csap-admin/css/tablesorter/theme.csap.css" rel="stylesheet"
+	type="text/css" media="screen" />
+<link href="/csap-admin/css/tablesorter/theme.csapSummary.css"
+	rel="stylesheet" type="text/css" media="screen" />
+<link href="/csap-admin/webjars/tablesorter/2.31.3/css/theme.blue.css" rel="stylesheet" type="text/css" media="screen" />
+<link href="/csap-admin/webjars/tablesorter/2.31.3/css/theme.metro-dark.css" rel="stylesheet" type="text/css" media="screen" />
+
+<!-- <script src="/js/csapLibs/jquery-iframe-transport.js"></script> -->
+
+<script src="/csap-admin/webjars/jquery-form/4.2.2/jquery.form.min.js"></script>
+
+<!-- <script th:src="@{/js/csapLibs/csap-misc.js}" ></script>  -->
+
+
+<!--  alertify  
+<link th:href="@{/webjars/alertifyjs/1.4.1/build/css/alertify.min.css}"  rel="stylesheet" type="text/css" media="screen" />
+<link th:href="@{/webjars/alertifyjs/1.4.1/build/css/themes/semantic.min.css}"  rel="stylesheet" type="text/css" media="screen" />
+<script th:src="@{/webjars/alertifyjs/1.4.1/build/alertify.min.js}" ></script> 
+-->
+
+<link href="/csap-admin/js/csapLibs/alertifyjs/css/alertify.min.css"
+	rel="stylesheet" type="text/css" media="screen" />
+<link href="/csap-admin/js/csapLibs/alertifyjs/css/themes/semantic.min.css"
+	rel="stylesheet" type="text/css" media="screen" />
+<link href="/csap-admin/css/csap-alertify-theme.css" rel="stylesheet"
+	type="text/css" media="screen" />
+	
+	
+<!--  seems to be missing quite a bit, add the follow to get buttons, etc 
+<link  th:href="@{ ${@mvcResourceUrlProvider.getForLookupPath('/css/csap.alertify.css')} }" rel="stylesheet" type="text/css" media="screen" />-->
+<script src="/csap-admin/js/csapLibs/alertifyjs/alertify.min.js"></script>
+
+<!--  last: use csap styles to overwrite any of the above if needed -->
+<link href="/csap-admin/css/csap-2.css" rel="stylesheet" type="text/css"
+	media="screen" />
+
+
+<script src="/csap-admin/js/csapLibs/csap-common.js"></script>
+
+
+
+
+<link
+	href="/csap-admin/js/app-browser/agent.css"
+	rel="stylesheet"
+	type="text/css"
+	media="screen" />
+
+<link
+	href="/csap-admin/js/app-browser/agent-explorer.css"
+	rel="stylesheet"
+	type="text/css"
+	media="screen" />
+
+<link
+	href="/csap-admin/js/app-browser/browser.css"
+	rel="stylesheet"
+	type="text/css"
+	media="screen" />
+
+<link
+	href="/csap-admin/js/app-browser/projects.css"
+	rel="stylesheet"
+	type="text/css"
+	media="screen" />
+
+<link
+	href="/csap-admin/js/app-browser/services.css"
+	rel="stylesheet"
+	type="text/css"
+	media="screen" />
+
+<link
+	href="/csap-admin/js/app-browser/projects.css"
+	rel="stylesheet"
+	type="text/css"
+	media="screen" />
+
+<link
+	href="/csap-admin/js/editor/editor-dialog-service.css"
+	rel="stylesheet"
+	type="text/css"
+	media="screen" />
+
+
+
+<script
+	src="/csap-admin/webjars/requirejs/2.1.20/require.min.js" data-main="/csap-admin/js/editor/modules/service-test"></script>
+
+
+<script src="/csap-admin/js/csapLibs/csap-misc.js"></script>
+
+
+
+<script>
+
+//
+//  csap-constants-include
+//
+
+const CSAP_USER = null; 
+const CSAP_SCM_USER = null; 
+
+const AGENT_ID = "csap-agent_8011"; 
+const AGENT_NAME = "csap-agent"; 
+const AGENT_ENDPOINT = ":8011"; 
+const AGENT_URL_PATTERN = "http:\/\/CSAP_HOST.***REMOVED***:8011"; 
+
+const AGENT_MODE = null; 
+
+
+const CSAP_HOST_NAME = "localhost" ;
+
+const addHostUrl = null ;
+
+const BASE_URL = "\/csap-admin\/";
+const IMAGES_URL = "\/csap-admin\/images";
+const APP_BROWSER_URL = "\/csap-admin\/app-browser";
+const API_URL = "\/csap-admin\/api";
+const HEALTH_REPORT_URL = "\/csap-admin\/health\/alerts";
+
+
+const DEFINITION_URL = "\/csap-admin\/definition";
+
+const EXPLORER_URL = "\/csap-admin\/explorer";
+
+const FILE_URL = "\/csap-admin\/file"
+const OS_URL = "\/csap-admin\/os"
+
+// overloaded
+const IS_ADMIN = "AdminRole" ;
+var isAdmin = "AdminRole" ;
+
+const GET_FILES_URL = "\/csap-admin\/file\/getFilesJson" ;
+const MANAGER_URL = "\/csap-admin\/file\/FileManager" ;
+
+const ANALYTICS_URL = "http:\/\/csap-dev01.***REMOVED***:8080\/events-service\/..\/csap-admin\/os\/performance" ;
+
+const APP_ID = "DesktopCsap" ;
+
+
+
+const HOST_ENVIRONMENT_NAME = "dev";
+const LIFECYCLE = "dev";
+const SERVICE_URL = "\/csap-admin\/service";
+const ACTIVITY_URL = SERVICE_URL + "/activityCount";
+
+const EDIT_URL = "\/csap-admin\/edit" ;
+const SERVICE_DEF_URL = "\/csap-admin\/definition" + '/service';
+const HISTORY_URL = null;
+const METRICS_URL = null;
+const TREND_URL = SERVICE_URL + "/trend"; 
+
+const DEPLOY_PROGRESS = "service/query/deployProgress";
+
+//
+//  Collection keys for metrics data
+//
+const METRICS_HOST = "host" ;
+const METRICS_OS_PROCESS = "os-process" ;
+const METRICS_JAVA = "java" ;
+const METRICS_APPLICATION = "application" ;
+
+
+// agent urls for dashboard // OSEXPLORER versus kubernetes explorer
+const OS_EXPLORER_URL = "";
+const explorerUrl = "";
+const vsphereEnabled = null;
+const dockerUrl = "";
+const kubernetesApiUrl = null;
+const fileManagerUrl = "\/csap-admin\/file\/FileManager";
+
+//
+// legacy edit urls
+//
+
+const reportUrl = SERVICE_URL + "/report";
+const trendUrl = SERVICE_URL + "/trend"; 
+
+var baseUrl = "\/csap-admin\/" ;
+
+const analyticsUrl = "http:\/\/csap-dev01.***REMOVED***:8080\/events-service\/..\/csap-admin\/os\/performance" ;
+const lifeEditUrl = EDIT_URL + '/lifecycle' ;
+var serviceEditUrl = EDIT_URL + '/serviceDialog' ;
+const settingsEditUrl = EDIT_URL + '/settingsDialog' ;
+const clusterEditUrl = EDIT_URL + '/clusterDialog' ;
+
+var lifeUpdateUrl = "\/csap-admin\/definition" + '/lifecycle' ;
+var settingsDefUrl = "\/csap-admin\/definition" + '/settings' ;
+var clusterDefUrl = "\/csap-admin\/definition" + '/cluster' ;
+
+
+var commandScreen = "\/csap-admin\/os\/command";
+
+</script>
+
+
+
+<script>
+
+ var serviceName = ["csap-agent"][0] ;
+ var hostName = "*" ;
+ </script>
+
+
+
+</head>
+
+
+<body
+	id=csap-main
+	class="csap-scrollable theme-light theme-xylem">
+
+	<header>
+		<label>Service Template Editor</label>
+		<label style="margin-right: 1em;">
+			Project:
+			<select
+				class="releasePackage"
+				style="width: 14em">
+				<option
+					value="CSAP Platform"
+					selected="selected">CSAP Platform</option>
+				<option
+					value="changeToYourPackageName">changeToYourPackageName</option>
+				<option
+					value="CSAP HA Demo">CSAP HA Demo</option>
+			</select>
+		</label>
+		<button
+			id="showServiceDialog"
+			class="csap-button">Open In Dialog</button>
+			
+		<span></span>
+
+	</header>
+
+	<article id="loading-project-message">
+		<div class=loading-message-large>Loading Application</div>
+	</article>
+
+	<section
+		id='dialogContents'
+		class='editDialog'>
+
+		<div
+			id="serviceTemplates"
+			style="display: none">
+			<select class="attType">
+				<option value="mbean">Java MBean</option>
+				<option value="http">REST</option>
+				<option value="config">HTTP Setup</option>
+			</select>
+			<select class="attUnit">
+				<option value="1000000">Milliseconds</option>
+				<option value="1000000000">Seconds</option>
+				<option value="60000000000">Minutes</option>
+			</select>
+
+
+		</div>
+
+		<div
+			id='dialogResult'
+			class='editDialog'>
+			<div>
+				Updated:
+				<div class="noteAlt"></div>
+				.
+				<br />
+				<br />
+				Changes will be loaded once they have been tested or checked in.
+			</div>
+
+		</div>
+
+		<div id="dialogOpsContainer">
+
+			<span>
+				<label style="margin-right: 2em">
+					<span> Service: </span>
+					<select
+						id="dialogServiceSelect"
+						class="dialogServiceSelect"
+						style="width: 14em">
+						<option
+							value="csap-agent"
+							selected="selected">csap-agent</option>
+						<option
+							value="csap-demo-mpstat">csap-demo-mpstat</option>
+						<option
+							value="csap-package-logging">csap-package-logging</option>
+						<option
+							value="csap-test-docker-traffic">csap-test-docker-traffic</option>
+						<option
+							value="CsapStarter">CsapStarter</option>
+						<option
+							value="elastic-search">elastic-search</option>
+						<option
+							value="events-mongo-beta">events-mongo-beta</option>
+						<option
+							value="events-service-beta">events-service-beta</option>
+						<option
+							value="jstatd">jstatd</option>
+						<option
+							value="k8s-csap-test">k8s-csap-test</option>
+						<option
+							value="k8s-not-running-service">k8s-not-running-service</option>
+						<option
+							value="multiple-container-catcher">multiple-container-catcher</option>
+						<option
+							value="my-kubernetes-copy-with-a-super-duper-long-name">my-kubernetes-copy-with-a-super-duper-long-name</option>
+						<option
+							value="nfs-server">nfs-server</option>
+						<option
+							value="sample-namespace">sample-namespace</option>
+						<option
+							value="test-docker-activemq">test-docker-activemq</option>
+						<option
+							value="test-docker-csap-reference">test-docker-csap-reference</option>
+						<option
+							value="test-docker-nginx">test-docker-nginx</option>
+						<option
+							value="test-docker-pgadmin">test-docker-pgadmin</option>
+						<option
+							value="test-docker-postgres">test-docker-postgres</option>
+						<option
+							value="test-k8s-activemq">test-k8s-activemq</option>
+						<option
+							value="test-k8s-by-spec">test-k8s-by-spec</option>
+						<option
+							value="test-k8s-csap-reference">test-k8s-csap-reference</option>
+						<option
+							value="test-k8s-postgres">test-k8s-postgres</option>
+						<option
+							value="test-k8s-schema">test-k8s-schema</option>
+					</select>
+					
+				</label>
+
+				<span>
+					<span>
+						<button class="csap-button updateDefButton">Update</button>
+
+						<button
+							id="rename"
+							class="csap-button renameDefButton">Rename</button>
+
+						<button
+							id="copy"
+							class="csap-button copyDefButton">Copy</button>
+
+						<button class="csap-button deleteDefButton">Delete</button>
+					</span>
+					
+				</span>
+
+				<button
+					class="csap-button notifyButton"
+					title="Send changes to infrastructure admin for review and provisioning.">Request</button>
+
+				
+			</span>
+
+
+			<span>
+
+
+				<label
+					id="validateOnly"
+					class=csap
+					title="Changes will be validated, but not updated">
+					
+					<input
+						id="validateOnlyCheckbox"
+						type="checkbox" />
+					Validate Only
+
+				</label>
+
+				<label style="margin-left: 2em">
+
+					<a
+						target="_blank"
+						title="Learn more about CSAP Service Definitions"
+						class="csap-link-icon csap-help"
+						href="https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/398101161/CSAP+Service+Templates" > Templates </a>
+				</label>
+			</span>
+
+		</div>
+
+
+
+		<div id='serviceEditor'>
+			<ul>
+				<li><a
+					title="command parameters, environment variables, etc."
+					href="#process">OS Process</a></li>
+
+				<li class="service-tab-container"><a
+					title="Define docker and kubernetes settings"
+					href="#tab-container-content">Container</a></li>
+
+				<li><a
+					title="Extended runtime configuration for service profile, log locations, etc"
+					class="osPackagesTab"
+					href="#package">Packaging</a></li>
+
+				<li><a
+					title="Files: add/update/delete property files, deployment specifications, etc."
+					href="#props">Files</a></li>
+
+				<li><a
+					title="Log rotations, script executions, filesystem cleanup, etc."
+					href="#jobs">Jobs</a></li>
+
+				<li><a
+					title="Define source and binary repositories"
+					class="deployTab"
+					href="#deploy">Source</a></li>
+
+				<li><a
+					title="Define OS resource levels for alerting"
+					href="#alerts">Alerts</a></li>
+
+				<li><a
+					title="Http or JMX performance collection"
+					href="#performance">Performance</a></li>
+
+				<li><a
+					title="Optionally override configuration for target deployment"
+					href="#life">Environment(s)</a></li>
+
+				<li><a
+					title=""
+					href="#jsonEditor">Json Editor</a></li>
+			</ul>
+
+
+			<div
+				id="jsonEditor"
+				class="group serviceDef">
+
+
+				<label
+					title="Toggle folding of code - note alt-0, alt-shift-0 can be used as well"
+					style="width: 10em">
+					<input
+						class="editor-toggle-last"
+						type="checkbox"
+						style="margin-right: 0; vertical-align: middle" />
+					Fold
+				</label>
+				<textarea
+					id="serviceJson"
+					name="serviceJson"
+					spellcheck=false
+					data-path="ROOT">Loading</textarea>
+				<br />
+			</div>
+
+
+
+			<div
+	id="process"
+	class="group json-form-autosize-panel">
+
+	<div
+		class="csap-white"
+		style="padding-left: 0">
+
+		<div id="service-profile">
+			<div>
+				<label
+					class=csap-form-inline >
+					<span> Service Profile: </span>
+					<select
+						class="serviceContainer"
+						title="Select Application Container"
+						data-path="server">
+
+
+						<option
+							class="jeeOptions"
+							value="SpringBoot">SpringBoot</option>
+
+
+						<option
+							class="jeeOptions"
+							value="tomcat7.x">tomcat7.x</option>
+
+
+						<option
+							class="jeeOptions"
+							value="tomcat8.x">tomcat8.x</option>
+
+
+						<option
+							class="jeeOptions"
+							value="tomcat8-5.x">tomcat8-5.x</option>
+
+
+						<option
+							class="jeeOptions"
+							value="tomcat9.x">tomcat9.x</option>
+
+
+						<option
+							class="osOptions"
+							value="csap-api">CSAP Package</option>
+
+						<option
+							class="osOptions"
+							value="os">OS Process Monitor</option>
+
+						<option
+							class="osOptions"
+							value="docker">Docker</option>
+
+					</select>
+				</label>
+				<label
+					class=csap-form-inline>
+					<span title="Operations will trigger data warnings if set. Use for DBs, etc">Data Store:</span>
+					<select data-path="isDataStore">
+						<option selected="selected">false</option>
+						<option>true</option>
+					</select>
+				</label>
+				
+				<label
+					class=csap-form-inline>
+					<span
+						style="min-width: 0; margin-left: 1em"
+						title="Operations will trigger data warnings if set">Messaging:</span>
+
+					<select data-path="isMessaging">
+						<option selected="selected">false</option>
+						<option>true</option>
+					</select>
+				</label>
+
+			</div>
+
+
+			<div>
+
+				<label
+					class=csap-form-inline>
+
+					<span
+						style="min-width: 0; margin-left: 1em"
+						title="Select a template to populate defintion automatically">Templates:</span>
+
+					<select
+						id="service-template-selection"
+						style="margin-left: 0; max-width: 8em">
+						<option value="default">load...</option>
+
+
+						<optgroup label="Kubernetes">
+
+							<option value="k8s-template-csap-test">kubernetes: csap test app</option>
+							<option value="k8s-template-monitor">kubernetes: pod monitor</option>
+
+						</optgroup>
+
+						<optgroup label="OS Deployments">
+
+							<option value="springboot-simple">Java SpringBoot: Minimal</option>
+							<option value="springboot-full">Java SpringBoot: Full (Metrics, alerts, etc)</option>
+							<option value="tomcat">Java tomcat</option>
+
+						</optgroup>
+
+						<optgroup label="Docker">
+
+							<option value="csap-test-docker">Docker: Csap Test Service</option>
+							<option value="nginx">Docker: nginx</option>
+							<option value="postgres">Docker: postgres</option>
+							<option value="activemq">Docker: activemq</option>
+
+							<option
+								title="Updates docker section with minimal template to start a service"
+								value="java9DockerMinimal">Java 9 Minimal</option>
+							<option
+								title="Updates docker section with examples including volumes and network"
+								value="java9DockerMore">Java 9 Full</option>
+
+							<option value="fabric8">fabric8 with OpenJDK (java 8 or 9)</option>
+							<option value="csapBaseWithHostJava">Java using host folder</option>
+							<option value="csapTestApp">CSAP test application</option>
+							<option value="csapTomcat">csap-tomcat with embedded java and tomcat</option>
+						</optgroup>
+					</select>
+
+				</label>
+			</div>
+
+		</div>
+
+		<div id="service-links">
+
+			<div>
+
+				<label
+					class=csap-form-inline
+					title="Source of service definition &#013;If csap-template selected active application definition, only is updated: &#013; - add: ignored &#013; - delete: removes service in definition &#013; - update: ONLY affects resource files">
+					<span>source:</span>
+					<select
+						class="definition-source"
+						data-path="definitionSource">
+
+						<option
+							value="desktop-project.json">desktop-project.json</option>
+
+						<option
+							value="csap-templates">csap-templates</option>
+
+						<option
+							value="copySource">copySource</option>
+
+
+
+					</select>
+
+					<input
+						class="copySource-service-name"
+						title="template name used for source when copySource is specified"
+						style="width: 8em; display: none"
+						data-path="copySource"
+						placeholder="$$service-name" />
+
+					<input
+						class="path-to-template"
+						title="path to template"
+						style="width: 20em"
+						data-path="path-to-template"
+						placeholder="not-found" />
+
+				</label>
+			</div>
+
+
+			<div>
+				<label
+					class=csap-form-inline>
+
+					<span style="min-width: 0">Resources:</span>
+
+					<a
+						title="Browse/Edit service files"
+						href="#open-service-files"
+						class="csap-link-button open-service-files">
+						<img src="/csap-admin/images/16x16/folder-open.svg" />File Manager
+					</a>
+
+				</label>
+			</div>
+		</div>
+
+	</div>
+
+
+
+	<div
+		id="containerConfig"
+		class="csap-green">
+		
+		
+		<div class="heading"></div>
+		<label
+					class=csap-form>
+			<span>Description:</span>
+			<input
+				data-path="description"
+				value="Added by null. Service provides ..." />
+		</label>
+		<label 
+			class=csap-form>
+			<span>Deployment Notes:</span>
+			<input
+				data-path="deploymentNotes"
+				placeholder="enter notes to be shown when deployment operations are performed" />
+		</label>
+
+		
+		<label
+			class=csap-form
+			title="Dashboard launch: one or more comma separated urls can be used. &#013; - $$service-fqdn-host:$$service-primary-port represent the service host & port template variables &#013; - kubernetes: $$kubernetes-ingress?path=/$$service-name, or $$kubernetes-pod-ip, or $$kubernetes-nodeport?serviceName=$$service-name&path=/  ">
+			<span>Launch Url:</span>
+			<input
+				data-path="url"
+				placeholder="non:docker: http://$$service-fqdn-host:$$service-primary-port" />
+		</label>
+
+		<label 
+			class=csap-form
+			title="Provide one or more comma separated urls.">
+			<span>Documentation Url:</span>
+			<input
+				data-path="docUrl"
+				placeholder="sourcelocation/README.md"
+				value="" />
+		</label>
+	</div>
+	<div
+		id="containerConfig"
+		class="csap-blue">
+		<div class="heading">OS Process Configuration. Set process match to 'none' if no processes will be started</div>
+		
+		<div>
+
+			<label 
+				class=csap-form-inline
+				title="Linux OS Process Matching, regular expressions are supported. eg. .*java.*activemq.*">
+				<span> Process Match:</span>
+				<input
+					class=words
+					placeholder="defaults: docker: container pid, os: service name"
+					data-path="processFilter" />
+				<a
+					href="https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/2596373912/CSAP+Service+Processing+Mapping"
+					target="_blank"
+					class="csap-link-icon csap-help"></a>
+			</label>
+			
+			
+			<label
+				class=csap-form-inline
+				title="for each matched process, include children using parent pid">
+				<span>child processes:</span>
+				<input
+					placeholder="false"
+					data-path="processChildren" />
+			</label>
+
+		</div>
+		
+		<div class="heading"></div>
+
+
+		<div>
+
+
+			<label
+				class=csap-form-inline
+				title="Linux OS Process Priority, 0 is default, lower indicate higher priority eg. -10">
+				<span>Priority:</span>
+				<input
+					class="smallJson"
+					placeholder="0"
+					data-path="osProcessPriority" />
+			</label>
+
+
+			<label
+				class=csap-form-inline
+				title="Csap MetaData used to customize service behaviour and attributes.">
+				<span>Config Attributes:</span>
+				<input
+					class=words
+					data-path="metaData"
+					placeholder="Optional configuration to customize CSAP process handling"
+					style="margin-right: 2px" />
+			</label>
+
+		</div>
+
+		<div>
+			<label
+				class=csap-form-inline
+				title="When host is restarted, services will be sorted and started. To disable on override: do-not-restart">
+				<span>Start Order:</span>
+				<input
+					class="smallJson"
+					placeholder="manual"
+					data-path="autoStart" />
+			</label>
+
+			<label
+				class=csap-form-inline
+				title="Folder will be scanned for EOL components. Omit leading / to be relative to the service directory">
+				<span>Library Folder:</span>
+				<input
+					class=words
+					placeholder="default folder defined for server"
+					data-path="libDirectory" />
+			</label>
+		</div>
+		
+		
+		<div class="heading">Related linux systemd unit(s) comma separated (services, etc.)</div>
+		<label
+				class=csap-form
+			title="If specified, this will include log link(s) to filtered output via journalctl -u name">
+			<span>systemd services:</span>
+			<input
+				placeholder="eg. docker,sshd,kubelet"
+				data-path="logJournalServices" />
+		</label>
+
+
+		<div
+			class="heading"
+			>OS Process Parameters passed when starting service: no newlines permitted. CSAP
+			custom: -DcsapJava7, -DcsapJava8</div>
+		<div class="floating-ace-editor">
+			<textarea
+				id="service-params-edit"
+				class="paramJdk"
+				spellcheck=false
+				placeholder="Optional: add your parameters. Eg. for java: -Xmx500m -Xms500m -XX:+UseG1GC XX:+ExitOnOutOfMemoryError"
+				data-path="parameters"
+				data-plain="true"
+				data-fit="true"
+				data-adjust="1"
+				data-removenewlines="true"></textarea>
+		</div>
+	</div>
+	<div
+		id="containerConfig"
+		class="csap-grey">
+
+		<div class="heading">
+			Environment Variables / Configuration Maps
+			<a
+			href="https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/399835244/CSAP+Environment+Definitions#Configuration-Maps"
+			target="_blank"
+			class="csap-link-icon csap-help"></a>
+			
+		</div>
+
+		<div class="floating-ace-editor">
+			<textarea
+				id="environmentVariable"
+				data-fit="true"
+				data-adjust="50"
+				spellcheck=false
+				data-path="environmentVariables"></textarea>
+		</div>
+
+		<div class="heading">
+			Configuration Notes:
+			<ul style="list-style-type: disc; padding-left: 3em">
+				<li>Any variables in the life cycle "global" configuration map are always included first</li>
+				<li>values may include any of the <a
+						target="_blank"
+						title="Definition variabls"
+						class="simple"
+						href="https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/398101161/CSAP+Service+Templates#Runtime-Variables">
+						csap definition variables </a>
+				</li>
+
+				<li>"$serviceRef:someServiceName" - hosts names for service</li>
+				<li>"doDecode:someEncodedValue" - provides decoded attribute</li>
+				<li>shared configuration, add: "configuration-maps": [ "map1", "map2"].</li>
+			</ul>
+		</div>
+	</div>
+</div>
+
+
+			<div
+	id="package"
+	class="group textGroup json-form-autosize-panel">
+
+	<div
+		id="osExtended"
+		class="package-os group textGroup">
+
+
+		<div
+			id="containerConfig"
+			class="csap-green">
+			<div class="heading">
+				OS packages enable any software package to be deployed and managed. Learn more:
+				<a
+					target="_blank"
+					title="View Help"
+					class="simple"
+					href="https://github.com/csap-platform/csap-core/wiki#updateRefCSAP+Packages"> CSAP Package Reference Guide </a>
+
+			</div>
+			<label
+				class=csap-form-inline
+				title="User is used when launching and monitoring services running under OS user accounts other then Agent">
+				<span>OS User:</span>
+				<input
+					class=words
+					placeholder="CSAP User"
+					data-path="user" />
+			</label>
+
+			<label
+				class=csap-form-inline
+				title="Port is used for resource reservations - duplicates will generate warnings. It may be used for http, or any other purpose based on service profile.">
+				<span>Primary Port:</span>
+				<input
+					placeholder="0"
+					data-path="port" />
+			</label>
+
+			<label
+				class=csap-form-inline
+				title="JMX Port is used for java collections. If specified - jmx will be enabled">
+				<span>JMX Port:</span>
+				<input
+					placeholder="disabled"
+					data-path="jmxPort" />
+			</label>
+
+
+			<div class="heading">The following paths are leveraged in CSAP File Browser. Docker services may specify paths
+				relative to the root of the container. /var will display the container files. To reference the host filesystem,
+				double slashes can be used. eg. //var will display the host path.</div>
+
+
+			<label
+				class=csap-form
+				title="Property folder will be the first link when file manager is launched. ">
+				<span>Property Folder:</span>
+				<input
+					placeholder="Package Folder"
+					data-path="propDirectory" />
+			</label>
+			<label
+				class=csap-form
+				title="Property folder will be the first link when file manager is launched">
+				<span>Application Folder:</span>
+				<input
+					placeholder="$processing/$instance"
+					data-path="appDirectory" />
+			</label>
+		</div>
+
+		<div
+			id="containerConfig"
+			class="csap-blue">
+
+			<div class="heading">
+				Log configuration
+				<br>
+				Note that CSAP looks for log rotation policy in the specified log folder. Learn more:
+				<a
+					target="_blank"
+					title="View Help"
+					class="simple"
+					href="https://github.com/csap-platform/csap-core/wiki/Service-Settings"> CSAP Log Rotation Reference Guide </a>
+
+			</div>
+
+			<label
+				class=csap-form
+				title="Folder containing log files.">
+				<span>Log Folder:</span>
+				<input
+					placeholder="$workingFolder/logs; note docker service paths starting with '//' will use host folder"
+					data-path="logDirectory" />
+			</label>
+
+			<label
+				class=csap-form
+				title="When logs are launched - specified file is displayed with others selectable">
+				<span>Default Log File:</span>
+				<input
+					placeholder="First text file found"
+					data-path="defaultLogToShow" />
+			</label>
+
+			<label
+				class=csap-form
+				title="Only files matching regular expression will be included in log viewer">
+				<span>Log Filter:</span>
+				<input
+					placeholder=".*"
+					data-path="logRegEx" />
+			</label>
+
+		</div>
+
+	</div>
+
+
+	<div class="package-tomcat">
+
+
+		<div class="bootTomcat heading hquote">
+
+			While all Spring Boot components (including embedded Tomcat containers) are highly configurable,
+			<span>domain expertise and reviews are strongly recommended</span>
+			. Refer to:
+			<a
+				class="simple"
+				href="https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/398101161/CSAP+Service+Templates"
+				target="_blank"> CSAP Service Definitions </a>
+
+
+		</div>
+
+		<div class="tomcatWar heading hquote">Tomcat configuration can be customized by adding environment variables.
+			Use CSAP file manager to review: csap_working/tomcat/TomcatWrapper.sh</div>
+
+		<!-- 		<div class="tomcatWar">
+			<div class="info">
+				While apache Tomcat runtimes are highly configurable,
+				<span>domain expertise and reviews are strongly recommended</span>
+				prior to modifying defaults. CSAP can auto-configure the most common settings shown below, if additional
+				configuration is needed, teams can optionally package their own server.xml, or use a
+				<a
+					class="simple"
+					href="https://github.com/csap-platform/csap-core/wiki#updateRefCSAP+Packages"
+					target="_blank"> completely custom distribution </a>
+				<br /> <br /> References: CSAP
+				<a
+					class="simple"
+					href="https://github.com/csap-platform/csap-core/wiki#updateRefTomcat+Advanced+Configuration"
+					target="_blank"> Advanced Tomcat Guide </a>
+				and Apache
+				<a
+					class="simple"
+					href="https://tomcat.apache.org/tomcat-8.0-doc/config/ajp.html"
+					target="_blank"> Tomcat Connector Configuration </a>
+
+			</div>
+
+
+			<div
+				id="containerConfig"
+				class="csap-green">
+
+
+				<div class="heading">CSAP has global compression enabled for all csap web server traffic, including Tomcat
+					AJP. Tomcat Http direct traffic can also be enabled if bypassing AJP.</div>
+				<label
+					class=""
+					title="Compression will be performed if response is larger then bytes specified">
+					<span>Compression Minimum Bytes:</span>
+					<input
+						placeholder="disabled"
+						class=""
+						data-path="compression" />
+				</label>
+
+				<label
+					class=""
+					title="Http Types to apply compression">
+					<span>Mime Types:</span>
+					<input
+						placeholder="text/html,text/xml,text/javascript,text/css"
+						class="medium"
+						data-path="compressableMimeType" />
+				</label>
+
+
+				<div class="heading">Extended cookie configuration: It is strongly recommended to keep defaults and not
+					override unless atypical use cases require it.</div>
+				<label
+					class=""
+					title="Connections are limited to prevent overloading services">
+					<span>Cookie Name:</span>
+					<input
+						placeholder="JSESSIONID"
+						class=""
+						data-path="cookieName" />
+				</label>
+				<label
+					class=""
+					title="Connections are limited to prevent overloading services">
+					<span>Cookie Path:</span>
+					<input
+						placeholder="servlet context root"
+						class=""
+						data-path="cookiePath" />
+				</label>
+				<label
+					class=""
+					title="Connections are limited to prevent overloading services">
+					<span>Cookie Domain:</span>
+					<input
+						placeholder="server name"
+						class=""
+						data-path="cookieDomain" />
+				</label>
+
+			</div>
+			<div
+				id="containerConfig"
+				class="csap-red">
+
+				<div class="heading">Prevent run away resource consumption and cascading outages by carefully configuring and
+					testing tom limits</div>
+				<label
+					class=""
+					title="Connections are limited to prevent overloading services">
+					<span>max Connections(active):</span>
+					<input
+						placeholder="50"
+						class="smallJson"
+						data-path="servletMaxConnections" />
+				</label>
+
+				<label
+					class=""
+					title="The maximum queue length for incoming connection requests.">
+					<span>accept count (Queued):</span>
+					<input
+						placeholder="0"
+						class="smallJson"
+						data-path="servletAccept" />
+				</label>
+
+
+				<label
+					class=""
+					title="The maximum number of request processing threads to be created.">
+					<span>max Threads (servlet):</span>
+					<input
+						placeholder="50"
+						class="smallJson"
+						data-path="servletThreadCount" />
+				</label>
+
+
+				<label
+					class=""
+					title="The number of milliseconds this Connector will wait, after accepting a connection.">
+					<span>connection Timeout (ms ):</span>
+					<input
+						placeholder="30000"
+						class="smallJson"
+						data-path="servletTimeoutMs" />
+				</label>
+			</div> 
+
+		</div>
+
+
+
+
+		<div
+			id="common-tomcat"
+			class="csap-blue">
+
+			<label
+				class=""
+				title="JEE Servlet Context: the base path for all http requests">
+				<span>jee context path:</span>
+				<input
+					placeholder="$$service-name"
+					class=""
+					data-path="context" />
+			</label>
+
+			<label
+				class=""
+				title="Dashboard launch: relative to java servlet context - by default root context is used">
+				<span>Launch Url:</span>
+				<input
+					class="medium"
+					data-path="launchUrl"
+					placeholder="http://$$service-fqdn-host:$$service-primary-port/$$service-context" />
+			</label>
+
+		</div>
+-->
+		<div
+			id="tomcat-loadbalancer"
+			class="csap-grey">
+
+			<div class="heading">
+				<label style="color: black; font-size: 12pt">
+					Load balancer:
+					<select
+						data-path="isTomcatAjp"
+						style="margin-right: 2px">
+						<option selected="selected">false</option>
+						<option>true</option>
+					</select>
+				</label>
+				Optional: Leverage apache modjk plugin for sticky session load balancing. All LB configuration is auto generated.
+			</div>
+
+
+			<div class="heading">Recommended: if cluster port is xxx1, set to xxx6 JMX Port is used for java collections.
+				($$service-primary-port+5) If specified - jmx will be enabled</div>
+
+			<label
+				class=""
+				title="Used for http traffic; will be passed as ">
+				<span>Port:</span>
+				<input
+					placeholder="recommended: 85x1"
+					class=""
+					data-path="port" />
+			</label>
+
+			<label
+				class=""
+				title="">
+				<span>JMX Port:</span>
+				<input
+					placeholder="optional: $$service-primary-port+5"
+					class=""
+					data-path="jmxPort" />
+			</label>
+			<div class="heading">Optional: Default log settings are strongly recommend. Carefully review prior to modifying
+			</div>
+			<label
+				class=""
+				title="Folder containing log files">
+				<span>Log Folder</span>
+				<input
+					placeholder="$workingFolder/logs"
+					class="wide"
+					data-path="logDirectory" />
+			</label>
+
+			<label
+				class=""
+				title="When logs are launched - specified file is displayed with others selectable">
+				<span>Default Log File:</span>
+				<input
+					placeholder="console.log"
+					class="medium"
+					data-path="defaultLogToShow" />
+			</label>
+
+			<label
+				class=""
+				title="Only files matching regular expression will be included in log viewer">
+				<span>Log Filter:</span>
+				<input
+					placeholder=".*"
+					class="smallJson"
+					data-path="logRegEx" />
+			</label>
+
+
+
+			<div>
+				<div class="heading">Optional: instance can be configured as a remote collection service.</div>
+				<textarea
+					id="editor-jmx-remote"
+					rows="1"
+					spellcheck=false
+					data-fit="true"
+					data-path="remoteCollections"></textarea>
+
+			</div>
+
+
+			<div>
+				<div class="heading">
+					Optional: Apache ModJk Loadbalancing Configuration. Note that loadbalance array is cluster level rules, while
+					connection array is applied to every ajp instance
+					<br />
+					For more information, refer to:
+					<a
+						class="simple"
+						target="_blank"
+						href="http://tomcat.apache.org/connectors-doc/reference/workers.html">Modjk Configuration</a>
+				</div>
+				<textarea
+					id="editor-apache-modjk"
+					rows="2"
+					spellcheck=false
+					data-fit="true"
+					data-path="apacheModJk"></textarea>
+
+			</div>
+			<div>
+				<div class="heading">
+					Optional: Apache mod_rewrite enables custom routing
+					<br />
+					For more information, refer to:
+					<a
+						class="simple"
+						target="_blank"
+						href="http://httpd.apache.org/docs/current/mod/mod_rewrite.html">Mod Rewrite Configuration</a>
+				</div>
+				<textarea
+					id="editor-apache-modrewrite"
+					rows="2"
+					spellcheck=false
+					data-convert_lines="true"
+					data-fit="true"
+					data-path="apacheModRewrite"></textarea>
+			</div>
+		</div>
+
+	</div>
+
+
+
+
+</div>
+
+			<div
+	id="jobs"
+	class="group json-form-autosize-panel">
+
+
+	<div class="heading">
+		Jobs configuration
+		<button
+			class="csap-button code-samples"
+			data-type="scheduledJobs">View Samples</button>. Note the use of environment-filters and host-filters to selectively schedule jobs
+	</div>
+
+	<div
+		id="containerConfig"
+		class="csap-green">
+
+		<div class="heading">Scripts: frequency: onDemand, daily, hourly, or event-* (event-pre-deploy, etc.). By default - jobs are run in foreground.</div>
+		<textarea
+			id="jobs-scripts"
+			spellcheck=false
+			data-fit="true"
+			data-path="scheduledJobs.scripts"></textarea>
+	</div>
+	<div
+		id="containerConfig"
+		class="csap-blue">
+		<div class="heading">
+			Log Rotation: logs are checked hourly using the defined policy
+			<a
+				class="simple"
+				target="_blank"
+				href="https://github.com/csap-platform/csap-core/wiki#updateRefLog+Configuration"> reference manual </a>
+		</div>
+		<textarea
+			id="jobs-logrotate"
+			spellcheck=false
+			data-fit="true"
+			data-path="scheduledJobs.logRotation"></textarea>
+	</div>
+	<div
+		id="containerConfig"
+		class="csap-grey">
+
+		<div class="heading">Disk Cleanup: defaults: "maxDepth": 3, "pruneEmptyFolders": false, "pruneByFolder": false.
+			To test: touch -d "60 days ago" demo_old_file. Path can contain wildcards eg. $processing/*.log ,
+			$workingFolder/logs/serviceFolder</div>
+		<textarea
+			id="jobs-disk-cleanup"
+			spellcheck=false
+			data-fit="true"
+			data-path="scheduledJobs.diskCleanUp"></textarea>
+	</div>
+
+
+</div>
+
+
+
+			
+
+<div
+	id="tab-container-content"
+	class="group json-form-autosize-panel tab-container-content">
+
+
+
+	<div
+		class="heading"
+		style="margin-top: 3px">
+		Container configuration applies to both docker and kubernetes; deployment target is determined by
+		<a
+			target="_blank"
+			title="View Help"
+			class="csap-link-icon csap-help"
+			href="https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211869/Cluster+Templates"  >Cluster Assignment</a>
+	</div>
+
+	<div id="container-nav">
+		<ul>
+			<li>
+				<a href="#ctabs-specification">Specification(s)</a>
+			</li>
+			<li>
+				<a href="#ctabs-definition">Container</a>
+			</li>
+			<li>
+				<a href="#ctabs-kubernetes">Kubernetes</a>
+			</li>
+			<li>
+				<a href="#ctabs-resources">Vars/Volumes/Ports</a>
+			</li>
+			<li>
+				<a href="#ctabs-docker">Docker</a>
+			</li>
+		</ul>
+
+		<div id="ctabs-specification">
+			
+
+<div>
+
+	<label
+		id="container-use-spec"
+		style="width: 28em"
+		title="One or more files can be used to provide deployment specification">
+		<span>Only Use Kubernetes Specification(s):</span>
+
+		<select
+			id="service-docker-deployment-files-use"
+			data-path="docker.deployment-files-use"
+			style="margin-right: 2px">
+			<option selected="selected">false</option>
+			<option>true</option>
+		</select>
+	</label>
+
+
+	<div class="csap-purple use-deployment-file-panel">
+
+		<div class="service-locator-items">
+			<label
+				id="dockerContainerSelect"
+				style="width: 20em"
+				class=""
+				title="">
+				<span>Use Kubernetes Locator:</span>
+
+				<select
+					class="dockerEnabled"
+					data-path="runUsingDocker"
+					style="margin-right: 2px">
+					<option selected="selected">false</option>
+					<option>true</option>
+				</select>
+			</label>
+
+			<div class=csap-green>
+
+				<div class="heading">
+					Kubernetes Container Matching:
+
+					<a
+						href="https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/2596373912/CSAP+Service+Processing+Mapping"
+						target="_blank"
+						class="csap-link-icon csap-help"></a>
+				</div>
+
+				<div>
+					<!--
+			<label title="Docker container label name">
+				<span>Label Type:</span>
+				<input
+					class="wide"
+					placeholder="io.kubernetes.container.name"
+					data-plaintext="true"
+					data-path="docker.locator.type" />
+			</label>
+  -->
+					<label 
+						class=csap-form
+						title="docker container label match using: io.kubernetes.pod.namespace match">
+						<span>Match Namepace:</span>
+						<input
+							placeholder="default: ignored; example: my-namespace"
+							data-path="docker.locator.podNamespace" />
+					</label>
+					
+
+					<label
+						class=csap-form
+						title="Match using EXACT docker container label io.kubernetes.container.name; multiple containers using (container1|container2)">
+						<span>&amp;&amp; ( Container Name:</span>
+						<input
+							placeholder="default: $$service-name-container; ignored if pod match specified"
+							data-path="docker.locator.value" />
+					</label>
+
+					<label 
+						class=csap-form
+						title="Match using REGULAR EXPRESSION docker container label: io.kubernetes.pod.name match: eg. my-pod-.*">
+						<span>|| Pod Name):</span>
+						<input
+							placeholder="default: ignored. Example: $$service-name-.*"
+							data-path="docker.locator.podName" />
+					</label>
+
+				</div>
+
+				<div class="heading">Collection Settings:</div>
+
+
+					<label 
+						class=csap-form-inline
+						title="total number of container instances on all hosts">
+						<span>Container Count:</span>
+						<input
+							placeholder="container host count"
+							data-path="docker.container-count" />
+					</label>
+					<label 
+						class=csap-form-inline
+						title="By default - all container sockets are counted. to count using pid, specify global">
+						<span>Socket Namespace:</span>
+						<input
+							class=words
+							placeholder="container"
+							data-path="docker.socketNamespace" />
+					</label>
+
+
+					<label
+						class=csap-form
+						title="Runtime version command: run in docker container and output will be assigned as runtime version. For java jar: ls /path/to/some*.jar | cut -d- -f3 | cat . For nginx docker: nginx -v 2>&1 | cut -d/ -f2 | cat">
+						<span>Version Command:</span>
+						<input
+							placeholder="echo 1.2.3"
+							data-path="docker.versionCommand" />
+					</label>
+
+
+
+			</div>
+		</div>
+
+
+
+		<div class="service-deploy-files">
+			<div class="heading">
+				Kubernetes Deployment Files:
+				<ol style="list-style: lower-alpha; padding-left: 3em">
+					<li>Specifications will be deployed in the order listed, and removed in the reverse order.</li>
+					<li><a
+							target="_blank"
+							title="Learn more about CSAP Runtime Support"
+							class="simple"
+							href="https://github.com/csap-platform/csap-core/wiki/Service-Settings#service-variables"> csap definition
+							variables </a> may be used to specify path. eg. 'SEARCH_FOR_RESOURCE:my.yaml' will search in definition resource
+						folders using the following precedence: lifecycle, common, then /. $$service-resources is the location csap
+						service files Specifying image, and using $$service-image in the templates is strongly recommended.</li>
+					<li>File paths that include '*deploy-only*' (eg. /path/to/volume-create-deploy-only.yaml) will NOT be removed
+						unless clean option is checked. Typically used for persistent volumes, etc.</li>
+				</ol>
+			</div>
+
+			<div>
+
+				<div>
+					<label 
+						class=csap-form-inline
+						title="container image name: specify, and use $$service-image in your deployment templates">
+						<span>Image:</span>
+						<input
+							placeholder="optional"
+							data-path="docker.image" />
+
+					</label>
+				</div>
+
+				<label
+						class=csap-form-inline
+					title="List of files that will be loaded during deployment"
+					style="vertical-align: top">
+					<span>File names:</span>
+
+				</label>
+				<div class="floating-ace-editor">
+					<textarea
+						id="container-deploy-files"
+						data-path="docker.deployment-file-names"
+						data-fit="true"
+						rows="1"
+						data-adjust="30"
+						data-adjustwidth="200"
+						spellcheck=false
+						placeholder="deployment filenames. specify as JSON array elements"></textarea>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>
+		</div>
+
+		<div id="ctabs-definition">
+			
+
+
+<label
+	id="dockerContainerSelect"
+	style="width: 20em"
+	class=""
+	title="Deployment will leverage selected image to create a container using the default working directory">
+	<span>Run Using Docker:</span>
+
+	<select
+		class="dockerEnabled"
+		data-path="runUsingDocker"
+		style="margin-right: 2px">
+		<option selected="selected">false</option>
+		<option>true</option>
+	</select>
+</label>
+
+
+
+<div class="csap-green primary">
+
+	<div class="heading">
+		Container Definition:
+		<div
+			id="container-provider-choice"
+			style="display: none">
+			View Selection:
+			<input
+				id="container-provider-kubernetes"
+				type="radio"
+				checked="checked"
+				name="container-provider-radio"
+				value="kubernetes" />
+			<label
+				for="container-provider-kubernetes"
+				title="Deploy using kubernetes apis (java client)"> Kubernetes </label>
+
+
+			<input
+				id="container-provider-docker"
+				type="radio"
+				name="container-provider-radio"
+				value="docker" />
+			<label
+				for="container-provider-docker"
+				style="margin-right: 3em"
+				title="Deploy using kubernetes command line interface(kubectl)."> Docker </label>
+		</div>
+	</div>
+
+	<div class="image-block">
+
+		<label title="container image name">
+			<span>Image:</span>
+			<input
+				class="wide"
+				placeholder="docker.io/hello-world:latest"
+				data-path="docker.image" />
+
+		</label>
+	</div>
+
+	<div>
+		<label 
+			class=csap-form-inline
+			title="Unique name to manage container">
+			<span>Container Name:</span>
+			<input
+				class=words
+				placeholder="$$service-name"
+				data-path="docker.containerName" />
+			<span title="Maximum time before pull times out">Pull Max: </span>
+			<input
+				class="words"
+				title="Maximum time before pull times out"
+				placeholder="5"
+				data-path="deployTimeoutMinutes" />
+		</label>
+
+
+	</div>
+	<div>
+		<label 
+			class=csap-form-inline
+			title="current directory when container is started">
+			<span>Working Directory:</span>
+			<input
+				class="words"
+				placeholder="default from image"
+				data-path="docker.workingDirectory" />
+		</label>
+
+		<label
+			class=csap-form-inline
+			title="Container user. Allowed: uid:gid, containerUser:containerGroup. Also:  $csapUser or $user will use host uid/gid for specified user">
+			<span>User:</span>
+			<input
+				class="words"
+				placeholder="default from image"
+				data-path="docker.runUser" />
+		</label>
+
+	</div>
+	<div>
+
+		<label
+			class=csap-form-inline
+			title="Command will be run in docker container and output will be assigned as version. For java jar: ls /path/to/some*.jar | cut -d- -f3 | cat . For nginx docker: nginx -v 2>&1 | cut -d/ -f2 | cat">
+			<span>Version Command:</span>
+			<input
+				class="words"
+				placeholder="echo 1.2.3"
+				data-path="docker.versionCommand" />
+		</label>
+
+		<label 
+			class=csap-form-inline
+			title="By default - all container sockets are counted. to count using pid, specify global">
+			<span>Socket Namespace:</span>
+			<input
+				class=words
+				placeholder="container"
+				data-path="docker.socketNamespace" />
+		</label>
+
+	</div>
+
+	<div style="margin-top: 2em">
+		<label
+			class=csap-form-inline
+			title="Docker entry point: specify as JSON array elements"
+			style="vertical-align: top">
+			<span>Entry Point:</span>
+
+		</label>
+		<div class="floating-ace-editor">
+			<textarea
+				id="entryPoint"
+				data-path="docker.entryPoint"
+				data-removenewlines="true"
+				data-fit="true"
+				rows="1"
+				data-adjust="1"
+				data-adjustwidth="200"
+				spellcheck=false
+				placeholder="default from image: specify as JSON array elements"></textarea>
+		</div>
+
+	</div>
+
+	<div style="margin-top: 2em">
+		<label
+			class=csap-form-inline
+			title="Docker command: specify as JSON array elements"
+			style="vertical-align: top">
+			<span>Command:</span>
+		</label>
+
+		<div class="floating-ace-editor">
+			<textarea
+				id="command"
+				data-path="docker.command"
+				data-removenewlines="true"
+				rows="1"
+				data-fit="true"
+				data-adjust="1"
+				data-adjustwidth="200"
+				spellcheck=false
+				placeholder="default from image: specify as JSON array elements"></textarea>
+		</div>
+	</div>
+</div>
+
+		</div>
+
+		<div id="ctabs-kubernetes">
+			
+<div class="csap-purple primary kubernetes-only-panel">
+	<div class="heading">
+
+		Kubernetes Specification Generation: Generates a Deployment Specification, with optional Service and Ingress generated
+
+	</div>
+
+	<div>
+		
+		<label 
+			class=csap-form-inline
+			title="Number of pods to create">
+			<span>Replica count:</span>
+			<input
+				id="k8-replica-count"
+				value="1"
+				
+				data-path="docker.kubernetes-settings.replica-count" />
+		</label>
+
+
+
+		<label 
+			class=csap-form-inline
+			title="kubernetes namespace">
+			<span>namespace:</span>
+			<input
+				class=words
+				placeholder="default"
+				data-path="docker.kubernetes-settings.namespace" />
+		</label>
+
+	</div>
+
+	<div>
+
+			<label 
+				class=csap-form-inline
+				title="Optional: create a route (kubernetes service) to the container">
+				<span>Service Type:</span>
+
+				<select
+					id="kubernetes-service-type-select"
+					data-path="docker.kubernetes-settings.service-type"
+					style="margin-right: 0"
+					title="Kubernetes service types">
+					<option>none</option>
+					<option>ClusterIP</option>
+					<option>NodePort</option>
+					<option>LoadBalancer</option>
+					<option>ExternalName</option>
+				</select>
+
+
+				<a
+					class="csap-link-icon csap-help"
+					target="_blank"
+					title="View help on service types"
+					href="https://kubernetes.io/docs/concepts/services-networking/service">
+				</a>
+			</label>
+			
+
+
+		<label
+			class=csap-form-inline
+			title="If enabled, the csap-tools docker image is added to the pod. includes forensic tools for troubleshooting configurations.
+                       includes: nslookup, dig, tracert, etc.">
+			<span>csap-tools:</span>
+			<select
+				data-path="docker.kubernetes-settings.add-csap-tools"
+				style="margin-right: 2px">
+				<option selected="selected">false</option>
+				<option>true</option>
+			</select>
+
+		</label>
+
+	</div>
+
+	<div>
+		<div class="heading">
+			Ingress
+		</div>
+			
+			<label
+				class=csap-form-inline>
+				<span>Path:</span>
+				<input
+					class=words
+					id="kubernetes-ingress-path"
+					data-path="docker.kubernetes-settings.ingress-path"
+					title="Expose service route (kubernetes ingress) with sticky session &#013; enabled using specified path. &#013;Note: Path should start with '/' (if left blank ingress is not created). &#013;    Eg. '/myservice' results in /myservice/* being routed to service endpoint. &#013;"
+					placeholder="/, /spring/context, etc" />
+
+				<a
+					class="csap-link-icon csap-help"
+					target="_blank"
+					title="View help on creating ingress"
+					href="https://kubernetes.github.io/ingress-nginx/">
+				</a>
+			</label>
+			<label
+				class=csap-form-inline>
+				<span style="width: 5em;">Port:</span>
+				<input
+					class=words
+					id="kubernetes-ingress-port"
+					data-path="docker.kubernetes-settings.ingress-port"
+					title="ingress rule: port &#013;   The port of the service to be exposed. &#013;    Default: 80.  "
+					
+					placeholder="80" />
+
+			</label>
+			<label
+				class=csap-form-inline>
+				<span style="width: 10em">Host: </span>
+				<input
+					class=words
+					data-path="docker.kubernetes-settings.ingress-host"
+					id="kubernetes-ingress-host"
+					title="ingress rule: host - must be a fqdn &#013;    default: will use $$kubernetes-ingress environment variable"
+					placeholder="$$kubernetes-ingress" />
+			</label>
+	</div>
+
+	<div style="margin: 1em;">
+
+
+		<div
+			title="Optional annotations"
+			style="display: inline-block; width: 470px; vertical-align: top">
+
+			<div>
+				<label style="font-weight: bold;">Pod Annotations:</label>
+
+				<button
+					class="csap-button code-samples"
+					data-type="podAnnotations">View Samples</button>
+
+			</div>
+			<div class="floating-ace-editor">
+				<textarea
+					id="kubernetes-pod-annotations"
+					data-path="docker.kubernetes-settings.pod-annotations"
+					rows="2"
+					spellcheck=false
+					data-fit="true"
+					data-fixedwidth="450"></textarea>
+			</div>
+
+		</div>
+
+		<div
+			title="Ingress Annotations"
+			style="display: inline-block; width: 470px; vertical-align: top">
+
+			<div>
+				<label style="font-weight: bold;">Ingress Annotations:</label>
+
+				<button
+					class="csap-button code-samples"
+					data-type="ingressAnnotations">View Samples</button>
+				<span class="default-text">default: sticky enabled</span>
+
+			</div>
+			<div class="floating-ace-editor">
+				<textarea
+					id="ingress-pod-annotations"
+					data-path="docker.kubernetes-settings.ingress-annotations"
+					spellcheck=false
+					data-fit="true"
+					data-fixedwidth="450"></textarea>
+			</div>
+
+		</div>
+		<br />
+
+
+
+		<div
+			title="Pod Resources - optional"
+			style="display: inline-block; width: 470px; vertical-align: top">
+
+			<div>
+				<label style="font-weight: bold;">Pod Resources:</label>
+
+				<button
+					class="csap-button code-samples"
+					data-type="kubernetesResources">View Samples</button>
+
+			</div>
+			<div class="floating-ace-editor">
+				<textarea
+					id="kubernetes-pod-resources"
+					data-path="docker.kubernetes-settings.resources"
+					rows="2"
+					spellcheck=false
+					data-fixedheight="150"
+					data-fixedwidth="450"></textarea>
+			</div>
+
+		</div>
+
+		<div
+			title="Labels - optional"
+			style="display: inline-block; width: 470px; vertical-align: top">
+
+			<div>
+				<label style="font-weight: bold;">Labels:</label>
+
+				<button
+					class="csap-button code-samples"
+					data-type="kubernetesLabels">View Samples</button>
+
+			</div>
+			<div class="floating-ace-editor">
+				<textarea
+					id="kubernetes-labels"
+					data-path="docker.kubernetes-settings.labelsByType"
+					rows="2"
+					spellcheck=false
+					data-fixedheight="150"
+					data-fixedwidth="450"></textarea>
+			</div>
+
+		</div>
+
+
+		<br />
+
+
+		<div
+			title="Optinal readiness probe"
+			style="display: inline-block; width: 470px; vertical-align: top">
+
+			<div>
+				<label style="font-weight: bold;">readiness:</label>
+
+				<button
+					class="csap-button code-samples"
+					data-type="readinessProbe">View samples</button>
+
+			</div>
+			<div class="floating-ace-editor">
+				<textarea
+					id="kubernetes-readinessProbe"
+					data-path="docker.kubernetes-settings.readinessProbe"
+					rows="2"
+					spellcheck=false
+					data-fit="true"
+					data-fixedwidth="450"></textarea>
+			</div>
+
+		</div>
+
+
+		<div
+			title="Optinal liveness probe"
+			style="display: inline-block; width: 470px; vertical-align: top">
+
+			<div>
+				<label style="font-weight: bold;">liveness:</label>
+
+				<button
+					class="csap-button code-samples"
+					data-type="readinessProbe">View Samples</button>
+
+			</div>
+			<div class="floating-ace-editor">
+				<textarea
+					id="kubernetes-livenessProbe"
+					data-path="docker.kubernetes-settings.livenessProbe"
+					rows="2"
+					spellcheck=false
+					data-fit="true"
+					data-fixedwidth="450"></textarea>
+			</div>
+
+		</div>
+
+		<br />
+
+		<div
+			title="Node Selectors - optional"
+			style="display: inline-block; width: 470px; vertical-align: top">
+
+			<div>
+				<label style="font-weight: bold;">Node Selector:</label>
+
+				<button
+					class="csap-button code-samples"
+					data-type="nodeSelector">View Samples</button>
+
+			</div>
+			<div class="floating-ace-editor">
+				<textarea
+					id="kubernetes-node-selector"
+					data-path="docker.kubernetes-settings.node-selectors"
+					rows="2"
+					spellcheck=false
+					data-fixedheight="150"
+					data-fixedwidth="450"></textarea>
+			</div>
+
+		</div>
+
+	</div>
+
+</div>
+
+
+		</div>
+
+		<div id="ctabs-resources">
+			
+<div class="csap-blue primary">
+	<div class="heading">Container Resources</div>
+
+	<div style="margin-top: 2em">
+
+		<div>
+			<label
+				title="csap instance variables be used"
+				style="font-weight: bold; vertical-align: top"> Environment Variables: </label>
+		</div>
+		<div class="floating-ace-editor">
+			<textarea
+				id="service-docker-environment"
+				data-path="docker.environmentVariables"
+				data-fit="true"
+				data-adjustwidth="200"
+				spellcheck=false
+				placeholder="default from image"></textarea>
+		</div>
+	</div>
+
+
+	<div style="margin-top: 2em">
+
+		<div style="margin-top: 0.5em">
+			<div
+				title=""
+				style="display: inline-block; width: 40em; vertical-align: top">
+				<div>
+					<label style="font-weight: bold;"> Volumes: </label>
+
+					<button
+						class="csap-button code-samples"
+						data-type="volumes">CSAP Samples</button>
+						
+					
+					<a
+					class="csap-link-button"
+					style="display: inline"
+					target="_blank"
+					title="View help on creating volumes"
+					href="https://docs.docker.com/storage/volumes/">docker</a>
+						
+					
+					<a
+					class="csap-link-button"
+					style="display: inline"
+					target="_blank"
+					title="View help on creating volumes"
+					href="https://kubernetes.io/docs/concepts/storage/">kubernetes</a>
+		
+				</div>
+				<div class="floating-ace-editor" style="min-height: 500px">
+					<textarea
+						id="volumesDocker"
+						data-path="docker.volumes"
+						data-fit="true"
+						data-fixedwidth="500"
+						spellcheck=false
+						placeholder="default from image"></textarea>
+
+				</div>
+
+			</div>
+
+
+
+			<div
+				title=""
+				style="display: inline-block; width: 40em; vertical-align: top">
+
+				<div>
+					<label style="font-weight: bold;"> Port Mappings: </label>
+
+					<button
+						class="csap-button code-samples"
+						data-type="portMappings">View Samples</button>
+
+				</div>
+				<div class="floating-ace-editor">
+					<textarea
+						id="service-edit-docker-ports"
+						rows="2"
+						spellcheck=false
+						data-fit="true"
+						data-fixedwidth="500"
+						data-path="docker.portMappings"></textarea>
+				</div>
+
+			</div>
+		</div>
+
+
+	</div>
+
+
+
+</div>
+
+
+		</div>
+
+
+		<div id="ctabs-docker">
+			
+
+<div
+	class="heading"
+	style="margin-top: 0; padding-top: 0">
+	Docker Settings: Used when service is deployed to a host cluster. This section is specific to docker deployments.
+</div>
+
+<div
+	class="csap-blue"
+	style="margin-top: 5px;">
+
+
+	<div class="heading">
+		Docker Settings
+	</div>
+
+	<label
+		title="Docker Network Mode: default is bridge, host will use the parent OS. Alternate - a docker network name can be used"
+		style="display: inline-block; width: 35em; vertical-align: top">
+		<span style="text-align: left; padding-left: 0.5em;">
+			Network:
+			<a
+				class="simple"
+				style="margin-left: 2em; display: inline"
+				target="_blank"
+				title="View help on working with docker networks"
+				href="https://docs.docker.com/engine/userguide/networking/">
+				<img src="/csap-admin/images/16x16/help.png" />
+			</a>
+		</span>
+
+		<br />
+		<div class="floating-ace-editor">
+			<textarea
+				id="service-edit-docker-network"
+				rows="2"
+				spellcheck=false
+				data-fit="true"
+				data-fixedwidth="400"
+				data-path="docker.network"></textarea>
+		</div>
+
+	</label>
+
+
+	<div style="display: inline-block; width: 35em;">
+
+		<label 
+			class=csap-form
+			title="Policy: no,always,unless-stopped,on-failure:numberOfAttempts. eg. on-failure:3">
+			<span>Restart Policy:</span>
+			<input
+				data-path="docker.restartPolicy"
+				placeholder="unless-stopped" />
+		</label>
+
+		<label 
+			class=csap-form
+			title="Use cgroups quotas to constrain maximum cpus used">
+			<span>Cpu cores max:</span>
+			<input
+				data-path="docker.limits.cpuCoresMax"
+				placeholder="unlimited" />
+		</label>
+
+		<label
+			class=csap-form
+			title="restrict which cores will be used by container. Setting 0-7 on a 2 core host will prevent container being started">
+			<span>Cpus Assigned:</span>
+			<input
+				data-path="docker.limits.cpuCoresAssigned"
+				placeholder="unlimited" />
+		</label>
+
+		<label 
+			class=csap-form
+			title="">
+			<span>Memory (Mb):</span>
+			<input
+				data-path="docker.limits.memoryInMb"
+				placeholder="unlimited" />
+		</label>
+		<label 
+			class=csap-form
+			title="Skip ulimit validation">
+			<span>Skip Validation:</span>
+			<input
+				data-path="docker.limits.skipValidation"
+				placeholder="false" />
+		</label>
+		<label
+			class=csap-form
+			id="logsLabel"
+			title='Customize docker log configuration'>
+			<span>Logs:</span>
+			<input
+				data-json="true"
+				data-path="docker.limits.logs"
+				placeholder="system managed" />
+		</label>
+		<div class="noteAlt">
+			Optional: container limits are used to constrain resources consumed by container.
+			<a
+				class="simple"
+				style="margin-left: 4px; display: inline"
+				target="_blank"
+				title="View help on creating constraints"
+				href="https://docs.docker.com/engine/reference/run/#runtime-constraints-on-resources">
+				<img src="/csap-admin/images/16x16/help.png" />
+				Learn More
+			</a>
+		</div>
+	</div>
+
+	<label
+		title=""
+		style="display: inline-block; width: 35em; vertical-align: top">
+		<span style="min-width: 0"> OS ulimits </span>
+		<br />
+		<div class="floating-ace-editor">
+			<textarea
+				id="osUlimits"
+				rows="2"
+				spellcheck=false
+				data-fit="true"
+				data-fixedwidth="300"
+				data-path="docker.limits.ulimits"></textarea>
+		</div>
+	</label>
+</div>
+
+<div
+	class="csap-green"
+	style="margin-top: 5px;">
+
+	<div class="heading">
+		docker run command: as it appears <span style="background-color: yellow">after</span> docker run. If specified, settings above are  <span style="background-color: yellow">ignored</span>.
+		<a
+			target="_blank"
+			title="View Help"
+			class="csap-link-button"
+			href="https://docs.docker.com/engine/reference/commandline/run/">reference guide</a>
+	</div>
+
+	<div style="margin-top: 1em">
+		<label
+			title="docker run command - docker run will be prefixed"
+			style="vertical-align: top">
+			<span>docker run:</span>
+		</label>
+
+		<div class="floating-ace-editor">
+			<textarea
+				id="run"
+				data-path="docker.run"
+				data-removenewlines="true"
+				data-plain="true"
+				data-adjust="1"
+				data-fit="true"
+				data-adjustwidth="200"
+				spellcheck=false
+				placeholder="default from image: specify as JSON array elements"></textarea>
+		</div>
+	</div>
+
+</div>
+		</div>
+
+
+	</div>
+
+
+
+</div>
+
+			<div id="deploy"  class="group json-form-autosize-panel">
+
+
+    <div  class="csap-red">
+        <div class="heading">
+            Docker Artifacts: complete configuration is available using the container tab
+        </div>
+
+
+		<label 
+				class=csap-form
+				title="container image name">
+			<span>Image:</span>
+			<input
+				placeholder="docker.io/hello-world:latest"
+				data-path="docker.image" />
+
+		</label>
+		
+    </div>
+    
+    <div  class="csap-green">
+        <div class="heading">
+            Maven Artifacts: used for csap-api packages, and jee deployments
+        </div>
+
+        <label 
+				class=csap-form
+				title="Deployment artifact to deploy">
+            <span>Artifact:</span> 
+            <input data-path="maven.dependency" />
+        </label>
+
+        <label 
+				class=csap-form-inline>
+            <span>Version Override:</span> 
+            <input class=words  
+            	data-path="maven.enableReleaseFile" placeholder="true"/>
+            <div class="heading" style="display: inline">*Optional: allow override of version using external release files.</div>
+        </label>
+
+        <label 
+				class=csap-form title="Maven repository to retreive artifact">
+            <span>Repository:</span> 
+            <input placeholder="Application Default" data-path="maven.repo" />
+        </label>
+    </div>
+
+    <div  class="csap-blue">
+        <div class="heading">
+        	Source Artifacts: used for deployments from source	
+        </div>
+
+        <label 
+				class=csap-form>
+				<span>Source Code:</span> 
+				<input data-path="source.path" />
+				</label>
+
+        <label 
+				class=csap-form-inline title="git, svn and others on request">
+            <span>Type: </span> <input data-path="source.scm" />
+        </label>
+
+        <label class=csap-form-inline  title="Location in source tree for build">
+            <span>Build Location: </span> 
+            <input  class=words placeholder="." data-path="source.buildLocation" />
+        </label>
+
+        <label class=csap-form-inline 
+        	 title="The maximum time allowed for completing the deployment request.">
+            <span>Time Out (minutes): </span> 
+            <input  placeholder="5" data-path="deployTimeoutMinutes" />
+        </label>
+
+
+        <label class=csap-form-inline >
+            <span>Branch: </span> <input  class=words data-path="source.branch" />
+            <div class="heading" style="display: inline">eg. svn: trunk, git: none|refs/heads/master</div>
+        </label>
+
+    </div>
+    <br/><br/>
+    <div class="heading">
+        Notes: 
+        <ol style="list-style: lower-alpha; padding-left: 3em">
+            <li>Any of the attributes may be selectively over-ridden per Lifecycles tab</li>
+            <li>svn branching is done by replacing trunk in the url with specified branch name</li>
+            <li>git branching typically requires refs/heads/your_branch_name. Specifying none will check out the master</li>
+        </ol>
+    </div>
+</div>
+
+
+
+			<div
+	id="alerts"
+	class="group json-form-autosize-panel">
+
+	<div class="csap-green">
+		<div class="heading">
+			Alert Thresholds: Defaults and optional override. Note lifecycle settings are used to set warning and kill
+			thresholds. For more information, refer to:
+			<a
+				href="https://github.com/csap-platform/csap-core/wiki/Performance"
+				class="simple"
+				target="_blank"> Reference Guide </a>
+			.
+		</div>
+		<label class=csap-form-inline >
+			<span>Cpu: </span>
+			<input data-path="alerts.max_topCpu" />
+			<div
+				class="noteAlt">50</div>
+		</label>
+		<label class=csap-form-inline >
+			<span>Threads: </span>
+			<input data-path="alerts.max_threadCount" />
+			<div
+				class="noteAlt">150</div>
+		</label>
+
+		<label
+			class=csap-form-inline 
+			title="No unit indicates bytes, best practice is to use m (megabytes) or g(gigabytes)">
+			<span>Memory(|m|g): </span>
+			<input data-path="alerts.max_rssMemory" />
+			<div
+				class="noteAlt">1500m</div>
+		</label>
+
+
+
+
+
+		<label class=csap-form-inline >
+			<span>Open Sockets: </span>
+			<input data-path="alerts.max_socketCount" />
+			<div
+				class="noteAlt">50</div>
+		</label>
+
+		<label class=csap-form-inline >
+			<span>Tomcat Connections: </span>
+			<input data-path="alerts.max_tomcatConnections" />
+			<div
+				class="noteAlt">40</div>
+		</label>
+
+		<label class=csap-form-inline >
+			<span>Open Files: </span>
+			<input data-path="alerts.max_fileCount" />
+			<div
+				class="noteAlt">400</div>
+		</label>
+
+
+
+		<label class=csap-form-inline >
+			<span>Heartbeat Enabled:</span>
+			<input data-path="alerts.jvm_jmxHeartbeat" />
+			<div
+				class="noteAlt"></div>
+		</label>
+
+
+	</div>
+	<div class="csap-blue">
+		<div class="heading">Service folder(s) to be monitored, delimited by space. eg. $workingFolder
+			/opt/csapUser/someFolder1. device names also supported: sda1 vg3-opt, etc</div>
+
+		<label 
+			class=csap-form
+			title="OS Disk usage will be collected and checked against limits.">
+			<span>Service Disk:</span>
+			<input
+				placeholder="$workingFolder"
+				data-path="disk" />
+		</label>
+
+		<label
+			class=csap-form-inline 
+			title="No unit indicates mb, best practice is to use m (megabytes) or g(gigabytes). eg. 10m or 5g">
+			<span>Disk Alert(m|g): </span>
+			<input data-path="alerts.max_diskUtil" />
+			<div
+				class="noteAlt">170</div>
+		</label>
+
+		<label
+			class=csap-form-inline 
+			title="Unit is KiloBytes per second as report for linux pidstat">
+			<span>Disk Writes(Kb): </span>
+			<input data-path="alerts.max_diskWriteKb" />
+			<div
+				class="noteAlt">50000</div>
+		</label>
+
+
+	</div>
+	<div class="csap-grey">
+		<div class="heading">Optional: CSAP Health Report Integration</div>
+
+
+		<div>
+			<div class="heading">Http Health Urls: All urls may be the same, and leverage $$service-fqdn-host, $podIp,...</div>
+
+			<label
+				class=csap-form 
+				title="csapMicroUrl will set Application, Java, and Health urls by appending: /csap/metrics/micrometers?aggregate=true&encode=true&tagFilter=csap-collection">
+				<span>csapMicroUrl:</span>
+				<input
+					placeholder="optional"
+					data-path="performance.config.csapMicroUrl" />
+			</label>
+
+			<div>
+				<label>
+					<span>OR:</span>
+				</label>
+			</div>
+
+			<label 
+				class=csap-form >
+				<span>Application:</span>
+				<input
+					value=''
+					placeholder="generated using csapMicroUrl "
+					data-path="performance.config.httpCollectionUrl" />
+			</label>
+
+			<label 
+				class=csap-form >
+				<span>Java:</span>
+				<input
+					value=''
+					placeholder="generated using csapMicroUrl"
+					data-path="performance.config.javaCollectionUrl" />
+			</label>
+
+			<label 
+				class=csap-form >
+				<span>Health Report:</span>
+				<input
+					value=''
+					placeholder="generated using csapMicroUrl"
+					data-path="performance.config.healthCollectionUrl" />
+			</label>
+		</div>
+
+
+		<div class="heading">Optional: Nagios Integration enables automated integration with external systems.</div>
+		<label 
+				class=csap-form >
+			<span>Nagios Monitor:</span>
+			<input
+				value=''
+				placeholder="*sample: check_http! -v -u /your/service/url --regex \&quot;.*Healthy.*true.*\&quot;"
+				data-path="alerts.nagiosCommand" />
+		</label>
+
+		<br />
+
+		<div class="heading">Notifications: email will be sent when service alerts are triggered.</div>
+		<label
+				class=csap-form 
+			title="comma separated email addresses. specify disabled to terminate notifications">
+			<span>Addresses:</span>
+			<input
+				placeholder="disabled"
+				data-path="notifications.csapAddresses" />
+		</label>
+
+
+
+		<label
+				class=csap-form-inline
+			title="Email is sent on first occurence of alert, then minimum time before another email is sent">
+			<span>frequency:</span>
+			<input
+				placeholder="4"
+				data-path="notifications.csapFrequency" />
+		</label>
+
+		<label
+				class=csap-form-inline
+			title="Time unit of email intervals: hours or minutes">
+			<span>time-units:</span>
+			<input
+				placeholder="hours"
+				data-path="notifications.csapTimeUnit" />
+		</label>
+
+		<label
+				class=csap-form-inline
+			title="Maximum number of items to be included in email">
+			<span>Max Items:</span>
+			<input
+				placeholder="100"
+				data-path="notifications.csapMaxBacklog" />
+		</label>
+
+		<br />
+	</div>
+
+
+
+
+	<div
+		id="javaWarnings"
+		class="javaWarnings csap-red">
+		<div class="heading">Java limits: shown on service-portal UI only (does not trigger monitored alerts)</div>
+		<textarea
+			id="javaJmxLimits"
+			data-fit="true"
+			data-adjust="50"
+			spellcheck=false
+			data-path="javaWarnings"></textarea>
+
+	</div>
+
+</div>
+
+
+
+			<div
+	id="performance"
+	class="group textGroup json-form-autosize-panel">
+
+	<div class="heading">
+		Inline edits and ordering are supported by clicking on links below, alternately:
+		<button class="csap-button-icon toggleAppCollect">
+			<img src="/csap-admin/images/16x16/edit-select-all.png" />
+			Json Editor
+		</button>
+
+		<a
+			class="csap-link-icon csap-help"
+			title="Application data points to be collected.   Use jvisualvm to confirm mbean or simon endpoints"
+			
+			href="https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/286261563/CSAP+Service+Health"
+			target="_blank">Performance</a>
+		<br />
+	</div>
+
+
+	<div class="appCollectToggle">
+		<table class="csap simple appCollect">
+			<thead>
+
+				<tr>
+					<th>
+						Label
+						<div>*optional include ms</div>
+					</th>
+					<th>
+						Collection ID
+						<div>*modifying looses history</div>
+					</th>
+					<th>
+						Collection
+						<br />
+						Source
+					</th>
+					<th>
+						Attribute Identifier
+						<div>*Click items to edit in place. Avoid typing: use copy/paste</div>
+					</th>
+					<th>Max</th>
+				</tr>
+			</thead>
+
+			<tbody></tbody>
+
+		</table>
+	</div>
+
+	<div
+		class="appCollectToggle"
+		style="display: none">
+		<textarea
+			id="service-performance-text"
+			data-adjust="-30"
+			data-path="performance"></textarea>
+	</div>
+
+	<div
+		class="missingMetrics"
+		style="display: none">
+		<span style="background-color: yellow">No Application Metrics are configured - production SLA is impacted</span>
+
+		<div class="quote">It is strongly recommended - and standard engineering practice - that every service exports
+			at least a single data point indicative of processing activity. This is necessary in order to correlate work produced
+			with resources consumed. This can include anything from API invocation (counts and duration), active users, devices
+			processed, etc.</div>
+		CSAP can collect Application metrics from any http or Java (JMX) endpoint(s).
+		<br />
+		To learn more, visit:
+		<a
+			class="simple"
+			style="display: inline"
+			href="https://github.com/csap-platform/csap-core/wiki#updateRefCustom+Metrics"
+			target="_blank"> How To Configure</a>
+	</div>
+
+</div>
+
+			<div
+				id="props"
+				class="group textGroup json-form-autosize-panel">
+				<div class="heading">
+					Service resources enable instance customization. Resources may also be edited using: <a
+						href="#open-service-files"
+						class="csap-link-button open-service-files"> <img src="/csap-admin/images/16x16/folder-open.svg" /> File Manager
+					</a>
+
+				</div>
+
+				<label
+					style=""
+					title="File will be copied to run time folder">
+					<span>View:</span>
+					<select
+						id="propertyFileSelect"
+						style="font-family: monospace">
+						<option></option>
+					</select>
+				</label>
+				<select
+					id="load-file-template-select"
+					style="margin-left: 3em; width: 9em;"
+					title="Click to load event template">
+
+					<option value="default">Add new file</option>
+					<option value="nginx-simple.yaml">Kubernetes Deployment (.yaml)</option>
+					<option value="csap-service.json">csap-service.json</option>
+					<option value="application-override.yml">application-override.yaml</option>
+					<option value="simple.properties">Properties</option>
+					<option value="csap-events.sh">CSAP Events (.sh)</option>
+					<option value="simple-docker-compose.yaml">Docker Compose(.yaml)</option>
+					<option value="simple.json">json</option>
+				</select>
+
+				<button
+					id="service-delete-file-button"
+					class="csap-button-icon">
+					<img src="/csap-admin/images/16x16/deleteFolder.png"> Delete
+				</button>
+
+
+
+				<div
+					id="fileContainer"
+					style="display: none">
+
+					<label
+						style=""
+						title="File will be copied to run time folder">
+						<span>File Name:</span>
+						<input
+							id="propFileName"
+							class=""
+							placeholder="name of file"
+							data-path="files[0].name" />
+					</label>
+					<label
+						style=""
+						title="environment in which file will be used">
+						<span>Environment: </span>
+						<input
+							id="propLifecycle"
+							placeholder="common"
+							data-path="files[0].lifecycle" />
+					</label>
+<!-- 					<label
+						style=""
+						title="Store as external file in properties override">
+						<span>External:</span>
+						<input
+							id="propExternal"
+							class="boolean"
+							placeholder="true"
+							data-path="files[0].external" />
+					</label> -->
+					<label
+						style=""
+						title="Store as external file in properties override">
+						<span>Modified:</span>
+						<input
+							id="propModified"
+							class="boolean"
+							placeholder="false"
+							data-path="files[0].contentUpdated" />
+					</label>
+					<textarea
+						id="propFileText"
+						data-convert_lines="true"
+						data-plain="true"
+						data-adjust="-40"
+						data-path="files[0].contents">Empty</textarea>
+
+				</div>
+
+			</div>
+
+
+
+
+			<div
+				id="life"
+				class="group textGroup json-form-autosize-panel">
+				<div class="heading">Environment Settings: values for environment will overload the global values</div>
+
+				<textarea
+					id="lifeAttributes"
+					spellcheck=false
+					data-adjust="-20"
+					data-path="environment-overload"></textarea>
+
+			</div>
+
+		</div>
+
+	</section>
+
+</body>
+
+</html>

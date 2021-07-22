@@ -1,0 +1,101 @@
+{
+	"health-report": {
+		"collectionCount": 23.0,
+		"lastCollected": "17:16:51, Mar 13",
+		"isHealthy": false,
+		"errors": [
+			{
+				"id": "app-health",
+				"type": "db-or-jms",
+				"description": "16:32:33, Mar 27 user: pnightingale Added demo issue"
+			}
+		],
+		"source": {
+			"collected-at": "17:16:51, March 13 2019",
+			"hostName": "test-k8s-csap-reference-76db754cbd-4bgt4",
+			"url-requested": "http://csap-dev06.***REMOVED***:30080/test-k8s-csap-reference/csap/health/report",
+			"sample-params": "http://csap-dev06.***REMOVED***:30080/test-k8s-csap-reference/csap/health/report?aggregate=true&nameFilter=jvm.*&details=false&precision=2&tagFilter=state&tagFilter=csap-collection",
+			"sample-http": "http://csap-dev06.***REMOVED***:30080/test-k8s-csap-reference/csap/health/report?nameFilter=http.server.*&details=true&encode=true&precision=2&"
+		}
+	},
+	"jvm.buffer.memory.used.mb[id=direct]": 0.08,
+	"jvm.gc.pause[action=end of major GC,cause=Metadata GC Threshold]": {
+		"count": 2,
+		"mean-ms": 167.0,
+		"total-ms": 334.0,
+		"bucket-max-ms": 0.0,
+		"bucket-0.5-ms": 0.0,
+		"bucket-0.95-ms": 0.0,
+		"buckets": 68
+	},
+	"jvm.threads.states[state=blocked]": 0.0,
+	"jvm.gc.live.data.size.mb": 39.96,
+	"jvm.threads.states[state=new]": 0.0,
+	"jvm.buffer.memory.used.mb[id=mapped]": 0.0,
+	"process.files.open": 53.0,
+	"jvm.threads.states[state=runnable]": 12.0,
+	"jvm.threads.states[state=waiting]": 22.0,
+	"process.files.max": 1048576.0,
+	"jvm.gc.memory.promoted.mb": 26.95,
+	"system.load.average.1m": 1.07,
+	"jvm.gc.max.data.size.mb": 170.69,
+	"jvm.threads.states[state=timed-waiting]": 37.0,
+	"system.cpu.count": 1.0,
+	"jvm.buffer.count[id=direct]": 10.0,
+	"jvm.buffer.total.capacity[id=direct]": 81920.0,
+	"jvm.buffer.count[id=mapped]": 0.0,
+	"jvm.threads.daemon": 36.0,
+	"system.cpu.usage": 0.09,
+	"jvm.gc.memory.allocated.mb": 2001.59,
+	"jvm.buffer.total.capacity[id=mapped]": 0.0,
+	"jvm.threads.states[state=terminated]": 0.0,
+	"jvm.threads.live": 71.0,
+	"jvm.threads.peak": 72.0,
+	"process.uptime": 344.4,
+	"jvm.gc.pause[action=end of minor GC,cause=Allocation Failure]": {
+		"count": 3652,
+		"mean-ms": 0.0,
+		"total-ms": 17340.0,
+		"bucket-max-ms": 0.0,
+		"bucket-0.5-ms": 15.99,
+		"bucket-0.95-ms": 19.66,
+		"buckets": 68
+	},
+	"csap.jvm.gc.pause.minor": {
+		"count": 3652,
+		"mean-ms": 0.0,
+		"total-ms": 17340.0,
+		"bucket-max-ms": 0.0,
+		"bucket-0.5-ms": 15.99,
+		"bucket-0.95-ms": 19.66,
+		"buckets": 68
+	},
+	"process.cpu.usage": 0.02,
+	"jvm.classes.loaded": 20467.0,
+	"jvm.classes.unloaded": 1.0,
+	"jvm.memory.max.mb": 1511.5,
+	"tomcat.threads.busy": 1.0,
+	"cache.puts": 0.0,
+	"cache.evictions": 0.0,
+	"jvm.memory.used.mb": 280.85,
+	"tomcat.sessions.alive.max": 0.0,
+	"tomcat.global.request.max": 0.91,
+	"tomcat.global.request": {
+		"count": 3115.0,
+		"total-ms": 26.35
+	},
+	"cache.gets": 0.0,
+	"jvm.memory.committed.mb": 423.78,
+	"tomcat.global.received": 30636.0,
+	"tomcat.sessions.active.max": 3.0,
+	"tomcat.threads.config.max": 100.0,
+	"tomcat.global.sent.mb": 28.78,
+	"tomcat.global.error": 0.0,
+	"log4j2.events": 4768.0,
+	"tomcat.threads.current": 20.0,
+	"cache.removals": 0.0,
+	"tomcat.sessions.created": 3.0,
+	"tomcat.sessions.expired": 0.0,
+	"tomcat.sessions.rejected": 0.0,
+	"tomcat.sessions.active.current": 3.0
+}

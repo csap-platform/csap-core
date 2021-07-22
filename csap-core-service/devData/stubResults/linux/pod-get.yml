@@ -1,0 +1,456 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    cni.projectcalico.org/podIP: 192.168.248.135/32
+    cni.projectcalico.org/podIPs: 192.168.248.135/32
+  creationTimestamp: "2021-05-05T19:53:01Z"
+  generateName: alertmanager-main-
+  labels:
+    alertmanager: main
+    app: alertmanager
+    controller-revision-hash: alertmanager-main-5c5d75fff8
+    statefulset.kubernetes.io/pod-name: alertmanager-main-0
+  managedFields:
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:generateName: {}
+        f:labels:
+          .: {}
+          f:alertmanager: {}
+          f:app: {}
+          f:controller-revision-hash: {}
+          f:statefulset.kubernetes.io/pod-name: {}
+        f:ownerReferences:
+          .: {}
+          k:{"uid":"198160f5-9312-4299-af58-2c090d55e6be"}:
+            .: {}
+            f:apiVersion: {}
+            f:blockOwnerDeletion: {}
+            f:controller: {}
+            f:kind: {}
+            f:name: {}
+            f:uid: {}
+      f:spec:
+        f:containers:
+          k:{"name":"alertmanager"}:
+            .: {}
+            f:args: {}
+            f:env:
+              .: {}
+              k:{"name":"POD_IP"}:
+                .: {}
+                f:name: {}
+                f:valueFrom:
+                  .: {}
+                  f:fieldRef:
+                    .: {}
+                    f:apiVersion: {}
+                    f:fieldPath: {}
+            f:image: {}
+            f:imagePullPolicy: {}
+            f:livenessProbe:
+              .: {}
+              f:failureThreshold: {}
+              f:httpGet:
+                .: {}
+                f:path: {}
+                f:port: {}
+                f:scheme: {}
+              f:periodSeconds: {}
+              f:successThreshold: {}
+              f:timeoutSeconds: {}
+            f:name: {}
+            f:ports:
+              .: {}
+              k:{"containerPort":9093,"protocol":"TCP"}:
+                .: {}
+                f:containerPort: {}
+                f:name: {}
+                f:protocol: {}
+              k:{"containerPort":9094,"protocol":"TCP"}:
+                .: {}
+                f:containerPort: {}
+                f:name: {}
+                f:protocol: {}
+              k:{"containerPort":9094,"protocol":"UDP"}:
+                .: {}
+                f:containerPort: {}
+                f:name: {}
+                f:protocol: {}
+            f:readinessProbe:
+              .: {}
+              f:failureThreshold: {}
+              f:httpGet:
+                .: {}
+                f:path: {}
+                f:port: {}
+                f:scheme: {}
+              f:initialDelaySeconds: {}
+              f:periodSeconds: {}
+              f:successThreshold: {}
+              f:timeoutSeconds: {}
+            f:resources:
+              .: {}
+              f:requests:
+                .: {}
+                f:memory: {}
+            f:terminationMessagePath: {}
+            f:terminationMessagePolicy: {}
+            f:volumeMounts:
+              .: {}
+              k:{"mountPath":"/alertmanager"}:
+                .: {}
+                f:mountPath: {}
+                f:name: {}
+              k:{"mountPath":"/etc/alertmanager/certs"}:
+                .: {}
+                f:mountPath: {}
+                f:name: {}
+                f:readOnly: {}
+              k:{"mountPath":"/etc/alertmanager/config"}:
+                .: {}
+                f:mountPath: {}
+                f:name: {}
+          k:{"name":"config-reloader"}:
+            .: {}
+            f:args: {}
+            f:command: {}
+            f:env:
+              .: {}
+              k:{"name":"POD_NAME"}:
+                .: {}
+                f:name: {}
+                f:valueFrom:
+                  .: {}
+                  f:fieldRef:
+                    .: {}
+                    f:apiVersion: {}
+                    f:fieldPath: {}
+              k:{"name":"SHARD"}:
+                .: {}
+                f:name: {}
+                f:value: {}
+            f:image: {}
+            f:imagePullPolicy: {}
+            f:name: {}
+            f:ports:
+              .: {}
+              k:{"containerPort":8080,"protocol":"TCP"}:
+                .: {}
+                f:containerPort: {}
+                f:name: {}
+                f:protocol: {}
+            f:resources:
+              .: {}
+              f:limits:
+                .: {}
+                f:cpu: {}
+                f:memory: {}
+              f:requests:
+                .: {}
+                f:cpu: {}
+                f:memory: {}
+            f:terminationMessagePath: {}
+            f:terminationMessagePolicy: {}
+            f:volumeMounts:
+              .: {}
+              k:{"mountPath":"/etc/alertmanager/config"}:
+                .: {}
+                f:mountPath: {}
+                f:name: {}
+                f:readOnly: {}
+        f:dnsPolicy: {}
+        f:enableServiceLinks: {}
+        f:hostname: {}
+        f:nodeSelector:
+          .: {}
+          f:kubernetes.io/os: {}
+        f:restartPolicy: {}
+        f:schedulerName: {}
+        f:securityContext:
+          .: {}
+          f:fsGroup: {}
+          f:runAsNonRoot: {}
+          f:runAsUser: {}
+        f:serviceAccount: {}
+        f:serviceAccountName: {}
+        f:subdomain: {}
+        f:terminationGracePeriodSeconds: {}
+        f:volumes:
+          .: {}
+          k:{"name":"alertmanager-main-db"}:
+            .: {}
+            f:emptyDir: {}
+            f:name: {}
+          k:{"name":"config-volume"}:
+            .: {}
+            f:name: {}
+            f:secret:
+              .: {}
+              f:defaultMode: {}
+              f:secretName: {}
+          k:{"name":"tls-assets"}:
+            .: {}
+            f:name: {}
+            f:secret:
+              .: {}
+              f:defaultMode: {}
+              f:secretName: {}
+    manager: kube-controller-manager
+    operation: Update
+    time: "2021-05-05T19:53:01Z"
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          .: {}
+          f:cni.projectcalico.org/podIP: {}
+          f:cni.projectcalico.org/podIPs: {}
+    manager: calico
+    operation: Update
+    time: "2021-05-05T19:53:03Z"
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:status:
+        f:conditions:
+          k:{"type":"ContainersReady"}:
+            .: {}
+            f:lastProbeTime: {}
+            f:lastTransitionTime: {}
+            f:status: {}
+            f:type: {}
+          k:{"type":"Initialized"}:
+            .: {}
+            f:lastProbeTime: {}
+            f:lastTransitionTime: {}
+            f:status: {}
+            f:type: {}
+          k:{"type":"Ready"}:
+            .: {}
+            f:lastProbeTime: {}
+            f:lastTransitionTime: {}
+            f:status: {}
+            f:type: {}
+        f:containerStatuses: {}
+        f:hostIP: {}
+        f:phase: {}
+        f:podIP: {}
+        f:podIPs:
+          .: {}
+          k:{"ip":"192.168.248.135"}:
+            .: {}
+            f:ip: {}
+        f:startTime: {}
+    manager: kubelet
+    operation: Update
+    time: "2021-05-05T19:53:35Z"
+  name: alertmanager-main-0
+  namespace: csap-monitoring
+  ownerReferences:
+  - apiVersion: apps/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: StatefulSet
+    name: alertmanager-main
+    uid: 198160f5-9312-4299-af58-2c090d55e6be
+  resourceVersion: "1930"
+  uid: 3ef1ba68-bc73-49b6-ac03-6e3c340bfffe
+spec:
+  containers:
+  - args:
+    - --config.file=/etc/alertmanager/config/alertmanager.yaml
+    - --storage.path=/alertmanager
+    - --data.retention=120h
+    - --cluster.listen-address=[$(POD_IP)]:9094
+    - --web.listen-address=:9093
+    - --web.route-prefix=/
+    - --cluster.peer=alertmanager-main-0.alertmanager-operated:9094
+    - --cluster.peer=alertmanager-main-1.alertmanager-operated:9094
+    - --cluster.peer=alertmanager-main-2.alertmanager-operated:9094
+    - --cluster.reconnect-timeout=5m
+    env:
+    - name: POD_IP
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: status.podIP
+    image: quay.io/prometheus/alertmanager:v0.21.0
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 10
+      httpGet:
+        path: /-/healthy
+        port: web
+        scheme: HTTP
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 3
+    name: alertmanager
+    ports:
+    - containerPort: 9093
+      name: web
+      protocol: TCP
+    - containerPort: 9094
+      name: mesh-tcp
+      protocol: TCP
+    - containerPort: 9094
+      name: mesh-udp
+      protocol: UDP
+    readinessProbe:
+      failureThreshold: 10
+      httpGet:
+        path: /-/ready
+        port: web
+        scheme: HTTP
+      initialDelaySeconds: 3
+      periodSeconds: 5
+      successThreshold: 1
+      timeoutSeconds: 3
+    resources:
+      requests:
+        memory: 200Mi
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: FallbackToLogsOnError
+    volumeMounts:
+    - mountPath: /etc/alertmanager/config
+      name: config-volume
+    - mountPath: /etc/alertmanager/certs
+      name: tls-assets
+      readOnly: true
+    - mountPath: /alertmanager
+      name: alertmanager-main-db
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: alertmanager-main-token-6dvqw
+      readOnly: true
+  - args:
+    - --listen-address=:8080
+    - --reload-url=http://localhost:9093/-/reload
+    - --watched-dir=/etc/alertmanager/config
+    command:
+    - /bin/prometheus-config-reloader
+    env:
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.name
+    - name: SHARD
+      value: "-1"
+    image: quay.io/prometheus-operator/prometheus-config-reloader:v0.44.1
+    imagePullPolicy: IfNotPresent
+    name: config-reloader
+    ports:
+    - containerPort: 8080
+      name: reloader-web
+      protocol: TCP
+    resources:
+      limits:
+        cpu: 100m
+        memory: 50Mi
+      requests:
+        cpu: 100m
+        memory: 50Mi
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: FallbackToLogsOnError
+    volumeMounts:
+    - mountPath: /etc/alertmanager/config
+      name: config-volume
+      readOnly: true
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: alertmanager-main-token-6dvqw
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  hostname: alertmanager-main-0
+  nodeName: csap-dev06.***REMOVED***
+  nodeSelector:
+    kubernetes.io/os: linux
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext:
+    fsGroup: 2000
+    runAsNonRoot: true
+    runAsUser: 1000
+  serviceAccount: alertmanager-main
+  serviceAccountName: alertmanager-main
+  subdomain: alertmanager-operated
+  terminationGracePeriodSeconds: 120
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: config-volume
+    secret:
+      defaultMode: 420
+      secretName: alertmanager-main-generated
+  - name: tls-assets
+    secret:
+      defaultMode: 420
+      secretName: alertmanager-main-tls-assets
+  - emptyDir: {}
+    name: alertmanager-main-db
+  - name: alertmanager-main-token-6dvqw
+    secret:
+      defaultMode: 420
+      secretName: alertmanager-main-token-6dvqw
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2021-05-05T19:53:01Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2021-05-05T19:53:35Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2021-05-05T19:53:35Z"
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2021-05-05T19:53:01Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: docker://e8477747cfd965763602bbaeb5c2f627c5543ecd3a14dc615273d7e8affff206
+    image: quay.io/prometheus/alertmanager:v0.21.0
+    imageID: docker-pullable://quay.io/prometheus/alertmanager@sha256:24a5204b418e8fa0214cfb628486749003b039c279c56b5bddb5b10cd100d926
+    lastState: {}
+    name: alertmanager
+    ready: true
+    restartCount: 0
+    started: true
+    state:
+      running:
+        startedAt: "2021-05-05T19:53:15Z"
+  - containerID: docker://b21afc70f312e099bc3179e9bcc12761e1c3d57582dccaf65f839a1cd1df4c6a
+    image: quay.io/prometheus-operator/prometheus-config-reloader:v0.44.1
+    imageID: docker-pullable://quay.io/prometheus-operator/prometheus-config-reloader@sha256:4dee0fcf1820355ddd6986c1317b555693776c731315544a99d6cc59a7e34ce9
+    lastState: {}
+    name: config-reloader
+    ready: true
+    restartCount: 0
+    started: true
+    state:
+      running:
+        startedAt: "2021-05-05T19:53:29Z"
+  hostIP: 10.22.15.8
+  phase: Running
+  podIP: 192.168.248.135
+  podIPs:
+  - ip: 192.168.248.135
+  qosClass: Burstable
+  startTime: "2021-05-05T19:53:01Z"

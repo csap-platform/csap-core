@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+
+
+	<div class="options">
+
+		<label class="csap">Host Reports:</label>
+
+		<span class="flex-right-info">
+
+			<label class=csap title="include container filesystems">
+				<input
+					id="show-container-fs"
+					type="checkbox">
+				Containers
+			</label>
+			<label class=csap>
+				<input
+					id=host-filter
+					placeholder="filter report" />
+			</label>
+			<label
+				class="csap"
+				id="launch-trends">
+				Full Reports:
+				
+				<button
+					data-report="tableHost"
+					class="csap-button-icon launch-window">Host</button>
+				<button
+					data-report="tableService"
+					class="csap-button-icon launch-window">Service</button>
+				<button
+					data-report="tableUser"
+					class="csap-button-icon launch-window">Users</button>
+			</label>
+		</span>
+
+
+	</div>
+
+	<div id="hosts-tab-os">
+		<div class="hosts">
+
+			<table class="csap">
+				<thead>
+
+					<tr>
+						<th data-path="name">host</th>
+
+						<th data-path="hostStats.osVersion">version</th>
+						<th data-path="hostStats.linuxPackageCount">rpm<br />packages
+						</th>
+
+						<th data-path="hostStats.linuxServiceCount">sys<br>services
+						</th>
+
+						<th data-path="hostStats.csapCount">csap<br>services
+						</th>
+
+						<th data-path="hostStats.processCount">processes</th>
+
+						<th data-path="hostStats.diskCount">Disks</th>
+
+						<th data-path="hostStats.linuxInterfaceCount">Interfaces</th>
+
+					</tr>
+
+				</thead>
+
+				<tbody>
+				</tbody>
+			</table>
+
+		</div>
+	</div>
+
+	<div id="hosts-tab-kubernetes">
+		<div class="hosts">
+
+			<table class="csap">
+				<thead>
+
+					<tr>
+						<th data-path="name">host</th>
+
+						<th data-path="hostStats.docker.version">docker<br>version</th>
+
+						<th data-path="hostStats.docker.containerCount"><br>containers</th>
+
+						<th data-path="hostStats.docker.imageCount"><br>images</th>
+
+						<th data-path="hostStats.kubernetes.metrics.current.version">kubernetes<br>version</th>
+
+
+						<th data-path="hostStats.kubernetes.eventCount">Events<br>Pod Restarts</th>
+
+						<th data-path="hostStats.kubernetes.metrics.current.healthy">Node<br>Healthy</th>
+						<th data-path="hostStats.kubernetes.metrics.current.cores">Node<br/>Cores</th>
+						<th data-path="hostStats.kubernetes.metrics.current.memoryGb">Memory<br/>(GB)</th>
+
+
+						<th data-path="hostStats.kubernetes.metrics.current.podsRunning">pods<br/>Up</th>
+						<th data-path="hostStats.kubernetes.metrics.current.podsNotRunning">pods<br/>Down</th>
+
+					</tr>
+
+				</thead>
+
+				<tbody>
+				</tbody>
+			</table>
+
+		</div>
+	</div>
+
+
+
+
+	<div id="hosts-tab-cpu">
+		<div class="hosts">
+
+			<table class="csap">
+				<thead>
+
+					<tr>
+						<th data-path="name">Host</th>
+						<th data-path="hostStats.memory.total">Memory<br>Total</th>
+						<th data-path="hostStats.memory.available"><br>Available</th>
+						<th data-path="hostStats.cpuCount">CPU <br /> Cores</th>
+						<th data-path="hostStats.cpuLoad"> <br /> Load
+						</th>
+						<th data-path="hostStats.cpuIoWait"><br /> IO Wait
+						</th>
+						<th data-path="hostStats.cpu"><br> Percent</th>
+
+						<th data-path="lastCollected.host.cpuTest">CSAP CPU<br />Test
+						</th>
+					</tr>
+				</thead>
+
+				<tbody>
+				</tbody>
+			</table>
+
+		</div>
+	</div>
+
+
+	<div id="hosts-tab-file-systems">
+
+		<div class="hosts">
+
+			<table class="csap">
+				<thead>
+
+					<tr>
+						<th data-path="name">Host Name</th>
+
+						<th data-path="hostStats.df">fs #</th>
+
+						<th
+							data-path="hostStats.df"
+							data-show-object="true">File Systems</th>
+
+					</tr>
+				</thead>
+
+				<tbody>
+				</tbody>
+			</table>
+
+		</div>
+	</div>
+
+	<div id="hosts-tab-infrastructure">
+
+		<div class="hosts">
+
+			<table class="csap">
+				<thead>
+
+					<tr>
+						<th data-path="name">host</th>
+
+						<th data-path="lastCollected.host.diskTest">disk <br /> test(s)
+						</th>
+						<th data-path="lastCollected.host.cpuTest">cpu <br /> test(s)
+						</th>
+					</tr>
+				</thead>
+
+				<tbody>
+				</tbody>
+			</table>
+
+		</div>
+	</div>
+
+	<div id="hosts-tab-services">
+
+		<div class="hosts">
+
+			<table class="csap">
+				<thead>
+
+					<tr>
+						<th data-path="name">host</th>
+
+						<th data-path="services">services</th>
+						<th
+							data-path="services"
+							data-show-object="true">services</th>
+					</tr>
+				</thead>
+
+				<tbody>
+				</tbody>
+			</table>
+
+		</div>
+	</div>
+
+
+
+	<div id="hosts-tab-network">
+
+		<div class="hosts">
+
+			<table class="csap">
+				<thead>
+
+					<tr>
+						<th data-path="name">host</th>
+
+						<th data-path="hostStats.network.network-sent-mb">Sent <br /> Mb
+						</th>
+
+						<th data-path="hostStats.network.network-receive-mb">Received <br /> Mb
+						</th>
+
+						<th data-path="hostStats.network.sockets-active">Sockets <br /> Active
+						</th>
+
+						<th data-path="hostStats.network.sockets-close-wait">Close <br /> Wait
+						</th>
+
+						<th data-path="hostStats.network.sockets-time-wait">Time <br /> Wait
+						</th>
+					</tr>
+				</thead>
+
+				<tbody>
+				</tbody>
+			</table>
+
+		</div>
+	</div>
+
+	<div id="hosts-tab-summary">
+
+		<div class="hosts">
+
+			<table class="csap">
+				<thead>
+
+					<tr>
+						<th data-path="name">host</th>
+						<th data-path="hostStats.memory.total">Memory <br />Total
+						</th>
+						<th data-path="hostStats.memory.available"> <br /> Available
+						</th>
+						<th data-path="hostStats.cpuCount">CPU <br /> Cores
+						</th>
+						<th data-path="hostStats.cpuLoad"><br /> Load
+						</th>
+						<th data-path="hostStats.cpuIoWait">cpu <br /> IO Wait
+						</th>
+						<th data-path="hostStats.cpu">cpu %</th>
+						<th data-path="hostStats.docker.containerCount">docker <br /> containers
+						</th>
+						<th data-path="services">csap <br /> services
+						</th>
+						<th data-path="hostStats.processCount">process <br /> count
+						</th>
+						<th data-path="lastCollected.host.diskTest">disk <br /> test(s)
+						</th>
+						<th data-path="lastCollected.host.cpuTest">cpu <br /> test(s)
+						</th>
+					</tr>
+				</thead>
+
+				<tbody>
+				</tbody>
+			</table>
+
+		</div>
+	</div>
+</body>
+</html>

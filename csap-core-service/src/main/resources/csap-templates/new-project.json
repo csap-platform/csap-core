@@ -1,0 +1,38 @@
+{
+	"project": {
+		"api-version": 2.1,
+		"project-version": 1.0,
+		"name": "changeToYourPackageName",
+		"architect": "updateArchUserid",
+		"description": "Update with a meaningful description, include links to documents.",
+		"emailNotifications": "support@notConfigured.com"
+	},
+	"environments": {
+		"defaults": {
+			"settings": {
+				
+			}
+		},
+		"dev": {
+			"settings": {
+				
+			},
+			"base-os": {
+				"template-references": [
+					"csap-package-linux",
+					"csap-package-java",
+					"csap-agent",
+					"csap-verify-service",
+					"docker"
+				],
+				"hosts": [
+					"change-me-1"
+				],
+				"type": "simple"
+			}
+		}
+	},
+	"service-templates": {
+		
+	}
+}

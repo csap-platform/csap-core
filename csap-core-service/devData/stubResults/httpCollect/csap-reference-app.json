@@ -1,0 +1,118 @@
+{
+	"source": {
+		"host": "csap-test-k8s-service-6090-5c6d674b8d-l5cmx",
+		"url": "http://csap-dev06.***REMOVED***:30080/test-k8s-csap-reference/csap/metrics/simon",
+		"collected": "16:49:31, December 28 2018"
+	},
+	"http.csap-test-k8s-service.GET": {
+		"count": 99,
+		"mean-ms": 115,
+		"min-ms": 88,
+		"max-ms": 143,
+		"total-ms": 231
+	},
+	"dbcp.BasicDataSource.getMaxTotal()": {
+		"count": 1,
+		"mean-ms": 0,
+		"min-ms": 0,
+		"max-ms": 0,
+		"total-ms": 0
+	},
+	"dbcp.BasicDataSource.getMinIdle()": {
+		"count": 1,
+		"mean-ms": 0,
+		"min-ms": 0,
+		"max-ms": 0,
+		"total-ms": 0
+	},
+	"dbcp.BasicDataSource.getValidationQuery()": {
+		"count": 1,
+		"mean-ms": 0,
+		"min-ms": 0,
+		"max-ms": 0,
+		"total-ms": 0
+	},
+	"org.sample.HealthMonitor.passed": {
+		"count": 621
+	},
+	"dbcp.BasicDataSource.getUsername()": {
+		"count": 2,
+		"mean-ms": 0,
+		"min-ms": 0,
+		"max-ms": 0,
+		"total-ms": 0
+	},
+	"csap.health.report.pass": {
+		"count": 621
+	},
+	"HealthMonitor.databaseMonitor": {
+		"count": 311,
+		"mean-ms": 31,
+		"min-ms": 22,
+		"max-ms": 386,
+		"total-ms": 9765
+	},
+	"database.DemoManager.getCountCriteria()": {
+		"count": 311,
+		"mean-ms": 13,
+		"min-ms": 9,
+		"max-ms": 259,
+		"total-ms": 4200
+	},
+	"dbcp.BasicDataSource.getConnection()": {
+		"count": 4741,
+		"mean-ms": 1,
+		"min-ms": 0,
+		"max-ms": 279,
+		"total-ms": 9080
+	},
+	"csap.health.report.all": {
+		"count": 621,
+		"mean-ms": 0,
+		"min-ms": 0,
+		"max-ms": 6,
+		"total-ms": 77
+	},
+	"dbcp.BasicDataSource.getDefaultAutoCommit()": {
+		"count": 1,
+		"mean-ms": 0,
+		"min-ms": 0,
+		"max-ms": 0,
+		"total-ms": 0
+	},
+	"database.DemoManager.showScheduleItemsWithFilter()": {
+		"count": 311,
+		"mean-ms": 10,
+		"min-ms": 7,
+		"max-ms": 66,
+		"total-ms": 3197
+	},
+	"CoreTestsDashboard.get()": {
+		"count": 2,
+		"mean-ms": 6,
+		"min-ms": 1,
+		"max-ms": 11,
+		"total-ms": 13
+	},
+	"dbcp.BasicDataSource.getPassword()": {
+		"count": 2,
+		"mean-ms": 0,
+		"min-ms": 0,
+		"max-ms": 0,
+		"total-ms": 0
+	},
+	"dbcp.BasicDataSource.getUrl()": {
+		"count": 6,
+		"mean-ms": 0,
+		"min-ms": 0,
+		"max-ms": 0,
+		"total-ms": 0
+	},
+	"dbcp.BasicDataSource.getNumActive()": {
+		"count": 1,
+		"mean-ms": 0,
+		"min-ms": 0,
+		"max-ms": 0,
+		"total-ms": 0
+	}
+}

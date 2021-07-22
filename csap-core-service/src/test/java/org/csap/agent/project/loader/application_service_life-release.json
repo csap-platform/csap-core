@@ -1,0 +1,5 @@
+{
+	"ReleaseService": {
+		"dev": "org.demo:SpringBootRest:9.9.9-SNAPSHOT:jar"
+	}
+}

@@ -1,0 +1,178 @@
+
+<!-- 
+        - Summary Tab included in ClusterManager.jsp
+-->
+
+<div
+	class="heading"
+	style="padding-top: 0; font-size: 1.0em">
+
+	<div
+		th:if="${ ( infraRole == null) }"
+		class="settings"
+		style="margin-top: 2em; font-weight: bold; font-size: 12pt">View Mode Only: your account is not a member of
+		infra admins</div>
+
+	<button
+		id="showReloadButton"
+		th:if="${ ( infraRole != null) }"
+		title="Reloads the definition (hosts, services, java options, etc.)"
+		class="csap-button-icon">
+		<img th:src="@{/images/16x16/view-refresh.png}">
+		Reload Application Definition: <span>[[ ${lifecycle} ]]</span> Hosts
+	</button>
+
+	
+
+
+	<a
+		id="cleanFsButton"
+		title="Remove the application definition build location"
+		class="simple"
+		href="#cleanDefButton">
+		<img
+			class="butImage"
+			th:src="@{/images/16x16/clean.png}">
+		Clean
+	</a>
+
+</div>
+
+
+<div
+	id="reloadDiv"
+	style="font-size: 1em; display: none"
+	th:if="${ ( infraRole != null) }">
+
+	userid:
+	<input
+		id="scmUserid"
+		style="width: 8em"
+		name="scmUserid"
+		th:value="${userid}">
+	password:
+	<input
+		id="scmPass"
+		style="width: 8em; font-size: 0.7em"
+		name="scmPass"
+		value=""
+		type="password" />
+	branch:
+	<input
+		id="scmBranch"
+		style="width: 10em"
+		name="scmBranch"
+		th:value="${ applicationBranch }"
+		title="Either trunk, or branches/yourbranchName" />
+	<br>
+	<span style="padding-left: 12em;"></span>
+</div>
+
+
+<div
+	id="editor-notes"
+	class="info"
+	style="font-size: 10pt; width: auto; margin: 2em; padding-bottom: 1em"
+	th:if="${editorNotes != null} ">
+	<div class="quote" style="margin: 1em">
+		<span th:text="${editorTitle}"></span>
+	</div>
+	<ul style="list-style-type: disc; padding-left: 3em">
+		<li
+			th:each="note : ${editorNotes}"
+			th:utext="${note}"></li>
+	</ul>
+</div>
+
+<table
+	class="simple"
+	style="margin-left: 0">
+	<thead>
+
+		<tr>
+			<th style="width: 12em; text-align: left"></th>
+			<th style="text-align: left">
+				<a
+					id="defButton"
+					class="simple"
+					style="display: inline"
+					href="summary"
+					target="_blank"
+					title="View Application Summary Report">View Full Report</a>
+			</th>
+		</tr>
+	</thead>
+
+
+
+
+	<tr>
+		<td>Application</td>
+		<td>
+			Name:
+			<div class="noteHighlight">[[ ${ csapApp.getName() } ]]</div>
+			, Source:
+			<div class="noteHighlight">
+				<a
+					class="simple"
+					style="display: inline"
+					target="_blank"
+					th:href="${csapApp.getRootProjectDefinitionUrl()}"> [[ ${csapApp.getRootProjectDefinitionUrl()} ]] </a>
+			</div>
+		</td>
+	</tr>
+
+
+	<tr>
+		<td>Project</td>
+		<td>
+			Name:
+			<div class="noteHighlight">[[ ${ csapApp.getActiveProject().getName() } ]]</div>
+			<span class="current">[[ ${csapApp.serviceNameToAllInstances().size()} ]] services </span>
+			on
+			<span class="current">[[ ${csapApp.getActiveProject().getAllPackagesModel().getHostsInAllLifecycles().size()} ]] hosts</span>
+			, using
+			<span class="current">[[ ${csapApp.rootProjectEnvSettings().getNumberWorkerThreads() } ]] threads</span>
+			to perform CSAP management operations.
+		</td>
+	</tr>
+
+
+	<tr>
+		<td>Environments</td>
+		<td>
+			Current:
+			<span class="current"> [[ ${lifecycle} ]]</span>
+			All:
+			<span th:each="entry : ${csapApp.getActiveProject().getLifecycleToClusterMap()}"> [[ ${entry.key} ]] </span>
+		</td>
+	</tr>
+
+
+	<tr>
+		<td>Alert Defaults: [[ ${lifecycle} ]] </td>
+		<td>
+			Max Cpu Load:
+			<span class="current"> [[ ${ environmentSettings.getMaxHostCpuLoad("dummy") } ]]</span>
+			Max Cpu Use:
+			<span class="current"> [[ ${ environmentSettings.getMaxHostCpu("dummy") } ]]</span>
+			Max Cpu IoWait:
+			<span class="current"> [[ ${ environmentSettings.getMaxHostCpuIoWait("dummy") } ]]</span>
+			Max Disk %:
+			<span class="current"> [[ ${ environmentSettings.getMaxDiskPercent("dummy") } ]]</span>
+			Min Memory Mb:
+			<span class="current"> [[ ${ environmentSettings.getMinFreeMemoryMb("dummy") } ]]</span>
+		</td>
+	</tr>
+	
+
+</table>
+
+
+
+<div style="margin-top: 0em; padding: 2em; background-color: white">
+
+	<img style="width: 60em"
+		th:src="@{/images/application-definition.png}">
+
+</div>

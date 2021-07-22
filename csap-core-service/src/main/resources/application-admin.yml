@@ -1,0 +1,63 @@
+#
+#  ================ profile: admin
+#   - profile used to manage agents and analytics
+#
+
+
+server:
+  servlet:
+    context-path: /csap-admin
+  port: 8021
+  
+my-service-configuration:
+  alerts:
+    remember-count: ${csapMaxBacklog:3000}
+    
+    throttle: 
+      count: 5
+      frequency: 1
+      time-unit: HOURS 
+    
+    notify:
+      addresses: "${csapAddresses:disabled}"
+      frequency: "${csapFrequency:4}"
+      time-unit: "${csapTimeUnit:HOURS}"
+      email-max-alerts: "${csapMaxBacklog:1000}"
+      email-time-out-ms: 500    
+
+csap:
+  performance:
+    alert:
+      limits:
+        # Note: collection time is the MINIMUM time alert will be displayed unless disabled
+        - 
+          id: csap.exception
+          ignore-null: true
+          occurences-max: 0
+          collect-time: 1
+          collect-units: MINUTES
+          
+        - 
+          id: csap.agent-status.errors
+          ignore-null: true
+          occurences-max: 0
+          # default: check every 30 seconds
+          
+        - 
+          id: csap.agent-status
+          ignore-null: false
+          mean-time:  10
+          mean-units: SECONDS
+          max-time: 20
+          max-units: SECONDS
+          
+        - 
+          id: csap.event-publish
+          max-time: 5
+          max-units: SECONDS
+          
+        - 
+          id: csap.event-publish.failures
+          occurences-max: 0
+          ignore-null: true
+

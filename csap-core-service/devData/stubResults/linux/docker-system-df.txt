@@ -1,0 +1,30 @@
+Images space usage:
+
+REPOSITORY                                     TAG                 IMAGE ID            CREATED             SIZE                SHARED SIZE         UNIQUE SIZE         CONTAINERS
+docker.io/postgres                             latest              6e3b6a866c37        13 days ago         288 MB              0 B                 288 MB              1
+***REMOVED***-docker.davis.***REMOVED***.lab/csap-db-hsql    latest              4401c86129a1        4 weeks ago         727 MB              674.9 MB            52.1 MB             1
+***REMOVED***-docker.davis.***REMOVED***.lab/csap-base       latest              952575c4750b        5 weeks ago         674.9 MB            674.9 MB            0 B                 2
+***REMOVED***-docker.davis.***REMOVED***.lab/csap-activemq   latest              398389166c78        5 weeks ago         421.5 MB            0 B                 421.5 MB            1
+docker.io/nginx                                latest              3f8a4339aadd        8 weeks ago         108.5 MB            0 B                 108.5 MB            1
+docker.io/hello-world                          latest              f2a91732366c        3 months ago        1.848 kB            0 B                 1.848 kB            0
+
+Containers space usage:
+
+CONTAINER ID        IMAGE                                                 COMMAND                  LOCAL VOLUMES       SIZE                CREATED             STATUS              NAMES
+b6de8434ad91        docker.io/postgres:latest                             "docker-entrypoint..."   1                   63 B                About an hour ago   Up About an hour    postgresdb-5432
+f731e24b4e6c        ***REMOVED***-docker.davis.***REMOVED***.lab/csap-base:latest       "/bin/sh -c 'echo ..."   1                   0 B                 About an hour ago   Up About an hour    csaptestdocker-8261
+36dbe2728f8c        ***REMOVED***-docker.davis.***REMOVED***.lab/csap-db-hsql:latest    "/hsqldb/runHsql.sh "    0                   34.5 kB             About an hour ago   Up About an hour    hsqldatabase-9002
+610488404b1c        ***REMOVED***-docker.davis.***REMOVED***.lab/csap-activemq:latest   "/app/run.sh"            3                   90.8 kB             About an hour ago   Up About an hour    activemq-8161
+92db8f611880        docker.io/nginx:latest                                "nginx -g 'daemon ..."   1                   2 B                 7 days ago          Up 7 days           nginx-7080
+14c7b84e6afd        ***REMOVED***-docker.davis.***REMOVED***.lab/csap-base:latest       "/bin/sh -c 'echo ..."   1                   0 B                 7 days ago          Up 7 days           testservice-8241
+
+Local Volumes space usage:
+
+VOLUME NAME                                                        LINKS               SIZE
+demo-local-volume                                                  1                   0 B
+my-demo-volume                                                     1                   0 B
+ea5e3a3f389c190f4bdaccf7c99eb13a7554bf8b2373e6183418038971a93907   1                   67.39 MB
+dbd9e5655bba7b54c763e4341b799d11afcef12cc12b9b26726705cc225a1834   1                   31.91 kB
+abc6c8581b5a0735a7fb6acc15a2c1697cdaa97e97e08955e6bf7ca66c3cb931   1                   4.33 kB
+postgres-volume                                                    1                   147.6 MB
+csaptest-local-volume                                              1                   0 B

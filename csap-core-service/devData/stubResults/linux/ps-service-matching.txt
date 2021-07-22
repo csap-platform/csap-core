@@ -1,0 +1,770 @@
+
+#
+# csap-agent
+#
+ 3.1 703476 4217792 107 csapUser 10941 -12    1 /opt/java/jdk-9.0.4/bin/java -Dcsap.security.rest-api-filter.token=NmpR141BSlo2qy1+o0DA/mesYzoV6odB -Dspring.profiles.active=dev,agent,limits,company -Dsun.rmi.transport.tcp.responseTimeout=3000 -XX:MaxMetaspaceSize=128M -Xms256M -Xmx256M -Djava.rmi.server.hostname=centos1 -Dcom.sun.management.jmxremote.port=8016 -Dcom.sun.management.jmxremote.rmi.port=8016 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csapUser/processing/CsAgent_8011/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csapUser/processing/CsAgent_8011/jmxremote.access -DcsapProcessId=csap-agent -DcsapEnvironmentVariables=arePresent -DSTAGING=/opt/csapUser/staging -Djava.io.tmpdir=/opt/csapUser/processing/CsAgent_8011/java-io-tmpdir org.springframework.boot.loader.JarLauncher --server.port=8011
+
+#
+# kubernetes & docker
+# 
+ 5.2 110032 1764420 27 root      4325   0     1 /usr/bin/kubelet --bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf --config=/var/lib/kubelet/config.yaml --cgroup-driver=cgroupfs --cni-bin-dir=/opt/cni/bin --cni-conf-dir=/etc/cni/net.d --network-plugin=cni
+ 0.2 50308 2308640  58 root      1104   0  1021 docker-containerd --config /var/run/docker/containerd/containerd.toml
+ 3.7 104440 1816476 48 root      1021   0     1 /usr/bin/dockerd
+
+
+
+
+#
+# namespace detection cases
+# 
+
+ 
+#
+#  csap httpd integration
+# 
+ 0.0 15428 1974368  28 csapUser 25226 -12 24362 /opt/csapUser/processing/httpd_8080/bin/httpd -k restart
+ 0.0 13192 1974368  28 csapUser 24378 -12 24362 /opt/csapUser/processing/httpd_8080/bin/httpd -k restart
+ 0.0 13248 1974368  28 csapUser 24377 -12 24362 /opt/csapUser/processing/httpd_8080/bin/httpd -k restart
+ 0.0 20276 2171040  44 csapUser 24376 -12 24362 /opt/csapUser/processing/httpd_8080/bin/httpd -k restart
+ 0.0  1516  37140    1 csapUser 24367 -12 24362 /opt/csapUser/processing/httpd_8080/bin/httpd -k restart
+ 0.0  4660  38808    1 csapUser 24362 -12     1 /opt/csapUser/processing/httpd_8080/bin/httpd -k restart
+ 
+#
+# nginx
+#
+ 5.0 29392 139416    1 root     19247   0 19138 nginx: master process /usr/sbin/nginx -c /etc/nginx/nginx.conf
+ 0.1 36224 401692   33 65534    17404   0 19247 nginx: worker process
+ 0.2 36224 401692   33 65534    17403   0 19247 nginx: worker process
+ 0.3 36436 401692   33 65534    17402   0 19247 nginx: worker process
+ 0.4 36224 401692   33 65534    17401   0 19247 nginx: worker process
+
+#
+#  kubectl
+#
+ 0.0 23808 749504   16 csap     16200   0     1 kubectl proxy --port 8014 --address 0.0.0.0 --accept-hosts . .. .pid asfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sd
+  0.0 23808 749504   16 csap     16201   0     1 kubectl proxy --port 8014 --address 0.0.0.0 --accept-hosts . .. .pid asfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sd
+  0.0 23808 749504   16 csap     16202   0     1 kubectl proxy --port 8014 --address 0.0.0.0 --accept-hosts . .. .pid asfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sd
+  0.0 23808 749504   16 csap     16203   0     1 kubectl proxy --port 8014 --address 0.0.0.0 --accept-hosts . .. .pid asfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sd
+  0.0 23808 749504   16 csap     16204   0     1 kubectl proxy --port 8014 --address 0.0.0.0 --accept-hosts . .. .pid asfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sd
+  0.0 23808 749504   16 csap     16205   0     1 kubectl proxy --port 8014 --address 0.0.0.0 --accept-hosts . .. .pid asfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sd
+  0.0 23808 749504   16 csap     16206   0     1 kubectl proxy --port 8014 --address 0.0.0.0 --accept-hosts . .. .pid asfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sd
+  0.0 23808 749504   16 csap     16207   0     1 kubectl proxy --port 8014 --address 0.0.0.0 --accept-hosts . .. .pid asfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sd
+  0.0 23808 749504   16 csap     16208   0     1 kubectl proxy --port 8014 --address 0.0.0.0 --accept-hosts . .. .pid asfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sd
+  0.0 23808 749504   16 csap     16209   0     1 kubectl proxy --port 8014 --address 0.0.0.0 --accept-hosts . .. .pid asfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sdasfsadf asd f asdf as df as dfs df sa df sd f sd f sadf sd
+ 
+#
+# kubernetes deploy
+#
+0.0  1252  11640    1 root     19128   0 19082 /bin/bash /java-local/runJava.sh
+2.7 588692 4127912 75 root     19329   0 19128 java -Xms256M -Xmx256M -Dcsap.security.enabled=false -Dserver.servlet.context-path=/csap-test-k8-service -Dspring.profiles.active=embedded -DcsapJmxPort= -Dserver.port=6090 -jar csap-test-app.jar
+
+#
+# kuberetnes test-k8s- services
+#
+# test-k8s-by-spec
+ 0.1 436280 6529236 54 root     31698   0 31662 java -Xms256M -Xmx256M -Duser.timezone=America/New_York -Dcsap.security.enabled=true -Dserver.servlet.context-path=/test-k8s-by-spec -Dspring.profiles.active=services-embedded -DcsapJmxPort= -Dserver.port=7080 -jar csap-starter-tester-2.3.2.2.jar
+ 0.0  1444  11692    1 root     31662   0 31642 /bin/bash /java-local/runJava.sh
+ 
+ 0.0  4872 214820    1 systemd+ 29837   0 17405 postgres: postgres postgres 192.168.134.131(34788) idle
+ 0.0  4872 214820    1 systemd+ 29655   0 17405 postgres: postgres postgres 192.168.203.69(57970) idle
+ 0.0  4872 214820    1 systemd+ 29464   0 17405 postgres: postgres postgres 192.168.248.133(58102) idle
+ 0.0  9480 216988    1 systemd+ 29090   0 17405 postgres: postgres postgres 192.168.248.132(45304) idle
+ 0.0 19348 213888    1 systemd+ 17405   0 17386 postgres
+ 0.0  2836 214316    1 systemd+ 17577   0 17405 postgres: logical replication launcher  
+ 0.0  2372  68268    1 systemd+ 17576   0 17405 postgres: stats collector  
+ 0.0  3344 214420    1 systemd+ 17575   0 17405 postgres: autovacuum launcher  
+ 0.0  6556 213888    1 systemd+ 17574   0 17405 postgres: walwriter  
+ 0.0  3384 213888    1 systemd+ 17573   0 17405 postgres: background writer  
+ 0.0  4428 214028    1 systemd+ 17572   0 17405 postgres: checkpointer  
+    
+ 500 468952 3999320 28 root     11333   0 11259 java -Duser.timezone=America/New_York -Xms200M -Xmx300M -Dcsap.security.enabled=true -Dserver.servlet.context-path=/test-k8s-csap-reference -Dspring.profiles.active=services -DcsapJmxPort= -Dserver.port=6090 -jar csap-starter-tester-2.3.2.2.jar
+ 484 461904 4063836 32 root     11331   0 11265 java -Duser.timezone=America/New_York -Xms200M -Xmx300M -Dcsap.security.enabled=true -Dserver.servlet.context-path=/test-k8s-csap-reference -Dspring.profiles.active=services -DcsapJmxPort= -Dserver.port=6090 -jar csap-starter-tester-2.3.2.2.jar
+ 0.2  1444  11692    1 root     11265   0 11223 /bin/bash /java-local/runJava.sh
+ 0.4  1444  11692    1 root     11259   0 11233 /bin/bash /java-local/runJava.sh
+ 0.0  3224 108584   10 root     11233   0 26977 containerd-shim -namespace moby -workdir /var/lib/containerd/io.containerd.runtime.v1.linux/moby/f742cef2bca643d1c8f39d195f7b1bb06c1495758e73ecfa65de7028130c97d8 -address /run/containerd/containerd.sock -containerd-binary /usr/bin/containerd -runtime-root /var/run/docker/runtime-runc -systemd-cgroup
+ 0.0  3224 108584    9 root     11223   0 26977 containerd-shim -namespace moby -workdir /var/lib/containerd/io.containerd.runtime.v1.linux/moby/f7e46e2a528ea49305beab5c87f2cb63a06cda8f71c7e9562e32ddc251db5233 -address /run/containerd/containerd.sock -containerd-binary /usr/bin/containerd -runtime-root /var/run/docker/runtime-runc -systemd-cgroup
+#
+# kubernetes container discovery: note child pid detection 
+# 
+ 0.0  1440  11640    1 root      9264   0  9225 /bin/bash /java-local/runJava.sh
+ 0.0  1436  11640    1 root      9367   0  9338 /bin/bash /java-local/runJava.sh
+ 0.1 773228 9877668 103 root     9573   0  9367 java -Dcsap.security.enabled=false -Dserver.servlet.context-path=/ -Xms256M -Xmx256M -Dspring.profiles.active=embedded -DcsapJmxPort=7086 -Dserver.port=7080 -jar csap-test-app.jar
+ 0.1 780816 9877668 103 root     9502   0  9264 java -Dcsap.security.enabled=false -Dserver.servlet.context-path=/ -Xms256M -Xmx256M -Dspring.profiles.active=embedded -DcsapJmxPort=7086 -Dserver.port=7080 -jar csap-test-app.jar
+ 0.0  1480  11684    1 root      1692   0  1671 /bin/bash /java-local/runJava.sh
+ 0.0  3732   9676   10 root      1671   0  7313 containerd-shim -namespace moby -workdir /var/lib/docker/containerd/daemon/io.containerd.runtime.v1.linux/moby/1395973fa557d7e557acfb5c56b9288d442d04767b3a834c7b2a9571ace7da74 -address /var/run/docker/containerd/containerd.sock -containerd-binary /usr/bin/containerd -runtime-root /var/run/docker/runtime-runc
+
+#
+# csap test services
+#
+0.4 632316 4239392 79 csapUser 20155   0     1 /opt/java/jdk-9.0.4/bin/java -Dspring.profiles.active=dev,desktop,embedded -Xms256M -Xmx256M -XX:MaxMetaspaceSize=128M -XX:+ExitOnOutOfMemoryError -Djava.rmi.server.hostname=centos1 -Dcom.sun.management.jmxremote.port=7016 -Dcom.sun.management.jmxremote.rmi.port=7016 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csapUser/processing/csap-verify-service_7011/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csapUser/processing/csap-verify-service_7011/jmxremote.access -DcsapProcessId=csap-verify-service_7011 -DcsapEnvironmentVariables=arePresent -DSTAGING=/opt/csapUser/staging -Djava.io.tmpdir=/opt/csapUser/processing/csap-verify-service_7011/java-io-tmpdir org.springframework.boot.loader.JarLauncher --server.port=7011
+
+
+#
+# CsapTestDocker
+#
+0.0  1452  11640    1 csapUser 6081   0 17684 /bin/bash /java-local/runJava.sh
+7.7 915060 10449080 112 csapUser 6565  0  6081 java -Dspring.profiles.active=CSAP_LIFE,services -XX:+UseG1GC -Xms64M -Xmx256M -XX:MaxMetaspaceSize=128M -XX:+ExitOnOutOfMemoryError -Djava.rmi.server.hostname=nightingale-five -Dcom.sun.management.jmxremote.port=8266 -Dcom.sun.management.jmxremote.rmi.port=8266 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -DcsapProcessId=CsapTestDocker_8261 -Djava.security.egd=file:/dev/./urandom -DcsapDockerJava org.springframework.boot.loader.JarLauncher --server.servlet.context-path=/CsapTestDocker --server.port=8261
+0.0  1452  11640    1 csapUser 8403   0 17684 /bin/bash /java-local/runJava.sh
+10.8 821920 10447604 111 csapUser 8627  0  8403 java -Dspring.profiles.active=CSAP_LIFE,services -XX:+UseG1GC -Xms64M -Xmx256M -XX:MaxMetaspaceSize=128M -XX:+ExitOnOutOfMemoryError -Djava.rmi.server.hostname=csap-dev03 -Dcom.sun.management.jmxremote.port=8266 -Dcom.sun.management.jmxremote.rmi.port=8266 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -DcsapProcessId=csap-test-service_8261 -Djava.security.egd=file:/dev/./urandom -DcsapDockerJava org.springframework.boot.loader.JarLauncher --server.servlet.context-path=/csap-test-service --server.port=8261 
+
+#
+# test-docker-csap-reference
+#
+0.0  1480  11684    1 csap      7460   0  7443 /bin/bash /java-local/runJava.sh
+13.9 1234980 9466476 82 csap     7587   0  7460 java -Dspring.profiles.active=CSAP_LIFE,services -XX:+UseG1GC -Xms64M -Xmx256M -XX:MaxMetaspaceSize=128M -XX:+ExitOnOutOfMemoryError -Djava.rmi.server.hostname=csap-dev03.***REMOVED*** -Dcom.sun.management.jmxremote.port=8266 -Dcom.sun.management.jmxremote.rmi.port=8266 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -DcsapProcessId=test-docker-csap-reference_8261 -Djava.security.egd=file:/dev/./urandom -DcsapDockerJava org.springframework.boot.loader.JarLauncher --server.servlet.context-path=/test-docker-csap-reference --server.port=8261
+
+
+#
+# test-docker-nginx
+#
+0.0  1480  11684    1 csap      7777   0  7443 /bin/bash /java-local/runJava.sh
+13.9 1234980 9466476 82 csap     7587   0  7777 java -Dspring.profiles.active=CSAP_LIFE,services -XX:+UseG1GC -Xms64M -Xmx256M -XX:MaxMetaspaceSize=128M -XX:+ExitOnOutOfMemoryError -Djava.rmi.server.hostname=csap-dev03.***REMOVED*** -Dcom.sun.management.jmxremote.port=8266 -Dcom.sun.management.jmxremote.rmi.port=8266 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -DcsapProcessId=test-docker-csap-reference_8261 -Djava.security.egd=file:/dev/./urandom -DcsapDockerJava org.springframework.boot.loader.JarLauncher --server.servlet.context-path=/test-docker-csap-reference --server.port=8261
+
+
+#
+# activemq
+#
+ 2.5 417508 8191528 82 root     12281   0 12211 /usr/bin/java -Xms64M -Xmx1G -Djava.util.logging.config.file=logging.properties -Djava.security.auth.login.config=/opt/activemq/conf.tmp/login.config -Djava.rmi.server.hostname=csap-dev03 -Dcom.sun.management.jmxremote.port=8162 -Dcom.sun.management.jmxremote.rmi.port=8162 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -DcsapJmxPort=8162 -Djava.awt.headless=true -Djava.io.tmpdir=/opt/activemq//tmp -Dactivemq.classpath=/opt/activemq/conf.tmp:/opt/activemq//../lib/: -Dactivemq.home=/opt/activemq/ -Dactivemq.base=/opt/activemq/ -Dactivemq.conf=/opt/activemq/conf.tmp -Dactivemq.data=/data/activemq -jar /opt/activemq//bin/activemq.jar start
+ 0.0   668   4464    1 root     12211   0 11690 sh -c "/usr/bin/java" -Xms64M -Xmx1G -Djava.util.logging.config.file=logging.properties -Djava.security.auth.login.config=/opt/activemq/conf.tmp/login.config  -Djava.rmi.server.hostname=csap-dev03 -Dcom.sun.management.jmxremote.port=8162 -Dcom.sun.management.jmxremote.rmi.port=8162 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -DcsapJmxPort=8162  -Djava.awt.headless=true -Djava.io.tmpdir="/opt/activemq//tmp"                -Dactivemq.classpath="/opt/activemq/conf.tmp:/opt/activemq//../lib/:"               -Dactivemq.home="/opt/activemq/"               -Dactivemq.base="/opt/activemq/"               -Dactivemq.conf="/opt/activemq/conf.tmp"               -Dactivemq.data="/data/activemq"                              -jar "/opt/activemq//bin/activemq.jar" start  ;
+ 0.0  1140  26032    1 root     12209   0 11690 /usr/sbin/cron -f
+ 0.0 13152  56352    1 root     11690   0 11673 /usr/bin/python /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf 
+ 
+ #
+ #
+ #
+ 
+ 94.0 257132 671672  31 root     25638   0 25560 /usr/local/bin/ruby -Eascii-8bit:ascii-8bit /fluentd/vendor/bundle/ruby/2.6.0/bin/fluentd -c /fluentd/etc/fluent.conf -p /fluentd/plugins --gemfile /fluentd/Gemfile -r /fluentd/vendor/bundle/ruby/2.6.0/gems/fluent-plugin-elasticsearch-5.0.3/lib/fluent/plugin/elasticsearch_simple_sniffer.rb --under-supervisor
+ 0.0  2284 155960    1 csap     25628   0 22388 ps -e --no-heading --sort=-pid -o pcpu,rss,vsz,nlwp,ruser,pid,nice,ppid,args
+ 0.0 75300 159508    6 root     25560   0 25545 ruby /fluentd/vendor/bundle/ruby/2.6.0/bin/fluentd -c /fluentd/etc/fluent.conf -p /fluentd/plugins --gemfile /fluentd/Gemfile -r /fluentd/vendor/bundle/ruby/2.6.0/gems/fluent-plugin-elasticsearch-5.0.3/lib/fluent/plugin/elasticsearch_simple_sniffer.rb
+ 0.0   708   8288    1 root     25545   0 25523 tini -- /fluentd/entrypoint.sh
+ 
+ 
+ #
+ # most recent minus the above
+ #
+ 
+ 0.0     0      0    1 root     32221   0     2 [kworker/0:2]
+ 0.6 566172 4147076 75 root     31194   0 31101 java -Dcsap.security.enabled=false -Dserver.servlet.context-path=/ -Xms256M -Xmx256M -Dspring.profiles.active=embedded -Djava.rmi.server.hostname=centos1 -Dcom.sun.management.jmxremote.port=7086 -Dcom.sun.management.jmxremote.rmi.port=7086 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -DcsapJmxPort=7086 -Dserver.port=7080 -jar csap-test-app.jar
+ 0.0  1436  11640    1 root     31101   0 31082 /bin/bash /java-local/runJava.sh
+ 0.0  3264   7488   10 root     31082   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/754ee7457fbb81ceffd5e355b945c65b2170fb651c4e51ac0c626028fe951d12 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0  4680 199044    8 root     31074   0  1021 /usr/bin/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 7080 -container-ip 172.25.0.2 -container-port 7080
+ 0.0  2640 264580    8 root     31060   0  1021 /usr/bin/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 7086 -container-ip 172.25.0.2 -container-port 7086
+ 0.0     0      0    1 root     31049   0     2 [xfsaild/dm-21]
+ 0.0     0      0    1 root     31048 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     31047 -20     2 [xfs-log/dm-21]
+ 0.0     0      0    1 root     31046 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     31045 -20     2 [xfs-cil/dm-21]
+ 0.0     0      0    1 root     31044 -20     2 [xfs-conv/dm-21]
+ 0.0     0      0    1 root     31043 -20     2 [xfs-data/dm-21]
+ 0.0     0      0    1 root     31042 -20     2 [xfs-buf/dm-21]
+ 0.0     0      0    1 root     31039 -20     2 [bioset]
+ 0.0     0      0    1 root     31038 -20     2 [kdmflush]
+ 0.0     0      0    1 root     30661   0     2 [kworker/2:1]
+ 0.0     0      0    1 root     30083   0     2 [kworker/1:1]
+ 0.0     0      0    1 root     28649   0     2 [kworker/2:2]
+ 0.0     0      0    1 root     26805   0     2 [kworker/2:0]
+# 0.0  1596  33064    1 101      26568   0 26541 nginx: worker process
+# 0.0  3224  32608    1 root     26541   0 26521 nginx: master process nginx -g daemon off;
+ 0.0  3408   7488   10 root     26521   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/3696a07c6c93a3a37cb6171a11c1f04bfcd1b74c6775c47d5ed067f18386a738 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     26520   0     2 [xfsaild/dm-42]
+ 0.0     0      0    1 root     26519 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     26518 -20     2 [xfs-log/dm-42]
+ 0.0     0      0    1 root     26517 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     26516 -20     2 [xfs-cil/dm-42]
+ 0.0     0      0    1 root     26515 -20     2 [xfs-conv/dm-42]
+ 0.0     0      0    1 root     26514 -20     2 [xfs-data/dm-42]
+ 0.0     0      0    1 root     26513 -20     2 [xfs-buf/dm-42]
+ 0.0     0      0    1 root     26510 -20     2 [bioset]
+ 0.0     0      0    1 root     26509 -20     2 [kdmflush]
+ 0.0  1600  33064    1 101      26498   0 26468 nginx: worker process
+ 0.0  3228  32608    1 root     26468   0 26450 nginx: master process nginx -g daemon off;
+ 0.0  2984   7488   10 root     26450   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/de53460b71fd18deba3eb9b1f1e439367252478d4499b929891b6c5d71e572cc -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     26449   0     2 [xfsaild/dm-43]
+ 0.0     0      0    1 root     26448 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     26447 -20     2 [xfs-log/dm-43]
+ 0.0     0      0    1 root     26446 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     26445 -20     2 [xfs-cil/dm-43]
+ 0.0     0      0    1 root     26444 -20     2 [xfs-conv/dm-43]
+ 0.0     0      0    1 root     26443 -20     2 [xfs-data/dm-43]
+ 0.0     0      0    1 root     26442 -20     2 [xfs-buf/dm-43]
+ 0.0     0      0    1 root     26439 -20     2 [bioset]
+ 0.0     0      0    1 root     26438 -20     2 [kdmflush]
+ 0.0     4   1012    1 root     26272   0 26242 /pause
+ 0.0  3300   7488   10 root     26242   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/81ea88c5d5cac1178e75ba0a4f9ae5b13e66390fbdcbc58b6937ca09227957bd -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     26238   0     2 [xfsaild/dm-40]
+ 0.0     0      0    1 root     26237 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     26236 -20     2 [xfs-log/dm-40]
+ 0.0     0      0    1 root     26235 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     26234 -20     2 [xfs-cil/dm-40]
+ 0.0     0      0    1 root     26233 -20     2 [xfs-conv/dm-40]
+ 0.0     0      0    1 root     26232 -20     2 [xfs-data/dm-40]
+ 0.0     0      0    1 root     26231 -20     2 [xfs-buf/dm-40]
+ 0.0     0      0    1 root     26222 -20     2 [bioset]
+ 0.0     0      0    1 root     26221 -20     2 [kdmflush]
+ 0.0     4   1012    1 root     26215   0 26189 /pause
+ 0.0  3144   7488   10 root     26189   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/06a6fbc59e7fac8ead1920669f8211ba2c4897e7245046b3f7ca3845266c67f0 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     26188   0     2 [xfsaild/dm-41]
+ 0.0     0      0    1 root     26187 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     26186 -20     2 [xfs-log/dm-41]
+ 0.0     0      0    1 root     26185 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     26184 -20     2 [xfs-cil/dm-41]
+ 0.0     0      0    1 root     26183 -20     2 [xfs-conv/dm-41]
+ 0.0     0      0    1 root     26182 -20     2 [xfs-data/dm-41]
+ 0.0     0      0    1 root     26181 -20     2 [xfs-buf/dm-41]
+ 0.0     0      0    1 root     26178 -20     2 [bioset]
+ 0.0     0      0    1 root     26177 -20     2 [kdmflush]
+ 
+ 0.2 225380 3945668 65 csapUser 22071   2     1 /opt/java/jdk-9.0.4/bin/java -Djava.util.logging.config.file=/opt/csapUser/processing/csap-demo-tomcat_7031/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Xms128M -Xmx128M -Djava.rmi.server.hostname=centos1 -Dcom.sun.management.jmxremote.port=8236 -Dcom.sun.management.jmxremote.rmi.port=8236 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csapUser/processing/csap-demo-tomcat_7031/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csapUser/processing/csap-demo-tomcat_7031/jmxremote.access -DcsapProcessId=csap-demo-tomcat_7031 -DcsapEnvironmentVariables=arePresent -DSTAGING=/opt/csapUser/staging -Djdk.tls.ephemeralDHKeySize=2048 -Djava.protocol.handler.pkgs=org.apache.catalina.webresources -classpath /opt/csapUser/processing/appsTomcat/apache-tomcat-8.5.16/bin/bootstrap.jar:/opt/csapUser/processing/appsTomcat/apache-tomcat-8.5.16/bin/tomcat-juli.jar -Dcatalina.base=/opt/csapUser/processing/csap-demo-tomcat_7031 -Dcatalina.home=/opt/csapUser/processing/appsTomcat/apache-tomcat-8.5.16 -Djava.io.tmpdir=/opt/csapUser/processing/csap-demo-tomcat_7031/temp org.apache.catalina.startup.Bootstrap start
+ 0.0 39820 401692   33 65534    21777   0 19337 nginx: worker process
+ 0.0 41876 401692   33 65534    21776   0 19337 nginx: worker process
+ 0.0 40320 401692   33 65534    21775   0 19337 nginx: worker process
+ 0.0 39812 401692   33 65534    21774   0 19337 nginx: worker process
+ 0.0  4036  89648    1 postfix  20889   0  1416 pickup -l -t unix -u
+ 0.0 20840  51156    9 65534    19754   0 19734 /heapster --source=kubernetes:https://kubernetes.default --sink=influxdb:http://monitoring-influxdb.kube-system.svc:8086
+ 0.0  3044   7488   10 root     19734   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/43293ffcd0f01d586f965ede30cca4cc827e51a9bd9b2efe307f21644e75b9f4 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     19689   0     2 [xfsaild/dm-38]
+ 0.0     0      0    1 root     19688 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     19687 -20     2 [xfs-log/dm-38]
+ 0.0     0      0    1 root     19686 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     19685 -20     2 [xfs-cil/dm-38]
+ 0.0     0      0    1 root     19684 -20     2 [xfs-conv/dm-38]
+ 0.0     0      0    1 root     19683 -20     2 [xfs-data/dm-38]
+ 0.0     0      0    1 root     19682 -20     2 [xfs-buf/dm-38]
+ 0.0     0      0    1 root     19672 -20     2 [bioset]
+ 0.0     0      0    1 root     19661 -20     2 [kdmflush]
+ 0.0 36024 139416    1 root     19337   0 18619 nginx: master process /usr/sbin/nginx -c /etc/nginx/nginx.conf
+ 0.0     4   1012    1 root     19059   0 19018 /pause
+ 0.0  3060   7488   10 root     19018   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/b8958b6800d79be8c1b8cebc49c2fcff146c74cc289ce9782aa626098208dce1 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     19013   0     2 [xfsaild/dm-35]
+ 0.0     0      0    1 root     19012 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     19011 -20     2 [xfs-log/dm-35]
+ 0.0     0      0    1 root     19010 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     19009 -20     2 [xfs-cil/dm-35]
+ 0.0     0      0    1 root     19008 -20     2 [xfs-conv/dm-35]
+ 0.0     0      0    1 root     19007 -20     2 [xfs-data/dm-35]
+ 0.0     0      0    1 root     19006 -20     2 [xfs-buf/dm-35]
+ 0.0     0      0    1 root     18996 -20     2 [bioset]
+ 0.0     0      0    1 root     18991 -20     2 [kdmflush]
+ 0.0 22196  39364   10 root     18910   0 18891 /dashboard --insecure-bind-address=0.0.0.0 --bind-address=0.0.0.0 --auto-generate-certificates
+ 0.0  3208   7488   10 root     18891   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/73c08d2ca952ca890a86c10f0cf4c4e8f7d35c5a07edd101624b107afd3f51d1 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     18883   0     2 [xfsaild/dm-36]
+ 0.0     0      0    1 root     18882 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     18881 -20     2 [xfs-log/dm-36]
+ 0.0     0      0    1 root     18880 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     18879 -20     2 [xfs-cil/dm-36]
+ 0.0     0      0    1 root     18878 -20     2 [xfs-conv/dm-36]
+ 0.0     0      0    1 root     18877 -20     2 [xfs-data/dm-36]
+ 0.0     0      0    1 root     18876 -20     2 [xfs-buf/dm-36]
+ 0.0     0      0    1 root     18861 -20     2 [bioset]
+ 0.0     0      0    1 root     18853 -20     2 [kdmflush]
+ 0.2 18480  43608   15 root     18735   0 18715 /coredns -conf /etc/coredns/Corefile
+ 0.0  3224   7488   10 root     18715   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/169d750eeac4f8887906e5bf02789701d1bad129b5215e3ae6f1dcf437fc75a0 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     18710   0     2 [xfsaild/dm-34]
+ 0.0     0      0    1 root     18708 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     18707 -20     2 [xfs-log/dm-34]
+ 0.0     0      0    1 root     18706 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     18705 -20     2 [xfs-cil/dm-34]
+ 0.0     0      0    1 root     18704 -20     2 [xfs-conv/dm-34]
+ 0.0     0      0    1 root     18703 -20     2 [xfs-data/dm-34]
+ 0.0     0      0    1 root     18701 -20     2 [xfs-buf/dm-34]
+ 0.0     0      0    1 root     18688 -20     2 [bioset]
+ 0.0     0      0    1 root     18685 -20     2 [kdmflush]
+ 0.4 17620  40276   19 root     18619   0 18571 /nginx-ingress-controller --default-backend-service=ingress-nginx/default-http-backend --configmap=ingress-nginx/nginx-configuration --tcp-services-configmap=ingress-nginx/tcp-services --udp-services-configmap=ingress-nginx/udp-services --publish-service=ingress-nginx/ingress-nginx --annotations-prefix=nginx.ingress.kubernetes.io
+ 0.0   352   4040    1 root     18571   0 18535 /usr/bin/dumb-init /nginx-ingress-controller --default-backend-service=ingress-nginx/default-http-backend --configmap=ingress-nginx/nginx-configuration --tcp-services-configmap=ingress-nginx/tcp-services --udp-services-configmap=ingress-nginx/udp-services --publish-service=ingress-nginx/ingress-nginx --annotations-prefix=nginx.ingress.kubernetes.io
+ 0.0  3200   7488   10 root     18535   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/761ac533bee76332916f4d8e58872a1de666393d517e546aa6840b4f6a44a5ce -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     18524   0     2 [xfsaild/dm-31]
+ 0.0     0      0    1 root     18523 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     18522 -20     2 [xfs-log/dm-31]
+ 0.0     0      0    1 root     18521 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     18520 -20     2 [xfs-cil/dm-31]
+ 0.0     0      0    1 root     18519 -20     2 [xfs-conv/dm-31]
+ 0.0     0      0    1 root     18518 -20     2 [xfs-data/dm-31]
+ 0.0     0      0    1 root     18517 -20     2 [xfs-buf/dm-31]
+ 0.0     0      0    1 root     18501 -20     2 [bioset]
+ 0.0     0      0    1 root     18496 -20     2 [kdmflush]
+ 0.0  3508  13244   10 65534    18430   0 18375 /server
+ 0.0  3056   8896   10 root     18375   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/f2edcb277e8a961d4effecc3dc2046f1a63f62c69297505508436ca0375c4144 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     18362   0     2 [xfsaild/dm-33]
+ 0.0     0      0    1 root     18354 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     18353 -20     2 [xfs-log/dm-33]
+ 0.0     0      0    1 root     18350 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     18349 -20     2 [xfs-cil/dm-33]
+ 0.0     0      0    1 root     18347 -20     2 [xfs-conv/dm-33]
+ 0.0     0      0    1 root     18345 -20     2 [xfs-data/dm-33]
+ 0.0     0      0    1 root     18344 -20     2 [xfs-buf/dm-33]
+ 0.0     0      0    1 root     18334 -20     2 [bioset]
+ 0.0     0      0    1 root     18331 -20     2 [kdmflush]
+ 0.2 18512  43608   15 root     18279   0 18256 /coredns -conf /etc/coredns/Corefile
+ 0.0  3080   7488   10 root     18256   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/dda92554c9408375d8d31e24c430b9e8d6e1977016d33aa7a553b9abdf657ff5 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     18243   0     2 [xfsaild/dm-32]
+ 0.0     0      0    1 root     18242 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     18241 -20     2 [xfs-log/dm-32]
+ 0.0     0      0    1 root     18240 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     18239 -20     2 [xfs-cil/dm-32]
+ 0.0     0      0    1 root     18238 -20     2 [xfs-conv/dm-32]
+ 0.0     0      0    1 root     18237 -20     2 [xfs-data/dm-32]
+ 0.0     0      0    1 root     18236 -20     2 [xfs-buf/dm-32]
+ 0.0     0      0    1 root     18223 -20     2 [bioset]
+ 0.0     0      0    1 root     18222 -20     2 [kdmflush]
+ 0.0     4   1012    1 root     17962   0 17936 /pause
+ 0.0  3292   7488   10 root     17936   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/fac720c26ba7662be2148bf6f493e7f82fcaaf9b2b5011fa13206ab7ca7d7f49 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     17908   0     2 [xfsaild/dm-30]
+ 0.0     0      0    1 root     17907 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     17906 -20     2 [xfs-log/dm-30]
+ 0.0     0      0    1 root     17905 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     17904 -20     2 [xfs-cil/dm-30]
+ 0.0     0      0    1 root     17903 -20     2 [xfs-conv/dm-30]
+ 0.0     0      0    1 root     17902 -20     2 [xfs-data/dm-30]
+ 0.0     0      0    1 root     17901 -20     2 [xfs-buf/dm-30]
+ 0.0     0      0    1 root     17863 -20     2 [bioset]
+ 0.0     0      0    1 root     17856 -20     2 [kdmflush]
+ 0.0     4   1012    1 root     17788   0 17746 /pause
+ 0.0  3436   7488   10 root     17746   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/13ded190029dac2bf5df0c1a9ba0e167b9dc4e573ae34883f4843b598f94fbad -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     17725   0     2 [xfsaild/dm-28]
+ 0.0     0      0    1 root     17723 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     17722 -20     2 [xfs-log/dm-28]
+ 0.0     0      0    1 root     17721 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     17720 -20     2 [xfs-cil/dm-28]
+ 0.0     0      0    1 root     17719 -20     2 [xfs-conv/dm-28]
+ 0.0     0      0    1 root     17718 -20     2 [xfs-data/dm-28]
+ 0.0     0      0    1 root     17717 -20     2 [xfs-buf/dm-28]
+ 0.0     0      0    1 root     17713 -20     2 [bioset]
+ 0.0     0      0    1 root     17712 -20     2 [kdmflush]
+ 0.0     4   1012    1 root     17553   0 17534 /pause
+ 0.0  3064   8896   10 root     17534   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/1110323be0d04e36fb5d942b5b707ecd6345e6c6a1dff022c6b6e74d7e684cc4 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     17522   0     2 [xfsaild/dm-29]
+ 0.0     0      0    1 root     17521 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     17519 -20     2 [xfs-log/dm-29]
+ 0.0     0      0    1 root     17517 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     17515 -20     2 [xfs-cil/dm-29]
+ 0.0     0      0    1 root     17514 -20     2 [xfs-conv/dm-29]
+ 0.0     0      0    1 root     17513 -20     2 [xfs-data/dm-29]
+ 0.0     0      0    1 root     17507 -20     2 [xfs-buf/dm-29]
+ 0.0     0      0    1 root     17500 -20     2 [bioset]
+ 0.0     0      0    1 root     17495 -20     2 [kdmflush]
+ 0.0     4   1012    1 root     17353   0 17327 /pause
+ 0.0  4860   8896   10 root     17327   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/62ed6820c9e1f499df5332338ac994f6057cacdc4c0a26c0c2dd12313f7de50b -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     17323   0     2 [xfsaild/dm-27]
+ 0.0     0      0    1 root     17322 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     17321 -20     2 [xfs-log/dm-27]
+ 0.0     0      0    1 root     17320 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     17319 -20     2 [xfs-cil/dm-27]
+ 0.0     0      0    1 root     17318 -20     2 [xfs-conv/dm-27]
+ 0.0     0      0    1 root     17317 -20     2 [xfs-data/dm-27]
+ 0.0     0      0    1 root     17316 -20     2 [xfs-buf/dm-27]
+ 0.0     0      0    1 root     17313 -20     2 [bioset]
+ 0.0     0      0    1 root     17312 -20     2 [kdmflush]
+ 0.0     4   1012    1 root     17278   0 17218 /pause
+ 0.0  2984   7488   10 root     17218   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/b1940cf83c9ed0f06b07a9557caf66a07d7bba59180351d9786b07613cca1a8b -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     17207   0     2 [xfsaild/dm-26]
+ 0.0     0      0    1 root     17206 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     17205 -20     2 [xfs-log/dm-26]
+ 0.0     0      0    1 root     17204 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     17203 -20     2 [xfs-cil/dm-26]
+ 0.0     0      0    1 root     17202 -20     2 [xfs-conv/dm-26]
+ 0.0     0      0    1 root     17201 -20     2 [xfs-data/dm-26]
+ 0.0     0      0    1 root     17200 -20     2 [xfs-buf/dm-26]
+ 0.0     0      0    1 root     17197 -20     2 [bioset]
+ 0.0     0      0    1 root     17196 -20     2 [kdmflush]
+ 0.0     0      0    1 root     17035   0     2 [kworker/u8:1]
+ 0.0     0      0    1 root     16736   0 16708 [setup_grafana] <defunct>
+ 0.0 21952 641584   11 root     16708   0 16690 /usr/sbin/grafana-server --homepath=/usr/share/grafana --config=/etc/grafana/grafana.ini cfg:default.log.mode=console cfg:default.paths.data=/var/lib/grafana cfg:default.paths.logs=/var/log/grafana
+ 0.0  3036   7488   10 root     16690   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/0670aa7081195514233a972874ba963706af9d73a5058f43371af1acf55eb8f2 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     16685   0     2 [xfsaild/dm-24]
+ 0.0     0      0    1 root     16684 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     16683 -20     2 [xfs-log/dm-24]
+ 0.0     0      0    1 root     16682 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     16681 -20     2 [xfs-cil/dm-24]
+ 0.0     0      0    1 root     16680 -20     2 [xfs-conv/dm-24]
+ 0.0     0      0    1 root     16679 -20     2 [xfs-data/dm-24]
+ 0.0     0      0    1 root     16678 -20     2 [xfs-buf/dm-24]
+ 0.0     0      0    1 root     16675 -20     2 [bioset]
+ 0.0     0      0    1 root     16674 -20     2 [kdmflush]
+ 0.1 59988 115796   12 root     16566   0 16547 influxd --config /etc/config.toml
+ 0.0  3056   7488   10 root     16547   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/51041fde5611a55aa17d093d92e2f38074ada2483254c854777b2a03cc2ab2b3 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     16539   0     2 [xfsaild/dm-23]
+ 0.0     0      0    1 root     16538 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     16537 -20     2 [xfs-log/dm-23]
+ 0.0     0      0    1 root     16536 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     16535 -20     2 [xfs-cil/dm-23]
+ 0.0     0      0    1 root     16534 -20     2 [xfs-conv/dm-23]
+ 0.0     0      0    1 root     16533 -20     2 [xfs-data/dm-23]
+ 0.0     0      0    1 root     16532 -20     2 [xfs-buf/dm-23]
+ 0.0     0      0    1 root     16526 -20     2 [bioset]
+ 0.0     0      0    1 root     16525 -20     2 [kdmflush]
+ 0.0     4   1012    1 root     16231   0 16210 /pause
+ 0.0  3108   7488   10 root     16210   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/77df0200c9f0304b757249f007ddba6adfabb0b5eed2798a84e14f044795cd3c -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     16182   0     2 [xfsaild/dm-22]
+ 0.0     0      0    1 root     16180 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     16179 -20     2 [xfs-log/dm-22]
+ 0.0     0      0    1 root     16178 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     16177 -20     2 [xfs-cil/dm-22]
+ 0.0     0      0    1 root     16176 -20     2 [xfs-conv/dm-22]
+ 0.0     0      0    1 root     16175 -20     2 [xfs-data/dm-22]
+ 0.0     0      0    1 root     16174 -20     2 [xfs-buf/dm-22]
+ 0.0     0      0    1 root     16171 -20     2 [bioset]
+ 0.0     0      0    1 root     16170 -20     2 [kdmflush]
+ 0.0 14744  38496   12 root     16102   0 16092 confd -confdir=/etc/calico/confd
+ 2.5 26448  47316   14 root     16101   0 16089 calico-felix
+ 0.0   260    728    1 root     16098   0 16090 bird -R -s /var/run/calico/bird.ctl -d -c /etc/calico/confd/config/bird.cfg
+ 0.0   256    728    1 root     16097   0 16091 bird6 -R -s /var/run/calico/bird6.ctl -d -c /etc/calico/confd/config/bird6.cfg
+ 0.0   240    736    1 root     16092   0 15631 runsv confd
+ 0.0   240    736    1 root     16091   0 15631 runsv bird6
+ 0.0   236    736    1 root     16090   0 15631 runsv bird
+ 0.0     4    736    1 root     16089   0 15631 runsv felix
+ 0.0     4   1012    1 root     16065   0 16043 /pause
+ 0.0  3020   7488   10 root     16043   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/72784bad30d3e7c343164803efadd25271128e5b021dacb1c07196787350034c -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     16042   0     2 [xfsaild/dm-20]
+ 0.0     0      0    1 root     16041 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     16040 -20     2 [xfs-log/dm-20]
+ 0.0     0      0    1 root     16039 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     16038 -20     2 [xfs-cil/dm-20]
+ 0.0     0      0    1 root     16037 -20     2 [xfs-conv/dm-20]
+ 0.0     0      0    1 root     16036 -20     2 [xfs-data/dm-20]
+ 0.0     0      0    1 root     16035 -20     2 [xfs-buf/dm-20]
+ 0.0     0      0    1 root     16032 -20     2 [bioset]
+ 0.0     0      0    1 root     16031 -20     2 [kdmflush]
+ 0.0   304   1236    1 root     15922   0 15905 /bin/sh /install-cni.sh
+ 0.0  3128   7488   10 root     15905   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/b6f5c24aa6736e95b219bef55e629388a87322018e90c9da2b9693faa8352b9f -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     15891   0     2 [xfsaild/dm-19]
+ 0.0     0      0    1 root     15890 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     15889 -20     2 [xfs-log/dm-19]
+ 0.0     0      0    1 root     15888 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     15887 -20     2 [xfs-cil/dm-19]
+ 0.0     0      0    1 root     15886 -20     2 [xfs-conv/dm-19]
+ 0.0     0      0    1 root     15885 -20     2 [xfs-data/dm-19]
+ 0.0     0      0    1 root     15884 -20     2 [xfs-buf/dm-19]
+ 0.0     0      0    1 root     15879 -20     2 [bioset]
+ 0.0     0      0    1 root     15878 -20     2 [kdmflush]
+ 0.0 21924  45512   10 root     15755   0 15735 /usr/bin/kube-controllers
+ 0.0  3200   8896   10 root     15735   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/658c64381edfd0b0d1f1837fe8ee824f26de54502b0660a44e4fc3696d51bc52 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     15734   0     2 [xfsaild/dm-18]
+ 0.0     0      0    1 root     15733 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     15732 -20     2 [xfs-log/dm-18]
+ 0.0     0      0    1 root     15731 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     15730 -20     2 [xfs-cil/dm-18]
+ 0.0     0      0    1 root     15729 -20     2 [xfs-conv/dm-18]
+ 0.0     0      0    1 root     15728 -20     2 [xfs-data/dm-18]
+ 0.0     0      0    1 root     15727 -20     2 [xfs-buf/dm-18]
+ 0.0     0      0    1 root     15724 -20     2 [bioset]
+ 0.0     0      0    1 root     15723 -20     2 [kdmflush]
+ 0.0   228    756    1 root     15631   0 15610 /sbin/runsvdir -P /etc/service/enabled
+ 0.0  3360   7488   10 root     15610   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/d680eca5738c4acdb71fdbcbfcfeecf816b4e235af56a5b21d68e6fed5a85416 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     15576   0     2 [xfsaild/dm-17]
+ 0.0     0      0    1 root     15567 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     15566 -20     2 [xfs-log/dm-17]
+ 0.0     0      0    1 root     15565 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     15564 -20     2 [xfs-cil/dm-17]
+ 0.0     0      0    1 root     15563 -20     2 [xfs-conv/dm-17]
+ 0.0     0      0    1 root     15562 -20     2 [xfs-data/dm-17]
+ 0.0     0      0    1 root     15561 -20     2 [xfs-buf/dm-17]
+ 0.0     0      0    1 root     15542 -20     2 [bioset]
+ 0.0     0      0    1 root     15540 -20     2 [kdmflush]
+ 0.5 37936 10523172 10 root     15525   0 15500 /usr/local/bin/etcd --name=calico --data-dir=/var/etcd/calico-data --advertise-client-urls=http://$CALICO_ETCD_IP:6666 --listen-client-urls=http://0.0.0.0:6666 --listen-peer-urls=http://0.0.0.0:6667 --auto-compaction-retention=1
+ 0.0  3056   7488   10 root     15500   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/f1da81ed7afa06ac1eaba89390259a4b9174c67ddcc5a09f0f50e195b1f7c921 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     15477   0     2 [xfsaild/dm-16]
+ 0.0     0      0    1 root     15476 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     15475 -20     2 [xfs-log/dm-16]
+ 0.0     0      0    1 root     15474 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     15473 -20     2 [xfs-cil/dm-16]
+ 0.0     0      0    1 root     15472 -20     2 [xfs-conv/dm-16]
+ 0.0     0      0    1 root     15471 -20     2 [xfs-data/dm-16]
+ 0.0     0      0    1 root     15470 -20     2 [xfs-buf/dm-16]
+ 0.0     0      0    1 root     15467 -20     2 [bioset]
+ 0.0     0      0    1 root     15466 -20     2 [kdmflush]
+ 0.4 791240 4486944 78 csapUser 15402  -1     1 /opt/java/jdk-9.0.4/bin/java -Dcsap.security.rest-api-filter.token=NmpR141BSlo2qy1+o0DA/mesYzoV6odB -Dspring.profiles.active=dev,admin,limits,company -XX:MaxMetaspaceSize=96M -Xms512M -Xmx512M -Dserver.context-path=/admin -Dserver.servlet.context-path=/admin -Djava.rmi.server.hostname=centos1 -Dcom.sun.management.jmxremote.port=8026 -Dcom.sun.management.jmxremote.rmi.port=8026 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csapUser/processing/admin_8021/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csapUser/processing/admin_8021/jmxremote.access -DcsapProcessId=admin_8021 -DcsapEnvironmentVariables=arePresent -DSTAGING=/opt/csapUser/staging -Djava.io.tmpdir=/opt/csapUser/processing/admin_8021/java-io-tmpdir org.springframework.boot.loader.JarLauncher --server.port=8021
+ 0.2 23180  47500   13 root     15281   0 15259 /usr/local/bin/kube-proxy --config=/var/lib/kube-proxy/config.conf
+ 0.0  3340   7488   10 root     15259   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/5258c6b189a52ea5781c7747c529b04723c8eb83b5ccb8dfc6e701caec096922 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     15258   0     2 [xfsaild/dm-13]
+ 0.0     0      0    1 root     15257 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     15256 -20     2 [xfs-log/dm-13]
+ 0.0     0      0    1 root     15255 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     15254 -20     2 [xfs-cil/dm-13]
+ 0.0     0      0    1 root     15253 -20     2 [xfs-conv/dm-13]
+ 0.0     0      0    1 root     15252 -20     2 [xfs-data/dm-13]
+ 0.0     0      0    1 root     15251 -20     2 [xfs-buf/dm-13]
+ 0.0     0      0    1 root     15248 -20     2 [bioset]
+ 0.0     0      0    1 root     15247 -20     2 [kdmflush]
+ 0.0     4   1012    1 root     15180   0 15162 /pause
+ 0.0  3220   7488   10 root     15162   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/bfb961287efcbfc66993178b540821d91dab01daef8ee09e7f07d542b5693e46 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     15155   0     2 [xfsaild/dm-15]
+ 0.0     0      0    1 root     15153 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     15152 -20     2 [xfs-log/dm-15]
+ 0.0     0      0    1 root     15150 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     15148 -20     2 [xfs-cil/dm-15]
+ 0.0     0      0    1 root     15147 -20     2 [xfs-conv/dm-15]
+ 0.0     0      0    1 root     15146 -20     2 [xfs-data/dm-15]
+ 0.0     0      0    1 root     15145 -20     2 [xfs-buf/dm-15]
+ 0.0     0      0    1 root     15124 -20     2 [bioset]
+ 0.0     0      0    1 root     15123 -20     2 [kdmflush]
+ 0.0     4   1012    1 root     15035   0 15016 /pause
+ 0.0  3388   9152   10 root     15016   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/8e8df6c89416ee30c97313d090685d97e26661dff84926131f1794439e8598e2 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     14986   0     2 [xfsaild/dm-14]
+ 0.0     0      0    1 root     14985 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     14984 -20     2 [xfs-log/dm-14]
+ 0.0     0      0    1 root     14983 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     14982 -20     2 [xfs-cil/dm-14]
+ 0.0     0      0    1 root     14981 -20     2 [xfs-conv/dm-14]
+ 0.0     0      0    1 root     14980 -20     2 [xfs-data/dm-14]
+ 0.0     0      0    1 root     14979 -20     2 [xfs-buf/dm-14]
+ 0.0     0      0    1 root     14976 -20     2 [bioset]
+ 0.0     0      0    1 root     14975 -20     2 [kdmflush]
+ 0.0     4   1012    1 root     14868   0 14848 /pause
+ 0.0  3204   7488   10 root     14848   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/844becd5c29fe3fe76ce3189829cb244fadb272e153cf82f2e1aff088a38cdb6 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     14836   0     2 [xfsaild/dm-12]
+ 0.0     0      0    1 root     14830 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     14829 -20     2 [xfs-log/dm-12]
+ 0.0     0      0    1 root     14827 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     14826 -20     2 [xfs-cil/dm-12]
+ 0.0     0      0    1 root     14824 -20     2 [xfs-conv/dm-12]
+ 0.0     0      0    1 root     14819 -20     2 [xfs-data/dm-12]
+ 0.0     0      0    1 root     14818 -20     2 [xfs-buf/dm-12]
+ 0.0     0      0    1 root     14811 -20     2 [bioset]
+ 0.0     0      0    1 root     14800 -20     2 [kdmflush]
+ 0.0     4   1012    1 root     14755   0 14732 /pause
+ 0.0  3316   8896   10 root     14732   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/74019ace4b971fd3304146551d7d2f80900c851d8aacad9e7df1604662bc4c4b -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     14691   0     2 [xfsaild/dm-11]
+ 0.0     0      0    1 root     14690 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     14689 -20     2 [xfs-log/dm-11]
+ 0.0     0      0    1 root     14688 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     14687 -20     2 [xfs-cil/dm-11]
+ 0.0     0      0    1 root     14686 -20     2 [xfs-conv/dm-11]
+ 0.0     0      0    1 root     14685 -20     2 [xfs-data/dm-11]
+ 0.0     0      0    1 root     14684 -20     2 [xfs-buf/dm-11]
+ 0.0     0      0    1 root     14680 -20     2 [bioset]
+ 0.0     0      0    1 root     14678 -20     2 [kdmflush]
+ 0.0  2096 151364    1 csapUser 14032   0  6108 ps -e --no-heading --sort=-pid -o pcpu,rss,vsz,nlwp,ruser,pid,nice,ppid,args
+ 0.0     4   1216    1 root     14014   0 15922 sleep 10
+ 0.0   924 116892    1 root     14005   0 14003 sed s/  */ /g
+ 0.4  1360 108956    1 root     14004   0 14003 pidstat -hd 15 1
+ 0.0  1184 113128    1 root     14003   0 13997 /bin/bash /opt/csapUser/staging/temp/service_disk_io-1532537420888.sh
+ 0.0  1424 113132    1 root     13997   0 13996 /bin/bash /opt/csapUser/staging/bin/scriptRunAsRoot.sh /opt/csapUser/staging/temp/service_disk_io-1532537420888.sh root
+ 0.0  2912 197632    1 root     13996   0  6108 /usr/bin/sudo /opt/csapUser/staging/bin/scriptRunAsRoot.sh /opt/csapUser/staging/temp/service_disk_io-1532537420888.sh root
+ 5.4 75104 151992   13 root     13912   0 13891 kube-controller-manager --address=127.0.0.1 --allocate-node-cidrs=true --cluster-cidr=192.168.0.0/16 --cluster-signing-cert-file=/etc/kubernetes/pki/ca.crt --cluster-signing-key-file=/etc/kubernetes/pki/ca.key --controllers=*,bootstrapsigner,tokencleaner --kubeconfig=/etc/kubernetes/controller-manager.conf --leader-elect=true --node-cidr-mask-size=24 --root-ca-file=/etc/kubernetes/pki/ca.crt --service-account-private-key-file=/etc/kubernetes/pki/sa.key --use-service-account-credentials=true
+ 0.0  2940   7488   12 root     13891   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/29f60bf740ac21d13b7bd4ee5f19d766b2e288a4c5bf4ac20e50d342c67c1eef -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     13880   0     2 [xfsaild/dm-10]
+ 0.0     0      0    1 root     13879 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     13878 -20     2 [xfs-log/dm-10]
+ 0.0     0      0    1 root     13877 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     13876 -20     2 [xfs-cil/dm-10]
+ 0.0     0      0    1 root     13874 -20     2 [xfs-conv/dm-10]
+ 0.0     0      0    1 root     13873 -20     2 [xfs-data/dm-10]
+ 0.0     0      0    1 root     13872 -20     2 [xfs-buf/dm-10]
+ 0.0     0      0    1 root     13864 -20     2 [bioset]
+ 0.0     0      0    1 root     13863 -20     2 [kdmflush]
+ 1.4 23648  49560   14 root     13802   0 13784 kube-scheduler --address=127.0.0.1 --kubeconfig=/etc/kubernetes/scheduler.conf --leader-elect=true
+ 0.0  3188   7488   10 root     13784   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/b688e4cce6074b52242cb23760832df96aa11aed3eaa57c70c55616b0fcebb6a -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     13777   0     2 [xfsaild/dm-8]
+ 0.0     0      0    1 root     13776 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     13775 -20     2 [xfs-log/dm-8]
+ 0.0     0      0    1 root     13774 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     13773 -20     2 [xfs-cil/dm-8]
+ 0.0     0      0    1 root     13772 -20     2 [xfs-conv/dm-8]
+ 0.0     0      0    1 root     13771 -20     2 [xfs-data/dm-8]
+ 0.0     0      0    1 root     13770 -20     2 [xfs-buf/dm-8]
+ 0.0     0      0    1 root     13766 -20     2 [bioset]
+ 0.0     0      0    1 root     13765 -20     2 [kdmflush]
+ 4.0 345792 448016  16 root     13729   0 13709 kube-apiserver --authorization-mode=Node,RBAC --advertise-address=10.1.165.43 --allow-privileged=true --client-ca-file=/etc/kubernetes/pki/ca.crt --disable-admission-plugins=PersistentVolumeLabel --enable-admission-plugins=NodeRestriction --enable-bootstrap-token-auth=true --etcd-cafile=/etc/kubernetes/pki/etcd/ca.crt --etcd-certfile=/etc/kubernetes/pki/apiserver-etcd-client.crt --etcd-keyfile=/etc/kubernetes/pki/apiserver-etcd-client.key --etcd-servers=https://127.0.0.1:2379 --insecure-port=0 --kubelet-client-certificate=/etc/kubernetes/pki/apiserver-kubelet-client.crt --kubelet-client-key=/etc/kubernetes/pki/apiserver-kubelet-client.key --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname --proxy-client-cert-file=/etc/kubernetes/pki/front-proxy-client.crt --proxy-client-key-file=/etc/kubernetes/pki/front-proxy-client.key --requestheader-allowed-names=front-proxy-client --requestheader-client-ca-file=/etc/kubernetes/pki/front-proxy-ca.crt --requestheader-extra-headers-prefix=X-Remote-Extra- --requestheader-group-headers=X-Remote-Group --requestheader-username-headers=X-Remote-User --secure-port=6443 --service-account-key-file=/etc/kubernetes/pki/sa.pub --service-cluster-ip-range=10.96.0.0/12 --tls-cert-file=/etc/kubernetes/pki/apiserver.crt --tls-private-key-file=/etc/kubernetes/pki/apiserver.key
+ 0.0  2964   7488   10 root     13709   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/8df91f2773c8a98b9cdcc2c7a54423a756b8cb3944beedf7299ff2bdbb225f96 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     13698   0     2 [xfsaild/dm-9]
+ 0.0     0      0    1 root     13697 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     13696 -20     2 [xfs-log/dm-9]
+ 0.0     0      0    1 root     13695 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     13694 -20     2 [xfs-cil/dm-9]
+ 0.0     0      0    1 root     13693 -20     2 [xfs-conv/dm-9]
+ 0.0     0      0    1 root     13692 -20     2 [xfs-data/dm-9]
+ 0.0     0      0    1 root     13691 -20     2 [xfs-buf/dm-9]
+ 0.0     0      0    1 root     13688 -20     2 [bioset]
+ 0.0     0      0    1 root     13687 -20     2 [kdmflush]
+ 2.0 69904 10575572 13 root     13624   0 13601 etcd --advertise-client-urls=https://127.0.0.1:2379 --cert-file=/etc/kubernetes/pki/etcd/server.crt --client-cert-auth=true --data-dir=/var/lib/etcd --initial-advertise-peer-urls=https://127.0.0.1:2380 --initial-cluster=centos1=https://127.0.0.1:2380 --key-file=/etc/kubernetes/pki/etcd/server.key --listen-client-urls=https://127.0.0.1:2379 --listen-peer-urls=https://127.0.0.1:2380 --name=centos1 --peer-cert-file=/etc/kubernetes/pki/etcd/peer.crt --peer-client-cert-auth=true --peer-key-file=/etc/kubernetes/pki/etcd/peer.key --peer-trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt --snapshot-count=10000 --trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+ 0.0  4204   9952   11 root     13601   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/a8611c64f7319dff78628817810817e577b381f1ed9c82a427ea12aa2fe51430 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     13597   0     2 [xfsaild/dm-6]
+ 0.0     0      0    1 root     13596 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     13595 -20     2 [xfs-log/dm-6]
+ 0.0     0      0    1 root     13594 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     13593 -20     2 [xfs-cil/dm-6]
+ 0.0     0      0    1 root     13592 -20     2 [xfs-conv/dm-6]
+ 0.0     0      0    1 root     13591 -20     2 [xfs-data/dm-6]
+ 0.0     0      0    1 root     13590 -20     2 [xfs-buf/dm-6]
+ 0.0     0      0    1 root     13587 -20     2 [bioset]
+ 0.0     0      0    1 root     13586 -20     2 [kdmflush]
+ 0.0     4   1012    1 root     13532   0 13512 /pause
+ 0.0  3152   7488   10 root     13512   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/48986cc979759c0eecfe839b4e888827dc9a8c479d83a9e952e29a91b2a83c20 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     13511   0     2 [xfsaild/dm-7]
+ 0.0     0      0    1 root     13510 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     13509 -20     2 [xfs-log/dm-7]
+ 0.0     0      0    1 root     13508 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     13507 -20     2 [xfs-cil/dm-7]
+ 0.0     0      0    1 root     13506 -20     2 [xfs-conv/dm-7]
+ 0.0     0      0    1 root     13505 -20     2 [xfs-data/dm-7]
+ 0.0     0      0    1 root     13504 -20     2 [xfs-buf/dm-7]
+ 0.0     0      0    1 root     13501 -20     2 [bioset]
+ 0.0     0      0    1 root     13500 -20     2 [kdmflush]
+ 0.0     4   1012    1 root     13464   0 13445 /pause
+ 0.0  3248   7744   10 root     13445   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/24785754e50fec2b15b7cb9098bbf0b87b6250f0810f32ab090e266c29b486cb -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     13431   0     2 [xfsaild/dm-5]
+ 0.0     0      0    1 root     13430 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     13429 -20     2 [xfs-log/dm-5]
+ 0.0     0      0    1 root     13428 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     13427 -20     2 [xfs-cil/dm-5]
+ 0.0     0      0    1 root     13426 -20     2 [xfs-conv/dm-5]
+ 0.0     0      0    1 root     13425 -20     2 [xfs-data/dm-5]
+ 0.0     0      0    1 root     13424 -20     2 [xfs-buf/dm-5]
+ 0.0     0      0    1 root     13421 -20     2 [bioset]
+ 0.0     0      0    1 root     13420 -20     2 [kdmflush]
+ 0.0     4   1012    1 root     13372   0 13350 /pause
+ 0.0  3004   7488   10 root     13350   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/bde9d7e54288f63b0f76c06dd1f48e79f976e5f87436483655feb129720482d2 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     13348   0     2 [xfsaild/dm-4]
+ 0.0     0      0    1 root     13347 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     13346 -20     2 [xfs-log/dm-4]
+ 0.0     0      0    1 root     13345 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     13344 -20     2 [xfs-cil/dm-4]
+ 0.0     0      0    1 root     13343 -20     2 [xfs-conv/dm-4]
+ 0.0     0      0    1 root     13342 -20     2 [xfs-data/dm-4]
+ 0.0     0      0    1 root     13341 -20     2 [xfs-buf/dm-4]
+ 0.0     0      0    1 root     13338 -20     2 [bioset]
+ 0.0     0      0    1 root     13337 -20     2 [kdmflush]
+ 0.0     4   1012    1 root     13286   0 13256 /pause
+ 0.0  3196   8896   10 root     13256   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/4a352014241a977d6276b9bfccfac6152eb1d73ad1953a955d2b60a66fc46dfc -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0     0      0    1 root     13243   0     2 [xfsaild/dm-3]
+ 0.0     0      0    1 root     13242 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     13241 -20     2 [xfs-log/dm-3]
+ 0.0     0      0    1 root     13240 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     13239 -20     2 [xfs-cil/dm-3]
+ 0.0     0      0    1 root     13238 -20     2 [xfs-conv/dm-3]
+ 0.0     0      0    1 root     13237 -20     2 [xfs-data/dm-3]
+ 0.0     0      0    1 root     13236 -20     2 [xfs-buf/dm-3]
+ 0.0     0      0    1 root     13233 -20     2 [bioset]
+ 0.0     0      0    1 root     13232 -20     2 [kdmflush]
+ 0.0     0      0    1 root     12943   0     2 [kworker/u8:0]
+ 0.0     0      0    1 root     12928   0     2 [kworker/3:0]
+ 0.0     0      0    1 root     12475   0     2 [kworker/1:0]
+ 0.0     0      0    1 root     11379   0     2 [kworker/3:2]
+# 0.0  1592  33068    1 101      10930   0 10841 nginx: worker process
+# 0.0  3236  32616    1 root     10841   0 10822 nginx: master process nginx -g daemon off;
+ 0.0  3172   8896   10 root     10822   0  1104 docker-containerd-shim -namespace moby -workdir /opt/csapUser/dockerStorage/containerd/daemon/io.containerd.runtime.v1.linux/moby/d8fa179518098eca8abf0db0d33851f52da19b7b546366483dc60758ff2d56f5 -address /var/run/docker/containerd/docker-containerd.sock -containerd-binary /usr/bin/docker-containerd -runtime-root /var/run/docker/runtime-runc
+ 0.0  2636 199044    8 root     10814   0  1021 /usr/bin/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 9080 -container-ip 172.26.0.2 -container-port 80
+ 0.0     0      0    1 root     10803   0     2 [xfsaild/dm-25]
+ 0.0     0      0    1 root     10802 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root     10801 -20     2 [xfs-log/dm-25]
+ 0.0     0      0    1 root     10800 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root     10799 -20     2 [xfs-cil/dm-25]
+ 0.0     0      0    1 root     10798 -20     2 [xfs-conv/dm-25]
+ 0.0     0      0    1 root     10797 -20     2 [xfs-data/dm-25]
+ 0.0     0      0    1 root     10796 -20     2 [xfs-buf/dm-25]
+ 0.0     0      0    1 root     10793 -20     2 [bioset]
+ 0.0     0      0    1 root     10792 -20     2 [kdmflush]
+ 0.0   784 107936    1 csapUser  9715   0  6108 mpstat 3600
+ 0.0     0      0    1 root      8934   0     2 [kworker/3:1]
+ 0.0   824 107936    1 csapUser  8305   0  6108 mpstat 300
+ 0.0     0      0    1 root      8122   0     2 [kworker/1:2]
+ 0.0   824 107936    1 csapUser  7531   0  6108 mpstat 30
+ 0.0     0      0    1 root      6619   0     2 [kworker/0:1]
+ 0.1  2680 158128    1 csapUser  6283   0  6108 top -b -d 15
+# 3.4 694128 4196736 109 csapUser 6108 -12     1 /opt/java/jdk-9.0.4/bin/java -Dcsap.security.rest-api-filter.token=NmpR141BSlo2qy1+o0DA/mesYzoV6odB -Dspring.profiles.active=dev,agent,limits,company -Dsun.rmi.transport.tcp.responseTimeout=3000 -XX:MaxMetaspaceSize=128M -Xms256M -Xmx256M -Djava.rmi.server.hostname=centos1 -Dcom.sun.management.jmxremote.port=8016 -Dcom.sun.management.jmxremote.rmi.port=8016 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csapUser/processing/CsAgent_8011/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csapUser/processing/CsAgent_8011/jmxremote.access -DcsapProcessId=CsAgent_8011 -DcsapEnvironmentVariables=arePresent -DSTAGING=/opt/csapUser/staging -Djava.io.tmpdir=/opt/csapUser/processing/CsAgent_8011/java-io-tmpdir org.springframework.boot.loader.JarLauncher --server.port=8011
+ 0.0     0      0    1 root      3258   0     2 [kworker/u8:2]
+ 0.0  2084 115388    1 root      2462   0  2460 -bash
+ 0.0  6192 150336    1 root      2460   0  1017 sshd: root@pts/0
+ 0.0  4032  89716    1 postfix   1571   0  1416 qmgr -l -t unix -u
+ 0.0     0      0    1 root      1463 -20     2 [bioset]
+ 0.0     0      0    1 root      1462 -20     2 [dm-thin]
+ 0.0     0      0    1 root      1461 -20     2 [bioset]
+ 0.0     0      0    1 root      1459 -20     2 [kcopyd]
+ 0.0     0      0    1 root      1458 -20     2 [bioset]
+ 0.0     0      0    1 root      1443 -20     2 [dm_bufio_cache]
+ 0.0  2136  89544    1 root      1416   0     1 /usr/libexec/postfix/master -w
+ 0.0     0      0    1 root      1320 -20     2 [kdmflush]
+ 0.0     0      0    1 root      1318 -20     2 [loop1]
+ 0.0     0      0    1 root      1314 -20     2 [loop0]
+ 0.0 16668 562396    5 root      1018   0     1 /usr/bin/python -Es /usr/sbin/tuned -l -P
+ 0.0  4056 105996    1 root      1017   0     1 /usr/sbin/sshd -D
+ 0.0  1088 338528    8 root       809   0     1 /usr/sbin/VBoxService --pidfile /var/run/vboxadd-service.sh
+ 0.0 15920 113372    1 root       797   0   674 /sbin/dhclient -d -q -sf /usr/libexec/nm-dhcp-helper -pf /var/run/dhclient-enp0s3.pid -lf /var/lib/NetworkManager/dhclient-0979dfd6-e237-4d89-803d-14c63fb97fdf-enp0s3.lease -cf /var/lib/NetworkManager/dhclient-enp0s3.conf enp0s3
+ 0.0   828 110044    1 root       746   0     1 /sbin/agetty --noclear tty1 linux
+ 0.0  1572 126236    1 root       689   0     1 /usr/sbin/crond -n
+ 0.0  1776 115640    1 chrony     684   0     1 /usr/sbin/chronyd
+ 0.0  1800  24336    1 root       677   0     1 /usr/lib/systemd/systemd-logind
+ 0.0 10988 534132    6 polkitd    675   0     1 /usr/lib/polkit-1/polkitd --no-debug
+ 0.0 10488 546796    3 root       674   0     1 /usr/sbin/NetworkManager --no-daemon
+ 0.0  1768  24540    1 dbus       662   0     1 /bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation
+ 0.0 22804 312552    3 root       658   0     1 /usr/sbin/rsyslogd -n
+ 0.0  1212  21476    1 root       657   0     1 /usr/sbin/irqbalance --foreground
+ 0.0  1036  55452    2 root       631  -4     1 /sbin/auditd
+ 0.0     0      0    1 root       614   0     2 [xfsaild/sda1]
+ 0.0     0      0    1 root       613 -20     2 [xfs-eofblocks/s]
+ 0.0     0      0    1 root       612 -20     2 [xfs-log/sda1]
+ 0.0     0      0    1 root       611 -20     2 [xfs-reclaim/sda]
+ 0.0     0      0    1 root       610 -20     2 [xfs-cil/sda1]
+ 0.0     0      0    1 root       609 -20     2 [xfs-conv/sda1]
+ 0.0     0      0    1 root       608 -20     2 [xfs-data/sda1]
+ 0.0     0      0    1 root       607 -20     2 [xfs-buf/sda1]
+ 0.0     0      0    1 root       595 -20     2 [ttm_swap]
+ 0.0     0      0    1 root       538 -20     2 [iprt-VBoxWQueue]
+ 0.0  1868  43856    1 root       506   0     1 /usr/lib/systemd/systemd-udevd
+ 0.0  3380 196404    1 root       504   0     1 /usr/sbin/lvmetad -f
+ 0.0 30184  69988    1 root       493   0     1 /usr/lib/systemd/systemd-journald
+ 0.0     0      0    1 root       424   0     2 [xfsaild/dm-0]
+ 0.0     0      0    1 root       423 -20     2 [xfs-eofblocks/d]
+ 0.0     0      0    1 root       422 -20     2 [xfs-log/dm-0]
+ 0.0     0      0    1 root       421 -20     2 [xfs-reclaim/dm-]
+ 0.0     0      0    1 root       420 -20     2 [xfs-cil/dm-0]
+ 0.0     0      0    1 root       419 -20     2 [xfs-conv/dm-0]
+ 0.0     0      0    1 root       418 -20     2 [xfs-data/dm-0]
+ 0.0     0      0    1 root       417 -20     2 [xfs-buf/dm-0]
+ 0.0     0      0    1 root       416 -20     2 [xfs_mru_cache]
+ 0.0     0      0    1 root       415 -20     2 [xfsalloc]
+ 0.0     0      0    1 root       414 -20     2 [bioset]
+ 0.0     0      0    1 root       399 -20     2 [bioset]
+ 0.0     0      0    1 root       398 -20     2 [kdmflush]
+ 0.0     0      0    1 root       389 -20     2 [bioset]
+ 0.0     0      0    1 root       388 -20     2 [kdmflush]
+ 0.0     0      0    1 root       348 -20     2 [kworker/2:1H]
+ 0.0     0      0    1 root       324 -20     2 [kworker/3:1H]
+ 0.0     0      0    1 root       322 -20     2 [kworker/0:1H]
+ 0.0     0      0    1 root       321 -20     2 [kworker/1:1H]
+ 0.0     0      0    1 root       312 -20     2 [scsi_tmf_2]
+ 0.0     0      0    1 root       311   0     2 [scsi_eh_2]
+ 0.0     0      0    1 root       308 -20     2 [scsi_tmf_1]
+ 0.0     0      0    1 root       307   0     2 [scsi_eh_1]
+ 0.0     0      0    1 root       306 -20     2 [scsi_tmf_0]
+ 0.0     0      0    1 root       305   0     2 [scsi_eh_0]
+ 0.0     0      0    1 root       292 -20     2 [ata_sff]
+ 0.0     0      0    1 root       111   0     2 [kauditd]
+ 0.0     0      0    1 root        76 -20     2 [deferwq]
+ 0.0     0      0    1 root        56 -20     2 [ipv6_addrconf]
+ 0.0     0      0    1 root        55 -20     2 [kpsmoused]
+ 0.0     0      0    1 root        54 -20     2 [kmpath_rdacd]
+ 0.0     0      0    1 root        51 -20     2 [kthrotld]
+ 0.0     0      0    1 root        43 -20     2 [crypto]
+ 0.0     0      0    1 root        42  19     2 [khugepaged]
+ 0.0     0      0    1 root        41   5     2 [ksmd]
+ 0.0     0      0    1 root        40   0     2 [kswapd0]
+ 0.0     0      0    1 root        34 -20     2 [md]
+ 0.0     0      0    1 root        33 -20     2 [kblockd]
+ 0.0     0      0    1 root        32 -20     2 [bioset]
+ 0.0     0      0    1 root        31 -20     2 [kintegrityd]
+ 0.0     0      0    1 root        30 -20     2 [writeback]
+ 0.0     0      0    1 root        29   0     2 [khungtaskd]
+ 0.0     0      0    1 root        28 -20     2 [netns]
+ 0.0     0      0    1 root        27   0     2 [kdevtmpfs]
+ 0.0     0      0    1 root        25 -20     2 [kworker/3:0H]
+ 0.0     0      0    1 root        23   0     2 [ksoftirqd/3]
+ 0.0     0      0    1 root        22   -     2 [migration/3]
+ 0.0     0      0    1 root        21   -     2 [watchdog/3]
+ 0.0     0      0    1 root        20 -20     2 [kworker/2:0H]
+ 0.0     0      0    1 root        18   0     2 [ksoftirqd/2]
+ 0.0     0      0    1 root        17   -     2 [migration/2]
+ 0.0     0      0    1 root        16   -     2 [watchdog/2]
+ 0.0     0      0    1 root        15 -20     2 [kworker/1:0H]
+ 0.0     0      0    1 root        13   0     2 [ksoftirqd/1]
+ 0.0     0      0    1 root        12   -     2 [migration/1]
+ 0.0     0      0    1 root        11   -     2 [watchdog/1]
+ 0.0     0      0    1 root        10   -     2 [watchdog/0]
+ 0.2     0      0    1 root         9   0     2 [rcu_sched]
+ 0.0     0      0    1 root         8   0     2 [rcu_bh]
+ 0.0     0      0    1 root         7   -     2 [migration/0]
+ 0.0     0      0    1 root         5 -20     2 [kworker/0:0H]
+ 0.0     0      0    1 root         3   0     2 [ksoftirqd/0]
+ 0.0     0      0    1 root         2   0     0 [kthreadd]
+ 0.0  4604 126028    1 root         1   0     0 /usr/lib/systemd/systemd --switched-root --system --deserialize 21
+ 

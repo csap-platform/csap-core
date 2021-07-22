@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>search page fragment</title>
+</head>
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+
+
+	<div id="logSearch">
+
+
+		<form
+			id="logSearchForm"
+			action="logSearch"
+			method="post">
+
+
+			<input
+				id="jobIdInput"
+				type="hidden"
+				name="jobId"
+				value="" />
+			<input
+				id="cancelInput"
+				type="hidden"
+				name="cancel"
+				value="" />
+			<input
+				id="scriptName"
+				type="hidden"
+				name="scriptName"
+				th:value="${  'Search' + userid + '_script.sh' }" />
+
+
+
+
+			<div class="quote">
+				Search uses linux grep. Use "$" for end of line, etc.
+				<a
+					class="csap-link"
+					href="https://www.google.com/search?q=linux+grep+samples"
+					target="_blank">More tips..</a>
+			</div>
+
+			<div
+				id=search-command
+				class=csap-blue>
+
+				<button
+					id="submitSearchButton"
+					class="csap-button">Search</button>
+				<textArea
+					id="searchTarget"
+					name="searchTarget"
+					placeholder="Enter the string you want to find"
+					style="width: 30em; margin-right: 0"></textArea>
+
+				<div style="font-size: 0.8em; display: inline-block; vertical-align: top">
+					<label
+						title="Ignoring case can add to resources consumed considerable"
+						style="display: inline-block; vertical-align: top; padding-top: 0.5em">
+						Ignore Case:
+						<input
+							name="ignoreCase"
+							type="checkbox"
+							style="width: 1em;" />
+					</label>
+				</div>
+
+				<div style="margin-top: 10px">
+
+
+					<div
+						id="hostButtonTarget"
+						style="display: inline;"></div>
+
+					<label
+						title="To limit resource consumption on host, search will be aborted if it takes longer then specified. Only CSAP admins may modify">
+						Max Search Time:
+						<input
+							id="searchTimeout"
+							type="number"
+							name="timeoutSeconds"
+							style="width: 4em"
+							value="30" />
+						seconds
+					</label>
+				</div>
+			</div>
+
+			<div
+				id=search-settings
+				class="settings csap-green">
+
+				<div class="searchLine">
+					<span class="description">Search in: </span>
+					<input
+						id="searchIn"
+						name="fromFolder"
+						th:value="${ searchFolder }"
+						title="Relative to service direcory; supports wildcard searches:  *.log, Start*.gz, ...)" />
+
+					<label title="Number of nested folders to search">
+						Depth:
+						<input
+							name="maxDepth"
+							value="10"
+							style="width: 2em" />
+					</label>
+				</div>
+				<div class="searchLine">
+					<span
+						class="description"
+						title="Service working directory will be base of search"> Service: </span>
+					<input
+						name="serviceName"
+						th:value="${ serviceName }" />
+				</div>
+
+				<br />
+
+
+				<div class="searchLine">
+					<span class="description">Show: </span>
+					<select
+						id="maxMatches"
+						name="maxMatches"></select>
+					<label>With</label>
+					<select
+						id="linesBefore"
+						name="linesBefore"></select>
+					<label>And</label>
+					<select
+						id="linesAfter"
+						name="linesAfter"></select>
+				</div>
+
+				<br />
+
+				<div class="searchLine">
+					<span
+						class="description"
+						title="Only search the specified number of lines at the end of the file">Content: </span>
+					<select
+						id="tailLines"
+						name="tailLines"></select>
+					<label title="Search will start at end of file, and proceed backwards">
+						Reverse Search:
+						<input
+							id="reverseOrder"
+							name="reverseOrder"
+							type="checkbox"
+							style="width: 1em;">
+					</label>
+					<label title="Search Compressed Files, using linux zgrep">
+						Zip Search:
+						<input
+							id="zipSearch"
+							name="zipSearch"
+							type="checkbox"
+							style="width: 1em;">
+					</label>
+				</div>
+
+				<br />
+
+				<div
+					class="searchLine"
+					title="Latest linux kernel include support for grep delimiters. Uncheck if errors occur">
+					<span class="description">Separate Matches: </span>
+					<input
+						id="delim"
+						name="delim"
+						type="checkbox"
+						style="width: 1em;"
+						checked="checked">
+				</div>
+			</div>
+
+		</form>
+
+
+		<div class="quote">Items In log folder - Click to select</div>
+		<div
+			id="search-file-listing"
+			class="csap-green"
+			th:if="${searchFiles.size() > 0}">
+
+			<div>
+				<button class="fileInSearchFolder csap-button">All Files (*)</button>
+			</div>
+			<div th:each="file : ${searchFiles}">
+				<button class="fileInSearchFolder csap-button">[[ ${ file.getName() } ]]</button>
+			</div>
+
+		</div>
+
+	</div>
+
+
+</body>
+</html>

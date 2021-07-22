@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>explorer fragment</title>
+    </head>
+
+    <body th:fragment="pageContent" th:remove="tag" >
+
+
+        <div id="createContainerDialog">
+
+            <div 
+                id="container-deploy-choice" >
+                Deploy to:  
+
+
+                <input id="container-radio-docker" 
+                       type="radio" name="container-radio" class="my-container-radio"
+                       value="docker" /> 
+                <label for="container-radio-docker"
+                       title="Create a docker container">
+                    Docker
+                </label> 
+
+                <span th:if="${ kubernetesNamespaces != null}" > 
+                    <input id="container-radio-kubernetes" 
+
+                           type="radio" name="container-radio" class="my-container-radio"
+                           value="kubernetes"/> 
+                    <label for="container-radio-kubernetes"
+                           title="Create a kubernetes deployment, pod, replica, and service">
+                        Kubernetes
+                    </label> 
+
+                </span>
+            </div>
+
+            <div >
+
+                <label title="Kubernetes deployments and docker containers both use host naming conventions: lowercase and hyphenated">
+                    <span id="createNameLabel">Name:</span>
+                    <input id="createContainerName" placeholder="lower-case-hyphenated"/>
+                </label>
+
+                <a 
+                    id="reloadFromImage"
+                    title="Fields will be loaded using settings from image"
+                    class="simple" 
+                    style="margin-left: 2em; display: inline" 
+                    target="_blank" 
+                    href="#scanImage">
+                    <img  class="but" th:src="@{/images/16x16/Zoom-In.png}"/>Scan Image
+                </a>
+
+                <a 
+                    class="simple" 
+                    style="margin-left: 2em; display: inline" 
+                    target="_blank" 
+                    href="https://github.com/csap-platform/csap-core/wiki/Host-Portal#host-dashboard">
+                    <img  class="but" th:src="@{/images/16x16/help.png}"/>Csap Docker
+                </a>
+                <a 
+                    class="simple" 
+                    style="margin-left: 2em; display: inline" 
+                    target="_blank" 
+                    href="https://docs.docker.com/engine/reference/run"> docker run
+                </a>
+
+            </div>
+
+            <div  class="k8-only csap-blue">
+
+                <label
+                    title="Select kubernetes namespace">
+
+                    <span>Name space:</span>
+                    <select id="k8-create-namespace-select"
+                            title="Filter by namespaces">
+                        <option th:each="namespace : ${ kubernetesNamespaces }" 
+                                th:text="${ namespace }"></option>
+                    </select>
+                </label>
+
+                <label
+                    title="Number of pods to create" >
+                    <span>Replica count:</span>
+                    <input id="k8-replica-count" style="width: 3em; margin-left: 0" value="1" type="number"/>
+                </label>
+
+
+                <label
+                    title="Optional: create a route (kubernetes service) to the container" >
+                    <span>Service:</span>
+
+                    <select id="kubernetes-service-type-select"
+                            style="margin-right: 0"
+                            title="Kubernetes service types">
+                        <option th:each="serviceType : ${ kubernetesServiceTypes }" 
+                                th:text="${ serviceType }"></option>
+                    </select>
+
+                    <a class="simple" 
+                       style="margin-left: 0em; vertical-align: top" 
+                       target="_blank" 
+                       title="View help on service types"
+                       href="https://kubernetes.io/docs/concepts/services-networking/service">
+                        <img  class="but"  th:src="@{/images/16x16/help.png}"/>
+                    </a>
+                </label>
+                <br/>
+                <label>
+                    <span>Ingress Path:</span>
+                    <input id="kubernetes-ingress-path"
+                           title="Optional: expose service route (kubernetes ingress) with sticky session enabled using specified path.
+                           Path should start with '/'. Eg. '/myservice' results in /myservice/* being routed to service endpoint.
+                           If path not specified, ingress will not be created."
+                           style="width: 12em; margin-left: 0;margin-right: 0"
+                           placeholder="/, /spring/context, etc"/>
+
+                    <a class="simple" 
+                       style="margin-left: 0em; vertical-align: top" 
+                       target="_blank" 
+                       title="View help on creating ingress"
+                       href="https://kubernetes.github.io/ingress-nginx/">
+                        <img  class="but"  th:src="@{/images/16x16/help.png}"/>
+                    </a>
+
+                    <span style="width: 5em;">Port:</span>
+                    <input id="kubernetes-ingress-port"
+                           title="ingress rule: port &#013; Specify the port of the service to be exposed."
+                           style="width: 2em; margin-left: 0"
+                           placeholder="80"/>
+
+                    <span style="width: 10em" >Host: </span>
+                    <input id="kubernetes-ingress-host"
+                           title="ingress rule: host - must be a fqdn &#013; default: will use $$kubernetes-ingress environment variable"
+                           style="width: 18em ; margin-left: 0"
+                           placeholder="$$kubernetes-ingress"/>
+                </label>
+
+ 
+                <br/>
+                <label title="If enabled, the csap-tools docker image is added to the pod. includes forensic tools for troubleshooting configurations.
+                       includes: nslookup, dig, tracert, etc."
+                       style="margin-left: 3em; margin-right: 0px; vertical-align: middle;">
+                    csap-tools container:
+                    <input id="kubernetes-create-csaptools" type="checkbox" 
+                           style="vertical-align: middle; margin-left: 0; " /> 
+
+                </label>
+
+
+            </div>
+
+
+            <div class="csap-green">
+
+                <label title="working directory when container is started">
+                    <span>Working Directory:</span>
+                    <input id="createWorkingDirectory" style="width: 20em; margin-left: 0"/>
+                </label>
+
+
+                <label title="Check to start container after creating">
+                    <input id="create-start-checkbox" type="checkbox" checked="checked" 
+                           style="margin-left: 3em;margin-right: 0px; vertical-align: middle;" /> 
+                    Start
+                </label>
+
+                <label title="Policy: no,always,unless-stopped,on-failure:numberOfAttempts. eg. on-failure:3">
+                    <span>Restart On Exit:</span>
+                    <input id="restartPolicy" style="width: 8em; margin-left: 0" placeholder="no"/>
+                </label>
+
+                <label 
+                    title="Container user. Allowed: uid:gid, containerUser:containerGroup. Also:  $csapUser or $user will use host uid/gid for specified user"
+                    >
+                    <span style="width: auto">User:</span>
+                    <input id="runUser" style="width: 8em; margin-left: 0" placeholder="containerUser:containerGroup"/>
+                </label>
+
+                <br/>
+
+                <div>
+                    <label title="default command to run when container is started">
+                        <span>Entry Point:</span>
+                        <textarea id="createContainerEntry" class="jsonCompile"  spellcheck="false"></textarea>
+                    </label>
+                </div>
+                <div>
+                    <label  title="default command to run when container is started">
+                        <span>Command:</span>
+                        <textarea id="createContainerCommand" class="jsonCompile"  spellcheck="false"></textarea>
+                    </label>
+                </div> 
+
+                <div>
+                    <label  title="default command to run when container is started">
+                        <span>Environment Variables: 
+                            <br/>
+                            <button data-type="variable" 
+                                    title="add variable" class="csap-button">
+                                <img th:src="@{/images/plus.jpg}"/>
+                            </button></span>
+                        <textarea id="createContainerEnvVariables" class="jsonCompile"  spellcheck="false"></textarea>
+                    </label>
+                </div>
+
+                <div class="warning">error</div>
+
+                <div class="halfSize docker-only"
+                     title="Note: new network is only created if it does not already exist. 'host' and 'bridge' may be used, but not recommended">
+                    Network:
+                    <a class="simple" 
+                       style="margin-left: 2em; display: inline" 
+                       target="_blank" 
+                       title="View help on creating network"
+                       href="https://docs.docker.com/network/">
+                        <img  class="but"  th:src="@{/images/16x16/help.png}"/>
+                    </a>
+                    <br/>
+                    <textarea id="createContainerNetwork"  class="jsonCompile" spellcheck="false"
+                              ></textarea>
+                </div>
+
+                <div class="halfSize"> 
+                    Port Mappings:  
+                    <button data-type="port" 
+                            title="add port" 
+                            class="csap-button">
+                        <img th:src="@{/images/plus.jpg}"/>
+                    </button>
+
+                    <br/>
+                    <textarea id="createContainerPorts"  class="jsonCompile" spellcheck="false"></textarea>
+                </div>
+
+                <div class="halfSize">
+                    Volumes: 
+                    <button data-type="volume" 
+                            title="add Volume entry tempate to list below" 
+                            class="csap-button">
+                        <img th:src="@{/images/plus.jpg}" />
+                    </button>
+
+                    <a class="simple" 
+                       style="margin-left: 2em; display: inline" 
+                       target="_blank" 
+                       title="View help on creating volumes"
+                       href="https://docs.docker.com/storage/volumes/">
+                        <img  class="but"  th:src="@{/images/16x16/help.png}"/>
+                    </a>
+                    <br/>
+                    <textarea id="createContainerVolumes"  class="jsonCompile" spellcheck="false"
+                              title="Specify a hostpath for a persistent volume. Click the add button to see sytax"></textarea>
+                </div>
+
+                <div class="halfSize docker-only">
+                    Container Constraints:  
+                    <button data-type="limit" 
+                            title="Add default settings." 
+                            class="csap-button">
+                        <img   th:src="@{/images/emblem-symbolic-link.png}"/>
+                    </button>
+
+                    <a class="simple" 
+                       style="margin-left: 2em; display: inline" 
+                       target="_blank" 
+                       title="View help on creating constraints"
+                       href="https://docs.docker.com/engine/reference/run/#runtime-constraints-on-resources">
+                        <img class="but" th:src="@{/images/16x16/help.png}"/>
+                    </a>
+                    <br/>
+                    <textarea id="createContainerLimits"  
+                              title="Note: insufficient resources will result in container failing to start. Check logs." 
+                              class="jsonCompile" 
+                              spellcheck="false"></textarea>
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+    </body>
+</html>

@@ -1,0 +1,127 @@
+#
+#  Simple pvc verification
+#   - uses default storage class
+#   - creates a pod using simple container (busybox:1.32.0) to perform a write to pvc
+#
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+
+metadata:
+  name: nginx-with-default-claim
+  
+spec:
+  
+  # uncomment if a default storage provider is not provided
+  #storageClassName: "UPDATE_WITH_YOUR_NAME"
+  
+  accessModes:
+    - ReadWriteOnce
+
+  resources:
+    requests:
+      storage: 1Mi
+
+---
+
+
+kind: Deployment
+
+apiVersion: apps/v1
+
+metadata:
+  name: nginx-with-default
+  namespace: default
+  labels:
+    csap-deploy-sample: nginx-with-default-id
+    
+spec:
+  selector:
+    matchLabels:
+      csap-deploy-sample: nginx-with-default-id
+      
+  replicas: 1
+  
+  template:
+  
+    metadata:
+      name: "nginx-demo-pod-template"
+      labels:
+        csap-deploy-sample: nginx-with-default-id
+        matchForDemoService: nginx-default-target
+
+      annotations:     
+        "sample-1": "value-1" 
+        
+    spec:
+    
+      terminationGracePeriodSeconds: 5
+      
+      containers:
+      - name: nginx-container
+        image: nginx:latest
+        
+        ports:
+        - containerPort: 80
+        
+        command:
+          - "/bin/sh"
+          
+        args:
+          - "-c"
+          - "
+          htmlFolder=/usr/share/nginx/html;
+          ls -al $htmlFolder ; NOW=$(date +'%h-%d-%I-%M-%S'); 
+          
+          touch $htmlFolder/SUCCESS-$NOW; 
+          echo hi >> $htmlFolder/SUCCESS-$NOW ; 
+          
+          echo creating $htmlFolder/index.html;
+          echo hi there from nginx-with-default at $NOW >> $htmlFolder/index.html; 
+          
+          nginx -g 'daemon off;'
+          "
+          
+        readinessProbe:
+          initialDelaySeconds: 3
+          timeoutSeconds: 3
+          periodSeconds: 3
+          failureThreshold: 1
+          httpGet:
+            path: /
+            port: 80
+            
+        livenessProbe:
+          initialDelaySeconds: 3
+          timeoutSeconds: 3
+          periodSeconds: 3
+          failureThreshold: 1
+          httpGet:
+            path: /
+            port: 80
+            
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html
+          name: my-default-volume
+          
+      volumes:
+      - name: my-default-volume
+        persistentVolumeClaim: 
+          claimName: nginx-with-default-claim
+
+        
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-with-default-service
+  namespace: default
+spec:
+  type: NodePort # defaults to clusterip
+  selector:
+    matchForDemoService: nginx-default-target
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    

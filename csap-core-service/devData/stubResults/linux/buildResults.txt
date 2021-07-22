@@ -1,0 +1,386 @@
+
+
+
+_______________________________________________________________________________________________
+
+ csap-dev01	13:04:16 	 July 25 2019 
+_______________________________________________________________________________________________
+
+
+ 
+_______________________________________________________________________________________________
+
+ Deployment on host: csap-dev01
+_______________________________________________________________________________________________
+
+Executing OS command on host csap-dev01:/opt/csap/staging/bin/csap-deploy.sh_P_
+
+
+....
+   Reloading '/opt/csap/.bashrc'
+_______________________________________________________________________________________________
+
+/opt/csap/.bashrc: line 71: ulimit: open files: cannot modify limit: Operation not permitted
+_______________________________________________________________________________________________
+
+_______________________________________________________________________________________________
+ 
+ 07/25/2019 13:04:16 690833274ms host: 'csap-dev01.***REMOVED***' user: 'csap' 
+ tmp-csap-deploy-sh1564074256 
+_______________________________________________________________________________________________
+
+
+_______________________________________________________________________________________________
+ 
+  Environment variables set by CSAP . For shell scripts: use "$variable",  for java: System.getenv().get("variable") 
+_______________________________________________________________________________________________
+
+       csapName: CsAgent              csapPrimaryPort: 8011                                :                      
+   csapHttpPort: 8011                     csapJmxPort: 8016                                :                      
+     csapServer: SpringBoot                csapTomcat:                      csapHttpPerHost:                      
+    csapPackage: CSAP Platform               csapLife: dev                        csapLbUrl: http://csap-dev01.***REMOVED***:8080 
+   csapArtifact: org.csap:csap-core-service:2-SNAPSHOT:jar csapRelicaCount:                                     :                      
+    csapVersion: 2-SNAPSHOT           csapServiceLife: dev-base-os                         :                      
+  csapProcessId: CsAgent_8011                csapPids: 18616                     csapParams: -Dcsap.security.rest-api-filter.token=k16ljSCT5UnF8o1fCyshcD3+VZtrWm2c -Dspring.profiles.active=CSAP_LIFE,agent,limits,company -Dsun.rmi.transport.tcp.responseTimeout=3000 -XX:MaxMetaspaceSize=144M -Xms256M -Xmx256M 
+ csapWorkingDir: /opt/csap/processing/CsAgent_8011      csapLogDir: /opt/csap/processing/CsAgent_8011/logs                :                      
+customAttributes: [test-global-1, openIdIssuerUri, csap_infra_role, csapUserSecret, csapServiceSecret, csap_build_role, csap_view_role, csap_admin_role, csap_def_storage_class, csap_def_ingress_host, oathHostPort]             set: only for this service                :                      
+csapResourceFolder: /opt/csap/staging/conf/propertyOverride/CsAgent/resources             set: Application over ride files                :                      
+        csapAjp: MASKED                      Refer to: https://github.com/csap-platform/csap-core/wiki#updateRefCSAP+Loadbalancing                :                      
+      csapPeers: csap-dev02                csap-dev03: csap-dev04                csap-dev05: csap-dev06           
+     csap-dev20:                                     :                                     :                      
+Csap Encryption:                       CSAP_ALGORITHM: PBEWITHMD5ANDTRIPLEDES         CSAP_ID: Encryption token masked 
+ redisSentinels:                                     :                                     :                      
+  notifications: -                      csapAddresses: disabled               csapFrequency:                      
+ csapMaxBacklog:                                     :                                     :                      
+        STAGING: /opt/csap/staging         PROCESSING: /opt/csap/processing      CLUSTERDEF:                      
+ hostUrlPattern: http://CSAP_HOST.***REMOVED***:8011/CsAgent      mailServer: myrelay.***REMOVED***.com   csapDockerRepository:                      
+   
+
+_______________________________________________________________________________________________
+ 
+  JAVA_HOME: '/opt/java/jdk-11.0.3' , java -version: 'Java HotSpot(TM) 64-Bit Server VM 18.9 (build 11.0.3+12-LTS, mixed mode)' 
+_______________________________________________________________________________________________
+
+
+_______________________________________________________________________________________________
+ 
+  Binary Deployment 
+_______________________________________________________________________________________________
+
+            artifact: org.csap:csap-core-service:2-SNAPSHOT:jar
+            location: /opt/csap/staging/mavenRepo/org/csap/csap-core-service/2-SNAPSHOT
+             command: -B org.apache.maven.plugins:maven-dependency-plugin:3.1.1:get -DremoteRepositories=1_repo::::file:////opt/csap/staging/mavenRepo,http://***REMOVED***.***REMOVED***:8081/artifactory/csap-release -Dtransitive=false -Dartifact=org.csap:csap-core-service:2-SNAPSHOT:jar
+
+_______________________________________________________________________________________________
+ 
+  Deployment: (uses maven for source and binary) 
+_______________________________________________________________________________________________
+
+            location: /opt/csap/staging/build/CsAgent_8011/csap-core-service
+   mavenBuildCommand: -B org.apache.maven.plugins:maven-dependency-plugin:3.1.1:get -DremoteRepositories=1_repo::::file:////opt/csap/staging/mavenRepo,http://***REMOVED***.***REMOVED***:8081/artifactory/csap-release -Dtransitive=false -Dartifact=org.csap:csap-core-service:2-SNAPSHOT:jar
+       Build Command: mvn -s /opt/csap/staging/conf/propertyOverride/settings.xml  -B org.apache.maven.plugins:maven-dependency-plugin:3.1.1:get -DremoteRepositories=1_repo::::file:////opt/csap/staging/mavenRepo,http://***REMOVED***.***REMOVED***:8081/artifactory/csap-release -Dtransitive=false -Dartifact=org.csap:csap-core-service:2-SNAPSHOT:jar
+   
+
+
+Java HotSpot(TM) 64-Bit Server VM warning: Ignoring option PermSize; support was removed in 8.0
+Java HotSpot(TM) 64-Bit Server VM warning: Ignoring option MaxPermSize; support was removed in 8.0
+[INFO] Scanning for projects...
+[INFO] Downloading from ***REMOVED***-artifactory-community: http://***REMOVED***.***REMOVED***:8081/artifactory/maven/org/csap/csap-starter-parent/2-SNAPSHOT/maven-metadata.xml
+[INFO] Downloaded from ***REMOVED***-artifactory-community: http://***REMOVED***.***REMOVED***:8081/artifactory/maven/org/csap/csap-starter-parent/2-SNAPSHOT/maven-metadata.xml (598 B at 4.0 kB/s)
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Building csap-core-service 2-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:3.1.1:get (default-cli) @ csap-core-service ---
+[INFO] Resolving org.csap:csap-core-service:jar:2-SNAPSHOT
+[INFO] Downloading from temp: http://***REMOVED***.***REMOVED***:8081/artifactory/csap-release/org/csap/csap-core-service/2-SNAPSHOT/maven-metadata.xml
+[INFO] Downloading from ***REMOVED***-artifactory-community: http://***REMOVED***.***REMOVED***:8081/artifactory/maven/org/csap/csap-core-service/2-SNAPSHOT/maven-metadata.xml
+[INFO] Downloading from 1_repo: file:////opt/csap/staging/mavenRepo/org/csap/csap-core-service/2-SNAPSHOT/maven-metadata.xml
+[INFO] Downloaded from ***REMOVED***-artifactory-community: http://***REMOVED***.***REMOVED***:8081/artifactory/maven/org/csap/csap-core-service/2-SNAPSHOT/maven-metadata.xml (981 B at 16 kB/s)
+[INFO] Downloading from ***REMOVED***-artifactory-community: http://***REMOVED***.***REMOVED***:8081/artifactory/maven/org/csap/csap-core-service/2-SNAPSHOT/csap-core-service-2-20190725.170253-122.jar
+[INFO] Downloaded from ***REMOVED***-artifactory-community: http://***REMOVED***.***REMOVED***:8081/artifactory/maven/org/csap/csap-core-service/2-SNAPSHOT/csap-core-service-2-20190725.170253-122.jar (136 MB at 71 MB/s)
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 3.850 s
+[INFO] Finished at: 2019-07-25T13:04:21-04:00
+[INFO] Final Memory: 19M/128M
+[INFO] ------------------------------------------------------------------------
+
+_______________________________________________________________________________________________
+ 
+  Verifying artifact build 
+_______________________________________________________________________________________________
+
+   Creating artifact notes: '/opt/csap/staging/csap-packages/CsAgent.jar.txt'
+
+_______________________________________________________________________________________________
+ 
+  Finished Build:  /opt/csap/staging/csap-packages contains '/opt/csap/staging/mavenRepo/org/csap/csap-core-service/2-SNAPSHOT/csap-core-service-2-SNAPSHOT.jar' 
+_______________________________________________________________________________________________
+
+   BUILD__SUCCESS
+
+ Artifact Transfer: maximum 20 threads.
+
+
+Sending to host: csap-dev02 file: /opt/csap/staging/temp/CsAgent.jar.tgz using connection: transient
+Sending to host: csap-dev03 file: /opt/csap/staging/temp/CsAgent.jar.tgz using connection: transient
+Sending to host: csap-dev07 file: /opt/csap/staging/temp/CsAgent.jar.tgz using connection: transient
+Sending to host: csap-dev05 file: /opt/csap/staging/temp/CsAgent.jar.tgz using connection: transient
+Sending to host: csap-dev12 file: /opt/csap/staging/temp/CsAgent.jar.tgz using connection: transient
+Sending to host: csap-dev20 file: /opt/csap/staging/temp/CsAgent.jar.tgz using connection: transient
+Sending to host: csap-dev06 file: /opt/csap/staging/temp/CsAgent.jar.tgz using connection: transient
+Sending to host: csap-dev10 file: /opt/csap/staging/temp/CsAgent.jar.tgz using connection: transient
+Sending to host: csap-dev08 file: /opt/csap/staging/temp/CsAgent.jar.tgz using connection: transient
+Sending to host: csap-dev09 file: /opt/csap/staging/temp/CsAgent.jar.tgz using connection: transient
+Sending to host: csap-dev11 file: /opt/csap/staging/temp/CsAgent.jar.tgz using connection: transient
+Sending to host: csap-dev04 file: /opt/csap/staging/temp/CsAgent.jar.tgz using connection: transient
+Sending to host: csap-dev02 file: /opt/csap/staging/temp/CsAgent.jar.txt.tgz using connection: transient
+Sending to host: csap-dev08 file: /opt/csap/staging/temp/CsAgent.jar.txt.tgz using connection: transient
+Sending to host: csap-dev04 file: /opt/csap/staging/temp/CsAgent.jar.txt.tgz using connection: transient
+Sending to host: csap-dev20 file: /opt/csap/staging/temp/CsAgent.jar.txt.tgz using connection: transient
+Sending to host: csap-dev03 file: /opt/csap/staging/temp/CsAgent.jar.txt.tgz using connection: transient
+Sending to host: csap-dev06 file: /opt/csap/staging/temp/CsAgent.jar.txt.tgz using connection: transient
+Sending to host: csap-dev05 file: /opt/csap/staging/temp/CsAgent.jar.txt.tgz using connection: transient
+Sending to host: csap-dev07 file: /opt/csap/staging/temp/CsAgent.jar.txt.tgz using connection: transient
+
+Completed job 1 of 24: , summary of response: {}
+  "host" : "csap-dev20",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command o
+
+Completed job 2 of 24: , summary of response: {}
+  "host" : "csap-dev08",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command o
+Sending to host: csap-dev09 file: /opt/csap/staging/temp/CsAgent.jar.txt.tgz using connection: transient
+Sending to host: csap-dev10 file: /opt/csap/staging/temp/CsAgent.jar.txt.tgz using connection: transient
+
+Completed job 3 of 24: , summary of response: {}
+  "host" : "csap-dev02",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command o
+
+Completed job 4 of 24: , summary of response: {}
+  "host" : "csap-dev07",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command o
+
+Completed job 5 of 24: , summary of response: {}
+  "host" : "csap-dev05",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command o
+
+Completed job 6 of 24: , summary of response: {}
+  "host" : "csap-dev04",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command o
+Sending to host: csap-dev11 file: /opt/csap/staging/temp/CsAgent.jar.txt.tgz using connection: transient
+Sending to host: csap-dev12 file: /opt/csap/staging/temp/CsAgent.jar.txt.tgz using connection: transient
+
+Completed job 7 of 24: , summary of response: {}
+  "host" : "csap-dev06",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command o
+
+Completed job 8 of 24: , summary of response: {}
+  "host" : "csap-dev03",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command o
+
+Completed job 9 of 24: , summary of response: {}
+  "host" : "csap-dev09",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command o
+
+Completed job 10 of 24: , summary of response: {}
+  "host" : "csap-dev10",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command o
+
+Completed job 11 of 24: , summary of response: {}
+  "host" : "csap-dev11",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command o
+
+Completed job 12 of 24: , summary of response: {}
+  "host" : "csap-dev12",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command o
+
+Completed job 13 of 24: , summary of response: {}
+  "host" : "csap-dev02",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command
+
+Completed job 14 of 24: , summary of response: {}
+  "host" : "csap-dev10",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command
+
+Completed job 15 of 24: , summary of response: {}
+  "host" : "csap-dev05",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command
+
+Completed job 16 of 24: , summary of response: {}
+  "host" : "csap-dev20",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command
+
+Completed job 17 of 24: , summary of response: {}
+  "host" : "csap-dev11",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command
+
+Completed job 18 of 24: , summary of response: {}
+  "host" : "csap-dev12",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command
+
+ *** Waiting for response from: [csap-dev03:CsAgent.jar, csap-dev04:CsAgent.jar, csap-dev06:CsAgent.jar, csap-dev07:CsAgent.jar, csap-dev08:CsAgent.jar, csap-dev09:CsAgent.jar]
+
+Completed job 19 of 24: , summary of response: {}
+  "host" : "csap-dev06",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command
+
+ *** Waiting for response from: [csap-dev03:CsAgent.jar, csap-dev04:CsAgent.jar, csap-dev07:CsAgent.jar, csap-dev08:CsAgent.jar, csap-dev09:CsAgent.jar]
+
+Completed job 20 of 24: , summary of response: {}
+  "host" : "csap-dev08",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command
+
+ *** Waiting for response from: [csap-dev03:CsAgent.jar, csap-dev04:CsAgent.jar, csap-dev07:CsAgent.jar, csap-dev09:CsAgent.jar]
+
+Completed job 21 of 24: , summary of response: {}
+  "host" : "csap-dev07",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command
+
+ *** Waiting for response from: [csap-dev03:CsAgent.jar, csap-dev04:CsAgent.jar, csap-dev09:CsAgent.jar]
+
+Completed job 22 of 24: , summary of response: {}
+  "host" : "csap-dev09",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command
+
+ *** Waiting for response from: [csap-dev03:CsAgent.jar, csap-dev04:CsAgent.jar]
+
+Completed job 23 of 24: , summary of response: {}
+  "host" : "csap-dev04",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command
+
+ *** Waiting for response from: [csap-dev03:CsAgent.jar]
+
+Completed job 24 of 24: , summary of response: {}
+  "host" : "csap-dev03",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command
+
+ *** Waiting for response from: []
+
+{
+  "host" : "csap-dev20",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command on host csap-dev20:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar.txt\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev08",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command on host csap-dev08:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar.txt\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev02",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command on host csap-dev02:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar.txt\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev07",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command on host csap-dev07:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar.txt\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev05",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command on host csap-dev05:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar.txt\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev04",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command on host csap-dev04:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar.txt\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev06",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command on host csap-dev06:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar.txt\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev03",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command on host csap-dev03:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar.txt\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev09",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command on host csap-dev09:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar.txt\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev10",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command on host csap-dev10:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar.txt\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev11",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command on host csap-dev11:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar.txt\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev12",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.txt.tgz Size: 235\nExecuting OS command on host csap-dev12:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar.txt\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.txt.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev02",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command on host csap-dev02:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev10",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command on host csap-dev10:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev05",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command on host csap-dev05:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev20",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command on host csap-dev20:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev11",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command on host csap-dev11:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev12",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command on host csap-dev12:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev06",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command on host csap-dev06:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev08",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command on host csap-dev08:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev07",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command on host csap-dev07:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev09",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command on host csap-dev09:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev04",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command on host csap-dev04:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz\n" ]
+}
+
+{
+  "host" : "csap-dev03",
+  "coreResults" : [ "\n==  Host:10.22.13.59 uploaded file: CsAgent.jar.tgz Size: 122392730\nExecuting OS command on host csap-dev03:/opt/csap/staging/bin/csap-unzip-as-root.sh_P_\n\n==\n== decompressing /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz to /opt/csap/staging/csap-packages/\n== chowning to csap\nCsAgent.jar\n== Removing transferred file /opt/csap/staging/temp/CsAgentTransfer/CsAgent.jar.tgz\n" ]
+}
+__COMPLETED__
+
+
+ *** 13:04:32,   July 25  2019 
+

@@ -1,0 +1,92 @@
+<div id="deploy"  class="group json-form-autosize-panel">
+
+
+    <div  class="csap-red">
+        <div class="heading">
+            Docker Artifacts: complete configuration is available using the container tab
+        </div>
+
+
+		<label 
+				class=csap-form
+				title="container image name">
+			<span>Image:</span>
+			<input
+				placeholder="docker.io/hello-world:latest"
+				data-path="docker.image" />
+
+		</label>
+		
+    </div>
+    
+    <div  class="csap-green">
+        <div class="heading">
+            Maven Artifacts: used for csap-api packages, and jee deployments
+        </div>
+
+        <label 
+				class=csap-form
+				title="Deployment artifact to deploy">
+            <span>Artifact:</span> 
+            <input data-path="maven.dependency" />
+        </label>
+
+        <label 
+				class=csap-form-inline>
+            <span>Version Override:</span> 
+            <input class=words  
+            	data-path="maven.enableReleaseFile" placeholder="true"/>
+            <div class="heading" style="display: inline">*Optional: allow override of version using external release files.</div>
+        </label>
+
+        <label 
+				class=csap-form title="Maven repository to retreive artifact">
+            <span>Repository:</span> 
+            <input placeholder="Application Default" data-path="maven.repo" />
+        </label>
+    </div>
+
+    <div  class="csap-blue">
+        <div class="heading">
+        	Source Artifacts: used for deployments from source	
+        </div>
+
+        <label 
+				class=csap-form>
+				<span>Source Code:</span> 
+				<input data-path="source.path" />
+				</label>
+
+        <label 
+				class=csap-form-inline title="git, svn and others on request">
+            <span>Type: </span> <input data-path="source.scm" />
+        </label>
+
+        <label class=csap-form-inline  title="Location in source tree for build">
+            <span>Build Location: </span> 
+            <input  class=words placeholder="." data-path="source.buildLocation" />
+        </label>
+
+        <label class=csap-form-inline 
+        	 title="The maximum time allowed for completing the deployment request.">
+            <span>Time Out (minutes): </span> 
+            <input  placeholder="5" data-path="deployTimeoutMinutes" />
+        </label>
+
+
+        <label class=csap-form-inline >
+            <span>Branch: </span> <input  class=words data-path="source.branch" />
+            <div class="heading" style="display: inline">eg. svn: trunk, git: none|refs/heads/master</div>
+        </label>
+
+    </div>
+    <br/><br/>
+    <div class="heading">
+        Notes: 
+        <ol style="list-style: lower-alpha; padding-left: 3em">
+            <li>Any of the attributes may be selectively over-ridden per Lifecycles tab</li>
+            <li>svn branching is done by replacing trunk in the url with specified branch name</li>
+            <li>git branching typically requires refs/heads/your_branch_name. Specifying none will check out the master</li>
+        </ol>
+    </div>
+</div>

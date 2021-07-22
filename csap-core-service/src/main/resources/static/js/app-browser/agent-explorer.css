@@ -1,0 +1,1145 @@
+
+#agent-tab-content #agent-tab-explorer #dockerTree {
+	color: black;
+	height: 100% ;
+	background-color: white;
+	overflow: auto;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree  button.ro-code-viewer {
+	font-style: italic;
+}
+
+
+#agent-tab-content #agent-tab-explorer #dockerTree a.csap-link-icon  {
+	overflow: visible;
+	color: grey;
+	background-position-x: -200px;
+}
+#agent-tab-content #agent-tab-explorer #dockerTree a:hover.csap-link-icon {
+	overflow: visible;
+	color: red;
+	background-position-x: 2px;
+}
+
+
+#agent-tab-content #agent-tab-explorer #dockerTree .fancytree-container  {
+	background-color: transparent; ;
+	padding: 10px;
+	border: none;
+	border-radius: var(--border-radius-small);
+}
+
+
+#agent-tab-content #agent-tab-explorer #dockerTree div.name {
+	display: inline-block;
+	min-width: 5em;
+	vertical-align: middle;
+}
+
+input.tree-filter-checkbox {
+	margin-left: 3em;
+	vertical-align: middle;
+	margin-right: 4px;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree #max-events {
+	width: 3em;
+	margin-left: 5px;
+}
+
+#wrap-info-panel {
+	margin-right: 2px;
+	transform: scale(0.8);
+}
+
+#node-info-panel label {
+	font-size: 10pt;
+	font-style: italic;
+	position: relative;
+	top: -5px;
+}
+
+#node-info-panel {
+	font-size: 12pt;
+	position: fixed;
+	right: 2em;
+	max-width: 80%;
+	top: 8em;
+}
+
+#node-info-panel button.csap-button {
+	margin: 10px;
+	margin-top: 0;
+}
+
+
+button.close img {
+	position: relative;
+	top: -2px;
+}
+
+#node-info-panel .description, #node-info-panel .details {
+	font-family: "Lucida Console", Menlo;
+	-moz-tab-size: 4;
+	tab-size: 4;
+	border: 1px solid black;
+	margin: 0;
+	padding: 8px;
+	border-radius: 2px;
+	background-color: white;
+	white-space: pre;
+	word-break: break-all;
+	overflow: auto;
+	max-height: 40em;
+}
+
+
+
+#agent-tab-content #agent-tab-explorer #dockerTree .fileHidden {
+	display: none;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree table.simple {
+	margin: 5px;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree table.simple td, #agent-tab-content #agent-tab-explorer #dockerTree table.simple th {
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree label.podTitle, #agent-tab-content #agent-tab-explorer #dockerTree label.processName, #agent-tab-content #agent-tab-explorer #dockerTree label.summary,
+	#agent-tab-content #agent-tab-explorer #dockerTree label.image, #agent-tab-content #agent-tab-explorer #dockerTree label.container {
+	display: inline-block;
+	overflow: hidden;
+	min-width: 20em;
+	height: 1.1em;
+	color: black;
+	vertical-align: top;
+}
+#agent-tab-content #agent-tab-explorer #dockerTree label.event-summary {
+	min-width: 25em;
+}
+
+div.service-port-launch a {
+	max-width: 20em;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree label.summary span.event-timestamp {
+	width: 7em;
+	display: inline-block;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree label.summary span.event-info {
+	padding-left: 1em;
+	font-style: italic;
+	font-size: 8pt;
+}
+#agent-tab-content #agent-tab-explorer #dockerTree label.summary span.event-info>span {
+	font-weight: bold;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree span.normal {
+	font-weight: bold;
+	color: black;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree span.warning {
+	font-weight: bold;
+	color: red;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree div.comment {
+	display: inline-block;
+	vertical-align: middle;
+	font-style: italic;
+	margin: 0;
+	margin-top: 2px;
+	margin-left: 2em;
+	min-width: 8em;
+	max-width: 65em;
+	white-space: pre-wrap;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree div.comment.csap-loading {
+	
+	background-size: 16px 16px;
+	background-repeat: no-repeat;
+	background-position: left center;
+	min-width: 18px;
+	min-height: 18px;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree div.comment span.cron {
+	display: grid;
+	grid-template-columns: minmax(10em, 1fr) minmax(15em, 1fr) auto;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree div.comment input {
+	font-size: 8pt;	
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree div.comment span.more-items {
+	text-align: right;
+	min-width: 3em;
+	display: inline-block;
+	color: red;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree #k8ConfigurationTree.comment {
+	white-space: normal;
+}
+
+.comment .comment-number {
+	text-align: right;
+	min-width: 1.5em;
+	display: inline-block;
+}
+
+#image-pull-dialog label, #image-clean-dialog label,
+	#process-kill-dialog label {
+	font-size: 1.5em;
+}
+
+#image-pull-dialog span.label, #image-clean-dialog span.label {
+	width: 10em;
+	text-align: right;
+}
+
+#referenceImagesSelect-button {
+	background-color: #ddeeff;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree label.name {
+	display: inline-block;
+	min-width: 10em;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree div.empty, #agent-tab-content #agent-tab-explorer #dockerTree div.image-name {
+	display: inline-block;
+	font-style: italic;
+	margin-left: 10px;
+	max-width: 20em;
+	overflow-x: hidden;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .service-port-launch {
+	display: inline-block;
+	min-width: 20em;
+	margin-right: 2em;
+	vertical-align: middle;
+}
+
+
+#agent-tab-content #agent-tab-explorer #dockerTree .k8-service-summary {
+	display: inline;
+	vertical-align: middle;
+	font-style: italic;
+	margin-left: 10px;
+	max-width: 33em;
+	overflow-x: hidden;
+}
+
+div.pod-meta {
+	display: inline-block;
+	min-width: 10em;
+	text-align: right;
+	margin-right: 2em;
+}
+
+div.pod-meta span {
+	vertical-align: top;
+	margin-left: 1em;
+}
+
+div.podContainer span:first-child {
+	min-width: 15em;
+	display: inline-block;
+}
+
+div.podContainer span:nth-child(2) {
+	margin-left: 1em;
+	font-style: italic;
+	overflow-x: hidden;
+	max-width: 20em;
+}
+
+#agent-tab-content #agent-tab-explorer  #tree-controls {
+	position: absolute;
+	right: 5em;
+	top: 6.5em;
+	z-index: 9;
+	font-family: "Lucida Console", Menlo;
+	font-size: 8pt;
+	color: black;
+}
+
+#agent-tab-content #agent-tab-explorer  #tree-controls #last-selected-text {
+	min-width: 3em;
+	max-width: 30em;
+	width: 8em;
+	padding: 0;
+	padding-left: 5px;
+	border: none;
+	background-color: #ddeeff;
+	color: gray;
+}
+
+#jsonDisplay-editor-dialog .flex-container {
+	margin-left: 1em;
+	gap: 3em;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree div.value {
+	display: inline;
+	color: black;
+	margin-left: 10px;
+	padding: 3px;
+	border-radius: 2px;
+	background-color: #E6E6E6;
+	vertical-align: middle;
+	max-width: 40em;
+	white-space: pre-wrap;
+	font-family: "Lucida Console", Menlo;
+	font-size: 9pt;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree  .csap-table-value div.value {
+	background-color: transparent;
+	display: block;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree  .csap-table-value table.csap {
+	margin-left: 2em;
+	margin-right: 2em;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree div.user {
+	display: inline-block;
+	color: grey;
+	margin-left: 10px;
+	border-radius: 2px;
+	white-space: normal;
+	vertical-align: middle;
+	font-style: italic;
+	min-width: 6em;
+}
+
+
+#progress-truncate-message {
+	font-style: italic;
+	color: var(--theme-color);
+	background-color: var(--nav-item-bg);
+}
+
+#progress-controls {
+	align-items: end;
+	column-gap: 20px;
+	margin-left: 20px;
+	margin-bottom: 5px;
+}
+ #progress-controls select {
+	font-size: 9px;
+}
+
+#progress-results-dialog #progress-results-text {
+	margin-top: 0;
+	margin-left: 3px;
+}
+/*
+#progress-results-dialog label {
+	display: inline;
+	vertical-align: bottom;
+	margin-left: 3em;
+	font-weight: bold;
+}
+
+#progress-results-dialog label input {
+	display: inline;
+	vertical-align: bottom;
+	margin: 0;
+	margin-right: 5px;
+}*/
+
+#progress-results-dialog #last-refresh-time {
+	margin-right: 3em;
+} 
+
+#progress-results-text {
+	border: 1px solid black;
+}
+
+div.dockerResults {
+	font-family: "Lucida Console", Menlo;
+	-moz-tab-size: 4;
+	tab-size: 4;
+	border: 1px solid black;
+	margin: 0;
+	padding: 3px;
+	border-radius: 2px;
+	background-color: white;
+	white-space: pre-wrap;
+	word-break: break-all;
+	overflow: auto;
+}
+
+.csap-tree-commands {
+	position: absolute;
+	margin-left: 3em;
+	display: inline-block;
+	white-space: nowrap;
+}
+
+#filterControls {
+	font-size: 8pt;
+	border: 1px dashed grey;
+	display: inline-block;
+}
+
+#filterControls input[type='checkbox'] {
+	padding: 0;
+	margin: 0;
+	vertical-align: middle;
+	margin-right: 5px;
+}
+
+#tree-display-filter {
+	
+	width: 14em;
+	text-align: center;
+	padding: 0px;
+	padding-left: 3px;
+	padding-right: 3px;
+	font-size: 8pt;
+	margin-top: 2px;
+	margin-right: 0.5em;
+}
+
+#removeImageDialog, #removeContainerDialog, #stopContainerDialog,
+	#vsphere-add-disk {
+	font-size: 11pt;
+}
+
+#vsphere-add-disk label.line {
+	display: block;
+}
+
+#vsphere-add-disk label.line input {
+	width: 40em;
+}
+
+#disk-operation, #vsphere-add-disk label.line span {
+	display: inline-block;
+	width: 10em;
+	text-align: right;
+	margin: 5px;
+	font-weight: bold;
+}
+
+#vsphere-add-disk input[type="radio"] {
+	margin-right: 0;
+	margin-left: 2em;
+}
+
+#removeImageDialog label span {
+	display: inline-block;
+	width: 10em;
+	text-align: right;
+	margin: 5px;
+}
+
+#removeContainerDialog input, #stopContainerDialog input,
+	#removeImageDialog input {
+	vertical-align: middle;
+	margin-right: 4px;
+	margin-left: 4em;
+}
+
+.pullContainer {
+	margin-bottom: 1em;
+	margin-top: 1em;
+	display: inline-block;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree #containerControls select, #agent-tab-content #agent-tab-explorer #dockerTree #imageControls select,
+	#agent-tab-content #agent-tab-explorer #dockerTree #kubernetes-namespace-select {
+	font-size: 9pt;
+	vertical-align: text-top;
+	padding: 0px;
+	margin: 0;
+}
+
+#containerControls button, #imageControls button, #linuxServiceControls button,
+	#kubernetes-deploy-controls button, #kubernetes-pod-controls button,
+	#kubernetes-service-controls button, button.tree {
+	width: 16px;
+	height: 16px;
+	border: none;
+	padding: 0;
+	vertical-align: middle;
+	margin: 0;
+	margin-right: 10px;
+}
+
+
+/*#containerControls button img, #imageControls button img , #linuxServiceControls button img, 
+#kubernetes-deploy-controls button img, #kubernetes-pod-controls button img,
+#kubernetes-service-controls button img,
+button.tree img {
+    top: -2px;
+    left: -2px;
+}*/
+div.comment button.tree {
+	background-color: white;
+	border: none;
+	position: relative;
+	top: -2px;
+	height: 16px;
+}
+
+#containerControls, #imageControls, #linuxServiceControls,
+	#kubernetes-deploy-controls, #kubernetes-pod-controls,
+	#kubernetes-service-controls {
+	display: inline-block;
+	margin-left: 1em;
+	font-size: 8pt;
+	border: 1px dashed grey;
+	position: absolute;
+	padding: 3px;
+	border-radius: 5px;
+}
+
+.alertify .ajs-dialog.serviceProxy {
+    top: 30%;
+    transform: translateY(-30%);
+    margin: auto;
+}
+
+#service-proxy-dialog {
+	padding: 10px;
+	padding-top: 0;
+}
+#service-proxy-dialog header {
+	font-weight: bold;
+	margin-bottom: 1em;
+}
+#service-proxy-dialog #process-container {
+	overflow-y: auto;
+	height: 20em ;
+}
+#service-proxy-dialog #process-container table {
+	width: 100% ;
+}
+#service-proxy-dialog .csap-go {
+	margin: 1em;
+}
+#service-proxy-dialog label.csap  {
+	display: grid;
+	grid-template-columns: 8em minmax(20em, 1fr);
+}
+#service-proxy-dialog label.csap span {
+	justify-self: right;
+	margin-right: 1em;
+}
+
+#service-proxy-dialog .csap-white {
+	margin-top: 3em;
+}
+
+
+#yaml-editor-container, #os-results-text {
+	min-width: 20em;
+	min-height: 20em;
+	border: 1px solid grey;
+	margin-left: 4px;
+	margin-top: 0;
+}
+
+#yaml-editor-head, #os-results-head {
+	padding-left: 5px;
+}
+
+#yaml-editor-head {
+	padding-bottom: 5px;
+}
+#yaml-editor-head label, #yaml-editor-head #ace-editor-settings {
+	align-self: end;
+}
+
+#os-results-head #ace-editor-settings, #yaml-editor-settings {
+	font-size: 9pt;
+	margin-right: 3em;
+}
+
+#last-loaded-yaml, #os-results-title {
+	margin-right: 2em;
+	max-width: 14em;
+	overflow: hidden;
+	direction: rtl;
+	white-space: nowrap;
+	align-self: end;
+}
+
+#os-results-title {
+	color: black;
+	font-weight: bold;
+	font-size: 12pt;
+	margin-left: 0;
+	direction: ltr;
+}
+
+#yaml-editor-settings #kubernetes-yaml-clone {
+	width: 1.2em;
+	align-self: end;
+	padding: 0;
+	padding-left: 4px;
+	font-size: 9pt;
+	visibility: hidden;
+}
+
+#yaml-editor-settings:hover #kubernetes-yaml-clone {
+	visibility: visible;
+}
+#yaml-editor-settings select {
+	margin-bottom: 0;
+	font-weight: bold;
+	font-size: 10px;
+	width: 10em;
+	align-self: end;
+}
+
+#yaml-editor-settings>div {
+	border: none;
+}
+
+#ace-header {
+	display: inline-block;
+	position: absolute;
+	top: 1.8em;
+	right: 2em;
+}
+
+#ace-editor-settings label {
+	margin-right: 0.5em;
+}
+
+#yaml-op-delete-force-label {
+	font-size: 8pt;
+	margin-left: 2em;
+}
+
+
+#container-deploy-choice {
+	font-size: 12pt;
+	font-weight: bold;
+	display: inline-block;
+	margin-bottom: 0.5em;
+	border: 1px solid black;
+	border-radius: 5px;
+	padding: 5px;
+	padding-left: 2em;
+	padding-right: 2em;
+}
+
+#container-deploy-choice input {
+	margin-right: 0;
+	margin-left: 2em;
+}
+
+#createContainerDialog label {
+	text-align: right;
+	display: inline-block;
+	font-weight: bold;
+}
+
+#createContainerName {
+	width: 20em;
+	margin-left: 0;
+	text-transform: lowercase
+}
+
+#createContainerDialog {
+	height: 45%;
+}
+
+#createContainerDialog >div {
+	margin-bottom: 1em;
+}
+
+#createContainerDialog div.halfSize {
+	height: calc(100% - 200px);
+	width: 45%;
+	min-width: 20em;
+	margin-right: 1em;
+	margin-top: 1em;
+	display: inline-block;
+	font-weight: bold;
+}
+
+#createContainerDialog div.quote {
+	font-size: 9pt;
+	vertical-align: top;
+	border: 1px solid gray;
+	padding: 1em;
+	width: auto;
+	height: 3em;
+	position: absolute;
+	display: none;
+	background: white;
+	top: 4em;
+	right: 2em;
+	color: black;
+	border-radius: 10px;
+}
+
+#createContainerDialog ul {
+	list-style: disc;
+	margin-left: 1em;
+}
+
+#createContainerDialog button img {
+	vertical-align: middle;
+	padding: 2px;
+	width: 12px;
+}
+
+#createContainerDialog textarea {
+	width: 100%;
+	height: 100%;
+	min-height: 15em;
+	box-sizing: border-box;
+}
+
+#createContainerDialog #createContainerEntry, #createContainerDialog #createContainerCommand,
+	#createContainerDialog #createContainerEnvVariables {
+	vertical-align: top;
+	min-height: 2em;
+	height: 3em;
+	width: 60em;
+	white-space: pre-wrap;
+}
+
+#createContainerDialog #createContainerEnvVariables {
+	min-height: 2em;
+	height: 10em;
+}
+
+#createContainerDialog label span {
+	display: inline-block;
+	width: 9em;
+	text-align: right;
+	margin-right: 5px;
+}
+
+textarea {
+	-moz-tab-size: 2;
+	tab-size: 2;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree span.fancytree-node.default>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/packages.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree span.fancytree-node.ft_packages>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/generic.png');
+}
+
+/*
+    updated icons
+*/
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-csap-definition {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/preferences-system.png');
+	background-size: 16px 16px;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-csap-process {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/run2.png');
+	background-size: 16px 16px;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-csap-process-stopped>span.ft-csap-process {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/process-stop.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-csap-process-springboot>span.ft-csap-process {
+	background-position: 0 0;
+	background-image: url('../../images/bootSmall.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-csap-process-db>span.ft-csap-process {
+	background-position: 0 0;
+	background-image: url('../../images/dbSmall.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-csap-process-jms>span.ft-csap-process {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/mail-send-receive.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-csap-process-script>span.ft-csap-process {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/files.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-csap-process-tomcat-eol>span.ft-csap-process {
+	background-position: 0 0;
+	background-image: url('../../images/tomcatEol.png');
+	background-size: 16px;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-csap-process-tomcat>span.ft-csap-process {
+	background-position: 0 0;
+	background-image: url('../../images/tomcatLarge.png');
+	background-size: 16px;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-csap-process-agent>span.ft-csap-process {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/run3.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-csap-process-web>span.ft-csap-process {
+	background-position: 0 0;
+	background-image: url('../../images/httpd.png');
+	background-size: 16px;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-csap-process-docker>span.ft-csap-process {
+	background-position: 0 0;
+	background-image: url('../../images/docker.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-csap-process-kubernetes>span.ft-csap-process {
+	background-image: url('../../images/kubernetes.svg');
+	background-size: 16px 16px;
+	background-position: left center; 
+	background-repeat: no-repeat;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-empty .fancytree-custom-icon {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/yellow2.png');
+	position: relative;
+	top: -2px;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-os-process {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/os.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-os-process-java>span.ft-os-process {
+	background-position: 0 0;
+	background-image: url('../../images/javaSmall.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-os-process-k8s>span.ft-os-process {
+	background-image: url('../../images/kubernetes.svg');
+	background-size: 16px 16px;
+	background-position: left center; 
+	background-repeat: no-repeat;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-os-process-docker>span.ft-os-process {
+	background-position: 0 0;
+	background-image: url('../../images/docker.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-os-device {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/document-properties.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree span.down .ft-os-device {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/red2.png');	
+	background-repeat: no-repeat;
+	background-size: 10px 10px;
+}
+#agent-tab-content #agent-tab-explorer #dockerTree span.up .ft-os-device {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/green3.png');	
+	background-repeat: no-repeat;
+	background-size: 10px 10px;
+}
+#agent-tab-content #agent-tab-explorer #dockerTree span.unknown .ft-os-device {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/yellow2.png');	
+	background-repeat: no-repeat;
+	background-size: 10px 10px;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-docker-network {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/networkAdd.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-docker-image {
+	background-position: 0 0;
+	background-image: url('../../images/database.png');
+	background-size: 16px 16px;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-docker-container {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/run2.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-docker-k8s-app>span.ft-docker-container {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/packages.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-docker-k8s-pod>span.ft-docker-container {
+	background-image: url('../../images/kubernetes.svg');
+	background-size: 16px 16px;
+	background-position: left center; 
+	background-repeat: no-repeat;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-docker-k8s>span.ft-docker-container {
+	background-image: url('../../images/kubernetes.svg');
+	background-size: 12px 12px;
+	background-position: left center; 
+	background-repeat: no-repeat;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-docker-runtime>span.fancytree-icon {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/run.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-docker-stopped>span.ft-docker-container {
+	background-image: url('../../images/16x16/red2.png');
+	background-repeat: no-repeat;
+	background-size: 10px 10px;
+	background-position: left center; 
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-docker-running>span.ft-docker-container {
+	background-image: url('../../images/16x16/green3.png');
+	background-repeat: no-repeat;
+	background-size: 10px 10px;
+	background-position: left center; 
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-docker-volume {
+	background-position: 0 0;
+	background-image: url('../../images/dbSmall.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-k8-volume-claim {
+	background-position: 0 0;
+	background-image: url('../../images/dbSmall.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-k8-volume-claim-pending>span.ft-k8-volume-claim {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/yellow2.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-k8-volume-claim-running>span.ft-k8-volume-claim {
+	background-image: url('../../images/16x16/green3.png');
+	background-repeat: no-repeat;
+	background-size: 10px 10px;
+	background-position: left center; 
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-k8-volume-claim-stopped>span.ft-k8-volume-claim {
+	background-image: url('../../images/16x16/red2.png');
+	background-repeat: no-repeat;
+	background-size: 10px 10px;
+	background-position: left center; 
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-configuration {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/preferences-system.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-k8-service {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/router.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-k8-job {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/run3.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-k8-job-running>span.ft-k8-job {
+	background-image: url('../../images/16x16/green3.png');
+	background-repeat: no-repeat;
+	background-size: 10px 10px;
+	background-position: left center; 
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-k8-job-stopped>span.ft-k8-job {
+	background-image: url('../../images/16x16/red2.png');
+	background-repeat: no-repeat;
+	background-size: 10px 10px;
+	background-position: left center; 
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-k8-job-completed>span.ft-k8-job {
+	background-image: url('../../images/16x16/check.svg');
+	background-repeat: no-repeat;
+	background-size: 14px 14px;
+	background-position: left center;
+}
+
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-k8-cron-job {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/schedule.png');
+	background-repeat: no-repeat;
+	background-size: 14px 14px;
+	background-position: left center;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-k8-pod {
+	background-position: 0 0;
+	background-image: url('../../images/kubernetes.svg');
+	background-size: 16px 16px;
+	background-position: left center; 
+	background-repeat: no-repeat;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-k8-pod-stopped>span.ft-k8-pod {
+	background-image: url('../../images/16x16/red2.png');
+	background-repeat: no-repeat;
+	background-size: 10px 10px;
+	background-position: left center; 
+}
+
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-k8-pod-completed>span.ft-k8-pod {
+	background-image: url('../../images/16x16/check.svg');
+	background-repeat: no-repeat;
+	background-size: 12px 14px;
+	background-position: left center;
+	position: relative;
+	left: -1px;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-k8-pod-pending>span.ft-k8-pod {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/yellow2.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-k8-pod-running>span.ft-k8-pod {
+	background-image: url('../../images/16x16/green3.png');
+	background-repeat: no-repeat;
+	background-size: 10px 10px;
+	background-position: left center; 
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-k8-pod-container {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/run2.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-k8-deploy {
+	background-position: 0 0;
+	background-image:
+		url('../../images/16x16/preferences-desktop-locale.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-k8-replica {
+	background-position: 0 0;
+	background-image:
+		url('../../images/16x16/new-window.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-host {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/computer.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-host-unscheduled>span.ft-host {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/schedule.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-host-ready>span.ft-host {
+	background-image: url('../../images/16x16/green3.png');
+	background-repeat: no-repeat;
+	background-size: 10px 10px;
+	background-position: left center; 
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-host-error>span.ft-host {
+	background-image: url('../../images/16x16/red2.png');
+	background-repeat: no-repeat;
+	background-size: 10px 10px;
+	background-position: left center; 
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-host-conditions>span.ft-host {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/yellow2.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-host-folder>span.ft-host {
+	background-position: 0 0;
+	background-image: url('../../images/folder.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-folder {
+	background-position: 0 0;
+	background-image: url('../../images/folder.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-vm {
+	background-position: 0 0;
+	background-image: url('../../images/vm.png');
+	background-size: 16px 16px;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-security {
+	background-position: 0 0;
+	background-image: url('../../images/system-lock-screen.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-roles {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/system-users.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-api {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/broadcast.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-events {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/run.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-json-container {
+	background-position: 0 0;
+	background-image: url('../../images/format-indent-more.png');
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-json-value {
+	background-position: 0 0;
+	background-image: url('../../images/text-x-script.png');
+}
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-json-editor {
+	background-position: 0 0;
+	background-image: url('../../images/16x16/edit.svg');
+	background-repeat: no-repeat;
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .fancytree-node:hover  .ft-json-editor {
+	background-image: url('../../images/16x16/edit-hover.svg');
+}
+
+
+

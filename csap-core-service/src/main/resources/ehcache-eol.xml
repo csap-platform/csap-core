@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xsi:noNamespaceSchemaLocation="ehcache.xsd"
+		 updateCheck="true" monitoring="autodetect" dynamicConfig="true">
+
+	<!-- refer to http://ehcache.org/ehcache.xml -->
+		
+		
+	<!-- cache keeps max 500 entries, TrendManger will update hourly if traffic is requested -->
+	<cache name="AnalyticsTrendingCache" 
+		   maxEntriesLocalHeap="2000" 
+		   memoryStoreEvictionPolicy="LRU"
+		   timeToLiveSeconds="300" />
+	
+	<!-- avoids remote calls to tools server -->
+	<cache name="portalGraphCache" 
+			   maxEntriesLocalHeap="100" 
+			   memoryStoreEvictionPolicy="LRU"
+			   timeToLiveSeconds="300" />
+		
+	<!-- 
+	   Used to front services in events service
+	-->
+	<cache name="CacheWith60SecondEviction" 
+		   maxEntriesLocalHeap="100" 
+		   memoryStoreEvictionPolicy="LRU"
+		   timeToLiveSeconds="60" />
+		
+	<cache name="CacheWith30SecondEviction" 
+		   maxEntriesLocalHeap="100" 
+		   memoryStoreEvictionPolicy="LRU"
+		   timeToLiveSeconds="30" />
+		
+	<!-- 
+	   Used by CSAP client Side Loadbalancer
+	-->
+	<cache name="lowResourceUrlCache" 
+		   maxEntriesLocalHeap="100" 
+		   memoryStoreEvictionPolicy="LRU"
+		   timeToLiveSeconds="10" />
+		
+	<cache name="roundRobinUrlCache" 
+		   maxEntriesLocalHeap="100" 
+		   memoryStoreEvictionPolicy="LRU"
+		   timeToLiveSeconds="30" />
+
+
+	
+	<!-- 
+	   PlaceHolder for samples
+	-->
+	<cache name="sampleCacheWithNoExpirations" 
+		   maxEntriesLocalHeap="3" 
+		   memoryStoreEvictionPolicy="LRU" />
+		
+		
+</ehcache>

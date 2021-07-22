@@ -1,0 +1,7 @@
+csapdb-dev01:/opt/csap> mpstat -P ALL  2 1| grep -i average |sed 's/  */ /g'
+Average: CPU %user %nice %sys %iowait %irq %soft %steal %idle intr/s
+Average: all 0.12 0.00 0.00 1.62 0.00 0.00 0.00 98.25 1005.50
+Average: 0 0.00 0.00 0.00 6.50 0.00 0.00 0.00 93.50 1005.50
+Average: 1 0.00 0.00 0.00 0.00 0.00 0.00 0.00 100.00 0.00
+Average: 2 0.50 0.00 0.00 0.00 0.00 0.00 0.00 99.50 0.00
+Average: 3 0.00 0.00 0.00 0.00 0.00 0.00 0.00 100.00 0.00

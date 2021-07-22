@@ -1,0 +1,187 @@
+{
+  "project" : {
+    "api-version" : 2.1,
+    "project-version" : 1.0,
+    "name" : "Supporting Sample A",
+    "architect" : "someUser@yourCompany.com",
+    "emailNotifications" : "support@notConfigured.com"
+  },
+  "environments" : {
+    "defaults" : {
+      "settings" : {
+        "base-env-only" : true,
+        "configuration-maps" : {
+          "global" : {
+            "csap_auto" : "test_only"
+          }
+        },
+        "uiDefaultView" : "middlewareA"
+      },
+      "base-os" : { }
+    },
+    "dev" : {
+      "settings" : {
+        "imports" : [ "defaults" ],
+        "loadbalancer-url" : "",
+        "configuration-maps" : { }
+      },
+      "kubernetes-cluster" : {
+        "type" : "kubernetes",
+        "ignored-kubernetes-provider" : "kubernetes-provider",
+        "template-references" : [ "metrics-server", "xxx-service" ]
+      },
+      "kubernetes-provider" : {
+        "about" : "placed AFTER the cluster to ensure cluster sorting is working",
+        "type" : "kubernetes-provider",
+        "masters" : [ "localhost" ],
+        "hosts" : [ "localhost" ],
+        "template-references" : [ "kubelet" ]
+      },
+      "partition-cluster-A1" : {
+        "type" : "singleVmPartition",
+        "hosts" : [ "localhost" ],
+        "monitors" : {
+          "max_diskUtil" : "15g"
+        },
+        "template-references" : [ "postgres", "docker", "SampleJvmInA", "ServiceReferenceDemo" ]
+      },
+      "partition-cluster-A4" : {
+        "type" : "simple",
+        "hosts" : [ "host-a4" ],
+        "monitors" : {
+          "max_diskUtil" : "15g",
+          "max_threadCount" : "55"
+        },
+        "template-references" : [ "postgresLocal" ]
+      },
+      "partition-cluster-A2" : {
+        "type" : "singleVmPartition",
+        "hosts" : [ "localhost" ],
+        "monitors" : {
+          "max_threadCount" : "55"
+        },
+        "template-references" : [ "ServletSample" ]
+      },
+      "partition-cluster-A3" : {
+        "type" : "singleVmPartition",
+        "hosts" : [ "middlewareA2Host-dev98" ],
+        "template-references" : [ "postgres", "SampleJvmInA" ]
+      }
+    },
+    "stage" : {
+      "middleware" : {
+        "type" : "modjk",
+        "hosts" : [ "csapdb-stg01" ],
+        "template-references" : [ "postgres", "SampleJvmInA" ]
+      },
+      "settings" : {
+        "imports" : [ "defaults" ],
+        "loadbalancer-url" : "http://yourlb.na.***REMOVED***.net",
+        "configuration-maps" : {
+          "global" : {
+            "test-global-1" : "test-global-value-1"
+          },
+          "map-for-testing" : {
+            "test-map-name-1" : "test-map-value-1",
+            "test-map-name-2" : "test-map-value-2"
+          },
+          "map-for-testing-base-os" : {
+            "test-map-name-2" : "test-map-value-2-override"
+          }
+        },
+        "vsphere" : {
+          "filters" : {
+            "vm-path" : "RNIs/CSAP-DEV_p",
+            "resource-pool-path" : "BLDCluster/Resources/CSAP",
+            "datastore-regex" : "(.*)CSAP(.*)"
+          },
+          "env" : {
+            "GOVC_USERNAME" : "lab\\csapstorage",
+            "GOVC_PASSWORD" : "iEQoM1eTsrVNKjJh5Z28",
+            "GOVC_URL" : "vcenter6.***REMOVED***",
+            "GOVC_DATACENTER" : "***REMOVED***",
+            "GOVC_DATASTORE" : "CSAP_DS1_NFS",
+            "GOVC_INSECURE" : "1"
+          }
+        }
+      }
+    }
+  },
+  "service-templates" : {
+    "CsapTest" : {
+      "copySource" : "CsapTest"
+    },
+    "SampleJvmInA" : {
+      "server" : "tomcat7.x",
+      "autoStart" : 55,
+      "description" : "Provides tomcat7.x reference implementation for engineering, along with core platform regression tests.",
+      "docUrl" : "https://github.com/csap-platform/csap-core/wiki#/Code+Samples",
+      "alerts" : {
+        "max_diskUtil" : "150",
+        "max_threadCount" : "100",
+        "max_fileCount" : "300",
+        "max_socketCount" : "20",
+        "max_rssMemory" : "768m",
+        "max_tomcatConnections" : "40",
+        "max_topCpu" : "150"
+      },
+      "parameters" : "-XX:-UseSplitVerifier -Xms128M -Xmx128M -XX:MaxPermSize=128m",
+      "source" : {
+        "scm" : "svn",
+        "path" : "http://yourSvnOrGit/yourPathToSource/CsspFactorySample",
+        "branch" : "HEAD"
+      },
+      "maven" : {
+        "dependency" : "com.your.group:Cssp2FactorySample:2.0.21:war"
+      },
+      "performance" : {
+        "TotalVmCpu" : {
+          "mbean" : "java.lang:type=OperatingSystem",
+          "attribute" : "SystemCpuLoad"
+        },
+        "ProcessCpu" : {
+          "mbean" : "java.lang:type=OperatingSystem",
+          "attribute" : "ProcessCpuLoad"
+        },
+        "SpringJmsListeners" : {
+          "mbean" : "org.csap.:application=csap,name=SpringBeans",
+          "attribute" : "JmsActive"
+        },
+        "SpringJmsOnMessage" : {
+          "simonCounter" : "zmetrics.Demo_JmsListener.onMessage()"
+        },
+        "SpringDbcpActive" : {
+          "mbean" : "org.csap.:application=csap,name=SpringBeans",
+          "attribute" : "DbActive"
+        },
+        "SpringDbcpIdle" : {
+          "mbean" : "org.csap.:application=csap,name=SpringBeans",
+          "attribute" : "DbIdle"
+        },
+        "DBAddItem" : {
+          "simonCounter" : "zmetrics.Demo_DataAccessObject.addSchedule()"
+        },
+        "DBShowItem" : {
+          "simonCounter" : "zmetrics.Demo_DataAccessObject.showScheduleItemsJpql()"
+        }
+      },
+      "servletThreadCount" : "48",
+      "servletAccept" : "0",
+      "servletMaxConnections" : "47",
+      "servletTimeoutMs" : "5000",
+      "metaData" : "-nio"
+    },
+    "ServiceReferenceDemo" : {
+      "copySource" : "CsspSample"
+    },
+    "ServletSample" : {
+      "copySource" : "ServletSample"
+    },
+    "docker" : {
+      "copySource" : "docker"
+    },
+    "postgresLocal" : {
+      "copySource" : "postgres"
+    }
+  }
+}

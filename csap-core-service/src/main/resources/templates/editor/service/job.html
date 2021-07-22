@@ -1,0 +1,56 @@
+<div
+	id="jobs"
+	class="group json-form-autosize-panel">
+
+
+	<div class="heading">
+		Jobs configuration
+		<button
+			class="csap-button code-samples"
+			data-type="scheduledJobs">View Samples</button>. Note the use of environment-filters and host-filters to selectively schedule jobs
+	</div>
+
+	<div
+		id="containerConfig"
+		class="csap-green">
+
+		<div class="heading">Scripts: frequency: onDemand, daily, hourly, or event-* (event-pre-deploy, etc.). By default - jobs are run in foreground.</div>
+		<textarea
+			id="jobs-scripts"
+			spellcheck=false
+			data-fit="true"
+			data-path="scheduledJobs.scripts"></textarea>
+	</div>
+	<div
+		id="containerConfig"
+		class="csap-blue">
+		<div class="heading">
+			Log Rotation: logs are checked hourly using the defined policy
+			<a
+				class="simple"
+				target="_blank"
+				href="https://github.com/csap-platform/csap-core/wiki#updateRefLog+Configuration"> reference manual </a>
+		</div>
+		<textarea
+			id="jobs-logrotate"
+			spellcheck=false
+			data-fit="true"
+			data-path="scheduledJobs.logRotation"></textarea>
+	</div>
+	<div
+		id="containerConfig"
+		class="csap-grey">
+
+		<div class="heading">Disk Cleanup: defaults: "maxDepth": 3, "pruneEmptyFolders": false, "pruneByFolder": false.
+			To test: touch -d "60 days ago" demo_old_file. Path can contain wildcards eg. $processing/*.log ,
+			$workingFolder/logs/serviceFolder</div>
+		<textarea
+			id="jobs-disk-cleanup"
+			spellcheck=false
+			data-fit="true"
+			data-path="scheduledJobs.diskCleanUp"></textarea>
+	</div>
+
+
+</div>
+

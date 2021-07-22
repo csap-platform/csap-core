@@ -1,0 +1,84 @@
+{
+	"project": {
+		"api-version": 2.1,
+		"project-version": 1,
+		"name": "CSAP Platform",
+		"architect": "peter.nightingale@***REMOVED***.com",
+		"description": "Includes: CSAP test services, CSAP integration environment",
+		"emailNotifications": "peter.nightingale@***REMOVED***.com",
+		"test": "for xxx"
+	},
+	"environments": {
+		"defaults": {
+			"settings": {
+				"csap-data": {
+					"user": "SensusCsap",
+					"credential": "pAH+tsfwU/kgW+34WPXQW/8Z0a9SJpXq8dNOirMmUxM=",
+					"service-url": "http://csap-dev01.***REMOVED***:8080/events-service",
+					"secondary-publish": {
+						"enabled": "true",
+						"url": "http://csap-dev03.***REMOVED***:7021/events-service-beta/api/event",
+						"user": "SensusCsap",
+						"pass": "pAH+tsfwU/kgW+34WPXQW/8Z0a9SJpXq8dNOirMmUxM="
+					}
+				}
+			}
+		},
+		"dev": {
+			"settings": {
+				"imports": [
+					"defaults"
+				]
+			},
+			"base-os": {
+				"description": "core services installed on every host",
+				"type": "simple",
+				"template-references": [
+					"httpd"
+				],
+				"hosts": [
+					"localhost"
+				]
+			}
+		}
+	},
+	"eol-capability": {
+		"name": "DEFAULT APPLICATION FOR JUNITS",
+		"ajpSecret": "junitAjp",
+		"scm": "https://github.com/csap-platform/sample-definition.git",
+		"repoUrl": "https://repo.maven.apache.org/maven2/",
+		"helpMenuItems": {
+			"Release Notes": "https://github.com/csap-platform/csap-core/wiki#updateRefConsole+Release+Notes"
+		}
+	},
+	"eol-clusterDefinitions": {
+		"dev": {
+			"settings": {
+				"csapData": {
+					"eventUrl": "$eventUrl",
+					"secondary-publish": {
+						"enabled": true,
+						"url": "$eventUrl",
+						"user": "$user",
+						"pass": "$pass"
+					},
+					"eventApiUrl": "$eventApiUrl",
+					"eventMetricsUrl": "$eventMetricsUrl",
+					"analyticsUiUrl": "$analyticsUiUrl",
+					"historyUiUrl": "$historyUiUrl",
+					"user": "$user",
+					"pass": "$pass"
+				}
+			},
+			"csspLocal": {
+				"type": "simple",
+				"osProcessesList": [
+					"httpd"
+				],
+				"hosts": [
+					"localhost"
+				]
+			}
+		}
+	}
+}

@@ -1,0 +1,16 @@
+#
+#  
+#
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: my-simple-service
+  namespace: default
+spec:
+  selector:
+    matchForDemoService: my-target
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80

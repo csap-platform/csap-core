@@ -1,0 +1,11 @@
+
+spring:
+
+  config:
+    activate:
+      on-profile: security-disabled
+      
+      
+csap:
+  security:
+    enabled: false

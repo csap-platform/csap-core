@@ -1,0 +1,238 @@
+#
+#  ================ profile: agent
+#   - profile used to manage agents and analytics
+#
+
+#
+#  ================ agent configuration is defaulted
+#
+csap-core:
+
+# override using application-localhost.yml or application-company.yml  
+#  kubernetes:
+#    enabled: true
+#    config-file: "~/csap/kube/config"
+#    event-increase-limit: 1
+#    event-max-backlog: 300
+#
+#  docker: 
+#    enabled: true
+#    url: "tcp://localhost:4243"
+#    connection-pool: 5
+#    template-repository: "${csapDockerRepository:docker.io}"
+  kubernetes: 
+    enabled: true
+    event-increase-limit: 1
+    event-max-backlog: 300
+    
+    api-paths:
+      
+      #
+      # /api/v1/
+      #
+      namespaces: /api/v1/namespaces/{0}
+      nodes: /api/v1/nodes/{0}
+      persistentvolumes: /api/v1/persistentvolumes/{0}
+      serviceaccounts: /api/v1/namespaces/{0}/serviceaccounts/{1}
+      secrets: /api/v1/namespaces/{0}/secrets/{1}
+      
+      
+      pods: /api/v1/namespaces/{0}/pods/{1}
+      events: /api/v1/namespaces/{0}/events/{1}
+      configmaps: /api/v1/namespaces/{0}/configmaps/{1}
+      services: /api/v1/namespaces/{0}/services/{1}
+      persistentvolumeclaims: /api/v1/namespaces/{0}/persistentvolumeclaims/{1}
+      
+      #
+      # /apis/apps/v1
+      #     
+      deployments: /apis/apps/v1/namespaces/{0}/deployments/{1}
+      endpoints: /apis/apps/v1/namespaces/{0}/endpoints/{1}
+      replicasets: /apis/apps/v1/namespaces/{0}/replicasets/{1}
+      statefulsets: /apis/apps/v1/namespaces/{0}/statefulsets/{1}
+      daemonsets: /apis/apps/v1/namespaces/{0}/daemonsets/{1}
+      
+      ingresses: /apis/networking.k8s.io/v1/namespaces/{0}/ingresses/{1}
+      
+      cronjobs: /apis/batch/v1beta1/namespaces/{0}/cronjobs/{1}
+      jobs: /apis/batch/v1beta1/namespaces/{0}/jobs/{1}
+      
+      #
+      # /apis/rbac.authorization.k8s.io
+      #
+      clusterrolebindings: /apis/rbac.authorization.k8s.io/v1/clusterrolebindings/{0}
+      roles: /apis/rbac.authorization.k8s.io/v1/namespaces/{0}/roles/{1}
+      rolebindings: /apis/rbac.authorization.k8s.io/v1/namespaces/{0}/rolebindings/{1}  
+      clusterroles: /apis/rbac.authorization.k8s.io/v1/clusterroles/{0}  
+    
+      
+      #
+      # /apis/storage.k8s.io
+      #
+      storageclasses: /apis/storage.k8s.io/v1/storageclasses/{0}
+    #
+    # testing only
+    #
+    test-credential-url: "http://csap-dev04.***REMOVED***:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet"
+#    test-credential-url: "http://csap-dev07.***REMOVED***:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet-ha"
+#    test-credential-url: "http://centos1.***REMOVED***:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet"
+#  
+      
+#    config-file: "~/csap/kube/config"
+    
+  docker: 
+    enabled: true
+    url: "unix:///var/run/docker.sock" # "tcp://localhost:4243"
+    connection-pool: 5
+    template-repository: "${dockerRepo:docker.***REMOVED***}"
+    
+  docker-ui-default-images:
+    - ***REMOVED***/openjdk8-jdk:latest
+    - csap/csap-stress
+    - csap/csap-activemq
+    - csap/csap-java:11.0.4
+    - csap/csap-mongo:4.0.13
+    - csap/csap-test-app
+    - csap/csap-agent
+    - csap/csap-tomcat
+    - csap/csap-tools
+    - jboss/keycloak:8.0.1
+    - nginx:1.17.5
+    - postgres:12.1
+    - webcenter/activemq
+    - httpd
+    - jenkins/jenkins
+    - docker.bintray.io/jfrog/artifactory-oss:latest    
+
+csap:
+
+  web-server:
+    enabled: false
+
+  security:
+    enabled: true
+  
+  performance:
+    enabled: true
+    monitor-urls: 
+        - /
+        - /services
+        - /service/*
+        - /hosts/*
+        - /admin/*
+        - /editor/*
+        - /definition/*
+        - /os/*
+        - /explorer/*
+        
+         
+    alert:
+    
+      debug: false
+      
+      remember-count: ${csapMaxBacklog:1000}
+      
+      limits:
+        
+        # Note: collection time is the MINIMUM time alert will be displayed unless disabled
+        - 
+          id: csap.host-status
+          occurences-min: 1 # allows for simplex admin deployments
+          collect-time: 75 # allows for slightly longer then 60 second collections
+          collect-units: SECONDS
+          max-time: 7
+          max-units: SECONDS
+          
+        - 
+          id: csap.exception
+          ignore-null: true
+          occurences-max: 2
+          collect-time: 1
+          collect-units: MINUTES
+  
+        # Log Rotations
+        - 
+          id: csap.service-jobs.logs
+          occurences-min: 1
+          collect-time: 60
+          collect-units: MINUTES
+          max-time: 30
+          max-units: SECONDS
+  
+
+          
+        # OS Commands and scripts
+        - 
+          id: csap.os-commands
+          collect-time: 2
+          collect-units: MINUTES
+          occurences-max: 200
+          max-time: 25
+          max-units: SECONDS
+          
+        - 
+          id: csap.service.jobs
+          ignore-null: true
+          occurences-max: 2
+          max-time: 8
+          max-units: MINUTES
+        - 
+          id: csap.os-commands.userScript
+          ignore-null: true
+          max-time: 10
+          max-units: SECONDS
+          
+        # agent collection thresholds
+        - 
+          id: csap.collect-http
+          collect-time: 1
+          collect-units: MINUTES
+          occurences-min: 1
+          max-time: 3
+          max-units: SECONDS
+          
+        - 
+          id: csap.collect-http.failures
+          ignore-null: true
+          occurences-max: 0
+          
+          
+        - 
+          id: csap.collect-jmx
+          ignore-null: true
+          collect-time: 1
+          collect-units: MINUTES
+          occurences-min: 1
+          max-time: 3
+          max-units: SECONDS
+          
+        - 
+          id: csap.collect-jmx.failures
+          ignore-null: true
+          occurences-max: 0
+        - 
+          id: csap.collect-jmx.service.failures
+          ignore-null: true
+          occurences-max: 0
+  
+        # agent posting data to csaptools analytics service
+        - 
+          id: csap.event-publish
+          max-time: 5
+          max-units: SECONDS
+          
+        - 
+          id: csap.event-publish.failures
+          occurences-max: 1
+          ignore-null: true
+#        - 
+#          id: csap.event-publish.csap-metrics
+#          collect-time: 30
+#          collect-units: MINUTES
+#          occurences-min: 1
+#        - 
+#          id: csap.event-publish.csap-reports
+#          collect-time: 30
+#          collect-units: MINUTES
+#          occurences-min: 1
+      

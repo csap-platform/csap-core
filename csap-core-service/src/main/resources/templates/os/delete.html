@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>TODO supply a title</title>
+</head>
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+
+
+
+	<div
+		id="delete"
+		style="font-size: 11pt">
+
+
+		<div
+			class="quote"
+			style="">Ensure location is correct. Contact your system admin to determine file system recovery procedures.</div>
+		<div class=csap-blue>
+
+			<form
+				action="delete"
+				method="post">
+				<label class=csap>
+					Location:
+					<input
+						name="location"
+						th:value="${ defaultLocation}"
+						style="width: 80%;" />
+				</label>
+
+				<div style="margin-top: 2em">
+
+					<button
+						id="deleteButton"
+						class="csap-button">Recursive Delete</button>
+
+					<div
+						class="csap-green"
+						style="margin-top: 2em">
+
+						<div class="quote">Delete Options</div>
+
+						<label>
+							Use Root:
+							<input
+								class="show-root-warning"
+								name="runAsRoot"
+								type="checkbox" />
+						</label>
+
+
+						<span id="hostButtonTarget"></span>
+
+						<label>
+							Time Out:
+							<input
+								type="number"
+								name="timeoutSeconds"
+								style="width: 4em"
+								value="30"
+								title="Commands will be aborted if not completed in specified interval" />
+							seconds
+						</label>
+					</div>
+				</div>
+			</form>
+		</div>
+
+	</div>
+
+
+
+</body>
+</html>

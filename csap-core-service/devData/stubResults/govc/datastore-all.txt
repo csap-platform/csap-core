@@ -1,0 +1,724 @@
+#  govc datastore.info
+
+Name:        ***REMOVED***_Local1
+  Path:      /***REMOVED***/datastore/***REMOVED***_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5d38bdd9-e659e648-a022-e4434b5c3228/
+  Capacity:  439.0 GB
+  Free:      427.1 GB
+Name:        MOC-BLD-02c_Local1
+  Path:      /***REMOVED***/datastore/MOC-BLD-02c_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5d38a99a-5f3697e4-0c75-e4434b5c3088/
+  Capacity:  439.0 GB
+  Free:      427.1 GB
+Name:        MOC-BLD-02d_Local1
+  Path:      /***REMOVED***/datastore/MOC-BLD-02d_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5d38a7f6-20acc6d0-7922-e4434b5c3070/
+  Capacity:  439.0 GB
+  Free:      427.1 GB
+Name:        datastore1
+  Path:      /***REMOVED***/datastore/datastore1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5ca5260a-64410e65-e534-ecf4bbd72218/
+  Capacity:  271.2 GB
+  Free:      269.8 GB
+Name:        nms-esxi-02_Local1
+  Path:      /***REMOVED***/datastore/nms-esxi-02_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5cf00bf1-0434719a-0536-e0d8484701c1/
+  Capacity:  271.2 GB
+  Free:      264.0 GB
+Name:        sdp-esxi-04-LD
+  Path:      /***REMOVED***/datastore/sdp-esxi-04-LD
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5ce6acdd-fe78061e-60f2-246e9603a398/
+  Capacity:  29803.8 GB
+  Free:      21914.3 GB
+Name:        netmet-esxi-07_local1
+  Path:      /***REMOVED***/datastore/netmet-esxi-07_local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5cefc7df-7a22f4c4-f722-4c762592864e/
+  Capacity:  1117.0 GB
+  Free:      496.6 GB
+Name:        ESX_Host_Logs_NFS
+  Path:      /***REMOVED***/datastore/ESX_Host_Logs_NFS
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/e845b6d9-9d4622e5/
+  Capacity:  20.0 GB
+  Free:      16.9 GB
+  Remote:    1.1.11.121:/ESX_Host_Logs_NFS
+Name:        nms-esxi-03_Local1
+  Path:      /***REMOVED***/datastore/nms-esxi-03_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5cf00c0f-1d2390fd-06db-e0d8484701ce/
+  Capacity:  271.2 GB
+  Free:      269.8 GB
+Name:        ESX_Host_Logs_NFS (1)
+  Path:      /***REMOVED***/datastore/ESX_Host_Logs_NFS (1)
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/37f2b173-ffbdadf1/
+  Capacity:  20.0 GB
+  Free:      16.9 GB
+  Remote:    1.1.11.121:ESX_Host_Logs_NFS
+Name:        datastore1 (1)
+  Path:      /***REMOVED***/datastore/datastore1 (1)
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5b166873-4c25b3a5-c5fe-588a5ae06e19/
+  Capacity:  550.8 GB
+  Free:      541.7 GB
+Name:        netmet-esxi-04_local1
+  Path:      /***REMOVED***/datastore/NetMet/netmet-esxi-04_local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/56712fb6-97b40642-4ed8-14187732fe5a/
+  Capacity:  1861.8 GB
+  Free:      1855.5 GB
+Name:        netmet-esxi-06_Local
+  Path:      /***REMOVED***/datastore/NetMet/netmet-esxi-06_Local
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/57066446-d051fc3f-fd4e-b4e10ffc7d6e/
+  Capacity:  551.8 GB
+  Free:      438.7 GB
+Name:        netmet_esxi_01_Datastore1
+  Path:      /***REMOVED***/datastore/NetMet/netmet_esxi_01_Datastore1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/56e1ef91-9c6b1794-a7cd-ecf4bbd72218/
+  Capacity:  7450.8 GB
+  Free:      7392.2 GB
+Name:        NetMet-Esxi-05_Local1
+  Path:      /***REMOVED***/datastore/NetMet/NetMet-Esxi-05_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5ca274c9-2a853b49-0815-e0d8484701db/
+  Capacity:  550.8 GB
+  Free:      355.3 GB
+Name:        netmet-esxi-01_Datastore2
+  Path:      /***REMOVED***/datastore/NetMet/netmet-esxi-01_Datastore2
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/58b06bc3-061bbe73-5d86-ecf4bbd72218/
+  Capacity:  37254.8 GB
+  Free:      36209.0 GB
+Name:        netmet-esxi-02_Local1
+  Path:      /***REMOVED***/datastore/NetMet/netmet-esxi-02_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5bdc76b2-38c735fb-315e-ecf4bbd72410/
+  Capacity:  1108.0 GB
+  Free:      538.5 GB
+Name:        netmet-esxi-03_Local1
+  Path:      /***REMOVED***/datastore/NetMet/netmet-esxi-03_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5bdc70d0-944e36c8-bc62-ecf4bbd717b0/
+  Capacity:  1108.0 GB
+  Free:      487.8 GB
+Name:        moc-bld-02f_Local1
+  Path:      /***REMOVED***/datastore/BUILD/moc-bld-02f_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5ace2324-8a5fa9de-b2d3-d094662da190/
+  Capacity:  1675.0 GB
+  Free:      1665.3 GB
+Name:        QAT_NFS
+  Path:      /***REMOVED***/datastore/BUILD/QAT_NFS
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/8a006e0f-866383e1/
+  Capacity:  500.0 GB
+  Free:      310.1 GB
+  Remote:    1.1.11.120:QAT_NFS
+Name:        BLD_Slaves_NFS
+  Path:      /***REMOVED***/datastore/BUILD/BLD_Slaves_NFS
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/6b6ef29d-614df585/
+  Capacity:  10752.0 GB
+  Free:      3762.8 GB
+  Remote:    1.1.11.106:BLD_Slaves_NFS
+Name:        Templates_NFS
+  Path:      /***REMOVED***/datastore/BUILD/Templates/Templates_NFS
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/1551b489-f93cfc48/
+  Capacity:  3809.3 GB
+  Free:      1095.9 GB
+  Remote:    1.1.11.113:Templates_NFS
+Name:        Oracle_SE_NFS
+  Path:      /***REMOVED***/datastore/BUILD/RNI/Oracle_SE_NFS
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/a015ad40-c78da969/
+  Capacity:  2048.0 GB
+  Free:      1443.6 GB
+  Remote:    1.1.11.127:Oracle_SE_NFS
+Name:        RNI_NFS
+  Path:      /***REMOVED***/datastore/BUILD/RNI/RNI_NFS
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/c88fb98c-96f5309c/
+  Capacity:  10240.0 GB
+  Free:      1754.6 GB
+  Remote:    1.1.11.103:RNI
+Name:        Moc-Escrow_Local
+  Path:      /***REMOVED***/datastore/BUILD/Escrow/Moc-Escrow_Local
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/59970747-d774888b-2d1c-c81f66efae9c/
+  Capacity:  16751.2 GB
+  Free:      1389.1 GB
+Name:        BLD_Slaves_NFS_RO
+  Path:      /***REMOVED***/datastore/BUILD/Escrow/BLD_Slaves_NFS_RO
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/c2019802-dd3fdfea/
+  Capacity:  10752.0 GB
+  Free:      3756.8 GB
+  Remote:    10.22.11.231:BLD_Slaves_NFS
+Name:        BLD_Artifactory_NFS_RO
+  Path:      /***REMOVED***/datastore/BUILD/Escrow/BLD_Artifactory_NFS_RO
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/410d7777-13509c03/
+  Capacity:  1920.0 GB
+  Free:      822.4 GB
+  Remote:    10.22.11.228:BLD_Artifactory_NFS
+Name:        Escrow_Archive
+  Path:      /***REMOVED***/datastore/BUILD/Escrow/Escrow_Archive
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/d54f2295-e1111451/
+  Capacity:  1536.0 GB
+  Free:      576.7 GB
+  Remote:    10.22.11.194:Escrow_Archive_vsidata_ds_1
+Name:        pfx2-8-esxi01_TRANSLOG
+  Path:      /***REMOVED***/datastore/Perf/pfx2-8-esxi01_TRANSLOG
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5d09267a-1b6b608c-0fa6-588a5afe1121/
+  Capacity:  371.8 GB
+  Free:      0.3 GB
+Name:        pfx2-8-esxi01_DATA
+  Path:      /***REMOVED***/datastore/Perf/pfx2-8-esxi01_DATA
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5d07f1f8-49c7d6a0-6841-588a5afe1121/
+  Capacity:  22348.0 GB
+  Free:      241.5 GB
+Name:        pfx2-8-esxi01_TEMPDB
+  Path:      /***REMOVED***/datastore/Perf/pfx2-8-esxi01_TEMPDB
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5d092694-13b9c952-2dbc-588a5afe1121/
+  Capacity:  743.8 GB
+  Free:      2.3 GB
+Name:        prf-esxi-01_Local1
+  Path:      /***REMOVED***/datastore/Perf/prf-esxi-01_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5a1ea506-27be53c8-dc3f-d0946618ac32/
+  Capacity:  3717.5 GB
+  Free:      1893.8 GB
+Name:        p7s-st-db_Local
+  Path:      /***REMOVED***/datastore/Perf/p7s-st-db_Local
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5571759a-d6e2c9de-c3ec-44a842c839fe/
+  Capacity:  278.8 GB
+  Free:      221.3 GB
+Name:        prf-esxi-03_Local1
+  Path:      /***REMOVED***/datastore/Perf/prf-esxi-03_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5b0f2498-d255bdfc-229b-b8ca3af3d225/
+  Capacity:  829.0 GB
+  Free:      817.7 GB
+Name:        pfx2-6-esxi02_BackSpool
+  Path:      /***REMOVED***/datastore/Perf/pfx2-6-esxi02_BackSpool
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5afec7bf-09a82092-5e7d-588a5adcbebf/
+  Capacity:  1489.8 GB
+  Free:      54.3 GB
+Name:        pfx2-2-esxi03_Local1
+  Path:      /***REMOVED***/datastore/Perf/pfx2-2-esxi03_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5be16ea0-8d17ac50-0d53-b4e10ffc7d7b/
+  Capacity:  550.8 GB
+  Free:      487.1 GB
+Name:        p720-sim-esxi-local-storage-1
+  Path:      /***REMOVED***/datastore/Perf/p720-sim-esxi-local-storage-1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/557af029-97edac97-68af-bc305bf53d28/
+  Capacity:  550.8 GB
+  Free:      489.5 GB
+Name:        pfx2-5-esxi01_SledL
+  Path:      /***REMOVED***/datastore/Perf/pfx2-5-esxi01_SledL
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5c8677fd-e6277d72-d3f2-5448100e8c01/
+  Capacity:  371.8 GB
+  Free:      70.3 GB
+Name:        pfx2-8-esxi01_Local1
+  Path:      /***REMOVED***/datastore/Perf/pfx2-8-esxi01_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5b058145-adabfcce-1582-588a5afe1121/
+  Capacity:  886.2 GB
+  Free:      835.3 GB
+Name:        pfx2-4_Local_OS
+  Path:      /***REMOVED***/datastore/Perf/pfx2-4_Local_OS
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/57ed88f5-3ab21ac4-635d-b4e10feee661/
+  Capacity:  1117.0 GB
+  Free:      440.6 GB
+Name:        pfx2-6-esxi02_PG
+  Path:      /***REMOVED***/datastore/Perf/pfx2-6-esxi02_PG
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5afec77e-e62f0358-9ffc-588a5adcbebf/
+  Capacity:  371.8 GB
+  Free:      295.6 GB
+Name:        VM_datastore
+  Path:      /***REMOVED***/datastore/Perf/VM_datastore
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/555baaa4-2731f8d0-f7b9-0026b95a8050/
+  Capacity:  5119.8 GB
+  Free:      4222.1 GB
+Name:        pfx2-5-esxi02_Local1
+  Path:      /***REMOVED***/datastore/Perf/pfx2-5-esxi02_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5acb3cf2-d1e8a076-7c0c-5448100e8c0e/
+  Capacity:  886.2 GB
+  Free:      760.5 GB
+Name:        pfx2-5-esxi01_SledT
+  Path:      /***REMOVED***/datastore/Perf/pfx2-5-esxi01_SledT
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5c8677ed-4f55ccf8-0af0-5448100e8c01/
+  Capacity:  743.8 GB
+  Free:      42.3 GB
+Name:        P7s-st-Encl1_SSD_RAID5
+  Path:      /***REMOVED***/datastore/Perf/P7s-st-Encl1_SSD_RAID5
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/56547560-9acb0a14-9cd8-44a842c839f1/
+  Capacity:  5207.8 GB
+  Free:      86.8 GB
+Name:        p8s-mi-esxi-local-storage-1
+  Path:      /***REMOVED***/datastore/Perf/p8s-mi-esxi-local-storage-1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5559bc58-877c094c-8a48-44a84225a5b8/
+  Capacity:  1854.5 GB
+  Free:      1506.9 GB
+Name:        pfx2-7-esxi01_Local1
+  Path:      /***REMOVED***/datastore/Perf/pfx2-7-esxi01_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5b041de8-d10c4d1d-74f0-588a5ae06df2/
+  Capacity:  550.8 GB
+  Free:      549.8 GB
+Name:        pfx2-4-esxi01_Sled_Backspools
+  Path:      /***REMOVED***/datastore/Perf/pfx2-4-esxi01_Sled_Backspools
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/57222437-df4d0be6-5647-b4e10feee661/
+  Capacity:  3346.2 GB
+  Free:      1386.2 GB
+Name:        pfx2-7-esxi03_Local1
+  Path:      /***REMOVED***/datastore/Perf/pfx2-7-esxi03_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5b041fed-e063ee35-7cd8-588a5ae06e0c/
+  Capacity:  550.8 GB
+  Free:      471.2 GB
+Name:        pfx2-7-esxi02_Local1
+  Path:      /***REMOVED***/datastore/Perf/pfx2-7-esxi02_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5b041f18-06d2e5a5-a5c2-588a5ae06dff/
+  Capacity:  550.8 GB
+  Free:      549.8 GB
+Name:        pfx2-5-esxi01_Local1
+  Path:      /***REMOVED***/datastore/Perf/pfx2-5-esxi01_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5acb3c64-253e23b4-73e7-5448100e8c01/
+  Capacity:  886.2 GB
+  Free:      814.8 GB
+Name:        prf-esxi-02_Local1
+  Path:      /***REMOVED***/datastore/Perf/prf-esxi-02_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5a1ea3d1-d0cb543e-c259-d0946617eb64/
+  Capacity:  3717.5 GB
+  Free:      1411.2 GB
+Name:        p7s-st-app1_local
+  Path:      /***REMOVED***/datastore/Perf/p7s-st-app1_local
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5ba262ce-609a3c38-8dc4-44a842c839fe/
+  Capacity:  930.8 GB
+  Free:      772.7 GB
+Name:        pfx2-4-esxi01_Sled_PG
+  Path:      /***REMOVED***/datastore/Perf/pfx2-4-esxi01_Sled_PG
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/572227e3-5469fb30-b4f8-b4e10feee661/
+  Capacity:  185.5 GB
+  Free:      109.5 GB
+Name:        pfx2-6-esxi02_Local1
+  Path:      /***REMOVED***/datastore/Perf/pfx2-6-esxi02_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5b83c4d0-be886886-ff4f-588a5adcbebf/
+  Capacity:  1482.2 GB
+  Free:      961.1 GB
+Name:        pfx2-8-esxi02_Local1
+  Path:      /***REMOVED***/datastore/Perf/pfx2-8-esxi02_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5b05794e-390b97c2-4e96-588a5afe112e/
+  Capacity:  886.2 GB
+  Free:      187.4 GB
+Name:        p6s-xl-app3_Local
+  Path:      /***REMOVED***/datastore/Perf/p6s-xl-app3_Local
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/59a485ab-3cc586bb-7f3d-4c7625e0a4e8/
+  Capacity:  185.5 GB
+  Free:      109.4 GB
+Name:        perf11-esxi_Local1
+  Path:      /***REMOVED***/datastore/Perf/perf11-esxi_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5bd0953d-91dd46bc-604e-d09466868321/
+  Capacity:  3717.5 GB
+  Free:      2919.7 GB
+Name:        pfx2-5-esxi01_SledG
+  Path:      /***REMOVED***/datastore/Perf/FNS/pfx2-5-esxi01_SledG
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5c8677c0-fbc00ba2-e667-5448100e8c01/
+  Capacity:  3347.8 GB
+  Free:      274.3 GB
+Name:        FlexNetSim_NFS
+  Path:      /***REMOVED***/datastore/Perf/FNS/FlexNetSim_NFS
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/77a95104-875f0880/
+  Capacity:  500.0 GB
+  Free:      233.3 GB
+  Remote:    1.1.11.118:FlexNetSim_NFS
+Name:        pfx2-1-fns_Local1
+  Path:      /***REMOVED***/datastore/Perf/FNS/pfx2-1-fns_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5baba065-22954e6f-b44f-44a84253605b/
+  Capacity:  550.8 GB
+  Free:      494.8 GB
+Name:        RNI_Perf_DS2
+  Path:      /***REMOVED***/datastore/Perf/RNI/RNI_Perf_DS2
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/fe8c42bc-93b94914/
+  Capacity:  5120.0 GB
+  Free:      4451.6 GB
+  Remote:    10.10.11.15:/RNI_Perf_DS2
+Name:        RNI_Perf_DS1
+  Path:      /***REMOVED***/datastore/Perf/RNI/RNI_Perf_DS1
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/7b87d49e-00288237/
+  Capacity:  3072.0 GB
+  Free:      2321.3 GB
+  Remote:    10.10.11.15:/RNI_Perf_DS1
+Name:        PerfVirt2-VM-Datastore
+  Path:      /***REMOVED***/datastore/Perf/RNI/PerfVirt2-VM-Datastore
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5570984f-b844f052-b5dd-4c7625e0a4c1/
+  Capacity:  10239.8 GB
+  Free:      8156.4 GB
+Name:        Perf3-VM-Datastore
+  Path:      /***REMOVED***/datastore/Perf/RNI/Perf3-VM-Datastore
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5b069f96-d206a7ad-22e0-588a5ae06dff/
+  Capacity:  5631.8 GB
+  Free:      5368.0 GB
+Name:        Enterprise_local2
+  Path:      /***REMOVED***/datastore/Perf/ProfessionalServices/Enterprise_local2
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/59fa9596-305e8e92-a328-b083fee56923/
+  Capacity:  3625.2 GB
+  Free:      2261.0 GB
+Name:        Enterprise_local1
+  Path:      /***REMOVED***/datastore/Perf/ProfessionalServices/Enterprise_local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/54eb229a-fee012a1-3ba7-b083fee56923/
+  Capacity:  550.8 GB
+  Free:      358.8 GB
+Name:        QA_NFS
+  Path:      /***REMOVED***/datastore/QA/QA_NFS
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/9e3bbf51-84eba0f0/
+  Capacity:  7168.0 GB
+  Free:      3313.6 GB
+  Remote:    1.1.11.110:QA
+Name:        VM_Archive
+  Path:      /***REMOVED***/datastore/Infrastructure/VM_Archive
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/bdf26347-8e436073/
+  Capacity:  3686.4 GB
+  Free:      1032.4 GB
+  Remote:    1.1.11.1:VM_Archive
+Name:        BLD_Artifactory_NFS
+  Path:      /***REMOVED***/datastore/Infrastructure/BLD_Artifactory_NFS
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/b4dfdc64-c287288e/
+  Capacity:  1920.0 GB
+  Free:      822.3 GB
+  Remote:    1.1.11.117:BLD_Artifactory_NFS
+Name:        RNI_Infrastructure_Holding
+  Path:      /***REMOVED***/datastore/Infrastructure/RNI_Infrastructure_Holding
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/224b3921-6bcecc80/
+  Capacity:  665.0 GB
+  Free:      664.6 GB
+  Remote:    1.1.11.7:/RNI_Infrastructure_Holding_vsidata_ds_1
+Name:        Workspace_NFS
+  Path:      /***REMOVED***/datastore/Infrastructure/Workspace_NFS
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/ca07bdec-13d72b4c/
+  Capacity:  2089.2 GB
+  Free:      216.9 GB
+  Remote:    1.1.11.130:Workspace_NFS
+Name:        RNI_Infrastructure_Prod
+  Path:      /***REMOVED***/datastore/Infrastructure/RNI_Infrastructure_Prod
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/906a913b-5b07811c/
+  Capacity:  16212.7 GB
+  Free:      1865.6 GB
+  Remote:    1.1.11.125:/RNI_Infrastructure_Prod_vsidata_ds_1
+Name:        BLD_Release_NFS
+  Path:      /***REMOVED***/datastore/Infrastructure/BLD_Release_NFS
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/64e8fc03-96345efa/
+  Capacity:  1638.4 GB
+  Free:      1301.8 GB
+  Remote:    1.1.11.116:BLD_Release_NFS
+Name:        Restores
+  Path:      /***REMOVED***/datastore/Infrastructure/Restores
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/dea3c6fd-fe8bce69/
+  Capacity:  2048.0 GB
+  Free:      2047.7 GB
+  Remote:    10.22.10.155:Restores
+Name:        RNIFS01_vsidata_ds_1
+  Path:      /***REMOVED***/datastore/Infrastructure/RNIFS01_vsidata_ds_1
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/d79fa470-d9c30996/
+  Capacity:  2062.2 GB
+  Free:      393.1 GB
+  Remote:    1.1.11.132:RNIFS01_vsidata_ds_1
+Name:        NMS_DS_NFS
+  Path:      /***REMOVED***/datastore/NMS/NMS_DS_NFS
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/87e22cc7-7a82c06f/
+  Capacity:  3159.2 GB
+  Free:      894.9 GB
+  Remote:    1.1.11.124:/NMS_DS_NFS
+Name:        NMS_NFS
+  Path:      /***REMOVED***/datastore/NMS/NMS_NFS
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/aefcc46a-5ac8d497/
+  Capacity:  6440.9 GB
+  Free:      1070.3 GB
+  Remote:    1.1.11.119:NMS_NFS
+Name:        esxi640-02_Local1
+  Path:      /***REMOVED***/datastore/NMS/esxi640-02_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5aba264c-bccc4a52-7130-246e96ade48a/
+  Capacity:  103.8 GB
+  Free:      94.6 GB
+Name:        esxi640-01_Local1
+  Path:      /***REMOVED***/datastore/NMS/esxi640-01_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5aba2646-879d72b4-2b9c-246e96ade2f2/
+  Capacity:  103.8 GB
+  Free:      47.0 GB
+Name:        esxi640-01_Local2
+  Path:      /***REMOVED***/datastore/NMS/esxi640-01_Local2
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5aba2a2d-c65ae504-0880-246e96ade2f2/
+  Capacity:  5961.5 GB
+  Free:      5960.0 GB
+Name:        esxi640-01_Local3
+  Path:      /***REMOVED***/datastore/NMS/esxi640-01_Local3
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5aba2a3d-9f3003dc-bb61-246e96ade2f2/
+  Capacity:  5961.5 GB
+  Free:      5960.0 GB
+Name:        esxi640-02_Local2
+  Path:      /***REMOVED***/datastore/NMS/esxi640-02_Local2
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5aba32a2-dc0543c6-1fb7-246e96ade48a/
+  Capacity:  5961.5 GB
+  Free:      5960.0 GB
+Name:        esxi640-02_Local3
+  Path:      /***REMOVED***/datastore/NMS/esxi640-02_Local3
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5aba32b2-f9befd4a-a3af-246e96ade48a/
+  Capacity:  5961.5 GB
+  Free:      5960.0 GB
+Name:        Security_Infrastructure_NFS
+  Path:      /***REMOVED***/datastore/Security-Datastore/Security_Infrastructure_NFS
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/bb38eec3-587d0d39/
+  Capacity:  3120.3 GB
+  Free:      757.5 GB
+  Remote:    1.1.11.128:Security_Infrastructure_NFS
+Name:        sec-esxi2-datastore
+  Path:      /***REMOVED***/datastore/Security-Datastore/sec-esxi2-datastore
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/535a4ba8-9effe467-3432-c81f66e352d4/
+  Capacity:  7447.8 GB
+  Free:      6939.2 GB
+Name:        Security_DEV_NFS
+  Path:      /***REMOVED***/datastore/Security-Datastore/Security_DEV_NFS
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/0b8737c0-97366f02/
+  Capacity:  921.6 GB
+  Free:      171.8 GB
+  Remote:    1.1.11.129:Security_DEV_NFS
+Name:        sec-esxi2-ISOs
+  Path:      /***REMOVED***/datastore/Security-Datastore/sec-esxi2-ISOs
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/53296eac-74fe4260-257d-c81f66e352d4/
+  Capacity:  128.5 GB
+  Free:      104.1 GB
+Name:        pfx2-2-esxi04_Local1
+  Path:      /***REMOVED***/datastore/SLC/pfx2-2-esxi04_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5b851798-78f657bf-47e8-b4e10ffc7d88/
+  Capacity:  886.2 GB
+  Free:      84.7 GB
+Name:        SDPfx2-1-sled1
+  Path:      /***REMOVED***/datastore/SDP/SDPfx2-1-sled1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/57f5187d-1004384d-96d4-1c4024a24f11/
+  Capacity:  3904.0 GB
+  Free:      298.0 GB
+Name:        SDP-ESXi-06_Local1
+  Path:      /***REMOVED***/datastore/SDP/SDP-ESXi-06_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/57519841-798ce2f5-d6c2-246e960feca0/
+  Capacity:  7450.8 GB
+  Free:      4860.9 GB
+Name:        SDPfx2-1-sled2
+  Path:      /***REMOVED***/datastore/SDP/SDPfx2-1-sled2
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/57f5188f-1f217f10-e6f6-1c4024a24f1e/
+  Capacity:  3904.0 GB
+  Free:      595.8 GB
+Name:        SDP-ESXI-05_DATA
+  Path:      /***REMOVED***/datastore/SDP/SDP-ESXI-05_DATA
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5a8f55f2-3ca82894-aa9e-246e960ff3d8/
+  Capacity:  14901.8 GB
+  Free:      6544.2 GB
+Name:        SDPfx2-1-esxi01_Local
+  Path:      /***REMOVED***/datastore/SDP/SDPfx2-1-esxi01_Local
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/57f2765d-d6e7a8ed-890c-1c4024a24f11/
+  Capacity:  278.8 GB
+  Free:      183.1 GB
+Name:        SDP-ESXI-01_LOGS
+  Path:      /***REMOVED***/datastore/SDP/SDP-ESXI-01_LOGS
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5a820a64-5abd2d0e-786c-ecf4bbd72540/
+  Capacity:  3725.2 GB
+  Free:      3623.7 GB
+Name:        SDPfx2-1-esxi02_Local
+  Path:      /***REMOVED***/datastore/SDP/SDPfx2-1-esxi02_Local
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/57ee167d-1cae79b0-1c16-1c4024a24f38/
+  Capacity:  272.2 GB
+  Free:      267.8 GB
+Name:        SDP-ESXI-05_Local1
+  Path:      /***REMOVED***/datastore/SDP/SDP-ESXI-05_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/57519b98-53cf6fee-4dd7-246e960ff3d8/
+  Capacity:  7450.8 GB
+  Free:      5684.0 GB
+Name:        SDP-ESXI-01_DATA
+  Path:      /***REMOVED***/datastore/SDP/SDP-ESXI-01_DATA
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5a820a59-663248d6-971e-ecf4bbd72540/
+  Capacity:  14901.8 GB
+  Free:      11710.9 GB
+Name:        SDP-ESXI-01_Local1
+  Path:      /***REMOVED***/datastore/SDP/SDP-ESXI-01_Local1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/56da18ce-c6c88651-c1d9-ecf4bbd72540/
+  Capacity:  7450.8 GB
+  Free:      5588.4 GB
+Name:        SDP_NFS
+  Path:      /***REMOVED***/datastore/SDP/SDP_NFS
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/bf0cd214-42dc2414/
+  Capacity:  1843.2 GB
+  Free:      805.1 GB
+  Remote:    1.1.11.101:SDP_NFS
+Name:        sdp-esxi-03_DS2
+  Path:      /***REMOVED***/datastore/SDP/sdp-esxi-03_DS2
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/578940d6-b8c1e60a-30d7-246e9603a240/
+  Capacity:  44705.8 GB
+  Free:      15192.4 GB
+Name:        SDP-ESXI-05_LOGS
+  Path:      /***REMOVED***/datastore/SDP/SDP-ESXI-05_LOGS
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5a8f560c-f0332b31-9907-246e960ff3d8/
+  Capacity:  3725.2 GB
+  Free:      3724.3 GB
+Name:        sdp-esxi-07_Datastore1
+  Path:      /***REMOVED***/datastore/SDP/sdp-esxi-07_Datastore1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/571f6996-6bf4a3c0-17aa-246e960fe758/
+  Capacity:  7450.8 GB
+  Free:      5609.5 GB
+Name:        Templates_NFS_RO
+  Path:      /***REMOVED***/datastore/SDP/Templates_NFS_RO
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/5790b9eb-bcfdad9a/
+  Capacity:  3809.3 GB
+  Free:      1095.6 GB
+  Remote:    10.22.11.228:Templates_NFS
+Name:        SDP-ESXi-06_GRID
+  Path:      /***REMOVED***/datastore/SDP/SDP-ESXi-06_GRID
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/57519868-e7f57f6f-6f78-246e960feca0/
+  Capacity:  37254.8 GB
+  Free:      7799.5 GB
+Name:        sdp-esxi-03_DS1
+  Path:      /***REMOVED***/datastore/SDP/sdp-esxi-03_DS1
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/57894eb3-f3ecd540-4c80-246e9603a240/
+  Capacity:  3725.2 GB
+  Free:      2870.5 GB
+Name:        sdp-esxi-07_Datastore2
+  Path:      /***REMOVED***/datastore/SDP/sdp-esxi-07_Datastore2
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/587689cc-56bcd0fb-0d41-246e960fe758/
+  Capacity:  37254.8 GB
+  Free:      704.5 GB
+Name:        FC_DS_NC
+  Path:      /***REMOVED***/datastore/ArqivaScaleHA/FC_DS_NC
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5d115c21-90c484d2-8e04-44a842bb4e74/
+  Capacity:  4095.8 GB
+  Free:      1354.9 GB
+Name:        esxi630-10m-Local
+  Path:      /***REMOVED***/datastore/ArqivaScaleHA/esxi630-10m-Local
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5805369d-f608e678-df90-44a842bb7f7e/
+  Capacity:  930.8 GB
+  Free:      494.2 GB
+Name:        FC_DS_VMs
+  Path:      /***REMOVED***/datastore/ArqivaScaleHA/FC_DS_VMs
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5bc90cde-af85bae9-6142-44a842bb4e7e/
+  Capacity:  4583.8 GB
+  Free:      1996.3 GB
+Name:        Dev_Scale_NFS
+  Path:      /***REMOVED***/datastore/ArqivaScaleHA/Dev_Scale_NFS
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/760f3105-cc4d4878/
+  Capacity:  5632.0 GB
+  Free:      5519.6 GB
+  Remote:    1.1.11.107:Dev_Scale_NFS
+Name:        FC_DS_Aggregator
+  Path:      /***REMOVED***/datastore/ArqivaScaleHA/FC_DS_Aggregator
+  Type:      VMFS
+  URL:       ds:///vmfs/volumes/5bc90d48-d75d3d3b-8f1e-44a842bb4e7e/
+  Capacity:  3071.8 GB
+  Free:      2687.7 GB
+Name:        Proof_of_Concept
+  Path:      /***REMOVED***/datastore/POC/Proof_of_Concept
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/ea341eb4-199f56a4/
+  Capacity:  3072.0 GB
+  Free:      948.1 GB
+  Remote:    1.1.11.3:/Proof_of_Concept
+Name:        CSAP_DS1_NFS
+  Path:      /***REMOVED***/datastore/CSAP/CSAP_DS1_NFS
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/663e81f3-efa5ce84/
+  Capacity:  500.0 GB
+  Free:      422.1 GB
+  Remote:    1.1.11.133:/CSAP_DS1_NFS
+Name:        Arqiva_Dev_NFS
+  Path:      /***REMOVED***/datastore/Arqiva/Arqiva_Dev_NFS
+  Type:      NFS
+  URL:       ds:///vmfs/volumes/e8a81f00-0b67eed9/
+  Capacity:  2048.0 GB
+  Free:      892.3 GB
+  Remote:    1.1.11.102:Arqiva_Dev_NFS

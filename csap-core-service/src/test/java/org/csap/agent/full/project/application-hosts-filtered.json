@@ -1,0 +1,55 @@
+{
+  "project" : {
+    "api-version" : 2.1,
+    "project-version" : 1.0
+  },
+  "environments" : {
+    "defaults" : {
+      "settings" : {
+        "base-env-only" : true,
+        "application" : {
+          "name" : "DEFAULT APPLICATION FOR JUNITS",
+          "sub-projects" : [ ],
+          "definition-repo-url" : "https://github.com/csap-platform/sample-definition.git",
+          "definition-repo-branch" : "",
+          "maven-url" : "https://repo.maven.apache.org/maven2/",
+          "help-menu-items" : {
+            "User Guide" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP",
+            "Release Notes" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211856/Release+Notes",
+            "Quick Install" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/395282580/CSAP+Quick+Install",
+            "Health Status" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211861/CSAP+Health",
+            "Application Editor" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211875/CSAP+Application+Editor",
+            "FAQ" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/347177032/CSAP+FAQ"
+          }
+        },
+        "configuration-maps" : {
+          "global" : {
+            "csap_auto" : "test_only"
+          }
+        },
+        "loadBalanceVmFilter" : [ "host2" ]
+      },
+      "base-os" : { }
+    },
+    "dev" : {
+      "settings" : {
+        "imports" : [ "defaults" ],
+        "loadbalancer-url" : "",
+        "configuration-maps" : { }
+      },
+      "simple-cluster" : {
+        "type" : "modjk",
+        "hosts" : [ "localhost", "host2" ],
+        "template-references" : [ "httpd", "simple-tomcat" ]
+      }
+    }
+  },
+  "service-templates" : {
+    "simple-tomcat" : {
+      "server" : "tomcat9.x",
+      "port" : 8241,
+      "parameters" : "  -Xms16M -Xmx256M -XX:+UseParNewGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10",
+      "metaData" : "exportWeb, -nio"
+    }
+  }
+}

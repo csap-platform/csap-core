@@ -1,0 +1,37 @@
+
+1 postgresdb-5432
+78 csaptestdocker-8261
+0 hsqldatabase-9002
+27 activemq-8161
+0 nginx-7080
+63 testservice-8241
+998 k8-crashed-service
+
+7 k8s_csap-test-container_csap-simple-app-5d8664644-wf56p_default_ee569b4b-ac8c-11e8-8bea-00505695a7a3_0
+99 k8s_csap-test-container_csap-simple-app-5d8664644-9q7ks_default_ee55e50a-ac8c-11e8-8bea-00505695a7a3_0
+
+1 k8s_csap-test-k8s-service-container_csap-test-k8s-service-7485bbd8f5-pdl2t_default_93d5a1ed-bfff-11e8-b537-0800271b4e90_1
+
+1 k8s_kubernetes-dashboard_kubernetes-dashboard-6948bdb78-mp9ph_kube-system_ac049c1d-aadc-11e8-8bea-00505695a7a3_2
+1 k8s_coredns_coredns-78fcdf6894-wgnx8_kube-system_58060e26-aadc-11e8-8bea-00505695a7a3_2
+1 k8s_coredns_coredns-78fcdf6894-6pktp_kube-system_58068a6b-aadc-11e8-8bea-00505695a7a3_2
+0 k8s_POD_kubernetes-dashboard-6948bdb78-mp9ph_kube-system_ac049c1d-aadc-11e8-8bea-00505695a7a3_2
+0 k8s_POD_coredns-78fcdf6894-wgnx8_kube-system_58060e26-aadc-11e8-8bea-00505695a7a3_2
+0 k8s_POD_coredns-78fcdf6894-6pktp_kube-system_58068a6b-aadc-11e8-8bea-00505695a7a3_2
+156 k8s_install-cni_calico-node-btrml_kube-system_57f575ff-aadc-11e8-8bea-00505695a7a3_2
+82 k8s_calico-node_calico-node-btrml_kube-system_57f575ff-aadc-11e8-8bea-00505695a7a3_3
+0 k8s_POD_calico-node-btrml_kube-system_57f575ff-aadc-11e8-8bea-00505695a7a3_2
+1 k8s_calico-kube-controllers_calico-kube-controllers-65945f849d-54p9f_kube-system_5805db61-aadc-11e8-8bea-00505695a7a3_2
+0 k8s_POD_calico-kube-controllers-65945f849d-54p9f_kube-system_5805db61-aadc-11e8-8bea-00505695a7a3_2
+123 k8s_calico-etcd_calico-etcd-zkjq5_kube-system_5811fbc6-aadc-11e8-8bea-00505695a7a3_2
+82 k8s_kube-proxy_kube-proxy-g7pkc_kube-system_57f3776f-aadc-11e8-8bea-00505695a7a3_2
+0 k8s_POD_calico-etcd-zkjq5_kube-system_5811fbc6-aadc-11e8-8bea-00505695a7a3_2
+0 k8s_POD_kube-proxy-g7pkc_kube-system_57f3776f-aadc-11e8-8bea-00505695a7a3_2
+2 k8s_kube-controller-manager_kube-controller-manager-csap-dev04_kube-system_ccb9cbe3e4596b873c1cb8a6e0d949f7_2
+2 k8s_kube-apiserver_kube-apiserver-centos1_kube-system_505d8ac5ad31f1f31936890a53b5fee2_1
+372 k8s_etcd_etcd-csap-dev04_kube-system_fc49406fc03a568b4e13c1a38088fe84_2
+1 k8s_kube-scheduler_kube-scheduler-csap-dev04_kube-system_a00c35e56ebd0bdfcd77d53674a5d2a1_2
+0 k8s_POD_kube-controller-manager-csap-dev04_kube-system_ccb9cbe3e4596b873c1cb8a6e0d949f7_2
+0 k8s_POD_kube-apiserver-csap-dev04_kube-system_56c30c73e8863da87164381d0421afd5_2
+0 k8s_POD_etcd-csap-dev04_kube-system_fc49406fc03a568b4e13c1a38088fe84_2
+0 k8s_POD_kube-scheduler-csap-dev04_kube-system_a00c35e56ebd0bdfcd77d53674a5d2a1_2

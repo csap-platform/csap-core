@@ -1,0 +1,310 @@
+
+<div class="csap-purple primary kubernetes-only-panel">
+	<div class="heading">
+
+		Kubernetes Specification Generation: Generates a Deployment Specification, with optional Service and Ingress generated
+
+	</div>
+
+	<div>
+		
+		<label 
+			class=csap-form-inline
+			title="Number of pods to create">
+			<span>Replica count:</span>
+			<input
+				id="k8-replica-count"
+				value="1"
+				
+				data-path="docker.kubernetes-settings.replica-count" />
+		</label>
+
+
+
+		<label 
+			class=csap-form-inline
+			title="kubernetes namespace">
+			<span>namespace:</span>
+			<input
+				class=words
+				placeholder="default"
+				data-path="docker.kubernetes-settings.namespace" />
+		</label>
+
+	</div>
+
+	<div>
+
+			<label 
+				class=csap-form-inline
+				title="Optional: create a route (kubernetes service) to the container">
+				<span>Service Type:</span>
+
+				<select
+					id="kubernetes-service-type-select"
+					data-path="docker.kubernetes-settings.service-type"
+					style="margin-right: 0"
+					title="Kubernetes service types">
+					<option
+						th:each="serviceType : ${ kubernetesServiceTypes }"
+						th:text="${ serviceType }"></option>
+				</select>
+
+
+				<a
+					class="csap-link-icon csap-help"
+					target="_blank"
+					title="View help on service types"
+					href="https://kubernetes.io/docs/concepts/services-networking/service">
+				</a>
+			</label>
+			
+
+
+		<label
+			class=csap-form-inline
+			title="If enabled, the csap-tools docker image is added to the pod. includes forensic tools for troubleshooting configurations.
+                       includes: nslookup, dig, tracert, etc.">
+			<span>csap-tools:</span>
+			<select
+				data-path="docker.kubernetes-settings.add-csap-tools"
+				style="margin-right: 2px">
+				<option selected="selected">false</option>
+				<option>true</option>
+			</select>
+
+		</label>
+
+	</div>
+
+	<div>
+		<div class="heading">
+			Ingress
+		</div>
+			
+			<label
+				class=csap-form-inline>
+				<span>Path:</span>
+				<input
+					class=words
+					id="kubernetes-ingress-path"
+					data-path="docker.kubernetes-settings.ingress-path"
+					title="Expose service route (kubernetes ingress) with sticky session &#013; enabled using specified path. &#013;Note: Path should start with '/' (if left blank ingress is not created). &#013;    Eg. '/myservice' results in /myservice/* being routed to service endpoint. &#013;"
+					placeholder="/, /spring/context, etc" />
+
+				<a
+					class="csap-link-icon csap-help"
+					target="_blank"
+					title="View help on creating ingress"
+					href="https://kubernetes.github.io/ingress-nginx/">
+				</a>
+			</label>
+			<label
+				class=csap-form-inline>
+				<span style="width: 5em;">Port:</span>
+				<input
+					class=words
+					id="kubernetes-ingress-port"
+					data-path="docker.kubernetes-settings.ingress-port"
+					title="ingress rule: port &#013;   The port of the service to be exposed. &#013;    Default: 80.  "
+					
+					placeholder="80" />
+
+			</label>
+			<label
+				class=csap-form-inline>
+				<span style="width: 10em">Host: </span>
+				<input
+					class=words
+					data-path="docker.kubernetes-settings.ingress-host"
+					id="kubernetes-ingress-host"
+					title="ingress rule: host - must be a fqdn &#013;    default: will use $$kubernetes-ingress environment variable"
+					placeholder="$$kubernetes-ingress" />
+			</label>
+	</div>
+
+	<div style="margin: 1em;">
+
+
+		<div
+			title="Optional annotations"
+			style="display: inline-block; width: 470px; vertical-align: top">
+
+			<div>
+				<label style="font-weight: bold;">Pod Annotations:</label>
+
+				<button
+					class="csap-button code-samples"
+					data-type="podAnnotations">View Samples</button>
+
+			</div>
+			<div class="floating-ace-editor">
+				<textarea
+					id="kubernetes-pod-annotations"
+					data-path="docker.kubernetes-settings.pod-annotations"
+					rows="2"
+					spellcheck=false
+					data-fit="true"
+					data-fixedwidth="450"></textarea>
+			</div>
+
+		</div>
+
+		<div
+			title="Ingress Annotations"
+			style="display: inline-block; width: 470px; vertical-align: top">
+
+			<div>
+				<label style="font-weight: bold;">Ingress Annotations:</label>
+
+				<button
+					class="csap-button code-samples"
+					data-type="ingressAnnotations">View Samples</button>
+				<span class="default-text">default: sticky enabled</span>
+
+			</div>
+			<div class="floating-ace-editor">
+				<textarea
+					id="ingress-pod-annotations"
+					data-path="docker.kubernetes-settings.ingress-annotations"
+					spellcheck=false
+					data-fit="true"
+					data-fixedwidth="450"></textarea>
+			</div>
+
+		</div>
+		<br />
+
+
+
+		<div
+			title="Pod Resources - optional"
+			style="display: inline-block; width: 470px; vertical-align: top">
+
+			<div>
+				<label style="font-weight: bold;">Pod Resources:</label>
+
+				<button
+					class="csap-button code-samples"
+					data-type="kubernetesResources">View Samples</button>
+
+			</div>
+			<div class="floating-ace-editor">
+				<textarea
+					id="kubernetes-pod-resources"
+					data-path="docker.kubernetes-settings.resources"
+					rows="2"
+					spellcheck=false
+					data-fixedheight="150"
+					data-fixedwidth="450"></textarea>
+			</div>
+
+		</div>
+
+		<div
+			title="Labels - optional"
+			style="display: inline-block; width: 470px; vertical-align: top">
+
+			<div>
+				<label style="font-weight: bold;">Labels:</label>
+
+				<button
+					class="csap-button code-samples"
+					data-type="kubernetesLabels">View Samples</button>
+
+			</div>
+			<div class="floating-ace-editor">
+				<textarea
+					id="kubernetes-labels"
+					data-path="docker.kubernetes-settings.labelsByType"
+					rows="2"
+					spellcheck=false
+					data-fixedheight="150"
+					data-fixedwidth="450"></textarea>
+			</div>
+
+		</div>
+
+
+		<br />
+
+
+		<div
+			title="Optinal readiness probe"
+			style="display: inline-block; width: 470px; vertical-align: top">
+
+			<div>
+				<label style="font-weight: bold;">readiness:</label>
+
+				<button
+					class="csap-button code-samples"
+					data-type="readinessProbe">View samples</button>
+
+			</div>
+			<div class="floating-ace-editor">
+				<textarea
+					id="kubernetes-readinessProbe"
+					data-path="docker.kubernetes-settings.readinessProbe"
+					rows="2"
+					spellcheck=false
+					data-fit="true"
+					data-fixedwidth="450"></textarea>
+			</div>
+
+		</div>
+
+
+		<div
+			title="Optinal liveness probe"
+			style="display: inline-block; width: 470px; vertical-align: top">
+
+			<div>
+				<label style="font-weight: bold;">liveness:</label>
+
+				<button
+					class="csap-button code-samples"
+					data-type="readinessProbe">View Samples</button>
+
+			</div>
+			<div class="floating-ace-editor">
+				<textarea
+					id="kubernetes-livenessProbe"
+					data-path="docker.kubernetes-settings.livenessProbe"
+					rows="2"
+					spellcheck=false
+					data-fit="true"
+					data-fixedwidth="450"></textarea>
+			</div>
+
+		</div>
+
+		<br />
+
+		<div
+			title="Node Selectors - optional"
+			style="display: inline-block; width: 470px; vertical-align: top">
+
+			<div>
+				<label style="font-weight: bold;">Node Selector:</label>
+
+				<button
+					class="csap-button code-samples"
+					data-type="nodeSelector">View Samples</button>
+
+			</div>
+			<div class="floating-ace-editor">
+				<textarea
+					id="kubernetes-node-selector"
+					data-path="docker.kubernetes-settings.node-selectors"
+					rows="2"
+					spellcheck=false
+					data-fixedheight="150"
+					data-fixedwidth="450"></textarea>
+			</div>
+
+		</div>
+
+	</div>
+
+</div>
+

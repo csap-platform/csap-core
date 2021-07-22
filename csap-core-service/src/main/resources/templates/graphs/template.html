@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<title></title>
+</head>
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+
+
+
+	<!-- 
+		
+			- Common Graph template included when graphs are displayed
+		
+		-->
+
+	<script th:replace="csap/fragments/flot-includes :: pageContent"></script>
+
+
+	<script th:src="@{ ${csapApp.versionedUrl('/js/graphs/flot-navigate-enhanced.js')} }"></script>
+	<!-- <script th:src="@{ ${csapApp.versionedUrl('/js/graphs/flot-legend-enhanced.js')} }"></script> -->
+	
+	
+
+
+	<link
+		th:href="@{ ${csapApp.versionedUrl('/js/graphs/graph.css')} }"
+		rel="stylesheet"
+		type="text/css"
+		media="screen" />
+
+	<script>
+		// do not initize anything here as there are race conditions on loading.
+	</script>
+
+
+
+	<div
+		id="resourceTemplate"
+		style="display: none; padding-left: 5px; padding-right: 5px;">
+
+
+		<div class="graphOptions">
+
+			<button
+				class="csap-icon refresh-window refreshGraphs "
+				title="Refresh Graphs Display"></button>
+
+
+			<select
+				class="numDaysSelect"
+				title="How Many days of Data">
+				<option value="0">Real Time</option>
+				<option value="1">1 day of Data</option>
+			</select>
+
+			<button
+				class="csap-icon tool-menu csap-menu"
+				title="show operation menu: operations will be performed on selected items"></button>
+
+			<div class="graph-display-options csap-white">
+
+				<button class="close-menu csap-icon csap-remove"></button>
+
+
+
+				<div class=grid>
+
+					<label class=csap>Graph:</label>
+					<button class="csap-button-icon csap-window showSettingsDialogButton">Customize...</button>
+					<span> open dialog to select series, sampling intervals, ... </span>
+
+
+
+
+					<label class=csap>Date:</label>
+					<input
+						type="text"
+						class="datepicker"
+						placeholder="Real Time"
+						title="Click to browse calendar" />
+					<span>Which day to display, use settings for inputting other days</span>
+
+
+
+					<label class="csap timeZone">Time Zone:</label>
+					<select
+						class="graphTimeZone choices"
+						style="margin: 0">
+						<option value="Host">Host</option>
+						<option value="Browser">Browser</option>
+						<option value="-5">Raleigh</option>
+						<option value="-6">Chicago</option>
+						<option value="-8">San Franciso</option>
+						<option value="+5.5">India IST</option>
+						<option value="-0">GMT</option>
+					</select>
+					<span>By default, TimeZone of host is used for consistency with logs</span>
+
+
+
+
+
+					<label class=csap>Timeline ViewPort:</label>
+					<select class="zoomSelect">
+						<option>1</option>
+					</select>
+					<span>Number of samples to display on graphs. Mean, min, and max will reduce visible points to fit width of
+						graph</span>
+
+
+
+
+					<label class=csap>Filter Points:</label>
+					<select
+						class="meanFilteringSelect"
+						title="">
+						<option value="0">-</option>
+						<option>1.5</option>
+						<option>2</option>
+						<option>3</option>
+						<option>4</option>
+						<option>5</option>
+						<option>8</option>
+						<option>10</option>
+						<option>20</option>
+					</select>
+					<span>collected values will be filtered by less then n*mean and greater then mean/n</span>
+
+
+
+					<label class=csap>Disable Stacked:</label>
+					<input
+						class="useLineGraph"
+						type="checkbox" />
+					<span>When enabled: graphs will be stacked onto a merged time line to highlight cumulative values. When
+						disabled - line graphs highlight relative value comparison of elements. </span>
+
+
+
+					<label class=csap>Show Mismatch:</label>
+					<input
+						class="show-mismatched"
+						checked="checked"
+						type="checkbox" />
+					<span>Show warning messages when data point size collected from hosts differ</span>
+
+
+					<label class=csap>Panel Layout:</label>
+					<span>
+						<select class="layoutSelect">
+							<option value="default">CSAP Default</option>
+							<option value="spotlight1">Spotlight</option>
+							<option value="spotlight2">Double Spot</option>
+							<option value="small">Small</option>
+							<option value="smallWide">Small / Wide</option>
+							<option value="medium">Medium</option>
+							<option value="mediumWide">Medium / Wide</option>
+						</select>
+						<button
+							class="savePreferencesButton csap-button-icon csap-edit"
+							title="Click to save current settings as your default">Save
+						</button>
+					</span>
+					<span>Arrangement of graphs in rendering area</span>
+					
+					
+					<label class=csap>Custom Views:</label>
+					<select class="customViews"></select>
+					<span>Custom views: eg. for java heap, tomcat, and thread views are available</span>
+					
+				</div>
+
+				<div class="graph-error-messages csap-red"></div>
+
+				<div class="graph-info-messages ">
+					<button class="csap-button">details</button>
+					<div class="settings csap-white">
+						<ul>
+						</ul>
+					</div>
+				</div>
+
+
+				<div class="usage-notes csap-green">
+					<label class=csap>Usage Notes</label>
+					<ol>
+						<li>Y-Axis: Click and Drag on graph to adjust each graph individually</li>
+						<li>X-Axis: Use the Zoom option (top right) to adjust all graphs. Use the timeline to scoll after selecting</li>
+						<li>Use the customize button to switch to line graphs, enable panning/zooming via mouse, etc.</li>
+					</ol>
+				</div>
+
+			</div>
+
+
+		</div>
+
+
+		<div
+			class="resourceConfig"
+			style="display: none">
+
+			<div class="resourceConfigDialog">
+				<div class=csap-white>
+					<div class="title">Collection Intervals:</div>
+					<label>Select: </label>
+					<div
+						class="sampleIntervals"
+						style="display: inline-block;"></div>
+
+					<label
+						class="csap"
+						title="AutoSelect interval based on number of days retrieved. Larger intervals will highlight trending and take less time to render. Shorter intervals will display usage spikes">
+						Auto Select:
+						<input
+							id="autoInterval"
+							class="custom useAutoInterval"
+							type="checkbox"
+							checked="checked" />
+					</label>
+					<label
+						class=csap
+						title="Select to append latest collected data to the selected interval results">
+						Latest:
+						<input
+							class="padLatest custom"
+							checked="checked"
+							type="checkbox"
+							value="left"
+							style="font-size: 0.8em" />
+					</label>
+					<br />
+
+					<label
+						class=csap
+						title="Reduces number of points displayed.  Number of pixels separting points. Samples too close are difficult to read, too far and you miss deviations">
+						Graph rendering - Spacing:
+						<select class="samplingPoints">
+							<option>2</option>
+							<option>3</option>
+							<option>4</option>
+							<option>5</option>
+							<option selected="selected">10</option>
+							<option>20</option>
+							<option>30</option>
+						</select>
+					</label>
+
+					<label
+						class=csap
+						title="If requested samples is larger, then sample algorithm will be applied">
+						Apply if greater then:
+						<input
+							class="custom samplingLimit"
+							type="number"
+							style="width: 3em"
+							value="200" />
+					</label>
+
+
+					<div style="float: right; display: inline-block">
+						<label
+							class=csap
+							title="Reduces the amount of data transferred to browser">
+							Data Sampling
+							<input
+								class="custom useBuckets"
+								type="checkbox" />
+						</label>
+						<label
+							class=csap
+							title="Amount to get from server">
+							Samples
+							<input
+								class="custom bucketSize"
+								type="number"
+								title="Amount to show"
+								value="1"
+								style="width: 3em" />
+						</label>
+						<label
+							class=csap
+							title="Amount to skip">
+							Spacing
+							<input
+								class="custom bucketSpacing"
+								type="number"
+								style="width: 3em"
+								title="Amount to Skip"
+								value="10" />
+						</label>
+					</div>
+
+
+
+				</div>
+
+				<div class=csap-white>
+					<div class="title">
+						Graph Selection <a
+							href="#"
+							style="margin-left: 3em"
+							class="csap-link uncheckAll">UnCheck All</a> <a
+							href="#"
+							style="margin-left: 3em"
+							class="csap-link checkAll">Check All</a>
+					</div>
+					<div class="graphCheckboxes"></div>
+				</div>
+
+				<div class=csap-white>
+					<div class="title">
+						Series Selection <a
+							href="#"
+							style="margin-left: 3em"
+							class="csap-link uncheckAll">UnCheck All</a> <a
+							href="#"
+							style="margin-left: 3em"
+							class="csap-link checkAll">Check All</a>
+					</div>
+					<div
+						class="serviceCheckboxes"
+						style="padding-bottom: 1em"></div>
+				</div>
+
+				<div class=csap-white>
+					<div
+						class="title"
+						style="">Display</div>
+
+
+					<label title="Legend placement can be inside the graph plot, or below">
+						<input
+							class="outsideLabels custom"
+							type="checkbox"
+							checked="checked" />
+						Legend Below
+					</label>
+
+					<label title="By Default - full legend is displayed only on hover. Check this to include all in plot layout">
+						<input
+							class="includeFullLegend custom"
+							type="checkbox">
+						Include Full Legend
+					</label>
+
+					<label
+						style="font-size: 0.8em"
+						title="Enable mouse based zooming and navigation">
+						Mouse navigation:
+						<input
+							class="zoomAndPan custom"
+							type="checkbox"
+							value="left"
+							style="font-size: 0.8em">
+					</label>
+
+					<label
+						style="font-size: 0.8em"
+						title="View data in csv format">
+						csv
+						<input
+							class="csv custom"
+							type="checkbox"
+							value="left"
+							name="csv"
+							style="font-size: 0.8em">
+					</label>
+					<br />
+
+					<label title="Number of samples to display on visible section of graph - can be scrolled">
+						Samples On Graph:
+						<select
+							id="numSamples"
+							class="choices">
+							<option
+								value="99999"
+								selected="selected">Auto</option>
+							<option value="99999">All</option>
+							<option value="99999">Mean</option>
+							<option value="99999">Max</option>
+							<option value="99999">Min</option>
+							<option value="10">5 min</option>
+							<option value="30">15 min</option>
+							<option value="60">30 min</option>
+							<option value="120">1 hour</option>
+							<option value="240">2 hours</option>
+							<option value="360">3 hours</option>
+							<option value="480">4 hours</option>
+							<option value="960">8 hours</option>
+						</select>
+					</label>
+
+
+				</div>
+
+
+				<!--  Placeholder for attributes managed by child UI pages. -->
+				<section style="display: none;">
+					<div class="title">Historical</div>
+					<input
+						class="custom useHistorical"
+						type="checkbox"
+						title="Uses audit records for source data">
+					<label
+						class="radio"
+						for="historicalSource"
+						title="Uses audit records for source data">Enable</label>
+					<span class="historicalContainer">
+						<label
+							title="Day calculated based on offset. If number exceeds data stored, last day will be displayed. 0=current day, 1 = yesterday, ..."
+							for="dayOffset">Day to display: </label>
+						<input
+							id="dayOffset"
+							style="width: 3em"
+							class="numbersOnly"
+							value="0"
+							title="Day calculated based on offset. If number exceeds data stored, last day will be displayed. 0=current day, 1 = yesterday, ..." />
+						<input
+							id="useOldest"
+							class="custom"
+							type="checkbox"
+							title="Day calculated based on oldest, 0=last day, 1 = 2nd oldest, ..." />
+						<label
+							class="radio"
+							for="historicalSource"
+							title="Day calculated based on oldest, 0=last day, 1 = 2nd oldest, ...">From Oldest </label>
+
+						<label
+							title="Number of days to include"
+							for="source">Number Of Days: </label>
+						<input
+							id="numberOfDays"
+							style="width: 3em"
+							class="numbersOnly"
+							value="1"
+							title="Number of samples to display on visible section of graph - can be scrolled" />
+					</span>
+				</section>
+			</div>
+		</div>
+
+		<div class="hostContainer">
+			<div
+				class="hostPerf hostTemplate"
+				style="display: none">
+				<div class="resourceGraphTitle">
+					<span class="hostName">loading...</span>
+					<div id="graphToolTip"></div>
+					<span>
+						Collection:
+						<span class="hostInterval">loading...</span>
+						Minute(s)
+					</span>
+					<span class=reset-graph-button>
+					</span>
+					<span class="flex-right-info">
+
+						<span class="refresh">loading...</span>
+						<a
+							class="hostLaunch csap-link"
+							href="getStatsInNewWindow">Host Dashboard</a> &nbsp;&nbsp; <a
+							class="clearMetrics csap-link"
+							href="clearMetrics">Clear</a>
+					</span>
+
+				</div>
+
+				<div
+					class="sliderContainer"
+					style="display: none">
+					<span>
+						<input
+							title="All times are in US Central"
+							type="text"
+							class="sliderTimeStart"
+							disabled="disabled"
+							value="loading" />
+						<div
+							class="resourceSlider"
+							title="Use arrow keys or mouse to select time range to display."></div>
+
+						<input
+							title="Use zoom with mouse and keyboard to scroll"
+							type="text"
+							class="sliderTimeCurrent"
+							disabled="disabled"
+							value="loading" />
+						<span
+							id="metricsZoneDisplay"
+							class=""
+							title="By default - times are shown using native time on host to match logs. Use settings to modify "
+							style="padding-right: 1em"></span>
+
+						<button
+							class="csap-button playTimelineBackButton"
+							title="Click to play timeline backward">
+							<img
+								style=""
+								th:src="@{/images/16x16/play.svg}">
+						</button>
+
+						<button
+							class="csap-button playTimelineButton"
+							title="Click to play timeline forward">
+							<img th:src="@{/images/16x16/play.svg}">
+						</button>
+
+					</span>
+
+					<label
+						class="csap autoRefresh"
+						title="Auto refresh graph with real time data"
+						for="autoRefresh">
+						Auto refresh:
+						<input
+							class="autoRefresh"
+							checked="checked"
+							type="checkbox"
+							name="autoRefresh"
+							value="yes" />
+					</label>
+				</div>
+
+				<div class="plotContainer">
+					<div class="loadingLargePanel">Data is being loaded - time taken is proportional to time period selected.</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	
+
+</body>
+</html>

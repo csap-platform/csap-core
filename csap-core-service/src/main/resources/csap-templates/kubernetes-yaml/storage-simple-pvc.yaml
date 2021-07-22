@@ -1,0 +1,50 @@
+#
+#  Simple pvc verification
+#   - uses default storage class
+#   - creates a pod using simple container (busybox:1.32.0) to perform a write to pvc
+#
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: test-generic-claim
+  # uncomment if a default storage provider is not provided
+#  annotations:
+#    volume.beta.kubernetes.io/storage-class: "UPDATE_WITH_YOUR_NAME"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Mi
+
+---
+
+kind: Pod
+apiVersion: v1
+metadata:
+  name: test-genericpv-pod
+spec:
+  restartPolicy: "Never"
+  containers:
+  - name: test-pod
+    image: busybox:1.32.0
+    command:
+      - "/bin/sh"
+    args:
+      - "-c"
+      - "
+      ls -al /mnt ; 
+      NOW=$(date +'%h-%d-%I-%M-%S') ; 
+      touch /mnt/SUCCESS-$NOW ; 
+      echo hi >> /mnt/SUCCESS-$NOW ; 
+      ls -al /mnt ; 
+      sleep 900
+      "
+    volumeMounts:
+      - name: my-generic-pvc
+        mountPath: "/mnt"
+  volumes:
+    - name: my-generic-pvc
+      persistentVolumeClaim:
+        claimName: test-generic-claim

@@ -1,0 +1,4891 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+
+<link href='modjk.css' rel="styleSheet" type="text/css"/>
+<title>JK Status Manager</title>
+</head>
+<body>
+	<h1>JK Status Manager for localhost:8080 (read only)</h1>
+
+	<table>
+		<tr>
+			<td>Server Version:</td>
+			<td>Apache/2.4.16 (Unix) mod_jk/1.2.41</td>
+			<td>&nbsp;&nbsp;&nbsp;</td>
+			<td>Server Time:</td>
+			<td>2015-10-06 07:58:40 -0500</td>
+		</tr>
+		<tr>
+			<td>JK Version:</td>
+			<td>mod_jk/1.2.41</td>
+			<td></td>
+			<td>Unix Seconds:</td>
+			<td>1444136320</td>
+		</tr>
+	</table>
+	<hr />
+	<table>
+		<tbody valign="baseline">
+			<tr>
+				<td><form method="get" action="./status">
+						<input type="hidden" name="cmd" value="list" /> <input
+							type="submit" value="Start auto refresh" /> (every <input
+							name="re" type="text" size="3" value="10" /> seconds)
+					</form></td>
+				<td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>
+				<td>
+					<form method="get" action="./status">
+						<input type="hidden" name="cmd" value="list" /> <input
+							type="submit" value="Change format" /> <select name="mime"
+							size="1"><option value="xml">XML</option>
+							<option value="prop">Properties</option>
+							<option value="txt">Text</option></select>
+					</form>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<table>
+		<tbody valign="baseline">
+			<tr>
+				<td></td>
+				<td>[<a href="./status?cmd=dump">Dump</a>]&nbsp;&nbsp;
+				</td>
+				<td>[<b>S</b>=Show only this worker, <b>E</b>=Edit worker, <b>R</b>=Reset
+					worker state, <b>T</b>=Try worker recovery]<br />
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<hr />
+	<h2>
+		Listing Load Balancing Workers (20 Workers) [<a
+			href="./status?cmd=list&amp;opt=8">Hide</a>]
+	</h2>
+	<hr />
+	<h3>
+		[<a href="./status?cmd=show&amp;w=BootAsWar_LB">S</a>]&nbsp;&nbsp;Worker
+		Status for BootAsWar_LB
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Type</th>
+			<th>Sticky<br />Sessions
+			</th>
+			<th>Force Sticky<br />Sessions
+			</th>
+			<th>Retries</th>
+			<th>LB<br />Method
+			</th>
+			<th>Locking</th>
+			<th>Recover<br />Wait Time
+			</th>
+			<th>Error<br />Escalation Time
+			</th>
+			<th>Max Reply<br />Timeouts
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=64">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>lb</td>
+			<td>True</td>
+			<td>False</td>
+			<td>2</td>
+			<td>Request</td>
+			<td>Optimistic</td>
+			<td>60</td>
+			<td>30</td>
+			<td>0</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr>
+			<th>Good</th>
+			<th>Degraded</th>
+			<th>Bad/Stopped</th>
+			<th>Busy</th>
+			<th>Max Busy</th>
+			<th>Next Maintenance</th>
+			<th>Last Reset</th>
+			<th>[<a href="./status?cmd=list&amp;opt=128">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0/59</td>
+			<td>55388</td>
+			<td></td>
+		</tr>
+	</table>
+
+	<h4>
+		Balancer Members [<a href="./status?cmd=list&amp;opt=1">Hide</a>]
+	</h4>
+	<table>
+		<tr valign="bottom">
+			<th>Name</th>
+			<th>Type</th>
+			<th>Hostname</th>
+			<th>Address:Port</th>
+			<th>Source</th>
+			<th>Connection<br />Pool Timeout
+			</th>
+			<th>Connect<br />Timeout
+			</th>
+			<th>Prepost<br />Timeout
+			</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Retries</th>
+			<th>Recovery<br />Options
+			</th>
+			<th>Busy<br />Limit
+			</th>
+			<th>Max Packet<br />Size
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=256">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>BootAsWar_8251csap-dev01</td>
+			<td>ajp13</td>
+			<td>csap-dev01</td>
+			<td>173.36.60.137:8252</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>BootAsWar_8251csap-dev02</td>
+			<td>ajp13</td>
+			<td>csap-dev02</td>
+			<td>173.36.61.25:8252</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr valign="bottom">
+			<th>&nbsp;</th>
+			<th>Name</th>
+			<th>Act</th>
+			<th>State</th>
+			<th>D</th>
+			<th>F</th>
+			<th>M</th>
+			<th>V</th>
+			<th>Acc</th>
+			<th>Sess</th>
+			<th>Err</th>
+			<th>CE</th>
+			<th>RE</th>
+			<th>Wr</th>
+			<th>Rd</th>
+			<th>Busy</th>
+			<th>MaxBusy</th>
+			<th>Con</th>
+			<th>MaxCon</th>
+			<th>Route</th>
+			<th>RR</th>
+			<th>Cd</th>
+			<th>Rs</th>
+			<th>LR</th>
+			<th>LE</th>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=BootAsWar_LB&amp;sw=BootAsWar_8251csap-dev01">S</a>]&nbsp;
+			</td>
+			<td>BootAsWar_8251csap-dev01</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>BootAsWar_8251csap-dev01</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=BootAsWar_LB&amp;sw=BootAsWar_8251csap-dev02">S</a>]&nbsp;
+			</td>
+			<td>BootAsWar_8251csap-dev02</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>BootAsWar_8251csap-dev02</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<br />
+	<hr />
+	<h3>
+		URI Mappings for BootAsWar_LB (1 maps) [<a
+			href="./status?cmd=list&amp;opt=2">Hide</a>]
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Server</th>
+			<th>URI</th>
+			<th>Match<br />Type
+			</th>
+			<th>Source</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Sticky<br />Ignore
+			</th>
+			<th>Stateless</th>
+			<th>Fail on<br />Status
+			</th>
+			<th>Active</th>
+			<th>Disabled</th>
+			<th>Stopped</th>
+			<th>Use Server<br />Errors
+			</th>
+		</tr>
+		<tr>
+			<td>localhost [*:8080]</td>
+			<td>/BootAsWar*</td>
+			<td>Wildchar</td>
+			<td>JkMount</td>
+			<td>-1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>0</td>
+		</tr>
+	</table>
+	<hr />
+	<h3>
+		[<a href="./status?cmd=show&amp;w=BootReference_LB">S</a>]&nbsp;&nbsp;Worker
+		Status for BootReference_LB
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Type</th>
+			<th>Sticky<br />Sessions
+			</th>
+			<th>Force Sticky<br />Sessions
+			</th>
+			<th>Retries</th>
+			<th>LB<br />Method
+			</th>
+			<th>Locking</th>
+			<th>Recover<br />Wait Time
+			</th>
+			<th>Error<br />Escalation Time
+			</th>
+			<th>Max Reply<br />Timeouts
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=64">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>lb</td>
+			<td>True</td>
+			<td>False</td>
+			<td>2</td>
+			<td>Request</td>
+			<td>Optimistic</td>
+			<td>60</td>
+			<td>30</td>
+			<td>0</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr>
+			<th>Good</th>
+			<th>Degraded</th>
+			<th>Bad/Stopped</th>
+			<th>Busy</th>
+			<th>Max Busy</th>
+			<th>Next Maintenance</th>
+			<th>Last Reset</th>
+			<th>[<a href="./status?cmd=list&amp;opt=128">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0/59</td>
+			<td>55388</td>
+			<td></td>
+		</tr>
+	</table>
+
+	<h4>
+		Balancer Members [<a href="./status?cmd=list&amp;opt=1">Hide</a>]
+	</h4>
+	<table>
+		<tr valign="bottom">
+			<th>Name</th>
+			<th>Type</th>
+			<th>Hostname</th>
+			<th>Address:Port</th>
+			<th>Source</th>
+			<th>Connection<br />Pool Timeout
+			</th>
+			<th>Connect<br />Timeout
+			</th>
+			<th>Prepost<br />Timeout
+			</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Retries</th>
+			<th>Recovery<br />Options
+			</th>
+			<th>Busy<br />Limit
+			</th>
+			<th>Max Packet<br />Size
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=256">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>BootReference_8291csap-dev01</td>
+			<td>ajp13</td>
+			<td>csap-dev01</td>
+			<td>173.36.60.137:8292</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>BootReference_8291csap-dev02</td>
+			<td>ajp13</td>
+			<td>csap-dev02</td>
+			<td>173.36.61.25:8292</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr valign="bottom">
+			<th>&nbsp;</th>
+			<th>Name</th>
+			<th>Act</th>
+			<th>State</th>
+			<th>D</th>
+			<th>F</th>
+			<th>M</th>
+			<th>V</th>
+			<th>Acc</th>
+			<th>Sess</th>
+			<th>Err</th>
+			<th>CE</th>
+			<th>RE</th>
+			<th>Wr</th>
+			<th>Rd</th>
+			<th>Busy</th>
+			<th>MaxBusy</th>
+			<th>Con</th>
+			<th>MaxCon</th>
+			<th>Route</th>
+			<th>RR</th>
+			<th>Cd</th>
+			<th>Rs</th>
+			<th>LR</th>
+			<th>LE</th>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=BootReference_LB&amp;sw=BootReference_8291csap-dev01">S</a>]&nbsp;
+			</td>
+			<td>BootReference_8291csap-dev01</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>BootReference_8291csap-dev01</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=BootReference_LB&amp;sw=BootReference_8291csap-dev02">S</a>]&nbsp;
+			</td>
+			<td>BootReference_8291csap-dev02</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>BootReference_8291csap-dev02</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<br />
+	<hr />
+	<h3>
+		URI Mappings for BootReference_LB (1 maps) [<a
+			href="./status?cmd=list&amp;opt=2">Hide</a>]
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Server</th>
+			<th>URI</th>
+			<th>Match<br />Type
+			</th>
+			<th>Source</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Sticky<br />Ignore
+			</th>
+			<th>Stateless</th>
+			<th>Fail on<br />Status
+			</th>
+			<th>Active</th>
+			<th>Disabled</th>
+			<th>Stopped</th>
+			<th>Use Server<br />Errors
+			</th>
+		</tr>
+		<tr>
+			<td>localhost [*:8080]</td>
+			<td>/BootReference*</td>
+			<td>Wildchar</td>
+			<td>JkMount</td>
+			<td>-1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>0</td>
+		</tr>
+	</table>
+	<hr />
+	<h3>
+		[<a href="./status?cmd=show&amp;w=Cssp1Reference_LB">S</a>]&nbsp;&nbsp;Worker
+		Status for Cssp1Reference_LB
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Type</th>
+			<th>Sticky<br />Sessions
+			</th>
+			<th>Force Sticky<br />Sessions
+			</th>
+			<th>Retries</th>
+			<th>LB<br />Method
+			</th>
+			<th>Locking</th>
+			<th>Recover<br />Wait Time
+			</th>
+			<th>Error<br />Escalation Time
+			</th>
+			<th>Max Reply<br />Timeouts
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=64">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>lb</td>
+			<td>True</td>
+			<td>False</td>
+			<td>2</td>
+			<td>Request</td>
+			<td>Optimistic</td>
+			<td>60</td>
+			<td>30</td>
+			<td>0</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr>
+			<th>Good</th>
+			<th>Degraded</th>
+			<th>Bad/Stopped</th>
+			<th>Busy</th>
+			<th>Max Busy</th>
+			<th>Next Maintenance</th>
+			<th>Last Reset</th>
+			<th>[<a href="./status?cmd=list&amp;opt=128">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0/59</td>
+			<td>55388</td>
+			<td></td>
+		</tr>
+	</table>
+
+	<h4>
+		Balancer Members [<a href="./status?cmd=list&amp;opt=1">Hide</a>]
+	</h4>
+	<table>
+		<tr valign="bottom">
+			<th>Name</th>
+			<th>Type</th>
+			<th>Hostname</th>
+			<th>Address:Port</th>
+			<th>Source</th>
+			<th>Connection<br />Pool Timeout
+			</th>
+			<th>Connect<br />Timeout
+			</th>
+			<th>Prepost<br />Timeout
+			</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Retries</th>
+			<th>Recovery<br />Options
+			</th>
+			<th>Busy<br />Limit
+			</th>
+			<th>Max Packet<br />Size
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=256">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>Cssp1Reference_8021csap-dev01</td>
+			<td>ajp13</td>
+			<td>csap-dev01</td>
+			<td>173.36.60.137:8022</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Cssp1Reference_8021csap-dev02</td>
+			<td>ajp13</td>
+			<td>csap-dev02</td>
+			<td>173.36.61.25:8022</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr valign="bottom">
+			<th>&nbsp;</th>
+			<th>Name</th>
+			<th>Act</th>
+			<th>State</th>
+			<th>D</th>
+			<th>F</th>
+			<th>M</th>
+			<th>V</th>
+			<th>Acc</th>
+			<th>Sess</th>
+			<th>Err</th>
+			<th>CE</th>
+			<th>RE</th>
+			<th>Wr</th>
+			<th>Rd</th>
+			<th>Busy</th>
+			<th>MaxBusy</th>
+			<th>Con</th>
+			<th>MaxCon</th>
+			<th>Route</th>
+			<th>RR</th>
+			<th>Cd</th>
+			<th>Rs</th>
+			<th>LR</th>
+			<th>LE</th>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=Cssp1Reference_LB&amp;sw=Cssp1Reference_8021csap-dev01">S</a>]&nbsp;
+			</td>
+			<td>Cssp1Reference_8021csap-dev01</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>Cssp1Reference_8021csap-dev01</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=Cssp1Reference_LB&amp;sw=Cssp1Reference_8021csap-dev02">S</a>]&nbsp;
+			</td>
+			<td>Cssp1Reference_8021csap-dev02</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>Cssp1Reference_8021csap-dev02</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<br />
+	<hr />
+	<h3>
+		URI Mappings for Cssp1Reference_LB (1 maps) [<a
+			href="./status?cmd=list&amp;opt=2">Hide</a>]
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Server</th>
+			<th>URI</th>
+			<th>Match<br />Type
+			</th>
+			<th>Source</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Sticky<br />Ignore
+			</th>
+			<th>Stateless</th>
+			<th>Fail on<br />Status
+			</th>
+			<th>Active</th>
+			<th>Disabled</th>
+			<th>Stopped</th>
+			<th>Use Server<br />Errors
+			</th>
+		</tr>
+		<tr>
+			<td>localhost [*:8080]</td>
+			<td>/csspSample*</td>
+			<td>Wildchar</td>
+			<td>JkMount</td>
+			<td>-1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>0</td>
+		</tr>
+	</table>
+	<hr />
+	<h3>
+		[<a href="./status?cmd=show&amp;w=Cssp3ReferenceTibco_LB">S</a>]&nbsp;&nbsp;Worker
+		Status for Cssp3ReferenceTibco_LB
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Type</th>
+			<th>Sticky<br />Sessions
+			</th>
+			<th>Force Sticky<br />Sessions
+			</th>
+			<th>Retries</th>
+			<th>LB<br />Method
+			</th>
+			<th>Locking</th>
+			<th>Recover<br />Wait Time
+			</th>
+			<th>Error<br />Escalation Time
+			</th>
+			<th>Max Reply<br />Timeouts
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=64">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>lb</td>
+			<td>True</td>
+			<td>False</td>
+			<td>2</td>
+			<td>Request</td>
+			<td>Optimistic</td>
+			<td>60</td>
+			<td>30</td>
+			<td>0</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr>
+			<th>Good</th>
+			<th>Degraded</th>
+			<th>Bad/Stopped</th>
+			<th>Busy</th>
+			<th>Max Busy</th>
+			<th>Next Maintenance</th>
+			<th>Last Reset</th>
+			<th>[<a href="./status?cmd=list&amp;opt=128">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0/59</td>
+			<td>55388</td>
+			<td></td>
+		</tr>
+	</table>
+
+	<h4>
+		Balancer Members [<a href="./status?cmd=list&amp;opt=1">Hide</a>]
+	</h4>
+	<table>
+		<tr valign="bottom">
+			<th>Name</th>
+			<th>Type</th>
+			<th>Hostname</th>
+			<th>Address:Port</th>
+			<th>Source</th>
+			<th>Connection<br />Pool Timeout
+			</th>
+			<th>Connect<br />Timeout
+			</th>
+			<th>Prepost<br />Timeout
+			</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Retries</th>
+			<th>Recovery<br />Options
+			</th>
+			<th>Busy<br />Limit
+			</th>
+			<th>Max Packet<br />Size
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=256">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>Cssp3ReferenceTibco_8261csap-dev01</td>
+			<td>ajp13</td>
+			<td>csap-dev01</td>
+			<td>173.36.60.137:8262</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Cssp3ReferenceTibco_8261csap-dev02</td>
+			<td>ajp13</td>
+			<td>csap-dev02</td>
+			<td>173.36.61.25:8262</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr valign="bottom">
+			<th>&nbsp;</th>
+			<th>Name</th>
+			<th>Act</th>
+			<th>State</th>
+			<th>D</th>
+			<th>F</th>
+			<th>M</th>
+			<th>V</th>
+			<th>Acc</th>
+			<th>Sess</th>
+			<th>Err</th>
+			<th>CE</th>
+			<th>RE</th>
+			<th>Wr</th>
+			<th>Rd</th>
+			<th>Busy</th>
+			<th>MaxBusy</th>
+			<th>Con</th>
+			<th>MaxCon</th>
+			<th>Route</th>
+			<th>RR</th>
+			<th>Cd</th>
+			<th>Rs</th>
+			<th>LR</th>
+			<th>LE</th>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=Cssp3ReferenceTibco_LB&amp;sw=Cssp3ReferenceTibco_8261csap-dev01">S</a>]&nbsp;
+			</td>
+			<td>Cssp3ReferenceTibco_8261csap-dev01</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>Cssp3ReferenceTibco_8261csap-dev01</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=Cssp3ReferenceTibco_LB&amp;sw=Cssp3ReferenceTibco_8261csap-dev02">S</a>]&nbsp;
+			</td>
+			<td>Cssp3ReferenceTibco_8261csap-dev02</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>Cssp3ReferenceTibco_8261csap-dev02</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<br />
+	<hr />
+	<h3>
+		URI Mappings for Cssp3ReferenceTibco_LB (1 maps) [<a
+			href="./status?cmd=list&amp;opt=2">Hide</a>]
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Server</th>
+			<th>URI</th>
+			<th>Match<br />Type
+			</th>
+			<th>Source</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Sticky<br />Ignore
+			</th>
+			<th>Stateless</th>
+			<th>Fail on<br />Status
+			</th>
+			<th>Active</th>
+			<th>Disabled</th>
+			<th>Stopped</th>
+			<th>Use Server<br />Errors
+			</th>
+		</tr>
+		<tr>
+			<td>localhost [*:8080]</td>
+			<td>/Cssp3ReferenceTibco*</td>
+			<td>Wildchar</td>
+			<td>JkMount</td>
+			<td>-1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>0</td>
+		</tr>
+	</table>
+	<hr />
+	<h3>
+		[<a href="./status?cmd=show&amp;w=RedisServices_LB">S</a>]&nbsp;&nbsp;Worker
+		Status for RedisServices_LB
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Type</th>
+			<th>Sticky<br />Sessions
+			</th>
+			<th>Force Sticky<br />Sessions
+			</th>
+			<th>Retries</th>
+			<th>LB<br />Method
+			</th>
+			<th>Locking</th>
+			<th>Recover<br />Wait Time
+			</th>
+			<th>Error<br />Escalation Time
+			</th>
+			<th>Max Reply<br />Timeouts
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=64">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>lb</td>
+			<td>True</td>
+			<td>False</td>
+			<td>2</td>
+			<td>Request</td>
+			<td>Optimistic</td>
+			<td>60</td>
+			<td>30</td>
+			<td>0</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr>
+			<th>Good</th>
+			<th>Degraded</th>
+			<th>Bad/Stopped</th>
+			<th>Busy</th>
+			<th>Max Busy</th>
+			<th>Next Maintenance</th>
+			<th>Last Reset</th>
+			<th>[<a href="./status?cmd=list&amp;opt=128">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0/59</td>
+			<td>55388</td>
+			<td></td>
+		</tr>
+	</table>
+
+	<h4>
+		Balancer Members [<a href="./status?cmd=list&amp;opt=1">Hide</a>]
+	</h4>
+	<table>
+		<tr valign="bottom">
+			<th>Name</th>
+			<th>Type</th>
+			<th>Hostname</th>
+			<th>Address:Port</th>
+			<th>Source</th>
+			<th>Connection<br />Pool Timeout
+			</th>
+			<th>Connect<br />Timeout
+			</th>
+			<th>Prepost<br />Timeout
+			</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Retries</th>
+			<th>Recovery<br />Options
+			</th>
+			<th>Busy<br />Limit
+			</th>
+			<th>Max Packet<br />Size
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=256">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>RedisServices_8311csap-dev01</td>
+			<td>ajp13</td>
+			<td>csap-dev01</td>
+			<td>173.36.60.137:8312</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>RedisServices_8311csap-dev02</td>
+			<td>ajp13</td>
+			<td>csap-dev02</td>
+			<td>173.36.61.25:8312</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr valign="bottom">
+			<th>&nbsp;</th>
+			<th>Name</th>
+			<th>Act</th>
+			<th>State</th>
+			<th>D</th>
+			<th>F</th>
+			<th>M</th>
+			<th>V</th>
+			<th>Acc</th>
+			<th>Sess</th>
+			<th>Err</th>
+			<th>CE</th>
+			<th>RE</th>
+			<th>Wr</th>
+			<th>Rd</th>
+			<th>Busy</th>
+			<th>MaxBusy</th>
+			<th>Con</th>
+			<th>MaxCon</th>
+			<th>Route</th>
+			<th>RR</th>
+			<th>Cd</th>
+			<th>Rs</th>
+			<th>LR</th>
+			<th>LE</th>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=RedisServices_LB&amp;sw=RedisServices_8311csap-dev01">S</a>]&nbsp;
+			</td>
+			<td>RedisServices_8311csap-dev01</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>RedisServices_8311csap-dev01</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=RedisServices_LB&amp;sw=RedisServices_8311csap-dev02">S</a>]&nbsp;
+			</td>
+			<td>RedisServices_8311csap-dev02</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>RedisServices_8311csap-dev02</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<br />
+	<hr />
+	<h3>
+		URI Mappings for RedisServices_LB (1 maps) [<a
+			href="./status?cmd=list&amp;opt=2">Hide</a>]
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Server</th>
+			<th>URI</th>
+			<th>Match<br />Type
+			</th>
+			<th>Source</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Sticky<br />Ignore
+			</th>
+			<th>Stateless</th>
+			<th>Fail on<br />Status
+			</th>
+			<th>Active</th>
+			<th>Disabled</th>
+			<th>Stopped</th>
+			<th>Use Server<br />Errors
+			</th>
+		</tr>
+		<tr>
+			<td>localhost [*:8080]</td>
+			<td>/RedisServices*</td>
+			<td>Wildchar</td>
+			<td>JkMount</td>
+			<td>-1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>0</td>
+		</tr>
+	</table>
+	<hr />
+	<h3>
+		[<a href="./status?cmd=show&amp;w=ServletSample_LB">S</a>]&nbsp;&nbsp;Worker
+		Status for ServletSample_LB
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Type</th>
+			<th>Sticky<br />Sessions
+			</th>
+			<th>Force Sticky<br />Sessions
+			</th>
+			<th>Retries</th>
+			<th>LB<br />Method
+			</th>
+			<th>Locking</th>
+			<th>Recover<br />Wait Time
+			</th>
+			<th>Error<br />Escalation Time
+			</th>
+			<th>Max Reply<br />Timeouts
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=64">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>lb</td>
+			<td>True</td>
+			<td>False</td>
+			<td>2</td>
+			<td>Next</td>
+			<td>Optimistic</td>
+			<td>60</td>
+			<td>30</td>
+			<td>0</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr>
+			<th>Good</th>
+			<th>Degraded</th>
+			<th>Bad/Stopped</th>
+			<th>Busy</th>
+			<th>Max Busy</th>
+			<th>Next Maintenance</th>
+			<th>Last Reset</th>
+			<th>[<a href="./status?cmd=list&amp;opt=128">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0/59</td>
+			<td>55388</td>
+			<td></td>
+		</tr>
+	</table>
+
+	<h4>
+		Balancer Members [<a href="./status?cmd=list&amp;opt=1">Hide</a>]
+	</h4>
+	<table>
+		<tr valign="bottom">
+			<th>Name</th>
+			<th>Type</th>
+			<th>Hostname</th>
+			<th>Address:Port</th>
+			<th>Source</th>
+			<th>Connection<br />Pool Timeout
+			</th>
+			<th>Connect<br />Timeout
+			</th>
+			<th>Prepost<br />Timeout
+			</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Retries</th>
+			<th>Recovery<br />Options
+			</th>
+			<th>Busy<br />Limit
+			</th>
+			<th>Max Packet<br />Size
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=256">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>ServletSample_8041csap-dev01</td>
+			<td>ajp13</td>
+			<td>csap-dev01</td>
+			<td>173.36.60.137:8042</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>ServletSample_8041csap-dev02</td>
+			<td>ajp13</td>
+			<td>csap-dev02</td>
+			<td>173.36.61.25:8042</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr valign="bottom">
+			<th>&nbsp;</th>
+			<th>Name</th>
+			<th>Act</th>
+			<th>State</th>
+			<th>D</th>
+			<th>F</th>
+			<th>M</th>
+			<th>V</th>
+			<th>Acc</th>
+			<th>Sess</th>
+			<th>Err</th>
+			<th>CE</th>
+			<th>RE</th>
+			<th>Wr</th>
+			<th>Rd</th>
+			<th>Busy</th>
+			<th>MaxBusy</th>
+			<th>Con</th>
+			<th>MaxCon</th>
+			<th>Route</th>
+			<th>RR</th>
+			<th>Cd</th>
+			<th>Rs</th>
+			<th>LR</th>
+			<th>LE</th>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=ServletSample_LB&amp;sw=ServletSample_8041csap-dev01">S</a>]&nbsp;
+			</td>
+			<td>ServletSample_8041csap-dev01</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>ServletSample_8041csap-dev01</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=ServletSample_LB&amp;sw=ServletSample_8041csap-dev02">S</a>]&nbsp;
+			</td>
+			<td>ServletSample_8041csap-dev02</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>ServletSample_8041csap-dev02</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<br />
+	<hr />
+	<h3>
+		URI Mappings for ServletSample_LB (1 maps) [<a
+			href="./status?cmd=list&amp;opt=2">Hide</a>]
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Server</th>
+			<th>URI</th>
+			<th>Match<br />Type
+			</th>
+			<th>Source</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Sticky<br />Ignore
+			</th>
+			<th>Stateless</th>
+			<th>Fail on<br />Status
+			</th>
+			<th>Active</th>
+			<th>Disabled</th>
+			<th>Stopped</th>
+			<th>Use Server<br />Errors
+			</th>
+		</tr>
+		<tr>
+			<td>localhost [*:8080]</td>
+			<td>/ServletSample*</td>
+			<td>Wildchar</td>
+			<td>JkMount</td>
+			<td>-1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>0</td>
+		</tr>
+	</table>
+	<hr />
+	<h3>
+		[<a href="./status?cmd=show&amp;w=admin_LB">S</a>]&nbsp;&nbsp;Worker
+		Status for admin_LB
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Type</th>
+			<th>Sticky<br />Sessions
+			</th>
+			<th>Force Sticky<br />Sessions
+			</th>
+			<th>Retries</th>
+			<th>LB<br />Method
+			</th>
+			<th>Locking</th>
+			<th>Recover<br />Wait Time
+			</th>
+			<th>Error<br />Escalation Time
+			</th>
+			<th>Max Reply<br />Timeouts
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=64">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>lb</td>
+			<td>True</td>
+			<td>False</td>
+			<td>2</td>
+			<td>Request</td>
+			<td>Optimistic</td>
+			<td>60</td>
+			<td>30</td>
+			<td>0</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr>
+			<th>Good</th>
+			<th>Degraded</th>
+			<th>Bad/Stopped</th>
+			<th>Busy</th>
+			<th>Max Busy</th>
+			<th>Next Maintenance</th>
+			<th>Last Reset</th>
+			<th>[<a href="./status?cmd=list&amp;opt=128">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>5</td>
+			<td>0/59</td>
+			<td>55388</td>
+			<td></td>
+		</tr>
+	</table>
+
+	<h4>
+		Balancer Members [<a href="./status?cmd=list&amp;opt=1">Hide</a>]
+	</h4>
+	<table>
+		<tr valign="bottom">
+			<th>Name</th>
+			<th>Type</th>
+			<th>Hostname</th>
+			<th>Address:Port</th>
+			<th>Source</th>
+			<th>Connection<br />Pool Timeout
+			</th>
+			<th>Connect<br />Timeout
+			</th>
+			<th>Prepost<br />Timeout
+			</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Retries</th>
+			<th>Recovery<br />Options
+			</th>
+			<th>Busy<br />Limit
+			</th>
+			<th>Max Packet<br />Size
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=256">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>admin_8911csap-dev01</td>
+			<td>ajp13</td>
+			<td>csap-dev01</td>
+			<td>173.36.60.137:8912</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>admin_8911csap-dev02</td>
+			<td>ajp13</td>
+			<td>csap-dev02</td>
+			<td>173.36.61.25:8912</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr valign="bottom">
+			<th>&nbsp;</th>
+			<th>Name</th>
+			<th>Act</th>
+			<th>State</th>
+			<th>D</th>
+			<th>F</th>
+			<th>M</th>
+			<th>V</th>
+			<th>Acc</th>
+			<th>Sess</th>
+			<th>Err</th>
+			<th>CE</th>
+			<th>RE</th>
+			<th>Wr</th>
+			<th>Rd</th>
+			<th>Busy</th>
+			<th>MaxBusy</th>
+			<th>Con</th>
+			<th>MaxCon</th>
+			<th>Route</th>
+			<th>RR</th>
+			<th>Cd</th>
+			<th>Rs</th>
+			<th>LR</th>
+			<th>LE</th>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=admin_LB&amp;sw=admin_8911csap-dev01">S</a>]&nbsp;
+			</td>
+			<td>admin_8911csap-dev01</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>2957 (0/sec)</td>
+			<td>24 (0/sec)</td>
+			<td>4</td>
+			<td>0</td>
+			<td>0</td>
+			<td>6.9M (130 /sec)</td>
+			<td>7.0M (133 /sec)</td>
+			<td>0</td>
+			<td>5</td>
+			<td>0</td>
+			<td>5</td>
+			<td>admin_8911csap-dev01</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=admin_LB&amp;sw=admin_8911csap-dev02">S</a>]&nbsp;
+			</td>
+			<td>admin_8911csap-dev02</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>39 (0/sec)</td>
+			<td>35 (0/sec)</td>
+			<td>4</td>
+			<td>0</td>
+			<td>0</td>
+			<td>25K (0 /sec)</td>
+			<td>887K (16 /sec)</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>2</td>
+			<td>admin_8911csap-dev02</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<br />
+	<hr />
+	<h3>
+		URI Mappings for admin_LB (1 maps) [<a
+			href="./status?cmd=list&amp;opt=2">Hide</a>]
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Server</th>
+			<th>URI</th>
+			<th>Match<br />Type
+			</th>
+			<th>Source</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Sticky<br />Ignore
+			</th>
+			<th>Stateless</th>
+			<th>Fail on<br />Status
+			</th>
+			<th>Active</th>
+			<th>Disabled</th>
+			<th>Stopped</th>
+			<th>Use Server<br />Errors
+			</th>
+		</tr>
+		<tr>
+			<td>localhost [*:8080]</td>
+			<td>/admin*</td>
+			<td>Wildchar</td>
+			<td>JkMount</td>
+			<td>-1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>0</td>
+		</tr>
+	</table>
+	<hr />
+	<h3>
+		[<a href="./status?cmd=show&amp;w=analytics_LB">S</a>]&nbsp;&nbsp;Worker
+		Status for analytics_LB
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Type</th>
+			<th>Sticky<br />Sessions
+			</th>
+			<th>Force Sticky<br />Sessions
+			</th>
+			<th>Retries</th>
+			<th>LB<br />Method
+			</th>
+			<th>Locking</th>
+			<th>Recover<br />Wait Time
+			</th>
+			<th>Error<br />Escalation Time
+			</th>
+			<th>Max Reply<br />Timeouts
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=64">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>lb</td>
+			<td>True</td>
+			<td>False</td>
+			<td>2</td>
+			<td>Request</td>
+			<td>Optimistic</td>
+			<td>60</td>
+			<td>30</td>
+			<td>0</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr>
+			<th>Good</th>
+			<th>Degraded</th>
+			<th>Bad/Stopped</th>
+			<th>Busy</th>
+			<th>Max Busy</th>
+			<th>Next Maintenance</th>
+			<th>Last Reset</th>
+			<th>[<a href="./status?cmd=list&amp;opt=128">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>5</td>
+			<td>0/59</td>
+			<td>55388</td>
+			<td></td>
+		</tr>
+	</table>
+
+	<h4>
+		Balancer Members [<a href="./status?cmd=list&amp;opt=1">Hide</a>]
+	</h4>
+	<table>
+		<tr valign="bottom">
+			<th>Name</th>
+			<th>Type</th>
+			<th>Hostname</th>
+			<th>Address:Port</th>
+			<th>Source</th>
+			<th>Connection<br />Pool Timeout
+			</th>
+			<th>Connect<br />Timeout
+			</th>
+			<th>Prepost<br />Timeout
+			</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Retries</th>
+			<th>Recovery<br />Options
+			</th>
+			<th>Busy<br />Limit
+			</th>
+			<th>Max Packet<br />Size
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=256">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>analytics_8231csap-dev01</td>
+			<td>ajp13</td>
+			<td>csap-dev01</td>
+			<td>173.36.60.137:8232</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>analytics_8231csap-dev02</td>
+			<td>ajp13</td>
+			<td>csap-dev02</td>
+			<td>173.36.61.25:8232</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr valign="bottom">
+			<th>&nbsp;</th>
+			<th>Name</th>
+			<th>Act</th>
+			<th>State</th>
+			<th>D</th>
+			<th>F</th>
+			<th>M</th>
+			<th>V</th>
+			<th>Acc</th>
+			<th>Sess</th>
+			<th>Err</th>
+			<th>CE</th>
+			<th>RE</th>
+			<th>Wr</th>
+			<th>Rd</th>
+			<th>Busy</th>
+			<th>MaxBusy</th>
+			<th>Con</th>
+			<th>MaxCon</th>
+			<th>Route</th>
+			<th>RR</th>
+			<th>Cd</th>
+			<th>Rs</th>
+			<th>LR</th>
+			<th>LE</th>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=analytics_LB&amp;sw=analytics_8231csap-dev01">S</a>]&nbsp;
+			</td>
+			<td>analytics_8231csap-dev01</td>
+			<td>ACT</td>
+			<td>OK</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>3</td>
+			<td>1432 (0/sec)</td>
+			<td>1432 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>684K (12 /sec)</td>
+			<td>207M (3.8K/sec)</td>
+			<td>0</td>
+			<td>3</td>
+			<td>0</td>
+			<td>3</td>
+			<td>analytics_8231csap-dev01</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=analytics_LB&amp;sw=analytics_8231csap-dev02">S</a>]&nbsp;
+			</td>
+			<td>analytics_8231csap-dev02</td>
+			<td>ACT</td>
+			<td>OK</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>2</td>
+			<td>1447 (0/sec)</td>
+			<td>1447 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>691K (12 /sec)</td>
+			<td>211M (3.9K/sec)</td>
+			<td>0</td>
+			<td>3</td>
+			<td>0</td>
+			<td>3</td>
+			<td>analytics_8231csap-dev02</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<br />
+	<hr />
+	<h3>
+		URI Mappings for analytics_LB (1 maps) [<a
+			href="./status?cmd=list&amp;opt=2">Hide</a>]
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Server</th>
+			<th>URI</th>
+			<th>Match<br />Type
+			</th>
+			<th>Source</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Sticky<br />Ignore
+			</th>
+			<th>Stateless</th>
+			<th>Fail on<br />Status
+			</th>
+			<th>Active</th>
+			<th>Disabled</th>
+			<th>Stopped</th>
+			<th>Use Server<br />Errors
+			</th>
+		</tr>
+		<tr>
+			<td>localhost [*:8080]</td>
+			<td>/analytics*</td>
+			<td>Wildchar</td>
+			<td>JkMount</td>
+			<td>-1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>0</td>
+		</tr>
+	</table>
+	<hr />
+	<h3>
+		[<a href="./status?cmd=show&amp;w=data_LB">S</a>]&nbsp;&nbsp;Worker
+		Status for data_LB
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Type</th>
+			<th>Sticky<br />Sessions
+			</th>
+			<th>Force Sticky<br />Sessions
+			</th>
+			<th>Retries</th>
+			<th>LB<br />Method
+			</th>
+			<th>Locking</th>
+			<th>Recover<br />Wait Time
+			</th>
+			<th>Error<br />Escalation Time
+			</th>
+			<th>Max Reply<br />Timeouts
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=64">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>lb</td>
+			<td>True</td>
+			<td>False</td>
+			<td>2</td>
+			<td>Request</td>
+			<td>Optimistic</td>
+			<td>60</td>
+			<td>30</td>
+			<td>0</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr>
+			<th>Good</th>
+			<th>Degraded</th>
+			<th>Bad/Stopped</th>
+			<th>Busy</th>
+			<th>Max Busy</th>
+			<th>Next Maintenance</th>
+			<th>Last Reset</th>
+			<th>[<a href="./status?cmd=list&amp;opt=128">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0/59</td>
+			<td>55388</td>
+			<td></td>
+		</tr>
+	</table>
+
+	<h4>
+		Balancer Members [<a href="./status?cmd=list&amp;opt=1">Hide</a>]
+	</h4>
+	<table>
+		<tr valign="bottom">
+			<th>Name</th>
+			<th>Type</th>
+			<th>Hostname</th>
+			<th>Address:Port</th>
+			<th>Source</th>
+			<th>Connection<br />Pool Timeout
+			</th>
+			<th>Connect<br />Timeout
+			</th>
+			<th>Prepost<br />Timeout
+			</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Retries</th>
+			<th>Recovery<br />Options
+			</th>
+			<th>Busy<br />Limit
+			</th>
+			<th>Max Packet<br />Size
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=256">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>data_8281csap-dev01</td>
+			<td>ajp13</td>
+			<td>csap-dev01</td>
+			<td>173.36.60.137:8282</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>data_8281csap-dev02</td>
+			<td>ajp13</td>
+			<td>csap-dev02</td>
+			<td>173.36.61.25:8282</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr valign="bottom">
+			<th>&nbsp;</th>
+			<th>Name</th>
+			<th>Act</th>
+			<th>State</th>
+			<th>D</th>
+			<th>F</th>
+			<th>M</th>
+			<th>V</th>
+			<th>Acc</th>
+			<th>Sess</th>
+			<th>Err</th>
+			<th>CE</th>
+			<th>RE</th>
+			<th>Wr</th>
+			<th>Rd</th>
+			<th>Busy</th>
+			<th>MaxBusy</th>
+			<th>Con</th>
+			<th>MaxCon</th>
+			<th>Route</th>
+			<th>RR</th>
+			<th>Cd</th>
+			<th>Rs</th>
+			<th>LR</th>
+			<th>LE</th>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=data_LB&amp;sw=data_8281csap-dev01">S</a>]&nbsp;
+			</td>
+			<td>data_8281csap-dev01</td>
+			<td>ACT</td>
+			<td>OK</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>3</td>
+			<td>1629 (0/sec)</td>
+			<td>1629 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>5.4M (102 /sec)</td>
+			<td>698K (12 /sec)</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>2</td>
+			<td>data_8281csap-dev01</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=data_LB&amp;sw=data_8281csap-dev02">S</a>]&nbsp;
+			</td>
+			<td>data_8281csap-dev02</td>
+			<td>ACT</td>
+			<td>OK</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>3</td>
+			<td>1608 (0/sec)</td>
+			<td>1608 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>5.9M (111 /sec)</td>
+			<td>681K (12 /sec)</td>
+			<td>0</td>
+			<td>1</td>
+			<td>0</td>
+			<td>1</td>
+			<td>data_8281csap-dev02</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<br />
+	<hr />
+	<h3>
+		URI Mappings for data_LB (1 maps) [<a
+			href="./status?cmd=list&amp;opt=2">Hide</a>]
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Server</th>
+			<th>URI</th>
+			<th>Match<br />Type
+			</th>
+			<th>Source</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Sticky<br />Ignore
+			</th>
+			<th>Stateless</th>
+			<th>Fail on<br />Status
+			</th>
+			<th>Active</th>
+			<th>Disabled</th>
+			<th>Stopped</th>
+			<th>Use Server<br />Errors
+			</th>
+		</tr>
+		<tr>
+			<td>localhost [*:8080]</td>
+			<td>/data*</td>
+			<td>Wildchar</td>
+			<td>JkMount</td>
+			<td>-1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>0</td>
+		</tr>
+	</table>
+	<hr />
+	<h3>
+		[<a href="./status?cmd=show&amp;w=eureka_LB">S</a>]&nbsp;&nbsp;Worker
+		Status for eureka_LB
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Type</th>
+			<th>Sticky<br />Sessions
+			</th>
+			<th>Force Sticky<br />Sessions
+			</th>
+			<th>Retries</th>
+			<th>LB<br />Method
+			</th>
+			<th>Locking</th>
+			<th>Recover<br />Wait Time
+			</th>
+			<th>Error<br />Escalation Time
+			</th>
+			<th>Max Reply<br />Timeouts
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=64">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>lb</td>
+			<td>True</td>
+			<td>False</td>
+			<td>2</td>
+			<td>Request</td>
+			<td>Optimistic</td>
+			<td>60</td>
+			<td>30</td>
+			<td>0</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr>
+			<th>Good</th>
+			<th>Degraded</th>
+			<th>Bad/Stopped</th>
+			<th>Busy</th>
+			<th>Max Busy</th>
+			<th>Next Maintenance</th>
+			<th>Last Reset</th>
+			<th>[<a href="./status?cmd=list&amp;opt=128">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0/59</td>
+			<td>55388</td>
+			<td></td>
+		</tr>
+	</table>
+
+	<h4>
+		Balancer Members [<a href="./status?cmd=list&amp;opt=1">Hide</a>]
+	</h4>
+	<table>
+		<tr valign="bottom">
+			<th>Name</th>
+			<th>Type</th>
+			<th>Hostname</th>
+			<th>Address:Port</th>
+			<th>Source</th>
+			<th>Connection<br />Pool Timeout
+			</th>
+			<th>Connect<br />Timeout
+			</th>
+			<th>Prepost<br />Timeout
+			</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Retries</th>
+			<th>Recovery<br />Options
+			</th>
+			<th>Busy<br />Limit
+			</th>
+			<th>Max Packet<br />Size
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=256">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>eureka_8761csap-dev01</td>
+			<td>ajp13</td>
+			<td>csap-dev01</td>
+			<td>173.36.60.137:8762</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>eureka_8761csap-dev02</td>
+			<td>ajp13</td>
+			<td>csap-dev02</td>
+			<td>173.36.61.25:8762</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr valign="bottom">
+			<th>&nbsp;</th>
+			<th>Name</th>
+			<th>Act</th>
+			<th>State</th>
+			<th>D</th>
+			<th>F</th>
+			<th>M</th>
+			<th>V</th>
+			<th>Acc</th>
+			<th>Sess</th>
+			<th>Err</th>
+			<th>CE</th>
+			<th>RE</th>
+			<th>Wr</th>
+			<th>Rd</th>
+			<th>Busy</th>
+			<th>MaxBusy</th>
+			<th>Con</th>
+			<th>MaxCon</th>
+			<th>Route</th>
+			<th>RR</th>
+			<th>Cd</th>
+			<th>Rs</th>
+			<th>LR</th>
+			<th>LE</th>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=eureka_LB&amp;sw=eureka_8761csap-dev01">S</a>]&nbsp;
+			</td>
+			<td>eureka_8761csap-dev01</td>
+			<td>ACT</td>
+			<td>OK</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>8</td>
+			<td>3676 (0/sec)</td>
+			<td>3676 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>1.8M (33 /sec)</td>
+			<td>329K (6 /sec)</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>2</td>
+			<td>eureka_8761csap-dev01</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=eureka_LB&amp;sw=eureka_8761csap-dev02">S</a>]&nbsp;
+			</td>
+			<td>eureka_8761csap-dev02</td>
+			<td>ACT</td>
+			<td>OK</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>8</td>
+			<td>3680 (0/sec)</td>
+			<td>3680 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>1.8M (33 /sec)</td>
+			<td>321K (5 /sec)</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>2</td>
+			<td>eureka_8761csap-dev02</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<br />
+	<hr />
+	<h3>
+		URI Mappings for eureka_LB (1 maps) [<a
+			href="./status?cmd=list&amp;opt=2">Hide</a>]
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Server</th>
+			<th>URI</th>
+			<th>Match<br />Type
+			</th>
+			<th>Source</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Sticky<br />Ignore
+			</th>
+			<th>Stateless</th>
+			<th>Fail on<br />Status
+			</th>
+			<th>Active</th>
+			<th>Disabled</th>
+			<th>Stopped</th>
+			<th>Use Server<br />Errors
+			</th>
+		</tr>
+		<tr>
+			<td>localhost [*:8080]</td>
+			<td>/eureka*</td>
+			<td>Wildchar</td>
+			<td>JkMount</td>
+			<td>-1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>0</td>
+		</tr>
+	</table>
+	<hr />
+	<h3>
+		[<a href="./status?cmd=show&amp;w=jenkins_LB">S</a>]&nbsp;&nbsp;Worker
+		Status for jenkins_LB
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Type</th>
+			<th>Sticky<br />Sessions
+			</th>
+			<th>Force Sticky<br />Sessions
+			</th>
+			<th>Retries</th>
+			<th>LB<br />Method
+			</th>
+			<th>Locking</th>
+			<th>Recover<br />Wait Time
+			</th>
+			<th>Error<br />Escalation Time
+			</th>
+			<th>Max Reply<br />Timeouts
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=64">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>lb</td>
+			<td>True</td>
+			<td>False</td>
+			<td>2</td>
+			<td>Request</td>
+			<td>Optimistic</td>
+			<td>60</td>
+			<td>30</td>
+			<td>0</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr>
+			<th>Good</th>
+			<th>Degraded</th>
+			<th>Bad/Stopped</th>
+			<th>Busy</th>
+			<th>Max Busy</th>
+			<th>Next Maintenance</th>
+			<th>Last Reset</th>
+			<th>[<a href="./status?cmd=list&amp;opt=128">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0/59</td>
+			<td>55388</td>
+			<td></td>
+		</tr>
+	</table>
+
+	<h4>
+		Balancer Members [<a href="./status?cmd=list&amp;opt=1">Hide</a>]
+	</h4>
+	<table>
+		<tr valign="bottom">
+			<th>Name</th>
+			<th>Type</th>
+			<th>Hostname</th>
+			<th>Address:Port</th>
+			<th>Source</th>
+			<th>Connection<br />Pool Timeout
+			</th>
+			<th>Connect<br />Timeout
+			</th>
+			<th>Prepost<br />Timeout
+			</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Retries</th>
+			<th>Recovery<br />Options
+			</th>
+			<th>Busy<br />Limit
+			</th>
+			<th>Max Packet<br />Size
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=256">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>jenkins_8201csap-dev01</td>
+			<td>ajp13</td>
+			<td>csap-dev01</td>
+			<td>173.36.60.137:8202</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>jenkins_8201csap-dev02</td>
+			<td>ajp13</td>
+			<td>csap-dev02</td>
+			<td>173.36.61.25:8202</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr valign="bottom">
+			<th>&nbsp;</th>
+			<th>Name</th>
+			<th>Act</th>
+			<th>State</th>
+			<th>D</th>
+			<th>F</th>
+			<th>M</th>
+			<th>V</th>
+			<th>Acc</th>
+			<th>Sess</th>
+			<th>Err</th>
+			<th>CE</th>
+			<th>RE</th>
+			<th>Wr</th>
+			<th>Rd</th>
+			<th>Busy</th>
+			<th>MaxBusy</th>
+			<th>Con</th>
+			<th>MaxCon</th>
+			<th>Route</th>
+			<th>RR</th>
+			<th>Cd</th>
+			<th>Rs</th>
+			<th>LR</th>
+			<th>LE</th>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=jenkins_LB&amp;sw=jenkins_8201csap-dev01">S</a>]&nbsp;
+			</td>
+			<td>jenkins_8201csap-dev01</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>jenkins_8201csap-dev01</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=jenkins_LB&amp;sw=jenkins_8201csap-dev02">S</a>]&nbsp;
+			</td>
+			<td>jenkins_8201csap-dev02</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>jenkins_8201csap-dev02</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<br />
+	<hr />
+	<h3>
+		URI Mappings for jenkins_LB (1 maps) [<a
+			href="./status?cmd=list&amp;opt=2">Hide</a>]
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Server</th>
+			<th>URI</th>
+			<th>Match<br />Type
+			</th>
+			<th>Source</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Sticky<br />Ignore
+			</th>
+			<th>Stateless</th>
+			<th>Fail on<br />Status
+			</th>
+			<th>Active</th>
+			<th>Disabled</th>
+			<th>Stopped</th>
+			<th>Use Server<br />Errors
+			</th>
+		</tr>
+		<tr>
+			<td>localhost [*:8080]</td>
+			<td>/jenkins*</td>
+			<td>Wildchar</td>
+			<td>JkMount</td>
+			<td>-1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>0</td>
+		</tr>
+	</table>
+	<hr />
+	<h3>
+		[<a href="./status?cmd=show&amp;w=springmvc-showcase_LB">S</a>]&nbsp;&nbsp;Worker
+		Status for springmvc-showcase_LB
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Type</th>
+			<th>Sticky<br />Sessions
+			</th>
+			<th>Force Sticky<br />Sessions
+			</th>
+			<th>Retries</th>
+			<th>LB<br />Method
+			</th>
+			<th>Locking</th>
+			<th>Recover<br />Wait Time
+			</th>
+			<th>Error<br />Escalation Time
+			</th>
+			<th>Max Reply<br />Timeouts
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=64">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>lb</td>
+			<td>True</td>
+			<td>False</td>
+			<td>2</td>
+			<td>Request</td>
+			<td>Optimistic</td>
+			<td>60</td>
+			<td>30</td>
+			<td>0</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr>
+			<th>Good</th>
+			<th>Degraded</th>
+			<th>Bad/Stopped</th>
+			<th>Busy</th>
+			<th>Max Busy</th>
+			<th>Next Maintenance</th>
+			<th>Last Reset</th>
+			<th>[<a href="./status?cmd=list&amp;opt=128">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0/59</td>
+			<td>55388</td>
+			<td></td>
+		</tr>
+	</table>
+
+	<h4>
+		Balancer Members [<a href="./status?cmd=list&amp;opt=1">Hide</a>]
+	</h4>
+	<table>
+		<tr valign="bottom">
+			<th>Name</th>
+			<th>Type</th>
+			<th>Hostname</th>
+			<th>Address:Port</th>
+			<th>Source</th>
+			<th>Connection<br />Pool Timeout
+			</th>
+			<th>Connect<br />Timeout
+			</th>
+			<th>Prepost<br />Timeout
+			</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Retries</th>
+			<th>Recovery<br />Options
+			</th>
+			<th>Busy<br />Limit
+			</th>
+			<th>Max Packet<br />Size
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=256">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>springmvc-showcase_8211csap-dev01</td>
+			<td>ajp13</td>
+			<td>csap-dev01</td>
+			<td>173.36.60.137:8212</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>springmvc-showcase_8211csap-dev02</td>
+			<td>ajp13</td>
+			<td>csap-dev02</td>
+			<td>173.36.61.25:8212</td>
+			<td>undefined</td>
+			<td>10</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr valign="bottom">
+			<th>&nbsp;</th>
+			<th>Name</th>
+			<th>Act</th>
+			<th>State</th>
+			<th>D</th>
+			<th>F</th>
+			<th>M</th>
+			<th>V</th>
+			<th>Acc</th>
+			<th>Sess</th>
+			<th>Err</th>
+			<th>CE</th>
+			<th>RE</th>
+			<th>Wr</th>
+			<th>Rd</th>
+			<th>Busy</th>
+			<th>MaxBusy</th>
+			<th>Con</th>
+			<th>MaxCon</th>
+			<th>Route</th>
+			<th>RR</th>
+			<th>Cd</th>
+			<th>Rs</th>
+			<th>LR</th>
+			<th>LE</th>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=springmvc-showcase_LB&amp;sw=springmvc-showcase_8211csap-dev01">S</a>]&nbsp;
+			</td>
+			<td>springmvc-showcase_8211csap-dev01</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>springmvc-showcase_8211csap-dev01</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=springmvc-showcase_LB&amp;sw=springmvc-showcase_8211csap-dev02">S</a>]&nbsp;
+			</td>
+			<td>springmvc-showcase_8211csap-dev02</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>springmvc-showcase_8211csap-dev02</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<br />
+	<hr />
+	<h3>
+		URI Mappings for springmvc-showcase_LB (1 maps) [<a
+			href="./status?cmd=list&amp;opt=2">Hide</a>]
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Server</th>
+			<th>URI</th>
+			<th>Match<br />Type
+			</th>
+			<th>Source</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Sticky<br />Ignore
+			</th>
+			<th>Stateless</th>
+			<th>Fail on<br />Status
+			</th>
+			<th>Active</th>
+			<th>Disabled</th>
+			<th>Stopped</th>
+			<th>Use Server<br />Errors
+			</th>
+		</tr>
+		<tr>
+			<td>localhost [*:8080]</td>
+			<td>/springmvc-showcase*</td>
+			<td>Wildchar</td>
+			<td>JkMount</td>
+			<td>-1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>0</td>
+		</tr>
+	</table>
+	<hr />
+	<h3>
+		[<a href="./status?cmd=show&amp;w=Cssp3ReferenceMq-dev01_LB">S</a>]&nbsp;&nbsp;Worker
+		Status for Cssp3ReferenceMq-dev01_LB
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Type</th>
+			<th>Sticky<br />Sessions
+			</th>
+			<th>Force Sticky<br />Sessions
+			</th>
+			<th>Retries</th>
+			<th>LB<br />Method
+			</th>
+			<th>Locking</th>
+			<th>Recover<br />Wait Time
+			</th>
+			<th>Error<br />Escalation Time
+			</th>
+			<th>Max Reply<br />Timeouts
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=64">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>lb</td>
+			<td>True</td>
+			<td>False</td>
+			<td>2</td>
+			<td>Request</td>
+			<td>Optimistic</td>
+			<td>60</td>
+			<td>30</td>
+			<td>0</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr>
+			<th>Good</th>
+			<th>Degraded</th>
+			<th>Bad/Stopped</th>
+			<th>Busy</th>
+			<th>Max Busy</th>
+			<th>Next Maintenance</th>
+			<th>Last Reset</th>
+			<th>[<a href="./status?cmd=list&amp;opt=128">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0/59</td>
+			<td>55388</td>
+			<td></td>
+		</tr>
+	</table>
+
+	<h4>
+		Balancer Members [<a href="./status?cmd=list&amp;opt=1">Hide</a>]
+	</h4>
+	<table>
+		<tr valign="bottom">
+			<th>Name</th>
+			<th>Type</th>
+			<th>Hostname</th>
+			<th>Address:Port</th>
+			<th>Source</th>
+			<th>Connection<br />Pool Timeout
+			</th>
+			<th>Connect<br />Timeout
+			</th>
+			<th>Prepost<br />Timeout
+			</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Retries</th>
+			<th>Recovery<br />Options
+			</th>
+			<th>Busy<br />Limit
+			</th>
+			<th>Max Packet<br />Size
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=256">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>Cssp3ReferenceMq-dev01_LB8241</td>
+			<td>ajp13</td>
+			<td>csapdb-dev01</td>
+			<td>173.36.60.28:8242</td>
+			<td>undefined</td>
+			<td>60</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr valign="bottom">
+			<th>&nbsp;</th>
+			<th>Name</th>
+			<th>Act</th>
+			<th>State</th>
+			<th>D</th>
+			<th>F</th>
+			<th>M</th>
+			<th>V</th>
+			<th>Acc</th>
+			<th>Sess</th>
+			<th>Err</th>
+			<th>CE</th>
+			<th>RE</th>
+			<th>Wr</th>
+			<th>Rd</th>
+			<th>Busy</th>
+			<th>MaxBusy</th>
+			<th>Con</th>
+			<th>MaxCon</th>
+			<th>Route</th>
+			<th>RR</th>
+			<th>Cd</th>
+			<th>Rs</th>
+			<th>LR</th>
+			<th>LE</th>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=Cssp3ReferenceMq-dev01_LB&amp;sw=Cssp3ReferenceMq-dev01_LB8241">S</a>]&nbsp;
+			</td>
+			<td>Cssp3ReferenceMq-dev01_LB8241</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>Cssp3ReferenceMq-dev01_LB8241</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<br />
+	<hr />
+	<h3>
+		URI Mappings for Cssp3ReferenceMq-dev01_LB (1 maps) [<a
+			href="./status?cmd=list&amp;opt=2">Hide</a>]
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Server</th>
+			<th>URI</th>
+			<th>Match<br />Type
+			</th>
+			<th>Source</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Sticky<br />Ignore
+			</th>
+			<th>Stateless</th>
+			<th>Fail on<br />Status
+			</th>
+			<th>Active</th>
+			<th>Disabled</th>
+			<th>Stopped</th>
+			<th>Use Server<br />Errors
+			</th>
+		</tr>
+		<tr>
+			<td>localhost [*:8080]</td>
+			<td>/Cssp3ReferenceMq-dev01*</td>
+			<td>Wildchar</td>
+			<td>JkMount</td>
+			<td>-1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>0</td>
+		</tr>
+	</table>
+	<hr />
+	<h3>
+		[<a href="./status?cmd=show&amp;w=jenkins-dev01_LB">S</a>]&nbsp;&nbsp;Worker
+		Status for jenkins-dev01_LB
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Type</th>
+			<th>Sticky<br />Sessions
+			</th>
+			<th>Force Sticky<br />Sessions
+			</th>
+			<th>Retries</th>
+			<th>LB<br />Method
+			</th>
+			<th>Locking</th>
+			<th>Recover<br />Wait Time
+			</th>
+			<th>Error<br />Escalation Time
+			</th>
+			<th>Max Reply<br />Timeouts
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=64">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>lb</td>
+			<td>True</td>
+			<td>False</td>
+			<td>2</td>
+			<td>Request</td>
+			<td>Optimistic</td>
+			<td>60</td>
+			<td>30</td>
+			<td>0</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr>
+			<th>Good</th>
+			<th>Degraded</th>
+			<th>Bad/Stopped</th>
+			<th>Busy</th>
+			<th>Max Busy</th>
+			<th>Next Maintenance</th>
+			<th>Last Reset</th>
+			<th>[<a href="./status?cmd=list&amp;opt=128">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0/59</td>
+			<td>55388</td>
+			<td></td>
+		</tr>
+	</table>
+
+	<h4>
+		Balancer Members [<a href="./status?cmd=list&amp;opt=1">Hide</a>]
+	</h4>
+	<table>
+		<tr valign="bottom">
+			<th>Name</th>
+			<th>Type</th>
+			<th>Hostname</th>
+			<th>Address:Port</th>
+			<th>Source</th>
+			<th>Connection<br />Pool Timeout
+			</th>
+			<th>Connect<br />Timeout
+			</th>
+			<th>Prepost<br />Timeout
+			</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Retries</th>
+			<th>Recovery<br />Options
+			</th>
+			<th>Busy<br />Limit
+			</th>
+			<th>Max Packet<br />Size
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=256">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>jenkins-dev01_LB8271</td>
+			<td>ajp13</td>
+			<td>csapdb-dev01</td>
+			<td>173.36.60.28:8272</td>
+			<td>undefined</td>
+			<td>60</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr valign="bottom">
+			<th>&nbsp;</th>
+			<th>Name</th>
+			<th>Act</th>
+			<th>State</th>
+			<th>D</th>
+			<th>F</th>
+			<th>M</th>
+			<th>V</th>
+			<th>Acc</th>
+			<th>Sess</th>
+			<th>Err</th>
+			<th>CE</th>
+			<th>RE</th>
+			<th>Wr</th>
+			<th>Rd</th>
+			<th>Busy</th>
+			<th>MaxBusy</th>
+			<th>Con</th>
+			<th>MaxCon</th>
+			<th>Route</th>
+			<th>RR</th>
+			<th>Cd</th>
+			<th>Rs</th>
+			<th>LR</th>
+			<th>LE</th>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=jenkins-dev01_LB&amp;sw=jenkins-dev01_LB8271">S</a>]&nbsp;
+			</td>
+			<td>jenkins-dev01_LB8271</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>jenkins-dev01_LB8271</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<br />
+	<hr />
+	<h3>
+		URI Mappings for jenkins-dev01_LB (1 maps) [<a
+			href="./status?cmd=list&amp;opt=2">Hide</a>]
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Server</th>
+			<th>URI</th>
+			<th>Match<br />Type
+			</th>
+			<th>Source</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Sticky<br />Ignore
+			</th>
+			<th>Stateless</th>
+			<th>Fail on<br />Status
+			</th>
+			<th>Active</th>
+			<th>Disabled</th>
+			<th>Stopped</th>
+			<th>Use Server<br />Errors
+			</th>
+		</tr>
+		<tr>
+			<td>localhost [*:8080]</td>
+			<td>/jenkins-dev01*</td>
+			<td>Wildchar</td>
+			<td>JkMount</td>
+			<td>-1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>0</td>
+		</tr>
+	</table>
+	<hr />
+	<h3>
+		[<a href="./status?cmd=show&amp;w=Cssp2ReferenceMq-dev01_LB">S</a>]&nbsp;&nbsp;Worker
+		Status for Cssp2ReferenceMq-dev01_LB
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Type</th>
+			<th>Sticky<br />Sessions
+			</th>
+			<th>Force Sticky<br />Sessions
+			</th>
+			<th>Retries</th>
+			<th>LB<br />Method
+			</th>
+			<th>Locking</th>
+			<th>Recover<br />Wait Time
+			</th>
+			<th>Error<br />Escalation Time
+			</th>
+			<th>Max Reply<br />Timeouts
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=64">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>lb</td>
+			<td>True</td>
+			<td>False</td>
+			<td>2</td>
+			<td>Request</td>
+			<td>Optimistic</td>
+			<td>60</td>
+			<td>30</td>
+			<td>0</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr>
+			<th>Good</th>
+			<th>Degraded</th>
+			<th>Bad/Stopped</th>
+			<th>Busy</th>
+			<th>Max Busy</th>
+			<th>Next Maintenance</th>
+			<th>Last Reset</th>
+			<th>[<a href="./status?cmd=list&amp;opt=128">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0/59</td>
+			<td>55388</td>
+			<td></td>
+		</tr>
+	</table>
+
+	<h4>
+		Balancer Members [<a href="./status?cmd=list&amp;opt=1">Hide</a>]
+	</h4>
+	<table>
+		<tr valign="bottom">
+			<th>Name</th>
+			<th>Type</th>
+			<th>Hostname</th>
+			<th>Address:Port</th>
+			<th>Source</th>
+			<th>Connection<br />Pool Timeout
+			</th>
+			<th>Connect<br />Timeout
+			</th>
+			<th>Prepost<br />Timeout
+			</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Retries</th>
+			<th>Recovery<br />Options
+			</th>
+			<th>Busy<br />Limit
+			</th>
+			<th>Max Packet<br />Size
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=256">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>Cssp2ReferenceMq-dev01_LB8041</td>
+			<td>ajp13</td>
+			<td>csapdb-dev01</td>
+			<td>173.36.60.28:8042</td>
+			<td>undefined</td>
+			<td>60</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr valign="bottom">
+			<th>&nbsp;</th>
+			<th>Name</th>
+			<th>Act</th>
+			<th>State</th>
+			<th>D</th>
+			<th>F</th>
+			<th>M</th>
+			<th>V</th>
+			<th>Acc</th>
+			<th>Sess</th>
+			<th>Err</th>
+			<th>CE</th>
+			<th>RE</th>
+			<th>Wr</th>
+			<th>Rd</th>
+			<th>Busy</th>
+			<th>MaxBusy</th>
+			<th>Con</th>
+			<th>MaxCon</th>
+			<th>Route</th>
+			<th>RR</th>
+			<th>Cd</th>
+			<th>Rs</th>
+			<th>LR</th>
+			<th>LE</th>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=Cssp2ReferenceMq-dev01_LB&amp;sw=Cssp2ReferenceMq-dev01_LB8041">S</a>]&nbsp;
+			</td>
+			<td>Cssp2ReferenceMq-dev01_LB8041</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>Cssp2ReferenceMq-dev01_LB8041</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<br />
+	<hr />
+	<h3>
+		URI Mappings for Cssp2ReferenceMq-dev01_LB (1 maps) [<a
+			href="./status?cmd=list&amp;opt=2">Hide</a>]
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Server</th>
+			<th>URI</th>
+			<th>Match<br />Type
+			</th>
+			<th>Source</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Sticky<br />Ignore
+			</th>
+			<th>Stateless</th>
+			<th>Fail on<br />Status
+			</th>
+			<th>Active</th>
+			<th>Disabled</th>
+			<th>Stopped</th>
+			<th>Use Server<br />Errors
+			</th>
+		</tr>
+		<tr>
+			<td>localhost [*:8080]</td>
+			<td>/Cssp2ReferenceMq-dev01*</td>
+			<td>Wildchar</td>
+			<td>JkMount</td>
+			<td>-1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>0</td>
+		</tr>
+	</table>
+	<hr />
+	<h3>
+		[<a href="./status?cmd=show&amp;w=Cssp3ReferenceMq-dev02_LB">S</a>]&nbsp;&nbsp;Worker
+		Status for Cssp3ReferenceMq-dev02_LB
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Type</th>
+			<th>Sticky<br />Sessions
+			</th>
+			<th>Force Sticky<br />Sessions
+			</th>
+			<th>Retries</th>
+			<th>LB<br />Method
+			</th>
+			<th>Locking</th>
+			<th>Recover<br />Wait Time
+			</th>
+			<th>Error<br />Escalation Time
+			</th>
+			<th>Max Reply<br />Timeouts
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=64">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>lb</td>
+			<td>True</td>
+			<td>False</td>
+			<td>2</td>
+			<td>Request</td>
+			<td>Optimistic</td>
+			<td>60</td>
+			<td>30</td>
+			<td>0</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr>
+			<th>Good</th>
+			<th>Degraded</th>
+			<th>Bad/Stopped</th>
+			<th>Busy</th>
+			<th>Max Busy</th>
+			<th>Next Maintenance</th>
+			<th>Last Reset</th>
+			<th>[<a href="./status?cmd=list&amp;opt=128">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0/59</td>
+			<td>55388</td>
+			<td></td>
+		</tr>
+	</table>
+
+	<h4>
+		Balancer Members [<a href="./status?cmd=list&amp;opt=1">Hide</a>]
+	</h4>
+	<table>
+		<tr valign="bottom">
+			<th>Name</th>
+			<th>Type</th>
+			<th>Hostname</th>
+			<th>Address:Port</th>
+			<th>Source</th>
+			<th>Connection<br />Pool Timeout
+			</th>
+			<th>Connect<br />Timeout
+			</th>
+			<th>Prepost<br />Timeout
+			</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Retries</th>
+			<th>Recovery<br />Options
+			</th>
+			<th>Busy<br />Limit
+			</th>
+			<th>Max Packet<br />Size
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=256">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>Cssp3ReferenceMq-dev02_LB8241</td>
+			<td>ajp13</td>
+			<td>csapdb-dev02</td>
+			<td>173.36.60.12:8242</td>
+			<td>undefined</td>
+			<td>60</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr valign="bottom">
+			<th>&nbsp;</th>
+			<th>Name</th>
+			<th>Act</th>
+			<th>State</th>
+			<th>D</th>
+			<th>F</th>
+			<th>M</th>
+			<th>V</th>
+			<th>Acc</th>
+			<th>Sess</th>
+			<th>Err</th>
+			<th>CE</th>
+			<th>RE</th>
+			<th>Wr</th>
+			<th>Rd</th>
+			<th>Busy</th>
+			<th>MaxBusy</th>
+			<th>Con</th>
+			<th>MaxCon</th>
+			<th>Route</th>
+			<th>RR</th>
+			<th>Cd</th>
+			<th>Rs</th>
+			<th>LR</th>
+			<th>LE</th>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=Cssp3ReferenceMq-dev02_LB&amp;sw=Cssp3ReferenceMq-dev02_LB8241">S</a>]&nbsp;
+			</td>
+			<td>Cssp3ReferenceMq-dev02_LB8241</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>Cssp3ReferenceMq-dev02_LB8241</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<br />
+	<hr />
+	<h3>
+		URI Mappings for Cssp3ReferenceMq-dev02_LB (1 maps) [<a
+			href="./status?cmd=list&amp;opt=2">Hide</a>]
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Server</th>
+			<th>URI</th>
+			<th>Match<br />Type
+			</th>
+			<th>Source</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Sticky<br />Ignore
+			</th>
+			<th>Stateless</th>
+			<th>Fail on<br />Status
+			</th>
+			<th>Active</th>
+			<th>Disabled</th>
+			<th>Stopped</th>
+			<th>Use Server<br />Errors
+			</th>
+		</tr>
+		<tr>
+			<td>localhost [*:8080]</td>
+			<td>/Cssp3ReferenceMq-dev02*</td>
+			<td>Wildchar</td>
+			<td>JkMount</td>
+			<td>-1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>0</td>
+		</tr>
+	</table>
+	<hr />
+	<h3>
+		[<a href="./status?cmd=show&amp;w=jenkins-dev02_LB">S</a>]&nbsp;&nbsp;Worker
+		Status for jenkins-dev02_LB
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Type</th>
+			<th>Sticky<br />Sessions
+			</th>
+			<th>Force Sticky<br />Sessions
+			</th>
+			<th>Retries</th>
+			<th>LB<br />Method
+			</th>
+			<th>Locking</th>
+			<th>Recover<br />Wait Time
+			</th>
+			<th>Error<br />Escalation Time
+			</th>
+			<th>Max Reply<br />Timeouts
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=64">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>lb</td>
+			<td>True</td>
+			<td>False</td>
+			<td>2</td>
+			<td>Request</td>
+			<td>Optimistic</td>
+			<td>60</td>
+			<td>30</td>
+			<td>0</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr>
+			<th>Good</th>
+			<th>Degraded</th>
+			<th>Bad/Stopped</th>
+			<th>Busy</th>
+			<th>Max Busy</th>
+			<th>Next Maintenance</th>
+			<th>Last Reset</th>
+			<th>[<a href="./status?cmd=list&amp;opt=128">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0/59</td>
+			<td>55388</td>
+			<td></td>
+		</tr>
+	</table>
+
+	<h4>
+		Balancer Members [<a href="./status?cmd=list&amp;opt=1">Hide</a>]
+	</h4>
+	<table>
+		<tr valign="bottom">
+			<th>Name</th>
+			<th>Type</th>
+			<th>Hostname</th>
+			<th>Address:Port</th>
+			<th>Source</th>
+			<th>Connection<br />Pool Timeout
+			</th>
+			<th>Connect<br />Timeout
+			</th>
+			<th>Prepost<br />Timeout
+			</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Retries</th>
+			<th>Recovery<br />Options
+			</th>
+			<th>Busy<br />Limit
+			</th>
+			<th>Max Packet<br />Size
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=256">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>jenkins-dev02_LB8271</td>
+			<td>ajp13</td>
+			<td>csapdb-dev02</td>
+			<td>173.36.60.12:8272</td>
+			<td>undefined</td>
+			<td>60</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr valign="bottom">
+			<th>&nbsp;</th>
+			<th>Name</th>
+			<th>Act</th>
+			<th>State</th>
+			<th>D</th>
+			<th>F</th>
+			<th>M</th>
+			<th>V</th>
+			<th>Acc</th>
+			<th>Sess</th>
+			<th>Err</th>
+			<th>CE</th>
+			<th>RE</th>
+			<th>Wr</th>
+			<th>Rd</th>
+			<th>Busy</th>
+			<th>MaxBusy</th>
+			<th>Con</th>
+			<th>MaxCon</th>
+			<th>Route</th>
+			<th>RR</th>
+			<th>Cd</th>
+			<th>Rs</th>
+			<th>LR</th>
+			<th>LE</th>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=jenkins-dev02_LB&amp;sw=jenkins-dev02_LB8271">S</a>]&nbsp;
+			</td>
+			<td>jenkins-dev02_LB8271</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>jenkins-dev02_LB8271</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<br />
+	<hr />
+	<h3>
+		URI Mappings for jenkins-dev02_LB (1 maps) [<a
+			href="./status?cmd=list&amp;opt=2">Hide</a>]
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Server</th>
+			<th>URI</th>
+			<th>Match<br />Type
+			</th>
+			<th>Source</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Sticky<br />Ignore
+			</th>
+			<th>Stateless</th>
+			<th>Fail on<br />Status
+			</th>
+			<th>Active</th>
+			<th>Disabled</th>
+			<th>Stopped</th>
+			<th>Use Server<br />Errors
+			</th>
+		</tr>
+		<tr>
+			<td>localhost [*:8080]</td>
+			<td>/jenkins-dev02*</td>
+			<td>Wildchar</td>
+			<td>JkMount</td>
+			<td>-1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>0</td>
+		</tr>
+	</table>
+	<hr />
+	<h3>
+		[<a href="./status?cmd=show&amp;w=Cssp2ReferenceMq-dev02_LB">S</a>]&nbsp;&nbsp;Worker
+		Status for Cssp2ReferenceMq-dev02_LB
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Type</th>
+			<th>Sticky<br />Sessions
+			</th>
+			<th>Force Sticky<br />Sessions
+			</th>
+			<th>Retries</th>
+			<th>LB<br />Method
+			</th>
+			<th>Locking</th>
+			<th>Recover<br />Wait Time
+			</th>
+			<th>Error<br />Escalation Time
+			</th>
+			<th>Max Reply<br />Timeouts
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=64">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>lb</td>
+			<td>True</td>
+			<td>False</td>
+			<td>2</td>
+			<td>Request</td>
+			<td>Optimistic</td>
+			<td>60</td>
+			<td>30</td>
+			<td>0</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr>
+			<th>Good</th>
+			<th>Degraded</th>
+			<th>Bad/Stopped</th>
+			<th>Busy</th>
+			<th>Max Busy</th>
+			<th>Next Maintenance</th>
+			<th>Last Reset</th>
+			<th>[<a href="./status?cmd=list&amp;opt=128">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0/59</td>
+			<td>55388</td>
+			<td></td>
+		</tr>
+	</table>
+
+	<h4>
+		Balancer Members [<a href="./status?cmd=list&amp;opt=1">Hide</a>]
+	</h4>
+	<table>
+		<tr valign="bottom">
+			<th>Name</th>
+			<th>Type</th>
+			<th>Hostname</th>
+			<th>Address:Port</th>
+			<th>Source</th>
+			<th>Connection<br />Pool Timeout
+			</th>
+			<th>Connect<br />Timeout
+			</th>
+			<th>Prepost<br />Timeout
+			</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Retries</th>
+			<th>Recovery<br />Options
+			</th>
+			<th>Busy<br />Limit
+			</th>
+			<th>Max Packet<br />Size
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=256">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>Cssp2ReferenceMq-dev02_LB8041</td>
+			<td>ajp13</td>
+			<td>csapdb-dev02</td>
+			<td>173.36.60.12:8042</td>
+			<td>undefined</td>
+			<td>60</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr valign="bottom">
+			<th>&nbsp;</th>
+			<th>Name</th>
+			<th>Act</th>
+			<th>State</th>
+			<th>D</th>
+			<th>F</th>
+			<th>M</th>
+			<th>V</th>
+			<th>Acc</th>
+			<th>Sess</th>
+			<th>Err</th>
+			<th>CE</th>
+			<th>RE</th>
+			<th>Wr</th>
+			<th>Rd</th>
+			<th>Busy</th>
+			<th>MaxBusy</th>
+			<th>Con</th>
+			<th>MaxCon</th>
+			<th>Route</th>
+			<th>RR</th>
+			<th>Cd</th>
+			<th>Rs</th>
+			<th>LR</th>
+			<th>LE</th>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=Cssp2ReferenceMq-dev02_LB&amp;sw=Cssp2ReferenceMq-dev02_LB8041">S</a>]&nbsp;
+			</td>
+			<td>Cssp2ReferenceMq-dev02_LB8041</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>Cssp2ReferenceMq-dev02_LB8041</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<br />
+	<hr />
+	<h3>
+		URI Mappings for Cssp2ReferenceMq-dev02_LB (1 maps) [<a
+			href="./status?cmd=list&amp;opt=2">Hide</a>]
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Server</th>
+			<th>URI</th>
+			<th>Match<br />Type
+			</th>
+			<th>Source</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Sticky<br />Ignore
+			</th>
+			<th>Stateless</th>
+			<th>Fail on<br />Status
+			</th>
+			<th>Active</th>
+			<th>Disabled</th>
+			<th>Stopped</th>
+			<th>Use Server<br />Errors
+			</th>
+		</tr>
+		<tr>
+			<td>localhost [*:8080]</td>
+			<td>/Cssp2ReferenceMq-dev02*</td>
+			<td>Wildchar</td>
+			<td>JkMount</td>
+			<td>-1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>0</td>
+		</tr>
+	</table>
+	<hr />
+	<h3>
+		[<a href="./status?cmd=show&amp;w=spring-PetClinic-dev03_LB">S</a>]&nbsp;&nbsp;Worker
+		Status for spring-PetClinic-dev03_LB
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Type</th>
+			<th>Sticky<br />Sessions
+			</th>
+			<th>Force Sticky<br />Sessions
+			</th>
+			<th>Retries</th>
+			<th>LB<br />Method
+			</th>
+			<th>Locking</th>
+			<th>Recover<br />Wait Time
+			</th>
+			<th>Error<br />Escalation Time
+			</th>
+			<th>Max Reply<br />Timeouts
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=64">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>lb</td>
+			<td>True</td>
+			<td>False</td>
+			<td>2</td>
+			<td>Request</td>
+			<td>Optimistic</td>
+			<td>60</td>
+			<td>30</td>
+			<td>0</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr>
+			<th>Good</th>
+			<th>Degraded</th>
+			<th>Bad/Stopped</th>
+			<th>Busy</th>
+			<th>Max Busy</th>
+			<th>Next Maintenance</th>
+			<th>Last Reset</th>
+			<th>[<a href="./status?cmd=list&amp;opt=128">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0/59</td>
+			<td>55388</td>
+			<td></td>
+		</tr>
+	</table>
+
+	<h4>
+		Balancer Members [<a href="./status?cmd=list&amp;opt=1">Hide</a>]
+	</h4>
+	<table>
+		<tr valign="bottom">
+			<th>Name</th>
+			<th>Type</th>
+			<th>Hostname</th>
+			<th>Address:Port</th>
+			<th>Source</th>
+			<th>Connection<br />Pool Timeout
+			</th>
+			<th>Connect<br />Timeout
+			</th>
+			<th>Prepost<br />Timeout
+			</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Retries</th>
+			<th>Recovery<br />Options
+			</th>
+			<th>Busy<br />Limit
+			</th>
+			<th>Max Packet<br />Size
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=256">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>spring-PetClinic-dev03_LB8141</td>
+			<td>ajp13</td>
+			<td>csap-dev03</td>
+			<td>173.36.21.112:8142</td>
+			<td>undefined</td>
+			<td>60</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr valign="bottom">
+			<th>&nbsp;</th>
+			<th>Name</th>
+			<th>Act</th>
+			<th>State</th>
+			<th>D</th>
+			<th>F</th>
+			<th>M</th>
+			<th>V</th>
+			<th>Acc</th>
+			<th>Sess</th>
+			<th>Err</th>
+			<th>CE</th>
+			<th>RE</th>
+			<th>Wr</th>
+			<th>Rd</th>
+			<th>Busy</th>
+			<th>MaxBusy</th>
+			<th>Con</th>
+			<th>MaxCon</th>
+			<th>Route</th>
+			<th>RR</th>
+			<th>Cd</th>
+			<th>Rs</th>
+			<th>LR</th>
+			<th>LE</th>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=spring-PetClinic-dev03_LB&amp;sw=spring-PetClinic-dev03_LB8141">S</a>]&nbsp;
+			</td>
+			<td>spring-PetClinic-dev03_LB8141</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>spring-PetClinic-dev03_LB8141</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<br />
+	<hr />
+	<h3>
+		URI Mappings for spring-PetClinic-dev03_LB (1 maps) [<a
+			href="./status?cmd=list&amp;opt=2">Hide</a>]
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Server</th>
+			<th>URI</th>
+			<th>Match<br />Type
+			</th>
+			<th>Source</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Sticky<br />Ignore
+			</th>
+			<th>Stateless</th>
+			<th>Fail on<br />Status
+			</th>
+			<th>Active</th>
+			<th>Disabled</th>
+			<th>Stopped</th>
+			<th>Use Server<br />Errors
+			</th>
+		</tr>
+		<tr>
+			<td>localhost [*:8080]</td>
+			<td>/spring-PetClinic-dev03*</td>
+			<td>Wildchar</td>
+			<td>JkMount</td>
+			<td>-1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>0</td>
+		</tr>
+	</table>
+	<hr />
+	<h3>
+		[<a href="./status?cmd=show&amp;w=packageJvm-dev03_LB">S</a>]&nbsp;&nbsp;Worker
+		Status for packageJvm-dev03_LB
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Type</th>
+			<th>Sticky<br />Sessions
+			</th>
+			<th>Force Sticky<br />Sessions
+			</th>
+			<th>Retries</th>
+			<th>LB<br />Method
+			</th>
+			<th>Locking</th>
+			<th>Recover<br />Wait Time
+			</th>
+			<th>Error<br />Escalation Time
+			</th>
+			<th>Max Reply<br />Timeouts
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=64">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>lb</td>
+			<td>True</td>
+			<td>False</td>
+			<td>2</td>
+			<td>Request</td>
+			<td>Optimistic</td>
+			<td>60</td>
+			<td>30</td>
+			<td>0</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr>
+			<th>Good</th>
+			<th>Degraded</th>
+			<th>Bad/Stopped</th>
+			<th>Busy</th>
+			<th>Max Busy</th>
+			<th>Next Maintenance</th>
+			<th>Last Reset</th>
+			<th>[<a href="./status?cmd=list&amp;opt=128">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0/59</td>
+			<td>55388</td>
+			<td></td>
+		</tr>
+	</table>
+
+	<h4>
+		Balancer Members [<a href="./status?cmd=list&amp;opt=1">Hide</a>]
+	</h4>
+	<table>
+		<tr valign="bottom">
+			<th>Name</th>
+			<th>Type</th>
+			<th>Hostname</th>
+			<th>Address:Port</th>
+			<th>Source</th>
+			<th>Connection<br />Pool Timeout
+			</th>
+			<th>Connect<br />Timeout
+			</th>
+			<th>Prepost<br />Timeout
+			</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Retries</th>
+			<th>Recovery<br />Options
+			</th>
+			<th>Busy<br />Limit
+			</th>
+			<th>Max Packet<br />Size
+			</th>
+			<th>[<a href="./status?cmd=list&amp;opt=256">Hide</a>]
+			</th>
+		</tr>
+		<tr>
+			<td>packageJvm-dev03_LB8201</td>
+			<td>ajp13</td>
+			<td>csap-dev03</td>
+			<td>173.36.21.112:8202</td>
+			<td>undefined</td>
+			<td>60</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>2</td>
+			<td>0</td>
+			<td>0</td>
+			<td>8192</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table>
+		<tr valign="bottom">
+			<th>&nbsp;</th>
+			<th>Name</th>
+			<th>Act</th>
+			<th>State</th>
+			<th>D</th>
+			<th>F</th>
+			<th>M</th>
+			<th>V</th>
+			<th>Acc</th>
+			<th>Sess</th>
+			<th>Err</th>
+			<th>CE</th>
+			<th>RE</th>
+			<th>Wr</th>
+			<th>Rd</th>
+			<th>Busy</th>
+			<th>MaxBusy</th>
+			<th>Con</th>
+			<th>MaxCon</th>
+			<th>Route</th>
+			<th>RR</th>
+			<th>Cd</th>
+			<th>Rs</th>
+			<th>LR</th>
+			<th>LE</th>
+		</tr>
+		<tr>
+			<td>[<a
+				href="./status?cmd=show&amp;w=packageJvm-dev03_LB&amp;sw=packageJvm-dev03_LB8201">S</a>]&nbsp;
+			</td>
+			<td>packageJvm-dev03_LB8201</td>
+			<td>ACT</td>
+			<td>OK/IDLE</td>
+			<td>0</td>
+			<td>1</td>
+			<td>1</td>
+			<td>0</td>
+			<td>0 (0/sec)</td>
+			<td>0 (0/sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0 (0 /sec)</td>
+			<td>0 (0 /sec)</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>packageJvm-dev03_LB8201</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>0/0</td>
+			<td>55388</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<br />
+	<hr />
+	<h3>
+		URI Mappings for packageJvm-dev03_LB (1 maps) [<a
+			href="./status?cmd=list&amp;opt=2">Hide</a>]
+	</h3>
+	<table>
+		<tr valign="bottom">
+			<th>Server</th>
+			<th>URI</th>
+			<th>Match<br />Type
+			</th>
+			<th>Source</th>
+			<th>Reply<br />Timeout
+			</th>
+			<th>Sticky<br />Ignore
+			</th>
+			<th>Stateless</th>
+			<th>Fail on<br />Status
+			</th>
+			<th>Active</th>
+			<th>Disabled</th>
+			<th>Stopped</th>
+			<th>Use Server<br />Errors
+			</th>
+		</tr>
+		<tr>
+			<td>localhost [*:8080]</td>
+			<td>/packageJvm-dev03*</td>
+			<td>Wildchar</td>
+			<td>JkMount</td>
+			<td>-1</td>
+			<td>0</td>
+			<td>0</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>0</td>
+		</tr>
+	</table>
+	<h2>
+		Legend [<a href="./status?cmd=list&amp;opt=4">Hide</a>]
+	</h2>
+	<table>
+		<tbody valign="baseline">
+			<tr>
+				<th>Name</th>
+				<td>Worker name</td>
+			</tr>
+			<tr>
+				<th>Type</th>
+				<td>Worker type</td>
+			</tr>
+			<tr>
+				<th>Route</th>
+				<td>Worker route</td>
+			</tr>
+			<tr>
+				<th>Act</th>
+				<td>Worker activation configuration<br /> ACT=Active,
+					DIS=Disabled, STP=Stopped
+				</td>
+			</tr>
+			<tr>
+				<th>State</th>
+				<td>Worker error status<br /> OK=OK, ERR=Error with substates<br />
+					IDLE=No requests handled, BUSY=All connections busy,<br />
+					REC=Recovering, PRB=Probing, FRC=Forced Recovery
+				</td>
+			</tr>
+			<tr>
+				<th>D</th>
+				<td>Worker distance</td>
+			</tr>
+			<tr>
+				<th>F</th>
+				<td>Load Balancer factor</td>
+			</tr>
+			<tr>
+				<th>M</th>
+				<td>Load Balancer multiplicity</td>
+			</tr>
+			<tr>
+				<th>V</th>
+				<td>Load Balancer value</td>
+			</tr>
+			<tr>
+				<th>Acc</th>
+				<td>Number of requests</td>
+			</tr>
+			<tr>
+				<th>Sess</th>
+				<td>Number of sessions created</td>
+			</tr>
+			<tr>
+				<th>Err</th>
+				<td>Number of failed requests</td>
+			</tr>
+			<tr>
+				<th>CE</th>
+				<td>Number of client errors</td>
+			</tr>
+			<tr>
+				<th>RE</th>
+				<td>Number of reply timeouts (decayed)</td>
+			</tr>
+			<tr>
+				<th>Wr</th>
+				<td>Number of bytes transferred</td>
+			</tr>
+			<tr>
+				<th>Rd</th>
+				<td>Number of bytes read</td>
+			</tr>
+			<tr>
+				<th>Busy</th>
+				<td>Current number of busy connections</td>
+			</tr>
+			<tr>
+				<th>MaxBusy</th>
+				<td>Maximum number of busy connections</td>
+			</tr>
+			<tr>
+				<th>Con</th>
+				<td>Current number of backend connections</td>
+			</tr>
+			<tr>
+				<th>MaxCon</th>
+				<td>Maximum number of backend connections</td>
+			</tr>
+			<tr>
+				<th>RR</th>
+				<td>Route redirect</td>
+			</tr>
+			<tr>
+				<th>Cd</th>
+				<td>Cluster domain</td>
+			</tr>
+			<tr>
+				<th>Rs</th>
+				<td>Recovery scheduled in app. min/max seconds</td>
+			</tr>
+			<tr>
+				<th>LR</th>
+				<td>Seconds since last reset of statistics counters</td>
+			</tr>
+			<tr>
+				<th>LE</th>
+				<td>Timestamp of the last error</td>
+			</tr>
+		</tbody>
+	</table>
+	<p>
+		<a href="./status">JK Status Manager Start Page</a>
+	</p>
+	<hr />
+	<p align="center">
+		<small>Copyright &#169; 1999-2015, The Apache Software
+			Foundation<br />Licensed under the <a
+			href="http://www.apache.org/licenses/LICENSE-2.0">Apache License,
+				Version 2.0</a>.
+		</small>
+	</p>
+</body>
+</html>

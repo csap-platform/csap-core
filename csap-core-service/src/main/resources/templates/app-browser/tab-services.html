@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+
+
+
+	<div id="services-tab-status">
+		<div class="options">
+			<label class=csap>
+				<a
+					title="Return to Cluster View"
+					id="cluster-selection"
+					data-name=""
+					class="csap-link csap-remove"></a>
+			</label>
+			<label>CSAP Deployment Clusters</label>
+			<label class=csap>
+				<input
+					id=show-start-order
+					type="checkbox" />
+				Start Order
+			</label>
+
+			<span class="flex-right-info">
+				<label class=csap>
+					Filter:
+					<input
+						id="service-filter"
+						placeholder="service name">
+					<a
+						title="click to remove filter"
+						id="clear-filter"
+						data-name=""
+						class="csap-link csap-remove"></a>
+				</label>
+				<span
+					class="last-refreshed"
+					title="status refreshed every 30 seconds. Click on navigation for immediate refresh">---</span>
+			</span>
+		</div>
+		<div
+			id="summary-panel"
+			class=deployment-panel></div>
+	</div>
+
+
+
+
+	<div id="services-tab-kevents">
+
+		<div id="kevents-filters">
+
+			<span>
+				<button
+					title="refresh: get latest events"
+					id="event-refresh"
+					class="csap-icon csap-refresh"></button>
+
+				<label class=csap>
+					Event Namespace:
+					<select id=kevent-namespace>
+						<option>all</option>
+					</select>
+				</label>
+
+
+				<label class=csap>
+					Type:
+					<select id=kevent-type>
+						<option>all</option>
+					</select>
+				</label>
+
+				<label class=csap>
+					Kind:
+					<select id=kevent-kind>
+						<option>all</option>
+					</select>
+				</label>
+
+				<span id=kevent-counts></span>
+				<label
+					id=limit-events-displayed
+					class=csap
+					title="Select max number of events to review">
+					Limit:
+
+					<select id="event-limit">
+						<option>10</option>
+						<option>50</option>
+						<option>200</option>
+						<option>1000</option>
+						<option selected="selected">2000</option>
+						<option>4000</option>
+					</select>
+					rows
+
+				</label>
+
+
+			</span>
+
+
+		</div>
+		<div id="events-panel">
+
+			<table class="csap sticky-header">
+				<thead>
+					<tr>
+						<th>Time</th>
+						<th class=source>Reason / Source</th>
+						<th>Details <input
+								id="event-filter"
+								placeholder="Filter displayed items" />
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+
+				</tbody>
+
+			</table>
+
+		</div>
+
+	</div>
+
+
+	<div
+		id="services-tab-kevent-details"
+		class="describe-container csap-scrollable">
+		<div class="options">
+			<label class=csap>
+
+				<a
+					title="Close event details"
+					id="close-details"
+					data-name=""
+					class="csap-link csap-remove">Event Details</a>
+			</label>
+			<label class=csap>
+				<input
+					class=code-fold
+					type="checkbox">
+				Fold
+			</label>
+		</div>
+		<pre class=describe-editor>
+		</pre>
+	</div>
+
+
+
+
+	<div id="services-tab-knodes">
+		
+		<div class="options">
+		
+			<span class=page-title>
+				Max Pods Per Node: <input id=node-max-pod-running placeholder=110>
+				<span id=max-pod-alerts></span>
+			</span>
+
+			<span class="flex-right-info">
+				<label class=csap>
+					Filter:
+					<input
+						id="node-filter"
+						placeholder="node name">
+				</label>
+			</span>
+		</div>
+
+		<div id="node-instances">
+			<table class="csap">
+				<thead>
+				
+					<tr class=header-only>
+						<th class="sorter-false" colspan=1></th>
+						<th class="sorter-false" colspan=3>Summary Conditions</th>
+						<!--<th colspan=1>Max</th>-->
+						<th class="sorter-false" colspan=3>Latest Collection</th>
+						<th class="sorter-false" colspan=4>Resources CPU: Cores</th>
+						<th class="sorter-false" colspan=4>Resources Memory: GB</th>
+					</tr>
+
+					<tr class=path-specifier>
+					
+						<th data-path="name">Name</th>
+						<th data-path="master">Master</th>
+						<th data-path="conditions">Ok</th>
+						<th data-path="taints">Taints</th>
+						<!--<th data-path="capacity.pods">Pods</th>-->
+						
+						<th data-path="active.pods">Pods</th>
+						<th data-path="active.cores">Cores</th>
+						<th data-path="active.memoryGb">Memory</th>
+						
+						<th data-path="resources.requests.coresPercent">%</th>
+						<th data-path="resources.requests.cores">Req</th>
+						<th data-path="resources.limits.cores">Limit</th>
+						<th data-path="capacity.cores">Avail</th>
+						
+						<th data-path="resources.requests.memoryPercent">%</th>
+						<th data-path="resources.requests.memoryGb">Req</th>
+						<th data-path="resources.limits.memoryGb">Limit</th>
+						<th data-path="capacity.memoryGb">Avail</th>
+					</tr>
+
+				</thead>
+
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+
+	<div
+		id="services-tab-node-describe"
+		class="describe-container csap-scrollable">
+		<div class="options">
+			<label class=csap>
+
+				<a
+					title="Close volume details"
+					id="close-details"
+					data-name=""
+					class="csap-link csap-remove">Node Details</a>
+			</label>
+
+			<label class=csap>
+				<input
+					class=code-fold
+					type="checkbox">
+				Fold
+			</label>
+			<label
+				class=csap
+				title="View yaml definition">
+				<input
+					class=view-definition
+					type="checkbox">
+				Definition
+			</label>
+		</div>
+		<pre class=describe-editor>
+		</pre>
+	</div>
+
+
+
+
+
+
+	<div id="services-tab-kvolumes">
+		<div class="options">
+			<span class=page-title>Kubernetes Volumes</span>
+
+			<span class="flex-right-info">
+				<label class=csap>
+					Filter:
+					<input
+						id="volume-filter"
+						placeholder="volume name">
+				</label>
+			</span>
+		</div>
+
+		<div id="volume-instances">
+			<table class="csap sticky-header">
+				<thead>
+
+					<tr>
+						<th data-path="name">Name</th>
+						<th data-path=capacity>Capacity</th>
+						<th data-path="ref-kind">kind</th>
+						<th data-path="ref-name">Referenced by</th>
+						<th data-path="ref-namespace">Namespace</th>
+						<th data-path="nfs-server">NFS Server</th>
+						<th data-path="path">Path</th>
+					</tr>
+
+				</thead>
+
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+
+	<div
+		id="services-tab-volume-describe"
+		class="describe-container csap-scrollable">
+		<div class="options">
+			<label class=csap>
+
+				<a
+					title="Close volume details"
+					id="close-details"
+					data-name=""
+					class="csap-link csap-remove">Volume Details</a>
+			</label>
+
+			<label class=csap>
+				<input
+					class=code-fold
+					type="checkbox">
+				Fold
+			</label>
+			<label
+				class=csap
+				title="View yaml definition">
+				<input
+					class=view-definition
+					type="checkbox">
+				Definition
+			</label>
+		</div>
+		<pre class=describe-editor>
+		</pre>
+	</div>
+
+
+
+
+	<div id="services-tab-kpods">
+		<div class="options">
+		
+			<label class=csap>
+				
+				<a
+					title="click to remove"
+					id="namespace-selection"
+					data-name=""
+					class="csap-link csap-remove"></a>
+			</label>
+			
+			
+			<label class=csap>Kubernetes Pod Namespace</label>
+
+			<span class="flex-right-info">
+
+				<label
+					class=csap
+					title="Sort by cpu cores">
+					<input
+						id="pod-sort-cpu"
+						type="checkbox">
+					CPU Sort
+				</label>
+
+				<label
+					class=csap
+					title="Namespaces without pods will not be displayed">
+					<input
+						id="hide-empty-namespaces"
+						type="checkbox"
+						checked="checked">
+					Hide Empty
+				</label>
+
+				<label
+					class=csap
+					title="Namespaces without pods will not be displayed">
+					<input
+						id="hide-empty-namespaces"
+						type="checkbox"
+						checked="checked">
+					Hide Empty
+				</label>
+
+				<label class=csap>
+					Filter:
+					<input
+						id="pod-filter"
+						placeholder="pod name">
+				</label>
+			</span>
+
+
+
+		</div>
+		<div
+			id="pods-summary"
+			class=deployment-panel></div>
+	</div>
+
+
+
+
+	<div id="services-tab-kpod-instances">
+
+		<div class="options">
+			<label class=csap>
+
+				<a
+					title="click to remove"
+					id="pod-owner-selection"
+					data-name=""
+					class="csap-link csap-remove"> updated by js selection</a>
+			</label>
+			
+			<label  class=notes id=pod-browser-namespace>Namespace</label>
+			<label class=notes>Select a pod instance to view logs, inspect output, and yaml</label>
+		</div>
+
+		<div id="pod-instances">
+			<table class="csap">
+				<thead>
+
+					<tr>
+
+						<th data-path="name">Pod</th>
+						<th data-path="host">Host</th>
+						<th
+							data-path="metrics.cores"
+							title="Cpu Cores">Cores</th>
+						<th
+							data-path="metrics.memoryInMb"
+							title="Memory (Mb)">MB</th>
+						<th
+							class=image
+							data-path="first-image">Image</th>
+						<th
+							data-path="container-count"
+							title="Total containers in Pod">Ctrs</th>
+						<th
+							data-path="volumes"
+							title="Total volumnes mounted in all containers in pod">Vols</th>
+						<th
+							data-path="containers-not-ready"
+							title="Containers not ready">Not Rdy</th>
+						<th
+							data-path="conditions-failed"
+							title="Number of Failed">Fail</th>
+						<th
+							data-path="container-restarts"
+							title="Container Restarts">Restrt</th>
+					</tr>
+				</thead>
+
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+
+		<div id="container-instances">
+			<div class=options>pod-label</div>
+			<table class="csap">
+				<thead>
+
+					<tr>
+
+						<th data-path="name">Container</th>
+						<th
+							class=image
+							data-path="image">Image</th>
+						<th
+							data-path="cores"
+							title="Cpu Cores">Cores</th>
+						<th
+							data-path="memoryInMb"
+							title="Memory (Mb)">MB</th>
+						<th
+							data-path="restartCount"
+							title="Container Restarts">Restarts</th>
+						<th
+							data-path="started"
+							title="started">started</th>
+					</tr>
+				</thead>
+
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div id="services-tab-pod-logs">
+		<div th:replace="/app-browser/pod-logs :: pageContent"></div>
+	</div>
+
+
+	<div
+		id="services-tab-pod-describe"
+		class="describe-container csap-scrollable">
+		<div class="options">
+
+			<label class=csap>
+
+				<a
+					title="Close Pod details"
+					id="close-details"
+					data-name=""
+					class="csap-link csap-remove">Pod Details</a>
+			</label>
+			<label class=csap>
+				<input
+					class=code-fold
+					type="checkbox">
+				Fold
+			</label>
+			<label
+				class=csap
+				title="View yaml definition">
+				<input
+					class=view-definition
+					type="checkbox">
+				Definition
+			</label>
+		</div>
+		<pre class=describe-editor>
+		</pre>
+	</div>
+
+
+
+	<div id="services-tab-instances">
+		<div class="options">
+
+			<div id=ops-row>
+				<span>
+
+					<label class="csap service-name">
+
+						<a
+							title="Return to Cluster View"
+							id="service-selection"
+							data-name=""
+							class="csap-link csap-remove"> updated by js selection</a>
+					</label>
+
+
+					<span id=deploy-buttons>
+						<button class="csap-button deploy">Deploy</button>
+						<button class="csap-button start">Start</button>
+						<button class="csap-button stop">Stop</button>
+						<button class="csap-button remove">Remove</button>
+					</span>
+				</span>
+
+
+				<span
+					class="last-refreshed flex-right-info"
+					title="status refreshed every 30 seconds. Click on navigation for immediate refresh">---</span>
+
+			</div>
+
+			<div
+				id="service-description"
+				class="quote">
+				<span class="navigation">
+					<button
+						class="csap-button-control csap-history"
+						title="show history"></button>
+					<button
+						class="csap-button-control csap-edit"
+						title="edit service"></button>
+				</span>
+				<label id="profile">---</label>
+				<span>
+					<span class="text"></span>
+				</span>
+			</div>
+		</div>
+
+
+		<div id="instance-panel">
+
+
+			<div id="table-operations">
+
+				<span>
+
+					<button
+						class="registered-only csap-button-control csap-clear"
+						title="deselect all instances"></button>
+					<button
+						class="registered-only csap-button-control csap-check"
+						title="select all instances"></button>
+
+				</span>
+
+				<span>
+					<button
+						class="registered-only csap-button-control tool-menu csap-menu"
+						title="show operation menu: operations will be performed on selected items"></button>
+					<span class="registered-only selection-count"></span>
+				</span>
+
+				<label
+					class=csap
+					title="Filter instances by cluster">
+					Cluster:
+					<select
+						id="instance-cluster-filter"
+						style="background-color: #DADAF5; font-weight: bold;">
+						<option>all</option>
+					</select>
+				</label>
+
+
+				<label
+					class="csap registered-only"
+					title="View kubernetes attributes in columns">
+					<input
+						id=k8-wide-view
+						type="checkbox" />
+					wide view
+				</label>
+
+				<span>
+					<input
+						id=instance-filter
+						placeholder="instance filter" />
+				</span>
+
+
+
+				<label
+					class=csap
+					title="deployment will use the selected master">
+					Master(s):
+					<select
+						id="master-deploy-hosts"
+						style="background-color: #DADAF5; font-weight: bold;">
+						<option>host-updated-in-js</option>
+					</select>
+				</label>
+				
+				<span id=instance-count class=flex-right-info>
+				</span>
+			</div>
+
+
+
+			<div id="instance-details">
+				<table
+					id="registered"
+					class=csap>
+					<thead>
+
+						<tr>
+
+							<th 
+								class=sorter-csap-sort-value
+								data-path="host">CSAP Service Instance</th>
+								
+							<th
+								class=kubernetes-only
+								data-path="containerLabel"
+								title="Kuberntes Pod">Pod Container</th>
+							<th
+								class=kubernetes-only
+								data-path="podNamespace"
+								title="Kubernetes Namespace">Pod Namespace</th>
+							<th
+								class=kubernetes-only
+								data-path="podName"
+								title="Kubernetes Namespace">Pod Name</th>
+
+							<th data-path="deployedArtifacts">Version</th>
+							<th
+								data-path="topCpu"
+								title="CPU from top">Cpu</th>
+							<th
+								class=sorter-csap-sort-value
+								data-path="rssMemory"
+								title="Mb">Memory</th>
+
+							<th
+								data-path="socketCount"
+								title="Active Socket Connections">Connections</th>
+
+							<th
+								data-path="threadCount"
+								title="Thread Count">Threads</th>
+
+							<th
+								data-path="fileCount"
+								title="File count">Files</th>
+							<th
+								class=sorter-csap-sort-value
+								data-path="diskUtil"
+								title="Mb">Disk</th>
+							<th
+								class=sorter-csap-sort-value
+								data-path="diskWriteKb"
+								title="Disk Writes from pidstat">Writes/s</th>
+						</tr>
+					</thead>
+
+					<tbody>
+					</tbody>
+				</table>
+
+				<table
+					id="unregistered"
+					class="csap">
+					<thead>
+
+						<tr>
+							<th>Container</th>
+							<th>Host</th>
+							<th>Pod</th>
+							<th>Namespace</th>
+						</tr>
+					</thead>
+
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+
+			<div
+				id=instance-actions-menu
+				class=csap-button-menu>
+
+				<button
+					id="close-menu"
+					class="close-menu csap-icon csap-remove"></button>
+				<button
+					class="csap-button launch"
+					data-command="launch">Launch</button>
+				<button
+					id="service-live-launch"
+					class="csap-button service-live"
+					data-command="health">Health</button>
+
+
+				<span>Agent Dashboard</span>
+				<button
+					class="csap-button logs"
+					data-command="logs">Logs</button>
+
+				<button
+					class="csap-button files"
+					data-command="files">Files</button>
+
+				<button
+					class="csap-button metrics"
+					data-command="host-dash">OS Graphs</button>
+				<button
+					class="csap-button metrics application"
+					data-command="application">Application Graphs</button>
+				<button
+					class="csap-button metrics java"
+					data-command="java">Java Graphs</button>
+
+
+				<span>Analytics Portal (*hosts*)</span>
+				<button
+					class="csap-button metrics"
+					data-report="graphHost">OS Shared</button>
+				<button
+					class="csap-button metrics"
+					data-report="graphOsProcess">OS Process</button>
+				<button
+					class="csap-button metrics java"
+					data-report="graphJava">Java</button>
+				<button
+					class="csap-button metrics application"
+					data-report="graphApplication">Application</button>
+
+
+				<span class=instance-tools>Tools</span>
+				<button
+					class="csap-button csap-window instance-tools "
+					data-tool="jvisualvm">jvisualvm</button>
+
+			</div>
+
+
+			<div>
+				<div id=instance-resources></div>
+				<div id=instance-performance></div>
+			</div>
+		</div>
+
+	</div>
+
+
+	<div id="services-tab-logs">loading template</div>
+
+
+	<div id="services-tab-resources"></div>
+
+
+	<div id="services-tab-jobs">
+
+		<div id=job-listing>
+
+			<div class=options>
+				<span class=page-title>Service Jobs:</span>
+				<span class=quote>Select job to view its parameters</span>
+			</div>
+			<div
+				id="service-job-summary"
+				class="csap-white"></div>
+		</div>
+
+
+		<div id=service-job-confirm>
+			<div class=quote>
+				<a class="csap-link csap-remove">
+					<span></span>
+				</a>
+			</div>
+			<div id=service-job-parameters>
+				<label class="csap">Navigation Bar</label>
+				<input type="checkbox" />
+				<span>Navigation bar will open only when hovered over</span>
+
+
+				<label class="csap">Navigation Bar</label>
+				<input />
+				<span>Navigation bar will open only when hovered over</span>
+			</div>
+			<button class="csap-button-icon csap-play">Run Job</button>
+		</div>
+
+
+	</div>
+
+
+	<div id="services-tab-batch">
+		<div class="options">
+			<button class="csap-button">Deploy</button>
+			<button class="csap-button">Start</button>
+			<button class="csap-button">Remove</button>
+			<button class="csap-button show-batch">Show Batch Operations</button>
+		</div>
+		<div class="batch-select"></div>
+		<div class="batch-results"></div>
+
+	</div>
+
+
+
+
+	<div id="services-tab-backlog">
+
+
+		<div
+			id="backlog-header"
+			class="options">
+			<span class=page-title>Deployment Backlog</span>
+
+			<label>
+				<input
+					id="filter-backlog-checkbox"
+					type="checkbox" />
+				Hide Empty items
+			</label>
+			<label>
+
+				<button
+					id="refresh-backlog-now"
+					class="csap-button-icon"
+					title="click to manually refresh status; auto update occurs every 15 seconds">
+					<img
+						id="backlog-refresh-image"
+						th:src="@{/images/16x16/refresh.svg}" /> <img
+						id="backlog-busy-image"
+						th:src="@{/images/animated/loadSmall.gif}" />
+				</button>
+
+				<a
+					title="View using csap api"
+					target="_blank"
+					class="simple"
+					th:href="@{/api/application/deployment-backlog}">Backlog Api</a>
+
+			</label>
+		</div>
+
+		<div id="backlog-content">
+			<table
+				class="csap"
+				id="backlog-table-alertify">
+				<thead>
+					<tr>
+						<th>Host</th>
+						<th>Queue</th>
+					</tr>
+				</thead>
+
+				<tbody>
+
+					<tr>
+						<td>-</td>
+						<td>loading...</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div id="services-tab-analytics">
+
+
+		<div
+			th:include="/app-browser/service-analytics :: pageContent"
+			th:remove="tag"></div>
+	</div>
+
+
+	<div
+		th:include="/app-browser/service-deploy :: pageContent"
+		th:remove="tag"></div>
+
+
+
+
+</body>
+</html>

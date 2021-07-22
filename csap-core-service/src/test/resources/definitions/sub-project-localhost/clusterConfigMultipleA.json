@@ -1,0 +1,411 @@
+{
+	"project": {
+		"api-version": 2.1,
+		"project-version": 1.0,
+		"name": "Supporting Sample A",
+		"architect": "someUser@yourCompany.com",
+		"emailNotifications": "support@notConfigured.com"
+	},
+	"environments": {
+		"defaults": {
+			"settings": {
+				"base-env-only": true,
+				"operatorNotifications": [
+					"monitoring@na.***REMOVED***.net"
+				],
+				"csap-host-agent": {
+					"test": "yes",
+					"maxJmxCollectionMs": 3000,
+					"numberWorkerThreads": "3",
+					"adminToAgentTimeoutInMs": 6000,
+					"lsofIntervalMins": 1,
+					"duIntervalMins": 5,
+					"apiLocal": true,
+					"apiUser": "agentUser",
+					"apiPass": "CSAP Developmentdev",
+					"infraTests": {
+						"cpuIntervalMinutes": "30",
+						"diskIntervalMinutes": "30",
+						"cpuLoopsMillions": "1",
+						"diskWriteMb": "600"
+					},
+					"gitSslVerificationDisabledUrls": [
+						"https://moc-bb.***REMOVED***"
+					]
+				},
+				"csap-data": {
+					"user": "$user",
+					"pass": "$pass",
+					"service-url": "$eventServiceUrl"
+				},
+				"monitorDefaults": {
+					"jvm_jmxHeartbeat": true,
+					"maxDiskPercent": 60,
+					"maxDeviceIoPercent": 11,
+					"maxDiskPercentIgnorePatterns": "/auto/.*",
+					"maxHostCpuLoad": 4,
+					"maxHostCpu": 50,
+					"maxHostCpuIoWait": 11,
+					"minFreeMemoryMb": "1000",
+					"max_diskUtil": "150",
+					"max_threadCount": "120",
+					"max_fileCount": "350",
+					"max_rssMemory": "500m",
+					"max_tomcatConnections": "40",
+					"max_topCpu": "150"
+				},
+				"configuration-maps": {
+					"global": {
+						"csap_auto": "test_only"
+					}
+				},
+				"csap-collection": {
+					"processDumps": {
+						"resouceInterval": 30,
+						"maxInInterval": 3,
+						"lowMemoryInMb": "500"
+					},
+					"host": [
+						30,
+						300,
+						3600
+					],
+					"os-process": [
+						30,
+						300,
+						3600
+					],
+					"application": [
+						30,
+						300,
+						3600
+					]
+				},
+				"reports": {
+					"trending": [
+						{
+							"label": "Linux: Cores Used (All Hosts)",
+							"report": "custom/core",
+							"metric": "coresUsed",
+							"divideBy": "1"
+						},
+						{
+							"label": "Java: Heap GC Seconds (All Jvms) ",
+							"report": "java/detail",
+							"metric": "minorGcInMs",
+							"serviceName": "all",
+							"allVmTotal": true,
+							"divideBy": "1000"
+						},
+						{
+							"label": "CPU Response Test (Seconds)",
+							"report": "host",
+							"metric": "totalCpuTestTime",
+							"divideBy": "numberOfSamples",
+							"allVmTotal": true
+						},
+						{
+							"label": "Disk Response  Test (Seconds)",
+							"report": "host",
+							"metric": "totalDiskTestTime",
+							"divideBy": "numberOfSamples",
+							"allVmTotal": true
+						},
+						{
+							"label": "Host Threads",
+							"report": "host",
+							"metric": "threadsTotal",
+							"divideBy": "numberOfSamples"
+						},
+						{
+							"label": "CsAgent Socket Count",
+							"report": "os-detail/detail",
+							"metric": "socketCount",
+							"serviceName": "CsAgent",
+							"divideBy": "numberOfSamples"
+						},
+						{
+							"label": "CsAgent OS Commands",
+							"report": "application/detail",
+							"metric": "OsCommandsCounter",
+							"serviceName": "CsAgent",
+							"divideBy": "numberOfSamples"
+						}
+					],
+					"realTimeMeters": [
+						{
+							"label": "Cpu Cores Active",
+							"id": "host.coresActive",
+							"intervals": [
+								3,
+								5,
+								10
+							],
+							"min": 0
+						},
+						{
+							"label": "Cpu Response (s)",
+							"id": "host.cpuTest",
+							"intervals": [
+								5,
+								6,
+								7
+							],
+							"min": 0,
+							"divideBy": "vmCount"
+						},
+						{
+							"label": "Disk Response (s)",
+							"id": "host.diskTest",
+							"intervals": [
+								3,
+								5,
+								10
+							],
+							"min": 0,
+							"divideBy": "vmCount"
+						},
+						{
+							"label": "CsAgent Cpu (Total)",
+							"id": "os-process.topCpu_CsAgent",
+							"intervals": [
+								10,
+								30,
+								100
+							]
+						}
+					]
+				},
+				"loadBalanceVmFilter": [
+					"none"
+				],
+				"monitoringUrl": "http://monitoring.na.***REMOVED***.net",
+				"mavenCommand": "-B -Dmaven.test.skip=true clean package",
+				"newsItems": [
+					"<a href=\"https://github.com/csap-platform/csap-core/wiki\" class=\"simple\" target=\"_blank\">CSAP Project Documentation</a> ",
+					"_noteIcon_ <a href=\"https://github.com/csap-platform/csap-core/wiki#updateRefCSAP+Event+Service\" class=\"simple\" target=\"_blank\">CSAP Event Service</a> "
+				],
+				"portRange": {
+					"start": 8200,
+					"end": 9300
+				},
+				"secureUrl": "https://csap-secure.na.***REMOVED***.net/admin",
+				"autoRestartHttpdOnClusterReload": "yes",
+				"launchUrls": [
+					{
+						"description": "1) http(Tomcat Embed)",
+						"url": "default"
+					},
+					{
+						"description": "2) ajp(LB - Internal)",
+						"url": "http://yourlb.na.***REMOVED***.net"
+					}
+				],
+				"metricsPublication": [
+					{
+						"type": "csapCallHome",
+						"intervalInSeconds": 300,
+						"url": "http://nightingale-one:8080/CsapGlobalAnalytics/rest/vm/health",
+						"token": "notUsed"
+					}
+				],
+				"lastModifiedBy": "pnightingale"
+			},
+			"base-os": {
+				
+			}
+		},
+		"dev": {
+			"middlewareA": {
+				"type": "singleVmPartition",
+				"hosts": [
+					"localhost"
+				],
+				"template-references": [
+					"oracle",
+					"SampleJvmInA"
+				]
+			},
+			"middlewareA2": {
+				"type": "singleVmPartition",
+				"hosts": [
+					"middlewareA2Host-dev98"
+				],
+				"template-references": [
+					"oracle",
+					"SampleJvmInA"
+				]
+			},
+			"settings": {
+				"imports": [
+					"defaults"
+				],
+				"loadbalancer-url": "http://yourlb.na.***REMOVED***.net",
+				"configuration-maps": {
+					"global": {
+						"test-global-1": "test-global-value-1"
+					},
+					"map-for-testing": {
+						"test-map-name-1": "test-map-value-1",
+						"test-map-name-2": "test-map-value-2"
+					},
+					"map-for-testing-base-os": {
+						"test-map-name-2": "test-map-value-2-override"
+					}
+				},
+				"vsphere": {
+					"filters": {
+						"vm-path": "RNIs/CSAP-DEV_p",
+						"resource-pool-path": "BLDCluster/Resources/CSAP",
+						"datastore-regex": "(.*)CSAP(.*)"
+					},
+					"env": {
+						"GOVC_USERNAME": "lab\\csapstorage",
+						"GOVC_PASSWORD": "iEQoM1eTsrVNKjJh5Z28",
+						"GOVC_URL": "vcenter6.***REMOVED***",
+						"GOVC_DATACENTER": "***REMOVED***",
+						"GOVC_DATASTORE": "CSAP_DS1_NFS",
+						"GOVC_INSECURE": "1"
+					}
+				}
+			}
+		},
+		"stage": {
+			"middleware": {
+				"type": "singleVmPartition",
+				"hosts": [
+					"csapdb-stg01"
+				],
+				"template-references": [
+					"oracle",
+					"SampleJvmInA"
+				]
+			},
+			"settings": {
+				"imports": [
+					"defaults"
+				],
+				"loadbalancer-url": "http://yourlb.na.***REMOVED***.net",
+				"configuration-maps": {
+					"global": {
+						"test-global-1": "test-global-value-1"
+					},
+					"map-for-testing": {
+						"test-map-name-1": "test-map-value-1",
+						"test-map-name-2": "test-map-value-2"
+					},
+					"map-for-testing-base-os": {
+						"test-map-name-2": "test-map-value-2-override"
+					}
+				},
+				"vsphere": {
+					"filters": {
+						"vm-path": "RNIs/CSAP-DEV_p",
+						"resource-pool-path": "BLDCluster/Resources/CSAP",
+						"datastore-regex": "(.*)CSAP(.*)"
+					},
+					"env": {
+						"GOVC_USERNAME": "lab\\csapstorage",
+						"GOVC_PASSWORD": "iEQoM1eTsrVNKjJh5Z28",
+						"GOVC_URL": "vcenter6.***REMOVED***",
+						"GOVC_DATACENTER": "***REMOVED***",
+						"GOVC_DATASTORE": "CSAP_DS1_NFS",
+						"GOVC_INSECURE": "1"
+					}
+				}
+			}
+		}
+	},
+	"service-templates": {
+		"SampleJvmInA": {
+			"server": "tomcat7.x",
+			"autoStart": 55,
+			"description": "Provides tomcat7.x reference implementation for engineering, along with core platform regression tests.",
+			"docUrl": "https://github.com/csap-platform/csap-core/wiki#/Code+Samples",
+			"parameters": "-XX:-UseSplitVerifier -Xms128M -Xmx128M -XX:MaxPermSize=128m",
+			"source": {
+				"scm": "svn",
+				"path": "http://yourSvnOrGit/yourPathToSource/CsspFactorySample",
+				"branch": "HEAD"
+			},
+			"maven": {
+				"dependency": "com.your.group:Cssp2FactorySample:2.0.21:war"
+			},
+			"performance": {
+				"TotalVmCpu": {
+					"mbean": "java.lang:type=OperatingSystem",
+					"attribute": "SystemCpuLoad"
+				},
+				"ProcessCpu": {
+					"mbean": "java.lang:type=OperatingSystem",
+					"attribute": "ProcessCpuLoad"
+				},
+				"SpringJmsListeners": {
+					"mbean": "org.csap.:application=csap,name=SpringBeans",
+					"attribute": "JmsActive"
+				},
+				"SpringJmsOnMessage": {
+					"simonCounter": "zmetrics.Demo_JmsListener.onMessage()"
+				},
+				"SpringDbcpActive": {
+					"mbean": "org.csap.:application=csap,name=SpringBeans",
+					"attribute": "DbActive"
+				},
+				"SpringDbcpIdle": {
+					"mbean": "org.csap.:application=csap,name=SpringBeans",
+					"attribute": "DbIdle"
+				},
+				"DBAddItem": {
+					"simonCounter": "zmetrics.Demo_DataAccessObject.addSchedule()"
+				},
+				"DBShowItem": {
+					"simonCounter": "zmetrics.Demo_DataAccessObject.showScheduleItemsJpql()"
+				}
+			},
+			"version": {
+				"1": {
+					"dev": {
+						
+					},
+					"stage": {
+						
+					},
+					"lt": {
+						
+					},
+					"prod": {
+						
+					}
+				},
+				"2": {
+					
+				}
+			},
+			"servletThreadCount": "48",
+			"servletAccept": "0",
+			"servletMaxConnections": "47",
+			"servletTimeoutMs": "5000",
+			"metaData": "-nio"
+		},
+		"oracle": {
+			"server": "os",
+			"port": 1521,
+			"description": "Oracle provides a data persistence services.",
+			"docUrl": "http://www.oracle.com/",
+			"propDirectory": "/home/oracle",
+			"jmxPort": "-1",
+			"deployTimeoutMinutes": "60",
+			"logDirectory": "/home/oracle/base/diag/rdbms/ss$hsuffix/SS$hsuffix/trace",
+			"logRegEx": ".*\\.log",
+			"scmVersion": "11.2",
+			"url": "http://www.oracle.com/",
+			"user": "oracle",
+			"version": {
+				"1": {
+					
+				}
+			},
+			"disk": "oracleLV"
+		}
+	}
+}

@@ -1,0 +1,42 @@
+
+Name:               csap-dev04.***REMOVED***
+Capacity:
+  cpu:                16
+  memory:             32778740Ki
+Allocatable:
+  cpu:                16
+  memory:             32676340Ki
+Allocated resources:
+  cpu                1700m (10%)  4 (25%)
+  memory             600Mi (1%)   2112Mi (6%)
+Name:               csap-dev05.***REMOVED***
+Capacity:
+  cpu:                16
+  memory:             257782140Ki
+Allocatable:
+  cpu:                16
+  memory:             257679740Ki
+Allocated resources:
+  cpu                14050m (87%)    44750m (279%)
+  memory             111624Mi (44%)  512Mi (0%)
+Name:               csap-dev06.***REMOVED***
+Capacity:
+  cpu:                16
+  memory:             257782140Ki
+Allocatable:
+  cpu:                16
+  memory:             257679740Ki
+Allocated resources:
+  cpu                12100m (75%)    38550m (240%)
+  memory             109190Mi (43%)  13190Mi (5%)
+
+Name:               localhost
+Capacity:
+  cpu:                16
+  memory:             32778740Ki
+Allocatable:
+  cpu:                16
+  memory:             32676340Ki
+Allocated resources:
+  cpu                1700m (10%)  4 (25%)
+  memory             600Mi (1%)   2112Mi (6%)

@@ -1,0 +1,107 @@
+#
+# https://kubernetes.io/docs/concepts/storage/volumes/#vspherevolume
+#
+# Setup: 
+# - kubernete cloud provider configuration for vsphere: https://vmware.github.io/vsphere-storage-for-kubernetes/documentation/
+# - disk created either via vcenter; or cli: govc datastore.disk.create -ds CSAP_DS1_NFS  -size 10M peter.vmdk
+#
+
+
+kind: Deployment
+
+apiVersion: apps/v1
+
+metadata:
+  name: nginx-with-vsphere-static
+  namespace: default
+  labels:
+    run: nginx-demo-id
+    
+spec:
+  selector:
+    matchLabels:
+      run: nginx-demo-id
+      
+  replicas: 1
+  
+  template:
+  
+    metadata:
+      name: "nginx-demo-pod-template"
+      labels:
+        run: nginx-demo-id
+        matchForDemoService: demo-target
+
+      annotations:     
+        "sample-1": "value-1" 
+        
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        command:
+          - "/bin/sh"
+        args:
+          - "-c"
+          - "htmlFolder=/usr/share/nginx/html; 
+          ls -al $htmlFolder ; NOW=$(date +'%h-%d-%I-%M-%S'); 
+          touch $htmlFolder/SUCCESS-$NOW; 
+          echo hi >> $htmlFolder/SUCCESS-$NOW ; 
+          echo hi there from a static volume at $NOW >> $htmlFolder/index.html; 
+          nginx -g 'daemon off;'"
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html
+          name: test-volume
+      volumes:
+      - name: test-volume
+        vsphereVolume:
+          #volumePath: "[DatastoreName] volumes/myDisk"
+          volumePath: "[CSAP_DS1_NFS] demo-folder/demo-disk.vmdk"
+          fsType: ext4
+
+        
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-with-vsphere-static-service
+  namespace: default
+spec:
+  type: NodePort # defaults to clusterip
+  selector:
+    matchForDemoService: demo-target
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    
+---
+#
+#  Simple example
+#
+
+#kind: Pod
+#apiVersion: v1
+#metadata:
+#  name: test-vsphere-static-volume-pod
+#spec:
+#  restartPolicy: "Never"
+#  containers:
+#  - name: test-pod
+#    image: busybox:1.32.0
+#    command:
+#      - "/bin/sh"
+#    args:
+#      - "-c"
+#      - "ls -al /mnt ; NOW=$(date +'%h-%d-%I-%M-%S'); touch /mnt/SUCCESS-$NOW; echo hi >> /mnt/SUCCESS-$NOW ; ls -al /mnt ; sleep 900"
+#    volumeMounts:
+#    - mountPath: /mnt
+#      name: test-volume
+#  volumes:
+#  - name: test-volume
+#    vsphereVolume:
+#      #volumePath: "[DatastoreName] volumes/myDisk"
+#      volumePath: "[CSAP_DS1_NFS] peter"
+#      fsType: ext4

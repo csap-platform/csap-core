@@ -1,0 +1,26 @@
+
+Executing OS command on host csap-dev03:/opt/csap/staging/bin/scriptRunAsRoot.sh_P_
+
+====================================================================
+== Running /opt/csap/staging/scripts/someDeveloper_script.sh_1476278985200 as root
+dos2unix: converting file /opt/csap/staging/scripts/someDeveloper_script.sh_1476278985200 to UNIX format ...
+State      Recv-Q Send-Q      Local Address:Port          Peer Address:Port
+ESTAB      0      0           173.36.61.193:8011         173.36.61.193:13761    users:(("java",4149,233))
+ESTAB      0      0           173.36.61.193:8011          173.36.61.25:49709    users:(("java",4149,227))
+ESTAB      0      0           173.36.61.193:8011        10.116.103.102:63376    users:(("java",4149,225))
+ESTAB      0      0           173.36.61.193:46337        173.36.61.193:56116    users:(("java",4149,208))
+ESTAB      0      0               127.0.0.1:lm-dta           127.0.0.1:29831    users:(("java",15879,179))
+ESTAB      0      0           173.36.61.193:24397         173.37.137.6:ldap     users:(("java",4149,207))
+ESTAB      0      0           173.36.61.193:8011        10.116.103.102:63372    users:(("java",4149,229))
+ESTAB      0      0           173.36.61.193:16288        173.36.48.233:https    users:(("java",4149,178))
+ESTAB      0      0               127.0.0.1:29831            127.0.0.1:lm-dta   users:(("java",4149,231))
+ESTAB      0      0           173.36.61.193:8011        10.116.103.102:63373    users:(("java",4149,199))
+ESTAB      0      0           173.36.61.193:46339        173.36.61.193:56116    users:(("java",4149,234))
+ESTAB      0      0           173.36.61.193:8011        10.116.103.102:63375    users:(("java",4149,226))
+ESTAB      0      0           173.36.61.193:56116        173.36.61.193:46339    users:(("java",15879,180))
+ESTAB      0      0           173.36.61.193:56116        173.36.61.193:46337    users:(("java",15879,178))
+ESTAB      0      0           173.36.61.193:8011          173.36.61.50:51455    users:(("java",4149,232))
+ESTAB      0      0           173.36.61.193:ssh           173.36.61.50:42217    users:(("sshd",26966,3),("sshd",26990,3))
+ESTAB      0      0           173.36.61.193:8011        10.116.103.102:63374    users:(("java",4149,218))
+ESTAB      0      0           173.36.61.193:8011        10.116.103.102:63377    users:(("java",4149,221))
+ESTAB      0      0           173.36.61.193:13761        173.36.61.193:8011     users:(("java",4149,238))

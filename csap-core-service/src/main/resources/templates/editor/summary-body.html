@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+<title th:inline="text">CSAP Summary</title>
+
+<script th:replace="~{ csap/fragments/libsAndStyles :: pageContent }"></script>
+<style>
+table th {
+	text-align: left;
+}
+
+div.service {
+	font-size: 12pt;
+	word-break: break-all;
+}
+
+div.info {
+	font-size: 11pt;
+	word-break: break-all;
+}
+
+table td {
+	word-wrap: break-word
+}
+
+.clusterType {
+	font-size: 0.8em;
+	color: red;
+}
+
+pre.scroll {
+	max-height: 600px;
+	overflow: auto;
+	background-color: black;
+	color: white;
+	border-radius: 5px;
+	margin: 1em;
+	padding: 5px;
+	white-space: pre-wrap;
+}
+
+h1 {
+	margin-top: 2em;
+	padding-top: 1em;
+	padding-left: 2em;
+	border-top: 3px solid black;
+	font-weight: bold;
+}
+
+#serviceLimits td, #serviceLimits th {
+	text-align: center;
+}
+
+#serviceLimits td, #serviceLimits th {
+	text-align: center;
+}
+
+#serviceLimits td:nth-child(1), #serviceLimits th:nth-child(1) {
+	text-align: left;
+}
+
+#serviceLimits .simple {
+	float: right
+}
+
+#life {
+	margin: 2em;
+}
+
+#life td:nth-child(1), #life th:nth-child(1) {
+	width: 10em;
+}
+
+#life td:nth-child(2), #life th:nth-child(2) {
+	word-break: break-all;
+}
+
+div.label {
+	width: auto;
+	min-width: 10em;
+	font-size: 11pt;
+}
+
+div.entry {
+	font-weight: bold;
+	font-size: 10pt;
+}
+
+div.gridded {
+	min-width: 300px;
+	display: grid;
+	color: red;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+div.gridded>span {
+	display: block;
+	min-height: 3em;
+	width: 80%;
+}
+
+div.gridded>span a.simple {
+	word-break: break-all;
+	width: 80%;
+}
+
+table.cluster-table td:nth-child(4) {
+	
+}
+</style>
+
+<script th:src="@{ ${csapApp.versionedUrl('/js/editor/summary.js')} }"></script>
+
+</head>
+
+<body th:inline="text">
+
+
+	<header id="header">
+
+		Definition Summary: [[ ${name} ]]
+		<select
+			class="project"
+			style="width: 14em">
+			<option
+				th:each="name : ${packageNames}"
+				th:value="${name}"
+				th:selected="${name == #httpServletRequest.getParameter('project') }"
+				th:text="${name}">Credit card</option>
+		</select>
+
+
+	</header>
+
+
+	<!-- 
+                - Summary
+        -->
+
+	<div id="content-for-browser">
+
+		<table
+			id="application-summary"
+			class="csap simple">
+			<thead>
+
+				<tr>
+					<th style="width: 10em">Item</th>
+					<th>Navigation Link(s)</th>
+				</tr>
+			</thead>
+
+			<tr>
+				<td>Project API</td>
+				<td>
+					<a
+						th:each="modelName : ${csapApp.getPackageNames()}"
+						class="csap-link"
+						target="_blank"
+						th:href="@{${'/api/model/application?releasePackage=' + modelName}}"> [[
+						'/api/model/application?releasePackage='+${ modelName }]] </a>
+				</td>
+			</tr>
+
+			<tr>
+				<td>Menu Links</td>
+				<td>
+					<a
+						th:each="menuEntry : ${csapApp.getHelpMenuMap() }"
+						class="csap-link"
+						target="_blank"
+						th:href="@{${menuEntry.value}}"> [[ ${ menuEntry.key } ]] </a>
+				</td>
+			</tr>
+
+			<tr>
+				<td>Services</td>
+				<td>
+					<a
+						class="csap-link"
+						href="#services"> [[ ${ project.getServiceToAllInstancesMap().size() } ]] Services</a>
+					on [[ ${ project.getHostsInAllLifecycles().size() } ]] Hosts
+				</td>
+			</tr>
+
+
+			<tr>
+				<td>Environments</td>
+				<td>
+					<a
+						class="csap-link"
+						th:each="lc : ${ project.getLifecycleToClusterMap().keySet() }"
+						th:href="${ '#' + lc }"> [[ ${ lc } ]] </a>
+				</td>
+			</tr>
+
+
+			<tr>
+				<td>Current Environment Url</td>
+				<td>
+					<a
+						class="csap-link"
+						th:href="${ csapApp.getRootProjectDefinitionUrl() }"> [[ ${ csapApp.getRootProjectDefinitionUrl() } ]] </a>
+				</td>
+			</tr>
+
+		</table>
+
+		<div th:replace="~{ /editor/summary-limits :: pageContent }"></div>
+		<div th:replace="~{ /editor/summary-version :: pageContent }"></div>
+
+
+
+		<!-- 
+                Service Sections with instances 
+        -->
+
+
+		<a
+			class="button"
+			href="#application-summary"
+			title="Navigate back to summary table">Top</a>
+
+		<section
+			style="margin-top: 2em;"
+			th:each="serviceEntry : ${ project.getServiceToAllInstancesMap () }"
+			th:with="svcInstanceList = ${ project.getServiceToAllInstancesMap().get( serviceEntry.key ) }">
+
+			<div
+				class="service"
+				th:if=" ${ svcInstanceList } != null "
+				th:with="firstServiceInstance = ${svcInstanceList.get(0)} ">
+
+				<div
+					th:id="${ serviceEntry.key }"
+					class="title">Service Name: [[ ${ serviceEntry.key } ]]</div>
+
+				<br />
+
+				<table class="csap simple">
+					<thead>
+
+						<tr>
+							<th style="width: 8em">Definition</th>
+							<th style="width: 6em">Server Type</th>
+							<th style="width: 6em">Runtime</th>
+							<th style="width: 6em">Collections</th>
+							<th style="width: 4em">cluster</th>
+						</tr>
+					</thead>
+
+					<tr th:each="svcInstance : ${ svcInstanceList }">
+						<td>
+
+							<a
+								target="_blank"
+								class="csap-link"
+								th:href="${ csapApp.getAgentUrl(svcInstance.getHostName(), '/api/agent/service/definition/' ) + svcInstance.getName()  }">
+								[[ ${ svcInstance.getHostName() } ]] / [[ ${ svcInstance.getPort() } ]]</a>
+
+						</td>
+						<td>[[ ${ svcInstance.getRuntime() } ]]</td>
+						<td>
+
+
+							<a
+								target="_blank"
+								class="csap-link"
+								th:href="${ csapApp.getAgentUrl(svcInstance.getHostName(), '/api/agent/service/runtime/' ) + svcInstance.getName()  }">View</a>
+
+						</td>
+						<td>
+
+
+
+							<a
+								target="_blank"
+								class="csap-link"
+								th:href="${ csapApp.getAgentUrl(svcInstance.getHostName(), '/api/agent/collection/os/' ) + svcInstance.getServiceName_Port() +'/30/5' }">OS</a>
+
+
+							<a
+								style="margin-left: 2em"
+								target="_blank"
+								class="csap-link"
+								th:href="${ csapApp.getAgentUrl(svcInstance.getHostName(), '/api/agent/collection/application/' )  + svcInstance.getServiceName_Port() +'/30/5' }">App</a>
+						</td>
+						<td>[[ ${ svcInstance.getPlatformVersion() } ]]</td>
+					</tr>
+				</table>
+			</div>
+		</section>
+
+
+
+
+		<!-- 
+                - Clusters
+        -->
+
+		<div
+			th:each="environmentName : ${ project.getLifecycleToClusterMap().keySet()  }"
+			th:if="${ ! environmentName.contains('-') }">
+			<a
+				class="button"
+				href="#application-summary"
+				title="Navigate back to summary table">Top</a>
+
+
+			<section
+				style="margin-top: 2em;"
+				th:with="envSettings = ${ csapApp.rootProjectEnvSettings(environmentName ) }">
+
+
+				<div
+					th:id="${ environmentName }"
+					class="title">Environment: [[ ${ environmentName } ]]</div>
+
+				<table class="csap cluster-table simple">
+
+
+					<thead>
+
+						<tr>
+							<th style="width: 8em">Cluster Name</th>
+							<th style="width: 8em">Type</th>
+							<th style="width: 12em">Hosts</th>
+							<th>Services</th>
+						</tr>
+					</thead>
+
+
+					<tbody>
+						<tr
+							th:if="${ project.getLifecycleToClusterMap().get( environmentName ) == null or project.getLifecycleToClusterMap().get( environmentName ).size() == 0 }">
+							<td colspan="99">Warning: did not find any clusters for lifecycle: [[ ${ environmentName } ]]</td>
+
+						</tr>
+					</tbody>
+					<tbody th:each="cluster : ${ project.getLifecycleToClusterMap().get( environmentName )  }">
+
+						<tr>
+							<td>[[ ${ cluster } ]]</td>
+
+
+							<td>
+
+								<span class="clusterType"> [[ ${ project.getClusterType(environmentName,cluster) } ]] </span>
+							</td>
+
+
+							<td th:unless="${ project.getClusterType(environmentName , cluster).equals('kubernetes') }">
+
+								<div class=gridded>
+									<span th:each="hostName : ${ project.getClusterHosts( cluster) }">
+
+										<a
+											class="csap-link"
+											th:href="${'#' + hostName }">[[ ${ hostName } ]]</a>
+
+
+									</span>
+								</div>
+							</td>
+
+							<td th:unless="${ project.getClusterType(environmentName , cluster).equals('kubernetes') }">
+
+								<div class=gridded>
+
+									<span th:each="osName : ${ project.getLifeClusterToOsServices().get(environmentName+cluster)  }">
+
+										<a
+											class="csap-link"
+											th:href="${'#' + osName }">[[ ${ osName } ]]</a>
+
+
+									</span>
+
+								</div>
+							</td>
+
+							<td
+								th:if="${ project.getClusterType(environmentName , cluster).equals('kubernetes') }"
+								colspan="2">
+
+								<div class=gridded>
+
+									<span th:each="osName : ${ project.getLifeClusterToOsServices().get(environmentName+cluster)  }">
+
+										<a
+											class="csap-link"
+											th:href="${'#' + osName }">[[ ${ osName } ]]</a>
+
+
+									</span>
+
+								</div>
+							</td>
+
+						</tr>
+
+					</tbody>
+
+				</table>
+
+
+				<table
+					id="life"
+					class="csap simple">
+					<thead>
+
+						<tr>
+							<th>Environment Setting</th>
+							<th>Value</th>
+						</tr>
+					</thead>
+
+
+					<tr>
+						<td>application</td>
+						<td>
+							<div class=label>
+								Application Name:
+								<div class=entry>[[ ${ envSettings.getApplicationName() } ]]</div>
+							</div>
+							<div class=label>
+								repo:
+								<div class=entry>[[ ${ envSettings.getDefinitionRepoUrl() } ]]</div>
+							</div>
+							<br />
+							<div class=label>
+								branch:
+								<div class=entry>[[ ${ envSettings.getDefinitionRepoBranch() } ]]</div>
+							</div>
+							<div class=label>
+								base env only:
+								<div class=entry>[[ ${ envSettings.isBaseEnvOnly() } ]]</div>
+							</div>
+						</td>
+					</tr>
+
+					<tr>
+						<td>loadbalancer</td>
+						<td>[[ ${ envSettings.getLoadbalancerUrl() } ]], Worker Threads: [[ ${ envSettings.getNumberWorkerThreads() }
+							]]</td>
+					</tr>
+
+					<tr title="If false, operators must manually restart httpd when new services are added or ports change">
+						<td>Auto httpd restart on cluster reload</td>
+						<td>[[ ${ envSettings.isAutoRestartHttpdOnClusterReload() } ]]</td>
+					</tr>
+
+
+					<tr>
+						<td>CSAP Events</td>
+						<td>
+							<div>Event Url: [[ ${ envSettings.getEventUrl() } ]]</div>
+							<div>Enabled: [[ ${ envSettings.isEventPublishEnabled() } ]]</div>
+							<div>health url: [[ ${ envSettings.getHostHealthUrl() } ]]</div>
+							<div>Event User: [[ ${ envSettings.getEventDataUser() } ]]</div>
+							<div>Event Count Url: [[ ${ envSettings.getEventUiCountUrl() } ]]</div>
+						</td>
+					</tr>
+
+					<tr>
+						<td>Event UIs</td>
+						<td>
+							<div>[[ ${ envSettings.getHistoryUiUrl() } ]],</div>
+							<div>[[ ${ envSettings.getEventMetricsUrl() } ]],</div>
+							<div>[[ ${ envSettings.getAnalyticsUiUrl() } ]]</div>
+
+						</td>
+					</tr>
+
+
+					<tr>
+						<td>Config Maps</td>
+						<td>
+							<pre class="scroll">[[ ${ envSettings.uiConfigMapsFormatted() } ]]
+						</pre>
+						</td>
+					</tr>
+					<tr>
+						<td>Metrics upload url</td>
+						<td>
+							<div>[[ ${ envSettings.getMetricsUrl() } ]],</div>
+							<div>Enabled: [[ ${ envSettings.isCsapMetricsUploadEnabled() } ]],</div>
+						</td>
+					</tr>
+					<tr>
+						<td>Metrics</td>
+						<td>
+							<div
+								class="entry"
+								th:each="metricEntry : ${envSettings.getMetricToSecondsMap()}">[[ ${ metricEntry } ]]</div>
+							<div class="entry">[[ ${envSettings.getUploadIntervalsInHoursJson() } ]]</div>
+
+						</td>
+					</tr>
+
+					<tr>
+						<td>Monitors</td>
+						<td>
+							<div class="monitor-settings">
+								<div
+									class="entry"
+									th:each="monitor : ${ envSettings.getMonitors() }"
+									th:utext="${monitor}"></div>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>RealTimeMeters</td>
+						<td>
+							<ul>
+								<li th:each="item : ${envSettings.getRealTimeMetersForView()}">[[ ${item} ]]</li>
+							</ul>
+						</td>
+					</tr>
+
+					<tr>
+						<td>Process Audit:</td>
+						<td>
+
+							<div>Interval: [[ ${ envSettings.getPsDumpInterval() } ]],</div>
+							<div>Max in Interval: [[ ${ envSettings.getPsDumpCount() } ]],</div>
+							<div>Low memory limit: [[ ${ envSettings.getPsDumpLowMemoryInMb() } ]],</div>
+						</td>
+					</tr>
+					<tr>
+						<td>All Data:</td>
+						<td>
+
+							<pre class="scroll">[[ ${ envSettings.toString() } ]]
+						</pre>
+
+						</td>
+					</tr>
+				</table>
+
+			</section>
+
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,276 @@
+
+#
+# - use editor clone to copy this template - it will set XXX to integer
+#
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rni-XXX
+  
+  annotations:
+    ***REMOVED***/flexnet.rni: ready
+    
+  labels:
+    name: test
+---
+
+kind: Deployment
+
+apiVersion: apps/v1
+
+metadata:
+  name: backend-pod
+  namespace: rni-XXX
+  labels:
+    run: backend-pod-id
+    
+spec:
+  selector:
+    matchLabels:
+      run: backend-pod-id
+      
+  replicas: 1
+  
+  template:
+  
+    metadata:
+      name: backend-pod-pod-template
+      labels:
+        run: backend-pod-id
+        matchForDemoService: rni-web-service-target
+        
+    spec:
+      containers:
+      - name: web-app
+        image: nginx:latest
+        
+        ports:
+        - name: web-app-http
+          containerPort: 80
+        
+        
+        
+        command:
+          - "/bin/sh"
+          
+        args:
+          - "-c"
+          - |
+            echo "variable from config map: multiLineKey $multiLineKey" ; 
+          
+            indexFile=/usr/share/nginx/html/index.html;
+          
+            mv $indexFile $indexFile.original ;
+            echo 'hi from the demo rni web app' > $indexFile ; 
+          
+            nginx -g 'daemon off;'
+            
+            
+      - name: batch-engine-app
+        image: csap/csap-stress:latest
+        
+        command:
+          - "/bin/sh"
+          
+        args:
+          - "-c"
+          - |
+            echo "running stress" ; 
+            /usr/bin/stress --help 
+            # /usr/bin/stress --cpu 1 
+            /usr/bin/stress --vm 1 --vm-hang 1 --vm-bytes 10M
+            
+      - name: cce-app
+        image: csap/csap-stress:latest
+        
+        command:
+          - "/bin/sh"
+          
+        args:
+          - "-c"
+          - |
+            echo "running stress" ; 
+            /usr/bin/stress --help 
+            # /usr/bin/stress --cpu 1 
+            /usr/bin/stress --vm 1 --vm-hang 1 --vm-bytes 10M
+            
+      - name: configdownload-app
+        image: csap/csap-stress:latest
+        
+        command:
+          - "/bin/sh"
+          
+        args:
+          - "-c"
+          - |
+            echo "running stress" ; 
+            /usr/bin/stress --help 
+            # /usr/bin/stress --cpu 1 
+            /usr/bin/stress --vm 1 --vm-hang 1 --vm-bytes 10M
+            
+      - name: de-runner-app
+        image: csap/csap-stress:latest
+        
+        command:
+          - "/bin/sh"
+          
+        args:
+          - "-c"
+          - |
+            echo "running stress" ; 
+            /usr/bin/stress --help 
+            # /usr/bin/stress --cpu 1 
+            /usr/bin/stress --vm 1 --vm-hang 1 --vm-bytes 10M
+            
+      - name: epc-app
+        image: csap/csap-stress:latest
+        
+        command:
+          - "/bin/sh"
+          
+        args:
+          - "-c"
+          - |
+            echo "running stress" ; 
+            /usr/bin/stress --help 
+            # /usr/bin/stress --cpu 1 
+            /usr/bin/stress --vm 1 --vm-hang 1 --vm-bytes 10M
+            
+      - name: esm-app
+        image: csap/csap-stress:latest
+        
+        command:
+          - "/bin/sh"
+          
+        args:
+          - "-c"
+          - |
+            echo "running stress" ; 
+            /usr/bin/stress --help 
+            # /usr/bin/stress --cpu 1 
+            /usr/bin/stress --vm 1 --vm-hang 1 --vm-bytes 10M
+            
+      - name: flexapps-app
+        image: csap/csap-stress:latest
+        
+        command:
+          - "/bin/sh"
+          
+        args:
+          - "-c"
+          - |
+            echo "running stress" ; 
+            /usr/bin/stress --help 
+            # /usr/bin/stress --cpu 1 
+            /usr/bin/stress --vm 1 --vm-hang 1 --vm-bytes 10M
+            
+      - name: fnp-server-app
+        image: csap/csap-stress:latest
+        
+        command:
+          - "/bin/sh"
+          
+        args:
+          - "-c"
+          - |
+            echo "running stress" ; 
+            /usr/bin/stress --help 
+            # /usr/bin/stress --cpu 1 
+            /usr/bin/stress --vm 1 --vm-hang 1 --vm-bytes 10M
+            
+      - name: flexmessaging-app
+        image: csap/csap-stress:latest
+        
+        command:
+          - "/bin/sh"
+          
+        args:
+          - "-c"
+          - |
+            echo "running stress" ; 
+            /usr/bin/stress --help 
+            # /usr/bin/stress --cpu 1 
+            /usr/bin/stress --vm 1 --vm-hang 1 --vm-bytes 10M
+        
+        # https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-resource/
+#        resources:
+#          # 
+#          limits:
+#            cpu: 3
+#            memory: "20Mi"
+#          requests:
+#            cpu: 1
+#            memory: "10Mi"
+            
+---
+kind: Deployment
+
+apiVersion: apps/v1
+
+metadata:
+  name: tgb-listener
+  namespace: rni-XXX
+  labels:
+    run: tgb-listener-id
+    
+spec:
+  selector:
+    matchLabels:
+      run: tgb-listener-id
+      
+  replicas: 1
+  
+  template:
+  
+    metadata:
+      name: tgb-listener-pod-template
+      labels:
+        run: tgb-listener-id
+        
+    spec:
+      containers:
+      - name: tgb-listener
+        image: csap/csap-stress:latest
+        
+        command:
+          - "/bin/sh"
+          
+        args:
+          - "-c"
+          - |
+            echo "running stress" ; 
+            /usr/bin/stress --help 
+            # /usr/bin/stress --cpu 1 
+            /usr/bin/stress --vm 1 --vm-hang 1 --vm-bytes 10M
+        
+        # https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-resource/
+#        resources:
+#          # 
+#          limits:
+#            cpu: 3
+#            memory: "20Mi"
+#          requests:
+#            cpu: 1
+#            memory: "10Mi"
+            
+---
+kind: Service
+apiVersion: v1
+
+metadata:
+  name: rni-ui-XXX
+  namespace: rni-XXX
+  
+spec:
+  type: NodePort # defaults to clusterip
+  
+  selector:
+    matchForDemoService: rni-web-service-target
+    
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: web-app-http
+    
+---    

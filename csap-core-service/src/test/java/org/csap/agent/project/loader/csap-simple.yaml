@@ -1,0 +1,111 @@
+#
+# refer: 
+# - https://blog.heptio.com/using-kubectl-to-jumpstart-a-yaml-file-heptioprotip-6f5b8a63a3ea
+# - https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+#
+#
+#  trigger lefacy migration: csap_def_
+#
+
+kind: Deployment
+
+apiVersion: apps/v1
+
+metadata:
+  name: $$service-name-$$service-primary-port
+  namespace: default
+  labels:
+    run: $$service-name-$$service-primary-port-id
+    
+spec:
+  selector:
+    matchLabels:
+      run: $$service-name-$$service-primary-port-id
+      
+  replicas: 2
+  
+  template:
+  
+    metadata:
+      name: "$$service-name-$$service-primary-port-pod-template"
+      labels:
+        run: $$service-name-$$service-primary-port-id
+        matchForDemoService: $$service-name-$$service-primary-port-service-target
+        
+    spec:
+      containers:
+      - name: $$service-name-container
+        image: docker.***REMOVED***/csap/csap-test-app:latest
+        ports:
+        - containerPort: $$service-primary-port
+        env:
+        - name: csap_parameters
+          value: "$$service-parameters"
+        - name: javaOptions
+          value: "-Xms256M -Xmx256M -Dcsap.security.enabled=true -Dserver.servlet.context-path=/$$service-name -Dspring.profiles.active=services-embedded -DcsapJmxPort=$jmxPort -Dserver.port=$$service-primary-port -jar csap-test-app.jar"
+        volumeMounts:
+        - name: $$service-name-temp-volume
+          mountPath: /demo-k8s-volumes/my-temp-storage-folder 
+        - name: $$service-name-host-volume
+          mountPath: /demo-k8s-volumes/my-host-folder          
+      volumes:
+      - name: $$service-name-temp-volume
+        emptyDir: {}
+      - name: $$service-name-host-volume
+        hostPath:
+          type: DirectoryOrCreate
+          path: /opt/csapUser/demo-k8s
+        
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: $$service-name-$$service-primary-port-service
+  namespace: default
+spec:
+  selector:
+    matchForDemoService: $$service-name-$$service-primary-port-service-target
+  ports:
+  - protocol: TCP
+    port: $$service-primary-port
+    targetPort: $$service-primary-port
+    
+---
+apiVersion: apps/v1
+kind: Ingress
+
+metadata:
+
+  name: $$service-name-$$service-primary-port-ingress
+  namespace: default
+  
+  annotations: 
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "k8_route"
+    nginx.ingress.kubernetes.io/session-cookie-hash: "sha1"
+  
+spec:
+  rules:
+  - host: "*.***REMOVED***"
+    http:
+      paths:
+        - backend: 
+            serviceName: $$service-name-$$service-primary-port-service
+            servicePort: $$service-primary-port
+          path: /$$service-name
+
+
+# $$service-parameters
+# $csap-def-test-var1
+# $csap-def-test-var2
+
+
+
+
+
+
+
+
+
+
+

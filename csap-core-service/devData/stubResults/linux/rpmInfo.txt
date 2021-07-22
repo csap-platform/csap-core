@@ -1,0 +1,34 @@
+Name        : docker-compose
+Version     : 1.9.0
+Release     : 5.el7
+Architecture: noarch
+Install Date: Mon 16 Apr 2018 03:57:27 PM EDT
+Group       : Unspecified
+Size        : 549922
+License     : ASL 2.0
+Signature   : RSA/SHA256, Tue 06 Jun 2017 06:21:49 PM EDT, Key ID 6a2faea2352c64e5
+Source RPM  : docker-compose-1.9.0-5.el7.src.rpm
+Build Date  : Tue 06 Jun 2017 06:16:16 PM EDT
+Build Host  : buildvm-15.phx2.fedoraproject.org
+Relocations : (not relocatable)
+Packager    : Fedora Project
+Vendor      : Fedora Project
+URL         : https://www.docker.com/
+Summary     : Multi-container orchestration for Docker
+Description :
+Compose is a tool for defining and running multi-container Docker
+applications. With Compose, you use a Compose file to configure your
+application's services. Then, using a single command, you create and
+start all the services from your configuration.
+
+Compose is great for development, testing, and staging environments,
+as well as CI workflows.
+
+Using Compose is basically a three-step process.
+
+1. Define your app's environment with a Dockerfile so it can be
+   reproduced anywhere.
+2. Define the services that make up your app in docker-compose.yml so
+   they can be run together in an isolated environment:
+3. Lastly, run docker-compose up and Compose will start and run your
+   entire app.

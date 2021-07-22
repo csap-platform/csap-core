@@ -1,0 +1,20 @@
+
+#
+# Loads default settings for spring services and csap
+# Profiles:
+#   - desktop: configure with stubbed linux
+#   - agent: run as management agent
+#   - admin: run as manager of agents and analytics
+#    # Override using --spring.profiles.active=xxx,yyy,zzz
+spring:
+
+  profiles:
+ 
+    active: admin,desktop,localhost
+    
+    
+  config:
+    import:
+      - boot-csap-defaults.yml
+      - boot-app-defaults.yml
+      - boot-os-commands.yml

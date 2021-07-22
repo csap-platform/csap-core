@@ -1,0 +1,1584 @@
+{
+	"timeStamp": "12:39:32",
+	"hostStats": {
+		"cpuLoad": "-1.0",
+		"cpuCount": "8",
+		"cpu": -1,
+		"cpuIoWait": -1,
+		"processCount": 671,
+		"csapCount": 24,
+		"linuxInterfaceCount": 20,
+		"linuxServiceCount": 37,
+		"linuxPackageCount": 39,
+		"diskCount": 0,
+		"memory": {
+			"total": "31.6GB",
+			"free": "14.3GB",
+			"swapTotal": "36.4GB",
+			"swapFree": "16.8GB",
+			"free-m": 14441
+		},
+		"users": [
+		],
+		"lastOp": "Admin Process Restarted",
+		"vmLoggedIn": [
+			"csapUser  pts/0        2014-04-16 07:58 (rtp-someDeveloper-8811.yourcompany.com)"
+		],
+		"motd": "CsAgent restart: Thu Sep 6,  12:39",
+		"timeStamp": "12:39:34",
+		"lastOpMillis": 1536251969380,
+		"du": 23,
+		"ioUtilInPercent": [
+			{
+				"name": "sda",
+				"percentCapacity": 1
+			},
+			{
+				"name": "sdb",
+				"percentCapacity": 100
+			},
+			{
+				"name": "sdc",
+				"percentCapacity": 48
+			}
+		],
+		"ioTotalInMb": {
+			"reads": 22925,
+			"writes": 1576760
+		},
+		"docker": {
+			"version": "20.10.6",
+			"heartbeat": true,
+			"imageCount": 16,
+			"containerCount": 36,
+			"containerRunning": 33,
+			"rootDirectory": "/var/lib/docker",
+			"volumeCount": 6,
+			"networkCount": 3,
+			"dockerStorage": 2
+		},
+		"kubernetes": {
+			"heartbeat": true,
+			"started": "16:42:47",
+			"completed-ms": 421,
+			"version": "v1.20.7",
+			"nodeCount": 3,
+			"eventCount": 221,
+			"namespaceCount": 10,
+			"namespaces": [
+				"csap-logging",
+				"csap-monitoring",
+				"csap-test",
+				"default",
+				"ingress-nginx",
+				"junit-yaml",
+				"kube-node-lease",
+				"kube-public",
+				"kube-system",
+				"kubernetes-dashboard"
+			],
+			"podReport": {
+				"count": 55,
+				"restarts": 151
+			},
+			"serviceCount": 23,
+			"ingressCount": 3,
+			"jobCount": 4,
+			"cronJobCount": 2,
+			"endpointCount": 24,
+			"configMapCount": 51,
+			"deploymentCount": 17,
+			"statefulSetCount": 3,
+			"volumeClaimCount": 7,
+			"daemonSetCount": 5,
+			"replicaSetCount": 17,
+			"metrics": {
+				"heartbeat": true,
+				"started": "16:42:47",
+				"completed-ms": 354,
+				"current": {
+					"cores": 0.51,
+					"memoryGb": 10.6,
+					"podsRunning": 16,
+					"podsNotRunning": 0,
+					"version": "v1.20.7",
+					"name": "csap-dev04.***REMOVED***",
+					"healthy": true,
+					"resources": {
+						"requests": {
+							"cores": 4.31,
+							"coresPercent": 26,
+							"memoryGb": 1.56,
+							"memoryPercent": 4
+						},
+						"limits": {
+							"cores": 32.27,
+							"coresPercent": 201,
+							"memoryGb": 4.77,
+							"memoryPercent": 15
+						},
+						"capacity": {
+							"cores": 16.0,
+							"memoryGb": 31.26
+						}
+					}
+				},
+				"containers": {
+					"nginx-ingress-controller": {
+						"containerCount": 3,
+						"cores": 0.01,
+						"memoryInMb": 643
+					},
+					"test-k8s-activemq-container": {
+						"containerCount": 1,
+						"cores": 0.01,
+						"memoryInMb": 665
+					},
+					"test-k8s-postgres-container": {
+						"containerCount": 1,
+						"cores": 0.0,
+						"memoryInMb": 123
+					},
+					"fluentd-container": {
+						"containerCount": 3,
+						"cores": 0.02,
+						"memoryInMb": 495
+					},
+					"test-k8s-csap-reference-container": {
+						"containerCount": 6,
+						"cores": 0.01,
+						"memoryInMb": 5628
+					},
+					"elastic-search-container": {
+						"containerCount": 3,
+						"cores": 0.03,
+						"memoryInMb": 7709
+					}
+				}
+			}
+		},
+		"df": {
+			"/var": "6%",
+			"/opt": "20%",
+			"/": "36%",
+			"/dev": "0%",
+			"/dev/shm": "0%",
+			"/run": "1%",
+			"/sys/fs/cgroup": "0%",
+			"/boot": "19%",
+			"/run/user/0": "0%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/a61f704bc347d2a7981e5c702bed48cf2afb6ec62d5ae912c5b727344344ff23": "1%",
+			"/opt/csapUser/dockerStorage/containers/edeb8dbd58ae6af016ae3c34e6b0582b77ec84a29e362a2792415b91a7fba2a5/mounts/shm": "0%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/3cc247352f745fde854008c7a6605883bbf8df42366689df95f550016d66954f": "1%",
+			"/opt/csapUser/dockerStorage/containers/b42bb92591a939432906aac218a3c7f906a6b9990557723423e35f29f3f0672f/mounts/shm": "0%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/7ee950ba2c5ece9aff740c146ee6fab700c4c80c35dc66747b2de1b34257954e": "1%",
+			"/opt/csapUser/dockerStorage/containers/a951c9186477865bcff51e34ea396c2c783312af66f58e7baf79a039dd4c9f03/mounts/shm": "0%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/eb6cf5640fab540eaa030e5ce34b07aaff8e3706dc992edab5d693b1536344e3": "1%",
+			"/opt/csapUser/dockerStorage/containers/ee721390c3f9ecc0797f66db0b7e0d250abfe055107d4f029b9fb1c3806078fd/mounts/shm": "0%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/bd2e548c28f63d3b6f84315cb0be1da47bb48e5a7241ed52fe2bd1bbe2d115c9": "3%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/0bfaacb23f8c51495a2bd2a66fcce74009e293f5c185a2490246061520542081": "2%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/a3e15715cb65d58f61a8d615d0263de6850d2b1242357973272901571bcd3e8e": "3%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/c7b63df4fc18fad919fda17d01695275a9eb4689c539373fb490dbb5f01bbf13": "1%",
+			"/var/lib/kubelet/pods/81d3f5b1-6501-11e8-b3b3-080027c88a00/volumes/kubernetes.io~secret/calico-cni-plugin-token-69ndt": "1%",
+			"/var/lib/kubelet/pods/81d40338-6501-11e8-b3b3-080027c88a00/volumes/kubernetes.io~secret/kube-proxy-token-mhjnx": "1%",
+			"/var/lib/kubelet/pods/81d637e2-6501-11e8-b3b3-080027c88a00/volumes/kubernetes.io~secret/default-token-ck4th": "1%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/f78144a104ed1cdffd76f6ad66924179d10f5c7720e27e6daf55a60c6b3a5850": "1%",
+			"/opt/csapUser/dockerStorage/containers/c1508fd00f07474e67495bdc1d9e7f9ca1140b120abcf510487efa2891c38a2b/mounts/shm": "0%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/a3891a48979c9d2818cad6550fa58a71b1bc2a24d80465d9a99810c25979de8e": "1%",
+			"/opt/csapUser/dockerStorage/containers/5f4a8631e85b985072d955ab9bb97bd323abd4bf485d7e73fbba1e10d1e51bce/mounts/shm": "0%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/ddc936368aa89385d24f55092a9123623dcffafa0d8efa3c0355917240851747": "1%",
+			"/opt/csapUser/dockerStorage/containers/36e620b2f24ad7a66ad0ee37da9877a7d29a731f37d26116b5917da1dcbd7b40/mounts/shm": "0%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/bb06adbbc649a3940e86419aaf567a3a8447d80252e96b26a8317ae52c00feb4": "3%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/13cb6548d02d254369fcd24376e314c7ce8e81dd9b0725922aa4087771b60e8b": "1%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/808a6d1e95d3b8deb762adcfa6a524e96112ff14fe5d5bf7c01928d6dd5ed817": "2%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/6dd1b1f07fd8f2c4a8cbadda93c86c741164cc9fd90baf794208f86b59238ad5": "1%",
+			"/var/lib/kubelet/pods/81dd7941-6501-11e8-b3b3-080027c88a00/volumes/kubernetes.io~secret/kube-dns-token-qxfj9": "1%",
+			"/var/lib/kubelet/pods/81dd35e8-6501-11e8-b3b3-080027c88a00/volumes/kubernetes.io~secret/calico-kube-controllers-token-7qfmc": "1%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/da81317b17347b840ca3cf3ac62ecdf9eeaeec1971962626616550fd17c6d7e1": "1%",
+			"/opt/csapUser/dockerStorage/containers/a71cdaaedb4c37d38921bda9b30c01e22fe378ef4f7745d55ba5b7f907df2eb4/mounts/shm": "0%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/efe4816edf7e31bc76676d39f2682832b3c46f4e7779fad871223f0c39fc83b8": "1%",
+			"/opt/csapUser/dockerStorage/containers/9d7c3eb42e3f84254608120f84f51c64b184fcda796d01b795bd9fc6d4ac1129/mounts/shm": "0%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/302054c6a4afd198456f3987b3c1d91bb682c11082a304c5043343fe15f6f43f": "1%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/d2a4e7c437f7cdaaaae7e4cd423e19aa7ad0ff675f65bb439046a093f8169632": "1%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/dc127ad2861f3fac279d501afe00c18a41c344341812101c5dec8da1d2ec249a": "1%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/b5a463028764b620101dadea9bf678ba98ae64ae55a461dbb773d416b910201e": "1%",
+			"/var/lib/kubelet/pods/ae6e38e2-6501-11e8-b3b3-080027c88a00/volumes/kubernetes.io~secret/default-token-ck4th": "1%",
+			"/var/lib/kubelet/pods/ae865542-6501-11e8-b3b3-080027c88a00/volumes/kubernetes.io~secret/default-token-ck4th": "1%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/a9f57f3094511dc69562e7925dbc8781d4f264d6f294f38ed29aa7fd13194c15": "1%",
+			"/opt/csapUser/dockerStorage/containers/0b482ffd3f001fb1de4f3c040703d6367cb2831851e6eaa9ec7b31905813d7db/mounts/shm": "0%",
+			"/var/lib/kubelet/pods/aee5024d-6501-11e8-b3b3-080027c88a00/volumes/kubernetes.io~secret/kubernetes-dashboard-certs": "0%",
+			"/var/lib/kubelet/pods/aee5024d-6501-11e8-b3b3-080027c88a00/volumes/kubernetes.io~secret/kubernetes-dashboard-token-9zsb9": "1%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/2cd21119edf20f1a60e965883c916bdcefc416487e723eead25434d5be2683d2": "1%",
+			"/opt/csapUser/dockerStorage/containers/7f4cdedb60097852d498e5a74956f12349af6e73c756d71a53f6a4407f111be5/mounts/shm": "0%",
+			"/var/lib/kubelet/pods/af41273f-6501-11e8-b3b3-080027c88a00/volumes/kubernetes.io~secret/heapster-token-8hb47": "1%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/49107fde39ed85ce6050fd39a5e3853305664cf329142246c29a85ab7bc2325b": "1%",
+			"/opt/csapUser/dockerStorage/containers/cd3628e39c0d552b3fb25730d9b002e986f819c50c6f670a7b7824a93c6a7e30/mounts/shm": "0%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/8126f57eaefc397d3893af9c6156285d2875c0aeaa4c1a5fabaf7cebc968f4ad": "1%",
+			"/opt/csapUser/dockerStorage/containers/bcb84cc22f666faa979c159d7619390024862c4e6eab6c2efa24ae24bf73dd74/mounts/shm": "0%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/ea3d9c5f2d51ad262a3b4dbf7b45cae2be4605b1f01554867b73a0c3aade3324": "1%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/b6a87170a21070e671b67c7a40f186d5bb9855162309a3d38fea70b529c73d89": "2%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/2803bd701d48e7af7c064aa9fad73aeeda650722896ce043f443f4f4f864dca4": "2%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/02aa43b801c660e475de394808640dfb7f5ea4d09a168695d2380b14bc2dc29a": "2%",
+			"/var/lib/kubelet/pods/9a7c4b36-6501-11e8-b3b3-080027c88a00/volumes/kubernetes.io~secret/nginx-ingress-serviceaccount-token-wzljj": "1%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/7853ff7c5dc56fb0cdf47fafd369456a979de228c51b4ddccc35182f7f7d990b": "1%",
+			"/opt/csapUser/dockerStorage/containers/198312860b86a9c1263d0f22cbb117c752c4d5cf4f94fdf54dd06d9624b8a7a6/mounts/shm": "0%",
+			"/var/lib/kubelet/pods/9b0e5686-6501-11e8-b3b3-080027c88a00/volumes/kubernetes.io~secret/default-token-td28z": "1%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/c6e2905802053f90ea41588ad535f256305aafd23165e2e67177a4026d621895": "3%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/e427aa5ce614c6e2d2061214aa082bb894222036c5e8ebb52329d9354df42a64": "1%",
+			"/opt/csapUser/dockerStorage/containers/68d985b552d1e0dcefdadcf92da97d50667a4947b3671786dec14056d2b9eff1/mounts/shm": "0%",
+			"/opt/csapUser/dockerStorage/devicemapper/mnt/e2edbc7284a0bc936541aa06c5484165f0a6872de2051418b847302ff1a24ea0": "1%"
+		},
+		"readOnlyFS": [
+			"/dev/mapper/vg0-opt /opt ext4 ro,seclabel,relatime,data=ordered 0 0"
+		],
+		"memoryAggregateFreeMb": 14441
+	},
+	"unregisteredServices": null,
+	"services": {
+		"admin_8021": {
+			"host": "localhost",
+			"serviceName": "admin",
+			"serverType": "SpringBoot",
+			"port": "8021",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "SpringBoot",
+			"user": null,
+			"deployedArtifacts": "",
+			"healthReportCollected": null,
+			"containers": [
+				{
+					"containerName": "default",
+					"pid": [
+						"15402"
+					],
+					"virtualMemory": 4486944,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "-1",
+					"runHeap": "-Xmx512M",
+					"active": true,
+					"running": true,
+					"inactive": false,
+					"pidsAsString": "15402",
+					"cpuUtil": "0.4",
+					"rssMemory": 791240,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 78
+				}
+			]
+		},
+		"CsapSimple_8031": {
+			"host": "localhost",
+			"serviceName": "CsapSimple",
+			"serverType": "SpringBoot",
+			"port": "8031",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "SpringBoot",
+			"user": null,
+			"deployedArtifacts": "",
+			"healthReportCollected": null,
+			"containers": [
+				{
+					"containerName": "default",
+					"pid": [
+						"-"
+					],
+					"virtualMemory": 0,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "",
+					"active": false,
+					"running": false,
+					"inactive": true,
+					"pidsAsString": "",
+					"cpuUtil": "-",
+					"rssMemory": 0,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 0
+				}
+			]
+		},
+		"kubelet_8014": {
+			"host": "localhost",
+			"serviceName": "kubelet",
+			"serverType": "csap-api",
+			"port": "8014",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "runtime",
+			"user": null,
+			"deployedArtifacts": "",
+			"containers": [
+				{
+					"containerName": "default",
+					"pid": [
+						"4325"
+					],
+					"virtualMemory": 1764420,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "",
+					"active": true,
+					"running": true,
+					"inactive": false,
+					"pidsAsString": "4325",
+					"cpuUtil": "5.2",
+					"rssMemory": 110032,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 27
+				}
+			]
+		},
+		"CsapTest_7011": {
+			"host": "localhost",
+			"serviceName": "CsapTest",
+			"serverType": "SpringBoot",
+			"port": "7011",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "SpringBoot",
+			"user": null,
+			"deployedArtifacts": "",
+			"healthReportCollected": null,
+			"containers": [
+				{
+					"containerName": "default",
+					"pid": [
+						"20155"
+					],
+					"virtualMemory": 4239392,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "-Xmx256M",
+					"active": true,
+					"running": true,
+					"inactive": false,
+					"pidsAsString": "20155",
+					"cpuUtil": "0.4",
+					"rssMemory": 632316,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 79
+				}
+			]
+		},
+		"CsapTestDocker_8261": {
+			"host": "localhost",
+			"serviceName": "CsapTestDocker",
+			"serverType": "SpringBoot",
+			"port": "8261",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "SpringBoot",
+			"user": null,
+			"deployedArtifacts": "",
+			"healthReportCollected": null,
+			"containers": [
+				{
+					"containerName": "/csaptestdocker-8261",
+					"pid": [
+						"6565"
+					],
+					"virtualMemory": 10449080,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "-Xmx256M",
+					"active": true,
+					"running": true,
+					"inactive": false,
+					"pidsAsString": "6565",
+					"cpuUtil": "7.7",
+					"rssMemory": 915060,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 112
+				}
+			]
+		},
+		"SimpleServlet_7021": {
+			"host": "localhost",
+			"serviceName": "SimpleServlet",
+			"serverType": "tomcat8-5.x",
+			"port": "7021",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "tomcat8-5.x",
+			"user": null,
+			"deployedArtifacts": "",
+			"containers": [
+				{
+					"containerName": "default",
+					"pid": [
+						"-"
+					],
+					"virtualMemory": 0,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "",
+					"active": false,
+					"running": false,
+					"inactive": true,
+					"pidsAsString": "",
+					"cpuUtil": "-",
+					"rssMemory": 0,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 0
+				}
+			]
+		},
+		"httpd_8080": {
+			"host": "localhost",
+			"serviceName": "httpd",
+			"serverType": "csap-api",
+			"port": "8080",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "runtime",
+			"user": null,
+			"deployedArtifacts": "",
+			"containers": [
+				{
+					"containerName": "default",
+					"pid": [
+						"-"
+					],
+					"virtualMemory": 0,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "",
+					"active": false,
+					"running": false,
+					"inactive": true,
+					"pidsAsString": "",
+					"cpuUtil": "-",
+					"rssMemory": 0,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": 90,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 0
+				}
+			]
+		},
+		"ActiveMq_8161": {
+			"host": "localhost",
+			"serviceName": "ActiveMq",
+			"serverType": "docker",
+			"port": "8161",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "messaging",
+			"user": "root",
+			"deployedArtifacts": "",
+			"containers": [
+				{
+					"containerName": "default",
+					"pid": [
+						"-"
+					],
+					"virtualMemory": 0,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "",
+					"active": false,
+					"running": false,
+					"inactive": true,
+					"pidsAsString": "",
+					"cpuUtil": "-",
+					"rssMemory": 0,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 0
+				}
+			]
+		},
+		"CsapStarter_0": {
+			"host": "localhost",
+			"serviceName": "CsapStarter",
+			"serverType": "script",
+			"port": "0",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "package",
+			"user": null,
+			"deployedArtifacts": "",
+			"containers": [
+				{
+					"containerName": "default",
+					"pid": [
+						"-"
+					],
+					"virtualMemory": 0,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "",
+					"active": false,
+					"running": false,
+					"inactive": true,
+					"pidsAsString": "",
+					"cpuUtil": "-",
+					"rssMemory": 0,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 0
+				}
+			]
+		},
+		"Fabric8_9070": {
+			"host": "localhost",
+			"serviceName": "Fabric8",
+			"serverType": "docker",
+			"port": "9070",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "docker",
+			"user": "root",
+			"deployedArtifacts": "",
+			"containers": [
+				{
+					"containerName": "default",
+					"pid": [
+						"-"
+					],
+					"virtualMemory": 0,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "",
+					"active": false,
+					"running": false,
+					"inactive": true,
+					"pidsAsString": "",
+					"cpuUtil": "-",
+					"rssMemory": 0,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 0
+				}
+			]
+		},
+		"Java_0": {
+			"host": "localhost",
+			"serviceName": "Java",
+			"serverType": "script",
+			"port": "0",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "none",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "package",
+			"user": "ssadmin",
+			"deployedArtifacts": "",
+			"containers": [
+				{
+					"containerName": "default",
+					"pid": [
+						"-"
+					],
+					"virtualMemory": 0,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "",
+					"active": false,
+					"running": false,
+					"inactive": true,
+					"pidsAsString": "",
+					"cpuUtil": "-",
+					"rssMemory": 0,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 0
+				}
+			]
+		},
+		"PostGresDb_5432": {
+			"host": "localhost",
+			"serviceName": "PostGresDb",
+			"serverType": "docker",
+			"port": "5432",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "database",
+			"user": "root",
+			"deployedArtifacts": "",
+			"containers": [
+				{
+					"containerName": "default",
+					"pid": [
+						"-"
+					],
+					"virtualMemory": 0,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "",
+					"active": false,
+					"running": false,
+					"inactive": true,
+					"pidsAsString": "",
+					"cpuUtil": "-",
+					"rssMemory": 0,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 0
+				}
+			]
+		},
+		"SimpleDocker_0": {
+			"host": "localhost",
+			"serviceName": "SimpleDocker",
+			"serverType": "docker",
+			"port": "0",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "docker",
+			"user": "root",
+			"deployedArtifacts": "",
+			"containers": [
+				{
+					"containerName": "default",
+					"pid": [
+						"-"
+					],
+					"virtualMemory": 0,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "",
+					"active": false,
+					"running": false,
+					"inactive": true,
+					"pidsAsString": "",
+					"cpuUtil": "-",
+					"rssMemory": 0,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 0
+				}
+			]
+		},
+		"docker_4243": {
+			"host": "localhost",
+			"serviceName": "docker",
+			"serverType": "csap-api",
+			"port": "4243",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "runtime",
+			"user": null,
+			"deployedArtifacts": "",
+			"containers": [
+				{
+					"containerName": "default",
+					"pid": [
+						"1021"
+					],
+					"virtualMemory": 1816476,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "",
+					"active": true,
+					"running": true,
+					"inactive": false,
+					"pidsAsString": "1021",
+					"cpuUtil": "3.7",
+					"rssMemory": 104440,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 48
+				}
+			]
+		},
+		"etcd_0": {
+			"host": "localhost",
+			"serviceName": "etcd",
+			"serverType": "os",
+			"port": "0",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "os",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "database",
+			"user": "root",
+			"deployedArtifacts": "",
+			"containers": [
+				{
+					"containerName": "/k8s_etcd_etcd-centos1_kube-system_3661df630e3da47e7d0e14de854df557_1",
+					"pid": [
+						"13624"
+					],
+					"virtualMemory": 10575572,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "",
+					"active": true,
+					"running": true,
+					"inactive": false,
+					"pidsAsString": "13624",
+					"cpuUtil": "2.0",
+					"rssMemory": 69904,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": 3506,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 13
+				}
+			]
+		},
+		"peter_7091": {
+			"host": "localhost",
+			"serviceName": "peter",
+			"serverType": "docker",
+			"port": "7091",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "docker",
+			"user": "root",
+			"deployedArtifacts": "",
+			"healthReportCollected": null,
+			"containers": [
+				{
+					"containerName": "default",
+					"pid": [
+						"-"
+					],
+					"virtualMemory": 0,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "",
+					"active": false,
+					"running": false,
+					"inactive": true,
+					"pidsAsString": "",
+					"cpuUtil": "-",
+					"rssMemory": 0,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 0
+				}
+			]
+		},
+		"linux_0": {
+			"host": "localhost",
+			"serviceName": "linux",
+			"serverType": "script",
+			"port": "0",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "none",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "package",
+			"user": "ssadmin",
+			"deployedArtifacts": "",
+			"containers": [
+				{
+					"containerName": "default",
+					"pid": [
+						"-"
+					],
+					"virtualMemory": 0,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "",
+					"active": false,
+					"running": false,
+					"inactive": true,
+					"pidsAsString": "",
+					"cpuUtil": "-",
+					"rssMemory": 0,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": 4726,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 0
+				}
+			]
+		},
+		"mpstatMonitor_0": {
+			"host": "localhost",
+			"serviceName": "mpstatMonitor",
+			"serverType": "os",
+			"port": "0",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "os",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "monitor",
+			"user": null,
+			"deployedArtifacts": "",
+			"containers": [
+				{
+					"containerName": "default",
+					"pid": [
+						"9715",
+						"8305",
+						"7531"
+					],
+					"virtualMemory": 323808,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "",
+					"active": true,
+					"running": true,
+					"inactive": false,
+					"pidsAsString": "9715 8305 7531",
+					"cpuUtil": "0.0",
+					"rssMemory": 2432,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 3
+				}
+			]
+		},
+		"nginx_7080": {
+			"host": "localhost",
+			"serviceName": "nginx",
+			"serverType": "docker",
+			"port": "7080",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "docker",
+			"user": "root",
+			"deployedArtifacts": "",
+			"containers": [
+				{
+					"containerName": "/nginx-7080",
+					"pid": [
+						"19247",
+						"17404",
+						"17403",
+						"17402",
+						"17401"
+					],
+					"virtualMemory": 1746184,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "",
+					"active": true,
+					"running": true,
+					"inactive": false,
+					"pidsAsString": "19247 17404 17403 17402 17401",
+					"cpuUtil": "6.0",
+					"rssMemory": 174500,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 133
+				}
+			]
+		},
+		"tomcat_0": {
+			"host": "localhost",
+			"serviceName": "tomcat",
+			"serverType": "script",
+			"port": "0",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "package",
+			"user": null,
+			"deployedArtifacts": "",
+			"containers": [
+				{
+					"containerName": "default",
+					"pid": [
+						"-"
+					],
+					"virtualMemory": 0,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "",
+					"active": false,
+					"running": false,
+					"inactive": true,
+					"pidsAsString": "",
+					"cpuUtil": "-",
+					"rssMemory": 0,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": 0,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 0
+				}
+			]
+		},
+		"k8s-api-server_0": {
+			"host": "localhost",
+			"serviceName": "k8s-api-server",
+			"serverType": "os",
+			"port": "0",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "os",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "kubernetes",
+			"user": "root",
+			"deployedArtifacts": "",
+			"containers": [
+				{
+					"containerName": "/k8s_kube-apiserver_kube-apiserver-centos1_kube-system_505d8ac5ad31f1f31936890a53b5fee2_1",
+					"pid": [
+						"13729"
+					],
+					"virtualMemory": 448016,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "",
+					"active": true,
+					"running": true,
+					"inactive": false,
+					"pidsAsString": "13729",
+					"cpuUtil": "4.0",
+					"rssMemory": 345792,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 16
+				}
+			]
+		},
+		"csap-test-k8s-service_6090": {
+			"host": "centos1",
+			"serviceName": "csap-test-k8s-service",
+			"serverType": "docker",
+			"clusterType": "kubernetes",
+			"port": "6090",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "Sep.24-09.41 \nDocker Pull by: pnightingale at 09:41:42 Sep 24",
+			"warDate": "DeployFileNotFound",
+			"eolJars": [
+			],
+			"iconType": "docker",
+			"user": "root",
+			"deployedArtifacts": "latest",
+			"containers": [
+				{
+					"containerName": "/k8s_csap-test-k8s-service-container_csap-test-k8s-service-7485bbd8f5-5kbt6_default_93d49616-bfff-11e8-b537-0800271b4e90_0",
+					"pid": [
+						"24894",
+						"25068"
+					],
+					"virtualMemory": 4136288,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "-Xmx256M",
+					"running": true,
+					"pidsAsString": "24894 25068",
+					"cpuUtil": "15.5",
+					"rssMemory": 600,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": 0,
+					"fileCount": 50,
+					"socketCount": 4,
+					"threadCount": 75,
+					"numberSamplesAveraged": 5
+				},
+				{
+					"containerName": "/k8s_csap-test-k8s-service-container_csap-test-k8s-service-7485bbd8f5-5s8cd_default_93d5a90a-bfff-11e8-b537-0800271b4e90_0",
+					"pid": [
+						"24707",
+						"24857"
+					],
+					"virtualMemory": 4136736,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "-Xmx256M",
+					"running": true,
+					"pidsAsString": "24707 24857",
+					"cpuUtil": "14.0",
+					"rssMemory": 560,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 4,
+					"threadCount": 75,
+					"numberSamplesAveraged": 5
+				},
+				{
+					"containerName": "/k8s_csap-test-k8s-service-container_csap-test-k8s-service-7485bbd8f5-pdl2t_default_93d5a1ed-bfff-11e8-b537-0800271b4e90_0",
+					"pid": [
+						"24631",
+						"24799"
+					],
+					"virtualMemory": 4138524,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "-Xmx256M",
+					"running": true,
+					"pidsAsString": "24631 24799",
+					"cpuUtil": "14.1",
+					"rssMemory": 562,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 4,
+					"threadCount": 75,
+					"numberSamplesAveraged": 5
+				}
+			]
+		},
+		"k8-crashed-service_0": {
+			"host": "localhost",
+			"serviceName": "k8-crashed-service",
+			"serverType": "docker",
+			"port": "0",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": false,
+			"scmVersion": "os",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "kubernetes",
+			"user": "root",
+			"deployedArtifacts": "",
+			"containers": [
+				{
+					"cpuUtil": "-",
+					"diskUtil": 1000
+				}
+			]
+		},
+		"k8s-csap-test_0": {
+			"host": "localhost",
+			"serviceName": "k8s-csap-test",
+			"serverType": "os",
+			"port": "0",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "os",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "kubernetes",
+			"user": "root",
+			"deployedArtifacts": "",
+			"containers": [
+				{
+					"containerName": "/k8s_csap-test-container_csap-simple-app-5d8664644-9q7ks_default_ee55e50a-ac8c-11e8-8bea-00505695a7a3_0",
+					"pid": [
+						"9264",
+						"9502"
+					],
+					"virtualMemory": 9889308,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "-Xmx256M",
+					"active": true,
+					"running": true,
+					"inactive": false,
+					"pidsAsString": "9264 9502",
+					"cpuUtil": "0.1",
+					"rssMemory": 782256,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 104
+				},
+				{
+					"containerName": "/k8s_csap-test-container_csap-simple-app-5d8664644-wf56p_default_ee569b4b-ac8c-11e8-8bea-00505695a7a3_0",
+					"pid": [
+						"9367",
+						"9573"
+					],
+					"virtualMemory": 9889308,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "-Xmx256M",
+					"active": true,
+					"running": true,
+					"inactive": false,
+					"pidsAsString": "9367 9573",
+					"cpuUtil": "0.1",
+					"rssMemory": 774664,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 104
+				}
+			]
+		},
+		"filter-for-master2-host": {
+			"host": "master2-host",
+			"serviceName": "inactive-k8s-service",
+			"serverType": "docker",
+			"clusterType": "kubernetes",
+			"port": "0",
+			"servletThreadCount": "99",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": false,
+			"scmVersion": "",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "docker",
+			"user": null,
+			"deployedArtifacts": "",
+			"healthReportCollected": null,
+			"containers": [
+				{
+					"containerName": "default",
+					"pid": [
+						"-"
+					],
+					"virtualMemory": 0,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "",
+					"active": false,
+					"running": false,
+					"inactive": true,
+					"pidsAsString": "",
+					"cpuUtil": "-",
+					"rssMemory": 0,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": 111,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 0
+				}
+			]
+		},
+		"filter-for-worker2-host-1": {
+			"host": "worker2-host-1",
+			"serviceName": "inactive-k8s-service",
+			"serverType": "docker",
+			"clusterType": "kubernetes",
+			"port": "0",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": false,
+			"scmVersion": "os",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "docker",
+			"user": "root",
+			"deployedArtifacts": "",
+			"containers": [
+				{
+					"containerName": "/k8s_csap-test-container_csap-simple-app-5d8664644-9q7ks_default_ee55e50a-ac8c-11e8-8bea-00505695a7a3_0",
+					"pid": [
+						"9264",
+						"9502"
+					],
+					"virtualMemory": 9889308,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "-Xmx256M",
+					"active": true,
+					"running": true,
+					"inactive": false,
+					"pidsAsString": "9264 9502",
+					"cpuUtil": "0.1",
+					"rssMemory": 782256,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 104
+				},
+				{
+					"containerName": "/k8s_csap-test-container_csap-simple-app-5d8664644-wf56p_default_ee569b4b-ac8c-11e8-8bea-00505695a7a3_0",
+					"pid": [
+						"9367",
+						"9573"
+					],
+					"virtualMemory": 9889308,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "0",
+					"runHeap": "-Xmx256M",
+					"active": true,
+					"running": true,
+					"inactive": false,
+					"pidsAsString": "9367 9573",
+					"cpuUtil": "0.1",
+					"rssMemory": 774664,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": -1,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 104
+				}
+			]
+		},
+		"csap-agent_8011": {
+			"host": "localhost",
+			"serviceName": "csap-agent",
+			"serverType": "SpringBoot",
+			"port": "8011",
+			"servletThreadCount": "50",
+			"servletAccept": "0",
+			"servletMaxConnections": "50",
+			"servletTimeoutMs": "30000",
+			"userStop": true,
+			"scmVersion": "",
+			"warDate": "",
+			"eolJars": [
+			],
+			"iconType": "csapAgentPeter",
+			"user": null,
+			"healthReportCollected": null,
+			"containers": [
+				{
+					"containerName": "default",
+					"deployedArtifacts": "testing.1.2.3",
+					"pid": [
+						"10941"
+					],
+					"virtualMemory": 4217792,
+					"autoKillInProgress": false,
+					"currentProcessPriority": "-12",
+					"runHeap": "-Xmx256M",
+					"active": true,
+					"running": true,
+					"inactive": false,
+					"pidsAsString": "10941",
+					"cpuUtil": "3.1",
+					"rssMemory": 703476,
+					"jmxHeartbeatMs": 0,
+					"tomcatConnections": 0,
+					"jvmThreadCount": 0,
+					"diskReadKb": 0,
+					"diskWriteKb": 0,
+					"topCpu": 0,
+					"diskUtil": 72,
+					"fileCount": 0,
+					"socketCount": 0,
+					"threadCount": 107
+				}
+			]
+		}
+	},
+	"lastCollected": null
+}

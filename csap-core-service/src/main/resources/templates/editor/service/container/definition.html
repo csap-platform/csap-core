@@ -1,0 +1,174 @@
+
+
+
+<label
+	id="dockerContainerSelect"
+	style="width: 20em"
+	class=""
+	title="Deployment will leverage selected image to create a container using the default working directory">
+	<span>Run Using Docker:</span>
+
+	<select
+		class="dockerEnabled"
+		data-path="runUsingDocker"
+		style="margin-right: 2px">
+		<option selected="selected">false</option>
+		<option>true</option>
+	</select>
+</label>
+
+
+
+<div class="csap-green primary">
+
+	<div class="heading">
+		Container Definition:
+		<div
+			id="container-provider-choice"
+			style="display: none">
+			View Selection:
+			<input
+				id="container-provider-kubernetes"
+				type="radio"
+				checked="checked"
+				name="container-provider-radio"
+				value="kubernetes" />
+			<label
+				for="container-provider-kubernetes"
+				title="Deploy using kubernetes apis (java client)"> Kubernetes </label>
+
+
+			<input
+				id="container-provider-docker"
+				type="radio"
+				name="container-provider-radio"
+				value="docker" />
+			<label
+				for="container-provider-docker"
+				style="margin-right: 3em"
+				title="Deploy using kubernetes command line interface(kubectl)."> Docker </label>
+		</div>
+	</div>
+
+	<div class="image-block">
+
+		<label title="container image name">
+			<span>Image:</span>
+			<input
+				class="wide"
+				placeholder="docker.io/hello-world:latest"
+				data-path="docker.image" />
+
+		</label>
+	</div>
+
+	<div>
+		<label 
+			class=csap-form-inline
+			title="Unique name to manage container">
+			<span>Container Name:</span>
+			<input
+				class=words
+				placeholder="$$service-name"
+				data-path="docker.containerName" />
+			<span title="Maximum time before pull times out">Pull Max: </span>
+			<input
+				class="words"
+				title="Maximum time before pull times out"
+				placeholder="5"
+				data-path="deployTimeoutMinutes" />
+		</label>
+
+
+	</div>
+	<div>
+		<label 
+			class=csap-form-inline
+			title="current directory when container is started">
+			<span>Working Directory:</span>
+			<input
+				class="words"
+				placeholder="default from image"
+				data-path="docker.workingDirectory" />
+		</label>
+
+		<label
+			class=csap-form-inline
+			title="Container user. Allowed: uid:gid, containerUser:containerGroup. Also:  $csapUser or $user will use host uid/gid for specified user">
+			<span>User:</span>
+			<input
+				class="words"
+				placeholder="default from image"
+				data-path="docker.runUser" />
+		</label>
+
+	</div>
+	<div>
+
+		<label
+			class=csap-form-inline
+			title="Command will be run in docker container and output will be assigned as version. For java jar: ls /path/to/some*.jar | cut -d- -f3 | cat . For nginx docker: nginx -v 2>&1 | cut -d/ -f2 | cat">
+			<span>Version Command:</span>
+			<input
+				class="words"
+				placeholder="echo 1.2.3"
+				data-path="docker.versionCommand" />
+		</label>
+
+		<label 
+			class=csap-form-inline
+			title="By default - all container sockets are counted. to count using pid, specify global">
+			<span>Socket Namespace:</span>
+			<input
+				class=words
+				placeholder="container"
+				data-path="docker.socketNamespace" />
+		</label>
+
+	</div>
+
+	<div style="margin-top: 2em">
+		<label
+			class=csap-form-inline
+			title="Docker entry point: specify as JSON array elements"
+			style="vertical-align: top">
+			<span>Entry Point:</span>
+
+		</label>
+		<div class="floating-ace-editor">
+			<textarea
+				id="entryPoint"
+				data-path="docker.entryPoint"
+				data-removenewlines="true"
+				data-fit="true"
+				rows="1"
+				data-adjust="1"
+				data-adjustwidth="200"
+				spellcheck=false
+				placeholder="default from image: specify as JSON array elements"></textarea>
+		</div>
+
+	</div>
+
+	<div style="margin-top: 2em">
+		<label
+			class=csap-form-inline
+			title="Docker command: specify as JSON array elements"
+			style="vertical-align: top">
+			<span>Command:</span>
+		</label>
+
+		<div class="floating-ace-editor">
+			<textarea
+				id="command"
+				data-path="docker.command"
+				data-removenewlines="true"
+				rows="1"
+				data-fit="true"
+				data-adjust="1"
+				data-adjustwidth="200"
+				spellcheck=false
+				placeholder="default from image: specify as JSON array elements"></textarea>
+		</div>
+	</div>
+</div>

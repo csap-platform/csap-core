@@ -1,0 +1,36 @@
+{
+	"docker": {
+		"image": "docker.io/hello-world:latest",
+
+		
+		"volumes": [
+			{
+				"hostPath": "/opt/java",
+				"createPersistent": {
+					"enabled": true,
+					"driver": "host"
+				},
+				"containerMount": "/java",
+				"readOnly": true,
+				"sharedUser": true
+			},
+			{
+				"hostPath": "junit-host-volume",
+				"containerMount": "/junit-container-folder",
+				"createPersistent": {
+					"enabled": true,
+					"driver": "local"
+				},
+				"readOnly": false,
+				"sharedUser": true
+			}
+		],
+		"network": {
+			"name": "junit-network",
+			"createPersistent": {
+				"enabled": true,
+				"driver": "bridge"
+			}
+		}
+	}
+}

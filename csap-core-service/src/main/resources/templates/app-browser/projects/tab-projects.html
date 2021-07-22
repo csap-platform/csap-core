@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head>
+</head>
+
+<body th:fragment="pageContent">
+
+
+	<div id="projects-tab-files"></div>
+
+
+	<div id="projects-tab-editor">
+		<div
+			th:include="/app-browser/projects/editor-summary :: pageContent"
+			th:remove="tag"></div>
+
+	</div>
+
+
+	<div id="projects-tab-attribute">
+		<div
+			th:include="/app-browser/projects/editor-attributes :: pageContent"
+			th:remove="tag"></div>
+
+	</div>
+
+
+	<div id="projects-tab-environment">
+		<div id="lifeEditor"></div>
+
+	</div>
+
+	<div id="projects-tab-code">
+
+		<div id="jsonFileBrowser"></div>
+
+		<div
+			id="jsonFileContainer"
+			style="display: none">
+			<textarea
+				id="json"
+				style=""
+				spellcheck="false">loading...</textarea>
+		</div>
+		
+		<div style="display: none">
+		
+
+			<div id="project-json-editor-dialog">
+			
+				<div
+					class=flex-container>
+					
+					<button id=pje-save class="csap-button-icon csap-download">Save</button>
+					
+					<label class=csap>
+						<input id=pje-json-mode type="checkbox" /> 
+						<span>Json</span>
+					</label>
+					
+					<label class=csap>
+						<input id=pje-fold-mode type="checkbox" /> 
+						<span>Fold</span>
+					</label>
+					
+					<label class="csap flex-right-info" title="yaml line spacing; content will be reloaded (not replaced)" style="margin-right: 3em">
+						<input id=pje-yaml-spacing type="checkbox" checked="checked" /> 
+						<span>yaml spacing</span>
+					</label>
+				</div>
+			
+	
+				<pre id="project-json-editor-container">LOADING</pre>
+			</div>
+		</div>
+	</div>
+
+	<div id="projects-tab-summary">
+
+		<div id="definition-summary"></div>
+
+	</div>
+
+
+	<div id="projects-tab-listing">
+
+		<div class="options flex">
+			<label class=csap>Discovered Environments</label>
+			
+			<button
+				id="launch-adoption"
+				class="csap-button-icon launch-window">CSAP Adoption Portal</button>
+		</div>
+
+		<div id="environment-discovery">
+
+			<table class="csap">
+				<thead>
+					<tr>
+						<th>Application Id</th>
+						<th>Environment</th>
+					</tr>
+				</thead>
+				<tbody>
+
+				</tbody>
+
+			</table>
+
+
+		</div>
+		
+		<div class="options"><label class=csap>Application Projects</label></div>
+		<div id="project-selection">
+			<div
+				class="project"
+				th:each="project : ${ sortedPackages }"
+				th:with="lcHostCount =  ${project.getLifeCycleToHostMap().get( csapHostEnvironmentName ).size()}">
+
+
+				<div th:if="${ lcHostCount } > 0">
+					<a
+						class="csap-link-button project"
+						th:attr="data-name=${project.getName()}"
+						th:href="@{ services(project=${ project.getName()}) }"> [[ ${ project.getName()} ]] </a>
+
+				</div>
+
+				<div th:if="${ lcHostCount } > 0">
+
+					<ol>
+						<li class="about">
+
+							Hosts:
+							<span>[[ ${lcHostCount } ]]</span>
+							Services:
+							<span>[[ ${ project.getServiceToAllInstancesMap().size() }]]</span>
+
+						</li>
+
+						<li class="about">
+							Administrator:
+							<a
+								title="Click to view in directory"
+								target="_blank"
+								style="display: inline"
+								class="csap-link"
+								th:href="${'http://lookup.yourcompany.com/' + project.getArchitect() }">[[ ${ project.getArchitect() } ]]</a>
+						</li>
+						<li class="about">
+							<span
+								th:if="${project.isRootPackage()}"
+								style="font-weight: bold"> Root Model </span>
+							[[ ${ project.getDescription() } ]]
+						</li>
+					</ol>
+				</div>
+			</div>
+			<div
+				class="project"
+				th:if="${ sortedPackages.size() } > 1">
+
+
+				<div>
+					<a
+						class="csap-link-button project"
+						th:attr="data-name=${ csapApp.ALL_PACKAGES }"
+						href="#all"> All Projects </a>
+
+				</div>
+				<div></div>
+			</div>
+		</div>
+
+
+	</div>
+
+
+</body>
+</html>
+
+

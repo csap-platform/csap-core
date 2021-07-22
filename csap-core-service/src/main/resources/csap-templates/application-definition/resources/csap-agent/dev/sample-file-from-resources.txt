@@ -1,0 +1,1 @@
+# Dummy file to validate common files are in classes folder

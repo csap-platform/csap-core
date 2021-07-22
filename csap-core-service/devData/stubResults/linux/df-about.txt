@@ -1,0 +1,13 @@
+Size Used Avail Use% Mounted
+50G 2.5G 45G 6% /
+16G 0 16G 0% /dev
+16G 0 16G 0% /dev/shm
+16G 1.7G 15G 11% /run
+16G 0 16G 0% /sys/fs/cgroup
+976M 147M 779M 16% /boot
+9.8G 1.5G 7.8G 16% /var
+25G 1.8G 22G 8% /opt
+69G 2.7G 63G 5% /var/lib/docker
+150G 61G 90G 41% /mnt/CSAP_DEV01_NFS
+30G 45M 28G 1% /var/lib/kubelet
+3.2G 0 3.2G 0% /run/user/0

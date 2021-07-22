@@ -1,0 +1,1238 @@
+/*
+*
+*
+*    Manager - services tabs
+*	
+*/
+#services-tab-content .options button.csap-button {
+	margin-left: 2em;
+	min-width: 8em;
+}
+
+#services-tab-content .options #refresh-backlog-now {
+	min-width: 1.5em;
+	padding-left: 10px;
+	font-size: 12pt;
+	margin-right: 4em;
+}
+
+#services-tab-content .options #profile, #service-description a.csap-link
+	{
+	font-style: normal;
+	font-weight: bold;
+	font-size: 9pt;
+	vertical-align: middle;
+}
+
+#service-description a.csap-help {
+	margin-left: 3em;
+}
+
+#services-tab-content #service-description {
+	display: grid;
+	grid-template-columns: 6em 8em auto;
+	margin: 0;
+	margin-top: 10px;
+	align-items: end ;
+}
+
+#services-tab-content table td {
+	vertical-align: top;
+}
+
+/*
+*
+*
+*    Services Backlog
+*	
+*/
+#backlog-content {
+	padding: 1em;
+}
+
+#services-tab-backlog table {
+	width: 100%;
+	margin-left: 0;
+}
+
+#services-tab-backlog td.deploy-backlog {
+	padding-left: 10px;
+}
+
+#services-tab-backlog td.deploy-backlog div.controls {
+	display: flex;
+	gap: 2em;
+	color: black;
+}
+
+#services-tab-backlog td.deploy-backlog div.queue {
+	display: grid;
+	grid-template-columns: 20em 10em 10em;
+	color: black;
+	background-color: #d9eaf4;
+	padding: 0.5em;
+	margin: 0.25em;
+	margin-left: 0em;
+	margin-right: 1em;
+	border-radius: 3px;
+}
+
+/*
+*
+*
+*    Services Batch 
+*	
+*/
+#services-tab-batch #hostJobsTable {
+	margin-left: 1em;
+	margin-top: 2em;
+}
+
+#services-tab-batch .options button {
+	min-width: 10em;
+	margin: 1em;
+	padding: 10px;
+	font-size: 12pt;
+}
+
+#services-tab-batch  #batchProgressBar {
+	position: relative;
+	height: 3em;
+	margin: 2em;
+}
+
+#services-tab-batch #batchProgressLabel {
+	position: absolute;
+	padding-left: 2em;
+	top: 8px;
+	font-weight: bold;
+	font-size: 14pt;
+	font-style: italic;
+}
+
+#services-tab-batch #clusterHostJson, #services-tab-batch #clusterServiceJson
+	{
+	display: none;
+}
+
+
+#services-tab-batch .cluster-checkboxes, #services-tab-batch .hostCheckboxes,
+	#services-tab-batch .serviceCheckboxes {
+	display: block;
+	columns: 15em 5;
+}
+
+#services-tab-batch .configLabels  {
+	display: grid;
+	grid-template-columns: 1.7em auto;
+	vertical-align: text-top;
+	margin-bottom: 0.8em;
+	margin-left: 0;
+	break-inside: avoid;
+}
+
+#services-tab-batch .batchDialog .configLabels input:checked {
+	background-color: #2196F3;
+}
+
+#services-tab-batch .batchDialog div.title a {
+	display: inline;
+}
+
+#services-tab-batch .batchDialog {
+	position: relative;
+	font-size: 10pt;
+	background-color: white;
+	color: black;
+	margin: 1em;
+	margin-top: 2em;
+	padding: 0.5em;	
+	border: var(--theme-border);
+	border-radius: var(--border-radius-small);
+}
+
+
+#services-tab-batch .batchDialog div.title .csap-button {
+	margin-left: 1em;
+	margin-right: 1em;
+}
+
+.batchDialog div.title {
+	font-weight: bold;
+	font-size: 11pt;
+	top: 0;
+	font-style: normal;
+	margin: 10px;
+	margin-top: 0px;
+	float: none;
+	border: none;
+	margin-left: 0;
+	padding-left: 5px;
+}
+
+#services-tab-batch .cluster-selection div.title {
+	display: flex;
+	justify-content: space-between;
+}
+
+#services-tab-batch .batchResult label, #services-tab-batch .batchConfig label
+	{
+	font-weight: bold;
+	margin-left: 2em;
+}
+
+#services-tab-batch div.serviceLogs {
+	columns: 22em 6; 
+}
+
+#services-tab-batch div.serviceLogs>div {
+	font-size: 10pt;
+	margin-bottom: 10px;
+	break-inside: avoid;
+}
+#services-tab-batch div.serviceLogs>div a {
+	display: block;
+	break-inside: avoid;
+}
+
+
+#services-tab-batch #hostJobsTable  td:nth-child(1), #hostJobsTable  th:nth-child(1) {
+	width: 15em;
+	word-break: break-all;
+}
+
+#services-tab-batch #hostJobsTable  td:nth-child(2), #hostJobsTable  th:nth-child(2)
+	{
+	width: auto ;
+}
+
+#services-tab-batch #hostJobsTable th {
+	padding: 9px;
+	text-align: center;
+}
+
+/*
+*
+*    Services Summary
+*	
+*/
+article.navigation div.tab-menu>span.service-selected, article.navigation div.tab-menu>span.pod-selected,
+	article.navigation div.tab-menu>span.node-selected, article.navigation div.tab-menu>span.volume-selected
+	{
+	display: none;
+}
+
+article.content #services-tab-content a.csap-remove {
+	padding-left: 20px;
+	background-size: 16px 16px;
+}
+
+a.csap-remove:hover {
+	cursor: pointer;
+}
+
+article.content #services-tab-instances .options {
+	white-space: normal;
+	display: block;
+}
+
+#services-tab-instances .options #ops-row {
+	display: flex;
+	justify-content: space-between;
+	white-space: nowrap;
+}
+
+.last-refreshed {
+	font-size: 10pt;
+	font-style: italic;
+}
+
+#services-tab-status .options label {
+	margin-right: 3em;
+}
+
+
+#services-tab-content div.deployment-panel.rows {
+	display: block;
+}
+
+#deployDialog .adminNote {
+	padding: 1em;
+	font-style: italic;
+}
+
+#services-tab-content div.deployment-panel.grid {
+	display: grid;
+	color: black;
+	grid-template-columns: repeat(auto-fit, minmax(20em, 0fr));
+	/*grid-template-rows: repeat(auto-fit, minmax(3em, 0fr));*/
+	padding: 5px;
+	grid-column-gap: 10px;
+	grid-row-gap: 10px;
+}
+
+:root {
+  --max-panel-item-width: 40em;
+}
+
+#services-tab-content div.deployment-panel .summary {
+	display: grid;
+	grid-template-columns: 60px auto;
+	border-radius: 5px;
+	padding: 5px;
+	margin-bottom: 10px;
+	break-inside: avoid-column;
+	color: var(--panel-header-color);
+	background-color: var(--panel-header-bg);
+	max-width: var(--max-panel-item-width);
+	max-height: 100px;
+}
+
+#services-tab-content div.deployment-panel .deploy-info {
+	font-size: 8pt;
+	display: flex;
+}
+
+#services-tab-content div.deployment-panel .summary:hover {
+	background: var(--nav-hover-background);
+	color: var(--nav-hover-color);
+	cursor: pointer;
+}
+
+
+#services-tab-content button.service-alert-show img {
+	width: 12px;
+	height: 12px;
+}
+
+#services-tab-content .summary>div {
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+#services-tab-content .summary>div:first-child>img {
+	width: 32px;
+	height: 32px;
+	vertical-align: middle;
+}
+
+#services-tab-content .summary>div:first-child {
+	font-weight: bold;
+	font-size: 22pt;
+}
+
+#services-tab-content .summary>div:nth-child(2)>div:nth-child(1) {
+	font-weight: bold;
+	display: flex;
+	justify-content: flex-start;
+	gap: 1em;
+}
+
+
+#services-tab-content .summary .status {
+	display: flex;
+	gap: 2em;
+	margin-top: 3px;
+	font-size: 10pt;
+	font-style: italic;
+	font-weight: bold;
+	align-items: center;
+}
+
+#services-tab-content .summary .status>span {
+	padding-left: 18px;
+}
+
+#services-tab-content .summary>div:nth-child(2) img {
+	vertical-align: text-top;
+	margin-right: 5px;
+}
+
+/*
+*
+*    Services Instances
+*	
+*/
+#instance-panel>div {
+	margin: 1em;
+	margin-left: 0;
+}
+
+
+#services-tab-instances .options .navigation button {
+	margin-left: 0px;
+}
+
+#services-tab-instances table {
+	width: auto;
+}
+
+#services-tab-instances table#registered tr .instance-container label {
+	display: grid;
+	grid-template-columns: 1.2em 1.4em auto;
+	align-items: start;
+	margin-right: 5px;
+}
+
+
+#services-tab-instances table#registered tr td {
+	min-width: 3em;
+}
+#services-tab-instances table#registered tr .kubernetes-only {
+	white-space: nowrap ;
+	padding-left: 3px;
+	text-align: left ;
+}
+#services-tab-instances table#registered tr th.kubernetes-only {
+	padding-left: 1em
+}
+
+/*
+#services-tab-instances table#registered tr td:first-child {
+	min-width: 23em;
+}*/
+
+#services-tab-instances table tr.selected td {
+	opacity: 0.8 ;
+	background: #f2fbec;
+}
+
+#services-tab-instances table td.numeric {
+	cursor: pointer;
+}
+
+#services-tab-instances table td.numeric:hover {
+	background-color: var(--nav-hover-background);
+	color: var(--nav-hover-color);
+}
+
+#services-tab-instances table span.host:hover {
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+#services-tab-instances table#registered div.kubernetes-only {
+	margin-top: 5px;
+}
+
+#services-tab-instances table#registered div.kubernetes-only label {
+	display: block;
+	text-align: right;
+}
+#services-tab-instances table#registered div.kubernetes-only label:last-child {
+	font-style: italic ;
+	font-size: 8pt ;
+}
+
+#services-tab-instances table#registered .instance-container {
+	display: grid;
+	grid-template-columns: auto 1em 1em 1em 1em;
+	grid-column-gap: 5px;
+	align-items: center;
+}
+
+#services-tab-instances table#registered .instance-container span.host-index {
+	font-size: 9pt;
+	font-style: italic;
+	position: relative;
+	right: -10px;
+}
+
+
+div.csap-button-menu .logs {
+	background-image: url(../../images/16x16/files.png);
+}
+
+div.csap-button-menu .files {
+	background-image: url(../../images/folder.png);
+}
+
+div.csap-button-menu .launch {
+	background-image: url(../../images/16x16/window.svg);
+}
+
+div.csap-button-menu .metrics {
+	background-image: url(../../images/16x16/sysMon.png);
+}
+
+div.csap-button-menu button.csap-button.service-live {
+	background-image: url(../../images/live.svg);
+	background-size: 24px 28px;
+}
+
+#services-tab-instances table button {
+	opacity: 0.0;
+	margin-right: 5px;
+}
+
+#services-tab-instances table tr:hover button {
+	opacity: 1.0;
+}
+
+#services-tab-instances .host button {
+	color: inherit;
+	background-color: inherit;
+	border-radius: var(--border-radius-small);
+	border: none;
+	padding-left: 0;
+	min-width: 10em;
+	text-align: left;
+}
+
+#services-tab-instances table tr:hover .host button {
+	color: var(--theme-color);
+	background: var(--theme-bg);
+	border-radius: var(--border-radius-small);
+	border: var(--theme-border);
+	text-align: center;
+}
+
+#services-tab-instances #table-operations span {
+	font-style: italic;
+	font-size: 10pt;
+}
+
+
+#services-tab-instances #table-operations {
+	display: flex ;
+	align-items: center;
+	white-space: nowrap;
+	gap: 2em;
+}
+
+#services-tab-instances #table-operations span.selection-count {
+	position: relative ;
+	top: 5px;
+	left: -5px;
+	
+}
+
+#services-tab-instances table img {
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+#services-tab-instances table#registered td, #services-tab-instances  table#registered th {
+	text-align: right;
+	vertical-align: top;
+}
+
+#services-tab-instances table#unregistered th,#services-tab-instances table#unregistered td:nth-child(3) {
+	padding-left: 8px;
+}
+
+#services-tab-instances table#unregistered td {
+	text-align: left;
+	white-space: nowrap;
+	padding-left: 3px;
+}
+
+#services-tab-instances table#registered td:nth-child(1), #services-tab-instances  table#registered th:nth-child(1) {
+	text-align: left;
+	white-space: nowrap;
+}
+
+#services-tab-instances #instance-dummy {
+	display: grid;
+	grid-template-columns: auto auto auto;
+	background-color: white;
+}
+
+/*
+*
+*    Service deploy dialogs
+*	
+*/
+.ajs-content #killOptions button {
+	margin-left: 2em;
+	min-width: 15em;
+	padding: 0.5em;
+	padding-left: 2em;
+}
+
+.ajs-content #mavenOptions {
+	margin: 1em;
+}
+
+.ajs-content #mavenArtifact {
+	width: 100%;
+}
+
+.ajs-content #killOptions>div {
+	margin-top: 2em;
+}
+.ajs-content #killOptions label.csap input {
+	vertical-align: text-bottom;
+}
+
+.ajs-content #deploy-from {
+	margin-bottom: 1em;
+	padding-bottom: 0.5em;
+}
+
+.ajs-content .optionLabel {
+	font-weight: bold;
+	margin-left: 2em;
+	margin-right: 4em;
+}
+
+.ajs-content .optionLabel input {
+	margin-right: 0.25em;
+}
+
+.ajs-content #serviceParameters, .ajs-content #kubernetes-definition-text
+	{
+	width: 90%;
+	height: 100%;
+	min-height: 6em;
+	box-sizing: border-box;
+	background-color: #e5eff2;
+}
+
+
+/*
+*
+*    Service - metrics
+*	
+*/
+#services-tab-analytics .hostLaunch {
+	display: none;
+}
+
+#services-tab-analytics #debug {
+	display: none;
+}
+
+#services-tab-analytics div.visible-container {
+	position: inherit;
+}
+
+#services-tab-analytics #panelInfo {
+	margin: 4px;
+	font-weight: bold;
+}
+
+#services-tab-analytics .graphOptions {
+	padding-top: 0;
+	padding-right: 1em;
+	padding-left: 1em;
+	padding-bottom: 0;
+}
+
+#services-tab-analytics #panelInfo div {
+	background-color: yellow;
+	font-size: 10pt;
+}
+
+#services-tab-analytics .options input[type="checkbox"] {
+	margin-left: 2em;
+	margin-right: 0;
+}
+
+#services-tab-analytics #osChart table {
+	font-size: 11pt;
+	width: 45em;
+}
+
+#services-tab-analytics #osChart>div {
+	margin-bottom: 3em;
+}
+
+#services-tab-analytics  #appStats .appTitle input {
+	margin-right: 3px;
+}
+
+#services-tab-analytics #appStats #services-tab-analytics table.csap,
+	#serviceStats table.csap {
+	margin-top: 2px;
+	margin-bottom: 5px;
+}
+
+#serviceStats td.showGraphCell:hover, #appStats td.showGraphCell:hover {
+	cursor: pointer;
+	text-decoration: underline;
+	background: rgb(144, 188, 234);
+	background: rgba(144, 188, 234, 0.8);
+}
+
+#serviceStats a.simple:hover, #appStats a.simple:hover {
+	cursor: pointer;
+}
+
+#services-tab-analytics table.csap span.resourceWarning {
+	font-weight: bold;
+	font-style: italic;
+}
+
+#serviceStats {
+	vertical-align: middle;
+	padding: 2px;
+	margin-top: 0px;
+}
+
+#serviceStats table.csap td, #serviceStats table.csap th, #appStats table.csap td,
+	#appStats table.csap th {
+	text-align: right;
+	padding: 8px;
+	padding-right: 2em;
+	position: relative;
+}
+
+#serviceStats table.csap td:nth-child(1), #serviceStats table.csap th:nth-child(1),
+	#appStats table.csap td:nth-child(1), #appStats table.csap th:nth-child(1)
+	{
+	padding-right: 4px;
+}
+
+#serviceStats table.csap th, #appStats table.csap th {
+	padding-right: 8px;
+	padding-left: 3px;
+	min-width: 6em;
+}
+
+#appStats table.csap th, #serviceStats table.csap th {
+	text-align: center;
+	padding-bottom: 4px;
+	padding-top: 4px;
+}
+
+#serviceStats .limitsColumn, #appStats .limitsColumn {
+	display: none;
+}
+
+#serviceStats .units, #appStats .units {
+	position: absolute;
+	display: inline;
+	top: 8px;
+	padding-left: 3px;
+	font-weight: normal;
+}
+
+#serviceStats table.csap td:first-child, #appStats table.csap td:first-child
+	{
+	text-align: left;
+}
+
+#serviceStats table.csap td:first-child .statusIcon, #appStats table.csap td:first-child .statusIcon
+	{
+	position: relative;
+	left: -3px;
+}
+
+#appStats span.customRate {
+	float: right;
+	font-size: 9pt;
+	font-style: italic;
+}
+
+#services-tab-analytics .day1, #services-tab-analytics .day7 {
+	font-weight: normal;
+}
+
+#services-tab-analytics #compareStartInput {
+	width: 7em;
+	margin-top: 5px;
+}
+
+#services-tab-analytics #graphDiv {
+	display: none;
+	width: 580px;
+	position: fixed;
+	top: 50px;
+	height: 800px;
+	overflow: visible;
+	background-color: var(--nav-active-background);
+	border: 1px solid #6ba8e5;
+	border-radius: 5px;
+}
+
+#services-tab-analytics #graphDiv .graph-display-options {
+	left: 1em;
+	top: 2em;
+}
+
+#services-tab-analytics .gpanel {
+	font-size: 9pt;
+}
+
+#services-tab-analytics #panelControls {
+	height: 1.5em;
+	padding-left: 5px;
+	color: var(--panel-header-color);
+	background: var(--panel-header-bg);
+	display: flex;
+	justify-content: space-between;
+	font-size: 10pt;
+}
+
+#services-tab-analytics #panelControls img {
+	width: 14px;
+	height: 14px;
+	margin-top: 4px;
+	margin-right: 5px;
+}
+
+#services-tab-analytics #panelControls #closePanel {
+	background-size: 14px 14px;
+	margin-top: 3px;
+	height: 14px;
+	vertical-align: top;
+	width: 14px;
+	margin-right: 3px;
+}
+
+#services-tab-analytics #isStackHosts {
+	font-size: 10px;
+	margin-top: 2px;
+	background-color: yellow;
+	color: black;
+}
+
+#services-tab-analytics #hostDisplay {
+	display: none;
+}
+
+#services-tab-analytics #graphDiv .loadingLargePanel {
+	left: 0;
+}
+
+#services-tab-analytics #graphDiv .graphDisplay {
+	margin-top: 5px;
+}
+
+#services-tab-analytics #graphDiv .graphDisplay .timeZone {
+	margin-left: 0em;
+	margin-right: 5px;
+}
+
+#services-tab-analytics .plotMinMaxButton {
+	display: none;
+}
+
+#services-tab-analytics #opsTitle {
+	position: absolute;
+}
+
+/*
+*
+*    Service jobs
+*	
+*/
+#services-tab-jobs #service-job-summary {
+	font-size: 10pt;
+	display: grid;
+	color: black;
+	grid-template-columns: 8em minmax(20em, 1fr) minmax(10em, 3fr);
+	column-gap: 1em;
+	row-gap: 1em;
+	align-items: center;
+}
+
+#services-tab-jobs #job-listing span.quote{
+	margin: 0 ;
+}
+
+#service-job-summary span.description {
+	font-weight: bold;
+	min-width: 10em
+}
+
+#service-job-summary span.job-notes {
+	font-style: italic;
+}
+
+#service-job-summary span.job-background {
+	padding-right: 1em;
+	color: red;
+	font-style: italic;
+}
+
+#service-job-summary button.csap-button {
+	font-size: 9pt;
+}
+
+#service-job-summary>span {
+	background-color: white;
+	padding: 5px;
+	border: var(--theme-border);
+	border-radius: var(--border-radius-small);
+}
+
+#services-tab-jobs #service-job-confirm .csap-play {
+	font-size: 16pt;	
+}
+
+#services-tab-jobs #service-job-parameters  {
+	display: grid;
+	color: black;
+	grid-template-columns:  12em  12em  minmax(15em, 1fr);
+	padding: 5px;
+	grid-column-gap: 1em;
+	grid-row-gap: 10px;
+	margin-bottom: 2em;
+	align-items: start;
+	justify-items: left;
+}
+
+#services-tab-jobs #service-job-parameters .read-only {
+	background-color: #c3c3c3;
+}
+#services-tab-jobs #service-job-parameters >label {
+	justify-self: right ;
+}
+#services-tab-jobs #service-job-parameters >label::after {
+	content: ":";
+}
+#services-tab-jobs #service-job-parameters input, #services-tab-jobs #service-job-parameters textarea {
+	width: 100%;
+}
+
+#services-tab-jobs #service-job-parameters >span {
+	font-style: italic;
+	font-size: 9pt;
+	padding-left: 2em;
+}
+
+
+
+/*
+*
+*    Editor - file browser ; scrolling via the included content
+*	
+*/
+div#services-tab-content {
+	height: 100%;
+}
+
+div#services-tab-resources {
+	height: 100%;
+}
+
+div#services-tab-resources .csap-scrollable article.content {
+	background-color: white;
+}
+
+/*
+*
+*    Services - log browser ; scrolling via the included content
+*	
+*/
+div#services-tab-content {
+	height: 100%;
+}
+
+div#services-tab-content #services-tab-status {
+	height: 100%;
+	width: 100% ;
+	display: grid;
+	grid-template-rows: var(--option-height) auto;
+}
+
+div#services-tab-content #services-tab-status div#summary-panel {
+	height: 100%;
+	width: 100% ;
+	overflow-y: auto ;
+}
+ 
+div#services-tab-logs, div#services-tab-pod-logs {
+	height: 100%;
+}
+
+div#services-tab-logs .csap-scrollable article.content, div#services-tab-pod-logs .csap-scrollable article.content
+	{
+	background-color: white;
+	overflow: hidden;
+}
+
+div#services-tab-logs .csap-file-monitor header, div#services-tab-pod-logs .csap-file-monitor header
+	{
+	padding-top: 0;
+}
+
+/*
+*
+*    kubernetes pods & nodes
+*	
+*/
+
+#services-tab-knodes table tr.header-only th {
+	border-bottom: none;
+	padding-bottom: 0;
+	text-align: center;
+}
+#services-tab-knodes table tr.path-specifier th {
+	padding-top: 0;
+	text-align: center;
+}
+#services-tab-knodes table td {
+	white-space: nowrap;
+}
+
+#services-tab-knodes input#node-max-pod-running {
+	width: 2em ;
+	margin-left: 10px;
+	margin-right: 4px;
+}
+
+#services-tab-knodes div#node-instances  table tbody td:nth-child(2),
+#services-tab-knodes div#node-instances  table tbody td:nth-child(5),
+#services-tab-knodes div#node-instances  table tbody td:nth-child(8),
+#services-tab-knodes div#node-instances  table tbody td:nth-child(12)
+{
+	border-left: 3px solid black;
+}
+
+#services-tab-content #container-instances {
+	margin-top: 2em;
+}
+
+#services-tab-content table td.numeric {
+	text-align: right;
+}
+
+div#services-tab-content #services-tab-kpods {
+	height: 100%;
+	width: 100% ;
+	display: grid;
+	grid-template-rows: var(--option-height) auto;
+}
+
+div#services-tab-content #services-tab-kpods div#pods-summary {
+	height: 100%;
+	width: 100% ;
+	overflow-y: auto ;
+}
+
+#services-tab-kpod-instances .options label.notes {
+	font-size: 9pt;
+	align-self: flex-end;
+}
+
+#services-tab-kpod-instances table, #services-tab-knodes table, #services-tab-kvolumes table {
+	margin-top: 1em;
+}
+
+#services-tab-kpod-instances table tr td:nth-child(1),
+	#services-tab-knode-instances table tr td:nth-child(1) {
+	min-width: 15em
+}
+
+#services-tab-kpod-instances table tr td:nth-child(2) {
+	min-width: 10em
+}
+
+
+#services-tab-kpod-instances table tr td.image {
+	word-break: break-all ;
+}
+
+#services-tab-kpod-instances table tr td button.csap-search {
+	opacity: 0;
+}
+#services-tab-kpod-instances table tr:hover td button.csap-search {
+	opacity: 1.0;
+}
+
+#services-tab-kpod-instances table tr td label,
+	#services-tab-knode-instances table tr td label, #services-tab-kvolumes table tr td label
+	{
+	display: grid;
+	grid-template-columns: 2em auto;
+	align-items: start;
+}
+
+#services-tab-content .describe-container, #services-tab-content .describe-container pre
+	{
+	height: 100%;
+}
+
+#services-tab-content .describe-container div.options {
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+
+#services-tab-content .describe-container	 pre {
+	border: 1px solid white;
+	margin: 0
+}
+
+/*
+*
+*    kubernetes volumes with scroll table supprot
+*	
+*/
+#services-tab-kvolumes {
+	display: grid;
+	grid-template-rows: var(--option-height) auto;
+	height: 100%;
+}
+
+#services-tab-kvolumes #volume-instances {
+	height: 100%;
+	overflow: auto;
+}
+
+#services-tab-kvolumes table a.csap-link {
+	white-space: normal;
+}
+
+/*
+*
+*    kubernetes pod logs 
+*	
+*/
+
+#services-tab-pod-logs {
+	display: grid;
+	grid-template-rows: 1.5em auto;
+	height: 100%;
+}
+
+#services-tab-pod-logs #kubernetes-log-viewer {
+	height: 100%;
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+}
+
+#services-tab-pod-logs #k8s-logs-controls {
+	display: flex;
+	white-space: nowrap;
+	gap: 2em;
+	align-items: center ;
+}
+
+#services-tab-pod-logs #k8s-logs-controls .flex-right-info {
+	font-size: 8pt;
+	font-weight: normal;
+}
+
+#services-tab-pod-logs #k8s-logs-controls label button.csap-icon{
+	margin-left: 1em;
+}
+
+#k8s-logs-controls select {
+	max-width: 20em;
+	text-overflow: ellipsis;
+}
+
+#k8s-logs-controls span.quote {
+	margin: 0;
+	
+}
+
+
+
+/*
+*
+*    kubernetes Events 
+*	
+*/
+#services-tab .kevent-details-selected {
+	display: none;
+}
+
+#services-tab-kevents {
+	display: grid ;
+	grid-template-rows:  2em auto;
+	height: 100% ;
+}
+
+#services-tab-kevents #events-panel {
+	overflow: auto;
+}
+
+#services-tab-kevents #kevents-filters {
+	white-space: nowrap;
+}
+#services-tab-kevents #kevents-filters #kevent-counts, #services-tab-kevents #kevents-filters label#limit-events-displayed {
+	margin-left: 3em;
+	font-size: 9pt;
+	font-style: italic;
+}
+
+#services-tab-kevents  span.status-red {
+	padding-left: 20px; 
+	margin-left: 1em;
+}
+#services-tab-kevents #kevents-filters label.csap {
+	margin-left: 1em;
+}
+
+
+#services-tab-kevents #event-refresh {
+	vertical-align: text-bottom;
+}
+
+#services-tab-kevents table td.event-date-label {
+	font-size: 12pt ;
+	font-weight: bold;
+	color: var(--theme-color);
+	background-color: var(--nav-hover-background);
+	border-right: none;
+	border-left: none;
+}
+#services-tab-kevents table tr:hover td.event-date-label  {
+	background: var(--nav-hover-background);
+	
+}
+
+#services-tab-kevents table button.event-time {
+	border: 1px solid white;
+	background-color: inherit;
+	color: black;
+	padding-left: 2px;
+	font-weight: normal;
+	font-size: 11pt;
+}
+
+#services-tab-kevents table tr:hover button.event-time {
+	color: var(--nav-hover-color);
+	background: #f6f6f6;
+	border: var(--theme-border);
+}
+
+
+#services-tab-kevents table th {
+	text-align: left;
+}
+
+#services-tab-kevents table th input {
+	float: right;
+	width: 15em;
+	font-size: 9pt;
+}
+
+#services-tab-kevents table td div.event-details span {
+	font-size: 10pt;
+	font-style: italic;
+	margin-right: 1em;
+}
+
+#services-tab-kevents table :is(.source)  {
+	min-width: 15em;
+}
+#services-tab-kevents table td.source span {
+	margin-right: 1em;
+}
+
+#services-tab-kevents table td.source div.header {
+	display: flex;
+}
+
+#services-tab-kevents table td.source div.header span.reason {
+	font-weight: bold;
+}
+
+#services-tab-kevents table td div.event-details span.multiple-instances {
+	font-weight: bold;
+	float: right ;
+}
+
+
+
+
+
+
+
+

@@ -1,0 +1,34 @@
+#
+# Target file 
+#
+operator: modify
+target: default
+
+environments:
+  # environment name; required for environment processing   
+  base: dev
+  name: xxx # optional, defaults to base
+  
+  hosts:
+    base-os: [ csap-dev20, localhost ]
+    csap-mgmt: [ 1 ]
+    events-beta: [ 1 ]
+  
+service-templates:
+  # csap compressed syntax 
+  simple-service.docker.image: nginx:17.17
+
+
+operations:
+  - deletes: 
+    - /environments/defaults/settings/application/sub-projects
+    - /environments/xxx/kubernetes-1
+    - /environments/xxx/kubernetes-system-services 
+    - /environments/xxx/csap-events
+    - /environments/xxx/events-beta
+    - /environments/xxx/csap-mgmt-extra
+    - /environments/xxx/docker-verification
+    - /environments/xxx/kubernetes-csap-test
+    - /environments/xxx/kubernetes-csap-test
+    - /environments/xxx/csap-mgmt-extra  
+ 

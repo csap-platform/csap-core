@@ -1,0 +1,67 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+	<!--This sends everything else to /public -->
+
+	<localRepository>${env.STAGING}/mavenRepo</localRepository>
+
+	<mirrors>
+
+	</mirrors>
+
+	<servers>
+		<server>
+			<id>yourRepo</id>
+			<username>yourRepoUser</username>
+			<password>yourRepoPass</password>
+		</server>
+	</servers>
+
+
+	<profiles>
+		<profile>
+			<id>yourProfile</id>
+			<repositories>
+				<repository>
+					<releases>
+						<enabled />
+						<updatePolicy>daily</updatePolicy>
+						<checksumPolicy />
+					</releases>
+					<snapshots>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+					<id>Spring Release</id>
+					<url>http://repo.spring.io/libs-release/</url>
+				</repository>
+
+
+				<repository>
+					<id>jenkins-releases</id>
+					<url>http://repo.jenkins-ci.org/releases/</url>
+				</repository>
+
+				<!-- Note the reverse order rule for settings to xml, last repo is the 
+					priority - this is temporay until spring 3.0.7 to get propogated to central 
+					<repository> <releases> <enabled /> <updatePolicy>interval:1</updatePolicy> 
+					<checksumPolicy /> </releases> <id>springsource repo</id> <url>http://maven.springframework.org/release/</url> 
+					</repository> -->
+			</repositories>
+
+			<pluginRepositories>
+
+				<pluginRepository>
+					<id>Spring Release Plugins</id>
+					<url>http://repo.spring.io/libs-release/</url>
+				</pluginRepository>
+
+			</pluginRepositories>
+		</profile>
+	</profiles>
+	<activeProfiles>
+		<activeProfile>yourProfile</activeProfile>
+	</activeProfiles>
+
+</settings>

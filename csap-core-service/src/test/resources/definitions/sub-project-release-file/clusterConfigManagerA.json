@@ -1,0 +1,454 @@
+{
+	"project": {
+		"api-version": 2.1,
+		"project-version": 1.0,
+		"name": "Supporting Sample A",
+		"architect": "someUser@yourCompany.com",
+		"emailNotifications": "support@notConfigured.com"
+	},
+	"environments": {
+		"defaults": {
+			"settings": {
+				"base-env-only": true,
+				"configuration-maps": {
+					"global": {
+						"csap_auto": "test_only"
+					}
+				},
+				"csap-collection": {
+					
+				},
+				"reports": {
+					"trending": [
+						{
+							"label": "Linux: Cores Used (All Hosts)",
+							"report": "custom/core",
+							"metric": "coresUsed",
+							"divideBy": "1"
+						},
+						{
+							"label": "Java: Heap GC Seconds (All Jvms) ",
+							"report": "java/detail",
+							"metric": "minorGcInMs",
+							"serviceName": "all",
+							"allVmTotal": true,
+							"divideBy": "1000"
+						},
+						{
+							"label": "CPU Response Test (Seconds)",
+							"report": "vm",
+							"metric": "totalCpuTestTime",
+							"divideBy": "numberOfSamples",
+							"allVmTotal": "false"
+						},
+						{
+							"label": "Disk Response  Test (Seconds)",
+							"report": "vm",
+							"metric": "totalDiskTestTime",
+							"divideBy": "numberOfSamples",
+							"allVmTotal": "false"
+						},
+						{
+							"label": "Vm Threads",
+							"report": "vm",
+							"metric": "threadsTotal",
+							"divideBy": "numberOfSamples"
+						},
+						{
+							"label": "CsAgent Socket Count",
+							"report": "os-process/detail",
+							"metric": "socketCount",
+							"serviceName": "csap-agent",
+							"divideBy": "numberOfSamples"
+						},
+						{
+							"label": "CsAgent OS Commands",
+							"report": "application/detail",
+							"metric": "OsCommandsCounter",
+							"serviceName": "csap-agent",
+							"divideBy": "numberOfSamples"
+						},
+						{
+							"label": "Events Posted (ms)",
+							"report": "application/detail",
+							"metric": "EventPostMeanMs",
+							"serviceName": "events-data-service",
+							"divideBy": "numberOfSamples"
+						},
+						{
+							"label": "Events Posted Per VM Per Minute",
+							"report": "application/detail",
+							"metric": "EventPostRate",
+							"serviceName": "events-data-service",
+							"divideBy": "numberOfSamples,0.5"
+						},
+						{
+							"label": "Events Posted All VMs Per Minute",
+							"report": "application/detail",
+							"metric": "EventPostRate",
+							"serviceName": "events-data-service",
+							"divideBy": "numberOfSamples,0.5",
+							"allVmTotal": true
+						},
+						{
+							"label": "Events Posted Per Day",
+							"report": "application/detail",
+							"metric": "EventPostRate",
+							"serviceName": "events-data-service"
+						},
+						{
+							"label": "CSAP User Activity",
+							"report": "application/detail",
+							"metric": "UserActivity",
+							"serviceName": "events-data-service",
+							"allVmTotal": true
+						},
+						{
+							"label": "Users: Concurrent (Admin)",
+							"report": "java/detail",
+							"metric": "sessionsActive",
+							"serviceName": "csap-admin",
+							"divideBy": "numberOfSamples",
+							"allVmTotal": true
+						},
+						{
+							"label": "Users: Daily Sessions (Admin)",
+							"report": "java/detail",
+							"metric": "sessionsCount",
+							"serviceName": "csap-admin"
+						},
+						{
+							"label": "Data Http Requests",
+							"report": "java/detail",
+							"metric": "httpRequestCount",
+							"serviceName": "events-data-service",
+							"allVmTotal": true
+						},
+						{
+							"label": "DataAdmin Http Requests",
+							"report": "java/detail",
+							"metric": "httpRequestCount",
+							"serviceName": "events-data-service,admin"
+						},
+						{
+							"label": "WebServer (Httpd) Requests",
+							"report": "application/detail",
+							"metric": "UrlsProcessed",
+							"serviceName": "httpd"
+						},
+						{
+							"label": "Admin UI Sessions",
+							"report": "java/detail",
+							"metric": "sessionsCount",
+							"serviceName": "csap-admin",
+							"allVmTotal": true
+						},
+						{
+							"label": "Mongo Cpu (top)",
+							"report": "os-process/detail",
+							"metric": "topCpu",
+							"serviceName": "events-mongo-db",
+							"divideBy": "numberOfSamples"
+						},
+						{
+							"label": "Mongo Inserts",
+							"report": "application/detail",
+							"metric": "Inserts",
+							"serviceName": "events-mongo-db"
+						},
+						{
+							"label": "Mongo Tiger Reads Mb",
+							"report": "application/detail",
+							"metric": "DiskReads",
+							"serviceName": "events-mongo-db",
+							"divideBy": "1024,numberOfSamples"
+						},
+						{
+							"label": "Mongo Tiger Writes Mb",
+							"report": "application/detail",
+							"metric": "DiskWrites",
+							"serviceName": "events-mongo-db",
+							"divideBy": "1024,numberOfSamples"
+						},
+						{
+							"label": "Mongo Tiger Evictions",
+							"report": "application/detail",
+							"metric": "TigerCacheUnmodified",
+							"serviceName": "events-mongo-db",
+							"divideBy": "1024,numberOfSamples"
+						},
+						{
+							"label": "Test Messages per second",
+							"report": "application/detail",
+							"metric": "TigerCacheUnmodified",
+							"serviceName": "csap-test-service",
+							"divideBy": "numberOfSamples"
+						}
+					],
+					"realTimeMeters": [
+						{
+							"label": "Cpu Cores Active",
+							"id": "host.coresActive",
+							"intervals": [
+								3,
+								5,
+								10
+							],
+							"min": 0
+						},
+						{
+							"label": "Cpu Response (s)",
+							"id": "host.cpuTest",
+							"intervals": [
+								5,
+								6,
+								7
+							],
+							"min": 0,
+							"divideBy": "host-count"
+						},
+						{
+							"label": "Disk Response (s)",
+							"id": "host.diskTest",
+							"intervals": [
+								3,
+								5,
+								10
+							],
+							"min": 0,
+							"divideBy": "host-count"
+						},
+						{
+							"label": "CsAgent Cpu (Total)",
+							"id": "os-process.topCpu_csap-agent",
+							"intervals": [
+								10,
+								30,
+								100
+							]
+						},
+						{
+							"label": "Events Per Minute",
+							"id": "application.events-data-service.EventPostRate",
+							"intervals": [
+								20,
+								60,
+								100
+							],
+							"multiplyBy": "2"
+						},
+						{
+							"label": "Event Average (ms)",
+							"id": "application.events-data-service.EventPostMeanMs",
+							"divideBy": "host-count",
+							"intervals": [
+								20,
+								50,
+								200
+							]
+						},
+						{
+							"label": "JMS messages Per Second",
+							"id": "application.csap-test-service.SpringJmsCountPerSecond",
+							"intervals": [
+								20,
+								50,
+								200
+							]
+						},
+						{
+							"label": "JMS mean (ms)",
+							"id": "application.csap-test-service.SpringJmsMedianTimeMs",
+							"intervals": [
+								20,
+								50,
+								200
+							]
+						}
+					]
+				},
+				"uiDefaultView": "middlewareA",
+				"lastModifiedBy": "pnightingale"
+			},
+			"base-os": {
+				
+			}
+		},
+		"dev": {
+			"settings": {
+				"imports": [
+					"defaults"
+				],
+				"loadbalancer-url": "",
+				"configuration-maps": {
+					"global": {
+						"DEMO_VARIABLE": "my-demo-value"
+					}
+				}
+			},
+			"middlewareA": {
+				"type": "singleVmPartition",
+				"hosts": [
+					"sampleHostA-dev01"
+				],
+				"template-references": [
+					"oracle",
+					"docker",
+					"csap-demo-nginx",
+					"SampleJvmInA",
+					"Factory2Sample"
+				]
+			},
+			"middlewareA2": {
+				"type": "modjk",
+				"hosts": [
+					"sampleHostA2-dev02"
+				],
+				"template-references": [
+					"oracle",
+					"SampleJvmInA2"
+				]
+			}
+		}
+	},
+	"service-templates": {
+		"Factory2Sample": {
+			"server": "tomcat7.x",
+			"autoStart": 55,
+			"description": "Provides tomcat7.x reference implementation for engineering, along with core platform regression tests.",
+			"docUrl": "https://github.com/csap-platform/csap-core/wiki#/Code+Samples",
+			"parameters": "-XX:-UseSplitVerifier -Xms128M -Xmx128M -XX:MaxPermSize=128m",
+			"deployTimeoutMinutes": "15",
+			"source": {
+				"scm": "svn",
+				"path": "http://yourSvnOrGit/yourPathToSource/CsspFactorySample",
+				"branch": "HEAD"
+			},
+			"maven": {
+				"dependency": "com.your.group:Cssp2FactorySample:2.0.21:war"
+			},
+			"performance": {
+				"TotalVmCpu": {
+					"mbean": "java.lang:type=OperatingSystem",
+					"attribute": "SystemCpuLoad"
+				},
+				"ProcessCpu": {
+					"mbean": "java.lang:type=OperatingSystem",
+					"attribute": "ProcessCpuLoad"
+				},
+				"SpringJmsListeners": {
+					"mbean": "org.csap.:application=csap,name=SpringBeans",
+					"attribute": "JmsActive"
+				},
+				"SpringJmsOnMessage": {
+					"simonCounter": "zmetrics.Demo_JmsListener.onMessage()"
+				},
+				"SpringDbcpActive": {
+					"mbean": "org.csap.:application=csap,name=SpringBeans",
+					"attribute": "DbActive"
+				},
+				"SpringDbcpIdle": {
+					"mbean": "org.csap.:application=csap,name=SpringBeans",
+					"attribute": "DbIdle"
+				},
+				"DBAddItem": {
+					"simonCounter": "zmetrics.Demo_DataAccessObject.addSchedule()"
+				},
+				"DBShowItem": {
+					"simonCounter": "zmetrics.Demo_DataAccessObject.showScheduleItemsJpql()"
+				}
+			},
+			"servletThreadCount": "48",
+			"servletAccept": "0",
+			"servletMaxConnections": "47",
+			"servletTimeoutMs": "5000",
+			"metaData": "-nio"
+		},
+		"SampleJvmInA": {
+			"server": "tomcat7.x",
+			"autoStart": 55,
+			"description": "Provides tomcat7.x reference implementation for engineering, along with core platform regression tests.",
+			"docUrl": "https://github.com/csap-platform/csap-core/wiki#/Code+Samples",
+			"parameters": "-XX:-UseSplitVerifier -Xms128M -Xmx128M -XX:MaxPermSize=128m",
+			"source": {
+				"scm": "svn",
+				"path": "http://yourSvnOrGit/yourPathToSource/CsspFactorySample",
+				"branch": "HEAD"
+			},
+			"maven": {
+				"dependency": "com.your.group:Cssp2FactorySample:2.0.21:war"
+			},
+			"performance": {
+				"TotalVmCpu": {
+					"mbean": "java.lang:type=OperatingSystem",
+					"attribute": "SystemCpuLoad"
+				},
+				"ProcessCpu": {
+					"mbean": "java.lang:type=OperatingSystem",
+					"attribute": "ProcessCpuLoad"
+				},
+				"SpringJmsListeners": {
+					"mbean": "org.csap.:application=csap,name=SpringBeans",
+					"attribute": "JmsActive"
+				},
+				"SpringJmsOnMessage": {
+					"simonCounter": "zmetrics.Demo_JmsListener.onMessage()"
+				},
+				"SpringDbcpActive": {
+					"mbean": "org.csap.:application=csap,name=SpringBeans",
+					"attribute": "DbActive"
+				},
+				"SpringDbcpIdle": {
+					"mbean": "org.csap.:application=csap,name=SpringBeans",
+					"attribute": "DbIdle"
+				},
+				"DBAddItem": {
+					"simonCounter": "zmetrics.Demo_DataAccessObject.addSchedule()"
+				},
+				"DBShowItem": {
+					"simonCounter": "zmetrics.Demo_DataAccessObject.showScheduleItemsJpql()"
+				}
+			},
+			"servletThreadCount": "48",
+			"servletAccept": "0",
+			"servletMaxConnections": "47",
+			"servletTimeoutMs": "5000",
+			"metaData": "-nio"
+		},
+		"SampleJvmInA2": {
+			"server": "SpringBoot",
+			"description": "CsAgent provides core service management capabilities, along with runtimes",
+			"docUrl": "https://github.com/csap-platform/csap-core/wiki#/CSAP+-+CsAgent",
+			"osProcessPriority": -10,
+			"parameters": "-Xms256M -Xmx256M -XX:MaxPermSize=128m",
+			"source": {
+				"scm": "svn",
+				"path": "http://yourSvnOrGit/yourPathToSource",
+				"branch": "HEAD"
+			},
+			"maven": {
+				"dependency": "org.csap:csap-core-service:6.0.0:jar"
+			}
+		},
+		"oracle": {
+			"server": "os",
+			"port": 1521,
+			"description": "Oracle provides a data persistence services.",
+			"docUrl": "http://www.oracle.com/",
+			"propDirectory": "/home/oracle",
+			"jmxPort": "-1",
+			"deployTimeoutMinutes": "60",
+			"logDirectory": "/home/oracle/base/diag/rdbms/ss$hsuffix/SS$hsuffix/trace",
+			"logRegEx": ".*\\.log",
+			"scmVersion": "11.2",
+			"url": "http://www.oracle.com/",
+			"user": "oracle",
+			"version": {
+				"1": {
+					
+				}
+			},
+			"disk": "oracleLV"
+		}
+	}
+}

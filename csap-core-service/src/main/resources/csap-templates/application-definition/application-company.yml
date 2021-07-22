@@ -1,0 +1,91 @@
+#
+# Configuration file that can be place in csap definition folder, or in $HOME/csap
+# - by default, this will over ride the values placed in other locations
+#
+
+#
+# Global settings for applications
+#
+
+#spring: 
+#  mail: 
+#    host: "${mailServer:myrelay.yourcompany.com}"
+#    port: "${mailPort:25}"
+#
+csap.security: 
+#    rest-api-filter.token: k16ljSCT5UnF8o1fCyshcD3+VZtrWm2c          
+#    roles:
+#      view-group: ROLE_AUTHENTICATED
+#      admin-group: ROLE_AUTHENTICATED
+#      build-group: ROLE_AUTHENTICATED
+#      infra-group: ROLE_AUTHENTICATED
+#      
+    provider:
+#      type: ldap  # memory, ldap, active dir
+#      url: ldap://ldap.yourcompany.lab:389
+#      directory-dn: search:uid={0} # search will be a search binding. If omitted - binds direct
+#      search-user: ou=People,dc=yourdc,dc=net
+#      search-groups: ou=Groups,dc=yourdc,dc=net
+#
+# Typically - LDAP/AD groups are used for group management
+# - alternately, roles can be explictly assigned 
+#
+#      additional-ldap-roles:
+#        pnightingale:
+#          - ${view_role:AUTHENTICATED}
+#          - ${admin_role:AUTHENTICATED}
+#          - ${build_role:AUTHENTICATED}
+#          - ${infra_role:AUTHENTICATED}
+
+
+# example: using spring memory with local users
+      type: memory
+      memory-users:
+        - admin,password,AUTHENTICATED,dummy1,dummy2
+        - user,password,AUTHENTICATED,dummy3,dummy4
+           
+#      additional-ldap-roles: 
+#        pnightingale: 
+#          - a1
+#          - a2
+#          - a3
+
+
+#      
+csap-core:
+#  kubernetes: 
+#    enabled: true
+#    event-increase-limit: 1
+#    event-max-backlog: 300 
+  docker: 
+    enabled: true
+#    url: "tcp://localhost:4243"
+#    connection-pool: 5
+#    template-repository: "${dockerRepo:docker.io}"
+#    
+#  docker-ui-default-images:
+#    - ***REMOVED***/openjdk8-jdk:latest
+#    - csap/csap-stress
+#    - csap/csap-activemq
+#    - csap/csap-java9
+#    - csap/csap-test-app
+#    - csap/csap-agent
+#    - csap/csap-tomcat
+#    - csap/csap-tools
+#    - jboss/keycloak:5.0.0
+#    - nginx
+#    - postgres
+#    - webcenter/activemq
+#    - httpd
+#    - jenkins/jenkins
+#    - docker.bintray.io/jfrog/artifactory-oss:latest
+
+#
+# analytics health ids - pinged to ensure availability
+#
+#my-service-configuration:
+#  health:
+#    appIds:
+#    - yourcompanyDevops
+#    lifes:
+#    - dev

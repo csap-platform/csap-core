@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>TODO supply a title</title>
+</head>
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+
+
+
+	<div id="upload">
+		<div
+			class=csap-blue
+			style="padding: 1em">
+
+			<form
+				action="uploadToFs"
+				enctype="multipart/form-data"
+				method="post">
+				File:
+				<input
+					id="uploadFileSelect"
+					type="file"
+					name="distFile" />
+
+				<div style="margin-top: 2em">
+
+					<button
+						id="uploadButton"
+						class="csap-button">Upload</button>
+					<label style="margin-left: 1em;">To: </label>
+					<span
+						id="hostButtonTarget"
+						style="margin-left: 1em;"></span>
+				</div>
+
+
+
+				<div
+					class="csap-green"
+					style="margin-top: 2em">
+
+					<label class=csap>
+						Time Out (seconds):
+						<span>
+						<input
+							type="number"
+							name="timeoutSeconds"
+							style="width: 3em"
+							value="30"
+							title="Commands will be aborted if not completed in specified interval" />
+						
+						</span>
+					</label>
+
+					<label class=csap>
+						Destination:
+						<input
+							id="uploadExtractDir"
+							name="extractDir"
+							th:value="${ defaultLocation}"
+							style="width: 40em;" />
+					</label>
+
+					<label class=csap>
+						Skip Extract:
+						<input
+							id="uploadSkipExtract"
+							title="If file ends in .zip or .tgz, it will be unzipped unless this is checked"
+							name="skipExtract"
+							type="checkbox"
+							checked="checked" />
+					</label>
+
+					<label class=csap>
+						Overwrite File:
+						<input
+							id="uploadOverwrite"
+							title="If target exists and is a file, select this to overwrite"
+							name="overwriteTarget"
+							type="checkbox" />
+					</label>
+
+
+					<label class=csap>
+						Chown User:
+						<select
+							id="chownUserid"
+							name="chownUserid">
+							<option
+								th:each="optionUser  : ${osUsers}"
+								th:selected="${ optionUser == csapUser }"
+								th:value="${ optionUser }"
+								th:text="${ optionUser }">will be replaced</option>
+
+						</select>
+					</label>
+
+				</div>
+				* Note Sync will be ignored if unzip option is selected
+			</form>
+
+
+		</div>
+	</div>
+
+
+
+</body>
+</html>

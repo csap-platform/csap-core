@@ -1,0 +1,314 @@
+{
+	"verify-simple": {
+		"image": "docker.io/nginx:1.17.1",
+		"command": [
+			"nginx",
+			"-g",
+			"daemon off;"
+		],
+		"entry": [
+			"bash"
+		],
+		"kubernetes-settings": {
+			"labelsByType": {
+				"deployment": {
+					"test-deploy": "junit-demo-deploy"
+				},
+				"pod": {
+					"test-pod": "junit-demo-pod"
+				},
+				"service": {
+					"test-service": "junit-demo-service"
+				},
+				"ReplicaSet": {
+					"test-replica": "junit-demo-value"
+				},
+				"ingress": {
+					"test-ingress": "junit-demo-ingress"
+				}
+			}
+		},
+		"volumes": [
+			{
+				"hostPath": "/opt/java",
+				"createPersistent": {
+					"enabled": true,
+					"driver": "host"
+				},
+				"containerMount": "/java",
+				"readOnly": true,
+				"sharedUser": true
+			},
+			{
+				"hostPath": "junit-host-volume",
+				"containerMount": "/junit-container-folder",
+				"createPersistent": {
+					"enabled": true,
+					"driver": "local"
+				},
+				"readOnly": false,
+				"sharedUser": true
+			}
+		],
+		"network": {
+			"name": "junit-network",
+			"createPersistent": {
+				"enabled": true,
+				"driver": "bridge"
+			}
+		},
+		"portMappings": [
+			{
+				"containerPort": "80",
+				"servicePort": "7082"
+			}
+		],
+		"environmentVariables": [
+			"JUNIT_TEST=VALUE_IS_SET",
+			"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+			"NGINX_VERSION=1.13.12-1~stretch",
+			"NJS_VERSION=1.13.12.0.2.0-1~stretch",
+			"javaOptions=-Dcsap.security.enabled=false -Xms256M -Xmx256M -Dspring.profiles.active=embedded -DcsapJmxPort=7086 -Dserver.port=7080 -jar csap-test-app.jar"
+		]
+	},
+	"verify-defaults": {
+		"server": "docker",
+		"port": 1234,
+		"parameters": "",
+		"description": "Template: csap test app using docker image ",
+		"logJournalServices": "docker,kubelet",
+		"docker": {
+			"image": "docker.io/nginx:1.17.1"
+		}
+	},
+	"verify-csap-test-app": {
+		"server": "docker",
+		"context": "simple",
+		"port": 9080,
+		"parameters": "",
+		"description": "Template: csap test app using docker image ",
+		"logJournalServices": "docker,kubelet",
+		"docker": {
+			"kubernetes-settings": {
+				"replica-count": 1,
+				"kind": "ReplicaSet",
+				"service-type": "NodePort",
+				"ingress-path": "/$$service-context",
+				"ingress-port": "$$service-primary-port",
+				"ingress-host": "csap-dev06.***REMOVED***",
+				"ingress-annotations": {
+					"nginx.ingress.kubernetes.io/affinity": "cookie"
+				},
+				"add-csap-tools": "true",
+				"node-selectors": {
+					"kubernetes.io/hostname": "csap-dev05.***REMOVED***"
+				},
+				"pod-annotations": {
+					"sample-annotation-1": "sample-value-1"
+				},
+				"readinessProbe": {
+					"http-path": "/$$service-context/devOps/health"
+				},
+				"livenessProbe": {
+					"http-path": "/$$service-context/devOps/health"
+				},
+				"about-resources-cpu": "note 1m cpu = 1/1000",
+				"resources": {
+					"limits": {
+						"memory": "1G",
+						"cpu": "1"
+					},
+					"requests": {
+						"memory": "500M",
+						"cpu": "500m"
+					}
+				},
+				"labelsByType": {
+					"deployment": {
+						"test-deploy": "junit-demo-deploy"
+					},
+					"pod": {
+						"test-pod": "junit-demo-pod"
+					},
+					"service": {
+						"test-service": "junit-demo-service"
+					},
+					"ReplicaSet": {
+						"test-replica": "junit-demo-value"
+					},
+					"ingress": {
+						"test-ingress": "junit-demo-value"
+					}
+				}
+			},
+			"image": "csap/csap-test-app:2.0.8",
+			"entryPoint": [
+				"/bin/sh",
+				"-c",
+				"/java-local/runJava.sh"
+			],
+			"command": [],
+			"runUser": "$csapUser",
+			"containerName": "junit-apple",
+			"workingDirectory": "",
+			"networkMode": "",
+			"versionCommand": "echo 1.3.0",
+			"environmentVariables": [
+				"PARENT_HOST=$$service-host",
+				"javaOptions=-Xms256M -Xmx256M -Dcsap.security.enabled=false -Dpeter=true -Dserver.servlet.context-path=/$$service-context -Dspring.profiles.active=embedded -DcsapJmxPort=$$service-jmx-port -Dserver.port=$$service-primary-port"
+			],
+			"volumes": [
+				{
+					"name": "junit-demo-host-path",
+					"mountPath": "/mnt/host-path",
+					"hostPath": {
+						"type": "DirectoryOrCreate",
+						"path": "/opt/csapUser/demo-k8s"
+					}
+				},
+				{
+					"name": "junit-demo-empty-dir",
+					"mountPath": "/mnt/empty-dir",
+					"emptyDir": {
+						"sizeLimit": "1Mi"
+					}
+				},
+				{
+					"name": "junit-demo-nfs-volume",
+					"mountPath": "/mnt/nfs-volume",
+					"persistentVolumeClaim": {
+						"claimName": "junit-csaptest-claim",
+						"accessModes": [
+							"ReadWriteOnce"
+						],
+						"storage": "1Gi",
+						"na-storageClass": "csap-nfs-storage-1",
+						"createIfNotPresent": true
+					}
+				}
+			],
+			"portMappings": [
+				{
+					"containerPort": "$$service-primary-port",
+					"servicePort": "$$service-primary-port",
+					"name": "primary"
+				},
+				{
+					"containerPort": "9091",
+					"hostPort": "9092",
+					"protocol": "UDP",
+					"servicePort": "9093"
+				}
+			]
+		}
+	},
+	"verify-csap-with-pvc-selector": {
+		"server": "docker",
+		"context": "simple",
+		"port": 9080,
+		"parameters": "",
+		"description": "Template: csap test app using docker image ",
+		"logJournalServices": "docker,kubelet",
+		"docker": {
+			"kubernetes-settings": {
+				"replica-count": 1,
+				"kind": "ReplicaSet",
+				"service-type": "NodePort",
+				"ingress-path": "/$$service-context",
+				"ingress-port": "$$service-primary-port",
+				"ingress-host": "csap-dev06.***REMOVED***",
+				"ingress-annotations": {
+					"nginx.ingress.kubernetes.io/affinity": "cookie"
+				},
+				"add-csap-tools": "false",
+				"node-selectors": {
+					"kubernetes.io/hostname": "csap-dev05.***REMOVED***"
+				},
+				"pod-annotations": {
+					"sample-annotation-1": "sample-value-1"
+				},
+				"readinessProbe": {
+					"http-path": "/$$service-context/devOps/health"
+				},
+				"livenessProbe": {
+					"http-path": "/$$service-context/devOps/health"
+				},
+				"about-resources-cpu": "note 1m cpu = 1/1000",
+				"resources": {
+					"limits": {
+						"memory": "1G",
+						"cpu": "1"
+					},
+					"requests": {
+						"memory": "500M",
+						"cpu": "500m"
+					}
+				},
+				"labelsByType": {
+					"deployment": {
+						"test-deploy": "junit-demo-deploy"
+					},
+					"pod": {
+						"test-pod": "junit-demo-pod"
+					},
+					"service": {
+						"test-service": "junit-demo-service"
+					},
+					"ReplicaSet": {
+						"test-replica": "junit-demo-value"
+					},
+					"ingress": {
+						"test-ingress": "junit-demo-value"
+					}
+				}
+			},
+			"image": "csap/csap-test-app:2.0.8",
+			"entryPoint": [
+				"/bin/sh",
+				"-c",
+				"/java-local/runJava.sh"
+			],
+			"command": [],
+			"runUser": "$csapUser",
+			"containerName": "junit-csap-with-pv",
+			"workingDirectory": "",
+			"networkMode": "",
+			"versionCommand": "echo 1.3.0",
+			"environmentVariables": [
+				"PARENT_HOST=$$service-host",
+				"javaOptions=-Xms256M -Xmx256M -Dcsap.security.enabled=false -Dpeter=true -Dserver.servlet.context-path=/$$service-context -Dspring.profiles.active=embedded -DcsapJmxPort=$$service-jmx-port -Dserver.port=$$service-primary-port"
+			],
+			"volumes": [
+				{
+					"name": "junit-demo-nfs-volume",
+					"mountPath": "/mnt/nfs-volume",
+					"persistentVolumeClaim": {
+						"claimName": "$$service-name-pvc",
+						"createIfNotPresent": true,
+						"accessModes": [
+							"ReadWriteOnce"
+						],
+						"storage": "1Gi",
+						"na-storageClass": "",
+						"na-selectorMatchLabels": {
+							"disk": "$$service-name-disk"
+						}
+					}
+				}
+			],
+			"portMappings": [
+				{
+					"containerPort": "$$service-primary-port",
+					"servicePort": "$$service-primary-port",
+					"name": "primary"
+				},
+				{
+					"containerPort": "9091",
+					"hostPort": "9092",
+					"protocol": "UDP",
+					"servicePort": "9093"
+				}
+			]
+		}
+	}
+}

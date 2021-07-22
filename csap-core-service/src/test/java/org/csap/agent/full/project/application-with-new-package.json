@@ -1,0 +1,1380 @@
+{
+  "project" : {
+    "api-version" : 2.1,
+    "project-version" : 1.0,
+    "name" : "default",
+    "architect" : "yourEmail@notConfigured.com",
+    "emailNotifications" : "support@notConfigured.com"
+  },
+  "environments" : {
+    "defaults" : {
+      "settings" : {
+        "base-env-only" : true,
+        "application" : {
+          "name" : "CSAP Default",
+          "sub-projects" : [ "junit-new-package.json" ],
+          "definition-repo-url" : "https://moc-bb.***REMOVED***/bitbucket/update-with-your-repo",
+          "definition-repo-branch" : "master",
+          "maven-url" : "https://repo.maven.apache.org/maven2/",
+          "help-menu-items" : {
+            "User Guide" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP",
+            "Release Notes" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211856/Release+Notes",
+            "Quick Install" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/395282580/CSAP+Quick+Install",
+            "Health Status" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211861/CSAP+Health",
+            "Application Editor" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211875/CSAP+Application+Editor",
+            "FAQ" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/347177032/CSAP+FAQ"
+          }
+        },
+        "operatorNotifications" : [ "monitoring@na.***REMOVED***.net" ],
+        "csap-host-agent" : {
+          "test" : "yes",
+          "maxJmxCollectionMs" : 3000,
+          "numberWorkerThreads" : "3",
+          "adminToAgentTimeoutInMs" : 6000,
+          "lsofIntervalMins" : 1,
+          "duIntervalMins" : 5,
+          "apiLocal" : true,
+          "apiUser" : "agentUser",
+          "apiPass" : "CSAP Developmentdev",
+          "infraTests" : {
+            "cpuIntervalMinutes" : "30",
+            "diskIntervalMinutes" : "30",
+            "cpuLoopsMillions" : "1",
+            "diskWriteMb" : "600"
+          },
+          "gitSslVerificationDisabledUrls" : [ "https://moc-bb.***REMOVED***" ]
+        },
+        "csap-data" : {
+          "user" : "$user",
+          "pass" : "$pass",
+          "service-url" : "$eventServiceUrl"
+        },
+        "monitorDefaults" : {
+          "jvm_jmxHeartbeat" : true,
+          "maxDiskPercent" : 60,
+          "maxDeviceIoPercent" : 11,
+          "maxDiskPercentIgnorePatterns" : "/auto/.*",
+          "maxHostCpuLoad" : 4,
+          "maxHostCpu" : 50,
+          "maxHostCpuIoWait" : 11,
+          "minFreeMemoryMb" : "1000",
+          "max_diskUtil" : "150",
+          "max_threadCount" : "120",
+          "max_fileCount" : "350",
+          "max_rssMemory" : "500m",
+          "max_tomcatConnections" : "40",
+          "max_topCpu" : "150"
+        },
+        "configuration-maps" : {
+          "global" : {
+            "csap_auto" : "test_only"
+          }
+        },
+        "csap-collection" : {
+          "processDumps" : {
+            "resouceInterval" : 30,
+            "maxInInterval" : 3,
+            "lowMemoryInMb" : "500"
+          },
+          "host" : [ 30, 300, 3600 ],
+          "os-process" : [ 30, 300, 3600 ],
+          "application" : [ 30, 300, 3600 ]
+        },
+        "reports" : {
+          "trending" : [ {
+            "label" : "Linux: Cores Used (All Hosts)",
+            "report" : "custom/core",
+            "metric" : "coresUsed",
+            "divideBy" : "1"
+          }, {
+            "label" : "Java: Heap GC Seconds (All Jvms) ",
+            "report" : "java/detail",
+            "metric" : "minorGcInMs",
+            "serviceName" : "all",
+            "allVmTotal" : true,
+            "divideBy" : "1000"
+          }, {
+            "label" : "CPU Response Test (Seconds)",
+            "report" : "host",
+            "metric" : "totalCpuTestTime",
+            "divideBy" : "numberOfSamples",
+            "allVmTotal" : true
+          }, {
+            "label" : "Disk Response  Test (Seconds)",
+            "report" : "host",
+            "metric" : "totalDiskTestTime",
+            "divideBy" : "numberOfSamples",
+            "allVmTotal" : true
+          }, {
+            "label" : "Host Threads",
+            "report" : "host",
+            "metric" : "threadsTotal",
+            "divideBy" : "numberOfSamples"
+          }, {
+            "label" : "CsAgent Socket Count",
+            "report" : "os-detail/detail",
+            "metric" : "socketCount",
+            "serviceName" : "CsAgent",
+            "divideBy" : "numberOfSamples"
+          }, {
+            "label" : "CsAgent OS Commands",
+            "report" : "application/detail",
+            "metric" : "OsCommandsCounter",
+            "serviceName" : "CsAgent",
+            "divideBy" : "numberOfSamples"
+          } ],
+          "realTimeMeters" : [ {
+            "label" : "Cpu Cores Active",
+            "id" : "host.coresActive",
+            "intervals" : [ 3, 5, 10 ],
+            "min" : 0
+          }, {
+            "label" : "Cpu Response (s)",
+            "id" : "host.cpuTest",
+            "intervals" : [ 5, 6, 7 ],
+            "min" : 0,
+            "divideBy" : "vmCount"
+          }, {
+            "label" : "Disk Response (s)",
+            "id" : "host.diskTest",
+            "intervals" : [ 3, 5, 10 ],
+            "min" : 0,
+            "divideBy" : "vmCount"
+          }, {
+            "label" : "CsAgent Cpu (Total)",
+            "id" : "os-process.topCpu_CsAgent",
+            "intervals" : [ 10, 30, 100 ]
+          } ]
+        },
+        "loadBalanceVmFilter" : [ "none" ],
+        "monitoringUrl" : "http://monitoring.na.***REMOVED***.net",
+        "mavenCommand" : "-B -Dmaven.test.skip=true clean package",
+        "newsItems" : [ "\u003Ca href=\"https://github.com/csap-platform/csap-core/wiki\" class=\"simple\" target=\"_blank\"\u003ECSAP Project Documentation\u003C/a\u003E ", "_noteIcon_ \u003Ca href=\"https://github.com/csap-platform/csap-core/wiki#updateRefCSAP+Event+Service\" class=\"simple\" target=\"_blank\"\u003ECSAP Event Service\u003C/a\u003E " ],
+        "portRange" : {
+          "start" : 8200,
+          "end" : 9300
+        },
+        "secureUrl" : "https://csap-secure.na.***REMOVED***.net/admin",
+        "autoRestartHttpdOnClusterReload" : "yes",
+        "launchUrls" : [ {
+          "description" : "1) http(Tomcat Embed)",
+          "url" : "default"
+        }, {
+          "description" : "2) ajp(LB - Internal)",
+          "url" : "http://yourlb.na.***REMOVED***.net"
+        } ],
+        "metricsPublication" : [ {
+          "type" : "csapCallHome",
+          "intervalInSeconds" : 300,
+          "url" : "http://nightingale-one:8080/CsapGlobalAnalytics/rest/vm/health",
+          "token" : "notUsed"
+        } ],
+        "lastModifiedBy" : "pnightingale"
+      },
+      "base-os" : {
+        "description" : "core services installed on every host",
+        "type" : "simple",
+        "template-references" : [ "csap-package-java", "csap-package-linux", "csap-package-tomcat", "docker", "csap-agent" ]
+      }
+    },
+    "dev" : {
+      "base-os" : {
+        "hosts" : [ "csap_def_template_host" ]
+      },
+      "csap-demo" : {
+        "notes" : "For ease of management - common services are typically placed in a single  cluster.",
+        "type" : "simple",
+        "hosts" : [ "csap_def_template_host" ],
+        "template-references" : [ "csap-demo-mp-monitor", "csap-demo-nginx", "csap-demo-source", "csap-verify-service", "csap-demo-tomcat" ]
+      },
+      "csap-management" : {
+        "template" : "true",
+        "hosts" : [ "csap_def_template_host" ],
+        "notes" : "CSAP admin service and httpd provide the application portal and http loadbalancing",
+        "type" : "simple",
+        "template-references" : [ "httpd", "csap-admin" ]
+      },
+      "kubernetes-provider" : {
+        "type" : "kubernetes-provider",
+        "template" : "true",
+        "masters" : [ "csap_def_template_host" ],
+        "hosts" : [ "csap_def_template_host" ],
+        "template-references" : [ "kubelet" ]
+      },
+      "kubernetes-system" : {
+        "type" : "kubernetes",
+        "template" : "true",
+        "hosts" : [ ],
+        "kubernetes-provider" : "kubernetes-provider",
+        "template-references" : [ "k8s-api-etcd", "k8s-api-server", "k8s-calico-etcd", "k8s-calico-node", "k8s-controller-mgr", "kubernetes-dashboard", "k8s-dashboard-grafana", "nginx-ingress-controller", "k8s-proxy", "k8s-scheduler" ]
+      },
+      "settings" : {
+        "imports" : [ "defaults" ],
+        "loadbalancer-url" : "http://yourlb.na.***REMOVED***.net",
+        "configuration-maps" : {
+          "global" : {
+            "test-global-1" : "test-global-value-1"
+          },
+          "map-for-testing" : {
+            "test-map-name-1" : "test-map-value-1",
+            "test-map-name-2" : "test-map-value-2"
+          },
+          "map-for-testing-base-os" : {
+            "test-map-name-2" : "test-map-value-2-override"
+          }
+        },
+        "vsphere" : {
+          "filters" : {
+            "vm-path" : "RNIs/CSAP-DEV_p",
+            "resource-pool-path" : "BLDCluster/Resources/CSAP",
+            "datastore-regex" : "(.*)CSAP(.*)"
+          },
+          "env" : {
+            "GOVC_USERNAME" : "lab\\csapstorage",
+            "GOVC_PASSWORD" : "iEQoM1eTsrVNKjJh5Z28",
+            "GOVC_URL" : "vcenter6.***REMOVED***",
+            "GOVC_DATACENTER" : "***REMOVED***",
+            "GOVC_DATASTORE" : "CSAP_DS1_NFS",
+            "GOVC_INSECURE" : "1"
+          }
+        }
+      }
+    }
+  },
+  "service-templates" : {
+    "csap-admin" : {
+      "server" : "SpringBoot",
+      "autoStart" : 11,
+      "description" : "CSAP Manager provides the application portal",
+      "docUrl" : "https://github.com/csap-platform/csap-core/wiki",
+      "alerts" : {
+        "max_diskUtil" : "130",
+        "max_threadCount" : "140",
+        "max_fileCount" : "450",
+        "max_socketCount" : "30",
+        "max_rssMemory" : "1200m",
+        "max_tomcatConnections" : "40",
+        "max_topCpu" : "20"
+      },
+      "isTomcatAjp" : "true",
+      "osProcessPriority" : -1,
+      "parameters" : "-Dspring.profiles.active=CSAP_LIFE,admin,limits,company -XX:MaxMetaspaceSize=128M -Xms512M -Xmx512M",
+      "source" : {
+        "scm" : "git",
+        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-core.git",
+        "buildLocation" : "/csap-core-service",
+        "branch" : "HEAD"
+      },
+      "maven" : {
+        "dependency" : "org.csap:csap-core-service:2.0.0:jar"
+      },
+      "performance" : {
+        "TotalVmCpu" : {
+          "mbean" : "java.lang:type=OperatingSystem",
+          "attribute" : "SystemCpuLoad",
+          "title" : "Host Cpu"
+        },
+        "ProcessCpu" : {
+          "mbean" : "java.lang:type=OperatingSystem",
+          "attribute" : "ProcessCpuLoad",
+          "title" : "Process Cpu"
+        },
+        "SpringMvcRequests" : {
+          "mbean" : "Tomcat:j2eeType=Servlet,WebModule=__CONTEXT__,name=dispatcherServlet,J2EEApplication=none,J2EEServer=none",
+          "attribute" : "requestCount",
+          "delta" : "delta",
+          "title" : "Spring Http Requests"
+        },
+        "ConsoleRequests" : {
+          "simonCounter" : "aop.summary.ServiceRequests",
+          "max" : 10,
+          "title" : "User Service Requests"
+        },
+        "AdminConsolePings" : {
+          "simonCounter" : "http.admin.service.getServicesInLifeCycleSummary.GET",
+          "max" : 1,
+          "title" : "User Heartbeats"
+        },
+        "AgentHeartBeatCount" : {
+          "simonCounter" : "java.HostStatusManager.getHostRuntimeJson",
+          "title" : "Agent Heartbeats"
+        },
+        "AgentHeartBeatMeanMs" : {
+          "simonMedianTime" : "java.HostStatusManager.getHostRuntimeJson",
+          "divideBy" : "1000000",
+          "title" : "Agent Heartbeats (ms)"
+        },
+        "AgentHeartBeatMaxTimeMs" : {
+          "simonMaxTime" : "java.HostStatusManager.getHostRuntimeJson",
+          "divideBy" : "1000000",
+          "max" : 1200,
+          "title" : "Agent Heartbeats Max (ms)"
+        }
+      },
+      "health" : {
+        "reportMbean" : "org.csap:application=CsapPerformance,name=PerformanceMonitor",
+        "reportAttribute" : "HealthReport",
+        "statusMbean" : "org.csap:application=CsapPerformance,name=PerformanceMonitor",
+        "statusAttribute" : "HealthStatus"
+      },
+      "javaWarnings" : {
+        "jvmThreadCount" : {
+          "max" : 100
+        },
+        "jvmThreadsMax" : {
+          "max" : 110
+        }
+      }
+    },
+    "csap-agent" : {
+      "server" : "SpringBoot",
+      "autoStart" : 10,
+      "description" : "CsAgent provides core service management capabilities, along with runtimes. admin services uses it extensively.",
+      "docUrl" : "https://github.com/csap-platform/csap-core/wiki",
+      "alerts" : {
+        "max_diskUtil" : "140",
+        "max_threadCount" : "120",
+        "max_fileCount" : "400",
+        "max_socketCount" : "50",
+        "max_rssMemory" : "1400m",
+        "max_tomcatConnections" : "40",
+        "max_topCpu" : "20",
+        "nagiosCommand" : "check_http! -v -u /CsAgent/api/CapabilityHealth --regex \".*Healthy.*true.*\"  -t 3   ",
+        "max_diskWriteKb" : "50000"
+      },
+      "osProcessPriority" : -12,
+      "parameters" : "-Dspring.profiles.active=CSAP_LIFE,agent,limits,company -Dsun.rmi.transport.tcp.responseTimeout=3000 -XX:MaxMetaspaceSize=128M -Xms256M -Xmx256M",
+      "source" : {
+        "scm" : "git",
+        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-core.git",
+        "buildLocation" : "/csap-core-service",
+        "branch" : "HEAD"
+      },
+      "maven" : {
+        "dependency" : "org.csap:csap-core-service:2.0.0:jar"
+      },
+      "scheduledJobs" : {
+        "scripts" : [ {
+          "description" : "Agent Demo: checkLimits",
+          "frequency" : "onDemand",
+          "script" : "$$csap-base/bin/checkLimits.sh"
+        }, {
+          "description" : "Agent Demo: count sockets",
+          "frequency" : "daily",
+          "hour" : "02",
+          "script" : "$$csap-base/bin/collectHostSocketsThreadsFiles.sh"
+        } ],
+        "logRotation" : [ {
+          "path" : "$$service-logs/consoleLogs.txt",
+          "settings" : "copytruncate,weekly,rotate 3,compress,missingok,size 3M"
+        }, {
+          "path" : "$$service-logs/warnings.log",
+          "lifecycles" : "dev,stage,lt",
+          "settings" : "copytruncate,weekly,rotate 3,compress,missingok,size 1M"
+        }, {
+          "path" : "$$service-logs/warnings.log",
+          "lifecycles" : "prod",
+          "settings" : "copytruncate,weekly,rotate 5,compress,missingok,size 10M"
+        } ],
+        "diskCleanUp" : [ {
+          "path" : "$$csap-working/*.log",
+          "olderThenDays" : 30,
+          "maxDepth" : 1
+        }, {
+          "path" : "$$csap-base/saved",
+          "olderThenDays" : 30,
+          "maxDepth" : 10,
+          "pruneEmptyFolders" : true
+        }, {
+          "path" : "$$csap-base/mavenRepo",
+          "olderThenDays" : 60,
+          "maxDepth" : 10,
+          "pruneEmptyFolders" : true
+        }, {
+          "path" : "$$csap-base/build",
+          "olderThenDays" : 60,
+          "maxDepth" : 10,
+          "pruneEmptyFolders" : true
+        } ]
+      },
+      "performance" : {
+        "TotalVmCpu" : {
+          "mbean" : "java.lang:type=OperatingSystem",
+          "attribute" : "SystemCpuLoad",
+          "max" : 50,
+          "title" : "Host Cpu"
+        },
+        "ProcessCpu" : {
+          "mbean" : "java.lang:type=OperatingSystem",
+          "attribute" : "ProcessCpuLoad",
+          "max" : 10,
+          "title" : "Agent Cpu"
+        },
+        "AdminPingsMeanMs" : {
+          "divideBy" : "1000000",
+          "max" : 25,
+          "title" : "Agent Status (ms)",
+          "simonMaxTime" : "AgentStatus"
+        },
+        "linuxPsAndMatchMeanMs" : {
+          "simonMedianTime" : "java.OsManager.getProcessStats",
+          "divideBy" : "1000000",
+          "max" : "50",
+          "title" : "OS process status (ms)"
+        },
+        "LogRotationMs" : {
+          "simonMedianTime" : "service.jobs.all.logs",
+          "divideBy" : "1000000",
+          "max" : 60000,
+          "title" : "Log Rotation Time (ms)",
+          "reportRate" : "perHour"
+        },
+        "serviceDiskUsage" : {
+          "simonMedianTime" : "java.OsManager.collectDiskUsage",
+          "divideBy" : "1000000",
+          "max" : 60000,
+          "title" : "Service Disk  Collection (ms)",
+          "reportRate" : "perHour"
+        },
+        "publishEvents" : {
+          "title" : "Event Uploads",
+          "simonCounter" : "csapdata.publish.all",
+          "delta" : "true"
+        },
+        "publishEventsMs" : {
+          "simonMedianTime" : "csapdata.publish.all",
+          "divideBy" : "1000000",
+          "title" : "Event Upload Time (ms)"
+        },
+        "SpringMvcRequests" : {
+          "mbean" : "Tomcat:j2eeType=Servlet,WebModule=__CONTEXT__,name=dispatcherServlet,J2EEApplication=none,J2EEServer=none",
+          "attribute" : "requestCount",
+          "delta" : "delta",
+          "title" : "Spring Http Requests",
+          "reportRate" : "perDay"
+        },
+        "JavaCollectionCounter" : {
+          "simonCounter" : "collector.jmx",
+          "title" : "Java Collections",
+          "max" : "2",
+          "reportRate" : "perMinute"
+        },
+        "JmxCollectionMs" : {
+          "simonMedianTime" : "collector.jmx",
+          "divideBy" : "1000000",
+          "max" : "800",
+          "title" : "Java Collection Time (ms)"
+        },
+        "JmxCollectionFailures" : {
+          "simonCounter" : "collector.jmx.failures",
+          "title" : "Java Collections - Failures",
+          "max" : 10,
+          "reportRate" : "perDay"
+        },
+        "JmxCustomCollectionFailures" : {
+          "simonCounter" : "collector.jmx.custom.failures",
+          "title" : "Java Collections - App Failures",
+          "max" : 10,
+          "reportRate" : "perDay"
+        },
+        "CommandsSinceRestart" : {
+          "simonCounter" : "java.OsCommandRunner.execute",
+          "max" : 1500,
+          "title" : "Commands Since Restart",
+          "delta" : "false"
+        },
+        "OsCommandsCounter" : {
+          "simonCounter" : "java.OsCommandRunner.execute",
+          "max" : 1500,
+          "title" : "OS Commands",
+          "reportRate" : "perHour"
+        },
+        "OsCommandsMeanMs" : {
+          "simonMedianTime" : "java.OsCommandRunner.execute",
+          "divideBy" : "1000000",
+          "max" : "1437",
+          "title" : "OS Commands Time (ms)"
+        },
+        "OsCommandsMaxTimeMs" : {
+          "simonMaxTime" : "java.OsCommandRunner.execute",
+          "divideBy" : "1000000",
+          "max" : "10500",
+          "title" : "OS Commands Max (ms)"
+        }
+      },
+      "health" : {
+        "reportMbean" : "org.csap:application=CsapPerformance,name=PerformanceMonitor",
+        "reportAttribute" : "HealthReport",
+        "statusMbean" : "org.csap:application=CsapPerformance,name=PerformanceMonitor",
+        "statusAttribute" : "HealthStatus"
+      },
+      "javaWarnings" : {
+        "jvmThreadCount" : {
+          "max" : 100
+        },
+        "jvmThreadsMax" : {
+          "max" : 110
+        }
+      }
+    },
+    "csap-demo-mp-monitor" : {
+      "server" : "os",
+      "description" : "Optional monitor for mpstat. Agent starts up mpstat instances to collect host resource consumption.",
+      "docUrl" : "https://linux.die.net/man/1/mpstat",
+      "propDirectory" : "/",
+      "processFilter" : ".*mpstat.*",
+      "alerts" : {
+        "max_diskUtil" : "20g"
+      },
+      "logDirectory" : "/var/logs",
+      "logRegEx" : ".*\\.log",
+      "url" : "https://linux.die.net/man/1/mpstat",
+      "scmVersion" : "os",
+      "disk" : "/dev/mapper"
+    },
+    "csap-demo-nginx" : {
+      "server" : "docker",
+      "autoStart" : 98,
+      "port" : 7080,
+      "description" : "nginx docker demo, runs on 7080 and 7443",
+      "docUrl" : "https://hub.docker.com/_/nginx/",
+      "appDirectory" : "/usr/share/nginx",
+      "propDirectory" : "/etc/nginx",
+      "processFilter" : ".*nginx.*",
+      "docker" : {
+        "image" : "docker.io/nginx:latest",
+        "entryPoint" : [ ],
+        "command" : [ "nginx", "-g", "daemon off;" ],
+        "containerName" : "$$service-name",
+        "versionCommand" : "nginx -v 2\u003E\u00261 | cut -d/ -f2 | cat",
+        "environmentVariables" : [ "JAVA_HOME=/opt/java", "WORKING_DIR=/working" ],
+        "volumes" : [ {
+          "hostPath" : "my-demo-volume",
+          "createPersistent" : {
+            "enabled" : true,
+            "driver" : "local"
+          },
+          "containerMount" : "/my-demo-local-mount",
+          "readOnly" : false,
+          "sharedUser" : true
+        }, {
+          "hostPath" : "/opt/csapUser/nginx-mount",
+          "createPersistent" : {
+            "enabled" : true,
+            "driver" : "host"
+          },
+          "containerMount" : "/my-demo-host-mount",
+          "readOnly" : false,
+          "sharedUser" : true
+        } ],
+        "portMappings" : [ {
+          "PrivatePort" : "443",
+          "PublicPort" : "7443"
+        }, {
+          "PrivatePort" : "80",
+          "PublicPort" : "7080"
+        } ],
+        "limits" : {
+          "cpuCoresMax" : 2,
+          "memoryInMb" : 512,
+          "ulimits" : [ {
+            "name" : "nofile",
+            "soft" : 500,
+            "hard" : 500
+          }, {
+            "name" : "nproc",
+            "soft" : 200,
+            "hard" : 200
+          } ]
+        },
+        "networkMode" : "bridge",
+        "network" : {
+          "name" : "nginx-network",
+          "createPersistent" : {
+            "enabled" : true,
+            "driver" : "bridge"
+          }
+        }
+      },
+      "url" : "http://$$service-fqdn-host:$$service-primary-port"
+    },
+    "csap-demo-source" : {
+      "server" : "csap-api",
+      "description" : "Used to build the latest csap-starter",
+      "propDirectory" : "/opt/csapUser/staging/build",
+      "processFilter" : "none",
+      "environmentVariables" : {
+        "javaBuildOnly" : "true"
+      },
+      "source" : {
+        "scm" : "git",
+        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-starter.git",
+        "branch" : "HEAD",
+        "buildLocation" : "/csap-starter"
+      },
+      "maven" : {
+        "dependency" : "org.csap:csap-starter:2.0.0.1:jar"
+      },
+      "logDirectory" : "/opt/csapUser/staging/build",
+      "logRegEx" : ".*\\.log",
+      "url" : "https://github.com/csap-platform/csap-core/wiki"
+    },
+    "csap-demo-tomcat" : {
+      "server" : "tomcat8-5.x",
+      "autoStart" : 90,
+      "description" : "Provides a simple servlet implementation to validate the tomcat runtime",
+      "osProcessPriority" : 2,
+      "parameters" : "-Xms128M -Xmx128M",
+      "environmentVariables" : {
+        "demo" : "none"
+      },
+      "deployTimeoutMinutes" : "1",
+      "source" : {
+        "scm" : "git",
+        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-java.git",
+        "buildLocation" : "/csap-java-servlet",
+        "branch" : "HEAD"
+      },
+      "maven" : {
+        "dependency" : "org.csap:csap-java-servlet:2.0.0:war"
+      },
+      "runUsingDocker" : "false",
+      "docker" : {
+        "image" : "containers.na.***REMOVED***.net/someUser/csap-tomcat-oracle:latest",
+        "entryPoint" : [ "/bin/sh", "-c", "echo use csap service log viewer, id is `id`; java -version ; catalina.sh run  \u003E\u003E logs/catalina.out 2\u003E\u00261", "" ],
+        "command" : [ ],
+        "runUser" : "$csapUser",
+        "workingDirectory" : "/_working",
+        "containerName" : "$$service-name",
+        "environmentVariables" : [ "CATALINA_BASE=/_working", "JAVA_OPTS=$$service-parameters -DcsapDockerJava" ],
+        "volumes" : [ {
+          "hostPath" : "$$service-working",
+          "containerMount" : "/_working",
+          "readOnly" : false,
+          "sharedUser" : true
+        } ],
+        "portMappings" : [ {
+          "PrivatePort" : "$$service-primary-port",
+          "PublicPort" : "$$service-primary-port"
+        }, {
+          "PrivatePort" : "$$service-ajp-port",
+          "PublicPort" : "$$service-ajp-port"
+        } ],
+        "limits" : {
+          "cpuCoresMax" : 3
+        }
+      },
+      "customHttpdRouting" : [ "method=Next", "sticky_session=1" ],
+      "apacheModJk" : {
+        "loadBalance" : [ "method=Next", "sticky_session=1" ],
+        "connection" : [ "reply_timeout=10000" ]
+      },
+      "apacheModRewrite" : [ "RewriteRule ^/test1/(.*)$  /ServletSample/$1 [PT]", "RewriteRule ^/test2/(.*)$  /ServletSample/$1 [PT]" ]
+    },
+    "csap-package-java" : {
+      "server" : "csap-api",
+      "autoStart" : 3,
+      "port" : 0,
+      "description" : "Oracle JDK",
+      "propDirectory" : "/opt/java",
+      "processFilter" : "none",
+      "environmentVariables" : {
+        "jdkVersion" : "jdk-11.0.1"
+      },
+      "source" : {
+        "scm" : "git",
+        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-packages.git",
+        "branch" : "HEAD",
+        "buildLocation" : "/csap-package-java"
+      },
+      "maven" : {
+        "dependency" : "org.csap:csap-package-java:2.0:zip"
+      },
+      "logDirectory" : "/opt/java",
+      "url" : "http://www.oracle.com/technetwork/java/javase/9all-relnotes-3704433.html",
+      "scmVersion" : "none",
+      "user" : "csapUser"
+    },
+    "csap-package-linux" : {
+      "server" : "csap-api",
+      "autoStart" : 1,
+      "port" : 0,
+      "description" : "csap linux integration",
+      "propDirectory" : "$$csap-working/$$service-name/installer",
+      "processFilter" : "none",
+      "alerts" : {
+        "max_diskUtil" : "6g"
+      },
+      "source" : {
+        "scm" : "git",
+        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-packages.git",
+        "branch" : "HEAD",
+        "buildLocation" : "/csap-package-linux"
+      },
+      "maven" : {
+        "dependency" : "org.csap:csap-package-linux:2.0:zip"
+      },
+      "logDirectory" : "logs",
+      "defaultLogToShow" : "var-log-messages",
+      "scmVersion" : "none",
+      "user" : "csapUser",
+      "disk" : "sda1"
+    },
+    "csap-package-tomcat" : {
+      "server" : "csap-api",
+      "autoStart" : 13,
+      "port" : 0,
+      "description" : "Apache Tomcat Servers",
+      "propDirectory" : "$$csap-working/appsTomcat",
+      "processFilter" : "none",
+      "alerts" : {
+        "max_diskUtil" : "300m"
+      },
+      "environmentVariables" : {
+        "extractAsNeeded" : "false"
+      },
+      "source" : {
+        "scm" : "git",
+        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-packages.git",
+        "branch" : "HEAD",
+        "buildLocation" : "/csap-package-tomcat"
+      },
+      "maven" : {
+        "dependency" : "org.csap:csap-package-tomcat:2.0:zip"
+      },
+      "url" : "https://github.com/csap-platform/csap-core/wiki",
+      "disk" : "$$service-working $$csap-working/appsTomcat"
+    },
+    "csap-simple" : {
+      "server" : "SpringBoot",
+      "autoStart" : 60,
+      "description" : "Csap simple tests",
+      "alerts" : {
+        "max_diskUtil" : "150",
+        "max_threadCount" : "100",
+        "max_fileCount" : "300",
+        "max_socketCount" : "20",
+        "max_rssMemory" : "768m",
+        "max_tomcatConnections" : "40",
+        "max_topCpu" : "150"
+      },
+      "isTomcatAjp" : "true",
+      "osProcessPriority" : 0,
+      "parameters" : " -Dspring.profiles.active=CSAP_LIFE,desktop -Xms128M -Xmx133M -XX:MaxMetaspaceSize=128M -XX:+ExitOnOutOfMemoryError",
+      "environmentVariables" : {
+        "csapExternalPropertyFolder" : "$STAGING/conf/propertyOverride/shared"
+      },
+      "source" : {
+        "scm" : "git",
+        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-starter.git",
+        "branch" : "HEAD",
+        "buildLocation" : "/csap-starter-simple"
+      },
+      "maven" : {
+        "dependency" : "org.csap:csap-starter-simple:2.0.0:jar"
+      },
+      "performance" : {
+        "HostCpu" : {
+          "mbean" : "java.lang:type=OperatingSystem",
+          "attribute" : "SystemCpuLoad",
+          "max" : 40,
+          "title" : "Host CPU"
+        },
+        "ProcessCpu" : {
+          "mbean" : "java.lang:type=OperatingSystem",
+          "attribute" : "ProcessCpuLoad",
+          "max" : 40,
+          "title" : "JVM Cpu"
+        },
+        "classesLoaded" : {
+          "title" : "JVM Classes Loaded",
+          "mbean" : "java.lang:type=ClassLoading",
+          "attribute" : "LoadedClassCount",
+          "max" : 10
+        },
+        "rememberMeMs" : {
+          "title" : "Remember Me (ms)",
+          "max" : 10,
+          "simonMedianTime" : "csap.security.rememberMe"
+        },
+        "rememberMe" : {
+          "title" : "Remember Me Requests",
+          "max" : 10,
+          "simonCounter" : "csap.security.rememberMe"
+        }
+      },
+      "health" : {
+        "statusMbean" : "org.csap:application=CsapPerformance,name=PerformanceMonitor",
+        "reportMbean" : "org.csap:application=CsapPerformance,name=PerformanceMonitor",
+        "statusAttribute" : "HealthStatus",
+        "reportAttribute" : "HealthReport"
+      }
+    },
+    "csap-verify-service" : {
+      "server" : "SpringBoot",
+      "autoStart" : 61,
+      "description" : "csap-starter reference implementation",
+      "alerts" : {
+        "max_diskUtil" : "5500",
+        "max_threadCount" : "200",
+        "max_fileCount" : "500",
+        "max_socketCount" : "100",
+        "max_rssMemory" : "1000m",
+        "max_tomcatConnections" : "10",
+        "max_topCpu" : "150"
+      },
+      "isTomcatAjp" : "true",
+      "osProcessPriority" : 0,
+      "parameters" : " -Dspring.profiles.active=CSAP_LIFE,desktop,embedded -Xms256M -Xmx256M -XX:MaxMetaspaceSize=128M -XX:+ExitOnOutOfMemoryError",
+      "source" : {
+        "scm" : "git",
+        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-starter.git",
+        "branch" : "HEAD",
+        "buildLocation" : "/csap-starter-tester"
+      },
+      "maven" : {
+        "dependency" : "org.csap:csap-starter-tester:2.0.0:jar"
+      },
+      "scheduledJobs" : {
+        "scripts" : [ {
+          "description" : "docker: wait for pod startup",
+          "frequency" : "event-post-start",
+          "script" : "cd $$service-resources; ls"
+        } ]
+      },
+      "performance" : {
+        "TotalVmCpu" : {
+          "mbean" : "java.lang:type=OperatingSystem",
+          "attribute" : "SystemCpuLoad",
+          "max" : 40,
+          "title" : "Host CPU"
+        },
+        "ProcessCpu" : {
+          "mbean" : "java.lang:type=OperatingSystem",
+          "attribute" : "ProcessCpuLoad",
+          "max" : 40,
+          "title" : "JVM Cpu"
+        },
+        "SpringJmsListeners" : {
+          "mbean" : "org.csap:application=sample,name=PerformanceMonitor",
+          "attribute" : "JmsActive",
+          "max" : 30,
+          "title" : "JMS Active Beans"
+        },
+        "SpringJmsCount" : {
+          "simonCounter" : "jms.payload.default",
+          "title" : "Message Count"
+        },
+        "SpringJmsCountPerSecond" : {
+          "simonCounter" : "jms.payload.default",
+          "divideBy" : "interval",
+          "title" : "Messages per second"
+        },
+        "SpringJmsMedianTimeMs" : {
+          "simonMedianTime" : "jms.payload.default",
+          "divideBy" : "1000000",
+          "max" : 3,
+          "title" : "Message Mean (ms)"
+        },
+        "SpringJmsMaxMs" : {
+          "simonMaxTime" : "jms.payload.default",
+          "divideBy" : "1000000",
+          "max" : 400,
+          "title" : "Message Max (ms)"
+        },
+        "SpringDbcpActive" : {
+          "mbean" : "org.apache.commons.dbcp2:name=helloDataSource,type=BasicDataSource",
+          "attribute" : "NumActive",
+          "max" : 5,
+          "title" : "DB Connections: Active"
+        },
+        "SpringDbcpIdle" : {
+          "mbean" : "org.apache.commons.dbcp2:name=helloDataSource,type=BasicDataSource",
+          "attribute" : "NumIdle",
+          "max" : 15,
+          "title" : "DB Connections: Idle"
+        },
+        "DBAddItem" : {
+          "simonCounter" : "database.DemoManager.addSchedule()",
+          "title" : "DB: Events Added (count)"
+        },
+        "DBAddItemMs" : {
+          "simonMedianTime" : "database.DemoManager.addSchedule()",
+          "divideBy" : "1000",
+          "title" : "DB: Event Added Mean micros"
+        },
+        "DBShowItem" : {
+          "simonCounter" : "database.DemoManager.findUsingJpql()",
+          "title" : "DB: Show Requests (count)"
+        },
+        "DBShowItemMs" : {
+          "simonMedianTime" : "database.DemoManager.findUsingJpql()",
+          "divideBy" : "1000000",
+          "title" : "DB: Show Requests (ms)"
+        }
+      },
+      "health" : {
+        "reportMbean" : "org.csap:application=CsapPerformance,name=PerformanceMonitor",
+        "reportAttribute" : "HealthReport",
+        "statusMbean" : "org.csap:application=CsapPerformance,name=PerformanceMonitor",
+        "statusAttribute" : "HealthStatus"
+      },
+      "launchUrl" : "http://$$service-fqdn-host:$$service-primary-port/$$service-context"
+    },
+    "docker" : {
+      "server" : "csap-api",
+      "autoStart" : 12,
+      "port" : 4243,
+      "description" : "Provides installation and management of dockerd",
+      "docUrl" : "https://moc-bb.***REMOVED***/bitbucket/projects/CSAP/repos/csap-packages/browse/csap-package-docker",
+      "propDirectory" : "scripts",
+      "processFilter" : ".*dockerd.*",
+      "alerts" : {
+        "max_diskUtil" : "18g",
+        "max_diskWriteKb" : "50"
+      },
+      "isDataStore" : "true",
+      "environmentVariables" : {
+        "configuration-maps" : [ "docker" ]
+      },
+      "source" : {
+        "scm" : "git",
+        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-packages.git",
+        "branch" : "HEAD",
+        "buildLocation" : "/csap-package-docker"
+      },
+      "maven" : {
+        "dependency" : "org.csap:csap-package-docker:2.0:zip"
+      },
+      "logDirectory" : "logs",
+      "defaultLogToShow" : "docker",
+      "logJournalServices" : "docker,csap,sshd",
+      "scheduledJobs" : {
+        "scripts" : [ {
+          "description" : "Remove unused images and containers",
+          "frequency" : "daily",
+          "hour" : "03",
+          "script" : "$$service-working/scripts/cleanUp.sh"
+        } ]
+      },
+      "url" : "https://moc-bb.***REMOVED***/bitbucket/projects/CSAP/repos/csap-packages/browse/csap-package-docker",
+      "disk" : "vg1-var_lib_docker",
+      "user" : "root"
+    },
+    "httpd" : {
+      "server" : "csap-api",
+      "autoStart" : 12,
+      "port" : 8080,
+      "description" : "someUser added, and needs to update this description",
+      "propDirectory" : "/opt/csapUser/staging/httpdConf",
+      "processFilter" : ".*httpd_8080.*httpd.*",
+      "alerts" : {
+        "max_diskUtil" : "1000",
+        "max_threadCount" : "300",
+        "max_fileCount" : "300",
+        "max_rssMemory" : "250m",
+        "max_topCpu" : "30",
+        "nagiosCommand" : "check_http! -v -u /about.html --regex \".*CS-AP Web Server.*\"  -t 3  ",
+        "max_socketCount" : "100"
+      },
+      "osProcessPriority" : -12,
+      "deployTimeoutMinutes" : "10",
+      "source" : {
+        "scm" : "git",
+        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-packages.git",
+        "branch" : "HEAD",
+        "buildLocation" : "/csap-package-httpd"
+      },
+      "maven" : {
+        "dependency" : "org.csap:csap-package-httpd:2.0:zip"
+      },
+      "defaultLogToShow" : "error_log",
+      "performance" : {
+        "config" : {
+          "httpCollectionUrl" : "http://localhost:8080/server-status?auto",
+          "patternMatch" : ": ([^\n]*)",
+          "title" : "CSAP Collection Url"
+        },
+        "BusyWorkers" : {
+          "attribute" : "BusyWorkers",
+          "title" : "Workers Busy"
+        },
+        "IdleWorkers" : {
+          "attribute" : "IdleWorkers",
+          "title" : "Workers Idle"
+        },
+        "KBytesPerSecond" : {
+          "attribute" : "BytesPerSec",
+          "decimals" : "1",
+          "divideBy" : 1024,
+          "title" : "Requests: KB per second"
+        },
+        "KBytesPerRequest" : {
+          "attribute" : "BytesPerReq",
+          "decimals" : "1",
+          "divideBy" : 1024,
+          "title" : "Requests: KB per Request"
+        },
+        "UrlsProcessed" : {
+          "attribute" : "Total Accesses",
+          "delta" : true,
+          "title" : "Requests: Between collections"
+        },
+        "RequestsPerSecond" : {
+          "attribute" : "ReqPerSec",
+          "decimals" : "2",
+          "title" : "Requests: Number per Second"
+        }
+      },
+      "url" : "http://$$service-fqdn-host:8011/CsAgent/service/httpd,http://$$service-fqdn-host:8011/CsAgent/service/modjk,http://$$service-fqdn-host:8080/about.html",
+      "metaData" : "killWarnings,generateWorkerProperties"
+    },
+    "jstatd" : {
+      "server" : "csap-api",
+      "autoStart" : 98,
+      "port" : 8099,
+      "description" : "Java Statistics",
+      "propDirectory" : "/home/csapUser/processing/mongodb/conf",
+      "processFilter" : ".*jstatd.*",
+      "source" : {
+        "scm" : "git",
+        "path" : "https://github.com/csap-platform/csap-packages.git",
+        "branch" : "HEAD",
+        "buildLocation" : "/csap-package-java-statd"
+      },
+      "maven" : {
+        "dependency" : "org.csap:csap-package-java-statd:2.0:zip"
+      },
+      "url" : "https://wiki/display/SFAECSAP/CSAP+Java+Stats+Package"
+    },
+    "k8s-api-etcd" : {
+      "server" : "os",
+      "description" : "etcd",
+      "docUrl" : "https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/",
+      "propDirectory" : "/dev",
+      "alerts" : {
+        "max_diskUtil" : "20g",
+        "max_socketCount" : "400",
+        "max_diskWriteKb" : "80"
+      },
+      "isDataStore" : "true",
+      "logDirectory" : "/dev",
+      "logRegEx" : ".*\\.log",
+      "logJournalServices" : "kubelet,docker",
+      "runUsingDocker" : "true",
+      "docker" : {
+        "locator" : {
+          "type" : "io.kubernetes.container.name",
+          "value" : "etcd"
+        },
+        "container-count" : "1"
+      },
+      "url" : "https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/",
+      "scmVersion" : "os",
+      "disk" : "/dev/mapper"
+    },
+    "k8s-api-server" : {
+      "server" : "os",
+      "description" : "Kubernetes dashboard UI",
+      "docUrl" : "https://kubernetes.io/docs/reference/generated/kube-apiserver/",
+      "propDirectory" : "/etc",
+      "alerts" : { },
+      "logJournalServices" : "kubelet,docker",
+      "runUsingDocker" : "true",
+      "docker" : {
+        "locator" : {
+          "type" : "io.kubernetes.container.name",
+          "value" : "kube-apiserver"
+        },
+        "container-count" : "1"
+      },
+      "scmVersion" : "os",
+      "url" : "https://kubernetes.io/docs/reference/generated/kube-apiserver/"
+    },
+    "k8s-calico-etcd" : {
+      "server" : "os",
+      "description" : "etcd",
+      "docUrl" : "https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/",
+      "propDirectory" : "/dev",
+      "alerts" : {
+        "max_diskUtil" : "20g",
+        "max_socketCount" : "400",
+        "max_diskWriteKb" : "80"
+      },
+      "isDataStore" : "true",
+      "logDirectory" : "/dev",
+      "logRegEx" : ".*\\.log",
+      "logJournalServices" : "kubelet,docker",
+      "runUsingDocker" : "true",
+      "docker" : {
+        "locator" : {
+          "type" : "io.kubernetes.container.name",
+          "value" : "calico-etcd"
+        },
+        "container-count" : "1"
+      },
+      "url" : "https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/",
+      "scmVersion" : "os",
+      "disk" : "/dev/mapper"
+    },
+    "k8s-calico-node" : {
+      "server" : "os",
+      "description" : "Calico provides secure network connectivity for containers and virtual machine workloads",
+      "docUrl" : "https://docs.projectcalico.org/v3.1/introduction/",
+      "propDirectory" : "/",
+      "alerts" : {
+        "max_threadCount" : "100",
+        "max_diskUtil" : "300m"
+      },
+      "logDirectory" : "/var/logs",
+      "logRegEx" : ".*\\.log",
+      "logJournalServices" : "kubelet,docker",
+      "runUsingDocker" : "true",
+      "docker" : {
+        "locator" : {
+          "type" : "io.kubernetes.container.name",
+          "value" : "calico-node"
+        }
+      },
+      "url" : "https://docs.projectcalico.org/v3.1/introduction/",
+      "scmVersion" : "os"
+    },
+    "k8s-controller-mgr" : {
+      "server" : "os",
+      "description" : "a controller is a control loop that watches the shared state of the cluster",
+      "docUrl" : "https://kubernetes.io/docs/reference/generated/kube-controller-manager/",
+      "propDirectory" : "/",
+      "alerts" : {
+        "max_diskUtil" : "20g"
+      },
+      "logDirectory" : "/var/logs",
+      "logRegEx" : ".*\\.log",
+      "logJournalServices" : "kublet,docker",
+      "runUsingDocker" : "true",
+      "docker" : {
+        "locator" : {
+          "type" : "io.kubernetes.container.name",
+          "value" : "kube-controller-manager"
+        },
+        "container-count" : "1"
+      },
+      "url" : "https://kubernetes.io/docs/reference/generated/kube-controller-manager/",
+      "scmVersion" : "os",
+      "disk" : "/dev/mapper"
+    },
+    "k8s-dashboard-grafana" : {
+      "server" : "os",
+      "description" : "grahan",
+      "docUrl" : "https://github.com/kubernetes/dashboard",
+      "propDirectory" : "/etc",
+      "logJournalServices" : "kubelet,docker",
+      "runUsingDocker" : "true",
+      "docker" : {
+        "locator" : {
+          "type" : "io.kubernetes.container.name",
+          "value" : "grafana"
+        },
+        "container-count" : "1"
+      },
+      "url" : "$$kubernetes-nodeport?serviceName=monitoring-grafana\u0026path=/",
+      "scmVersion" : "os"
+    },
+    "k8s-proxy" : {
+      "server" : "os",
+      "description" : "simple TCP and UDP stream forwarding or round robin TCP and UDP",
+      "docUrl" : "https://kubernetes.io/docs/reference/generated/kube-proxy/",
+      "propDirectory" : "/etc",
+      "alerts" : {
+        "max_diskUtil" : "300m"
+      },
+      "logJournalServices" : "kubelet,docker",
+      "runUsingDocker" : "true",
+      "docker" : {
+        "locator" : {
+          "type" : "io.kubernetes.container.name",
+          "value" : "kube-proxy"
+        }
+      },
+      "url" : "https://kubernetes.io/docs/reference/generated/kube-proxy/",
+      "scmVersion" : "os"
+    },
+    "k8s-scheduler" : {
+      "server" : "os",
+      "description" : "watches newly created pods that have no node assigned, and selects a node for them to run on",
+      "docUrl" : "https://kubernetes.io/docs/reference/generated/kube-scheduler/",
+      "propDirectory" : "/",
+      "alerts" : {
+        "max_diskUtil" : "20g"
+      },
+      "logJournalServices" : "kubelet,docker",
+      "runUsingDocker" : "true",
+      "docker" : {
+        "locator" : {
+          "value" : "kube-scheduler",
+          "type" : "io.kubernetes.container.name"
+        },
+        "container-count" : "1"
+      },
+      "url" : "https://kubernetes.io/docs/reference/generated/kube-scheduler/",
+      "scmVersion" : "os",
+      "disk" : "/dev/mapper"
+    },
+    "kubelet" : {
+      "server" : "csap-api",
+      "port" : 8014,
+      "description" : "kubelet",
+      "docUrl" : "https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm/",
+      "propDirectory" : "scripts",
+      "processFilter" : ".*/usr/bin/kubelet --bootstrap.*",
+      "environmentVariables" : {
+        "configuration-maps" : [ "kubelet" ]
+      },
+      "deployTimeoutMinutes" : "10",
+      "source" : {
+        "scm" : "git",
+        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-packages.git",
+        "branch" : "HEAD",
+        "buildLocation" : "/csap-package-kubelet"
+      },
+      "maven" : {
+        "dependency" : "org.csap:csap-package-kubelet:2.0:zip"
+      },
+      "defaultLogToShow" : "kubelet",
+      "logJournalServices" : "kubelet,docker",
+      "scheduledJobs" : {
+        "scripts" : [ {
+          "description" : "perform a master backup",
+          "frequency" : "onDemand",
+          "script" : "$$service-working/scripts/backup-restore.sh"
+        }, {
+          "description" : "reset worker install token",
+          "frequency" : "onDemand",
+          "script" : "$$service-working/scripts/reset-kubeadm-token.sh"
+        }, {
+          "description" : "(re)start api server proxy",
+          "frequency" : "onDemand",
+          "script" : "$$service-working/scripts/job-start-api-proxy.sh"
+        }, {
+          "description" : "update kubernetes dashboard token",
+          "frequency" : "hourly",
+          "script" : "$$service-working/configuration/dashboard/dashboard.sh"
+        } ]
+      },
+      "metaData" : "",
+      "url" : "http://$$service-fqdn-host:$$service-primary-port,$viewService/kubelet?filePath=launch-dashboard.html",
+      "user" : "root"
+    },
+    "kubernetes-dashboard" : {
+      "server" : "docker",
+      "autoStart" : 320,
+      "description" : "Kubernetes dashboard UI",
+      "docUrl" : "https://github.com/kubernetes/dashboard",
+      "appDirectory" : "$$csap-working/kubelet_8014/configuration/dashboard",
+      "propDirectory" : "$$csap-working/kubelet_8014/configuration/dashboard",
+      "logJournalServices" : "kubelet,docker",
+      "scheduledJobs" : {
+        "scripts" : [ {
+          "description" : "wait for pod startup",
+          "frequency" : "event-post-deploy",
+          "script" : "wait_for_pod_log $csapName \u0027Successful request to heapster\u0027 $csapReplicaCount kube-system 200"
+        }, {
+          "description" : "wait for pod shutdown",
+          "frequency" : "event-post-stop",
+          "script" : "wait_for_pod_removed $csapName;wait_for_pod_removed heapster;wait_for_pod_removed monitoring-grafana"
+        } ]
+      },
+      "runUsingDocker" : "true",
+      "docker" : {
+        "locator" : {
+          "type" : "io.kubernetes.container.name",
+          "value" : "$$service-name"
+        },
+        "deployment-files-use" : "true",
+        "deployment-file-names" : [ "$$csap-working/kubelet_8014/configuration/dashboard/influxdb.yaml", "$$csap-working/kubelet_8014/configuration/dashboard/heapster.yaml", "$$csap-working/kubelet_8014/configuration/dashboard/grafana.yaml", "$$csap-working/kubelet_8014/configuration/dashboard/heapster-acl.yaml", "$$csap-working/kubelet_8014/configuration/dashboard/heapster-role-update.yaml", "$$csap-working/kubelet_8014/configuration/dashboard/dashboard.yaml", "$$csap-working/kubelet_8014/configuration/account/admin-account.yaml", "$$csap-working/kubelet_8014/configuration/account/admin-binding.yaml" ],
+        "container-count" : "1"
+      },
+      "url" : "$$kubernetes-dashboard",
+      "scmVersion" : "os",
+      "version" : {
+        "1" : { }
+      }
+    },
+    "nfs-client-provisioner" : {
+      "server" : "docker",
+      "autoStart" : 311,
+      "description" : "Kubernetes NFS Storage",
+      "docUrl" : "https://github.com/kubernetes-incubator/external-storage/tree/master/nfs-client",
+      "appDirectory" : "//mnt/CSAP_DEV01_NFS",
+      "propDirectory" : "/$$csap-working/kubelet_8014/configuration/storage-nfs-client",
+      "environmentVariables" : {
+        "configuration-maps" : [ "nfs-server" ]
+      },
+      "logJournalServices" : "kubelet,docker",
+      "scheduledJobs" : {
+        "scripts" : [ {
+          "description" : "wait for pod startup",
+          "frequency" : "event-post-deploy",
+          "script" : "wait_for_pod_log $csapName \u0027Started provisioner controller\u0027 $csapReplicaCount"
+        }, {
+          "description" : "wait for pod shutdown",
+          "frequency" : "event-post-stop",
+          "script" : "wait_for_pod_removed $csapName"
+        } ]
+      },
+      "runUsingDocker" : "true",
+      "docker" : {
+        "locator" : {
+          "type" : "io.kubernetes.container.name",
+          "value" : "$$service-name"
+        },
+        "deployment-files-use" : "true",
+        "deployment-file-names" : [ "$$csap-working/kubelet_8014/configuration/storage-nfs-client/rbac.yaml", "$$csap-working/kubelet_8014/configuration/storage-nfs-client/deployment.yaml", "$$csap-working/kubelet_8014/configuration/storage-nfs-client/class.yaml" ],
+        "container-count" : "1",
+        "image" : "quay.io/external_storage/nfs-client-provisioner:v3.1.0-k8s1.11"
+      },
+      "url" : "https://github.com/kubernetes-incubator/external-storage/tree/master/nfs-client",
+      "scmVersion" : "os",
+      "version" : {
+        "1" : { }
+      }
+    },
+    "nginx-ingress-controller" : {
+      "server" : "docker",
+      "autoStart" : 310,
+      "description" : "Kubernetes Ingress Controller",
+      "docUrl" : "https://kubernetes.github.io/ingress-nginx/",
+      "appDirectory" : "$$csap-working/kubelet_8014/configuration/ingress",
+      "propDirectory" : "$$csap-working/kubelet_8014/configuration/ingress",
+      "alerts" : {
+        "max_threadCount" : "600",
+        "max_fileCount" : "2500"
+      },
+      "scheduledJobs" : {
+        "scripts" : [ {
+          "description" : "wait for pod startup",
+          "frequency" : "event-post-deploy",
+          "script" : "wait_for_pod_log $csapName \u0027Backend successfully reloaded\u0027 $csapReplicaCount"
+        }, {
+          "description" : "wait for pod shutdown",
+          "frequency" : "event-post-stop",
+          "script" : "wait_for_pod_removed $csapName"
+        } ]
+      },
+      "runUsingDocker" : "true",
+      "docker" : {
+        "locator" : {
+          "type" : "io.kubernetes.container.name",
+          "value" : "$$service-name"
+        },
+        "deployment-files-use" : "true",
+        "deployment-file-names" : [ "$$csap-working/kubelet_8014/configuration/ingress/ingress-nginx.yaml", "$$csap-working/kubelet_8014/configuration/ingress/ingress-service.yaml" ],
+        "container-count" : "1"
+      },
+      "url" : "https://kubernetes.github.io/ingress-nginx/",
+      "scmVersion" : "os",
+      "version" : {
+        "1" : { }
+      }
+    }
+  }
+}

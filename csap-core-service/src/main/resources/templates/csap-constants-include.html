@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head
+	th:fragment="includeSection"
+	th:remove="tag">
+<script th:inline="javaScript">
+
+//
+//  csap-constants-include
+//
+
+const CSAP_USER = [[ ${ csapUser } ]]; 
+const CSAP_SCM_USER = [[ ${ scmUser } ]]; 
+
+const AGENT_ID = [[ ${ T( org.csap.agent.CsapCore ).AGENT_ID } ]]; 
+const AGENT_NAME = [[ ${ T( org.csap.agent.CsapCore ).AGENT_NAME } ]]; 
+const AGENT_ENDPOINT = [[ ${ @application.getAgentEndpoint() } ]]; 
+const AGENT_URL_PATTERN = [[ ${ csapHostAgentPattern } ]]; 
+
+const AGENT_MODE = [[ ${ agentProfile } ]]; 
+
+
+const CSAP_HOST_NAME = [[ ${csapHostName} ]] ;
+
+const addHostUrl = [[ ${ addHostUrl  }]] ;
+
+const BASE_URL = [[@{ / }]];
+const IMAGES_URL = [[@{ /images }]];
+const APP_BROWSER_URL = [[@{ ${"/app-browser"} }]];
+const API_URL = [[@{ ${"/api"} }]];
+const HEALTH_REPORT_URL = [[@{ ${"/health/alerts"} }]];
+
+
+const DEFINITION_URL = [[ @{ ${ csapApp.getResourcePath("DEFINITION_URL") } } ]];
+
+const EXPLORER_URL = [[ @{ ${ csapApp.getResourcePath("EXPLORER_URL") } }  ]];
+
+const FILE_URL = [[ @{ ${ csapApp.getResourcePath("FILE_URL") } } ]]
+const OS_URL = [[ @{ ${ csapApp.getResourcePath("OS_URL") } } ]]
+
+// overloaded
+const IS_ADMIN = [[ ${ adminRole } ]] ;
+var isAdmin = [[ ${ adminRole } ]] ;
+
+const GET_FILES_URL = [[ @{/file/getFilesJson} ]] ;
+const MANAGER_URL = [[ @{/file/FileManager} ]] ;
+
+const ANALYTICS_URL = [[${ analyticsUrl }]] ;
+
+const APP_ID = [[ ${ applicationId } ]] ;
+
+
+
+const HOST_ENVIRONMENT_NAME = [[ ${ csapHostEnvironmentName } ]];
+const LIFECYCLE = [[${lifecycle}]];
+const SERVICE_URL = [[@{ ${ T( org.csap.agent.CsapCoreService ).SERVICE_URL}}]];
+const ACTIVITY_URL = SERVICE_URL + "/activityCount";
+
+const EDIT_URL = [[@{ ${ T( org.csap.agent.CsapCoreService ).EDIT_URL}}]] ;
+const SERVICE_DEF_URL = [[@{ ${ T( org.csap.agent.CsapCoreService ).DEFINITION_URL}}]] + '/service';
+const HISTORY_URL = [[ ${ HISTORY_URL } ]];
+const METRICS_URL = [[ ${ METRICS_URL } ]];
+const TREND_URL = SERVICE_URL + "/trend"; 
+
+const DEPLOY_PROGRESS = "service/query/deployProgress";
+
+//
+//  Collection keys for metrics data
+//
+const METRICS_HOST = [[ ${ collectionHost } ]] ;
+const METRICS_OS_PROCESS = [[ ${ collectionOsProcess } ]] ;
+const METRICS_JAVA = [[ ${ collectionJava } ]] ;
+const METRICS_APPLICATION = [[ ${ collectionApplication } ]] ;
+
+
+// agent urls for dashboard // OSEXPLORER versus kubernetes explorer
+const OS_EXPLORER_URL = [[ @{ ${explorerUrl} }  ]];
+const explorerUrl = [[ @{ ${explorerUrl} }  ]];
+const vsphereEnabled = [[ ${vsphereEnabled }  ]];
+const dockerUrl = [[ @{ ${dockerUrl} }  ]];
+const kubernetesApiUrl = [[ ${ kubernetesApiUrl }  ]];
+const fileManagerUrl = [[@{ ${ T( org.csap.agent.CsapCoreService ).FILE_MANAGER_URL}}]];
+
+//
+// legacy edit urls
+//
+
+const reportUrl = SERVICE_URL + "/report";
+const trendUrl = SERVICE_URL + "/trend"; 
+
+var baseUrl = [[@{ ${ T( org.csap.agent.CsapCoreService ).BASE_URL}}]] ;
+
+const analyticsUrl = [[${analyticsUrl}]] ;
+const lifeEditUrl = EDIT_URL + '/lifecycle' ;
+var serviceEditUrl = EDIT_URL + '/serviceDialog' ;
+const settingsEditUrl = EDIT_URL + '/settingsDialog' ;
+const clusterEditUrl = EDIT_URL + '/clusterDialog' ;
+
+var lifeUpdateUrl = [[@{ ${ T( org.csap.agent.CsapCoreService ).DEFINITION_URL}}]] + '/lifecycle' ;
+var settingsDefUrl = [[@{ ${ T( org.csap.agent.CsapCoreService ).DEFINITION_URL}}]] + '/settings' ;
+var clusterDefUrl = [[@{ ${ T( org.csap.agent.CsapCoreService ).DEFINITION_URL}}]] + '/cluster' ;
+
+
+var commandScreen = [[ @{ ${T( org.csap.agent.ui.windows.HostPortal ).COMMAND_SCREEN_URL } }]];
+
+</script>
+</head>
+
+</html>

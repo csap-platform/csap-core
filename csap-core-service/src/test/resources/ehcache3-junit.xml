@@ -1,0 +1,72 @@
+<config xmlns='http://www.ehcache.org/v3'
+	xmlns:jcache='http://www.ehcache.org/v3/jsr107'>
+
+	<!-- 
+		- refer to:  http://www.ehcache.org/documentation/3.0/examples.html#xml-with-107-extension
+		- tti: time to idle - useful for dropping data rarely/never change
+		- ttl: time to live - useful for items getting updated frequently
+		- WARNING: known issue: xml is ORDER sensitive
+	 -->
+	<service>
+		<jcache:defaults enable-management="false" enable-statistics="false"/>
+	</service>
+
+
+
+	<cache alias="AnalyticsTrendingCache" uses-template="trending-report-cache"/>
+	<cache-template name="trending-report-cache">
+		<expiry>
+			<ttl unit="seconds">300</ttl>
+		</expiry>
+		<heap unit="entries">2000</heap>
+	</cache-template>
+
+
+
+	<cache alias="CacheWith60SecondEviction" uses-template="minute-cache"/>
+	<cache-template name="minute-cache">
+		<expiry>
+			<ttl unit="seconds">60</ttl>
+		</expiry>
+		<heap unit="entries">100</heap>
+	</cache-template>
+	
+	
+
+
+	<cache alias="DockerPidExceptionCache" uses-template="pid-exception-cache"/>
+	<cache-template name="pid-exception-cache">
+		<key-type>java.lang.String</key-type>
+  		<value-type>java.lang.String</value-type>
+		<expiry>
+			<ttl unit="seconds">30</ttl>
+		</expiry>
+		<heap unit="entries">100</heap>
+	</cache-template>
+
+		
+	<!-- 
+		Used by CSAP client Side Loadbalancer. 
+	 -->
+	<cache alias="lowResourceUrlCache" uses-template="low-resource"/>
+	<cache-template name="low-resource">
+		<expiry>
+			<ttl unit="seconds">10</ttl>
+		</expiry>
+		<heap unit="entries">100</heap>
+	</cache-template>
+	
+	<cache alias="roundRobinUrlCache" uses-template="round-robin"/>
+	<cache-template name="round-robin">
+		<expiry>
+			<ttl unit="seconds">30</ttl>
+		</expiry>
+		<heap unit="entries">100</heap>
+	</cache-template>
+	
+	<cache alias="sampleCacheWithNoExpirations" uses-template="sample-cache"/>
+	<cache-template name="sample-cache">
+		<heap unit="entries">3</heap>
+	</cache-template>
+	
+</config>

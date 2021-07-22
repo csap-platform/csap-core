@@ -1,0 +1,2380 @@
+{
+	"service-templates": {
+	
+		"ns-kube-system": {
+			"server": "os",
+			"url": "$$csap-agent-url",
+			"description": "kube system namespace monitor. To override defaults - include in application.json",
+			"runUsingDocker": "true",
+			"default-appDirectory": "/",
+			"default-propDirectory": "/etc",
+			"default-logDirectory": "logs",
+			"docker": {
+				"locator": {
+					"podNamespace": "over-ridden-during-generation",
+					"value": "*"
+				},
+				"about": "aggregateContainers swallows all resources together, namespaceMonitor is used to optimize processing",
+				"aggregateContainers": "true",
+				"namespaceMonitor": "true"
+			},
+			
+			"alerts": {
+				"max_threadCount": "1000",
+				"max_fileCount": "1000",
+				"max_diskUtil": "5g",
+				"max_socketCount": "7000",
+				"max_diskWriteKb": "500",
+				"max_diskReadKb": "500",
+				"max_rssMemory": "2g"
+			}
+			
+		},
+	
+		"ns-csap-logging": {
+			"server": "os",
+			"url": "launcher:kibana",
+			"description": "csap logging namespace monitor. To override defaults - include in application.json",
+			"runUsingDocker": "true",
+			"default-appDirectory": "/",
+			"default-propDirectory": "/etc",
+			"default-logDirectory": "logs",
+			"docker": {
+				"locator": {
+					"podNamespace": "over-ridden-during-generation",
+					"value": "*"
+				},
+				"about": "aggregateContainers swallows all resources together, namespaceMonitor is used to optimize processing",
+				"aggregateContainers": "true",
+				"namespaceMonitor": "true"
+			},
+			
+			"alerts": {
+				"max_threadCount": "500",
+				"max_fileCount": "2000",
+				"max_diskUtil": "150g",
+				"max_socketCount": "400",
+				"max_diskWriteKb": "100",
+				"max_diskReadKb": "100",
+				"max_rssMemory": "12g"
+			}
+			
+		},
+	
+		"ns-csap-monitoring": {
+			"server": "os",
+			"url": "launcher:grafana",
+			"description": "csap monitoring namespace monitor. To override defaults - include in application.json",
+			"runUsingDocker": "true",
+			"default-appDirectory": "/",
+			"default-propDirectory": "/etc",
+			"default-logDirectory": "logs",
+			"docker": {
+				"locator": {
+					"podNamespace": "over-ridden-during-generation",
+					"value": "*"
+				},
+				"about": "aggregateContainers swallows all resources together, namespaceMonitor is used to optimize processing",
+				"aggregateContainers": "true",
+				"namespaceMonitor": "true"
+			},
+			
+			"alerts": {
+				"max_threadCount": "500",
+				"max_fileCount": "500",
+				"max_diskUtil": "5g",
+				"max_socketCount": "5000",
+				"max_diskWriteKb": "100",
+				"max_diskReadKb": "100",
+				"max_rssMemory": "2g"
+			}
+			
+		},
+	
+		"namespace-monitor-template": {
+			"server": "os",
+			"url": "$$csap-agent-url",
+			"description": "kubernetes namespace monitor template. To override defaults - include in application.json",
+			"runUsingDocker": "true",
+			"sample-appDirectory": "namespacePvc:/",
+			"sample-propDirectory": "namespacePvc:/",
+			"sample-logDirectory": "namespacePvc:/",
+			"docker": {
+				"locator": {
+					"podNamespace": "over-ridden-during-generation",
+					"value": "*"
+				},
+				"about": "aggregateContainers swallows all resources together, namespaceMonitor is used to optimize processing",
+				"aggregateContainers": "true",
+				"namespaceMonitor": "true"
+			},
+			
+			"alerts": {
+				"max_threadCount": "5000",
+				"max_fileCount": "5000",
+				"max_diskUtil": "5000g",
+				"max_socketCount": "5000",
+				"max_diskWriteKb": "5000",
+				"max_diskReadKb": "5000",
+				"max_rssMemory": "5000g"
+			}
+			
+		},
+		
+		"calico-kube-controllers": {
+			"server": "os",
+			"description": "Calico provides secure network connectivity for containers and virtual machine workloads",
+			"docUrl": "https://docs.projectcalico.org/v3.1/introduction/",
+			"appDirectory": "/$$kubernetes-config/network",
+			"propDirectory": "/$$kubernetes-config/network",
+			"alerts": {
+				"max_threadCount": "100",
+				"max_diskUtil": "300m",
+				"max_socketCount": "5"
+			},
+			"logDirectory": "/var/logs",
+			"logRegEx": ".*\\.log",
+			"logJournalServices": "kubelet,docker",
+			"runUsingDocker": "true",
+			"docker": {
+				"locator": {
+					"type": "io.kubernetes.container.name",
+					"value": "$$service-name"
+				},
+				"container-count": "1"
+			},
+			"url": "https://docs.projectcalico.org/v3.1/introduction/",
+			"scmVersion": "os"
+		},
+		"calico-node": {
+			"server": "os",
+			"description": "Calico provides secure network connectivity for containers and virtual machine workloads",
+			"docUrl": "https://docs.projectcalico.org/v3.1/introduction/",
+			"appDirectory": "/",
+			"propDirectory": "/$$kubernetes-config/network",
+			"alerts": {
+				"max_threadCount": "100",
+				"max_diskUtil": "300m",
+				"max_socketCount": "10"
+			},
+			"logDirectory": "/var/logs",
+			"logRegEx": ".*\\.log",
+			"logJournalServices": "kubelet,docker",
+			"runUsingDocker": "true",
+			"docker": {
+				"socketNamespace": "global", 
+				"locator": {
+					"type": "io.kubernetes.container.name",
+					"value": "$$service-name"
+				}
+			},
+			"url": "https://docs.projectcalico.org/v3.1/introduction/",
+			"scmVersion": "os"
+		},
+		"coredns": {
+			"server": "os",
+			"description": "general-purpose, authoritative DNS server that provides a backwards-compatible, but extensible, integration with Kubernetes",
+			"docUrl": "https://coredns.io/manual/toc/#what-is-coredns",
+			"appDirectory": "/",
+			"propDirectory": "/$$kubernetes-config/network",
+			"alerts": {
+				"max_threadCount": "100",
+				"max_diskUtil": "300m",
+				"max_socketCount": "5"
+			},
+			"logDirectory": "/var/logs",
+			"logRegEx": ".*\\.log",
+			"logJournalServices": "kubelet,docker",
+			"runUsingDocker": "true",
+			"docker": {
+				"locator": {
+					"type": "io.kubernetes.container.name",
+					"value": "$$service-name"
+				},
+				"container-count": "2"
+			},
+			"url": "https://coredns.io/manual/toc/#what-is-coredns",
+			"scmVersion": "os"
+		},
+		"csap-admin": {
+			"server": "SpringBoot",
+			"autoStart": 11,
+			"port": 8021,
+			"description": "CSAP Manager provides the application portal",
+			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/347177032/CSAP+FAQ",
+			"alerts": {
+				"max_diskUtil": "170",
+				"max_threadCount": "140",
+				"max_fileCount": "450",
+				"max_socketCount": "30",
+				"max_rssMemory": "2g",
+				"max_tomcatConnections": "40",
+				"max_topCpu": "20"
+			},
+			"isTomcatAjp": "true",
+			"osProcessPriority": -1,
+			"parameters": "-Dspring.profiles.active=CSAP_LIFE,admin,company -XX:MaxMetaspaceSize=144M -Xms512M -Xmx512M",
+			"environmentVariables": {
+				"configuration-maps": [
+					"csap-sso"
+				]
+			},
+			"source": {
+				"scm": "git",
+				"path": "https://bitbucket.org/***REMOVED***/oss-csap-core.git",
+				"buildLocation": "/csap-core-service",
+				"branch": "HEAD"
+			},
+			"maven": {
+				"dependency": "org.csap:csap-core-service:2-SNAPSHOT:jar"
+			},
+			"performance": {
+				"config": {
+					"about": "csapMicroUrl generates: httpCollectionUrl, javaCollectionUrl, healthCollectionUrl ",
+					"csapMicroUrl": "http://$$service-fqdn-host:$$service-primary-port/$$service-name"
+				},
+				"HostCpuUse": {
+					"attribute": "csapHostCpu",
+					"max": 50,
+					"title": "Host Cpu"
+				},
+				"HostCpuLoad": {
+					"attribute": "csapHostLoad",
+					"max": 50,
+					"title": "Host Cpu Load"
+				},
+				"ProcessCpu": {
+					"attribute": "/process.cpu.usage",
+					"decimals": "1",
+					"multiplyBy": 100,
+					"title": "Process CPU",
+					"max": 10
+				},
+				"HttpRequests": {
+					"attribute": "/tomcat.global.request/count",
+					"title": "Http Gets Received",
+					"delta": true
+				},
+				"AdminConsolePings": {
+					"attribute": "/csap.console-status/count",
+					"delta": true,
+					"max": 100,
+					"title": "UI Status Requests"
+				},
+				"AgentHeartBeatTotalTime": {
+					"attribute": "/csap.agent-status/total-ms",
+					"title": "Agent Heartbeats Total Time (ms)",
+					"delta": "true"
+				},
+				"AgentHeartBeatCount": {
+					"attribute": "/csap.agent-status/count",
+					"title": "Agent Heartbeats",
+					"delta": "true"
+				},
+				"AgentHeartBeatMeanMs": {
+					"attribute": "/csap.agent-status/bucket-0.95-ms",
+					"title": "Agent Heartbeat 95% Time (ms)"
+				},
+				"AgentHeartBeatMaxTimeMs": {
+					"attribute": "/csap.agent-status/bucket-max-ms",
+					"max": 1200,
+					"title": "Agent Heartbeats Max (ms)"
+				}
+			},
+			"javaWarnings": {
+				"jvmThreadCount": {
+					"max": 100
+				},
+				"jvmThreadsMax": {
+					"max": 110
+				}
+			}
+		},
+		"csap-agent": {
+			"server": "SpringBoot",
+			"autoStart": 10,
+			"port": 8011,
+			"description": "csap managment agent providing CLI, API,and UI; runs on every host",
+			"deploymentNotes": "csap-agent will automatically be restarted via the stop/restart operation.", 
+			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/347177032/CSAP+FAQ",
+			"alerts": {
+				"max_diskUtil": "170",
+				"max_threadCount": "150",
+				"max_fileCount": "500",
+				"max_socketCount": "50",
+				"max_rssMemory": "1500m",
+				"max_tomcatConnections": "40",
+				"max_topCpu": "50",
+				"max_diskWriteKb": "50000"
+			},
+			"osProcessPriority": -12,
+			"parameters": "-Dspring.profiles.active=CSAP_LIFE,agent,company -Dsun.rmi.transport.tcp.responseTimeout=3000 -XX:MaxMetaspaceSize=144M -Xms512M -Xmx512M",
+			"environmentVariables": {
+				"configuration-maps": [
+					"csap-sso"
+				]
+			},
+			"source": {
+				"scm": "git",
+				"path": "https://bitbucket.org/***REMOVED***/oss-csap-core.git",
+				"buildLocation": "/csap-core-service",
+				"branch": "HEAD"
+			},
+			"maven": {
+				"dependency": "org.csap:csap-core-service:2-SNAPSHOT:jar"
+			},
+			"logJournalServices": "csap,ssh,kubelet,docker",
+			"scheduledJobs": {
+				"scripts": [
+					{
+						"description": "remove nfs package",
+						"frequency": "onDemand",
+						"script": "echo $warning; run_using_root yum --assumeyes  remove nfs-utils",
+						"parameters": [
+							"warning,deleting nfs package,warning - if services are using nfs - removing package will cause them to fail"
+						]
+					},
+					{
+						"description": "simple example: ls command",
+						"frequency": "onDemand",
+						"script": "lsOptions=${lsOptions:--l}; ls $lsOptions $HOME",
+						"parameters": [
+							"lsOptions,-l,options to ls command"
+						]
+					},
+					{
+						"description": "demo checkLimits",
+						"frequency": "onDemand",
+                    	"background": true,
+						"script": "$$csap-base/bin/admin-show-limits.sh"
+					},
+					{
+						"description": "demo count sockets",
+						"frequency": "daily",
+						"hour": "02",
+						"script": "$$csap-base/bin/collect-host-resources.sh"
+					},
+					{
+						"description": "Update Operating System",
+						"frequency": "onDemand",
+                    	"background": true,
+						"script": "$$csap-base/bin/csap-os-update.sh",
+						"parameters": [
+							"showUpdatesOnly,true,set to false to update the os",
+							"hostsToApply,selected-hosts-on-ui,hosts will be updated sequentially - using agent cli to query events: agent/agent-start-up/your-host-name",
+							"maxMinutesPerHost,30,maximum minutes to wait on a host before aborting updates on remaining hosts",
+							"doParallel,false,set to true to bypass sequential host updates and perform updates on all hosts immediately",
+							"yumUpdateOptions,none,yum update options. eg. --skip-broken will perform update on all packages that are possible",
+							"rebootHostAfterUpdates,true,set to false to skip booting the host - csap-agent will be restarted instead",
+							"performRepoMaintenance,true, set to false to bypass updating repository(yum clean, yum makecache fast)",
+							"kubernetesServiceName,kubelet, set to csap name of kubernetes service. default is correct in most instances. kubelet-ha",
+							"debugRun,false, set to true to perform full orchestration, but skip updates"
+						]
+					}
+				],
+				"logRotation": [
+					{
+						"path": "$$service-logs/console.log",
+						"settings": "copytruncate,weekly,rotate 3,compress,missingok,size 3M"
+					},
+					{
+						"path": "$$service-logs/warnings.log",
+						"environment-filters": [
+							"dev.*",
+							"test.*"
+						],
+						"settings": "copytruncate,weekly,rotate 3,compress,missingok,size 1M"
+					},
+					{
+						"path": "$$service-logs/warnings.log",
+						"environment-filters": [
+							"prod.*"
+						],
+						"settings": "copytruncate,weekly,rotate 5,compress,missingok,size 10M"
+					}
+				],
+				"diskCleanUp": [
+					{
+						"path": "$$csap-base/saved",
+						"olderThenDays": 30,
+						"maxDepth": 10,
+						"pruneEmptyFolders": true
+					},
+					{
+						"path": "$$csap-base/maven-repository",
+						"olderThenDays": 10,
+						"maxDepth": 10,
+						"pruneEmptyFolders": true
+					},
+					{
+						"path": "$$csap-base/build",
+						"olderThenDays": 60,
+						"maxDepth": 10,
+						"pruneEmptyFolders": true
+					}
+				]
+			},
+			"performance": {
+				"config": {
+					"about": "csapMicroUrl generates: httpCollectionUrl, javaCollectionUrl, healthCollectionUrl ",
+					"csapMicroUrl": "$$csap-agent-url"
+				},
+				"HostCpuUse": {
+					"attribute": "csapHostCpu",
+					"max": 50,
+					"title": "Host Cpu"
+				},
+				"HostCpuLoad": {
+					"attribute": "csapHostLoad",
+					"max": 50,
+					"title": "Host Cpu Load"
+				},
+				"ProcessCpu": {
+					"attribute": "/process.cpu.usage",
+					"decimals": "1",
+					"multiplyBy": 100,
+					"title": "Process CPU",
+					"max": 10
+				},
+				"AdminPingsMeanMs": {
+					"attribute": "/csap.host-status/bucket-0.95-ms",
+					"max": 3000,
+					"title": "Agent Status 95% (ms)"
+				},
+				"linuxPsAndMatchMeanMs": {
+					"attribute": "/csap.collect-os.process-to-model/bucket-0.95-ms",
+					"max": 1000,
+					"title": "OS Process Mapping (ms)"
+				},
+				"OsCommandsCounter": {
+					"attribute": "/csap.os-commands/count",
+					"delta": "true",
+					"max": 2100,
+					"title": "OS Commands Run",
+					"reportRate": "perMinute"
+				},
+				"TotalMsOsCommands": {
+					"attribute": "/csap.os-commands/total-ms",
+					"delta": "true",
+					"max": 1500,
+					"title": "Os Commands Total (ms)",
+					"reportRate": "perMinute"
+				},
+				"OsCommandsMeanMs": {
+					"attribute": "/csap.os-commands/bucket-0.95-ms",
+					"max": "2000",
+					"title": "OS Commands 95% (ms)"
+				},
+				"OsCommandsMaxTimeMs": {
+					"attribute": "/csap.os-commands/bucket-max-ms",
+					"max": "10500",
+					"title": "OS Commands Max (ms)"
+				},
+				"CommandsSinceRestart": {
+					"attribute": "/csap.os-commands/count",
+					"max": 1500,
+					"title": "Commands Since Restart",
+					"delta": "false"
+				},
+				"publishEvents": {
+					"title": "Events Published",
+					"attribute": "/csap.event-publish/count",
+					"delta": "true"
+				},
+				"publishEventsMs": {
+					"attribute": "/csap.event-publish/bucket-max-ms",
+					"title": "Event Upload Time (ms)"
+				},
+				"HttpRequests": {
+					"attribute": "/tomcat.global.request/count",
+					"title": "Http Gets Received",
+					"delta": true
+				},
+				"CollectionHttpCount": {
+					"attribute": "/csap.collect-http/count",
+					"delta": true,
+					"title": "Collection: Http Count",
+					"max": "20",
+					"reportRate": "perMinute"
+				},
+				"CollectionHttpMs": {
+					"attribute": "/csap.collect-http/bucket-max-ms",
+					"max": "800",
+					"title": "Collection: Http Max (ms)"
+				},
+				"CollectionHttpTotalMs": {
+					"attribute": "/csap.collect-http/total-ms",
+					"delta": "true",
+					"max": "800",
+					"title": "Collection: Http Total (ms)"
+				},
+				"CollectionHttpFailures": {
+					"attribute": "/csap.collect-http.failures",
+					"delta": "true",
+					"max": "0",
+					"title": "Collection: Http Failures"
+				},
+				"JavaCollectionCounter": {
+					"attribute": "/csap.collect-jmx/count",
+					"delta": true,
+					"title": "Collection: JMX Count",
+					"max": "2",
+					"reportRate": "perMinute"
+				},
+				"JmxCollectionMs": {
+					"attribute": "/csap.collect-jmx/bucket-max-ms",
+					"max": "800",
+					"title": "Collection: JMX Max (ms)"
+				},
+				"JmxCollectionFailures": {
+					"attribute": "/csap.collect-jmx.failures",
+					"delta": true,
+					"title": "Collection: JMX Failures",
+					"max": 0
+				},
+				"JmxCustomCollectionFailures": {
+					"attribute": "/csap.collect-jmx.service.failures",
+					"delta": true,
+					"title": "Collection: JMX App Failures",
+					"max": 0
+				},
+				"serviceDiskUsage": {
+					"attribute": "/csap.collect-os.disk-and-devices/total-ms",
+					"delta": "true",
+					"divideBy": 1000,
+					"max": 60000,
+					"title": "Collection: Disk Usage (ms)"
+				},
+				"LogRotationMs": {
+					"attribute": "/csap.service-jobs.logs/total-ms",
+					"delta": "true",
+					"divideBy": 1000,
+					"max": 60000,
+					"title": "Log Rotation Time (s)",
+					"reportRate": "perHour"
+				}
+			},
+			"devCluster": "dev-base-os",
+			"javaWarnings": {
+				"jvmThreadCount": {
+					"max": 100
+				},
+				"jvmThreadsMax": {
+					"max": 110
+				}
+			}
+		},
+		"csap-demo-mp-monitor": {
+			"server": "os",
+			"description": "Optional monitor for mpstat. Agent starts up mpstat instances to collect host resource consumption.",
+			"docUrl": "https://linux.die.net/man/1/mpstat",
+			"propDirectory": "/aaa",
+			"appDirectory": "/dev",
+			"processFilter": ".*mpstat.*",
+			"alerts": {
+				"max_diskUtil": "20g"
+			},
+			"logDirectory": "/var/logs",
+			"logRegEx": ".*\\.log",
+			"url": "https://linux.die.net/man/1/mpstat",
+			"scmVersion": "os"
+		},
+		"csap-demo-nginx": {
+			"server": "docker",
+			"autoStart": 200,
+			"port": 7280,
+			"description": "nginx docker demo, runs on 7280 and 7243",
+			"docUrl": "https://hub.docker.com/_/nginx/",
+			"appDirectory": "/usr/share/nginx",
+			"propDirectory": "/etc/nginx",
+			"processFilter": ".*nginx.*",
+			"docker": {
+				"image": "docker.io/nginx:1.16.1",
+				"entryPoint": [],
+				"command": [
+					"nginx",
+					"-g",
+					"daemon off;"
+				],
+				"containerName": "$$service-name",
+				"versionCommand": "nginx -v 2>&1 | cut -d/ -f2 | cat",
+				"environmentVariables": [
+					"JAVA_HOME=/opt/java",
+					"WORKING_DIR=/working"
+				],
+				"volumes": [
+					{
+						"hostPath": "my-demo-volume",
+						"createPersistent": {
+							"enabled": true,
+							"driver": "local"
+						},
+						"containerMount": "/my-demo-local-mount",
+						"readOnly": false,
+						"sharedUser": true
+					},
+					{
+						"hostPath": "$$csap-base/nginx-mount",
+						"createPersistent": {
+							"enabled": true,
+							"driver": "host"
+						},
+						"containerMount": "/my-demo-host-mount",
+						"readOnly": false,
+						"sharedUser": true
+					}
+				],
+				"portMappings": [
+					{
+						"PrivatePort": "443",
+						"PublicPort": "7243"
+					},
+					{
+						"PrivatePort": "80",
+						"PublicPort": "7280"
+					}
+				],
+				"limits": {
+					"cpuCoresMax": 2,
+					"memoryInMb": 512,
+					"ulimits": [
+						{
+							"name": "nofile",
+							"soft": 500,
+							"hard": 500
+						},
+						{
+							"name": "nproc",
+							"soft": 200,
+							"hard": 200
+						}
+					]
+				},
+				"networkMode": "bridge",
+				"network": {
+					"name": "nginx-network",
+					"createPersistent": {
+						"enabled": true,
+						"driver": "bridge"
+					}
+				}
+			},
+			"url": "http://$$service-fqdn-host:$$service-primary-port"
+		},
+		"csap-demo-source": {
+			"server": "csap-api",
+			"description": "Used to build the latest csap-starter",
+			"propDirectory": "/opt/csapUser/staging/build",
+			"processFilter": "none",
+			"environmentVariables": {
+				"javaBuildOnly": "true"
+			},
+			"source": {
+				"scm": "git",
+				"path": "https://bitbucket.org/***REMOVED***/oss-csap-starter.git",
+				"branch": "HEAD",
+				"buildLocation": "/csap-starter"
+			},
+			"maven": {
+				"dependency": "org.csap:csap-starter:2.0.0.1:jar"
+			},
+			"logDirectory": "/opt/csapUser/staging/build",
+			"logRegEx": ".*\\.log",
+			"url": "https://github.com/csap-platform/csap-core/wiki"
+		},
+		"csap-demo-tomcat": {
+			"server": "tomcat9.x",
+			"autoStart": 90,
+			"port": 7031,
+			"description": "Provides a simple servlet implementation to validate the tomcat runtime",
+			"osProcessPriority": 2,
+			"parameters": "-Xms128M -Xmx128M -DnoTomcatVersion -DtomcatReloadable -DnoJmxFirewall -DtomcatManager -DrawTomcat",
+			"environmentVariables": {
+				"demo": "none"
+			},
+			"jmxPort": "$$service-primary-port+5",
+			"deployTimeoutMinutes": "1",
+			"source": {
+				"scm": "git",
+				"path": "https://bitbucket.org/***REMOVED***/oss-csap-java.git",
+				"buildLocation": "/csap-java-servlet",
+				"branch": "HEAD"
+			},
+			"maven": {
+				"dependency": "org.csap:csap-java-servlet:2-SNAPSHOT:war"
+			},
+			"docker": {
+				"image": "containers.na.***REMOVED***.net/someUser/csap-tomcat-oracle:latest",
+				"entryPoint": [
+					"/bin/sh",
+					"-c",
+					"echo use csap service log viewer, id is `id`; java -version ; catalina.sh run  >> logs/catalina.out 2>&1",
+					""
+				],
+				"command": [],
+				"runUser": "$csapUser",
+				"workingDirectory": "/_working",
+				"containerName": "$$service-name",
+				"environmentVariables": [
+					"CATALINA_BASE=/_working",
+					"JAVA_OPTS=$$service-parameters -DcsapDockerJava"
+				],
+				"volumes": [
+					{
+						"hostPath": "$$service-working",
+						"containerMount": "/_working",
+						"readOnly": false,
+						"sharedUser": true
+					}
+				],
+				"portMappings": [
+					{
+						"PrivatePort": "$$service-primary-port",
+						"PublicPort": "$$service-primary-port"
+					},
+					{
+						"PrivatePort": "$$service-ajp-port",
+						"PublicPort": "$$service-ajp-port"
+					}
+				],
+				"limits": {
+					"cpuCoresMax": 3
+				}
+			},
+			"performance": {
+				"systemCpu": {
+					"title": "Sample 1: Host Cpu",
+					"mbean": "java.lang:type=OperatingSystem",
+					"attribute": "SystemCpuLoad"
+				},
+				"processCpu": {
+					"title": "Sample 2: JVM Cpu",
+					"mbean": "java.lang:type=OperatingSystem",
+					"attribute": "ProcessCpuLoad",
+					"max": 10
+				},
+				"helloServletRequests": {
+					"title": "Sample 3: Hello Servlet",
+					"mbean": "Catalina:j2eeType=Servlet,WebModule=__CONTEXT__,name=HelloServlet,J2EEApplication=none,J2EEServer=none",
+					"attribute": "requestCount",
+					"delta": "delta"
+				}
+			},
+			"customHttpdRouting": [
+				"method=Next",
+				"sticky_session=1"
+			],
+			"apacheModJk": {
+				"loadBalance": [
+					"method=Next",
+					"sticky_session=1"
+				],
+				"connection": [
+					"reply_timeout=10000"
+				]
+			},
+			"apacheModRewrite": [
+				"RewriteRule ^/test1/(.*)$  /ServletSample/$1 [PT]",
+				"RewriteRule ^/test2/(.*)$  /ServletSample/$1 [PT]"
+			],
+			"useDockerJavaContainer": "false"
+		},
+		"csap-package-java": {
+			"server": "csap-api",
+			"url": "launcher:csap-agent",
+			"autoStart": 3,
+			"port": 0,
+			"description": "Provides csap java integration (Openjdk)",
+			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211867/CSAP+Packages,https://wiki.openjdk.java.net/display/JDKUpdates/JDK11u",
+			"propDirectory": "/opt/csap/java",
+			"processFilter": "none",
+			"environmentVariables": {
+				"removeMejdkVersion": "jdk-11.0.3"
+			},
+			"source": {
+				"scm": "git",
+				"path": "https://bitbucket.org/***REMOVED***/oss-csap-packages.git",
+				"branch": "HEAD",
+				"buildLocation": "/csap-package-java"
+			},
+			"maven": {
+				"dependency": "org.csap:csap-package-java:2-SNAPSHOT:zip"
+			},
+			"logJournalServices": "csap,ssh,kubelet,docker",
+			"scmVersion": "none",
+			"user": "csapUser"
+		},
+		"csap-package-linux": {
+			"server": "csap-api",
+			"autoStart": 1,
+			"url": "launcher:csap-agent,/app-browser#agent-tab,explorer",
+			"port": 0,
+			"description": "Provides csap linux integrations (deployment, maven, vcenter)",
+			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211867/CSAP+Packages",
+			"propDirectory": "$$csap-working/$$service-name/installer",
+			"appDirectory": "/etc",
+			"processFilter": "none",
+			"alerts": {
+				"max_diskUtil": "6g"
+			},
+			"source": {
+				"scm": "git",
+				"path": "https://bitbucket.org/***REMOVED***/oss-csap-packages.git",
+				"branch": "HEAD",
+				"buildLocation": "/csap-package-linux"
+			},
+			"maven": {
+				"dependency": "org.csap:csap-package-linux:2-SNAPSHOT:zip"
+			},
+			"logDirectory": "logs",
+			"defaultLogToShow": "var-log-messages",
+			"logJournalServices": "csap,ssh,kubelet,docker",
+			"scmVersion": "none",
+			"user": "csapUser",
+			"disk": "sda1"
+		},
+		"csap-package-tomcat": {
+			"server": "csap-api",
+			"autoStart": 13,
+			"port": 0,
+			"description": "Provides csap tomcat integration(Tomcat 9+)",
+			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211867/CSAP+Packages",
+			"propDirectory": "$$csap-working/$$service-name-runtime",
+			"processFilter": "none",
+			"alerts": {
+				"max_diskUtil": "300m"
+			},
+			"environmentVariables": {
+				"extractAsNeeded": "false"
+			},
+			"source": {
+				"scm": "git",
+				"path": "https://bitbucket.org/***REMOVED***/oss-csap-packages.git",
+				"branch": "HEAD",
+				"buildLocation": "/csap-package-tomcat"
+			},
+			"maven": {
+				"dependency": "org.csap:csap-package-tomcat:2-SNAPSHOT:zip"
+			},
+			"url": "https://github.com/csap-platform/csap-core/wiki",
+			"disk": "$$service-working $$csap-working/$$service-name-runtime"
+		},
+		"csap-simple": {
+			"server": "SpringBoot",
+			"autoStart": 60,
+			"port": 7041,
+			"description": "Csap simple tests",
+			"alerts": {
+				"max_diskUtil": "230",
+				"max_threadCount": "100",
+				"max_fileCount": "300",
+				"max_socketCount": "20",
+				"max_rssMemory": "768m",
+				"max_tomcatConnections": "40",
+				"max_topCpu": "150"
+			},
+			"isTomcatAjp": "true",
+			"osProcessPriority": 0,
+			"parameters": "-Dserver.tomcat.basedir=$$service-working -Dserver.tomcat.accesslog.enabled=true -Djava.util.logging.config.file=$$service-working/jarExtract/BOOT-INF/classes/logging.properties -Dspring.profiles.active=CSAP_LIFE,desktop -Xms128M -Xmx133M -XX:MaxMetaspaceSize=128M -XX:+ExitOnOutOfMemoryError",
+			"environmentVariables": {
+				"csapExternalPropertyFolder": "$$csap-base/definition/resources"
+			},
+			"source": {
+				"scm": "git",
+				"path": "https://bitbucket.org/***REMOVED***/oss-csap-starter.git",
+				"branch": "HEAD",
+				"buildLocation": "/csap-starter-simple"
+			},
+			"maven": {
+				"dependency": "org.csap:csap-starter-simple:2-SNAPSHOT:jar"
+			},
+			"performance": {
+				"HostCpu": {
+					"mbean": "java.lang:type=OperatingSystem",
+					"attribute": "SystemCpuLoad",
+					"max": 40,
+					"title": "Host CPU"
+				},
+				"ProcessCpu": {
+					"mbean": "java.lang:type=OperatingSystem",
+					"attribute": "ProcessCpuLoad",
+					"max": 40,
+					"title": "JVM Cpu"
+				},
+				"classesLoaded": {
+					"title": "JVM Classes Loaded",
+					"mbean": "java.lang:type=ClassLoading",
+					"attribute": "LoadedClassCount",
+					"max": 10
+				},
+				"rememberMeMs": {
+					"title": "Remember Me (ms)",
+					"max": 10,
+					"simonMedianTime": "csap.security.rememberMe"
+				},
+				"rememberMe": {
+					"title": "Remember Me Requests",
+					"max": 10,
+					"simonCounter": "csap.security.rememberMe"
+				}
+			}
+		},
+		"csap-verify-service": {
+			"server": "SpringBoot",
+			"autoStart": 61,
+			"port": 7011,
+			"description": "Enables both on demand and scheduled verification of both CSAP and Infrastructure",
+			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/993103156/csap-verify-service",
+			"alerts": {
+				"max_diskUtil": "200m",
+				"max_threadCount": "200",
+				"max_fileCount": "500",
+				"max_socketCount": "100",
+				"max_rssMemory": "1200m",
+				"max_tomcatConnections": "10",
+				"max_topCpu": "150"
+			},
+			"osProcessPriority": 0,
+			"parameters": " -Dspring.profiles.active=CSAP_LIFE,services-embedded,company  -Xms256M -Xmx256M -XX:MaxMetaspaceSize=128M -XX:+ExitOnOutOfMemoryError",
+			"environmentVariables": {
+				"configuration-maps": [
+					"csap-sso"
+				]
+			},
+			"source": {
+				"scm": "git",
+				"path": "https://bitbucket.org/***REMOVED***/oss-csap-starter.git",
+				"branch": "HEAD",
+				"buildLocation": "/csap-starter-tester"
+			},
+			"maven": {
+				"dependency": "org.csap:csap-starter-tester:2-SNAPSHOT:jar"
+			},
+			"scheduledJobs": {
+				"scripts": [
+					{
+						"description": "Pause All Deployments",
+						"frequency": "onDemand",
+						"script": "pause_all_deployments please"
+					},
+					{
+						"description": "demo checkLimits",
+						"frequency": "onDemand",
+						"script": "$$csap-base/bin/admin-show-limits.sh"
+					},
+					{
+						"description": "demo file listing",
+						"frequency": "onDemand",
+						"script": "ls -al"
+					},
+					{
+						"description": "demo count sockets",
+						"frequency": "daily",
+						"hour": "02",
+						"script": "$$csap-base/bin/collect-host-resources.sh"
+					}
+				]
+			},
+			"performance": {
+				"config": {
+					"about": "csapMicroUrl generates: httpCollectionUrl, javaCollectionUrl, healthCollectionUrl ",
+					"csapMicroUrl": "http://$$service-fqdn-host:$$service-primary-port"
+				},
+				"HostCpuUse": {
+					"attribute": "csapHostCpu",
+					"max": 50,
+					"title": "Host Cpu"
+				},
+				"HostCpuLoad": {
+					"attribute": "csapHostLoad",
+					"max": 50,
+					"title": "Host Cpu Load"
+				},
+				"ProcessCpu": {
+					"attribute": "/process.cpu.usage",
+					"decimals": "1",
+					"multiplyBy": 100,
+					"title": "Process CPU",
+					"max": 10
+				},
+				"HttpRequests": {
+					"attribute": "/tomcat.global.request/count",
+					"title": "Http Gets Received",
+					"delta": true
+				},
+				"LandingCount": {
+					"attribute": "/csap.ui.page.landing/count",
+					"title": "Landing Page Hits",
+					"delta": true
+				},
+				"LandingCountMs": {
+					"attribute": "/csap.ui.page.landing/bucket-0.95-ms",
+					"title": "Landing Page 95% (ms)",
+					"delta": false
+				},
+				"JmsConsumers": {
+					"attribute": "/csap.jms.listeners-active",
+					"max": 30,
+					"title": "JMS Active Beans"
+				},
+				"JmsCount": {
+					"attribute": "/csap.jms.default-payload/count",
+					"title": "Jms Received",
+					"delta": true
+				},
+				"JmsRate": {
+					"attribute": "/csap.jms.default-payload/count",
+					"divideBy": "interval",
+					"title": "JMS Per Second",
+					"delta": true
+				},
+				"JmsMs": {
+					"attribute": "/csap.jms.default-payload/bucket-0.95-ms",
+					"title": "Jms Received 95% (ms)",
+					"delta": false
+				},
+				"DbActiveConnections": {
+					"attribute": "/csap.db.pool-active",
+					"max": 30,
+					"title": "DB Active Connections"
+				},
+				"DbQueryWithFilter": {
+					"attribute": "/csap.db.find-by-criteria/count",
+					"title": "Db Queries Filter",
+					"delta": true
+				},
+				"DbQueryWithFilterMs": {
+					"attribute": "/csap.db.find-by-criteria/bucket-0.95-ms",
+					"title": "Db Queries Filter 95% (ms)",
+					"delta": false
+				},
+				"DbQuery": {
+					"attribute": "/csap.db.find-by-jpql/count",
+					"title": "Db Queries",
+					"delta": true
+				},
+				"DbQueryMaxMs": {
+					"attribute": "/csap.db.find-by-jpql/bucket-0.95-ms",
+					"title": "Db Queries 95% (ms)",
+					"delta": false
+				},
+				"DbInsert": {
+					"attribute": "/csap.db.add-item/count",
+					"title": "Db Inserts",
+					"delta": true
+				},
+				"DbInsertMs": {
+					"attribute": "/csap.db.add-item/bucket-0.95-ms",
+					"title": "Db Inserts 95% (ms)",
+					"delta": false
+				},
+				"DbInsertMaxMs": {
+					"attribute": "/csap.db.add-item/bucket-max-ms",
+					"title": "Db Inserts MAX (ms)",
+					"delta": false
+				},
+				"DbConnection": {
+					"attribute": "/dbcp.BasicDataSource.getConnection/count",
+					"title": "DBCP connection requests",
+					"delta": true
+				}
+			},
+			"metaData": "webServerIntegration"
+		},
+		"docker": {
+			"server": "csap-api",
+			"autoStart": 50,
+			"port": 4243,
+			"description": "Docker node agent providing CLI/API. CSAP docker package uses systemctl to manage start/stops/removes",
+			"deploymentNotes": "Stopping docker will also stop all docker services on the host. Remove will also remove the os packages", 
+			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/403669979/csap-package-docker",
+			"propDirectory": "$$service-resources",
+			"appDirectory": "/var/lib/docker",
+			"processFilter": ".*dockerd.*",
+			"alerts": {
+				"max_diskUtil": "18g",
+				"max_socketCount": "30",
+				"max_diskWriteKb": "50",
+				"max_fileCount": "1000"
+			},
+			"isDataStore": "true",
+			"environmentVariables": {
+				"configuration-maps": [
+					"docker"
+				]
+			},
+			"source": {
+				"scm": "git",
+				"path": "https://bitbucket.org/***REMOVED***/oss-csap-packages.git",
+				"branch": "HEAD",
+				"buildLocation": "/csap-package-docker"
+			},
+			"maven": {
+				"dependency": "org.csap:csap-package-docker:2-SNAPSHOT:zip"
+			},
+			"logDirectory": "logs",
+			"defaultLogToShow": "docker",
+			"logJournalServices": "docker,csap,sshd",
+			"scheduledJobs": {
+				"scripts": [
+					{
+						"description": "Docker Volume Report",
+						"notes":"2-20 minutes depending on how many containers are deployed",
+						"frequency": "onDemand",
+						"background": true,
+						"script": "$$csap-base/bin/docker-volume-report.sh"
+					},
+					{
+						"description": "Remove unused images and containers",
+						"notes":"Job will cause kubernetes initd containers to restart if backing image is delete",
+						"frequency": "daily",
+						"environment-filters": [
+							"dev.*"
+						],
+						"hour": "03",
+						"script": "$$service-working/scripts/cleanUp.sh"
+					},
+					{
+						"description": "Remove dangling volumes",
+						"frequency": "daily",
+						"environment-filters": [
+							"dev.*"
+						],
+						"host-filters": [
+							".*dev.*"
+						],
+						"hour": "03",
+						"script": "docker volume rm $(docker volume ls -qf dangling=true)"
+					}
+				]
+			},
+			"performance": {
+				"config": {
+					"httpCollectionUrl": "$$csap-agent-url/api/agent/health/docker",
+					"healthCollectionUrl": "$$csap-agent-url/api/agent/health/docker",
+					"patternMatch": "JSON",
+					"notes": "CSAP collection will look for $numberLong in attributes and use it if found"
+				},
+				"isHealthy": {
+					"attribute": "/health-report/isHealthy",
+					"title": "Is Healthy"
+				},
+				"SummaryCount": {
+					"attribute": "/timers/summary/count",
+					"title": "Summary Requests",
+					"delta": true
+				},
+				"SummaryMs": {
+					"attribute": "/timers/summary/bucket-0.95-ms",
+					"title": "Summary 95% (ms)",
+					"delta": false
+				},
+				"DeployCount": {
+					"attribute": "/timers/deploy/count",
+					"title": "CSAP Deployments",
+					"delta": true
+				},
+				"DeployMs": {
+					"attribute": "/timers/deploy/bucket-0.95-ms",
+					"title": "CSAP Deploy 95% (ms)",
+					"delta": false
+				},
+				"imageCount": {
+					"attribute": "/report/imageCount",
+					"title": "Images"
+				},
+				"containerCount": {
+					"attribute": "/report/containerCount",
+					"title": "Containers Total"
+				},
+				"containerRunning": {
+					"attribute": "/report/containerRunning",
+					"title": "Containers Running"
+				},
+				"volumeCount": {
+					"attribute": "/report/volumeCount",
+					"title": "Volumes"
+				},
+				"networkCount": {
+					"attribute": "/report/networkCount",
+					"title": "Networks"
+				}
+			},
+			"url": "https://moc-bb.***REMOVED***/bitbucket/projects/CSAP/repos/csap-packages/browse/csap-package-docker",
+			"disk": "lib/docker",
+			"user": "root"
+		},
+		"etcd": {
+			"server": "os",
+			"description": "backing storage for kubernetes clusters; includes calico",
+			"docUrl": "https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/",
+			"appDirectory": "/",
+			"propDirectory": "/$$kubernetes-config/network",
+			"alerts": {
+				"max_diskUtil": "5g",
+				"max_diskWriteKb": "80",
+				"max_socketCount": "150"
+			},
+			"isDataStore": "true",
+			"logDirectory": "/dev",
+			"logRegEx": ".*\\.log",
+			"logJournalServices": "kubelet,docker",
+			"runUsingDocker": "true",
+			"docker": {
+				"socketNamespace": "global", 
+				"locator": {
+					"type": "io.kubernetes.container.name",
+					"value": "$$service-name"
+				},
+				"container-count": "1"
+			},
+			"url": "https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/,$$csap-agent-url/os/command?command=script&template=kubernetes-pods-etcd.sh&serviceName=$$service-name&",
+			"scmVersion": "os",
+			"disk": "/var/lib/etcd"
+		},
+		"events-mongo": {
+			"server": "docker",
+			"autoStart": 90,
+			"appDirectory": "/$$mongo-storage",
+			"propDirectory": "/$$service-resources",
+			"port": 27017,
+			"disk": "$$mongo-storage",
+			"description": "CSAP Events and analytics storage",
+			"alerts": {
+				"max_topCpu": "400",
+				"max_socketCount": "30",
+				"max_threadCount": "100",
+				"max_rssMemory": "3g",
+				"max_fileCount": "125",
+				"max_diskUtil": "50g",
+				"max_diskWriteKb": "4000"
+			},
+			"isDataStore": "true",
+			"environmentVariables": {
+				"configuration-maps": [
+					"storage-settings",
+					"csap-events-defaults",
+					"csap-events"
+				]
+			},
+			"source": {
+				"path": "https://bitbucket.org/***REMOVED***/csap-images.git"
+			},
+			"maven": {
+				
+			},
+			"scheduledJobs": {
+				"scripts": [
+					{
+						"description": "add nfs mount",
+						"frequency": "event-pre-deploy",
+						"script": "nfs_add_mount $$nfs-server:$$nfs-path $$nfs-mount $$nfs-options"
+					},
+					{
+						"description": "wait for mongo start message",
+						"frequency": "event-post-start",
+						"script": "wait_for_docker_log $$service-name 'Waiting for connections'"
+					},
+					{
+						"description": "remove nfs mount",
+						"frequency": "onDemand",
+						"script": "nfs_remove_mount $$nfs-mount;"
+					},
+					{
+						"description": "mongo summary",
+						"frequency": "onDemand",
+						"script": "$$service-resources/common/mongo-summary.sh"
+					},
+					{
+						"description": "resize metric capped collection",
+						"frequency": "onDemand",
+                    	"background": true,
+						"script": "$$service-resources/common/resize-metrics.sh"
+					},
+					{
+						"description": "events summary",
+						"frequency": "onDemand",
+						"script": "$$service-resources/common/events-summary.sh"
+					},
+					{
+						"description": "perform backup",
+						"frequency": "onDemand",
+                    	"background": true,
+						"script": "$$service-resources/common/events-dump.sh",
+						"parameters": [
+							"dumpDays,1,number of days to mongo_dump data from events and metrics collections",
+							"mongoBackupFolder,$nfs_mount/csap-events-migrate-latest,folder location"
+						]
+					},
+					{
+						"description": "perform restore",
+						"frequency": "onDemand",
+                    	"background": true,
+						"script": "$$service-resources/common/events-restore.sh",
+						"parameters": [
+							"mongoBackupFolder,$nfs_mount/csap-events-migrate-latest,folder location"
+						]
+					},
+					{
+						"description": "perform backup and restore",
+						"frequency": "onDemand",
+                    	"background": true,
+						"script": "$$service-resources/common/events-migrate.sh",
+						"parameters": [
+							"mongoSourceHost,mongoSourceHost,source for mongodump",
+							"mongoBackupFolder,$nfs_mount/csap-events-migrate-NOW,folder location",
+							"dumpDays,1,number of days to mongo_dump data from events and metrics collections",
+							"performRestore,false,set to true to restore to current mongo host"
+						]
+					},
+					{
+						"description": "warmup DB after restart",
+						"frequency": "onDemand",
+						"script": "$$service-resources/common/events-warmup.sh"
+					}
+				]
+			},
+			"docker": {
+				"image": "csap/csap-mongo:4.4.4",
+				"portMappings": [
+					{
+						"PrivatePort": "27017",
+						"PublicPort": "$$service-primary-port"
+					}
+				],
+				"volumes": [
+					{
+						"containerMount": "/data/db",
+						"readOnly": false,
+						"sharedUser": true,
+						"hostPath": "$$mongo-storage",
+						"createPersistent": {
+							"enabled": true,
+							"driver": "host"
+						}
+					}
+				],
+				"network": {
+					"name": "csap-events",
+					"note": "name can be bridge, host, or custom network name",
+					"createPersistent": {
+						"enabled": true,
+						"driver": "bridge"
+					}
+				},
+				"limits": {
+					"memoryInMb": 2000
+				},
+				"runUser": "$csapUser"
+			},
+			"performance": {
+				"config": {
+					"httpCollectionUrl": "http://$$service-host:7021/events-service/api/event/serverStatus",
+					"user": "dataBaseReadWriteUser",
+					"pass": "oaItsfpQDHDV/8yTfOVpCZxTsEMJmNfb",
+					"lifecycle1": {
+						"user": "dataBaseReadWriteUser",
+						"pass": "some-other-encrypted-password"
+					},
+					"lifecycle2": {
+						"user": "dataBaseReadWriteUser",
+						"pass": "some-other-encrypted-password"
+					},
+					"patternMatch": "JSON",
+					"notes": "CSAP collection will look for $numberLong in attributes and use it if found"
+				},
+				"IsMaster": {
+					"attribute": "/repl/ismaster",
+					"title": "Cluster Master"
+				},
+				"MongoActiveConnections": {
+					"attribute": "/connections/current",
+					"title": "Active Connections"
+				},
+				"Inserts": {
+					"attribute": "/opcounters/insert",
+					"delta": "delta",
+					"title": "Insert Operations"
+				},
+				"Queries": {
+					"attribute": "/opcounters/query",
+					"delta": "delta",
+					"title": "Query Operations"
+				},
+				"GetMore": {
+					"attribute": "/opcounters/getmore",
+					"delta": "delta",
+					"title": "GetMore Operations"
+				},
+				"Command": {
+					"attribute": "/opcounters/command",
+					"delta": "delta",
+					"title": "Command Operations"
+				},
+				"TigerCacheSize": {
+					"attribute": "/wiredTiger/cache/bytes currently in the cache",
+					"decimals": "0",
+					"divideBy": 1048576,
+					"title": "Tiger Cache Size(Mb)"
+				},
+				"TigerCacheWrite": {
+					"attribute": "/wiredTiger/cache/bytes written from cache",
+					"decimals": "1",
+					"divideBy": 1024,
+					"delta": "delta",
+					"title": "Tiger Cache Writes (Kb)"
+				},
+				"TigerCachePagesEvicted": {
+					"attribute": "/wiredTiger/cache/unmodified pages evicted",
+					"decimals": "0",
+					"delta": "delta",
+					"title": "Tiger Cache Pages Evicted"
+				},
+				"TigerCachePagesRead": {
+					"attribute": "/wiredTiger/cache/pages read into cache",
+					"decimals": "0",
+					"delta": "delta",
+					"title": "Tiger Cache Pages Loaded"
+				},
+				"DiskReads": {
+					"attribute": "/wiredTiger/block-manager/bytes read",
+					"decimals": "1",
+					"divideBy": 1024,
+					"delta": "delta",
+					"title": "Tiger Block Reads (Kb)"
+				},
+				"DiskWrites": {
+					"attribute": "/wiredTiger/block-manager/bytes written",
+					"decimals": "1",
+					"divideBy": 1024,
+					"delta": "delta",
+					"title": "Tiger Block Writes (Kb)"
+				},
+				"LocksRead": {
+					"attribute": "/locks/Global/acquireCount/r",
+					"delta": "delta",
+					"title": "Locks - Read"
+				},
+				"LocksWrite": {
+					"attribute": "/locks/Global/acquireCount/w",
+					"delta": "delta",
+					"title": "Locks - Write"
+				},
+				"LocksWaitRead": {
+					"attribute": "/locks/Global/acquireWaitCount/r",
+					"delta": "delta",
+					"title": "Locks - Read Waits"
+				},
+				"LocksWaitWrite": {
+					"attribute": "/locks/Global/acquireWaitCount/W",
+					"delta": "delta",
+					"title": "Locks - Write Waits"
+				},
+				"Readers": {
+					"attribute": "/globalLock/activeClients/readers",
+					"title": "Active Readers"
+				},
+				"Writers": {
+					"attribute": "/globalLock/activeClients/writers",
+					"title": "Active Writers"
+				},
+				"MongoKbIn": {
+					"attribute": "/network/bytesIn",
+					"decimals": "1",
+					"divideBy": 1024,
+					"delta": "delta",
+					"title": "Network In (Kb)"
+				},
+				"Updates": {
+					"attribute": "/opcounters/update",
+					"delta": "delta",
+					"title": "Update Operations"
+				},
+				"Deletes": {
+					"attribute": "/opcounters/delete",
+					"delta": "delta",
+					"title": "Delete Operations"
+				}
+			},
+			"folder-note": "note the prefix is required in order to use host file system"
+		},
+		"events-service": {
+			"server": "SpringBoot",
+			"autoStart": 99,
+			"port": 7021,
+			"description": "Csap Analytics project provides historical data and adoption analytics",
+			"alerts": {
+				"max_diskUtil": "100m",
+				"max_threadCount": "120",
+				"max_fileCount": "300",
+				"max_rssMemory": "2400m",
+				"max_tomcatConnections": "40",
+				"max_topCpu": "30",
+				"max_socketCount": "50"
+			},
+			"isTomcatAjp": "true",
+			"osProcessPriority": 0,
+			"parameters": "-Dspring.profiles.active=CSAP_LIFE,company -Xms1500m -Xmx1500m -XX:MaxMetaspaceSize=128M -XX:+ExitOnOutOfMemoryError",
+			"environmentVariables": {
+				"configuration-maps": [
+					"csap-events-defaults",
+					"csap-events",
+					"csap-sso"
+				]
+			},
+			"source": {
+				"scm": "git",
+				"path": "https://bitbucket.org/***REMOVED***/csap-event-services.git",
+				"buildLocation": "/csap-events",
+				"branch": "HEAD"
+			},
+			"maven": {
+				"dependency": "org.csap:csap-events:2-SNAPSHOT:jar"
+			},
+			"logJournalServices": "csap",
+			"performance": {
+				"config": {
+					"about": "csapMicroUrl generates: httpCollectionUrl, javaCollectionUrl, healthCollectionUrl ",
+					"csapMicroUrl": "http://$$service-fqdn-host:$$service-primary-port/$$service-name"
+				},
+				"HostCpuUse": {
+					"attribute": "csapHostCpu",
+					"max": 50,
+					"title": "Host Cpu"
+				},
+				"HostCpuLoad": {
+					"attribute": "csapHostLoad",
+					"max": 50,
+					"title": "Host CPU Load"
+				},
+				"ProcessCpu": {
+					"attribute": "/process.cpu.usage",
+					"decimals": "1",
+					"multiplyBy": 100,
+					"title": "Process CPU",
+					"max": 10
+				},
+				"MongoServerStatus": {
+					"attribute": "/csap.mongo-server-status/bucket-max-ms",
+					"title": "Mongo Status Response Time (ms)",
+					"max": 50
+				},
+				"EventPostRate": {
+					"attribute": "/csap.event.add/count",
+					"delta": "true",
+					"title": "Events Added",
+					"max": 1000
+				},
+				"EventsPerSecond": {
+					"attribute": "/csap.event.add/count",
+					"divideBy": "interval",
+					"decimals": "2",
+					"delta": "true",
+					"title": "Events Per Second",
+					"max": 100
+				},
+				"EventPostMeanMs": {
+					"attribute": "/csap.event.add/bucket-0.95-ms",
+					"title": "Event 95% Time (ms)",
+					"max": 10
+				},
+				"EventPostMaxMs": {
+					"attribute": "/csap.event.add/bucket-max-ms",
+					"title": "Event Max Time (ms)",
+					"max": 40
+				},
+				"UserActivity": {
+					"attribute": "/csap.event.add.user-activity/count",
+					"delta": "true",
+					"title": "CSAP User Actions"
+				},
+				"searchFilterMean": {
+					"attribute": "/csap.event.search-filters/bucket-0.95-ms",
+					"title": "UI Search Filters 95% Time(ms)"
+				},
+				"EventRecordsInK": {
+					"attribute": "/csap.db-size.events-count",
+					"title": "Event Document Count"
+				},
+				"EventDbStorageMb": {
+					"attribute": "/csap.db-size.events-disk-in-mb",
+					"title": "Events Disk(Mb)"
+				},
+				"EventDbIndexMb": {
+					"attribute": "/events-index-size-in-mb",
+					"title": "Event Index in Memory(Mb)"
+				},
+				"EventDbDataMb": {
+					"attribute": "/csap.db-size.events-data-in-mb",
+					"title": "Event Storage in Memory(Mb)"
+				},
+				"EventGetCount": {
+					"attribute": "/csap.event.get/count",
+					"delta": "true",
+					"title": "Events Get"
+				},
+				"EventGetMeanMs": {
+					"attribute": "/csap.event.get/bucket-0.95-ms",
+					"title": "Events Get 95% Time (ms)"
+				},
+				"EventGetMaxMs": {
+					"attribute": "/csap.event.get/bucket-max-ms",
+					"title": "Events Get Max (ms)"
+				},
+				"EventFilteredCount": {
+					"attribute": "/csap.event.filtered-count/bucket-0.95-ms",
+					"title": "UI Event Count 95% Time (Ms)"
+				},
+				"MetricsEventPostRate": {
+					"attribute": "/csap.event.add.metrics-data/count",
+					"delta": "true",
+					"title": "Metric Events Added",
+					"isHourlyAverage": true,
+					"max": "4000"
+				},
+				"MetricsEventPostMeanMs": {
+					"attribute": "/csap.event.add.metrics-data/bucket-0.95-ms",
+					"title": "Metrics Add 95% Time (ms)"
+				},
+				"MetricsEventPostMaxMs": {
+					"attribute": "/csap.event.add.metrics-data/bucket-max-ms",
+					"title": "Metrics Add Max Time (ms)"
+				},
+				"MetricsRecordsInK": {
+					"attribute": "/csap.db-size.metrics-count",
+					"title": "Metrics Document Count"
+				},
+				"MetricsDbStorageMb": {
+					"attribute": "/csap.db-size.metrics-disk-in-mb",
+					"title": "Metric Storage on Disk(Mb)"
+				},
+				"MetricsDbDataMb": {
+					"attribute": "/csap.db-size.metrics-data-in-mb",
+					"title": "Metric Storage in Memory(Mb)"
+				},
+				"SpringMvcRequests": {
+					"attribute": "/tomcat.global.request/count",
+					"title": "Http Gets Received",
+					"delta": true
+				},
+				"EventSecurity": {
+					"attribute": "/csap.security.rest-api",
+					"delta": true,
+					"title": "Event Credential Attempts"
+				},
+				"EventSecurityErrors": {
+					"attribute": "/csap.security.rest-api.failure",
+					"delta": true,
+					"title": "Event Credential Failures"
+				},
+				"MetricsApiCount": {
+					"attribute": "/csap.metrics-get/count",
+					"delta": true,
+					"title": "Metrics Data Count",
+					"reportRate": "perDay"
+				},
+				"MetricsApiMeanMs": {
+					"attribute": "/csap.metrics-get/bucket-0.95-ms",
+					"title": "Metrics Data Get 95% Time(ms)"
+				},
+				"MetricsApiMaxMs": {
+					"attribute": "/csap.metrics-get/bucket-max-ms",
+					"title": "Metrics Data Get Max Time (ms)"
+				},
+				"SummaryReportCount": {
+					"attribute": "/csap.reports-summary/count",
+					"delta": true,
+					"title": "Summary Report Count",
+					"reportRate": "perDay"
+				},
+				"SummaryReportMean": {
+					"attribute": "/csap.reports-summary/bucket-0.95-ms",
+					"title": "Summary Report 95% Time (ms)"
+				},
+				"SummaryReportMax": {
+					"attribute": "/csap.reports-summary/bucket-max-ms",
+					"title": "Summary Report Max (ms)"
+				},
+				"TrendingReportCount": {
+					"attribute": "/csap.reports-trend/count",
+					"title": "Trend Report Count",
+					"reportRate": "perDay"
+				},
+				"TrendingReportMean": {
+					"attribute": "/csap.reports-trend/bucket-0.95-ms",
+					"title": "Trend Report 95% Time (ms)"
+				},
+				"TrendingReportMax": {
+					"attribute": "/csap.reports-trend/bucket-max-ms",
+					"title": "Trend Report Max Time(ms)"
+				}
+			},
+			"javaWarnings": {
+				"jvmThreadCount": {
+					"max": 100
+				},
+				"jvmThreadsMax": {
+					"max": 110
+				}
+			}
+		},
+		"ha-proxy-kubernetes": {
+			"server": "docker",
+			"autoStart": 15,
+			"port": 6443,
+			"description": "Development only - enables kubernetes HA deployment without updating DNS entries",
+			"docUrl": "http://cbonte.github.io/haproxy-dconv/1.9/configuration.html,https://blog.csnet.me/k8s-thw/part6/",
+			"alerts": {
+				"max_socketCount": "200"
+			},
+			"scheduledJobs": {
+				"scripts": [
+					{
+						"description": "Copy resource files to working directory",
+						"frequency": "event-pre-start",
+						"script": "rm -rf $csapWorkingDir/resources; cp --recursive --verbose $csapResourceFolder $csapWorkingDir/resources"
+					}
+				]
+			},
+			"docker": {
+				"image": "haproxy:1.9",
+				"volumes": [
+					{
+						"about": "configuration file",
+						"containerMount": "/usr/local/etc/haproxy",
+						"readOnly": true,
+						"sharedUser": true,
+						"hostPath": "$$service-working/resources/common",
+						"createPersistent": {
+							"enabled": false,
+							"driver": "host"
+						}
+					}
+				],
+				"portMappings": [
+					{
+						"about": "api server port",
+						"PrivatePort": "$$service-primary-port",
+						"PublicPort": "$$service-primary-port"
+					},
+					{
+						"about": "ha stats ui",
+						"PrivatePort": "$$service-primary-port+1",
+						"PublicPort": "$$service-primary-port+1"
+					}
+				]
+			},
+			"url": "http://$$service-fqdn-host:$$service-primary-port+1/stats"
+		},
+		"httpd": {
+			"server": "csap-api",
+			"autoStart": 20,
+			"port": 8080,
+			"description": "High Availability and loadbalancing functions for springboot and tomcat services. Apache Web Server & Modjk",
+			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211867/CSAP+Packages",
+			"propDirectory": "/mnt",
+			"processFilter": "$$service-working/bin/httpd.*",
+			"alerts": {
+				"max_diskUtil": "1000",
+				"max_threadCount": "300",
+				"max_fileCount": "300",
+				"max_rssMemory": "250m",
+				"max_topCpu": "30",
+				"max_socketCount": "100"
+			},
+			"osProcessPriority": -12,
+			"environmentVariables": {
+				"configuration-maps": [
+					"storage-settings",
+					"httpd"
+				]
+			},
+			"deployTimeoutMinutes": "10",
+			"source": {
+				"scm": "git",
+				"path": "https://bitbucket.org/***REMOVED***/oss-csap-packages.git",
+				"branch": "HEAD",
+				"buildLocation": "/csap-package-httpd"
+			},
+			"maven": {
+				"dependency": "org.csap:csap-package-httpd:2-SNAPSHOT:zip"
+			},
+			"defaultLogToShow": "error_log",
+			"scheduledJobs": {
+				"scripts": [
+					{
+						"description": "add nfs mount",
+						"frequency": "event-pre-start",
+						"script": "nfs_add_mount $$nfs-server:$$nfs-path $$nfs-mount"
+					},
+					{
+						"description": "remove nfs mount",
+						"frequency": "onDemand",
+						"script": "nfs_remove_mount $$nfs-mount;"
+					}
+				]
+			},
+			"performance": {
+				"config": {
+					"httpCollectionUrl": "http://localhost:8080/server-status?auto",
+					"patternMatch": ": ([^\n]*)",
+					"title": "CSAP Collection Url"
+				},
+				"BusyWorkers": {
+					"attribute": "BusyWorkers",
+					"title": "Workers Busy"
+				},
+				"IdleWorkers": {
+					"attribute": "IdleWorkers",
+					"title": "Workers Idle"
+				},
+				"KBytesPerSecond": {
+					"attribute": "BytesPerSec",
+					"decimals": "1",
+					"divideBy": 1024,
+					"title": "Requests: KB per second"
+				},
+				"KBytesPerRequest": {
+					"attribute": "BytesPerReq",
+					"decimals": "1",
+					"divideBy": 1024,
+					"title": "Requests: KB per Request"
+				},
+				"UrlsProcessed": {
+					"attribute": "Total Accesses",
+					"delta": true,
+					"title": "Requests: Between collections"
+				},
+				"RequestsPerSecond": {
+					"attribute": "ReqPerSec",
+					"decimals": "2",
+					"title": "Requests: Number per Second"
+				}
+			},
+			"metaData": "killWarnings,generateWorkerProperties",
+			"url": "$$csap-agent-url/service/httpd,$$csap-agent-url/service/modjk,http://$$service-fqdn-host:8080/about.html"
+		},
+		"jstatd": {
+			"server": "csap-api",
+			"autoStart": 200,
+			"port": 8099,
+			"description": "Java Statistics",
+			"propDirectory": "/home/csapUser/processing/mongodb/conf",
+			"processFilter": ".*jstatd.*",
+			"source": {
+				"scm": "git",
+				"path": "https://github.com/csap-platform/oss-csap-packages.git",
+				"branch": "HEAD",
+				"buildLocation": "/csap-package-java-statd"
+			},
+			"maven": {
+				"dependency": "org.csap:csap-package-java-statd:2.0:zip"
+			},
+			"url": "https://wiki/display/SFAECSAP/CSAP+Java+Stats+Package"
+		},
+		"kube-apiserver": {
+			"server": "os",
+			"description": "core api service accessed by all users, automation, and components in the Kubernetes cluster",
+			"docUrl": "https://kubernetes.io/docs/reference/generated/kube-apiserver/",
+			"appDirectory": "/",
+			"propDirectory": "/$$kubernetes-config",
+			"alerts": {
+				"max_socketCount": "200"
+			},
+			"logJournalServices": "kubelet,docker",
+			"runUsingDocker": "true",
+			"docker": {
+				"socketNamespace": "global", 
+				"locator": {
+					"type": "io.kubernetes.container.name",
+					"value": "$$service-name"
+				},
+				"container-count": "1"
+			},
+			"scmVersion": "os",
+			"url": "https://kubernetes.io/docs/reference/generated/kube-apiserver/"
+		},
+		"kube-controller-manager": {
+			"server": "os",
+			"description": "manages the core control loops shipped with Kubernetes",
+			"docUrl": "https://kubernetes.io/docs/reference/generated/kube-controller-manager/",
+			"appDirectory": "/",
+			"propDirectory": "/$$kubernetes-config",
+			"alerts": {
+				"max_diskUtil": "20g",
+				"max_socketCount": "5"
+			},
+			"logDirectory": "/var/logs",
+			"logRegEx": ".*\\.log",
+			"logJournalServices": "kublet,docker",
+			"runUsingDocker": "true",
+			"docker": {
+				"socketNamespace": "global", 
+				"locator": {
+					"type": "io.kubernetes.container.name",
+					"value": "$$service-name"
+				},
+				"container-count": "1"
+			},
+			"url": "https://kubernetes.io/docs/reference/generated/kube-controller-manager/",
+			"scmVersion": "os"
+		},
+		"kube-proxy": {
+			"server": "os",
+			"description": "simple TCP and UDP stream forwarding or round robin TCP and UDP",
+			"docUrl": "https://kubernetes.io/docs/reference/generated/kube-proxy/",
+			"appDirectory": "/",
+			"propDirectory": "/$$kubernetes-config",
+			"alerts": {
+				"max_diskUtil": "300m",
+				"max_socketCount": "5"
+			},
+			"logJournalServices": "kubelet,docker",
+			"runUsingDocker": "true",
+			"docker": {
+				"socketNamespace": "global", 
+				"locator": {
+					"type": "io.kubernetes.container.name",
+					"value": "$$service-name"
+				}
+			},
+			"url": "https://kubernetes.io/docs/reference/generated/kube-proxy/",
+			"scmVersion": "os"
+		},
+		"kube-scheduler": {
+			"server": "os",
+			"description": "watches newly created pods that have no node assigned, and selects a node for them to run on",
+			"docUrl": "https://kubernetes.io/docs/reference/generated/kube-scheduler/",
+			"appDirectory": "/",
+			"propDirectory": "/$$kubernetes-config",
+			"alerts": {
+				"max_diskUtil": "20g",
+				"max_socketCount": "5"
+			},
+			"logJournalServices": "kubelet,docker",
+			"runUsingDocker": "true",
+			"docker": {
+				"socketNamespace": "global", 
+				"locator": {
+					"value": "$$service-name",
+					"type": "io.kubernetes.container.name"
+				},
+				"container-count": "1"
+			},
+			"url": "https://kubernetes.io/docs/reference/generated/kube-scheduler/",
+			"scmVersion": "os"
+		},
+		"kubelet": {
+			"server": "csap-api",
+			"autoStart": 100,
+			"port": 8014,
+			"description": "Kubernetes node agent providing CLI/API: CSAP kubelet package uses systemctl to manage start/stops/removes",
+			"deploymentNotes": "Stopping kubelet will first evict any pods on the node, then issue a systemctl stop on the service. Remove will also remove the os packages", 
+			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211870/csap-package-kubelet",
+			"propDirectory": "configuration",
+			"appDirectory": "/var/lib/kubelet",
+			"processFilter": ".*/usr/bin/kubelet --bootstrap.*",
+			"alerts": {
+				"max_diskUtil": "300m",
+				"max_socketCount": "30"
+			},
+			"environmentVariables": {
+				"configuration-maps": [
+					"storage-settings",
+					"csap-kubelet-defaults",
+					"kubelet",
+					"nginx-ingress"
+				],
+				"about-maps": "Note nginx-ingress is injected for port resolution in /lookup"
+			},
+			"deployTimeoutMinutes": "10",
+			"source": {
+				"scm": "git",
+				"path": "https://bitbucket.org/***REMOVED***/oss-csap-packages.git",
+				"branch": "HEAD",
+				"buildLocation": "/csap-package-kubelet"
+			},
+			"maven": {
+				"dependency": "org.csap:csap-package-kubelet:2-SNAPSHOT:zip"
+			},
+			"defaultLogToShow": "kubelet",
+			"logJournalServices": "kubelet,docker",
+			"scheduledJobs": {
+				"scripts": [
+					{
+						"description": "reset worker install token",
+						"frequency": "onDemand",
+						"script": "$$service-working/scripts/reset-kubeadm-token.sh"
+					},
+					{
+						"description": "manage kubernetes certs",
+						"frequency": "onDemand",
+						"script": "$$csap-base/bin/csap-check-certificates.sh",
+						"parameters": [
+							"minimumExpirationDays,30,warnings will be output for certs with fewer days",
+							"refreshCerts,false,if set to true, certificates will be reset (kubeadm certs renew all)"
+						]
+					},
+					{
+						"description": "Skip Eviction: shut kubernetes down",
+						"frequency": "onDemand",
+						"script": "run_using_root systemctl stop kubelet"
+					},
+					{
+						"description": "Start kubelet",
+						"frequency": "onDemand",
+						"script": "run_using_root systemctl start kubelet"
+					},
+					{
+						"description": "purge ALL journal files",
+						"frequency": "onDemand",
+						"script": "run_using_root journalctl --flush; run_using_root journalctl --rotate; run_using_root journalctl --vacuum-time=1s; run_using_root journalctl --disk-usage; "
+					},
+					{
+						"description": "remove ALL journal files",
+						"frequency": "onDemand",
+						"script": "run_using_root rm --recursive --force /run/log/journal/*"
+					},
+					{
+						"description": "perform a master backup",
+						"frequency": "onDemand",
+						"script": "$$service-working/scripts/backup-restore.sh"
+					},
+					{
+						"description": "(re)start api server proxy",
+						"warning": "this give root access to your host", 
+						"frequency": "hourly",
+						"environment-filters": [
+							"dev.*"
+						],
+						"host-filters": [
+							".*dev.*"
+						],
+						"script": "$$service-working/scripts/job-start-api-proxy.sh"
+					}
+				]
+			},
+			"performance": {
+				"config": {
+					"httpCollectionUrl": "$$csap-agent-url/api/agent/health/kubernetes",
+					"patternMatch": "JSON",
+					"notes": "CSAP k8s summary data",
+					"healthCollectionUrl": "$$csap-agent-url/api/agent/health/kubernetes"
+				},
+				"isHealthy": {
+					"attribute": "/health-report/isHealthy",
+					"title": "Is Healthy"
+				},
+				"eventCount": {
+					"attribute": "/report/eventCount",
+					"title": "Events"
+				},
+				"nodeCores": {
+					"attribute": "/report/metrics/current/cores",
+					"title": "Node Cpu Cores"
+				},
+				"nodeMemory": {
+					"attribute": "/report/metrics/current/memoryGb",
+					"title": "Node Memory (GB)"
+				},
+				"podRunningCount": {
+					"attribute": "/report/metrics/current/podsRunning",
+					"title": "Node Pods Running"
+				},
+				"podNotRunningCount": {
+					"attribute": "/report/metrics/current/podsNotRunning",
+					"title": "Node Pods Not Running"
+				},
+				"capacityCores": {
+					"attribute": "/report/metrics/current/resources/capacity/cores",
+					"title": "resources: Cpu Cores Available"
+				},
+				"requestedCores": {
+					"attribute": "/report/metrics/current/resources/requests/cores",
+					"title": "resources: Cpu Cores Requested"
+				},
+				"requestedCoresPercent": {
+					"attribute": "/report/metrics/current/resources/requests/coresPercent",
+					"title": "resources: Cpu Cores Requested %"
+				},
+				"limitsCores": {
+					"attribute": "/report/metrics/current/resources/limits/cores",
+					"title": "resources: Cpu Cores Limits"
+				},
+				"capacityMemory": {
+					"attribute": "/report/metrics/current/resources/capacity/memoryGb",
+					"title": "resources: Memory(gb) Available"
+				},
+				"requestedMemory": {
+					"attribute": "/report/metrics/current/resources/requests/memoryGb",
+					"title": "resources: Memory(gb) Requested"
+				},
+				"requestedMemoryPercent": {
+					"attribute": "/report/metrics/current/resources/requests/memoryPercent",
+					"title": "resources: Memory Requested %"
+				},
+				"limitsMemory": {
+					"attribute": "/report/metrics/current/resources/limits/memoryGb",
+					"title": "resources: Memory(gb) Limits"
+				},
+				"deploymentSpecCount": {
+					"attribute": "/report/deploymentCount",
+					"title": "Deployment Specs"
+				},
+				"SummaryCount": {
+					"attribute": "/timers/summary/count",
+					"title": "Summary Requests",
+					"delta": true
+				},
+				"SummaryMs": {
+					"attribute": "/timers/summary/bucket-0.95-ms",
+					"title": "Summary 95% (ms)",
+					"delta": false
+				},
+				"DeployCount": {
+					"attribute": "/timers/deploy/count",
+					"title": "CSAP Deployments",
+					"delta": true
+				},
+				"DeployMs": {
+					"attribute": "/timers/deploy/bucket-0.95-ms",
+					"title": "CSAP Deploy 95% (ms)",
+					"delta": false
+				},
+				"volumeClaimCount": {
+					"attribute": "/report/volumeClaimCount",
+					"title": "Volume Claims"
+				},
+				"serviceCount": {
+					"attribute": "/report/serviceCount",
+					"title": "Services"
+				},
+				"ingressCount": {
+					"attribute": "/report/ingressCount",
+					"title": "Ingresses"
+				},
+				"replicaSetCount": {
+					"attribute": "/report/replicaSetCount",
+					"title": "Replica Sets"
+				},
+				"daemonSetCount": {
+					"attribute": "/report/daemonSetCount",
+					"title": "Daemon Sets"
+				},
+				"statefulSetCount": {
+					"attribute": "/report/statefulSetCount",
+					"title": "ReplicaSets"
+				},
+				"endpointCount": {
+					"attribute": "/report/endpointCount",
+					"title": "ReplicaSets"
+				}
+			},
+			"metaData": "",
+			"url": "http://$$service-fqdn-host:8011,http://$$service-fqdn-host:$$service-primary-port,$$kubernetes-dashboard",
+			"user": "root",
+			"disk": "lib/kubelet"
+		},
+		"kubernetes-dashboard": {
+			"server": "docker",
+			"autoStart": 120,
+			"description": "Kubernetes dashboard user interface",
+			"docUrl": "https://github.com/kubernetes/dashboard",
+			"propDirectory": "/$$kubernetes-config/dashboard-2.x",
+			"alerts": {
+				"max_socketCount": "30"
+			},
+			"logJournalServices": "kubelet,docker",
+			"scheduledJobs": {
+				"scripts": [
+					{
+						"description": "wait for pod startup",
+						"frequency": "event-post-deploy",
+						"script": "wait_for_pod_running $$service-name"
+					},
+					{
+						"description": "wait for pod shutdown",
+						"frequency": "event-post-stop",
+						"script": "wait_for_pod_removed $$service-name"
+					}
+				]
+			},
+			"runUsingDocker": "true",
+			"docker": {
+				"locator": {
+					"type": "io.kubernetes.container.name",
+					"value": "$$service-name"
+				},
+				"deployment-files-use": "true",
+				"deployment-file-names": [
+					"$$kubernetes-config/dashboard-2.x/dashboard.yaml",
+					"$$kubernetes-config/dashboard-2.x/dashboard-access.yaml"
+				],
+				"container-count": "1"
+			},
+			"url": "$$kubernetes-dashboard",
+			"scmVersion": "os"
+		},
+		"dashboard-metrics-scraper": {
+			"server": "os",
+			"description": "Small binary to scrape and store a small window of metrics from the Metrics Server in Kubernetes",
+			"docUrl": "https://github.com/kubernetes-sigs/dashboard-metrics-scraper",
+			"appDirectory": "/",
+			"propDirectory": "/$$kubernetes-config",
+			"alerts": {
+				"max_diskUtil": "20g",
+				"max_socketCount": "5"
+			},
+			"logJournalServices": "kubelet,docker",
+			"runUsingDocker": "true",
+			"docker": {
+				"locator": {
+					"value": "$$service-name",
+					"type": "io.kubernetes.container.name"
+				},
+				"container-count": "1"
+			},
+			"url": "https://github.com/kubernetes-sigs/dashboard-metrics-scraper",
+			"scmVersion": "os"
+		},
+
+		"metrics-server": {
+			"server": "docker",
+			"propDirectory": "/$$kubernetes-config/metrics-server",
+			"appDirectory": "/",
+			"autoStart": 140,
+			"description": "Kubernetes Metrics Service integrates with host dashboard to provide access to kubectl top and related functions",
+			"docUrl": "https://github.com/kubernetes-incubator/metrics-server/blob/master/README.md",
+			"alerts": {
+				"max_socketCount": "30"
+			},
+			"maven": {
+				
+			},
+			"docker": {
+				"deployment-files-use": "true",
+				"deployment-file-names": [
+					"$$kubernetes-config/metrics-server/metrics-server.yaml"
+				],
+				"container-count": "1",
+				"locator": {
+					"value": "$$service-name"
+				}
+			}
+		},
+
+		"nfs-client-provisioner": {
+			"server": "docker",
+			"autoStart": 105,
+			"description": "Kubernetes NFS Storage managment",
+			"docUrl": "https://github.com/kubernetes-incubator/external-storage/tree/master/nfs-client",
+			"propDirectory": "/$$kubernetes-config/storage-nfs-client",
+			"disk": "$$nfs-mount", 
+			"alerts": {
+				"max_diskUtil": "100g"
+			},
+			"environmentVariables": {
+				"configuration-maps": [
+					"storage-settings"
+				]
+			},
+			"logJournalServices": "kubelet,docker",
+			"scheduledJobs": {
+				"scripts": [
+					{
+						"description": "create kubernetes provisioner mount folder",
+						"frequency": "event-pre-deploy",
+						"script": "run_using_root mkdir --parents --verbose $$nfs-mount/$$nfs-provisioner"
+					},
+					{
+						"description": "wait for pod startup",
+						"frequency": "event-post-deploy",
+						"script": "wait_for_pod_log $$service-name 'Started provisioner controller' $$service-replica-count"
+					},
+					{
+						"description": "wait for pod shutdown",
+						"frequency": "event-post-stop",
+						"script": "wait_for_pod_removed $$service-name"
+					}
+				]
+			},
+			"runUsingDocker": "true",
+			"docker": {
+				"locator": {
+					"type": "io.kubernetes.container.name",
+					"value": "$$service-name"
+				},
+				"deployment-files-use": "true",
+				"deployment-file-names": [
+					"$$kubernetes-config/storage-nfs-client/rbac.yaml",
+					"$$kubernetes-config/storage-nfs-client/deployment.yaml",
+					"$$kubernetes-config/storage-nfs-client/class.yaml"
+				],
+				"container-count": "1",
+				"image": "gcr.io/k8s-staging-sig-storage/nfs-subdir-external-provisioner:v4.0.0",
+				"eolimage": "quay.io/external_storage/nfs-client-provisioner:v3.1.0-k8s1.11"
+			},
+			"url": "https://github.com/kubernetes-incubator/external-storage/tree/master/nfs-client",
+			"scmVersion": "os"
+		},
+		"nginx-ingress-controller": {
+			"server": "docker",
+			"autoStart": 110,
+			"description": "allows access to Kubernetes services from outside the Kubernetes cluster",
+			"deploymentNotes": "Note: $$ingress-host, $$ingress-node-selector, $$ingress-http-port, $$ingress-http-port MUST be set, usually in global configmap", 
+			"docUrl": "https://kubernetes.github.io/ingress-nginx/",
+			"propDirectory": "/$$kubernetes-config/ingress",
+			"environmentVariables": {
+				"configuration-maps": [
+					"nginx-ingress"
+				]
+			},
+			"alerts": {
+				"max_threadCount": "1800",
+				"max_fileCount": "5000",
+				"max_socketCount": "200"
+			},
+			"scheduledJobs": {
+				"scripts": [
+					{
+						"description": "show namespace and name",
+						"frequency": "on-demand",
+						"script": "print_with_head name: $$service-name namespace: $$service-namespace"
+					},
+					{
+						"description": "pod log example",
+						"frequency": "on-demand",
+						"script": "wait_for_pod_log $$service-name 'Backend successfully reloaded' $$service-replica-count ingress-nginx 199 '--since=4h'"
+					},
+					{
+						"description": "wait for pod startup",
+						"frequency": "event-post-deploy",
+						"script": "wait_for_pod_conditions $$service-name"
+					},
+					
+					{
+						"description": "wait for pod shutdown",
+						"frequency": "event-post-stop",
+						"script": "wait_for_pod_removed $$service-name"
+					}
+				]
+			},
+			"runUsingDocker": "true",
+			"docker": {
+				"socketNamespace": "global", 
+				"locator": {
+					"type": "io.kubernetes.container.name",
+					"value": "$$service-name"
+				},
+				"deployment-files-use": "true",
+				"deployment-file-names": [
+					"$$kubernetes-config/ingress/ingress-nginx.yaml"
+				],
+				"container-count": "1",
+				"image": "k8s.gcr.io/ingress-nginx/controller:v0.47.0@sha256:a1e4efc107be0bb78f32eaec37bef17d7a0c81bec8066cdf2572508d21351d0b"
+			},
+			"url": "https://kubernetes.github.io/ingress-nginx/",
+			"scmVersion": "os"
+		}
+	}
+}

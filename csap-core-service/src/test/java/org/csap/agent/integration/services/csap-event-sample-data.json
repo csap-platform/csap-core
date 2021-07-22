@@ -1,0 +1,186 @@
+{
+	"category" : "/csap/metrics/jmx/standard/30/attributes",
+	"summary" : "Modified",
+	"lifecycle" : "dev",
+	"project" : "CSAP Desktop",
+	"host" : "localhost",
+	"createdOn" : {
+		"unixMs" : 1415804589562,
+		"date" : "2014-11-12",
+		"time" : "10:03:09"
+	},
+	"data" : {
+		"id" : "jmx_30",
+		"metricName" : "JMX Resources",
+		"description" : "Contains service metrics",
+
+		"hostName" : "localhost",
+		"sampleInterval" : 30,
+		"samplesRequested" : 2,
+		"samplesOffset" : 0,
+		"currentTimeMillis" : 1415804589559,
+		"cpuCount" : 8,
+		"servicesAvailable" : [ "admin_8911", "springmvc-showcase_8061",
+				"CsAgent_8011", "AuditService_8191", "Cssp3ReferenceMq_8241",
+				"SuperLongNameToDemoLineWraps_8041", "ServletSample_8091",
+				"activemq_8161", "Cssp1Reference_8021" ],
+		"servicesRequested" : [ "admin_8911", "springmvc-showcase_8061",
+				"CsAgent_8011", "AuditService_8191", "Cssp3ReferenceMq_8241",
+				"SuperLongNameToDemoLineWraps_8041", "ServletSample_8091",
+				"activemq_8161", "Cssp1Reference_8021" ],
+		"graphs" : {
+			"Cpu_As_Reported_By_JVM" : {
+				"cpuPercent_admin_8911" : "admin_8911",
+				"cpuPercent_springmvc-showcase_8061" : "springmvc-showcase_8061",
+				"cpuPercent_CsAgent_8011" : "CsAgent_8011",
+				"cpuPercent_AuditService_8191" : "AuditService_8191",
+				"cpuPercent_Cssp3ReferenceMq_8241" : "Cssp3ReferenceMq_8241",
+
+				"cpuPercent_SuperLongNameToDemoLineWraps_8041" : "SuperLongNameToDemoLineWraps_8041",
+				"cpuPercent_ServletSample_8091" : "ServletSample_8091",
+				"cpuPercent_activemq_8161" : "activemq_8161",
+				"cpuPercent_Cssp1Reference_8021" : "Cssp1Reference_8021",
+				"totalCpu" : "VM Total"
+			},
+			"openFiles" : {
+				"openFiles_admin_8911" : "admin_8911",
+
+				"openFiles_springmvc-showcase_8061" : "springmvc-showcase_8061",
+				"openFiles_CsAgent_8011" : "CsAgent_8011",
+
+				"openFiles_AuditService_8191" : "AuditService_8191",
+				"openFiles_Cssp3ReferenceMq_8241" : "Cssp3ReferenceMq_8241",
+
+				"openFiles_SuperLongNameToDemoLineWraps_8041" : "SuperLongNameToDemoLineWraps_8041",
+				"openFiles_ServletSample_8091" : "ServletSample_8091",
+				"openFiles_activemq_8161" : "activemq_8161",
+				"openFiles_Cssp1Reference_8021" : "Cssp1Reference_8021"
+			},
+			"minorGcInMs" : {
+				"minorGcInMs_admin_8911" : "admin_8911",
+
+				"minorGcInMs_springmvc-showcase_8061" : "springmvc-showcase_8061",
+				"minorGcInMs_CsAgent_8011" : "CsAgent_8011",
+
+				"minorGcInMs_AuditService_8191" : "AuditService_8191",
+				"minorGcInMs_Cssp3ReferenceMq_8241" : "Cssp3ReferenceMq_8241",
+
+				"minorGcInMs_SuperLongNameToDemoLineWraps_8041" : "SuperLongNameToDemoLineWraps_8041",
+				"minorGcInMs_ServletSample_8091" : "ServletSample_8091",
+				"minorGcInMs_activemq_8161" : "activemq_8161",
+				"minorGcInMs_Cssp1Reference_8021" : "Cssp1Reference_8021"
+			},
+			"majorGcInMs" : {
+				"majorGcInMs_admin_8911" : "admin_8911",
+
+				"majorGcInMs_springmvc-showcase_8061" : "springmvc-showcase_8061",
+				"majorGcInMs_CsAgent_8011" : "CsAgent_8011",
+
+				"majorGcInMs_AuditService_8191" : "AuditService_8191",
+				"majorGcInMs_Cssp3ReferenceMq_8241" : "Cssp3ReferenceMq_8241",
+
+				"majorGcInMs_SuperLongNameToDemoLineWraps_8041" : "SuperLongNameToDemoLineWraps_8041",
+				"majorGcInMs_ServletSample_8091" : "ServletSample_8091",
+				"majorGcInMs_activemq_8161" : "activemq_8161",
+				"majorGcInMs_Cssp1Reference_8021" : "Cssp1Reference_8021"
+			},
+			"heapUsed" : {
+				"heapUsed_admin_8911" : "admin_8911",
+
+				"heapUsed_springmvc-showcase_8061" : "springmvc-showcase_8061",
+				"heapUsed_CsAgent_8011" : "CsAgent_8011",
+
+				"heapUsed_AuditService_8191" : "AuditService_8191",
+				"heapUsed_Cssp3ReferenceMq_8241" : "Cssp3ReferenceMq_8241",
+
+				"heapUsed_SuperLongNameToDemoLineWraps_8041" : "SuperLongNameToDemoLineWraps_8041",
+				"heapUsed_ServletSample_8091" : "ServletSample_8091",
+				"heapUsed_activemq_8161" : "activemq_8161",
+				"heapUsed_Cssp1Reference_8021" : "Cssp1Reference_8021"
+
+			},
+			"heapMax" : {
+				"heapMax_admin_8911" : "admin_8911",
+				"heapMax_springmvc-showcase_8061" : "springmvc-showcase_8061",
+				"heapMax_CsAgent_8011" : "CsAgent_8011",
+				"heapMax_AuditService_8191" : "AuditService_8191",
+
+				"heapMax_Cssp3ReferenceMq_8241" : "Cssp3ReferenceMq_8241",
+				"heapMax_SuperLongNameToDemoLineWraps_8041" : "SuperLongNameToDemoLineWraps_8041",
+				"heapMax_ServletSample_8091" : "ServletSample_8091",
+				"heapMax_activemq_8161" : "activemq_8161",
+				"heapMax_Cssp1Reference_8021" : "Cssp1Reference_8021"
+			},
+			"tomcatConnections" : {
+
+				"tomcatConnections_admin_8911" : "admin_8911",
+				"tomcatConnections_springmvc-showcase_8061" : "springmvc-showcase_8061",
+
+				"tomcatConnections_CsAgent_8011" : "CsAgent_8011",
+				"tomcatConnections_AuditService_8191" : "AuditService_8191",
+
+				"tomcatConnections_Cssp3ReferenceMq_8241" : "Cssp3ReferenceMq_8241",
+				"tomcatConnections_SuperLongNameToDemoLineWraps_8041" : "SuperLongNameToDemoLineWraps_8041",
+				"tomcatConnections_ServletSample_8091" : "ServletSample_8091",
+
+				"tomcatConnections_activemq_8161" : "activemq_8161",
+				"tomcatConnections_Cssp1Reference_8021" : "Cssp1Reference_8021"
+			},
+
+			"tomcatThreadsBusy" : {
+				"tomcatThreadsBusy_admin_8911" : "admin_8911",
+				"tomcatThreadsBusy_springmvc-showcase_8061" : "springmvc-showcase_8061",
+				"tomcatThreadsBusy_CsAgent_8011" : "CsAgent_8011",
+				"tomcatThreadsBusy_AuditService_8191" : "AuditService_8191",
+				"tomcatThreadsBusy_Cssp3ReferenceMq_8241" : "Cssp3ReferenceMq_8241",
+
+				"tomcatThreadsBusy_SuperLongNameToDemoLineWraps_8041" : "SuperLongNameToDemoLineWraps_8041",
+				"tomcatThreadsBusy_ServletSample_8091" : "ServletSample_8091",
+				"tomcatThreadsBusy_activemq_8161" : "activemq_8161",
+				"tomcatThreadsBusy_Cssp1Reference_8021" : "Cssp1Reference_8021"
+			},
+			"tomcatThreadCount" : {
+				"tomcatThreadCount_admin_8911" : "admin_8911",
+
+				"tomcatThreadCount_springmvc-showcase_8061" : "springmvc-showcase_8061",
+				"tomcatThreadCount_CsAgent_8011" : "CsAgent_8011",
+
+				"tomcatThreadCount_AuditService_8191" : "AuditService_8191",
+				"tomcatThreadCount_Cssp3ReferenceMq_8241" : "Cssp3ReferenceMq_8241",
+
+				"tomcatThreadCount_SuperLongNameToDemoLineWraps_8041" : "SuperLongNameToDemoLineWraps_8041",
+				"tomcatThreadCount_ServletSample_8091" : "ServletSample_8091",
+				"tomcatThreadCount_activemq_8161" : "activemq_8161",
+				"tomcatThreadCount_Cssp1Reference_8021" : "Cssp1Reference_8021"
+			},
+			"jvmThreadCount" : {
+				"jvmThreadCount_admin_8911" : "admin_8911",
+
+				"jvmThreadCount_springmvc-showcase_8061" : "springmvc-showcase_8061",
+				"jvmThreadCount_CsAgent_8011" : "CsAgent_8011",
+
+				"jvmThreadCount_AuditService_8191" : "AuditService_8191",
+				"jvmThreadCount_Cssp3ReferenceMq_8241" : "Cssp3ReferenceMq_8241",
+
+				"jvmThreadCount_SuperLongNameToDemoLineWraps_8041" : "SuperLongNameToDemoLineWraps_8041",
+				"jvmThreadCount_ServletSample_8091" : "ServletSample_8091",
+				"jvmThreadCount_activemq_8161" : "activemq_8161",
+				"jvmThreadCount_Cssp1Reference_8021" : "Cssp1Reference_8021"
+			},
+			"jvmThreadsMax" : {
+				"jvmThreadsMax_admin_8911" : "admin_8911",
+
+				"jvmThreadsMax_springmvc-showcase_8061" : "springmvc-showcase_8061",
+				"jvmThreadsMax_CsAgent_8011" : "CsAgent_8011",
+
+				"jvmThreadsMax_AuditService_8191" : "AuditService_8191",
+				"jvmThreadsMax_Cssp3ReferenceMq_8241" : "Cssp3ReferenceMq_8241",
+
+				"jvmThreadsMax_SuperLongNameToDemoLineWraps_8041" : "SuperLongNameToDemoLineWraps_8041",
+				"jvmThreadsMax_ServletSample_8091" : "ServletSample_8091",
+				"jvmThreadsMax_activemq_8161" : "activemq_8161",
+				"jvmThreadsMax_Cssp1Reference_8021" : "Cssp1Reference_8021"
+			}
+		}
+	}
+} 

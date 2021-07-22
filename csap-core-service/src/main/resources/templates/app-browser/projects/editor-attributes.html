@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head>
+</head>
+
+<body th:fragment="pageContent">
+
+	<div class=options>
+
+		<div style="position: relative">
+			<label class=csap>
+				Service Filter:
+				<input
+					id="releaseFilter"
+					style="width: 130px"
+					placeholder="Enter filter"
+					title="Filter by lifecycle, servicename, version, etc. Hit enter key to apply filter"
+					value="" />
+			</label>
+
+			<label class=csap>
+				Attribute Selection:
+				<select id="batchAttributeSelect">
+
+					<optgroup label="Most Used">
+						<option value="autoStart">Start Order</option>
+						<option value="docker.image">Docker Image</option>
+						<option value="maven.dependency">SpringBoot, Linux</option>
+						<option
+							value="description"
+							selected="selected">Description</option>
+						<option value="deploymentNotes">Deployment Notes</option>
+					</optgroup>
+
+
+
+					<optgroup label="Service Alert Limits">
+						<option value="alerts">ALL</option>
+						<option value="alerts.max_topCpu">CPU</option>
+						<option value="alerts.max_threadCount">Thread Count</option>
+						<option value="alerts.max_rssMemory">Memory (RSS)</option>
+						<option value="disk">Disk Location</option>
+						<option value="alerts.max_diskUtil">Disk (Mb)</option>
+						<option value="alerts.max_diskReadKb">Disk Read (kb/s)</option>
+						<option value="alerts.max_diskWriteKb">Disk Write (kb/s)</option>
+						<option value="alerts.max_fileCount">Open Files</option>
+						<option value="alerts.max_socketCount">Socket Count</option>
+						<option value="alerts.max_tomcatConnections">Tomcat Connections</option>
+						<option value="alerts.jvm_jmxHeartbeat">Heartbeat Enabled</option>
+					</optgroup>
+
+					<optgroup label="CSAP">
+						<option value="autoStart">Start Order</option>
+						<option value="server">Profile</option>
+						<option value="description">Description</option>
+						<option value="docUrl">Help Url</option>
+						<option value="appDirectory">Application Folder</option>
+						<option value="propDirectory">Property Folder</option>
+						<option value="isDataStore">is a data service</option>
+						<option value="isMessaging">is a messaging service</option>
+						<option value="isTomcatAjp">is Tomcat Load balancing</option>
+						<option value="metaData">Custom</option>
+						<option value="url">URL</option>
+						<option value="launchUrl">launch url</option>
+						<option value="scheduledJobs">Jobs</option>
+					</optgroup>
+
+
+					<optgroup label="Deployment">
+						<option value="maven.dependency">Maven Artifact</option>
+						<option value="source.path">Code Location</option>
+						<option value="source.type">Repository type</option>
+						<option value="source.buildLocation">Build Folder</option>
+						<option value="source.branch">Branch</option>
+						<option value="deployTimeoutMinutes">Time Out</option>
+
+					</optgroup>
+
+					<optgroup label="Os Process">
+						<option value="processFilter">Process Matcher</option>
+						<option value="parameters">Start Parameters</option>
+						<option value="environmentVariables">Environment Variables</option>
+						<option value="osProcessPriority">Priority</option>
+						<option value="port">Primary Port</option>
+						<option value="jmxPort">Java JMX Port</option>
+					</optgroup>
+
+					<optgroup label="Logs">
+						<option
+							title="location of log files, folder and 1 level subdirectories will be checked. use // on docker containers"
+							value="logDirectory">Directory</option>
+						<option
+							title="only show files matching filter"
+							value="logRegEx">File Filter</option>
+						<option
+							title="first file matching will be displayed"
+							value="defaultLogToShow">Default File</option>
+						<option
+							title="system services to be included in log drop down. eg. docker, ssh, etc."
+							value="logJournalServices">Associated system services</option>
+					</optgroup>
+
+					<optgroup label="Container Definition">
+						<option value="docker.image">Image</option>
+						<option value="docker.containerName">Container Name</option>
+						<option value="docker.command">Command</option>
+						<option value="docker.entryPoint">Entry Point</option>
+						<option value="docker.versionCommand">Version Command</option>
+					</optgroup>
+
+					<optgroup label="Container Vars,Vols,Ports">
+						<option value="docker.environmentVariables">Environment Variables</option>
+						<option value="docker.volumes">Volumes</option>
+						<option value="docker.portMappings">Ports</option>
+					</optgroup>
+
+					<optgroup label="Kubernetes ">
+
+						<option
+							value="docker.kubernetes-settings.resources.requests"
+							data-json="true">Resource requests</option>
+
+						<option
+							value="docker.kubernetes-settings.resources.limits"
+							data-json="true">Resource limits</option>
+
+						<option
+							value="docker.kubernetes-settings.service-type"
+							data-json="true">Service Type</option>
+
+						<option
+							value="docker.kubernetes-settings.replica-count"
+							data-json="true">Replica Count</option>
+
+						<option
+							value="docker.locator"
+							data-json="true">Monitoring Locator</option>
+						<option
+							value="docker.container-count"
+							data-json="true">Container count</option>
+					</optgroup>
+
+					<optgroup label="Docker ">
+						<option value="docker.network">Network</option>
+						<option value="docker.limits">Limits</option>
+						<option
+							value="docker.locator"
+							data-json="true">Monitoring Locator</option>
+						<option
+							value="docker.container-count"
+							data-json="true">Container count</option>
+					</optgroup>
+				</select>
+			</label>
+		</div>
+
+	</div>
+
+
+	<div id="attribute-content">
+		<table class="csap">
+			<thead
+				title="Click on column heading to sort&#013;Use the filter to specify lifecycle, version, etc.&#013;Note: the deploy environment is shown in parenthesis.&#013;To add environment values, use the service editor.">
+
+				<tr>
+					<th>Service</th>
+					<th>Attribute:</th>
+				</tr>
+			</thead>
+
+			<tbody id="releaseTableBody">
+			</tbody>
+
+		</table>
+	</div>
+
+</body>
+
+</html>
+

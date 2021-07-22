@@ -1,0 +1,8 @@
+{
+	"SampleJvmInA": {
+		"dev": "org.demo:TestForVersionReleaseFile:9.9.9-SNAPSHOT:jar"
+	},
+	"csap-demo-nginx": {
+		"dev": "nginx:1.16.999"
+	}
+}

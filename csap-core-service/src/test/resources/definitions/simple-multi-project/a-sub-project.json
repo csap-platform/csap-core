@@ -1,0 +1,71 @@
+{
+	"project": {
+		"api-version": 2.1,
+		"project-version": 1.0,
+		"name": "sub-project-a",
+		"architect": "yourEmail@notConfigured.com",
+		"emailNotifications": "support@notConfigured.com"
+	},
+	"environments": {
+		"defaults": {
+			"settings": {
+				"base-env-only": true,
+				"application": {
+					"name": "multi-test-sub"
+				},
+				"configuration-maps": {
+					"global": {
+						"test4": "test4",
+						"test5": "test5"
+					}
+				}
+			},
+			"test-cluster1": {
+				"type": "simple",
+				"hosts": [],
+				"template-references": [
+					"csap-verify-service"
+				]
+			}
+		},
+		"dev": {
+			"settings": {
+				"imports": [
+					"defaults"
+				],
+				"configuration-maps": {
+					"global": {
+						"test5": "test5-overidden"
+					}
+				}
+			},
+			"test-cluster2": {
+				"type": "simple",
+				"hosts": [
+					"sub-host-1"
+				],
+				"template-references": [
+					"docker",
+					"simple-2"
+				]
+			}
+		}
+	},
+	"service-templates": {
+		"simple-2": {
+			"server": "SpringBoot",
+			"docker": {
+				"image": "nginx:latest"
+			},
+			"scheduledJobs": {
+				"scripts": [
+					{
+						"description": "wait for pod startup",
+						"frequency": "event-post-deploy",
+						"script": "wait_for_pod_log $$service-name 'database system is ready to accept connections' $$service-replica-count"
+					}
+				]
+			}
+		}
+	}
+}

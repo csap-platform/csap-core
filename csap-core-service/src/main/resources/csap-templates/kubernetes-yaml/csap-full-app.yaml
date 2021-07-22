@@ -1,0 +1,154 @@
+#
+# refer: 
+# - https://blog.heptio.com/using-kubectl-to-jumpstart-a-yaml-file-heptioprotip-6f5b8a63a3ea
+# - https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+#
+
+
+kind: Deployment
+
+apiVersion: apps/v1
+
+metadata:
+  name: csap-full-app
+  namespace: default
+  labels:
+    run: csap-full-app-id
+    
+spec:
+  selector:
+    matchLabels:
+      run: csap-full-app-id
+      
+  replicas: 1
+  
+  template:
+  
+    metadata:
+      name: "csap-full-app-pod"
+      labels:
+        run: csap-full-app-id
+        matchForDemoService: csap-full-app-service-target
+        
+    spec:
+      containers:
+            
+      #
+      #  db service
+      #
+      - name: postgres-container
+        image: docker.io/postgres:latest
+        ports:
+        - containerPort: 5432
+        env:
+        - name: PGDATA
+          value: "/var/lib/postgresql/data"
+          
+      
+      #
+      #  jms service
+      #
+      - name: activemq-container
+        image: docker.***REMOVED***/csap/csap-activemq:latest
+        ports:
+        - containerPort: 61616
+        env:
+        - name: PGDATA
+          value: "/var/lib/postgresql/data"
+          
+      #
+      #  java service 1 : boot profiles: embedded OR services
+      #
+      - name: csap-7080
+        image: docker.***REMOVED***/csap/csap-test-app:latest
+        ports:
+        - containerPort: 7080
+        env:
+        - name: javaOptions
+          value: "-Dcsap.security.enabled=false -Dserver.servlet.context-path=/ -Xms256M -Xmx256M -Dspring.profiles.active=dev,services -DcsapJmxPort=7086 -Dserver.port=7080 -jar csap-test-app.jar"
+        - name: dbHost
+          value: "localhost"
+        - name: jmsHost
+          value: "localhost"
+          
+      #
+      #  java service 2
+      #
+      - name: csap-7090
+        image: docker.***REMOVED***/csap/csap-test-app:latest
+        ports:
+        - containerPort: 7090
+        env:
+        - name: javaOptions
+          value: "-Dcsap.security.enabled=false -Dserver.servlet.context-path=/ -Xms256M -Xmx256M -Dspring.profiles.active=dev,services -DcsapJmxPort=7096 -Dserver.port=7090 -jar csap-test-app.jar"
+        - name: dbHost
+          value: "localhost"
+        - name: jmsHost
+          value: "localhost"
+          
+                    
+      #
+      #  tools service
+      #
+      - name: csap-tools
+        image: docker.***REMOVED***/csap/csap-tools
+        command:
+          - /bin/bash
+          - -c
+          - echo sleeping; sleep 1000
+        ports:
+        - containerPort: 7080
+        env:
+        - name: javaOptions
+          value: "-Dcsap.security.enabled=false -Dserver.servlet.context-path=/ -Xms256M -Xmx256M -Dspring.profiles.active=embedded -DcsapJmxPort=7086 -Dserver.port=7080 -jar csap-test-app.jar"
+        - name: dbHost
+          value: "postgres-container"
+        - name: jmsHost
+          value: "activemq-container"
+        
+---
+#
+# reference: https://kubernetes.io/docs/concepts/services-networking/service/
+#
+kind: Service
+apiVersion: v1
+metadata:
+  name: csap-full-app-service
+  namespace: default
+spec:
+  selector:
+    matchForDemoService: csap-full-app-service-target
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 7080
+  type: NodePort
+    
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+metadata:
+
+  name: csap-full-app-ingress
+  namespace: default
+  
+  annotations: 
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/session-cookie-name: "k8_route"
+    nginx.ingress.kubernetes.io/session-cookie-hash: "sha1"
+  
+spec:
+  rules:
+  - host: "*.mycompany.com"
+    http:
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+          backend: 
+            service:
+              name: csap-full-app-service
+              port: 
+                number: 7080
+          

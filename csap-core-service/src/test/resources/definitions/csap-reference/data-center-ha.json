@@ -1,0 +1,524 @@
+{
+  "project" : {
+    "api-version" : 2.1,
+    "project-version" : 1,
+    "name" : "CSAP HA Demo",
+    "architect" : "ricky.west@***REMOVED***.com",
+    "description" : "Kubernetes HA cluster: reference implementation",
+    "emailNotifications" : "support@notConfigured.com"
+  },
+  "environments" : {
+    "defaults" : {
+      "settings" : {
+        "base-env-only" : true,
+        "configuration-maps" : { },
+        "lastModifiedBy" : "pnightingale"
+      },
+      "base-os" : {
+        "description" : "core services installed on every host",
+        "type" : "simple",
+        "template-references" : [ "csap-package-java", "csap-package-linux", "docker", "csap-verify-service" ]
+      }
+    },
+    "dev" : {
+      "base-os" : {
+        "hosts" : [ "csap-dev07", "csap-dev08", "csap-dev09", "csap-dev10", "csap-dev11", "csap-dev12" ]
+      },
+      "kubernetes-ha" : {
+        "type" : "kubernetes-provider",
+        "template" : "false",
+        "masters" : [ "csap-dev07", "csap-dev08", "csap-dev09" ],
+        "hosts" : [ "csap-dev07", "csap-dev08", "csap-dev09", "csap-dev10", "csap-dev11", "csap-dev12" ],
+        "monitors" : { },
+        "master-dns" : "csap-dev01.***REMOVED***:6443",
+        "template-references" : [ "csap-package-monitoring", "kubelet-ha" ],
+        "lastModifiedBy" : "pnightingale"
+      },
+      "settings" : {
+        "imports" : [ "defaults" ],
+        "loadbalancer-url" : "http://csap-dev01.***REMOVED***",
+        "vsphere" : {
+          "filters" : {
+            "datastore-regex" : "(.*)CSAP(.*)",
+            "vm-path" : "RNIs/CSAP-DEV_p/csap-dev2",
+            "resource-pool-path" : "BLDCluster/Resources/CSAP"
+          },
+          "env" : {
+            "GOVC_USERNAME" : "lab\\csapstorage",
+            "GOVC_PASSWORD" : "4O6EmXt6RCQ0f8W5DTqPcCMC1fp1rWKy3o6rZICEgdk=",
+            "GOVC_URL" : "vcenter6.***REMOVED***",
+            "GOVC_DATACENTER" : "***REMOVED***",
+            "GOVC_DATASTORE" : "CSAP_DS1_NFS",
+            "GOVC_INSECURE" : "1"
+          }
+        },
+        "lastModifiedBy" : "pnightingale",
+        "configuration-maps" : {
+          "global" : {
+            "test-global-ga" : "test-global-ha-1"
+          },
+          "docker" : {
+            "dockerRepo" : "http://media.***REMOVED***/media/third_party/linux/CentOS/docker-ce.repo"
+          },
+          "csap-sso" : {
+            "csapUserSecret" : "d437dcbe-d37d-422b-9039-b6705e4cf8fa",
+            "csapServiceSecret" : "8dd6d776-d071-496c-9e51-3fbdfb547c6e",
+            "oathHostPort" : "csap-dev01.***REMOVED***:8090",
+            "openIdIssuerUri" : "http://csap-dev01.***REMOVED***:8090/auth/realms/csap-default"
+          },
+          "nginx-ingress" : {
+            "$$ingress-host" : "*.***REMOVED***",
+            "$$ingress-node-selector" : "\"kubernetes.io/os\": linux",
+            "$$ingress-http-port" : 80,
+            "$$ingress-https-port" : 443
+          },
+          "kubelet" : {
+            "clusterToken" : "584t76.b0b7c7r75rbc0ml0",
+            "masterBackupFolder" : "/opt/csap/kubernetes-backups",
+            "kubernetesAllInOne" : "false",
+            "cipherSuites" : "default-secure",
+            "kubernetesRepo" : "http://media.***REMOVED***/media/third_party/kubernetes/kubernetes-el7.repo"
+          },
+          "storage-settings" : {
+            "about-type" : "vsphere or nfs can be used",
+            "$$storage-type" : "nfs",
+            "$$storage-class" : "csap-nfs-storage-1",
+            "$$storage-folder" : "csap-dev-ha-storage",
+            "$$vsphere-datastore" : "CSAP_DS1_NFS",
+            "$$nfs-server" : "10.22.10.59",
+            "$$nfs-path" : "/CSAP_DEV01_NFS",
+            "$$nfs-mount" : "/mnt/CSAP_DEV01_NFS",
+            "$$nfs-provisioner" : "kubernetes-pvcs-csap-ha",
+            "$$disk-activemq" : "2G",
+            "$$disk-postgres" : "20G"
+          }
+        }
+      },
+      "csap-test-ha" : {
+        "type" : "kubernetes",
+        "hosts" : [ ],
+        "kubernetes-provider" : "kubernetes-ha",
+        "kubernetes-namespace" : "csap-test-ha",
+        "display" : "high",
+        "template-references" : [ "test-k8s-activemq", "test-k8s-by-spec-ha", "test-k8s-csap-reference", "test-k8s-postgres" ],
+        "template" : "false",
+        "lastModifiedBy" : "pnightingale"
+      },
+      "kubernetes-system-ha" : {
+        "type" : "kubernetes",
+        "template" : "false",
+        "hosts" : [ ],
+        "kubernetes-provider" : "kubernetes-ha",
+        "monitors" : {
+          "max_socketCount" : "600"
+        },
+        "template-references" : [ "calico-kube-controllers", "calico-node", "coredns", "etcd", "kube-apiserver", "kube-controller-manager", "kube-proxy", "kube-scheduler", "kubernetes-dashboard", "metrics-server", "nfs-client-provisioner", "nginx-ingress-controller" ],
+        "lastModifiedBy" : "pnightingale"
+      },
+      "csap-monitoring" : {
+        "type" : "kubernetes",
+        "template-references" : [ "alertmanager", "grafana", "monitoring-tools", "prometheus" ],
+        "hosts" : [ ],
+        "lastModifiedBy" : "pnightingale",
+        "kubernetes-provider" : "kubernetes-ha"
+      }
+    },
+    "stage" : {
+      "base-os" : {
+        "hosts" : [ "ChangeMe-stage1" ]
+      },
+      "kubernetes-system" : {
+        "type" : "kubernetes",
+        "template" : "false",
+        "hosts" : [ "ChangeMe-stage2" ],
+        "kubernetes-provider" : "kubernetes-ha",
+        "monitors" : { },
+        "template-references" : [ ]
+      },
+      "kubernetes-ha" : {
+        "type" : "kubernetes-provider",
+        "template" : "false",
+        "masters" : [ "csap-dev07", "csap-dev08", "csap-dev09" ],
+        "hosts" : [ "ChangeMe-stage3" ],
+        "monitors" : {
+          "max_socketCount" : "400"
+        },
+        "master-dns" : "csap-dev01.***REMOVED***:6443",
+        "template-references" : [ "kubelet-ha" ]
+      },
+      "settings" : {
+        "imports" : [ "defaults" ],
+        "loadbalancer-url" : "",
+        "configuration-maps" : {
+          "global" : {
+            "test-global-ga" : "test-global-ha-1",
+            "$$ingress-host" : "csap-dev10.***REMOVED***",
+            "csapUserSecret" : "d437dcbe-d37d-422b-9039-b6705e4cf8fa",
+            "csapServiceSecret" : "8dd6d776-d071-496c-9e51-3fbdfb547c6e",
+            "oathHostPort" : "csap-dev01.***REMOVED***:8090"
+          },
+          "csap-sso" : {
+            "csapUserSecret" : "d437dcbe-d37d-422b-9039-b6705e4cf8fa",
+            "csapServiceSecret" : "8dd6d776-d071-496c-9e51-3fbdfb547c6e",
+            "oathHostPort" : "csap-dev01.***REMOVED***:8090",
+            "openIdIssuerUri" : "http://csap-dev01.***REMOVED***:8090/auth/realms/csap-default"
+          },
+          "kubelet" : {
+            "clusterToken" : "584t76.b0b7c7r75rbc0ml0",
+            "masterBackupFolder" : "/opt/csap/kubernetes-backups",
+            "kubernetesRepo" : "http://media.***REMOVED***/media/third_party/kubernetes/kubernetes-el7.repo",
+            "kubernetesRepoSensus" : "http://media.***REMOVED***/media/third_party/kubernetes/kubernetes-el7.repo",
+            "kubernetesRepoGoogle" : "https://packages.cloud.google.com/yum"
+          }
+        },
+        "lastModifiedBy" : "pnightingale"
+      },
+      "csap-test-ha" : {
+        "type" : "kubernetes",
+        "hosts" : [ "ChangeMe-stage4" ],
+        "kubernetes-provider" : "kubernetes-ha",
+        "kubernetes-namespace" : "csap-test-ha",
+        "display" : "high",
+        "template-references" : [ "test-k8s-activemq", "test-k8s-by-spec", "test-k8s-csap-reference", "test-k8s-postgres" ]
+      }
+    }
+  },
+  "service-templates" : {
+    "kubelet-ha" : {
+      "copySource" : "kubelet"
+    },
+    "test-k8s-activemq" : {
+      "server" : "docker",
+      "autoStart" : 410,
+      "port" : 8161,
+      "description" : "Added by pnightingale. Service provides ...",
+      "alerts" : {
+        "max_socketCount" : "40"
+      },
+      "isMessaging" : "true",
+      "environmentVariables" : {
+        "configuration-maps" : [ "storage-settings" ]
+      },
+      "scheduledJobs" : {
+        "scripts" : [ {
+          "description" : "create storage",
+          "frequency" : "event-pre-deploy",
+          "script" : "create_storage_folder $$storage-type $$storage-folder/$$service-name-disk $$nfs-mount $$vsphere-datastore $$disk-activemq"
+        }, {
+          "description" : "wait for pod startup",
+          "frequency" : "event-post-deploy",
+          "script" : "wait_for_pod_conditions $$service-name; sleep 5"
+        }, {
+          "description" : "wait for pod shutdown",
+          "frequency" : "event-post-stop",
+          "script" : "wait_for_pod_removed $csapName"
+        } ]
+      },
+      "docker" : {
+        "image" : "csap/csap-activemq:latest",
+        "kubernetes-settings" : {
+          "service-type" : "NodePort",
+          "add-csap-tools" : "false"
+        },
+        "portMappings" : [ {
+          "containerPort" : "$$service-primary-port",
+          "servicePort" : "$$service-primary-port",
+          "name" : "ui-port"
+        }, {
+          "containerPort" : "61616",
+          "servicePort" : "61616",
+          "name" : "jms-port"
+        } ],
+        "container-count" : "1",
+        "volumes" : [ {
+          "about" : "mq log volume",
+          "name" : "mq-local-log",
+          "mountPath" : "/var/log/activemq",
+          "emptyDir" : {
+            "sizeLimit" : "10Mi"
+          }
+        }, {
+          "about" : "data volume",
+          "name" : "$$service-name-data-volume",
+          "mountPath" : "/data/activemq",
+          "place-holder-emptyDir" : {
+            "sizeLimit" : "500Mi"
+          },
+          "persistentVolumeClaim" : {
+            "claimName" : "$$service-name-claim",
+            "about" : "note storage class must be blank or default will be used",
+            "storageClass" : "",
+            "selectorMatchLabels" : {
+              "disk" : "$$service-name-disk"
+            },
+            "accessModes" : [ "ReadWriteOnce" ],
+            "storage" : "1Gi",
+            "createIfNotPresent" : true
+          }
+        } ],
+        "versionCommand" : "ls /opt/activemq/*.jar | cut -d- -f3 | cat | rev | cut --characters 5- | rev",
+        "deployment-file-names" : [ "SEARCH_FOR_RESOURCE:$$storage-type-pv.yml" ]
+      },
+      "url" : "$$kubernetes-nodeport?serviceName=$$service-name\u0026path=/",
+      "lastModifiedBy" : "pnightingale"
+    },
+    "test-k8s-by-spec-ha" : {
+      "copySource" : "test-k8s-by-spec"
+    },
+    "test-k8s-postgres" : {
+      "server" : "docker",
+      "autoStart" : 400,
+      "port" : 5432,
+      "description" : "Added by pnightingale. Service provides ...",
+      "alerts" : {
+        "max_diskUtil" : "500g",
+        "max_fileCount" : "700",
+        "max_socketCount" : "30"
+      },
+      "isDataStore" : "true",
+      "environmentVariables" : {
+        "configuration-maps" : [ "storage-settings" ]
+      },
+      "scheduledJobs" : {
+        "scripts" : [ {
+          "description" : "create nfs volume",
+          "frequency" : "event-pre-deploy",
+          "script" : "create_storage_folder $$storage-type $$storage-folder/$$service-name-disk $$nfs-mount $$vsphere-datastore $$disk-postgres"
+        }, {
+          "description" : "wait for pod startup",
+          "frequency" : "event-post-deploy",
+          "script" : "wait_for_pod_conditions $$service-name; sleep 5"
+        }, {
+          "description" : "wait for pod shutdown",
+          "frequency" : "event-post-stop",
+          "script" : "wait_for_pod_removed $$service-name"
+        } ]
+      },
+      "docker" : {
+        "image" : "docker.io/postgres:11.5",
+        "kubernetes-settings" : {
+          "service-type" : "ClusterIP",
+          "replica-count" : "1",
+          "add-csap-tools" : "false"
+        },
+        "container-count" : "1",
+        "deployment-files-use" : "false",
+        "deployment-file-names" : [ "SEARCH_FOR_RESOURCE:$$storage-type-pv.yml" ],
+        "volumes" : [ {
+          "name" : "$$service-name-volume",
+          "mountPath" : "/var/lib/postgresql/data",
+          "placeholder-emptyDir" : {
+            "sizeLimit" : "15Gi"
+          },
+          "persistentVolumeClaim" : {
+            "claimName" : "$$service-name-pvc",
+            "about" : "note storage class must be blank or default will be used",
+            "storageClass" : "",
+            "accessModes" : [ "ReadWriteOnce" ],
+            "selectorMatchLabels" : {
+              "disk" : "$$service-name-disk"
+            },
+            "storage" : "$$disk-postgres",
+            "createIfNotPresent" : true
+          }
+        } ],
+        "portMappings" : [ {
+          "containerPort" : "$$service-primary-port",
+          "servicePort" : "$$service-primary-port",
+          "name" : "tcp-$$service-primary-port"
+        } ],
+        "versionCommand" : "postgres --version | cut -d\u0027 \u0027 -f3 | cat",
+        "environmentVariables" : [ "PGDATA=/var/lib/postgresql/data/pvc-volume" ],
+        "locator" : {
+          "podName" : "$$service-name-.*"
+        }
+      },
+      "performance" : {
+        "config" : {
+          "httpCollectionUrl" : "http://csap-dev10.***REMOVED***/test-k8s-csap-reference/csap/metrics/db/postgress",
+          "patternMatch" : "JSON",
+          "notes" : "db stats are published via test service"
+        },
+        "PerfTableRows" : {
+          "attribute" : "/indexByTable/demo_event/rowCount",
+          "title" : "Row count (Perf Test)"
+        },
+        "PerfTableIndex" : {
+          "attribute" : "/indexByTable/job_schedule/indexPercentUsed",
+          "title" : "Index Used % (Perf Test)"
+        },
+        "Inserts" : {
+          "attribute" : "/statsByUser/postgres/inserts",
+          "delta" : "delta",
+          "title" : "Insert Operations"
+        },
+        "Queries" : {
+          "attribute" : "/statsByUser/postgres/querys",
+          "delta" : "delta",
+          "title" : "Query Operations"
+        },
+        "Updates" : {
+          "attribute" : "/statsByUser/postgres/updates",
+          "delta" : "delta",
+          "title" : "Update Operations"
+        },
+        "Deletes" : {
+          "attribute" : "/statsByUser/postgres/deletes",
+          "delta" : "delta",
+          "title" : "Delete Operations"
+        },
+        "transComm" : {
+          "attribute" : "/statsByUser/postgres/transactionsCommitted",
+          "delta" : "delta",
+          "title" : "Transactions Committed"
+        },
+        "transRolled" : {
+          "attribute" : "/statsByUser/postgres/transactionsRolledBack",
+          "delta" : "delta",
+          "title" : "Transactions RolledBack"
+        },
+        "TableSize" : {
+          "attribute" : "/tableSizeInKb",
+          "title" : "Table Size (kb)"
+        },
+        "IndexSize" : {
+          "attribute" : "/indexSizeInKb",
+          "title" : "Index Size (kb)"
+        },
+        "heapCacheRatio" : {
+          "attribute" : "/heapCache/ratio",
+          "title" : "Heap Cache (%)",
+          "decimals" : "1",
+          "multiplyBy" : 100
+        },
+        "heapCacheHits2" : {
+          "attribute" : "/heapCache/hits",
+          "delta" : "delta",
+          "title" : "Heap Cache (Hits)"
+        },
+        "indexCacheRatio" : {
+          "attribute" : "/indexCache/ratio",
+          "title" : "Index Cache (%)",
+          "decimals" : "1",
+          "multiplyBy" : 100
+        },
+        "indexCacheHits" : {
+          "attribute" : "/indexCache/hits",
+          "delta" : "delta",
+          "title" : "Index Cache (Hits)"
+        }
+      },
+      "url" : "http://$$service-fqdn-host:8014/api/v1/namespaces/csap-test-ha/services/test-k8s-csap-reference-service:http-6090/proxy/test-k8s-csap-reference/csap/metrics/db/postgress",
+      "lastModifiedBy" : "pnightingale"
+    },
+    "csap-package-monitoring" : {
+      "server" : "csap-api",
+      "autoStart" : 200,
+      "description" : "Deploys kubernetes monitoring components generated using kube-promethius opensource project",
+      "docUrl" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/1058572066/csap-package-monitoring",
+      "processFilter" : "none",
+      "alerts" : {
+        "max_socketCount" : 60,
+        "max_diskUtil" : "10g"
+      },
+      "environmentVariables" : {
+        "configuration-maps" : [ "storage-settings", "csap-monitoring-defaults", "csap-monitoring" ]
+      },
+      "source" : {
+        "scm" : "git",
+        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-packages.git",
+        "branch" : "HEAD",
+        "buildLocation" : "/csap-package-monitoring"
+      },
+      "maven" : {
+        "dependency" : "org.csap:csap-package-monitoring:2-SNAPSHOT:zip"
+      },
+      "url" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/1058572066/csap-package-monitoring",
+      "deploymentNotes" : "All kube-prometheseus components will be deployed. Note: only occurs on primary master",
+      "lastModifiedBy" : "pnightingale"
+    },
+    "prometheus" : {
+      "server" : "os",
+      "scmVersion" : "os",
+      "runUsingDocker" : true,
+      "isDataStore" : true,
+      "description" : "collector and storage of performance data for kube-prometheus components",
+      "url" : "$$kubernetes-nodeport?serviceName=$$service-name\u0026path=/",
+      "docUrl" : "https://github.com/prometheus-operator/kube-prometheus",
+      "alerts" : {
+        "max_socketCount" : 60,
+        "max_diskUtil" : "5g"
+      },
+      "docker" : {
+        "container-count" : 1,
+        "locator" : {
+          "type" : "io.kubernetes.container.name",
+          "value" : "$$service-name"
+        }
+      },
+      "logJournalServices" : "kubelet,docker"
+    },
+    "grafana" : {
+      "server" : "os",
+      "scmVersion" : "os",
+      "runUsingDocker" : true,
+      "isDataStore" : true,
+      "description" : "user interface for kube-prometheus prometheus component",
+      "url" : "$$kubernetes-nodeport?serviceName=$$service-name\u0026path=/",
+      "docUrl" : "https://github.com/prometheus-operator/kube-prometheus",
+      "alerts" : {
+        "max_socketCount" : 10,
+        "max_diskUtil" : "10m"
+      },
+      "docker" : {
+        "container-count" : 1,
+        "locator" : {
+          "type" : "io.kubernetes.container.name",
+          "value" : "$$service-name"
+        }
+      },
+      "logJournalServices" : "kubelet,docker"
+    },
+    "alertmanager" : {
+      "server" : "os",
+      "scmVersion" : "os",
+      "runUsingDocker" : true,
+      "isDataStore" : true,
+      "description" : "alert ui for kube-prometheus prometheus component",
+      "url" : "$$kubernetes-nodeport?serviceName=$$service-name\u0026path=/",
+      "docUrl" : "https://github.com/prometheus-operator/kube-prometheus",
+      "alerts" : {
+        "max_socketCount" : 10,
+        "max_diskUtil" : "10m"
+      },
+      "docker" : {
+        "container-count" : 1,
+        "locator" : {
+          "type" : "io.kubernetes.container.name",
+          "value" : "$$service-name"
+        }
+      },
+      "logJournalServices" : "kubelet,docker"
+    },
+    "monitoring-tools" : {
+      "server" : "os",
+      "scmVersion" : "os",
+      "runUsingDocker" : true,
+      "isDataStore" : true,
+      "description" : "maps helper containers so they are resource tracked",
+      "url" : "$$kubernetes-nodeport?serviceName=$$service-name\u0026path=/",
+      "docUrl" : "https://github.com/prometheus-operator/kube-prometheus",
+      "alerts" : {
+        "max_socketCount" : 600
+      },
+      "docker" : {
+        "container-count" : 1,
+        "locator" : {
+          "type" : "io.kubernetes.container.name",
+          "value" : "(prometheus-config-reloader|prometheus-adapter|prometheus-operator|kube-rbac-proxy-self|kube-rbac-proxy-main|rules-configmap-reloader|config-reloader|kube-rbac-proxy|node-exporter|kube-state-metrics)"
+        }
+      },
+      "logJournalServices" : "kubelet,docker"
+    }
+  }
+}

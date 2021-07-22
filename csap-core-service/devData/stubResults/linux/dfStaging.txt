@@ -1,0 +1,3 @@
+Executing OS command on host csap-dev07:[bash, -c, /opt/csap/csap-platform/temp/csap_fs_collect-1586275782258.sh]_P_
+
+9%

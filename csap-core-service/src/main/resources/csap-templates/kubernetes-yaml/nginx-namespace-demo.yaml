@@ -1,0 +1,98 @@
+#
+# refer: 
+# - https://blog.heptio.com/using-kubectl-to-jumpstart-a-yaml-file-heptioprotip-6f5b8a63a3ea
+# - https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+#
+
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo-namespace
+  labels:
+    name: test
+---
+
+kind: Deployment
+
+apiVersion: apps/v1
+
+metadata:
+  name: nginx-junit-multiple-yaml
+  namespace: demo-namespace
+  labels:
+    run: nginx-junit-multiple-yaml-id
+    
+spec:
+  selector:
+    matchLabels:
+      run: nginx-junit-multiple-yaml-id
+      
+  replicas: 2
+  
+  template:
+  
+    metadata:
+      name: "nginx-junit-multiple-yaml-pod-template"
+      labels:
+        run: nginx-junit-multiple-yaml-id
+        matchForDemoService: demo-target
+        
+    spec:
+      volumes:
+          - name: nginx-pv-storage
+            hostPath:
+              path: /opt/csap/nginx-pv-demo
+              type: DirectoryOrCreate
+      containers:
+      - name: nginx-container
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+         - name: nginx-pv-storage
+           mountPath: /my-nginx-pv-demo
+        
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-junit-multiple-yaml-service
+  namespace: demo-namespace
+spec:
+  selector:
+    matchForDemoService: demo-target
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+metadata:
+
+  name: nginx-demo-ingress
+  namespace: demo-namespace
+  
+  annotations: 
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/use-regex: "true"
+  
+spec:
+  rules:
+  - host: YOURHOST.***REMOVED***
+    http:
+      paths:
+        - path: /demo-route-1/?(.*)
+          pathType: ImplementationSpecific
+          backend: 
+            service:
+              name: nginx-demo-service
+              port: 
+                number: 80
+          
+          
+          
+          

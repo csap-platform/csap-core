@@ -1,0 +1,279 @@
+Executing OS command on host csap-dev01:[bash, -c, free -g]_P_
+
+              total        used        free      shared  buff/cache   available
+Mem:             15           9           2           0           3           4
+Swap:             9           0           9
+Executing OS command on host csap-dev01:[bash, -c, free -m]_P_
+
+              total        used        free      shared  buff/cache   available
+Mem:          15883        9598        2199         797        4085        5107
+Swap:         10235          40       10195
+
+
+Executing OS command on host csap-dev01:[bash, -c, ps -e --sort -rss -o pmem,rss,vsz,size,nlwp,ruser,pid,args | sed 's/  */ /g' | sed 's/,/ /g' |awk '{ for(i=1;i<=7;i++){$i=$i","}; print }']_P_
+
+%MEM, RSS, VSZ, SIZE, NLWP, RUSER, PID, COMMAND
+21.7, 3538628, 5189592, 5094864, 83, ssadmin, 21853, /opt/csap/processing/mongoDb_27017/mongodatabase/bin/mongod --config /opt/csap/processing/mongoDb_27017/conf/mongodb.conf --wiredTigerCacheSizeGB 4 --setParameter enableTestCommands=1
+5.5, 909664, 7418152, 7249056, 70, ssadmin, 24106, analytics_8231 : /opt/java/jdk1.8.0_141/bin/java -DcsapJava8 -Dspring.profiles.active=dev limits -Xms1500m -Xmx1500m -XX:MaxMetaspaceSize=96M -XX:+ExitOnOutOfMemoryError -Dserver.context-path=/analytics -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8236 -Dcom.sun.management.jmxremote.rmi.port=8236 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csap/processing/analytics_8231/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csap/processing/analytics_8231/jmxremote.access -DcsapProcessId=analytics_8231 -DcsapEnvironmentVariables=arePresent -DSTAGING=/opt/csap/staging -Djava.io.tmpdir=temp org.springframework.boot.loader.JarLauncher --server.port=8231
+3.6, 598288, 6315068, 6145972, 76, ssadmin, 3554, admin_8911 : /opt/java/jdk1.8.0_141/bin/java -DcsapJava8 -Dspring.profiles.active=dev admin -XX:MaxMetaspaceSize=96M -Xms512M -Xmx512M -Dserver.context-path=/admin -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8916 -Dcom.sun.management.jmxremote.rmi.port=8916 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csap/processing/admin_8911/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csap/processing/admin_8911/jmxremote.access -DcsapProcessId=admin_8911 -DcsapEnvironmentVariables=arePresent -DSTAGING=/opt/csap/staging -Djava.io.tmpdir=temp org.springframework.boot.loader.JarLauncher --server.port=8911
+3.5, 574284, 6077532, 5908436, 108, ssadmin, 15072, CsAgent_8011 : /opt/java/jdk1.8.0_141/bin/java -DcsapJava8 -Dspring.profiles.active=dev agent limits -Dsun.rmi.transport.tcp.responseTimeout=3000 -XX:MaxMetaspaceSize=96M -Xms256M -Xmx256M -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8016 -Dcom.sun.management.jmxremote.rmi.port=8016 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csap/processing/CsAgent_8011/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csap/processing/CsAgent_8011/jmxremote.access -DcsapProcessId=CsAgent_8011 -DcsapEnvironmentVariables=arePresent -DSTAGING=/opt/csap/staging -Djava.io.tmpdir=temp org.springframework.boot.loader.JarLauncher --server.port=8011
+3.0, 495200, 6001056, 5935816, 72, ssadmin, 17638, java -Xms256M -Xmx256M -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.rmi.port=7086 -Dcom.sun.management.jmxremote.port=7086 -Djava.rmi.server.hostname=csap-dev01 -DcsapJmxPort=7086 -DcsapProcessId=CsapTestDocker_7080 -Djava.security.egd=file:CsapTestDocker_7080 : /dev/./urandom -Dspring.profiles.active=embedded -Dserver.port=7080 -jar /csapTest.jar
+2.8, 466332, 6061672, 5891704, 73, ssadmin, 1453, BootEntDefault_8351 : /opt/java/jdk1.8.0_141/bin/java -DcsapJava8 -Xms256M -Xmx256M -XX:MaxMetaspaceSize=96M -XX:+ExitOnOutOfMemoryError -Dserver.context-path=/BootEntDefault -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8356 -Dcom.sun.management.jmxremote.rmi.port=8356 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csap/processing/BootEntDefault_8351/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csap/processing/BootEntDefault_8351/jmxremote.access -DcsapProcessId=BootEntDefault_8351 -DcsapEnvironmentVariables=arePresent -DSTAGING=/opt/csap/staging -Djava.io.tmpdir=temp org.springframework.boot.loader.JarLauncher --spring.profiles.active=dev --server.port=8351
+2.6, 423484, 6034404, 5865308, 71, ssadmin, 32598, data_8281 : /opt/java/jdk1.8.0_141/bin/java -DcsapJava8 -Dspring.profiles.active=dev limits -Xms256M -Xmx256M -XX:MaxMetaspaceSize=96M -XX:+ExitOnOutOfMemoryError -Dserver.context-path=/data -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8286 -Dcom.sun.management.jmxremote.rmi.port=8286 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csap/processing/data_8281/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csap/processing/data_8281/jmxremote.access -DcsapProcessId=data_8281 -DcsapEnvironmentVariables=arePresent -DSTAGING=/opt/csap/staging -Djava.io.tmpdir=temp org.springframework.boot.loader.JarLauncher --server.port=8281
+2.5, 417736, 5841836, 5773216, 62, ssadmin, 17067, java -Xms128M -Xmx133M -XX:MaxMetaspaceSize=96M -XX:+ExitOnOutOfMemoryError -Djava.security.egd=file:BootInDocker_8361 : /dev/./urandom -DcsapProcessId=BootInDocker_8361 -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8366 -Dcom.sun.management.jmxremote.rmi.port=8366 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -DcsapJmxPort=8366 org.springframework.boot.loader.JarLauncher --spring.profiles.active=dev --server.context-path=/BootInDocker --server.port=8361
+2.4, 399900, 5886276, 5718080, 62, ssadmin, 22888, BootReference_8291 : /opt/java/jdk1.8.0_141/bin/java -DcsapJava8 -Xms128M -Xmx133M -XX:MaxMetaspaceSize=96M -XX:+ExitOnOutOfMemoryError -Dserver.context-path=/BootReference -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8296 -Dcom.sun.management.jmxremote.rmi.port=8296 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csap/processing/BootReference_8291/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csap/processing/BootReference_8291/jmxremote.access -DcsapProcessId=BootReference_8291 -DcsapEnvironmentVariables=arePresent -DSTAGING=/opt/csap/staging -Djava.io.tmpdir=temp org.springframework.boot.loader.JarLauncher --spring.profiles.active=dev --server.port=8291
+2.4, 395200, 5162428, 4914976, 44, ssadmin, 30161, Cssp3ReferenceTibco_8261 : /java-local/jdk1.8.0_141/bin/java -Djava.util.logging.config.file=/_working/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -DcsapJava8 -Xms16M -Xmx256M -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8266 -Dcom.sun.management.jmxremote.rmi.port=8266 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -DcsapProcessId=Cssp3ReferenceTibco_8261 -Djava.security.egd=file:/dev/./urandom -DcsapDockerJava -Djava.endorsed.dirs=/legacy/processing/appsTomcat/cssp3-3.1.4/endorsed -classpath /legacy/processing/appsTomcat/cssp3-3.1.4/bin/bootstrap.jar:/legacy/processing/appsTomcat/cssp3-3.1.4/bin/tomcat-juli.jar -Dcatalina.base=/_working -Dcatalina.home=/legacy/processing/appsTomcat/cssp3-3.1.4 -Djava.io.tmpdir=/_working/temp org.apache.catalina.startup.Bootstrap start
+2.3, 378868, 5886276, 5718080, 62, ssadmin, 23167, BootReference_8331 : /opt/java/jdk1.8.0_141/bin/java -DcsapJava8 -Xms128M -Xmx133M -XX:MaxMetaspaceSize=96M -XX:+ExitOnOutOfMemoryError -Dserver.context-path=/BootReference -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8336 -Dcom.sun.management.jmxremote.rmi.port=8336 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csap/processing/BootReference_8331/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csap/processing/BootReference_8331/jmxremote.access -DcsapProcessId=BootReference_8331 -DcsapEnvironmentVariables=arePresent -DSTAGING=/opt/csap/staging -Djava.io.tmpdir=temp org.springframework.boot.loader.JarLauncher --spring.profiles.active=dev --server.port=8331
+2.0, 331060, 4489904, 4317168, 41, ssadmin, 4876, RedisServices_8311 : /opt/java/jdk1.8.0_141/bin/java -DcsapJava8 -Xms128M -Xmx133M -XX:MaxMetaspaceSize=96M -Dserver.context-path=/RedisServices -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8316 -Dcom.sun.management.jmxremote.rmi.port=8316 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csap/processing/RedisServices_8311/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csap/processing/RedisServices_8311/jmxremote.access -DcsapProcessId=RedisServices_8311 -DcsapEnvironmentVariables=arePresent -DSTAGING=/opt/csap/staging -Djava.io.tmpdir=temp org.springframework.boot.loader.JarLauncher --spring.profiles.active=dev --server.port=8311
+1.2, 206712, 5780908, 5727212, 60, ssadmin, 21771, ServletSample_8041 : /java-local/jdk1.8.0_141/bin/java -Djava.util.logging.config.file=/_working/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Xms128M -Xmx128M -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8046 -Dcom.sun.management.jmxremote.rmi.port=8046 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -DcsapProcessId=ServletSample_8041 -Djava.security.egd=file:/dev/./urandom -DcsapDockerJava -Djdk.tls.ephemeralDHKeySize=2048 -Djava.protocol.handler.pkgs=org.apache.catalina.webresources -classpath /apache-tomcat-8.5.16/bin/bootstrap.jar:/apache-tomcat-8.5.16/bin/tomcat-juli.jar -Dcatalina.base=/_working -Dcatalina.home=/apache-tomcat-8.5.16 -Djava.io.tmpdir=/_working/temp org.apache.catalina.startup.Bootstrap start
+0.7, 121812, 3503224, 3345984, 29, ssadmin, 5443, springmvc-showcase_8211 : /opt/java/jdk1.8.0_141/bin/java -Djava.util.logging.config.file=/opt/csap/processing/springmvc-showcase_8211/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Xms128M -Xmx128M -XX:MaxPermSize=128m -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8216 -Dcom.sun.management.jmxremote.rmi.port=8216 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/opt/csap/processing/springmvc-showcase_8211/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/csap/processing/springmvc-showcase_8211/jmxremote.access -DcsapProcessId=springmvc-showcase_8211 -DcsapEnvironmentVariables=arePresent -DSTAGING=/opt/csap/staging -Djava.endorsed.dirs=/opt/csap/processing/appsTomcat/apache-tomcat-7.0.68/endorsed -classpath /opt/csap/processing/appsTomcat/apache-tomcat-7.0.68/bin/bootstrap.jar:/opt/csap/processing/appsTomcat/apache-tomcat-7.0.68/bin/tomcat-juli.jar -Dcatalina.base=/opt/csap/processing/springmvc-showcase_8211 -Dcatalina.home=/opt/csap/processing/appsTomcat/apache-tomcat-7.0.68 -Djava.io.tmpdir=/opt/csap/processing/springmvc-showcase_8211/temp org.apache.catalina.startup.Bootstrap start
+0.5, 97256, 7366488, 7218096, 25, ssadmin, 9462, jstatd -J-Djava.security.policy=/opt/csap/.jstatd.all.policy
+0.4, 66792, 2074292, 1981512, 27, root, 29214, /usr/bin/dockerd-latest --add-runtime docker-runc=/usr/libexec/docker/docker-runc-latest --default-runtime=docker-runc --authorization-plugin=rhel-push-plugin --exec-opt native.cgroupdriver=systemd --userland-proxy-path=/usr/libexec/docker/docker-proxy-latest --seccomp-profile=/etc/docker-latest/seccomp.json --config-file=/etc/docker-latest/daemon.json -g /var/lib/docker-latest --selinux-enabled --storage-driver=devicemapper --log-driver=journald --signature-verification=false --graph=/opt/csap/dockerStorage --host unix:///var/run/docker.sock -H tcp://0.0.0.0:4243 --add-registry registry.access.redhat.com --insecure-registry csap-dev04.yourcompany.com:5000
+0.3, 61528, 298340, 71088, 1, root, 22856, /usr/bin/vmtoolsd
+0.3, 52256, 115192, 8984, 1, root, 597, /usr/lib/systemd/systemd-journald
+0.2, 42572, 256932, 42036, 2, root, 1468, /usr/bin/ruby /usr/bin/puppet agent --no-daemonize
+0.1, 32492, 690588, 156332, 3, root, 23050, /usr/sbin/rsyslogd -n
+0.1, 21960, 2176748, 2138528, 44, ssadmin, 15196, /opt/csap/processing/httpd_8080/bin/httpd -k restart
+0.1, 20116, 1980076, 1941856, 28, ssadmin, 17129, /opt/csap/processing/httpd_8080/bin/httpd -k restart
+0.1, 18644, 1980076, 1941856, 28, ssadmin, 15197, /opt/csap/processing/httpd_8080/bin/httpd -k restart
+0.1, 18472, 1980076, 1941856, 28, ssadmin, 15199, /opt/csap/processing/httpd_8080/bin/httpd -k restart
+0.0, 14020, 711948, 699000, 21, root, 29225, /usr/bin/docker-containerd-latest -l unix:///var/run/docker/libcontainerd/docker-containerd.sock --metrics-interval=0 --start-timeout 2m --state-dir /var/run/docker/libcontainerd/containerd --shim docker-containerd-shim --runtime docker-runc --runtime-args --systemd-cgroup=true
+0.0, 13676, 553164, 304384, 5, root, 32491, /usr/bin/python -Es /usr/sbin/tuned -l -P
+0.0, 10944, 44516, 8432, 1, ssadmin, 24062, /opt/csap/processing/httpd_8080/bin/httpd -k restart
+0.0, 8500, 44344, 8296, 1, ssadmin, 15195, /opt/csap/processing/httpd_8080/bin/httpd -k restart
+0.0, 8500, 527640, 450204, 6, polkitd, 32429, /usr/lib/polkit-1/polkitd --no-debug
+0.0, 7840, 582660, 575016, 14, root, 17582, /usr/libexec/docker/docker-proxy-latest -proto tcp -host-ip 0.0.0.0 -host-port 7086 -container-ip 172.17.0.3 -container-port 7086
+0.0, 7684, 435440, 223076, 3, root, 928, /usr/sbin/NetworkManager --no-daemon
+0.0, 7056, 138964, 22968, 3, ssadmin, 1131, bin/redis-server *:6379
+0.0, 6476, 635260, 624716, 12, root, 22358, /usr/libexec/docker/rhel-push-plugin
+0.0, 6112, 347452, 339636, 10, root, 30032, /usr/bin/docker-containerd-shim-latest 269d9329295fd149ceff6fbd94fafc14af50de8bd5cc88374400d38214a1413e /var/run/docker/libcontainerd/269d9329295fd149ceff6fbd94fafc14af50de8bd5cc88374400d38214a1413e /usr/libexec/docker/docker-runc-latest
+0.0, 6016, 129596, 83404, 1, root, 31069, /usr/sbin/lvmetad -f
+0.0, 5924, 193512, 150104, 1, root, 1, /usr/lib/systemd/systemd --system --deserialize 28
+0.0, 5748, 385796, 378152, 14, root, 16933, /usr/libexec/docker/docker-proxy-latest -proto tcp -host-ip 0.0.0.0 -host-port 8366 -container-ip 172.17.0.2 -container-port 8366
+0.0, 5612, 139040, 20944, 3, ssadmin, 1162, bin/redis-sentinel *:26379 [sentinel]
+0.0, 5152, 201212, 41548, 6, root, 22908, /usr/sbin/gssproxy -D
+0.0, 4028, 420928, 413112, 11, root, 17621, /usr/bin/docker-containerd-shim-latest 9989905d39f5110b137bd6ccc615fe4aba38f0c4fc97536c9c3cc1fd82251365 /var/run/docker/libcontainerd/9989905d39f5110b137bd6ccc615fe4aba38f0c4fc97536c9c3cc1fd82251365 /usr/libexec/docker/docker-runc-latest
+0.0, 4016, 421184, 413368, 11, root, 22723, /usr/bin/docker-containerd-shim-latest 8bcb95a9096fcf4537514802bbb7f651a678ad7d2968d9425f234cccc1297379 /var/run/docker/libcontainerd/8bcb95a9096fcf4537514802bbb7f651a678ad7d2968d9425f234cccc1297379 /usr/libexec/docker/docker-runc-latest
+0.0, 4012, 282172, 274356, 10, root, 16960, /usr/bin/docker-containerd-shim-latest d1b8c46d8209c172eb981b897bc72219a1252161c8d87416cad78b580b192d4d /var/run/docker/libcontainerd/d1b8c46d8209c172eb981b897bc72219a1252161c8d87416cad78b580b192d4d /usr/libexec/docker/docker-runc-latest
+0.0, 3948, 89080, 780, 1, postfix, 5677, pickup -l -t unix -u
+0.0, 3884, 443136, 435492, 13, root, 21666, /usr/libexec/docker/docker-proxy-latest -proto tcp -host-ip 0.0.0.0 -host-port 8046 -container-ip 172.17.0.5 -container-port 8046
+0.0, 3636, 181856, 174212, 6, root, 17602, /usr/libexec/docker/docker-proxy-latest -proto tcp -host-ip 0.0.0.0 -host-port 7080 -container-ip 172.17.0.3 -container-port 7080
+0.0, 3528, 212696, 980, 1, root, 901, /usr/sbin/abrtd -d -s
+0.0, 2924, 46120, 1740, 1, root, 11588, /usr/lib/systemd/systemd-udevd
+0.0, 2920, 210196, 592, 1, root, 931, /usr/bin/abrt-watch-log -F BUG: WARNING: at WARNING: CPU: INFO: possible recursive locking detected ernel BUG at list_del corruption list_add corruption do_IRQ: stack overflow: ear stack overflow (cur: eneral protection fault nable to handle kernel ouble fault: RTNL: assertion failed eek! page_mapcount(page) went negative! adness at NETDEV WATCHDOG ysctl table check failed : nobody cared IRQ handler type mismatch Machine Check Exception: Machine check events logged divide error: bounds: coprocessor segment overrun: invalid TSS: segment not present: invalid opcode: alignment check: stack segment: fpu exception: simd exception: iret exception: /var/log/messages -- /usr/bin/abrt-dump-oops -xtD
+0.0, 2808, 33600, 1912, 1, root, 30697, /usr/bin/perl -x /usr/local/tools/trends2
+0.0, 2320, 157716, 1188, 1, ssadmin, 15186, top -b -d 15
+0.0, 2052, 50912, 404, 1, root, 23193, /usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf -u -f /var/log/wpa_supplicant.log -P /var/run/wpa_supplicant.pid
+0.0, 2044, 413244, 405428, 10, root, 21693, /usr/bin/docker-containerd-shim-latest ee9d39be9f7e4e111cd2031dd4a2f17850b15db6571ace0b71ebd72f4b8d1266 /var/run/docker/libcontainerd/ee9d39be9f7e4e111cd2031dd4a2f17850b15db6571ace0b71ebd72f4b8d1266 /usr/libexec/docker/docker-runc-latest
+0.0, 1956, 100872, 74824, 2, dbus, 810, /bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation
+0.0, 1916, 151200, 1168, 1, ssadmin, 5511, ps -e --sort -rss -o pmem rss vsz size nlwp ruser pid args
+0.0, 1904, 91424, 884, 1, postfix, 2601, qmgr -l -t unix -u
+0.0, 1844, 29408, 848, 1, ntp, 23320, /usr/sbin/ntpd -u ntp:ntp -u ntp:ntp -p /var/run/ntpd.pid -g
+0.0, 1728, 55416, 8672, 2, root, 23105, /sbin/auditd -n
+0.0, 1708, 126256, 1352, 1, root, 11416, /usr/sbin/crond -n
+0.0, 1696, 26828, 804, 1, root, 805, /usr/lib/systemd/systemd-logind
+0.0, 1612, 91144, 776, 1, root, 2536, /usr/libexec/postfix/master -w
+0.0, 1600, 108124, 100480, 5, root, 21677, /usr/libexec/docker/docker-proxy-latest -proto tcp -host-ip 0.0.0.0 -host-port 8042 -container-ip 172.17.0.5 -container-port 8042
+0.0, 1600, 116320, 108676, 6, root, 22717, /usr/libexec/docker/docker-proxy-latest -proto tcp -host-ip 0.0.0.0 -host-port 90 -container-ip 172.17.0.4 -container-port 80
+0.0, 1596, 108124, 100480, 5, root, 16955, /usr/libexec/docker/docker-proxy-latest -proto tcp -host-ip 0.0.0.0 -host-port 8361 -container-ip 172.17.0.2 -container-port 8361
+0.0, 1596, 108124, 100480, 5, root, 21688, /usr/libexec/docker/docker-proxy-latest -proto tcp -host-ip 0.0.0.0 -host-port 8041 -container-ip 172.17.0.5 -container-port 8041
+0.0, 1592, 108124, 100480, 5, root, 16944, /usr/libexec/docker/docker-proxy-latest -proto tcp -host-ip 0.0.0.0 -host-port 8362 -container-ip 172.17.0.2 -container-port 8362
+0.0, 1512, 127868, 620, 1, root, 23031, /usr/sbin/smartd -n -q never
+0.0, 1448, 32412, 828, 1, root, 22742, nginx: master process nginx -g daemon off;
+0.0, 1376, 82468, 748, 1, root, 22564, /usr/sbin/sshd
+0.0, 1372, 113128, 348, 1, ssadmin, 5510, bash -c ps -e --sort -rss -o pmem rss vsz size nlwp ruser pid args | sed 's/ */ /g' | sed 's/ / /g' |awk '{ for(i=1;i<=7;i++){$i=$i" "}; print }'
+0.0, 1368, 64964, 456, 1, rpc, 23252, /sbin/rpcbind -w
+0.0, 1292, 17776, 348, 1, root, 4888, /usr/lib/systemd/systemd-machined
+0.0, 1224, 44720, 468, 1, root, 5175, vmstat 20 2
+0.0, 1144, 19300, 476, 1, root, 23463, /usr/sbin/irqbalance --foreground
+0.0, 1116, 11636, 372, 1, ssadmin, 21710, /bin/sh -c echo use csap service log viewer id is `id`; java -version ; catalina.sh run >> logs/catalina.out 2>&1
+0.0, 1096, 32884, 1296, 1, 101, 22773, nginx: worker process
+0.0, 976, 113492, 356, 1, ssadmin, 5514, awk { for(i=1;i<=7;i++){$i=$i" "}; print }
+0.0, 880, 25844, 420, 1, root, 23340, /usr/sbin/atd -f
+0.0, 864, 107932, 328, 1, ssadmin, 16046, mpstat 300
+0.0, 860, 107932, 328, 1, ssadmin, 15368, mpstat 30
+0.0, 796, 107932, 328, 1, ssadmin, 15732, mpstat 3600
+0.0, 712, 116884, 392, 1, ssadmin, 5512, sed s/ */ /g
+0.0, 708, 116884, 392, 1, ssadmin, 5513, sed s/ / /g
+0.0, 596, 11636, 372, 1, ssadmin, 30101, /bin/sh /csspRun.sh
+0.0, 560, 107912, 316, 1, root, 1522, rhnsd
+0.0, 548, 11636, 372, 1, ssadmin, 30050, /bin/sh -c echo use csap service log viewer running as `id`; java -version ;/csspRun.sh >> logs/catalina.out 2>&1
+0.0, 508, 11632, 368, 1, ssadmin, 16978, BootInDocker_8361 : /bin/sh -c echo use csap service log viewer; java -version ;java -Xms128M -Xmx133M -XX:MaxMetaspaceSize=96M -XX:+ExitOnOutOfMemoryError -Djava.security.egd=file:/dev/./urandom -DcsapProcessId=BootInDocker_8361 -Djava.rmi.server.hostname=csap-dev01 -Dcom.sun.management.jmxremote.port=8366 -Dcom.sun.management.jmxremote.rmi.port=8366 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -DcsapJmxPort=8366 org.springframework.boot.loader.JarLauncher --spring.profiles.active=dev --server.context-path=/BootInDocker --server.port=8361 >> logs/consoleLogs.txt 2>&1
+0.0, 488, 110036, 348, 1, root, 6901, /sbin/agetty --noclear tty1 linux
+0.0, 480, 8532, 340, 1, libstor+, 831, /usr/bin/lsmd -d
+0.0, 476, 110036, 348, 1, root, 6900, /sbin/agetty --keep-baud 115200 38400 9600 ttyS0 vt220
+0.0, 0, 0, 0, 1, root, 2, [kthreadd]
+0.0, 0, 0, 0, 1, root, 3, [ksoftirqd/0]
+0.0, 0, 0, 0, 1, root, 5, [kworker/0:0H]
+0.0, 0, 0, 0, 1, root, 7, [migration/0]
+0.0, 0, 0, 0, 1, root, 8, [rcu_bh]
+0.0, 0, 0, 0, 1, root, 9, [rcu_sched]
+0.0, 0, 0, 0, 1, root, 10, [watchdog/0]
+0.0, 0, 0, 0, 1, root, 11, [watchdog/1]
+0.0, 0, 0, 0, 1, root, 12, [migration/1]
+0.0, 0, 0, 0, 1, root, 13, [ksoftirqd/1]
+0.0, 0, 0, 0, 1, root, 16, [watchdog/2]
+0.0, 0, 0, 0, 1, root, 17, [migration/2]
+0.0, 0, 0, 0, 1, root, 18, [ksoftirqd/2]
+0.0, 0, 0, 0, 1, root, 21, [watchdog/3]
+0.0, 0, 0, 0, 1, root, 22, [migration/3]
+0.0, 0, 0, 0, 1, root, 23, [ksoftirqd/3]
+0.0, 0, 0, 0, 1, root, 26, [watchdog/4]
+0.0, 0, 0, 0, 1, root, 27, [migration/4]
+0.0, 0, 0, 0, 1, root, 28, [ksoftirqd/4]
+0.0, 0, 0, 0, 1, root, 31, [watchdog/5]
+0.0, 0, 0, 0, 1, root, 32, [migration/5]
+0.0, 0, 0, 0, 1, root, 33, [ksoftirqd/5]
+0.0, 0, 0, 0, 1, root, 36, [watchdog/6]
+0.0, 0, 0, 0, 1, root, 37, [migration/6]
+0.0, 0, 0, 0, 1, root, 38, [ksoftirqd/6]
+0.0, 0, 0, 0, 1, root, 41, [watchdog/7]
+0.0, 0, 0, 0, 1, root, 42, [migration/7]
+0.0, 0, 0, 0, 1, root, 43, [ksoftirqd/7]
+0.0, 0, 0, 0, 1, root, 47, [khelper]
+0.0, 0, 0, 0, 1, root, 48, [kdevtmpfs]
+0.0, 0, 0, 0, 1, root, 49, [netns]
+0.0, 0, 0, 0, 1, root, 50, [khungtaskd]
+0.0, 0, 0, 0, 1, root, 51, [writeback]
+0.0, 0, 0, 0, 1, root, 52, [kintegrityd]
+0.0, 0, 0, 0, 1, root, 53, [bioset]
+0.0, 0, 0, 0, 1, root, 54, [kblockd]
+0.0, 0, 0, 0, 1, root, 55, [md]
+0.0, 0, 0, 0, 1, root, 61, [kswapd0]
+0.0, 0, 0, 0, 1, root, 62, [ksmd]
+0.0, 0, 0, 0, 1, root, 63, [khugepaged]
+0.0, 0, 0, 0, 1, root, 64, [fsnotify_mark]
+0.0, 0, 0, 0, 1, root, 65, [crypto]
+0.0, 0, 0, 0, 1, root, 73, [kthrotld]
+0.0, 0, 0, 0, 1, root, 76, [kmpath_rdacd]
+0.0, 0, 0, 0, 1, root, 77, [kpsmoused]
+0.0, 0, 0, 0, 1, root, 79, [ipv6_addrconf]
+0.0, 0, 0, 0, 1, root, 98, [deferwq]
+0.0, 0, 0, 0, 1, root, 143, [kauditd]
+0.0, 0, 0, 0, 1, root, 262, [rpciod]
+0.0, 0, 0, 0, 1, root, 411, [ata_sff]
+0.0, 0, 0, 0, 1, root, 412, [scsi_eh_0]
+0.0, 0, 0, 0, 1, root, 413, [scsi_tmf_0]
+0.0, 0, 0, 0, 1, root, 414, [scsi_eh_1]
+0.0, 0, 0, 0, 1, root, 415, [scsi_tmf_1]
+0.0, 0, 0, 0, 1, root, 418, [mpt_poll_0]
+0.0, 0, 0, 0, 1, root, 419, [mpt/0]
+0.0, 0, 0, 0, 1, root, 454, [scsi_eh_2]
+0.0, 0, 0, 0, 1, root, 455, [scsi_tmf_2]
+0.0, 0, 0, 0, 1, root, 457, [ttm_swap]
+0.0, 0, 0, 0, 1, root, 506, [xfsalloc]
+0.0, 0, 0, 0, 1, root, 507, [xfs_mru_cache]
+0.0, 0, 0, 0, 1, root, 508, [xfs-buf/sda1]
+0.0, 0, 0, 0, 1, root, 509, [xfs-data/sda1]
+0.0, 0, 0, 0, 1, root, 510, [xfs-conv/sda1]
+0.0, 0, 0, 0, 1, root, 511, [xfs-cil/sda1]
+0.0, 0, 0, 0, 1, root, 512, [xfs-reclaim/sda]
+0.0, 0, 0, 0, 1, root, 513, [xfs-log/sda1]
+0.0, 0, 0, 0, 1, root, 514, [xfs-eofblocks/s]
+0.0, 0, 0, 0, 1, root, 515, [xfsaild/sda1]
+0.0, 0, 0, 0, 1, root, 1103, [kworker/0:1H]
+0.0, 0, 0, 0, 1, root, 1583, [kworker/7:0]
+0.0, 0, 0, 0, 1, root, 1769, [kworker/5:0H]
+0.0, 0, 0, 0, 1, root, 1904, [kworker/2:1H]
+0.0, 0, 0, 0, 1, root, 2173, [kworker/6:0]
+0.0, 0, 0, 0, 1, root, 3626, [kworker/u64:0]
+0.0, 0, 0, 0, 1, root, 5263, [kworker/3:2H]
+0.0, 0, 0, 0, 1, root, 6322, [kworker/6:1H]
+0.0, 0, 0, 0, 1, root, 9115, [kworker/7:2H]
+0.0, 0, 0, 0, 1, root, 9721, [kworker/0:1]
+0.0, 0, 0, 0, 1, root, 10084, [kworker/1:1H]
+0.0, 0, 0, 0, 1, root, 14286, [kworker/7:0H]
+0.0, 0, 0, 0, 1, root, 14928, [kworker/3:1H]
+0.0, 0, 0, 0, 1, root, 15071, [kworker/1:0]
+0.0, 0, 0, 0, 1, root, 16523, [kworker/2:0H]
+0.0, 0, 0, 0, 1, root, 16632, [kworker/2:0]
+0.0, 0, 0, 0, 1, root, 16904, [kdmflush]
+0.0, 0, 0, 0, 1, root, 16905, [bioset]
+0.0, 0, 0, 0, 1, root, 16913, [xfs-buf/dm-4]
+0.0, 0, 0, 0, 1, root, 16914, [xfs-data/dm-4]
+0.0, 0, 0, 0, 1, root, 16915, [xfs-conv/dm-4]
+0.0, 0, 0, 0, 1, root, 16916, [xfs-cil/dm-4]
+0.0, 0, 0, 0, 1, root, 16917, [xfs-reclaim/dm-]
+0.0, 0, 0, 0, 1, root, 16918, [xfs-log/dm-4]
+0.0, 0, 0, 0, 1, root, 16919, [xfs-eofblocks/d]
+0.0, 0, 0, 0, 1, root, 16920, [xfsaild/dm-4]
+0.0, 0, 0, 0, 1, root, 17526, [kdmflush]
+0.0, 0, 0, 0, 1, root, 17532, [bioset]
+0.0, 0, 0, 0, 1, root, 17547, [xfs-buf/dm-5]
+0.0, 0, 0, 0, 1, root, 17551, [xfs-data/dm-5]
+0.0, 0, 0, 0, 1, root, 17552, [xfs-conv/dm-5]
+0.0, 0, 0, 0, 1, root, 17553, [xfs-cil/dm-5]
+0.0, 0, 0, 0, 1, root, 17554, [xfs-reclaim/dm-]
+0.0, 0, 0, 0, 1, root, 17555, [xfs-log/dm-5]
+0.0, 0, 0, 0, 1, root, 17556, [xfs-eofblocks/d]
+0.0, 0, 0, 0, 1, root, 17557, [xfsaild/dm-5]
+0.0, 0, 0, 0, 1, root, 18370, [kworker/6:0H]
+0.0, 0, 0, 0, 1, root, 18658, [dm_bufio_cache]
+0.0, 0, 0, 0, 1, root, 18759, [kworker/3:1]
+0.0, 0, 0, 0, 1, root, 19293, [kworker/5:2]
+0.0, 0, 0, 0, 1, root, 19947, [kworker/1:1]
+0.0, 0, 0, 0, 1, root, 20089, [kworker/4:0H]
+0.0, 0, 0, 0, 1, root, 21430, [kworker/5:0]
+0.0, 0, 0, 0, 1, root, 21642, [kdmflush]
+0.0, 0, 0, 0, 1, root, 21643, [bioset]
+0.0, 0, 0, 0, 1, root, 21646, [xfs-buf/dm-7]
+0.0, 0, 0, 0, 1, root, 21647, [xfs-data/dm-7]
+0.0, 0, 0, 0, 1, root, 21648, [xfs-conv/dm-7]
+0.0, 0, 0, 0, 1, root, 21649, [xfs-cil/dm-7]
+0.0, 0, 0, 0, 1, root, 21650, [xfs-reclaim/dm-]
+0.0, 0, 0, 0, 1, root, 21651, [xfs-log/dm-7]
+0.0, 0, 0, 0, 1, root, 21652, [xfs-eofblocks/d]
+0.0, 0, 0, 0, 1, root, 21653, [xfsaild/dm-7]
+0.0, 0, 0, 0, 1, root, 22146, [kworker/3:0]
+0.0, 0, 0, 0, 1, root, 22391, [kworker/0:2]
+0.0, 0, 0, 0, 1, root, 22697, [kdmflush]
+0.0, 0, 0, 0, 1, root, 22698, [bioset]
+0.0, 0, 0, 0, 1, root, 22701, [xfs-buf/dm-8]
+0.0, 0, 0, 0, 1, root, 22702, [xfs-data/dm-8]
+0.0, 0, 0, 0, 1, root, 22703, [xfs-conv/dm-8]
+0.0, 0, 0, 0, 1, root, 22704, [xfs-cil/dm-8]
+0.0, 0, 0, 0, 1, root, 22705, [xfs-reclaim/dm-]
+0.0, 0, 0, 0, 1, root, 22706, [xfs-log/dm-8]
+0.0, 0, 0, 0, 1, root, 22707, [xfs-eofblocks/d]
+0.0, 0, 0, 0, 1, root, 22708, [xfsaild/dm-8]
+0.0, 0, 0, 0, 1, root, 22966, [kworker/5:1]
+0.0, 0, 0, 0, 1, root, 24216, [kworker/6:1]
+0.0, 0, 0, 0, 1, root, 26379, [kdmflush]
+0.0, 0, 0, 0, 1, root, 26380, [bioset]
+0.0, 0, 0, 0, 1, root, 26398, [kdmflush]
+0.0, 0, 0, 0, 1, root, 26399, [bioset]
+0.0, 0, 0, 0, 1, root, 26418, [jbd2/dm-1-8]
+0.0, 0, 0, 0, 1, root, 26419, [ext4-rsv-conver]
+0.0, 0, 0, 0, 1, root, 26616, [kdmflush]
+0.0, 0, 0, 0, 1, root, 26617, [bioset]
+0.0, 0, 0, 0, 1, root, 26636, [jbd2/dm-2-8]
+0.0, 0, 0, 0, 1, root, 26637, [ext4-rsv-conver]
+0.0, 0, 0, 0, 1, root, 27994, [kworker/5:2H]
+0.0, 0, 0, 0, 1, root, 28184, [kworker/7:1]
+0.0, 0, 0, 0, 1, root, 28453, [kworker/4:1H]
+0.0, 0, 0, 0, 1, root, 29012, [kworker/4:0]
+0.0, 0, 0, 0, 1, root, 29238, [loop0]
+0.0, 0, 0, 0, 1, root, 29239, [loop1]
+0.0, 0, 0, 0, 1, root, 29244, [kdmflush]
+0.0, 0, 0, 0, 1, root, 29245, [bioset]
+0.0, 0, 0, 0, 1, root, 29246, [kcopyd]
+0.0, 0, 0, 0, 1, root, 29247, [bioset]
+0.0, 0, 0, 0, 1, root, 29248, [dm-thin]
+0.0, 0, 0, 0, 1, root, 29249, [bioset]
+0.0, 0, 0, 0, 1, root, 29736, [kworker/u64:2]
+0.0, 0, 0, 0, 1, root, 30020, [kdmflush]
+0.0, 0, 0, 0, 1, root, 30021, [bioset]
+0.0, 0, 0, 0, 1, root, 30024, [xfs-buf/dm-6]
+0.0, 0, 0, 0, 1, root, 30025, [xfs-data/dm-6]
+0.0, 0, 0, 0, 1, root, 30026, [xfs-conv/dm-6]
+0.0, 0, 0, 0, 1, root, 30027, [xfs-cil/dm-6]
+0.0, 0, 0, 0, 1, root, 30028, [xfs-reclaim/dm-]
+0.0, 0, 0, 0, 1, root, 30029, [xfs-log/dm-6]
+0.0, 0, 0, 0, 1, root, 30030, [xfs-eofblocks/d]
+0.0, 0, 0, 0, 1, root, 30031, [xfsaild/dm-6]
+0.0, 0, 0, 0, 1, root, 31368, [kworker/2:1]
+0.0, 0, 0, 0, 1, root, 31406, [kworker/4:1]
+0.0, 0, 0, 0, 1, root, 32366, [kworker/u64:1]
+0.0, 0, 0, 0, 1, root, 32368, [kworker/u64:3]
+0.0, 0, 0, 0, 1, root, 32370, [kworker/1:0H]
+

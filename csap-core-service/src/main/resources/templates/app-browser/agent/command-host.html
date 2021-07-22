@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>include page</title>
+</head>
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+
+	<span id="hostSelection">
+
+		<label
+			class=csap
+			title="Select Host(s) for display. If multiple hosts are selected, graphs may be viewed per VM or stacked into a single panel">
+			<button
+				id="hostSelectButton"
+				class="csap-button-icon csap-tools">
+				<span id="hostSelectCount">1</span>
+				Host(s)
+			</button>
+		</label>
+
+		<div
+			id="hostDialogContainer"
+			style="display: none">
+			<div>
+
+				<div style="">
+					<select
+						id="selectHostByCluster"
+						style="margin: 0; padding: 0; font-size: 1em">
+						<option value="none">Select By Cluster...</option>
+					</select>
+
+					<a
+						id="hostUnCheckAll"
+						href="#"
+						style="margin-left: 3em;"
+						class=csap-link>Clear All</a>
+
+					<a
+						id="hostCheckAll"
+						href="#"
+						style="margin-left: 3em;"
+						class=csap-link>Select All</a>
+
+					<label
+						id="serviceHostFilter"
+						style="margin-left: 2em">
+						<input
+							type="checkBox"
+							checked="checked"
+							title="By default only hosts matching the service are shown."
+							style="margin-right: 3px" />
+						Filter using
+						<span th:text="${ serviceName }"></span>
+						in same package
+					</label>
+
+
+				</div>
+
+
+				<br />
+
+				<div id="hostDisplay">
+					<input
+						data-host=""
+						class="instanceCheck"
+						style="margin-right: 0.2em"
+						type="checkbox"
+						title="Select to include in operations" />
+				</div>
+			</div>
+
+		</div>
+	</span>
+
+
+</body>
+</html>

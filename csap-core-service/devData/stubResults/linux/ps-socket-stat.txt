@@ -1,0 +1,223 @@
+
+#
+# nginx test collection
+#
+u_str  ESTAB      0      0       * -1397918408           * -1397918407           users:(("nginx",pid=13117,fd=178),("nginx",pid=13076,fd=178),("nginx",pid=13035,fd=178),("nginx",pid=13034,fd=178),("nginx",pid=13033,fd=178),("nginx",pid=13008,fd=178),("nginx",pid=12977,fd=178),("nginx",pid=12965,fd=178),("nginx",pid=12958,fd=178),("nginx",pid=12956,fd=5),("nginx",pid=12955,fd=167),("nginx",pid=12954,fd=169),("nginx",pid=12953,fd=170),("nginx",pid=12952,fd=174),("nginx",pid=12951,fd=174),("nginx",pid=12754,fd=178))
+u_str  ESTAB      0      0       * -1397918410           * -1397918409           users:(("nginx",pid=13117,fd=176),("nginx",pid=13076,fd=176),("nginx",pid=13035,fd=176),("nginx",pid=13034,fd=176),("nginx",pid=13033,fd=176),("nginx",pid=13008,fd=176),("nginx",pid=12977,fd=176),("nginx",pid=12965,fd=176),("nginx",pid=12958,fd=176),("nginx",pid=12957,fd=176),("nginx",pid=12955,fd=5),("nginx",pid=12954,fd=167),("nginx",pid=12953,fd=169),("nginx",pid=12952,fd=173),("nginx",pid=12951,fd=173),("nginx",pid=12754,fd=176))
+u_str  ESTAB      0      0       * -1397918394           * -1397918393           users:(("nginx",pid=13117,fd=192),("nginx",pid=13076,fd=192),("nginx",pid=13034,fd=5),("nginx",pid=13033,fd=167),("nginx",pid=13008,fd=169),("nginx",pid=12977,fd=171),("nginx",pid=12965,fd=173),("nginx",pid=12958,fd=175),("nginx",pid=12957,fd=177),("nginx",pid=12956,fd=181),("nginx",pid=12955,fd=181),("nginx",pid=12954,fd=181),("nginx",pid=12953,fd=181),("nginx",pid=12952,fd=181),("nginx",pid=12951,fd=181),("nginx",pid=12754,fd=192))
+u_str  ESTAB      0      0       * -1397918407           * -1397918408           users:(("nginx",pid=12957,fd=179),("nginx",pid=12754,fd=179))
+u_str  ESTAB      0      0       * -1397918406           * -1397918405           users:(("nginx",pid=13117,fd=180),("nginx",pid=13076,fd=180),("nginx",pid=13035,fd=180),("nginx",pid=13034,fd=180),("nginx",pid=13033,fd=180),("nginx",pid=13008,fd=180),("nginx",pid=12977,fd=180),("nginx",pid=12965,fd=180),("nginx",pid=12957,fd=5),("nginx",pid=12956,fd=167),("nginx",pid=12955,fd=169),("nginx",pid=12954,fd=171),("nginx",pid=12953,fd=175),("nginx",pid=12952,fd=175),("nginx",pid=12951,fd=175),("nginx",pid=12754,fd=180))
+u_str  ESTAB      0      0       * -1397918409           * -1397918410           users:(("nginx",pid=12956,fd=177),("nginx",pid=12754,fd=177))
+u_str  ESTAB      0      0       * -1397918418           * -1397918417           users:(("nginx",pid=13117,fd=168),("nginx",pid=13076,fd=168),("nginx",pid=13035,fd=168),("nginx",pid=13034,fd=168),("nginx",pid=13033,fd=168),("nginx",pid=13008,fd=168),("nginx",pid=12977,fd=168),("nginx",pid=12965,fd=168),("nginx",pid=12958,fd=168),("nginx",pid=12957,fd=168),("nginx",pid=12956,fd=168),("nginx",pid=12955,fd=168),("nginx",pid=12954,fd=168),("nginx",pid=12953,fd=168),("nginx",pid=12951,fd=4),("nginx",pid=12754,fd=168))
+u_str  ESTAB      0      0       * -1397918400           * -1397918399           users:(("nginx",pid=13117,fd=186),("nginx",pid=13076,fd=186),("nginx",pid=13035,fd=186),("nginx",pid=13034,fd=186),("nginx",pid=13033,fd=186),("nginx",pid=12977,fd=5),("nginx",pid=12965,fd=167),("nginx",pid=12958,fd=169),("nginx",pid=12957,fd=171),("nginx",pid=12956,fd=173),("nginx",pid=12955,fd=174),("nginx",pid=12954,fd=178),("nginx",pid=12953,fd=178),("nginx",pid=12952,fd=178),("nginx",pid=12951,fd=178),("nginx",pid=12754,fd=186))
+u_str  ESTAB      0      0       * -1397918391           * -1397918392           users:(("nginx",pid=13076,fd=195),("nginx",pid=12754,fd=195))
+u_str  ESTAB      0      0       * -1397918398           * -1397918397           users:(("nginx",pid=13117,fd=188),("nginx",pid=13076,fd=188),("nginx",pid=13035,fd=188),("nginx",pid=13034,fd=188),("nginx",pid=13008,fd=5),("nginx",pid=12977,fd=167),("nginx",pid=12965,fd=169),("nginx",pid=12958,fd=171),("nginx",pid=12957,fd=173),("nginx",pid=12956,fd=175),("nginx",pid=12955,fd=179),("nginx",pid=12954,fd=179),("nginx",pid=12953,fd=179),("nginx",pid=12952,fd=179),("nginx",pid=12951,fd=179),("nginx",pid=12754,fd=188))
+u_str  ESTAB      0      0       * -1397918411           * -1397918412           users:(("nginx",pid=12955,fd=175),("nginx",pid=12754,fd=175))
+u_str  ESTAB      0      0       * -1397918412           * -1397918411           users:(("nginx",pid=13117,fd=174),("nginx",pid=13076,fd=174),("nginx",pid=13035,fd=174),("nginx",pid=13034,fd=174),("nginx",pid=13033,fd=174),("nginx",pid=13008,fd=174),("nginx",pid=12977,fd=174),("nginx",pid=12965,fd=174),("nginx",pid=12958,fd=174),("nginx",pid=12957,fd=174),("nginx",pid=12956,fd=174),("nginx",pid=12954,fd=5),("nginx",pid=12953,fd=167),("nginx",pid=12952,fd=168),("nginx",pid=12951,fd=172),("nginx",pid=12754,fd=174))
+u_str  ESTAB      0      0       * -1397918392           * -1397918391           users:(("nginx",pid=13117,fd=194),("nginx",pid=13035,fd=5),("nginx",pid=13034,fd=167),("nginx",pid=13033,fd=169),("nginx",pid=13008,fd=171),("nginx",pid=12977,fd=173),("nginx",pid=12965,fd=175),("nginx",pid=12958,fd=177),("nginx",pid=12957,fd=178),("nginx",pid=12956,fd=182),("nginx",pid=12955,fd=182),("nginx",pid=12954,fd=182),("nginx",pid=12953,fd=182),("nginx",pid=12952,fd=182),("nginx",pid=12951,fd=182),("nginx",pid=12754,fd=194))
+u_str  ESTAB      0      0       * -1397918401           * -1397918402           users:(("nginx",pid=12977,fd=185),("nginx",pid=12754,fd=185))
+u_str  ESTAB      0      0       * -1397918405           * -1397918406           users:(("nginx",pid=12958,fd=181),("nginx",pid=12754,fd=181))
+u_str  ESTAB      0      0       * -1397918415           * -1397918416           users:(("nginx",pid=12953,fd=171),("nginx",pid=12754,fd=171))
+u_str  ESTAB      0      0       * -1397918413           * -1397918414           users:(("nginx",pid=12954,fd=173),("nginx",pid=12754,fd=173))
+u_str  ESTAB      0      0       * -1397918393           * -1397918394           users:(("nginx",pid=13035,fd=193),("nginx",pid=12754,fd=193))
+u_str  ESTAB      0      0       * -1397918414           * -1397918413           users:(("nginx",pid=13117,fd=172),("nginx",pid=13076,fd=172),("nginx",pid=13035,fd=172),("nginx",pid=13034,fd=172),("nginx",pid=13033,fd=172),("nginx",pid=13008,fd=172),("nginx",pid=12977,fd=172),("nginx",pid=12965,fd=172),("nginx",pid=12958,fd=172),("nginx",pid=12957,fd=172),("nginx",pid=12956,fd=172),("nginx",pid=12955,fd=172),("nginx",pid=12953,fd=5),("nginx",pid=12952,fd=167),("nginx",pid=12951,fd=171),("nginx",pid=12754,fd=172))
+u_str  ESTAB      0      0       * -1397918402           * -1397918401           users:(("nginx",pid=13117,fd=184),("nginx",pid=13076,fd=184),("nginx",pid=13035,fd=184),("nginx",pid=13034,fd=184),("nginx",pid=13033,fd=184),("nginx",pid=13008,fd=184),("nginx",pid=12965,fd=5),("nginx",pid=12958,fd=167),("nginx",pid=12957,fd=169),("nginx",pid=12956,fd=171),("nginx",pid=12955,fd=173),("nginx",pid=12954,fd=177),("nginx",pid=12953,fd=177),("nginx",pid=12952,fd=177),("nginx",pid=12951,fd=177),("nginx",pid=12754,fd=184))
+u_str  ESTAB      0      0       * -1397918397           * -1397918398           users:(("nginx",pid=13033,fd=189),("nginx",pid=12754,fd=189))
+u_str  ESTAB      0      0       * -1397918419           * -1397918420           users:(("nginx",pid=12951,fd=167),("nginx",pid=12754,fd=167))
+u_str  ESTAB      0      0       * -1397918395           * -1397918396           users:(("nginx",pid=13034,fd=191),("nginx",pid=12754,fd=191))
+u_str  ESTAB      0      0       * -1397918417           * -1397918418           users:(("nginx",pid=12952,fd=169),("nginx",pid=12754,fd=169))
+u_str  ESTAB      0      0       * -1397918416           * -1397918415           users:(("nginx",pid=13117,fd=170),("nginx",pid=13076,fd=170),("nginx",pid=13035,fd=170),("nginx",pid=13034,fd=170),("nginx",pid=13033,fd=170),("nginx",pid=13008,fd=170),("nginx",pid=12977,fd=170),("nginx",pid=12965,fd=170),("nginx",pid=12958,fd=170),("nginx",pid=12957,fd=170),("nginx",pid=12956,fd=170),("nginx",pid=12955,fd=170),("nginx",pid=12954,fd=170),("nginx",pid=12952,fd=5),("nginx",pid=12951,fd=5),("nginx",pid=12754,fd=170))
+u_str  ESTAB      0      0       * -1397918399           * -1397918400           users:(("nginx",pid=13008,fd=187),("nginx",pid=12754,fd=187))
+u_str  ESTAB      0      0       * -1397918390           * -1397918389           users:(("nginx",pid=13076,fd=5),("nginx",pid=13035,fd=167),("nginx",pid=13034,fd=169),("nginx",pid=13033,fd=171),("nginx",pid=13008,fd=173),("nginx",pid=12977,fd=175),("nginx",pid=12965,fd=177),("nginx",pid=12958,fd=179),("nginx",pid=12957,fd=183),("nginx",pid=12956,fd=183),("nginx",pid=12955,fd=183),("nginx",pid=12954,fd=183),("nginx",pid=12953,fd=183),("nginx",pid=12952,fd=183),("nginx",pid=12951,fd=183),("nginx",pid=12754,fd=196))
+u_str  ESTAB      0      0       * -1397918396           * -1397918395           users:(("nginx",pid=13117,fd=190),("nginx",pid=13076,fd=190),("nginx",pid=13035,fd=190),("nginx",pid=13033,fd=5),("nginx",pid=13008,fd=167),("nginx",pid=12977,fd=169),("nginx",pid=12965,fd=171),("nginx",pid=12958,fd=173),("nginx",pid=12957,fd=175),("nginx",pid=12956,fd=176),("nginx",pid=12955,fd=180),("nginx",pid=12954,fd=180),("nginx",pid=12953,fd=180),("nginx",pid=12952,fd=180),("nginx",pid=12951,fd=180),("nginx",pid=12754,fd=190))
+u_str  ESTAB      0      0       * -1397918404           * -1397918403           users:(("nginx",pid=13117,fd=182),("nginx",pid=13076,fd=182),("nginx",pid=13035,fd=182),("nginx",pid=13034,fd=182),("nginx",pid=13033,fd=182),("nginx",pid=13008,fd=182),("nginx",pid=12977,fd=182),("nginx",pid=12958,fd=5),("nginx",pid=12957,fd=167),("nginx",pid=12956,fd=169),("nginx",pid=12955,fd=171),("nginx",pid=12954,fd=172),("nginx",pid=12953,fd=176),("nginx",pid=12952,fd=176),("nginx",pid=12951,fd=176),("nginx",pid=12754,fd=182))
+u_str  ESTAB      0      0       * -1397918420           * -1397918419           users:(("nginx",pid=13117,fd=4),("nginx",pid=13076,fd=4),("nginx",pid=13035,fd=4),("nginx",pid=13034,fd=4),("nginx",pid=13033,fd=4),("nginx",pid=13008,fd=4),("nginx",pid=12977,fd=4),("nginx",pid=12965,fd=4),("nginx",pid=12958,fd=4),("nginx",pid=12957,fd=4),("nginx",pid=12956,fd=4),("nginx",pid=12955,fd=4),("nginx",pid=12954,fd=4),("nginx",pid=12953,fd=4),("nginx",pid=12952,fd=4),("nginx",pid=12754,fd=4))
+u_str  ESTAB      0      0       * -1397918389           * -1397918390           users:(("nginx",pid=13117,fd=197),("nginx",pid=12754,fd=197))
+u_str  ESTAB      0      0       * -1397918403           * -1397918404           users:(("nginx",pid=12965,fd=183),("nginx",pid=12754,fd=183))
+tcp    ESTAB      0      0      localhost:2379                 localhost:12754                 users:(("etcd",pid=29565,fd=77))
+tcp    ESTAB      0      0      localhost:18080                localhost:21055                 users:(("nginx",pid=13076,fd=3))
+tcp    ESTAB      0      0      netmet-sandbox01.***REMOVED***:57263                10.96.0.1:https                 users:(("nginx-ingress-c",pid=12397,fd=3))
+tcp    ESTAB      0      0      localhost:21055                localhost:18080                 users:(("nginx-ingress-c",pid=12397,fd=41))
+tcp    ESTAB      0      0      localhost:12754                localhost:2379                  users:(("kube-apiserver",pid=29534,fd=65))
+tcp    ESTAB      0      0         netmet-sandbox01.***REMOVED***:10254                   netmet-sandbox04.***REMOVED***:58682                 users:(("nginx-ingress-c",pid=12397,fd=40))
+
+u_str  ESTAB      0      0         * 44322                 * 36278               users:(("dbus-daemon",pid=7053,fd=2),("dbus-daemon",pid=7053,fd=1))
+u_str  ESTAB      0      0         * 36290                 * 36308               users:(("systemd-logind",pid=7049,fd=12))
+u_str  ESTAB      0      0      /run/systemd/journal/stdout 39797                 * 47162               users:(("systemd-journal",pid=3708,fd=23),("systemd",pid=1,fd=82))
+u_str  ESTAB      0      0         * 836499401             * 836499402           users:(("sshd",pid=11715,fd=5))
+u_str  ESTAB      0      0         * 39824                 * 39825               users:(("NetworkManager",pid=7078,fd=13))
+u_str  ESTAB      0      0         * 25289                 * 30923               users:(("systemd-udevd",pid=3745,fd=2),("systemd-udevd",pid=3745,fd=1))
+u_str  ESTAB      0      0         * 44107                 * 36270               users:(("irqbalance",pid=7048,fd=2),("irqbalance",pid=7048,fd=1))
+u_str  ESTAB      0      0      /run/systemd/journal/stdout 36270                 * 44107               users:(("systemd-journal",pid=3708,fd=17),("systemd",pid=1,fd=88))
+u_str  ESTAB      0      0         * 37567                 * 43901               users:(("tuned",pid=7448,fd=2),("tuned",pid=7448,fd=1))
+u_str  ESTAB      0      0      /run/systemd/journal/stdout 30923                 * 25289               users:(("systemd-journal",pid=3708,fd=16),("systemd",pid=1,fd=89))
+u_str  ESTAB      0      0         * 19322                 * 19323               users:(("auditd",pid=7027,fd=9))
+u_str  ESTAB      0      0         * 450295577             * 0                   users:(("java",pid=16941,fd=408))
+u_str  ESTAB      0      0      /run/systemd/journal/stdout 36278                 * 44322               users:(("systemd-journal",pid=3708,fd=20),("systemd",pid=1,fd=84))
+u_str  ESTAB      0      0         * 36325                 * 36326               users:(("polkitd",pid=7063,fd=6))
+u_str  ESTAB      0      0      /run/dbus/system_bus_socket 30624                 * 43816               users:(("dbus-daemon",pid=7053,fd=14))
+u_str  ESTAB      0      0         * 40214                 * 39935               users:(("tuned",pid=7448,fd=6))
+u_str  ESTAB      0      0      /run/systemd/journal/stdout 43901                 * 37567               users:(("systemd-journal",pid=3708,fd=29),("systemd",pid=1,fd=80))
+u_str  ESTAB      0      0      /run/systemd/journal/stdout 36276                 * 44268               users:(("systemd-journal",pid=3708,fd=19),("systemd",pid=1,fd=85))
+u_str  ESTAB      0      0         * 840222223             * 0
+u_str  ESTAB      0      0         * 19323                 * 19322               users:(("auditd",pid=7027,fd=10))
+u_str  ESTAB      0      0         * 836499402             * 836499401           users:(("sshd",pid=11709,fd=7))
+u_str  ESTAB      0      0         * 43816                 * 30624               users:(("NetworkManager",pid=7078,fd=8))
+u_str  ESTAB      0      0         * 44161                 * 36272               users:(("systemd-logind",pid=7049,fd=2),("systemd-logind",pid=7049,fd=1))
+u_str  ESTAB      0      0         * 36305                 * 36306               users:(("dbus-daemon",pid=7053,fd=8))
+u_str  ESTAB      0      0      /run/systemd/journal/stdout 36272                 * 44161               users:(("systemd-journal",pid=3708,fd=18),("systemd",pid=1,fd=87))
+u_str  ESTAB      0      0      /run/dbus/system_bus_socket 36326                 * 36325               users:(("dbus-daemon",pid=7053,fd=13))
+u_str  ESTAB      0      0      /run/dbus/system_bus_socket 39825                 * 39824               users:(("dbus-daemon",pid=7053,fd=18))
+u_str  ESTAB      0      0         * 47162                 * 39797               users:(("crond",pid=7130,fd=2),("crond",pid=7130,fd=1))
+u_str  ESTAB      0      0         * 44268                 * 36276               users:(("vmtoolsd",pid=7052,fd=2),("vmtoolsd",pid=7052,fd=1))
+u_str  ESTAB      0      0         * 36306                 * 36305               users:(("dbus-daemon",pid=7053,fd=9))
+u_str  ESTAB      0      0      /run/systemd/journal/stdout 36274                 * 44215               users:(("systemd-journal",pid=3708,fd=15),("systemd",pid=1,fd=86))
+u_str  ESTAB      0      0         * 839546640             * 0                   users:(("java",pid=10941,fd=6))
+u_str  ESTAB      0      0         * 44215                 * 36274               users:(("VGAuthService",pid=7051,fd=1))
+u_str  ESTAB      0      0         * 839546651             * 0                   users:(("java",pid=10941,fd=467))
+u_str  ESTAB      0      0      /run/dbus/system_bus_socket 36308                 * 36290               users:(("dbus-daemon",pid=7053,fd=11))
+u_str  ESTAB      0      0      /run/dbus/system_bus_socket 39935                 * 40214               users:(("dbus-daemon",pid=7053,fd=16))
+u_str  ESTAB      0      0         * 29797                 * 22925               users:(("lvmetad",pid=3728,fd=2),("lvmetad",pid=3728,fd=1))
+u_str  ESTAB      0      0      /run/systemd/journal/stdout 43926                 * 52314               users:(("systemd-journal",pid=3708,fd=31),("systemd",pid=1,fd=79))
+u_str  ESTAB      0      0      /run/systemd/journal/stdout 22925                 * 29797               users:(("systemd-journal",pid=3708,fd=14),("systemd",pid=1,fd=90))
+u_str  ESTAB      0      0      /run/containerd/containerd.sock 40232                 * 44861               users:(("containerd",pid=7537,fd=8))
+u_str  ESTAB      0      0      /run/systemd/journal/stdout 43928                 * 52389               users:(("systemd-journal",pid=3708,fd=33),("systemd",pid=1,fd=78))
+u_str  ESTAB      0      0      /var/run/docker.sock 841203291             * 841210958           users:(("dockerd",pid=7562,fd=21))
+u_str  ESTAB      0      0         * 44860                 * 51013               users:(("dockerd",pid=7562,fd=9))
+u_str  ESTAB      0      0         * 44605                 * 43775               users:(("NetworkManager",pid=7078,fd=2),("NetworkManager",pid=7078,fd=1))
+u_str  ESTAB      0      0         * 45269                 * 36307               users:(("systemd",pid=1,fd=50))
+u_str  ESTAB      0      0         * 841210958             * 841203291           users:(("java",pid=10941,fd=127))
+u_str  ESTAB      0      0      /run/containerd/containerd.sock 51013                 * 44860               users:(("containerd",pid=7537,fd=7))
+u_str  ESTAB      0      0      /run/systemd/journal/stdout 43886                 * 38714               users:(("systemd-journal",pid=3708,fd=24),("systemd",pid=1,fd=81))
+u_str  ESTAB      0      0         * 38714                 * 43886               users:(("sshd",pid=7438,fd=2),("sshd",pid=7438,fd=1))
+u_str  ESTAB      0      0         * 44861                 * 40232               users:(("dockerd",pid=7562,fd=10))
+u_str  ESTAB      0      0      /run/dbus/system_bus_socket 36307                 * 45269               users:(("dbus-daemon",pid=7053,fd=10))
+u_str  ESTAB      0      0      /run/systemd/journal/stdout 43775                 * 44605               users:(("systemd-journal",pid=3708,fd=22),("systemd",pid=1,fd=83))
+u_str  ESTAB      0      0         * 52314                 * 43926               users:(("containerd",pid=7537,fd=2),("containerd",pid=7537,fd=1))
+u_str  ESTAB      0      0         * 450290131             * 0                   users:(("java",pid=16941,fd=6))
+u_str  ESTAB      0      0         * 52389                 * 43928               users:(("dockerd",pid=7562,fd=2),("dockerd",pid=7562,fd=1))
+tcp    ESTAB      0      0      10.22.14.10:22                 10.1.166.160:53635               users:(("sshd",pid=11715,fd=3),("sshd",pid=11709,fd=3))
+tcp    ESTAB      0      0      10.22.14.10:22                 10.1.166.160:56453               users:(("sshd",pid=6649,fd=3))
+tcp    ESTAB      0      0      10.22.14.10:683                10.22.10.59:2049
+tcp    ESTAB      0      0      10.22.14.10:22                 10.1.166.160:58668               users:(("sshd",pid=9971,fd=3))
+tcp    ESTAB      0      0      10.22.14.10:22                 10.1.166.160:51279               users:(("sshd",pid=6013,fd=3))
+tcp    ESTAB      0      0        ::ffff:10.22.14.10:8011                ::ffff:10.1.166.160:56829               users:(("java",pid=10941,fd=158))
+tcp    ESTAB      0      0        ::ffff:10.22.14.10:40495                ::ffff:10.22.13.59:8080                users:(("java",pid=10941,fd=125))
+tcp    ESTAB      0      0        ::ffff:10.22.14.10:8011                 ::ffff:10.22.13.59:10861               users:(("java",pid=10941,fd=141))
+tcp    ESTAB      0      0      ::ffff:127.0.0.1:47212              ::ffff:127.0.1.1:8011                users:(("java",pid=10941,fd=135))
+tcp    ESTAB      5      0      ::ffff:127.0.1.1:8011               ::ffff:127.0.0.1:47212               users:(("java",pid=10941,fd=154))
+tcp    ESTAB      0      0      ::ffff:127.0.0.1:7016               ::ffff:127.0.0.1:35677               users:(("java",pid=16941,fd=62))
+tcp    ESTAB      0      0        ::ffff:10.22.14.10:8011                ::ffff:10.22.14.204:21941               users:(("java",pid=10941,fd=116))
+tcp    ESTAB      0      0      ::ffff:127.0.1.1:7016               ::ffff:127.0.0.1:64560               users:(("java",pid=16941,fd=89))
+tcp    ESTAB      0      0        ::ffff:10.22.14.10:8011                ::ffff:10.1.166.160:56849               users:(("java",pid=10941,fd=132))
+tcp    ESTAB      0      0      ::ffff:127.0.0.1:64560              ::ffff:127.0.1.1:7016                users:(("java",pid=10941,fd=128))
+tcp    ESTAB      0      0      ::ffff:127.0.0.1:35677              ::ffff:127.0.0.1:7016                users:(("java",pid=10941,fd=105))
+v_str  ESTAB      0      0      719291053:1023                  0:976                 users:(("vmtoolsd",pid=7052,fd=8))
+nl     UNCONN     0      0         0:-290841                *
+nl     UNCONN     768    0         0:7562                   *
+nl     UNCONN     0      0         0:7078                   *
+nl     UNCONN     0      0         0:0                      *
+nl     UNCONN     0      0         0:7078                   *
+nl     UNCONN     768    0         4:0                      *
+nl     UNCONN     4352   0         4:17780                  *
+nl     UNCONN     0      0         6:0                      *
+nl     UNCONN     0      0         6:7562                   *
+nl     UNCONN     0      0         7:1                      *
+nl     UNCONN     0      0         7:0                      *
+nl     UNCONN     0      0         7:7053                   *
+nl     UNCONN     0      0         7:7803                   *
+nl     UNCONN     0      0         7:9785                   *
+nl     UNCONN     0      0         7:7803                   *
+nl     UNCONN     0      0         7:9785                   *
+nl     UNCONN     0      0         7:7053                   *
+nl     UNCONN     0      0         7:1                      *
+nl     UNCONN     0      0         9:7027                   *
+nl     UNCONN     0      0         9:0                      *
+nl     UNCONN     0      0         9:17764                  *
+nl     UNCONN     0      0         9:1                      *
+nl     UNCONN     0      0         9:17779                  *
+nl     UNCONN     0      0        10:0                      *
+nl     UNCONN     0      0        11:0                      *
+nl     UNCONN     0      0        12:7562                   *
+nl     UNCONN     0      0        12:0                      *
+nl     UNCONN     0      0        15:-4178                  *
+nl     UNCONN     0      0        15:7078                   *
+nl     UNCONN     0      0        15:1                      *
+nl     UNCONN     0      0        15:-4177                  *
+nl     UNCONN     0      0        15:-4179                  *
+nl     UNCONN     0      0        15:-4137                  *
+nl     UNCONN     0      0        15:-4180                  *
+nl     UNCONN     0      0        15:0                      *
+nl     UNCONN     0      0        15:7448                   *
+nl     UNCONN     0      0        15:7049                   *
+nl     UNCONN     0      0        15:7448                   *
+nl     UNCONN     0      0        15:-4180                  *
+nl     UNCONN     0      0        15:7078                   *
+nl     UNCONN     0      0        15:-4179                  *
+nl     UNCONN     0      0        15:-4178                  *
+nl     UNCONN     0      0        15:-4177                  *
+nl     UNCONN     0      0        15:7049                   *
+nl     UNCONN     0      0        15:-4137                  *
+nl     UNCONN     0      0        15:1                      *
+nl     UNCONN     0      0        16:0                      *
+nl     UNCONN     0      0        18:0                      *
+p_raw  UNCONN     0      0         *:ens192                 *                    users:(("dhclient",pid=8647,fd=5))
+u_str  LISTEN     0      128    /var/run/docker/metrics.sock 55303                 * 0                   users:(("dockerd",pid=7562,fd=8))
+u_dgr  UNCONN     0      0      /var/run/chrony/chronyd.sock 43785                 * 0                   users:(("chronyd",pid=7082,fd=5))
+u_str  LISTEN     0      10     /var/run/NetworkManager/private-dhcp 33338                 * 0                   users:(("NetworkManager",pid=7078,fd=15))
+u_dgr  UNCONN     0      0      /run/systemd/shutdownd 27984                 * 0                   users:(("systemd",pid=1,fd=74))
+u_str  LISTEN     0      128    /run/lvm/lvmpolld.socket 27987                 * 0                   users:(("systemd",pid=1,fd=49))
+u_seq  LISTEN     0      128    /run/udev/control 27989                 * 0                   users:(("systemd-udevd",pid=3745,fd=4),("systemd",pid=1,fd=73))
+u_str  LISTEN     0      128    /var/run/docker.sock 36466                 * 0                   users:(("dockerd",pid=7562,fd=6))
+u_str  LISTEN     0      128    /var/run/docker.sock 36468                 * 0                   users:(("dockerd",pid=7562,fd=7))
+u_str  LISTEN     0      128    /run/systemd/private 20393                 * 0                   users:(("systemd",pid=1,fd=12))
+u_str  LISTEN     0      32     /var/run/vmware/guestServicePipe 35504                 * 0                   users:(("VGAuthService",pid=7051,fd=8))
+u_str  LISTEN     0      128    /run/docker/libnetwork/cd22d1a92732611b23dbb56c003e31f781872c78ba76c19ef001a549f572cfe7.sock 46518                 * 0                   users:(("dockerd",pid=7562,fd=16))
+u_str  LISTEN     0      128    /run/containerd/containerd.sock 51643                 * 0                   users:(("containerd",pid=7537,fd=6))
+u_str  LISTEN     0      128    /run/lvm/lvmetad.socket 27876                 * 0                   users:(("lvmetad",pid=3728,fd=3),("systemd",pid=1,fd=64))
+u_str  LISTEN     0      128    /var/run/docker.sock 42474                 * 0                   users:(("dockerd",pid=7562,fd=3),("systemd",pid=1,fd=70))
+u_dgr  UNCONN     0      0      /run/systemd/notify 12523                 * 0                   users:(("systemd",pid=1,fd=46))
+u_str  LISTEN     0      128    /run/dbus/system_bus_socket 42476                 * 0                   users:(("dbus-daemon",pid=7053,fd=3),("systemd",pid=1,fd=75))
+u_dgr  UNCONN     0      0      /run/systemd/cgroups-agent 12525                 * 0                   users:(("systemd",pid=1,fd=47))
+u_str  LISTEN     0      128    /var/run/rpcbind.sock 42479                 * 0                   users:(("rpcbind",pid=7050,fd=3),("systemd",pid=1,fd=59))
+u_str  LISTEN     0      128    /run/systemd/journal/stdout 12536                 * 0                   users:(("systemd-journal",pid=3708,fd=3),("systemd",pid=1,fd=91))
+u_dgr  UNCONN     0      0      /run/systemd/journal/socket 12539                 * 0                   users:(("systemd-journal",pid=3708,fd=4),("systemd",pid=1,fd=92))
+u_dgr  UNCONN     0      0      /dev/log 12541                 * 0                   users:(("systemd-journal",pid=3708,fd=5),("systemd",pid=1,fd=93))
+u_dgr  UNCONN     0      0         * 33429                 * 12539               users:(("dockerd",pid=7562,fd=4))
+u_dgr  UNCONN     0      0         * 841019442             * 12541               users:(("sshd",pid=6649,fd=4))
+u_dgr  UNCONN     0      0         * 31460                 * 12541               users:(("crond",pid=7130,fd=4))
+u_dgr  UNCONN     0      0         * 36310                 * 12541               users:(("dbus-daemon",pid=7053,fd=12))
+u_dgr  UNCONN     0      0         * 46426                 * 12541               users:(("dhclient",pid=8647,fd=3))
+u_dgr  UNCONN     0      0         * 114262                * 12541               users:(("rpc.statd",pid=22529,fd=4))
+u_dgr  UNCONN     0      0         * 840242484             * 12539               users:(("systemd",pid=1,fd=13))
+u_dgr  UNCONN     0      0         * 45270                 * 0                   users:(("VGAuthService",pid=7051,fd=3))
+u_dgr  UNCONN     0      0         * 449768189             * 12541               users:(("sshd",pid=9971,fd=4))
+u_dgr  UNCONN     0      0         * 43804                 * 12541               users:(("NetworkManager",pid=7078,fd=5))
+u_dgr  UNCONN     0      0         * 1842                  * 12523               users:(("systemd-journal",pid=3708,fd=11))
+u_dgr  UNCONN     0      0         * 838323163             * 12541               users:(("sshd",pid=6013,fd=4))
+u_dgr  UNCONN     0      0         * 34464                 * 12541               users:(("polkitd",pid=7063,fd=11))
+u_dgr  UNCONN     0      0         * 45906                 * 12541               users:(("chronyd",pid=7082,fd=0))
+u_dgr  UNCONN     0      0         * 841212950             * 12541               users:(("sudo",pid=17764,fd=4))
+u_dgr  UNCONN     0      0         * 36280                 * 12539               users:(("systemd-logind",pid=7049,fd=3))
+u_dgr  UNCONN     0      0         * 840477622             * 12541               users:(("su",pid=9785,fd=4))
+u_dgr  UNCONN     0      0         * 836499397             * 12541               users:(("sshd",pid=11715,fd=4),("sshd",pid=11709,fd=4))
+u_dgr  UNCONN     0      0         * 31533                 * 12541               users:(("rsyslogd",pid=7469,fd=4))
+u_dgr  UNCONN     0      0         * 19321                 * 12541               users:(("auditd",pid=7027,fd=8))
+u_dgr  UNCONN     0      0         * 26038                 * 12539               users:(("systemd-udevd",pid=3745,fd=5))
+u_dgr  UNCONN     0      0         * 26051                 * 26050               users:(("systemd-udevd",pid=3745,fd=10))
+u_dgr  UNCONN     0      0         * 841032064             * 12541               users:(("su",pid=7803,fd=4))
+u_dgr  UNCONN     0      0         * 26050                 * 26051               users:(("systemd-udevd",pid=3745,fd=9))
+raw    UNCONN     0      0        :::58                   :::*                   users:(("NetworkManager",pid=7078,fd=17))
+udp    UNCONN     0      0         *:68                    *:*                   users:(("dhclient",pid=8647,fd=6))
+udp    UNCONN     0      0         *:111                   *:*                   users:(("rpcbind",pid=7050,fd=5),("systemd",pid=1,fd=61))
+udp    UNCONN     0      0      127.0.0.1:323                   *:*                   users:(("chronyd",pid=7082,fd=1))
+udp    UNCONN     0      0      127.0.0.1:659                   *:*                   users:(("rpc.statd",pid=22529,fd=8))
+udp    UNCONN     0      0         *:863                   *:*                   users:(("rpcbind",pid=7050,fd=10))
+udp    UNCONN     0      0         *:53346                 *:*                   users:(("rpc.statd",pid=22529,fd=7))
+udp    UNCONN     0      0         *:39205                 *:*
+udp    UNCONN     0      0        :::111                  :::*                   users:(("rpcbind",pid=7050,fd=7),("systemd",pid=1,fd=63))
+udp    UNCONN     0      0       ::1:323                  :::*                   users:(("chronyd",pid=7082,fd=2))
+udp    UNCONN     0      0        :::863                  :::*                   users:(("rpcbind",pid=7050,fd=11))
+udp    UNCONN     0      0        :::18897                :::*
+udp    UNCONN     0      0        :::55542                :::*                   users:(("rpc.statd",pid=22529,fd=10))
+

@@ -1,0 +1,41 @@
+
+
+// The following is pasted into navigate to support scroll by scrollbar
+
+
+        plot.jumpX = function (args) {
+            let delta = {
+                x: +args.x,
+                y: +args.y
+            };
+            
+            
+            console.log(`delta: `, delta) ;
+
+            if (isNaN(delta.x))
+                delta.x = 0;
+            if (isNaN(delta.y))
+                delta.y = 0;
+
+            $.each(plot.getAxes(), function (_, axis) {
+                var opts = axis.options,
+                    min, max, d = delta[axis.direction];
+
+                if ( axis.direction =="x" ) {
+
+                        var oldMin = axis.c2p(axis.p2c(axis.min)) ;
+                        var oldMax = axis.c2p(axis.p2c(axis.max)) ;
+                        min =  d - (oldMax - oldMin),
+                        max =  d;
+
+                        opts.min = min;
+                        opts.max = max;
+                    }
+            });
+
+            plot.setupGrid();
+            plot.draw();
+
+            if (!args.preventEvent)
+                plot.getPlaceholder().trigger("plotpan", [ plot, args ]);
+        };

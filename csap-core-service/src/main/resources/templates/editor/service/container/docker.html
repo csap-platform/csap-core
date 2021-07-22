@@ -1,0 +1,167 @@
+
+
+<div
+	class="heading"
+	style="margin-top: 0; padding-top: 0">
+	Docker Settings: Used when service is deployed to a host cluster. This section is specific to docker deployments.
+</div>
+
+<div
+	class="csap-blue"
+	style="margin-top: 5px;">
+
+
+	<div class="heading">
+		Docker Settings
+	</div>
+
+	<label
+		title="Docker Network Mode: default is bridge, host will use the parent OS. Alternate - a docker network name can be used"
+		style="display: inline-block; width: 35em; vertical-align: top">
+		<span style="text-align: left; padding-left: 0.5em;">
+			Network:
+			<a
+				class="simple"
+				style="margin-left: 2em; display: inline"
+				target="_blank"
+				title="View help on working with docker networks"
+				href="https://docs.docker.com/engine/userguide/networking/">
+				<img th:src="@{/images/16x16/help.png}" />
+			</a>
+		</span>
+
+		<br />
+		<div class="floating-ace-editor">
+			<textarea
+				id="service-edit-docker-network"
+				rows="2"
+				spellcheck=false
+				data-fit="true"
+				data-fixedwidth="400"
+				data-path="docker.network"></textarea>
+		</div>
+
+	</label>
+
+
+	<div style="display: inline-block; width: 35em;">
+
+		<label 
+			class=csap-form
+			title="Policy: no,always,unless-stopped,on-failure:numberOfAttempts. eg. on-failure:3">
+			<span>Restart Policy:</span>
+			<input
+				data-path="docker.restartPolicy"
+				placeholder="unless-stopped" />
+		</label>
+
+		<label 
+			class=csap-form
+			title="Use cgroups quotas to constrain maximum cpus used">
+			<span>Cpu cores max:</span>
+			<input
+				data-path="docker.limits.cpuCoresMax"
+				placeholder="unlimited" />
+		</label>
+
+		<label
+			class=csap-form
+			title="restrict which cores will be used by container. Setting 0-7 on a 2 core host will prevent container being started">
+			<span>Cpus Assigned:</span>
+			<input
+				data-path="docker.limits.cpuCoresAssigned"
+				placeholder="unlimited" />
+		</label>
+
+		<label 
+			class=csap-form
+			title="">
+			<span>Memory (Mb):</span>
+			<input
+				data-path="docker.limits.memoryInMb"
+				placeholder="unlimited" />
+		</label>
+		<label 
+			class=csap-form
+			title="Skip ulimit validation">
+			<span>Skip Validation:</span>
+			<input
+				data-path="docker.limits.skipValidation"
+				placeholder="false" />
+		</label>
+		<label
+			class=csap-form
+			id="logsLabel"
+			title='Customize docker log configuration'>
+			<span>Logs:</span>
+			<input
+				data-json="true"
+				data-path="docker.limits.logs"
+				placeholder="system managed" />
+		</label>
+		<div class="noteAlt">
+			Optional: container limits are used to constrain resources consumed by container.
+			<a
+				class="simple"
+				style="margin-left: 4px; display: inline"
+				target="_blank"
+				title="View help on creating constraints"
+				href="https://docs.docker.com/engine/reference/run/#runtime-constraints-on-resources">
+				<img th:src="@{/images/16x16/help.png}" />
+				Learn More
+			</a>
+		</div>
+	</div>
+
+	<label
+		title=""
+		style="display: inline-block; width: 35em; vertical-align: top">
+		<span style="min-width: 0"> OS ulimits </span>
+		<br />
+		<div class="floating-ace-editor">
+			<textarea
+				id="osUlimits"
+				rows="2"
+				spellcheck=false
+				data-fit="true"
+				data-fixedwidth="300"
+				data-path="docker.limits.ulimits"></textarea>
+		</div>
+	</label>
+</div>
+
+<div
+	class="csap-green"
+	style="margin-top: 5px;">
+
+	<div class="heading">
+		docker run command: as it appears <span style="background-color: yellow">after</span> docker run. If specified, settings above are  <span style="background-color: yellow">ignored</span>.
+		<a
+			target="_blank"
+			title="View Help"
+			class="csap-link-button"
+			href="https://docs.docker.com/engine/reference/commandline/run/">reference guide</a>
+	</div>
+
+	<div style="margin-top: 1em">
+		<label
+			title="docker run command - docker run will be prefixed"
+			style="vertical-align: top">
+			<span>docker run:</span>
+		</label>
+
+		<div class="floating-ace-editor">
+			<textarea
+				id="run"
+				data-path="docker.run"
+				data-removenewlines="true"
+				data-plain="true"
+				data-adjust="1"
+				data-fit="true"
+				data-adjustwidth="200"
+				spellcheck=false
+				placeholder="default from image: specify as JSON array elements"></textarea>
+		</div>
+	</div>
+
+</div>

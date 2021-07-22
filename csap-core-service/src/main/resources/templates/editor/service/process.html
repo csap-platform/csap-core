@@ -1,0 +1,376 @@
+<div
+	id="process"
+	class="group json-form-autosize-panel">
+
+	<div
+		class="csap-white"
+		style="padding-left: 0">
+
+		<div id="service-profile">
+			<div>
+				<label
+					class=csap-form-inline >
+					<span> Service Profile: </span>
+					<select
+						class="serviceContainer"
+						title="Select Application Container"
+						data-path="server">
+
+
+						<option
+							class="jeeOptions"
+							th:each="name : ${ tomcatServers }"
+							th:value="${name}"
+							th:text="${name}">filled</option>
+
+
+						<option
+							class="osOptions"
+							value="csap-api">CSAP Package</option>
+
+						<option
+							class="osOptions"
+							value="os">OS Process Monitor</option>
+
+						<option
+							class="osOptions"
+							value="docker">Docker</option>
+
+					</select>
+				</label>
+				<label
+					class=csap-form-inline>
+					<span title="Operations will trigger data warnings if set. Use for DBs, etc">Data Store:</span>
+					<select data-path="isDataStore">
+						<option selected="selected">false</option>
+						<option>true</option>
+					</select>
+				</label>
+				
+				<label
+					class=csap-form-inline>
+					<span
+						style="min-width: 0; margin-left: 1em"
+						title="Operations will trigger data warnings if set">Messaging:</span>
+
+					<select data-path="isMessaging">
+						<option selected="selected">false</option>
+						<option>true</option>
+					</select>
+				</label>
+
+			</div>
+
+
+			<div>
+
+				<label
+					class=csap-form-inline>
+
+					<span
+						style="min-width: 0; margin-left: 1em"
+						title="Select a template to populate defintion automatically">Templates:</span>
+
+					<select
+						id="service-template-selection"
+						style="margin-left: 0; max-width: 8em">
+						<option value="default">load...</option>
+
+
+						<optgroup label="Kubernetes">
+
+							<option value="k8s-template-csap-test">kubernetes: csap test app</option>
+							<option value="k8s-template-monitor">kubernetes: pod monitor</option>
+
+						</optgroup>
+
+						<optgroup label="OS Deployments">
+
+							<option value="springboot-simple">Java SpringBoot: Minimal</option>
+							<option value="springboot-full">Java SpringBoot: Full (Metrics, alerts, etc)</option>
+							<option value="tomcat">Java tomcat</option>
+
+						</optgroup>
+
+						<optgroup label="Docker">
+
+							<option value="csap-test-docker">Docker: Csap Test Service</option>
+							<option value="nginx">Docker: nginx</option>
+							<option value="postgres">Docker: postgres</option>
+							<option value="activemq">Docker: activemq</option>
+
+							<option
+								title="Updates docker section with minimal template to start a service"
+								value="java9DockerMinimal">Java 9 Minimal</option>
+							<option
+								title="Updates docker section with examples including volumes and network"
+								value="java9DockerMore">Java 9 Full</option>
+
+							<option value="fabric8">fabric8 with OpenJDK (java 8 or 9)</option>
+							<option value="csapBaseWithHostJava">Java using host folder</option>
+							<option value="csapTestApp">CSAP test application</option>
+							<option value="csapTomcat">csap-tomcat with embedded java and tomcat</option>
+						</optgroup>
+					</select>
+
+				</label>
+			</div>
+
+		</div>
+
+		<div id="service-links">
+
+			<div>
+
+				<label
+					class=csap-form-inline
+					title="Source of service definition &#013;If csap-template selected active application definition, only is updated: &#013; - add: ignored &#013; - delete: removes service in definition &#013; - update: ONLY affects resource files">
+					<span>source:</span>
+					<select
+						class="definition-source"
+						data-path="definitionSource">
+
+						<option
+							th:each="name : ${ applicationFileNames }"
+							th:value="${name}"
+							th:text="${name}">stubbed-in</option>
+
+
+
+					</select>
+
+					<input
+						class="copySource-service-name"
+						title="template name used for source when copySource is specified"
+						style="width: 8em; display: none"
+						data-path="copySource"
+						placeholder="$$service-name" />
+
+					<input
+						class="path-to-template"
+						title="path to template"
+						style="width: 20em"
+						data-path="path-to-template"
+						placeholder="not-found" />
+
+				</label>
+			</div>
+
+
+			<div>
+				<label
+					class=csap-form-inline>
+
+					<span style="min-width: 0">Resources:</span>
+
+					<a
+						title="Browse/Edit service files"
+						href="#open-service-files"
+						class="csap-link-button open-service-files">
+						<img th:src="@{/images/16x16/folder-open.svg}" />File Manager
+					</a>
+
+				</label>
+			</div>
+		</div>
+
+	</div>
+
+
+
+	<div
+		id="containerConfig"
+		class="csap-green">
+		
+		
+		<div class="heading"></div>
+		<label
+					class=csap-form>
+			<span>Description:</span>
+			<input
+				data-path="description"
+				th:value="${'Added by ' + scmUser + '. Service provides ...' }" />
+		</label>
+		<label 
+			class=csap-form>
+			<span>Deployment Notes:</span>
+			<input
+				data-path="deploymentNotes"
+				placeholder="enter notes to be shown when deployment operations are performed" />
+		</label>
+
+		
+		<label
+			class=csap-form
+			title="Dashboard launch: one or more comma separated urls can be used. &#013; - $$service-fqdn-host:$$service-primary-port represent the service host & port template variables &#013; - kubernetes: $$kubernetes-ingress?path=/$$service-name, or $$kubernetes-pod-ip, or $$kubernetes-nodeport?serviceName=$$service-name&path=/  ">
+			<span>Launch Url:</span>
+			<input
+				data-path="url"
+				placeholder="non:docker: http://$$service-fqdn-host:$$service-primary-port" />
+		</label>
+
+		<label 
+			class=csap-form
+			title="Provide one or more comma separated urls.">
+			<span>Documentation Url:</span>
+			<input
+				data-path="docUrl"
+				placeholder="sourcelocation/README.md"
+				value="" />
+		</label>
+	</div>
+	<div
+		id="containerConfig"
+		class="csap-blue">
+		<div class="heading">OS Process Configuration. Set process match to 'none' if no processes will be started</div>
+		
+		<div>
+
+			<label 
+				class=csap-form-inline
+				title="Linux OS Process Matching, regular expressions are supported. eg. .*java.*activemq.*">
+				<span> Process Match:</span>
+				<input
+					class=words
+					placeholder="defaults: docker: container pid, os: service name"
+					data-path="processFilter" />
+				<a
+					th:href="${@csapCoreService.getHelpUrl('process-match-help') }"
+					target="_blank"
+					class="csap-link-icon csap-help"></a>
+			</label>
+			
+			
+			<label
+				class=csap-form-inline
+				title="for each matched process, include children using parent pid">
+				<span>child processes:</span>
+				<input
+					placeholder="false"
+					data-path="processChildren" />
+			</label>
+
+		</div>
+		
+		<div class="heading"></div>
+
+
+		<div>
+
+
+			<label
+				class=csap-form-inline
+				title="Linux OS Process Priority, 0 is default, lower indicate higher priority eg. -10">
+				<span>Priority:</span>
+				<input
+					class="smallJson"
+					placeholder="0"
+					data-path="osProcessPriority" />
+			</label>
+
+
+			<label
+				class=csap-form-inline
+				title="Csap MetaData used to customize service behaviour and attributes.">
+				<span>Config Attributes:</span>
+				<input
+					class=words
+					data-path="metaData"
+					placeholder="Optional configuration to customize CSAP process handling"
+					style="margin-right: 2px" />
+			</label>
+
+		</div>
+
+		<div>
+			<label
+				class=csap-form-inline
+				title="When host is restarted, services will be sorted and started. To disable on override: do-not-restart">
+				<span>Start Order:</span>
+				<input
+					class="smallJson"
+					placeholder="manual"
+					data-path="autoStart" />
+			</label>
+
+			<label
+				class=csap-form-inline
+				title="Folder will be scanned for EOL components. Omit leading / to be relative to the service directory">
+				<span>Library Folder:</span>
+				<input
+					class=words
+					placeholder="default folder defined for server"
+					data-path="libDirectory" />
+			</label>
+		</div>
+		
+		
+		<div class="heading">Related linux systemd unit(s) comma separated (services, etc.)</div>
+		<label
+				class=csap-form
+			title="If specified, this will include log link(s) to filtered output via journalctl -u name">
+			<span>systemd services:</span>
+			<input
+				placeholder="eg. docker,sshd,kubelet"
+				data-path="logJournalServices" />
+		</label>
+
+
+		<div
+			class="heading"
+			>OS Process Parameters passed when starting service: no newlines permitted. CSAP
+			custom: -DcsapJava7, -DcsapJava8</div>
+		<div class="floating-ace-editor">
+			<textarea
+				id="service-params-edit"
+				class="paramJdk"
+				spellcheck=false
+				placeholder="Optional: add your parameters. Eg. for java: -Xmx500m -Xms500m -XX:+UseG1GC XX:+ExitOnOutOfMemoryError"
+				data-path="parameters"
+				data-plain="true"
+				data-fit="true"
+				data-adjust="1"
+				data-removenewlines="true"></textarea>
+		</div>
+	</div>
+	<div
+		id="containerConfig"
+		class="csap-grey">
+
+		<div class="heading">
+			Environment Variables / Configuration Maps
+			<a
+			th:href="${@csapCoreService.getHelpUrl('configuration-map-help') }"
+			target="_blank"
+			class="csap-link-icon csap-help"></a>
+			
+		</div>
+
+		<div class="floating-ace-editor">
+			<textarea
+				id="environmentVariable"
+				data-fit="true"
+				data-adjust="50"
+				spellcheck=false
+				data-path="environmentVariables"></textarea>
+		</div>
+
+		<div class="heading">
+			Configuration Notes:
+			<ul style="list-style-type: disc; padding-left: 3em">
+				<li>Any variables in the life cycle "global" configuration map are always included first</li>
+				<li>values may include any of the <a
+						target="_blank"
+						title="Definition variabls"
+						class="simple"
+						th:href="${@csapCoreService.getHelpUrl('service-variables') }">
+						csap definition variables </a>
+				</li>
+
+				<li>"$serviceRef:someServiceName" - hosts names for service</li>
+				<li>"doDecode:someEncodedValue" - provides decoded attribute</li>
+				<li>shared configuration, add: "configuration-maps": [ "map1", "map2"].</li>
+			</ul>
+		</div>
+	</div>
+</div>

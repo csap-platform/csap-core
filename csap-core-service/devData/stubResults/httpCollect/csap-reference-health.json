@@ -1,0 +1,21 @@
+{
+	"health-report": {
+		"collectionCount": 23.0,
+		"lastCollected": "17:16:51, Mar 13",
+		"isHealthy": false,
+		"errors": [
+			{
+				"id": "app-health",
+				"type": "db-or-jms",
+				"description": "16:32:33, Mar 27 user: pnightingale Added demo issue"
+			}
+		],
+		"source": {
+			"collected-at": "17:16:51, March 13 2019",
+			"hostName": "test-k8s-csap-reference-76db754cbd-4bgt4",
+			"url-requested": "http://csap-dev06.***REMOVED***:30080/test-k8s-csap-reference/csap/health/report",
+			"sample-params": "http://csap-dev06.***REMOVED***:30080/test-k8s-csap-reference/csap/health/report?aggregate=true&nameFilter=jvm.*&details=false&precision=2&tagFilter=state&tagFilter=csap-collection",
+			"sample-http": "http://csap-dev06.***REMOVED***:30080/test-k8s-csap-reference/csap/health/report?nameFilter=http.server.*&details=true&encode=true&precision=2&"
+		}
+	}
+}

@@ -1,0 +1,30 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+    <head><title>thymleaf template</title></head>
+
+    <body th:inline="text">
+
+        <span th:fragment="pageContent" th:remove="tag">
+            <span id="ace-editor-settings"
+                 title="View controls">
+                <label class=csap id="ace-fold-controls"
+                       title="For recognized file types, folding will occur">
+                    <input id="ace-fold-checkbox" type="checkbox" />
+                    Fold
+                </label>
+
+                <a
+                    style="display: inline"
+                    title="ctrl-f = find/replace, ctrl-l = go to line, alt-0 (code fold all)(click to see more)"
+                    class="csap-link"
+                    href="https://github.com/ajaxorg/ace/wiki/Default-Keyboard-Shortcuts"
+                    target="_blank">Keys</a>
+            </span>
+        </span>
+
+    </body>
+
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org">
+
+	<head><title></title></head>
+	<!-- 
+		- Service Summary Listing
+	-->
+
+	<body  th:fragment="pageContent" th:remove="tag" >
+		<h1>Service Manifest</h1>
+		<table id="services" class="csap simple" >
+			<thead>
+
+				<tr>
+					<th style="width: 12em">Service in Lifecycle: [[ ${ lifecycle } ]] </th>
+					<th style="width: 30em">Manifest Version</th>
+					<th style="width: 24em">Deployed Versions</th>
+					<th style="width: 5em">Support</th>
+				</tr>
+			</thead>
+
+
+			<tbody th:each="serviceEntry : ${ project.serviceInstancesInCurrentLifeByName () }"
+				   th:with="firstServiceInstance=${  project.getServiceToAllInstancesMap().get(serviceEntry.key).get(0)  }"
+				   >
+				<tr th:title="${firstServiceInstance.getDescription() }">
+
+					<td th:title="${firstServiceInstance.getDescription() }">
+						<a class="csap-link" th:href="${ '#' + serviceEntry.key }"> [[ ${ serviceEntry.key  } ]]</a></td>
+
+					<td> [[ ${ firstServiceInstance.getMavenId() } ]] </td>
+
+					<td th:title="${ firstServiceInstance.scmVersion }"
+						th:with="serviceToArtifactMap = ${ csapApp.getServiceToArtifactMap( project )}">
+						<span th:if="null == ${serviceToArtifactMap}">
+							Not found: [[ ${ firstServiceInstance.getDefaultContainer().getDeployedArtifacts() } ]]
+						</span>
+						<span th:if="null != ${serviceToArtifactMap}">
+							<span style="padding-right: 2em; display: inline-block; min-width: 8em"  th:each="version : ${serviceToArtifactMap.get (serviceEntry.key)}">
+								[[ ${ version } ]]
+							</span>
+						</span>
+					</td>
+
+					<td> 
+						<span th:if="null != ${ firstServiceInstance.getDocUrl() }">
+							<a th:href="${ firstServiceInstance.getDocUrl() }" target="_blank"> link </a> </span>
+						<span th:if="null == ${ firstServiceInstance.getDocUrl() }">none</span>
+					</td>
+				</tr>
+
+			</tbody>
+
+		</table>
+
+	</body>
+</html>

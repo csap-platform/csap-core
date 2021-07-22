@@ -1,0 +1,81 @@
+<div
+	id="performance"
+	class="group textGroup json-form-autosize-panel">
+
+	<div class="heading">
+		Inline edits and ordering are supported by clicking on links below, alternately:
+		<button class="csap-button-icon toggleAppCollect">
+			<img th:src="@{/images/16x16/edit-select-all.png}" />
+			Json Editor
+		</button>
+
+		<a
+			class="csap-link-icon csap-help"
+			title="Application data points to be collected.   Use jvisualvm to confirm mbean or simon endpoints"
+			
+			th:href="${@csapCoreService.getHelpUrl('performance-help') }"
+			target="_blank">Performance</a>
+		<br />
+	</div>
+
+
+	<div class="appCollectToggle">
+		<table class="csap simple appCollect">
+			<thead>
+
+				<tr>
+					<th>
+						Label
+						<div>*optional include ms</div>
+					</th>
+					<th>
+						Collection ID
+						<div>*modifying looses history</div>
+					</th>
+					<th>
+						Collection
+						<br />
+						Source
+					</th>
+					<th>
+						Attribute Identifier
+						<div>*Click items to edit in place. Avoid typing: use copy/paste</div>
+					</th>
+					<th>Max</th>
+				</tr>
+			</thead>
+
+			<tbody></tbody>
+
+		</table>
+	</div>
+
+	<div
+		class="appCollectToggle"
+		style="display: none">
+		<textarea
+			id="service-performance-text"
+			data-adjust="-30"
+			data-path="performance"></textarea>
+	</div>
+
+	<div
+		class="missingMetrics"
+		style="display: none">
+		<span style="background-color: yellow">No Application Metrics are configured - production SLA is impacted</span>
+
+		<div class="quote">It is strongly recommended - and standard engineering practice - that every service exports
+			at least a single data point indicative of processing activity. This is necessary in order to correlate work produced
+			with resources consumed. This can include anything from API invocation (counts and duration), active users, devices
+			processed, etc.</div>
+		CSAP can collect Application metrics from any http or Java (JMX) endpoint(s).
+		<br />
+		To learn more, visit:
+		<a
+			class="simple"
+			style="display: inline"
+			href="https://github.com/csap-platform/csap-core/wiki#updateRefCustom+Metrics"
+			target="_blank"> How To Configure</a>
+	</div>
+
+</div>

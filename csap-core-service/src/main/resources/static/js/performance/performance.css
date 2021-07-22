@@ -1,0 +1,779 @@
+
+
+/*
+*
+*     tab layout
+*	
+*/
+
+#analytics-portal button {
+	font-size: 10pt;
+}
+#loading-project-message {
+	position: absolute;
+	width: 60em;
+	left: 50%;
+	top: 30%;
+	margin-left: -20em;
+	margin-top: -5em;
+	padding-left: 2em;
+	padding-right: 2em;
+	left: 50%;
+	z-index: 100;
+}
+label {
+	white-space: nowrap;
+}
+
+body article.content {
+	padding: 0;
+	margin: 0;
+}
+
+#reportTabs {
+	padding: 0;
+	height: 100%;
+	width: 100% ;
+	margin : 0;
+	display: grid;
+	grid-template-rows: 1.7em auto;
+	visibility: hidden;
+	overflow: hidden;
+}
+
+.ui-tabs .ui-tabs-nav li {
+	top: inherit;
+	bottom: -5px;
+}
+
+.ui-tabs .ui-tabs-nav li:first-child {
+	
+	margin-left: 10px;
+}
+
+
+
+#reportTabs >#graphCustomizeDiv {
+	display: none;
+}
+#reportTabs>ul {
+	display: block;
+	padding: 0;
+	margin: 0;
+}
+
+#reportTabs>div {
+
+	overflow: auto;
+	padding: 10px;
+	margin: 0;
+}
+
+#reportTabs>div#os-processDiv {
+	display: grid;
+	grid-template-rows: 2em 2em auto;
+}
+
+#reportTabs div#service-data {
+	
+	overflow: auto;
+}
+
+
+/*
+*
+*     graph layout
+*	
+*/
+
+.graphsContainer >div, .graphsContainer >div >div {
+	height: 100%;
+}
+
+.graphsContainer >div >div >div {
+	padding: 0;
+	height: 100%;
+	margin: 0;
+	display: grid;
+	grid-template-rows: 2em auto;
+	overflow: auto;
+}
+
+.graphsContainer .hostContainer {
+	overflow: auto;
+}
+
+
+#graphCustomizeDiv {
+	position: relative ;	
+}
+
+#graphCustomizeDiv #hostSelection {
+	display: flex;
+	gap: 2em;
+	align-items: baseline;
+	position: absolute;
+	left: 20em;
+	z-index: 1;
+}
+
+#graphCustomizeDiv #hostSelection #applicationNameLabel {
+	color: var(--nav-hover-color);
+}
+
+
+
+/*
+*
+*     jqplots
+*	
+*/
+
+#analytics-portal .jqplot-highlighter-tooltip, #analytics-portal .jqplot-canvasOverlay-tooltip {
+	border: 1px solid black;
+	border-radius: var(--border-radius-small);
+	white-space: nowrap;
+	background: var(--theme-bg);
+	color: var(--theme-color);
+	font-size: 10pt;
+	font-weight: bold;
+	padding: 10px;
+	z-index: 10;
+	min-width: 6em;
+}
+
+
+#analytics-portal .jqplot-highlighter-tooltip span.tip-legend {
+	color: var(--nav-active-color);
+	font-weight: bold;
+}
+
+
+
+/*
+*
+*     legacy
+*	
+*/
+
+table .loadingPanel {
+	font-size: 9pt;
+	width: 400px;
+	min-height: 30px;
+	padding-top: 20px;
+	padding-bottom: 0;
+	margin-left: 2em;
+}
+
+td.loadingCol {
+	position: relative;
+}
+
+#vmSelectAttribute {
+	width: 10em;
+}
+
+.hostCustom {
+	margin-bottom: 5px;
+	display: grid;
+	grid-template-columns: 1em 10em;
+	align-items: start;
+}
+
+.hostCustom label {
+	word-break: break-all;
+}
+
+#hostCusomizeDialog .info {
+	font-size: 11pt;
+	box-shadow: unset;
+	padding-left: 0;
+	margin-bottom: 2em;
+}
+
+#hostDisplay, .columnSelector {
+	display: block;
+	color: black;
+	columns: 12em 5 ;
+	padding: 1em;
+	border: 1px solid aliceblue;
+	border-radius: var(--border-radius-small);
+}
+
+#reportSettingsDialog .columnSelector input[type='checkbox'] {
+	margin-right: 5px;
+}
+
+#jmxCustomServicesDiv {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(30em, 1fr));
+}
+
+#hostCusomizeDialog label {
+	margin-left: 1em;
+	font-weight: bold;
+}
+
+#hostCusomizeDialog .hostCustom label {
+	margin-left: 1px;
+	font-weight: bold;
+}
+
+.jqplot-highlighter-tooltip, .jqplot-canvasOverlay-tooltip {
+	border: 1px solid #cccccc;
+	white-space: nowrap;
+	background: rgba(208, 208, 208, 0.9);
+	padding: 10px;
+	z-index: 999999;
+	min-width: 6em;
+}
+
+label.hide-service-histo {
+	padding-right: 10px;
+}
+
+input.hide-service-button {
+	font-size: 8pt;
+	position: absolute;
+	top: -3px;
+	padding: 0;
+	z-index: 99
+}
+
+div.trendOpen {
+	font-size: 9pt;
+	margin-top: 0.1em;
+	font-style: italic;
+}
+
+#hostCusomizeDialog label.entry {
+	font-size: 10pt;
+	font-weight: bold;
+}
+
+
+
+button#hostCustomize {
+	font-size: 10pt;
+	margin: 3px;
+}
+
+
+
+label.entry select {
+	font-size: 1em;
+}
+
+/*
+table.jqplot-table-legend {
+	width: 150px;
+	border-radius: var(--border-radius-small);
+}
+table.jqplot-table-legend td {
+	word-break: break-all;
+	word-wrap: break-word;
+}
+
+*/
+
+
+#analytics-portal table.jqplot-table-legend {
+	position: relative;
+	display: block;
+	overflow: auto;
+	border: none;
+	margin: 0;
+	margin-left: 20px;
+	margin-top: -20px;
+	max-width: 12em;
+	height: 100%;
+	
+}
+
+#analytics-portal table.jqplot-table-legend td {
+	height: 1.5em;
+}
+
+#analytics-portal table.jqplot-table-legend td:first-child {
+	padding-left: 1em;
+}
+
+#analytics-portal table.jqplot-table-legend td:last-child {
+	padding-right: 1em;
+}
+
+
+
+.jqplot-table-legend-swatch {
+	width: 1em;
+}
+
+#isStackHosts {
+	margin: 0;
+}
+
+#visualizeSelect-button {
+	margin-left: 1em;
+	margin-right: 1em;
+	vertical-align: middle;
+}
+
+.computePlot {
+	padding: 1em ;
+	margin: 1em;
+	background-color: #f6f6f6;
+	border-radius: var(--border-radius-small);
+}
+
+.computeHead {
+	font-weight: bold;
+	margin-top: 1em;
+	margin-bottom: 0.5em;
+}
+
+#corePlot, #threadPlot {
+	height: 20em;
+}
+
+#compareCurrent {
+	font-weight: bold;
+	word-break: normal;
+	width: 65em;
+	font-style: italic;
+	font-size: 9pt;
+}
+
+#compareCurrent label {
+	padding-right: 3em;
+	padding-left: 1em;
+	margin: 0;
+}
+
+#analytics-portal td.diffHighCell {
+	padding-right: 2em;
+}
+.diffHigh {
+	position: absolute;
+	right: 5px;
+}
+
+.resourceWarning {
+	background-image: url('../images/16x16/warning.png');
+	background-repeat: no-repeat;
+	background-size: 12px 12 px;
+	width: 12px;
+	height: 12px;
+	display: inline-block;
+	position: absolute;
+	top: 3px;
+	right: 5px;
+}
+
+td.resourceHighest span {
+	background-color: yellow;
+}
+
+.hostLabel {
+	display: inline-block;
+	vertical-align: bottom;
+	margin-left: 0.25em;
+	font-weight: bold;
+}
+
+.category, .analytics {
+	display: inline-block;
+	width: 14em;
+	border: 1px solid #bbb;
+	padding: 0.2em;
+	border-radius: var(--border-radius-small);
+	background-color: #FFFFFF;
+	font-weight: bold;
+	font-style: italic;
+	text-align: left;
+	margin-left: 1em;
+	padding-left: 1em;
+}
+
+.analytics {
+	margin-left: 0.8em;
+}
+
+.category input, .analytics input {
+	margin-right: 0.5em;
+}
+
+.instanceCheck, .analyticsRadio {
+	margin: 0;
+	vertical-align: top;
+}
+
+#serviceCustomize {
+	display: flex;
+	gap: 2em;
+	font-size: 10pt;
+	align-items: center;
+	margin-top: 1.2em;
+}
+
+#serviceCustomize input[type='checkbox'] {
+	vertical-align: text-top;
+}
+
+#serviceCustomize #filter-service-summary {
+	width: 7em;
+	padding-top: 0;
+	padding-bottom: 0;	
+}
+
+#reportLabel, #serviceLabel {
+	font-weight: bold;
+	padding: 5px;
+	margin-bottom: 0;
+	border-radius: var(--border-radius-small);
+}
+
+#reportLabel {
+	margin-left: 0;
+}
+
+.normal {
+	font-weight: normal;
+	margin-left: 3em;
+}
+
+#showFilter {
+	position: absolute;
+	left: 1em;
+	line-height: 1em;
+	top: 0;
+}
+
+#advancedSection, #filterSection, #lifeSelect, #projectSelect,
+	#jmxSelection, #serviceSummaryTable, #serviceDetailDiv,
+	#jmxDetailDiv, #jmxSummaryDiv {
+	display: none;
+}
+
+#reportSettingsDialog label {
+	display: inline-block;
+	min-width: 12em;
+}
+
+#reportSettingsDialog .columnSelector label {
+	break-inside: avoid;
+}
+
+#catContainer {
+	display: inline-block;
+}
+
+#vmSelectText {
+	margin-left: 8em;
+	font-style: italic;
+}
+
+.svcDiv {
+	padding: 0;
+	margin: 4px;
+}
+
+input.jmxRadio {
+	margin: 0;
+	vertical-align: middle;
+}
+
+.innerSelect .title {
+	margin-top: -1.5em;
+}
+
+.reportSummary {
+	width: 7em;
+	display: inline-block;
+	margin-bottom: 0.25em;
+}
+
+table.reports {
+	margin: 1em;
+	margin-top: 0;
+}
+
+table.reports tfoot tr td {
+	border: none;
+	background-color: #eaeaea ;
+}
+
+table.reports tfoot tr:first-child td {
+	border-top: 2px solid grey;
+}
+
+
+.reports tfoot tr.averageRow, .reports tfoot tr.medianRow {
+	border-top: 0;
+}
+
+/*.reports tbody, .reports thead, .reports tfoot {
+	display: block;
+}*/
+.reports tbody {
+	height: 5em;
+	min-height: 5em;
+	overflow-y: auto;
+}
+
+#analytics-portal tr.header-only th {
+	border-bottom: none;
+	padding-bottom: 0;
+	text-align: center;
+	white-space: nowrap;
+}
+
+#analytics-portal tr.header-sorter th {
+	padding-top: 0;
+}
+#serviceDetailTable thead th, #serviceSummaryTable thead th, #hostTable thead th,
+	#jmxSummaryTable thead th, #jmxDetailTable thead th, #jmxCustomTable thead th,
+	#useridTable thead th {
+	padding-right: 24px;
+	text-align: right;
+}
+
+#serviceDetailTable thead th div, #serviceSummaryTable thead th div,
+	#hostTable thead th div, #jmxSummaryTable thead th div, #jmxDetailTable thead th div,
+	#jmxCustomTable thead th div, #useridTable thead th div {
+	position: relative;
+	right: -10px;
+}
+
+#useridTable {
+	min-width: 30em;
+}
+
+#useridTable td:nth-child(1), #useridTable th:nth-child(1) {
+	width: 12em;
+	text-align: left;
+}
+
+#hostTable td:nth-child(1), #hostTable th:nth-child(1),
+	#serviceSummaryTable td:nth-child(1), #serviceSummaryTable th:nth-child(1),
+	#serviceDetailTable td:nth-child(1), #serviceDetailTable th:nth-child(1),
+	#jmxSummaryTable td:nth-child(1), #jmxSummaryTable th:nth-child(1),
+	#jmxDetailTable td:nth-child(1), #jmxDetailTable th:nth-child(1),
+	#jmxCustomTable td:nth-child(1), #jmxCustomTable th:nth-child(1) {
+	width: 12em;
+	min-width: 6em;
+	display: none;
+	word-break: break-all;
+	word-wrap: break-word;
+	white-space: normal;
+}
+
+table.fixed td {
+	white-space: nowrap;
+}
+
+table td.diff, table td.diffHighCell {
+	position: relative;
+}
+
+#hostTable td:nth-child(2), #hostTable th:nth-child(2),
+	#serviceSummaryTable td:nth-child(2), #serviceSummaryTable th:nth-child(2),
+	#serviceDetailTable td:nth-child(2), #serviceDetailTable th:nth-child(2),
+	#jmxSummaryTable td:nth-child(2), #jmxSummaryTable th:nth-child(2),
+	#jmxDetailTable td:nth-child(2), #jmxDetailTable th:nth-child(2),
+	#jmxCustomTable td:nth-child(2), #jmxCustomTable th:nth-child(2) {
+	font-size: 9pt;
+	text-align: left;
+}
+
+#serviceSummaryTable td:nth-child(2), #serviceSummaryTable th:nth-child(2),
+	#serviceDetailTable td:nth-child(2), #serviceDetailTable th:nth-child(2),
+	#jmxSummaryTable td:nth-child(2), #jmxSummaryTable th:nth-child(2),
+	#jmxDetailTable td:nth-child(2), #jmxDetailTable th:nth-child(2),
+	#jmxCustomTable td:nth-child(2), #jmxCustomTable th:nth-child(2) {
+	width: 12em;
+}
+
+/*td.num, th.num {
+	text-align: right;
+	position: relative;
+}*/
+#reportOptions {
+	margin: 0.5em;
+	margin-left: 0;
+	position: relative;
+	white-space: nowrap;
+}
+
+#reportOptions select, #reportOptions #reportStartInput, #reportOptions #compareStartInput,
+	#reportSettingsDialog select {
+	margin-right: 2em;
+	margin-left: 0;
+}
+
+#reportOptions #reportStartInput, #reportOptions #compareStartInput {
+	position:relative;
+	z-index: 99;
+}
+
+#reportOptions input, #reportSettingsDialog input, #showAll input {
+	margin-left: 0;
+	vertical-align: middle;
+	margin-right: 0px;
+}
+
+#reportSettingsDialog {
+	font-size: 10pt;
+}
+
+#isFilterByAppId {
+	padding: 0;
+	margin: 0;
+}
+
+div.title {
+	font-size: 1em;
+}
+
+
+.hostContainer>div {
+	border-bottom: 5px solid black;
+}
+
+
+#appIdFilterSelect {
+	margin: 0;
+	margin-left: 0em;
+}
+
+#appIdDiv {
+	display: inline-block;
+	margin-left: 1em;
+}
+
+#appIdDiv label {
+	margin: 0;
+}
+
+.showServiceSummary {
+	margin-bottom: 1em;
+	padding: 0.2em;
+}
+
+#generateEmailButton {
+	padding: 0.2em;
+}
+
+#generateEmailButton img {
+	vertical-align: middle;
+	padding-right: 5px;
+}
+
+#emailDialog {
+	display: none;
+}
+
+#emailText {
+	height: 200px;
+	width: 600px;
+}
+
+#sampleCount {
+	font-weight: bold;
+	position: absolute;
+	right: 0em;
+	top: -1.3em;
+	font-size: 9pt;
+}
+
+.metricHistogram {
+	display: none;
+	margin-bottom: 1em;
+	margin-top: 2em;
+	margin-left: 1em;
+	margin-right: 1em;
+	background-color: white ;
+	color: black;
+	border-radius: var(--border-radius-small);
+	padding: 1em;
+}
+
+
+#reportCustomizeButton {
+	margin-left: 2em;
+}
+
+#showAllServicesButton img, #showAppMetricsButton img {
+	position: relative;
+	top: 4px;
+	padding-right: 0.2em;
+}
+
+.tip {
+	display: inline-block;
+	margin-left: 3em;
+	font-style: italic;
+}
+
+#vmSummary {
+	margin: 1em;
+	margin-bottom: 5em;
+}
+
+#vmSummary select {
+	margin-left: 1em;
+	margin-right: 0em;
+}
+
+#vmSummary input {
+	-moz-transform: scale(0.8);
+	vertical-align: middle;
+	margin-right: 0;
+}
+
+#vmSummary .entry {
+	visibility: hidden;
+}
+
+#vmSummary label {
+	margin-right: 2em;
+}
+
+#vmSummary label {
+	margin: 0;
+	margin-left: 0.25em;
+	margin-right: 2em;
+}
+
+#vmSummary span {
+	color: var(--nav-active-color);
+	margin-right: 2em;
+}
+
+#vmSummary a, #vmSummary img {
+	display: inline;
+	vertical-align: top;
+}
+
+#metricsTrendingContainer {
+	display: none;
+	margin-left: 3em;
+}
+
+#metricsTrendingContainer label.csap {
+	margin-left: 2em; 
+}
+
+#csapUser .cLabel {
+	text-align: right;
+	width: 5em;
+	display: inline-block;
+	padding-right: 1em;
+	margin-bottom: 0.25em;
+}
+
+#csapUser .value {
+	width: 8em;
+	display: inline-block;
+	font-weight: bold;
+	padding-right: 1em;
+}

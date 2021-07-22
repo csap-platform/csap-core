@@ -1,0 +1,121 @@
+#
+# refer: 
+# - https://blog.heptio.com/using-kubectl-to-jumpstart-a-yaml-file-heptioprotip-6f5b8a63a3ea
+# - https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+#
+
+
+kind: Deployment
+
+apiVersion: apps/v1
+
+metadata:
+  name: csap-simple-app
+  namespace: default
+  labels:
+    run: csap-simple-app-id
+    
+spec:
+  selector:
+    matchLabels:
+      run: csap-simple-app-id
+      
+  replicas: 1
+  
+  template:
+  
+    metadata:
+      name: "csap-simple-app-pod-template"
+      labels:
+        run: csap-simple-app-id
+        matchForDemoService: csap-simple-app-service-target
+        
+    spec:
+#      nodeSelector:
+#        "kubernetes.io/hostname": "csap-dev01.***REMOVED***"
+      containers:
+      
+      - name: csap-test-container
+        image: csap/csap-test-app:latest
+        
+        ports:
+        - containerPort: 7080
+        
+        env:
+        - name: DEMO_GREETING
+          value: "Hello from the environment"
+          
+        volumeMounts:
+        - name: csap-simple-temp-volume
+          mountPath: /demo-k8s-volumes/my-temp-storage-folder 
+        - name: csap-simple-host-volume
+          mountPath: /demo-k8s-volumes/my-host-folder
+
+        readinessProbe:
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+          periodSeconds: 15
+          httpGet:
+            path: /devOps/health
+            port: 7080
+            
+        livenessProbe:
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+          periodSeconds: 15
+          failureThreshold: 10
+          httpGet:
+            path: /devOps/health
+            port: 7080
+        
+      volumes:
+      - name: csap-simple-temp-volume
+        emptyDir: {}
+      - name: csap-simple-host-volume
+        hostPath:
+          type: DirectoryOrCreate
+          path: /opt/csapUser/demo-k8s
+        
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: csap-simple-app-service
+  namespace: default
+spec:
+  type: NodePort # defaults to clusterip
+  selector:
+    matchForDemoService: csap-simple-app-service-target
+  ports:
+  - protocol: TCP
+    port: 7080
+    targetPort: 7080
+    
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+metadata:
+
+  name: csap-simple-app-ingress
+  namespace: default
+  
+  annotations: 
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/session-cookie-name: "k8_route"
+    nginx.ingress.kubernetes.io/session-cookie-hash: "sha1"
+  
+spec:
+  rules:
+  - host: "your-host.***REMOVED***"
+    http:
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+          backend: 
+            service:
+              name: csap-simple-app-service
+              port: 
+                number: 7080
+          

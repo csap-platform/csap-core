@@ -1,0 +1,42 @@
+{
+	"project": {
+		"api-version": 2.1,
+		"project-version": 1.0,
+		"name": "main",
+		"architect": "yourEmail@notConfigured.com",
+		"emailNotifications": "support@notConfigured.com"
+	},
+	"environments": {
+		"junit": {
+			"settings": {
+				"defaults": true
+			},
+			"test-cluster1": {
+				"type": "simple",
+				"template-references": [
+					"csap-agent",
+					"docker",
+					"csap-verify-service"
+				],
+				"hosts": [
+					"localhost"
+				]
+			},
+			"kubernetes-provider": {
+				"type": "kubernetes-provider",
+				"template-references": [
+					"kubelet"
+				],
+				"masters": [
+					"localhost"
+				],
+				"hosts": [
+					"localhost"
+				]
+			}
+		}
+	},
+	"service-templates": {
+		
+	}
+}

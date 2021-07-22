@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>explorer fragment</title>
+</head>
+
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+
+
+	<div id="containerControls">
+
+		<button
+			id="container-inspect"
+			title="Container Inspect"
+			class="csap-icon"
+			data-command="info">
+			<img th:src="@{ /images/16x16/preferences-system.png }" />
+		</button>
+
+		<button
+			id="containerStart"
+			title="Start Container"
+			class="csap-icon"
+			data-command="start">
+			<img th:src="@{/images/16x16/play.svg}" />
+		</button>
+
+		<button
+			id="containerStop"
+			title="Stop Container"
+			class="csap-icon"
+			data-command="stop">
+			<img th:src="@{/images/16x16/process-stop.png}" />
+		</button>
+
+
+		<button
+			id="containerFileBrowser"
+			title="Browse/View/Edit files"
+			class="csap-icon"
+			data-command="fileBrowser">
+			<img th:src="@{ /images/16x16/logs.png }" />
+		</button>
+
+		<button
+			id="containerLogs"
+			title="Show logs"
+			class="csap-icon"
+			data-command="tail">
+			<img th:src="@{/images/format-justify-center.png}" />
+		</button>
+
+		<button
+			id="containerBatch"
+			title="Run shell commands"
+			class="csap-icon"
+			data-command="batch">
+			<img th:src="@{ /images/16x16/shell.png }" />
+		</button>
+
+		<button
+			id="containerRemove"
+			title="Delete Container"
+			class="csap-icon csap-trash"
+			data-command="remove"></button>
+
+
+		<select>
+			<option>Operations...</option>
+			<option value="sockets">Network Connections</option>
+			<option value="processTree">Process Tree</option>
+			<option value="cpuQuota">Configure Cpu Quota</option>
+			<option value="batch">OS Shell...</option>
+			<option value="info">View Configuration</option>
+			<option value="start">Start Container</option>
+			<option value="stop">Stop Container</option>
+			<option value="tail">Tail Logs</option>
+			<option value="remove">Remove Container</option>
+		</select>
+	</div>
+
+	<div id="imageControls">
+
+		<button
+			id="containerCreate"
+			title="Create Container"
+			class="csap-icon">
+			<img th:src="@{/images/16x16/play.svg}" />
+		</button>
+
+		<button
+			id="imageBatch"
+			title="Run shell commands"
+			class="csap-icon"
+			data-command="batch">
+			<img th:src="@{ /images/16x16/shell.png }" />
+		</button>
+
+		<button
+			id="imageRemove"
+			title="Remove Image"
+			class="csap-icon csap-trash"
+			data-command="remove"></button>
+
+		<select>
+			<option>Operations...</option>
+			<option value="info">View Configuration</option>
+			<option value="create">Create Container</option>
+			<option value="remove">Remove Image from Host</option>
+			<option value="pull">Pull from repository</option>
+			<option value="batch">OS Shell...</option>
+		</select>
+	</div>
+
+	<div id="dockerPortsTemplate">
+		<table class="csap">
+			<thead>
+				<tr>
+					<th>IP</th>
+					<th>Public</th>
+					<th>Private</th>
+					<th>Type</th>
+				</tr>
+			</thead>
+
+			<tbody></tbody>
+		</table>
+	</div>
+
+	<div id="cpuQuotaDialog">
+
+		<div class="quote">CPU quota can be used to ensure docker containers do not hog cpu. quota / period = max cores
+			consumed</div>
+
+
+		<label>
+			Cpu Quota (ms):
+			<input
+				id="promptCpuQuota"
+				value="400"
+				style="width: 3em" />
+			<span class="quote"> How much CPU time can be consumed</span>
+		</label>
+		<br />
+		<label>
+			Cpu Period (ms):
+			<input
+				id="promptCpuPeriod"
+				value="100"
+				style="width: 3em" />
+			<span class="quote">Sampling interval</span>
+		</label>
+		<br />
+		<label>
+			Maximum Cores that will be used:
+			<div
+				id="promptCpuCoresUsed"
+				class='note'
+				style="font-size: 12pt; padding: 3px">4</div>
+		</label>
+
+
+
+
+	</div>
+
+
+	<div id="removeImageDialog">
+
+		<div class="quote">Image will be removed from host if not reference by a container. Use force to override.</div>
+		<div
+			class="info"
+			style="font-size: 1.2em">
+
+
+			<label>
+				<span>Image Id: </span>
+				<div
+					id="imageRemoveId"
+					class="noteAlt">loading</div>
+			</label>
+			<br />
+			<label>
+				<span>Tags: </span>
+				<div
+					id="imageRemoveTags"
+					class="noteAlt">loading</div>
+			</label>
+
+			<br />
+			<label
+				style="margin-right: 5em"
+				title="Force removal of image - even if there are still references">
+				<span>Force:</span>
+				<input
+					id="imageRemoveForce"
+					style="vertical-align: middle; margin-left: 0.8em"
+					type="checkbox" />
+
+			</label>
+
+		</div>
+
+
+	</div>
+
+	<div id="removeContainerDialog">
+
+		<div class=csap-red>
+			<div class="quote">Remove the container. There is no undo - all data will be deleted</div>
+
+			<label title="Force removal of container - even if it is still running">
+				<input
+					id="containerRemoveForce"
+					style=""
+					type="checkbox"
+					checked="checked" />
+				Force
+			</label>
+			<label title="Remove volumes">
+				<input
+					id="containerRemoveVolumes"
+					style=""
+					type="checkbox"
+					checked="checked" />
+				Remove Volumes
+			</label>
+		</div>
+
+
+	</div>
+
+	<div id="stopContainerDialog">
+
+		<div class="quote">Stop the container.</div>
+
+		<label title="container will be killed after time out">
+			Stop Time out (seconds):
+			<input
+				id="containerStopSeconds"
+				style="width: 1em; margin-left: 4px; margin-right: 3em;"
+				value="3" />
+		</label>
+		or
+		<label title="Remove volumes">
+			<input
+				id="containerKill"
+				style=""
+				type="checkbox" />
+			kill immediately
+		</label>
+
+
+	</div>
+
+
+	<div id="image-clean-dialog">
+
+		<div class="quote">Remove images older then specified time period that are not being used.</div>
+
+		<label title="Older then...">
+			Older then:
+			<span class="label">Days:</span>
+			<input
+				id="clean-days"
+				style="width: 5em"
+				value="0" />
+			<span class="label">Minutes:</span>
+			<input
+				id="clean-minutes"
+				style="width: 5em"
+				value="0" />
+		</label>
+
+	</div>
+
+	<div id="image-pull-dialog">
+
+		<div class="quote">Include the repository and tag: eg. repo/image:tag . :latest will be used if no tag is
+			specified</div>
+
+		<label title="Unique name to manage container operations">
+			<span class="label">Image Name:</span>
+			<input
+				id="pullName"
+				style="width: 30em" />
+		</label>
+
+		<br />
+		<label>
+			<span class="label">or: </span>
+			<select id="referenceImagesSelect">
+				<option value="none">Reference Images</option>
+				<option
+					th:each="image : ${referenceImages}"
+					th:value="${image}"
+					th:text="${image}">package names updated here</option>
+			</select>
+		</label>
+
+	</div>
+
+</body>
+</html>

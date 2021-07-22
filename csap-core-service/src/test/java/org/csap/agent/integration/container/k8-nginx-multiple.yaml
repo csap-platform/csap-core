@@ -1,0 +1,84 @@
+#
+# refer: 
+# - https://blog.heptio.com/using-kubectl-to-jumpstart-a-yaml-file-heptioprotip-6f5b8a63a3ea
+# - https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+#
+
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: junit-tests
+  labels:
+    name: test
+---
+
+kind: Deployment
+
+apiVersion: apps/v1
+
+metadata:
+  name: nginx-junit-multiple-yaml
+  namespace: junit-tests
+  labels:
+    run: nginx-junit-multiple-yaml-id
+    
+spec:
+  selector:
+    matchLabels:
+      run: nginx-junit-multiple-yaml-id
+      
+  replicas: 2
+  
+  template:
+  
+    metadata:
+      name: "nginx-junit-multiple-yaml-pod-template"
+      labels:
+        run: nginx-junit-multiple-yaml-id
+        matchForDemoService: demo-target
+        
+    spec:
+      containers:
+      - name: nginx-container
+        image: docker.io/nginx:1.17.1
+        ports:
+        - containerPort: 80
+        
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-junit-multiple-yaml-service
+  namespace: junit-tests
+spec:
+  selector:
+    matchForDemoService: demo-target
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    
+---
+#apiVersion: networking.k8s.io/v1beta1
+#kind: Ingress
+#
+#metadata:
+#
+#  name: nginx-junit-multiple-yaml-ingress
+#  namespace: junit-tests
+#  
+#  annotations: 
+#    nginx.ingress.kubernetes.io/affinity: "cookie"
+#    nginx.ingress.kubernetes.io/session-cookie-name: "k8_route"
+#    nginx.ingress.kubernetes.io/session-cookie-hash: "sha1"
+#  
+#spec:
+#  rules:
+#  - host: some-host
+#    http:
+#      paths:
+#        - backend: 
+#            serviceName: nginx-junit-multiple-yaml-service
+#            servicePort: 80
+#          path: /

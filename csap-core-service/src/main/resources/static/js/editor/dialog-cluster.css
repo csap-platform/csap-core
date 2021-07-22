@@ -1,0 +1,169 @@
+
+#clusterEditor a.simple, #dialogResult a.simple {
+    display: inline;
+}
+
+.clusterLoading {
+    position: absolute ;
+    left: 10em;
+    z-index: 99;
+}
+
+#clusterEditor #assign >div, #clusterEditor #assign .cluster-k8-masters  {
+	padding: 1em ;
+	margin-top: 1em ;
+	margin-right: 1em;
+	margin-top: 1em;
+}
+
+#dialogClusterSelect-button {
+    vertical-align: middle;
+}
+#dialogResult {
+    display: none;
+}
+
+#optionsTitle {
+    display: inline-block ;
+    font-size: 0.9em;
+}
+
+#optionsTitle .simple {
+    display: inline;
+}
+
+#optionsTitle label {
+    margin-left: 3em;
+}
+
+
+label.alerts input, label.alerts .noteAlt {
+    min-width: 3em;
+}
+label.alerts input {
+    width: 3em;
+}
+
+.debugInfo {
+    display: none;
+    overflow: hidden ;
+    width: 4em;
+    height: 1em;
+}
+
+.debugInfo:hover {
+    overflow: auto;
+    width: 800px;
+    height: auto;
+}
+
+div.editorqtip {
+    max-width: 800px;
+}
+
+#clusterEditor .noteAlt {
+    padding: 2px;
+}
+
+.serviceDef {
+    display: none;
+}
+
+#clusterEditor textarea {
+    font-size: 10pt;
+    font-family: monospace;
+    line-height: 15px !important;
+    white-space: pre ;
+    -moz-tab-size: 4;
+    tab-size: 4 ;
+}
+
+
+div.cluster-editor-panes {
+
+    display: inline-block ;
+    width: 45%;
+    margin-top: 1em;
+    vertical-align: top;
+    min-height: 25em;
+    min-width: 24em;
+
+}
+
+
+div.cluster-editor-panes .heading {
+    min-height: 1.2em;
+    font-size: 12pt;
+}
+
+
+
+#services textarea {
+    white-space: normal;
+}
+
+
+
+input.wide {
+    width: 800px;
+}
+
+
+input.medium {
+    width: 400px;
+}
+
+input.smallJson {
+    width: 50px;
+}
+
+#clusterEditor textArea {
+    min-width: 20em;
+    min-height: 15em;
+    vertical-align: top;    
+    margin-left: 0.5em;
+}
+
+
+.toggleAppCollect {
+    padding: 0;
+    line-height: 14px;
+}
+
+table.simple th div {
+    color: gray;
+}
+
+table.appCollect {
+    margin: 0;
+    margin-bottom: 1em;
+}
+
+table.appCollect tr td:nth-child(1)  {
+    min-width: 14em;
+}
+
+table.appCollect tr td:nth-child(2)  {
+    min-width: 14em;
+} 
+table.appCollect tr td:nth-child(3)  {
+    min-width: 9em;
+} 
+table.appCollect tr td:nth-child(4)  {
+} 
+table.appCollect tr td:nth-child(5)  {
+    min-width: 3em;
+    text-align: right;
+} 
+
+table.appCollect th {
+    padding: 7px;
+}
+
+table.appCollect td {
+    padding: 0.25em;    
+    padding-left: 1em;
+    padding-right: 1em;
+    vertical-align: middle;
+    word-break: break-all ;
+}

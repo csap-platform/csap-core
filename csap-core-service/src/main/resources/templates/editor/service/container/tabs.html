@@ -1,0 +1,65 @@
+
+
+<div
+	id="tab-container-content"
+	class="group json-form-autosize-panel tab-container-content">
+
+
+
+	<div
+		class="heading"
+		style="margin-top: 3px">
+		Container configuration applies to both docker and kubernetes; deployment target is determined by
+		<a
+			target="_blank"
+			title="View Help"
+			class="csap-link-icon csap-help"
+			th:href="${@csapCoreService.getHelpUrl('cluster-help') }"  >Cluster Assignment</a>
+	</div>
+
+	<div id="container-nav">
+		<ul>
+			<li>
+				<a href="#ctabs-specification">Specification(s)</a>
+			</li>
+			<li>
+				<a href="#ctabs-definition">Container</a>
+			</li>
+			<li>
+				<a href="#ctabs-kubernetes">Kubernetes</a>
+			</li>
+			<li>
+				<a href="#ctabs-resources">Vars/Volumes/Ports</a>
+			</li>
+			<li>
+				<a href="#ctabs-docker">Docker</a>
+			</li>
+		</ul>
+
+		<div id="ctabs-specification">
+			<div th:replace="editor/service/container/spec"></div>
+		</div>
+
+		<div id="ctabs-definition">
+			<div th:replace="editor/service/container/definition"></div>
+		</div>
+
+		<div id="ctabs-kubernetes">
+			<div th:replace="editor/service/container/kubernetes"></div>
+		</div>
+
+		<div id="ctabs-resources">
+			<div th:replace="editor/service/container/resources"></div>
+		</div>
+
+
+		<div id="ctabs-docker">
+			<div th:replace="editor/service/container/docker"></div>
+		</div>
+
+
+	</div>
+
+
+
+</div>

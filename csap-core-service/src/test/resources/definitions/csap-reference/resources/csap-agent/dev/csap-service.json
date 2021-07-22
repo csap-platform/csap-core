@@ -1,0 +1,17 @@
+{
+	"about-csap-service-json": [
+		"Any field in service definition can be selectively overridden.",
+		"Alternately - the entire service definition may be placed  here to externalize from Application.json"
+	],
+	"alerts": {
+		"max_diskUtil": "199",
+		"max_threadCount": "150",
+		"max_fileCount": "400",
+		"max_socketCount": "50",
+		"max_rssMemory": "1200m",
+		"max_tomcatConnections": "40",
+		"max_topCpu": "20",
+		"nagiosCommand": "check_http! -v -u /CsAgent/api/CapabilityHealth --regex \".*Healthy.*true.*\"  -t 3   ",
+		"max_diskWriteKb": "50000"
+	}
+}

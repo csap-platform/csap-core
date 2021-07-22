@@ -1,0 +1,41 @@
+{
+  "project" : {
+    "api-version" : 2.1,
+    "project-version" : 1.0,
+    "name" : "default",
+    "architect" : "yourEmail@notConfigured.com",
+    "emailNotifications" : "support@notConfigured.com"
+  },
+  "environments" : {
+  
+    "dev" : {
+      "junit-test-cluster" : {
+        "type" : "simple",
+        "hosts" : [ "localhost" ],
+        "template-references" : [ "csap-simple-service", "httpd" ]
+      }
+    }
+  },
+  "service-templates" : {
+    "csap-simple-service" : {
+      "autoStart" : 41,
+      "description" : "Simple Spring Boot Jar",
+      "docUrl" : "https://github.com/csap-platform/csap-starter",
+      "osProcessPriority" : 0,
+      "parameters" : "-DcsapJava8  -Xms128M -Xmx133M -XX:MaxMetaspaceSize=96M -XX:+ExitOnOutOfMemoryError",
+      "environmentVariables" : {
+        "csapExternalPropertyFolder" : "$STAGING/conf/propertyOverride/shared"
+      },
+      "source" : {
+        "scm" : "git",
+        "path" : "https://github.com/csap-platform/csap-starter.git",
+        "branch" : "HEAD",
+        "buildLocation" : "/csap-starter-simple"
+      },
+      "maven" : {
+        "dependency" : "org.csap:csap-starter-simple:1.0.0:jar"
+      },
+      "server-mising" : "SpringBoot"
+    }
+  }
+}

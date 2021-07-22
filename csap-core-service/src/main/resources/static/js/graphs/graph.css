@@ -1,0 +1,617 @@
+
+
+/*
+*
+*     graph layout
+*	
+*/
+
+
+body#graph-local article.content {
+	padding: 0;
+	margin: 0;
+}
+
+#graph-local div.scrolling-graphs {
+	height: 100%;
+	padding: 0;
+	overflow: hidden;
+}
+
+#graph-local div.scrolling-graphs>div {
+	padding: 0;
+	height: 100%;
+	margin: 0;
+	display: grid;
+	grid-template-rows: 2.5em auto;
+}
+
+#graph-local .hostContainer {
+	overflow: auto;
+}
+
+body#graph-local .graphOptions {
+	margin-left: 1em;
+	margin-top: 5px;
+}
+
+
+/*
+*
+*     graph options
+*	
+*/
+
+.graphOptions {
+	position: relative ;
+}
+
+.graphOptions .refresh-window, .graphOptions .numDaysSelect {
+	margin-right: 2em;
+}
+
+.graphOptions .close-menu {
+	position: absolute;
+	top: 0.5em;
+	right: 0.5em ;
+}
+
+div.graph-display-options {
+	display: none;
+	position: absolute;
+	padding: 1em;
+	z-index: 92;
+	width: 45em;
+	top: 1.5em;
+	left: 14em;
+}
+div.graph-display-options .comment {
+	font-weight: normal ;
+	font-style: italic ;
+	color: grey;
+	font-size: 0.8em;
+	padding-left: 2em;
+}
+
+
+
+div.graph-display-options div.grid {
+	display: grid;
+	grid-template-columns: 9em 12em minmax(15em, 1fr);
+	padding: 5px;
+	grid-column-gap: 1em;
+	grid-row-gap: 10px;
+	margin-bottom: 2em;
+	align-items: center;
+	justify-items: left;
+}
+
+div.graph-display-options div.grid label {
+	justify-self: right;
+}
+
+div.graph-display-options .usage-notes {
+	margin-top: 2em;
+}
+
+div.graphOptions button.csap-icon.tool-menu {
+	background-size: 16px 16px;
+	height: 20px;
+	width: 20px;
+}
+
+
+.sliderContainer {
+	font-size: 10pt;
+	margin: 1em; 
+	display: flex;
+	justify-content: space-between;
+}
+
+.sliderContainer button {
+	background-color: white;
+	line-height: 0.8em;
+	vertical-align: bottom;
+}
+
+.playTimelineButton img, .playTimelineBackButton img {
+	width: 16px;
+	height: 16px;
+}
+.playTimelineBackButton img {
+ 	transform: scaleX(-1);
+}
+
+label.slider, .desc {
+	font-weight: bold;
+	font-size: 0.7em;
+	font-style: italic;
+	margin: 0;
+}
+
+input.sliderTimeCurrent, input.sliderTimeStart {
+	border: 0;
+	color: var(--nav-link-color);
+	background-color: var(--nav-hover-background);
+	text-align:center;
+	font-style: italic;
+	width: 7em;
+	margin-right: 0em;
+	margin-left: 3px;
+	padding: 0;
+}
+
+.sliderContainer span.ui-slider-handle {
+	border-radius: 15px;
+	width: 1em;
+	height: 1em;
+	top: -.2em;
+	background-color: var(--nav-hover-background);
+	cursor: move;
+}
+.sliderContainer span.ui-slider-handle:hover {
+	background-color: var(--nav-active-color);
+}
+.refresh {
+	padding: 0;
+	margin: 0;
+	padding-left: 20px;
+	font-weight: normal;
+}
+
+
+
+a.showSettingsDialogButton, a.showSettingsDialogButton:hover {
+	display: inline;
+}
+
+a.showSettingsDialogButton img {
+	padding-right: 0;
+	vertical-align: middle;
+}
+
+
+.graphOptions img {
+	max-height: 14px;
+	vertical-align: middle;
+	padding: 3px;
+}
+
+img.graphHelp {
+	height: 18px;
+	vertical-align: middle;
+}
+
+.graphOptions a {
+	padding: 0;
+	margin: 0;
+}
+
+/*
+*
+*     graphs
+*	
+*/
+
+div.graph-error-messages {
+	font-size: 10pt;
+	max-height: 3em;
+	overflow-y: auto;
+	font-style: italic;
+	background-color: lightyellow;
+	display: none;
+}
+
+div.graph-info-messages {
+	display: none;
+}
+
+div.graph-info-messages .csap-button {
+	margin: 5px;
+	width: 10em;
+}
+
+div.graph-info-messages div.settings {
+	font-size: 10pt;
+	font-style: italic;
+	display: none;
+	position: absolute;
+	z-index: 91
+}
+
+div.graph-info-messages ul {
+	list-style-type: disc;
+	padding-left: 2em;
+}
+
+div.graph-info-messages ul li label {
+	font-weight: bold;
+}
+
+div.graph-info-messages ul li span {
+	margin-left: 2em;
+}
+
+/*.graphLegend .legendColorBox, .graphLegend .legendLabel {
+	padding-left: 1em;
+	vertical-align: top;
+}
+
+.graphLegend .legendLabel {
+	padding-left: 3px;
+}*/
+
+div.hostContainer div.graphBottomPanel {
+	height: 25px;
+	overflow: hidden;
+}
+div.hostContainer div.graphBottomPanel .legend {
+	font-size: 0.9em;
+	padding: 0;
+	padding-left: 2px;
+	margin-top: -2px;
+	overflow: hidden;
+	height: 2em;
+	max-height: 2em ;
+}
+div.hostContainer div.graphBottomPanel  .legend:hover {
+	max-height: 20em;
+	overflow: auto;
+	padding-bottom: 2em;
+	position: absolute;
+	background-color: #EDF1F5;
+	z-index: 1;
+	border-radius: var(--border-radius-small) ;
+	border: var(--theme-border);
+}
+
+
+
+
+
+div.hostContainer svg.legendLayer .background, div.qtip-content svg.legendLayer .background{
+    fill: rgba(255, 255, 255, 0.05);
+/*     stroke: rgba(0, 0, 0, 0.85);
+    stroke-width: 1; */
+}
+
+
+.tipInfo {
+	font-size: 0.8em;
+	font-style: italic;
+}
+
+#graphToolTip {	
+	color: var(--nav-link-color);
+	background-color: var(--nav-item-bg);
+	background-color: var(--nav-hover-background);	
+	border: var(--theme-border);
+	border-radius: var(--border-radius-small);
+	position: absolute;
+	z-index: 100;
+	display: none;
+	font-size: 1.2em;
+	padding: 10px;
+}
+
+div.tipValue {
+	margin: 0.15em;
+	padding: 0.15em;
+	font-size: 1.1em;
+	color: var(--nav-active-color)
+}
+
+/*  flot axis padding: limited options due to svg rendering */
+div.hostContainer text.y1Label, div.hostContainer text.x1Label  {
+	visibility: hidden;
+	font-size: 5pt;
+}
+div.hostContainer  div.graphTitle {
+	color: var(--panel-header-color);
+	background: var(--panel-header-bg);
+	margin-bottom: 5px;
+	border-radius: 4px;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	
+	padding: 2px;
+	padding-left: 5px;
+	display: grid;
+	grid-template-columns: auto 1fr 3.2em;
+	column-gap: 1em;
+	align-items: baseline;
+	white-space: nowrap;
+}
+div.hostContainer  div.graphTitle span.name{
+	font-weight: bold;
+	cursor: move;
+}
+
+ div.hostContainer  div.graphTitle .stackLabel {
+	color: black;
+	font-size: 10pt;
+	margin-left: 1em;
+	white-space: nowrap;
+}
+
+div.hostContainer  div.graphTitle span.panel-controls button {
+	margin: 2px;
+	margin-left: 5px;
+	background-color: var(--panel-header-bg);
+}
+
+
+ div.hostContainer div.graphTitle label {
+	margin-bottom: 0;
+}
+
+ div.hostContainer div.graphTitle .highlight {
+	color: red;
+}
+
+ div.hostContainer div.graphTitle:hover {
+	opacity: 0.8;
+}
+
+ div.hostContainer div.graphTitle img {
+	margin-left: 2em;
+	vertical-align: middle;
+	width: 15px;
+}
+
+.graphInlineTitle {
+	display: none;
+	border: 1px solid #0C8EF7;
+	padding: 0;
+	margin-left: 1em;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+	font-weight: bold;
+	border-radius: 10px;
+	color: red;
+}
+
+.graphNotes {
+	font-weight: normal;
+	font-style: italic;
+	font-size: 0.8em;
+	overflow: hidden;
+	text-align: right;
+}
+
+
+
+.plotContainer {
+	clear: both;
+}
+
+.plotContainer .news {
+	font-size: 2em;
+	cursor: wait;
+}
+
+.statsContainer {
+	display: inline-block;
+	border: 1px solid #6ba8e5;
+	border-radius: 5px;
+	padding: 4px;
+	margin: 5px;
+}
+
+.statsContainer>div {
+	padding: 3px;
+	padding-right: 20px;
+}
+
+.statsContainer>div:hover {
+	background-color: #ddd;
+}
+
+.statsContainer .red {
+	color: red;
+}
+
+.statsLabel, .statsType {
+	font-weight: bold;
+	min-width: 200px;
+}
+
+.statsType {
+	font-weight: bold;
+	margin-top: 8px;
+}
+
+.statsContainer div>span {
+	float: right;
+	font-weight: bold;
+	position: relative;
+}
+
+.statsContainer span.statsUnits {
+	position: absolute;
+	padding-left: 3px;
+}
+
+/* display: inline-block ;*/
+.plotPanel {
+	float: left;
+	border: var(--theme-border);
+	border-radius: var(--border-radius-small);
+	position: relative;
+	margin-right: 10px;
+	margin-bottom: 10px;
+	background-color: white ;
+	color: black;
+	padding: 0px;
+	padding-right: 0px;
+	vertical-align: top;
+}
+
+.hostPerf {
+	padding-top: 0em;
+	padding-left: 0px;
+	clear: both;
+}
+
+.spacerForFloat {
+	clear: both;
+}
+
+.graphPlot, .resource, .load {
+	display: inline-block;
+	margin: 0px;
+	background-color: white;
+}
+
+.choices {
+	display: inline-block;
+	margin-right: 2em;
+}
+
+.hostName {
+	color: var(--nav-hover-color);
+	padding-right: 2em;
+}
+
+div.hostContainer .resourceGraphTitle {
+	display: flex;
+	gap: 2em;
+	align-items: baseline;
+	padding: 0;
+	margin: 0;
+	margin-bottom: 10px;
+	padding-left: 0px;
+	padding-right: 20px;
+	font-weight: bold;
+}
+
+div.hostContainer .resourceGraphTitle button.resetInterZoom{
+	width: auto;
+	padding-left: 1.2em;
+	padding-right: 1em;
+	font-weight: bold;
+}
+
+.customSelection {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+td.legendLabel {
+	word-break: normal;
+	word-wrap: break-word;
+	vertical-align: middle;
+	font-weight: bold;
+	font-size: 8pt;
+}
+/*
+
+.legend {
+        font-size: 1.0em;
+}
+
+
+.legendLeft {
+        left: 40px;
+}
+
+
+
+*/
+.resourceConfigDialog {
+	font-size: 8pt;
+	padding-bottom: 2em;
+}
+
+.resourceConfigDialog div.csap-white {
+	overflow: hidden;
+}
+
+.resourceConfigDialog div.title {
+	font-weight: bold;
+	margin: 1em;
+}
+
+.resourceSlider {
+	width: 400px;
+	margin-right: 0.5em;
+	margin-left: 0em;
+	display: inline-block;
+	padding: 0;
+}
+
+#graphSettingsDialog input.custom {
+	vertical-align: sub;
+}
+
+input.customCheck {
+	margin-right: 0.25em;
+	margin-left: 0.5em;
+	vertical-align: middle;
+}
+
+#graphSettingsDialog label {
+	font-weight: bold;
+	margin-left: 1.5em;
+	vertical-align: middle;
+}
+
+#graphSettingsDialog label.radio {
+	font-weight: bold;
+	margin-left: 0em;
+	margin-right: 1em;
+}
+
+.graphCheckboxes, .serviceCheckboxes {
+	display: block;
+	columns: 20em 8;
+}
+
+#graphSettingsDialog  .serviceCheckboxes label, #graphSettingsDialog  .graphCheckboxes label
+	{
+	display: grid;
+	grid-template-columns: 2.5em auto;
+	vertical-align: text-top;
+	margin-bottom: 0.8em;
+	align-items: start;
+	
+	break-inside: avoid;
+}
+
+#graphSettingsDialog  .serviceCheckboxes label input,
+	#graphSettingsDialog  .graphCheckboxes label input {
+	margin: 0;
+}
+
+div.floatRight {
+	display: inline-block;
+	float: right;
+	font-size: 0.8em;
+}
+
+.bucketSize, .bucketSkip {
+	width: 3em;
+}
+
+.settingsText {
+	font-size: 0.7em;
+	padding: 0;
+}
+
+.graphTimeZone, .datepicker, .numDaysSelect, .zoomSelect {
+	padding: 0;
+	font-size: 0.9em;
+}
+
+#showResourceConfig {
+	padding: 0;
+}
+
+.datepicker, .zoomSelect, .useBuckets {
+	margin-left: 0;
+}
+
+.autoRefresh input {
+	display: inline;
+	vertical-align: middle;
+}

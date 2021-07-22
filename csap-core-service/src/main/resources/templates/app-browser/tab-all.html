@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head>
+</head>
+
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+
+	<div id="hosts-tab-content">
+		<div
+			th:include="/app-browser/tab-hosts :: pageContent"
+			th:remove="tag"></div>
+	</div>
+
+	<div id="projects-tab-content">
+		<div
+			th:include="/app-browser/projects/tab-projects :: pageContent"
+			th:remove="tag"></div>
+	</div>
+
+
+	<div id="services-tab-content">
+		<div
+			th:include="/app-browser/tab-services :: pageContent"
+			th:remove="tag"></div>
+	</div>
+
+
+	<div
+		th:if="${ agentProfile == true }"
+		id="agent-tab-content">
+		<div
+			th:include="/app-browser/tab-agent :: pageContent"
+			th:remove="tag"></div>
+	</div>
+
+
+	<div id="performance-tab-content">
+		<div
+			th:include="/app-browser/tab-performance :: pageContent"
+			th:remove="tag"></div>
+	</div>
+
+	<div id="preferences-tab-content">
+
+		<div class="options">
+		
+			<span class=page-title>Preferences</span>
+			
+			<button
+				id="restore-defaults"
+				class="csap-button">Restore Defaults</button>
+			
+			<span th:replace="~{ /app-browser/menus :: pageContent }"></span>
+		</div>
+
+		<div class="preferences">
+
+
+
+
+			<label class="csap">Theme</label>
+			<select id="csap-theme">
+				<option>auto</option>
+				<option
+					class="light"
+					value="theme-light">light</option>
+				<option
+					class="ocean"
+					value="theme-light theme-ocean">ocean: dev</option>
+				<option
+					class="sand"
+					value="theme-light theme-sand">sand: sandbox</option>
+				<option
+					class="sun"
+					value="theme-light theme-sun">sun: stage</option>
+				<option
+					class="tree"
+					value="theme-light theme-tree">tree: test/qa</option>
+				<option
+					class="xylem"
+					value="theme-light theme-xylem">xylem: prod</option>
+				<option
+					class="dark"
+					value="theme-dark">dark</option>
+				<option
+					class="metal"
+					value="theme-dark theme-metal">metal: metal/perf</option>
+				<option
+					class="apple"
+					value="theme-dark theme-apple">apple: acceptance</option>
+			</select>
+			<span>auto will select theme using environment names (eg. *dev*, *test*, etc)</span>
+
+
+			<span></span>
+			<span></span>
+			<span></span>
+
+			<label class="csap">Navigation Bar</label>
+			<input
+				id="auto-hide-navigation"
+				type="checkbox" />
+			<span>Navigation Tabs will be replaced with a navigation bar then opens when hovered on</span>
+
+			<label class="csap">Disable Snap Close</label>
+			<input
+				id="auto-hide-snap"
+				type="checkbox"/>
+			<span>Navigation bar will close on click when auto hide is enabled, other wise move off the nav</span>
+			
+
+			<label class="csap">All Applications</label>
+			<input
+				id="include-all-appids"
+				type="checkbox"/>
+			<span>Environment quick navigation (top left) will include all appids when checked; otherwise only environments for the current application are shown </span>
+
+
+
+			<span></span>
+			<span></span>
+			<span></span>
+
+
+			<label class="csap">Disable Show Logs</label>
+			<input
+				id=disable-auto-show-logs
+				type="checkbox" />
+			<span>On deployments - deployment logs will be automatically shown following deployment operations</span>
+
+
+			<label class="csap">Disable Format</label>
+			<input
+				id=disable-log-format
+				type="checkbox" />
+			<span>CSAP File monitor will auto parse logs into a more reader friendly format (modifiable via env settings)</span>
+
+
+			<label class="csap">Disable scm id generation</label>
+			<input
+				id=use-csap-id-for-scm
+				type="checkbox" />
+			<span>If not checked, the scm userid generated will be "firstlast". If checked, the id used to seed scm operations  will be the id used to login to the console.</span>
+
+
+
+			<span></span>
+			<span></span>
+			<span></span>
+
+			<span></span>
+			<span></span>
+			<span></span>
+
+
+
+			<label class="csap">Auto Refresh</label>
+			<select id="auto-refresh-seconds">
+				<option>5</option>
+				<option>15</option>
+				<option selected="selected">30</option>
+				<option>60</option>
+				<option>120</option>
+				<option>300</option>
+				<option>900</option>
+			</select>
+			<span>View auto refresh interval in seconds</span>
+
+			<label class="csap">Panel Layout</label>
+			<select id="panel-layout">
+				<option selected="selected">columns</option>
+				<option>grid</option>
+				<option>rows</option>
+			</select>
+			<span>Content panels supporting tiled display options (eg. service summary)</span>
+
+
+			<label class="csap">Panel Item Max</label>
+			<select id="panel-item-max-width">
+				<option>20em</option>
+				<option>30em</option>
+				<option selected="selected">40em</option>
+				<option>50em</option>
+				<option>60em</option>
+			</select>
+			<span>Maximum width of items appearing in panels</span>
+
+
+
+			<label class="csap">Radius</label>
+			<input
+				id="panel-radius"
+				type="text"
+				value="4px" />
+			<span>globally set radius size</span>
+
+
+			<span></span>
+			<span></span>
+			<span></span>
+
+			<label class="csap">Project Selector</label>
+			<input
+				id="minimum-project-count"
+				type="text"
+				value="2" />
+			<span>project select will be displayed when project count is greater</span>
+
+
+
+			<span></span>
+			<span></span>
+			<span></span>
+
+
+			<span></span>
+			<span></span>
+			<span></span>
+
+			<label
+				class=csap
+				title="For recognized file types, folding will occur"> Editor Font </label>
+			<select id="ace-font-size">
+				<option>8pt</option>
+				<option>9pt</option>
+				<option>10pt</option>
+				<option selected="selected">11pt</option>
+				<option>12pt</option>
+				<option>14pt</option>
+				<option>18pt</option>
+				<option>22pt</option>
+			</select>
+			<span>Editor font size, must be specified using pt</span>
+
+			<label
+				class=csap
+				title="Lines exceeding browser width will be wrapped. Uncheck for a horizontal scroll."> Editor Wrap </label>
+			<input
+				id="ace-wrap-checkbox"
+				type="checkbox"
+				class=checked-by-default
+				checked="checked" />
+			<span>Editor line wrapping</span>
+
+
+			<label
+				class=csap
+				title="Lines exceeding browser width will be wrapped. Uncheck for a horizontal scroll."> Editor Theme </label>
+			<select id="ace-theme-select">
+				<optgroup label="Bright">
+					<option
+						value="ace/theme/chrome"
+						selected="selected">Chrome</option>
+					<option value="ace/theme/clouds">Clouds</option>
+					<option value="ace/theme/crimson_editor">Crimson Editor</option>
+					<option value="ace/theme/dawn">Dawn</option>
+					<option value="ace/theme/dreamweaver">Dreamweaver</option>
+					<option value="ace/theme/eclipse">Eclipse</option>
+					<option value="ace/theme/github">GitHub</option>
+					<option value="ace/theme/iplastic">IPlastic</option>
+					<option value="ace/theme/solarized_light">Solarized Light</option>
+					<option value="ace/theme/textmate">TextMate</option>
+					<option value="ace/theme/tomorrow">Tomorrow</option>
+					<option value="ace/theme/xcode">XCode</option>
+					<option value="ace/theme/kuroir">Kuroir</option>
+					<option value="ace/theme/katzenmilch">KatzenMilch</option>
+					<option value="ace/theme/sqlserver">SQL Server</option>
+				</optgroup>
+				<optgroup label="Dark">
+					<option value="ace/theme/ambiance">Ambiance</option>
+					<option value="ace/theme/chaos">Chaos</option>
+					<option value="ace/theme/clouds_midnight">Clouds Midnight</option>
+					<option value="ace/theme/dracula">Dracula</option>
+					<option value="ace/theme/cobalt">Cobalt</option>
+					<option value="ace/theme/gruvbox">Gruvbox</option>
+					<option value="ace/theme/gob">Green on Black</option>
+					<option value="ace/theme/idle_fingers">idle Fingers</option>
+					<option value="ace/theme/kr_theme">krTheme</option>
+					<option value="ace/theme/merbivore">Merbivore</option>
+					<option value="ace/theme/merbivore_soft">Merbivore Soft</option>
+					<option value="ace/theme/mono_industrial">Mono Industrial</option>
+					<option value="ace/theme/monokai">Monokai</option>
+					<option value="ace/theme/pastel_on_dark">Pastel on dark</option>
+					<option value="ace/theme/solarized_dark">Solarized Dark</option>
+					<option value="ace/theme/terminal">Terminal</option>
+					<option value="ace/theme/tomorrow_night">Tomorrow Night</option>
+					<option value="ace/theme/tomorrow_night_blue">Tomorrow Night Blue</option>
+					<option value="ace/theme/tomorrow_night_bright">Tomorrow Night Bright</option>
+					<option value="ace/theme/tomorrow_night_eighties">Tomorrow Night 80s</option>
+					<option value="ace/theme/twilight">Twilight</option>
+					<option value="ace/theme/vibrant_ink">Vibrant Ink</option>
+				</optgroup>
+			</select>
+			<span>selected theme will be used when new editors are opened or refreshed</span>
+		</div>
+
+		<label class=csap> Preview </label>
+		<pre id=editor-settings-demo>
+#
+# demo
+#
+---
+spring.profiles: app-defaults
+
+#
+#  ================ profile: app-defaults
+#
+spring:
+  
+  devtools.restart.additional-exclude: "**/*.jmx,**/*.csv,**/*.json,**/csap-templates/**"
+
+  servlet:
+    multipart:
+      max-file-size: 1000MB
+      max-request-size: 1000MB
+      
+  cache:
+    jcache:
+      config: "classpath:ehcache3.xml"  
+			</pre>
+	</div>
+</body>
+</html>

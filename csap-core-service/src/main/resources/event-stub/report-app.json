@@ -1,0 +1,31 @@
+{
+	"data": [
+		{
+			"stub": true ,
+			"numberOfSamples": 19883,
+			"TotalVmCpu": 13538,
+			"ProcessCpu": 229,
+			"AdminPingsMeanMs": 1166487,
+			"linuxPsAndMatchMeanMs": 1082832,
+			"LogRotationMs": 2588200,
+			"serviceDiskUsage": 219073,
+			"publishEvents": 9692,
+			"publishEventsMs": 61439,
+			"SpringMvcRequests": 81482,
+			"JavaCollectionCounter": 22032,
+			"JmxCollectionMs": 11711706,
+			"JmxCollectionFailures": 0,
+			"JmxCustomCollectionFailures": 18,
+			"CommandsSinceRestart": 4639002176,
+			"OsCommandsCounter": 246829,
+			"OsCommandsMeanMs": 13472484,
+			"OsCommandsMaxTimeMs": 129284515,
+			"jmxHeartbeatMs": 19855,
+			"appId": "csapeng.gen",
+			"lifecycle": "dev",
+			"project": "CSAP Engineering",
+			"serviceName": "stub"
+		}
+	],
+	"numDaysAvailable": 364
+}

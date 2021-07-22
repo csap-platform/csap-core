@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>fragment</title>
+</head>
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+
+
+	<table
+		id="core"
+		class="csap">
+		<thead>
+
+			<tr>
+				<th>
+					<div class="title">User Interface</div>
+					Click to test
+				</th>
+				<th>returns</th>
+				<th>Description</th>
+			</tr>
+		</thead>
+
+		<tbody>
+
+
+			<tr>
+				<td>
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser}">app-browser</a>
+						
+						
+
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#performance-tab,health-reports}">health reports</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#hosts-tab,file-systems}">host file systems</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#preferences-tab,none}">preferences</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#projects-tab,listing}">project listing</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#projects-tab,editor}">project editor</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#projects-tab,editor}">project editor</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#services-tab,backlog}">service backlog</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#services-tab}">service summary</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser(layout=true)}">app-browser layout only</a>
+
+				</td>
+				<td>Web App</td>
+				<td>Application Portal, default landing page</td>
+			</tr>
+
+
+			<tr>
+				<td>
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#services-tab,status}">app-browser - services</a>
+						
+						
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#services-tab,instances,csap-agent}">csap-agent instances</a>
+						
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#services-tab,instances,csap-agent,logs}">csap-agent logs</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#services-tab,instances,csap-agent,analytics}">csap-agent analytics</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#services-tab,instances,csap-agent,jobs}">csap-agent jobs</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#services-tab,instances,csap-agent,resources}">csap-agent resources</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#services-tab,instances,csap-verify-service}">csap-verify-service</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#services-tab,instances,test-k8s-csap-reference}">test-k8s-csap-reference instances</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#services-tab,instances,test-k8s-csap-reference,analytics}">test-k8s-csap-reference analytics</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#services-tab,instances,csap-package-linux}">csap-package-linux</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#services-tab,instances,calico-node}">calico-node</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#services-tab,instances,test-k8s-by-spec}">test-k8s-by-spec</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#services-tab,instances,test-k8s-postgres}">test-k8s-postgres</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#services-tab,instances,kubelet}">kubelet</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#services-tab,instances,unregistered}">unregistered</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#services-tab,instances,docker}">docker</a>
+
+				</td>
+				<td>Web App</td>
+				<td>Application Portal, default landing page</td>
+			</tr>
+
+
+			<tr>
+				<td>
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#services-tab,kpods}">app-browser - pods</a>
+						
+						
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#services-tab,kpod-instances,csap-test,test-k8s-csap-reference}">test-k8s-csap-reference instances</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#services-tab,kpod-instances,csap-test,test-k8s-csap-reference,pod-logs}">test-k8s-csap-reference logs</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser#services-tab,kpod-instances,csap-test,test-k8s-csap-reference,pod-describe}">test-k8s-csap-reference describe</a>
+
+
+
+				</td>
+				<td>Web App</td>
+				<td>Application Portal, default landing page</td>
+			</tr>
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/services}">Deployment - Services</a>
+
+				</td>
+				<td>Web App</td>
+				<td>Application Portal, default landing page</td>
+			</tr>
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/swagger-ui/index.html}">Swagger Api Documentation</a>
+				</td>
+				<td>Web App</td>
+				<td>Swagger documentation and api tester</td>
+			</tr>
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/find-service/CSAP Platform/admin}">find-service</a>
+				</td>
+				<td>Web App</td>
+				<td>service-portal, deployment, analytics, etc.</td>
+			</tr>
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/health}"> Admin Health Portal </a>
+
+					<a
+						class="csap-link"
+						th:href="@{/health(testCount=100)}"> Test Mode </a>
+				</td>
+				<td>Web App</td>
+				<td>Show aggregate service health report across all hosts</td>
+			</tr>
+
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/clusterDialog}"> clusterDialog </a>
+				</td>
+				<td>Web App</td>
+				<td>Browse hosts by cluster, and run scripts, browse the Files, launch host dashboard</td>
+			</tr>
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/batchDialog}"> batchDialog </a>
+				</td>
+				<td>Web App</td>
+				<td>Batch deployment support</td>
+			</tr>
+
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/os/HostDashboard}"> Host Dashboard </a>
+						
+					<a
+						class="csap-link"
+						th:href="@{/app-browser?defaultService=csap-agent#agent-tab,live}">csap-agent live</a>
+						
+					<a
+						class="csap-link"
+						th:href="@{/app-browser?defaultService=csap-agent#agent-tab,application}">csap-agent application</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/app-browser?defaultService=test-k8s-csap-reference-1#agent-tab,application}">test-k8s-csap-reference-1 application graph</a>
+				</td>
+				<td>Web App</td>
+				<td>Comprehensive management for Operating System</td>
+			</tr>
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/file/propertyEncoder}"> Property Encryption</a>
+				</td>
+				<td>Web App</td>
+				<td>Use to encode property files using environment algorithm and key</td>
+			</tr>
+
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/viewScreencast(item=intro-ui,wiki=Overview)}"> csap-intro screencast</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/screencast(item=status,wiki=Overview)}"> screencast with redirect to csap tools</a>
+				</td>
+				<td>html</td>
+				<td>ScreenCasts</td>
+			</tr>
+
+			<tr>
+				<td>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/testLdap(numAttempts=5)}"> ldap connection test</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/ssoLogin(ref='http://csaptools.yourcompany.com/admin/services?releasePackage=CSAP%20Engineering')}">
+						ssl login to csaptools</a>
+				</td>
+				<td>html</td>
+				<td>SSL login for labs without certs</td>
+			</tr>
+
+			<tr>
+				<td>
+					User info:
+
+					<a
+						class="csap-link"
+						th:href="@{ /api/application/userInfo/default}"> Api</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{ /CsapUser}"> Test Html</a>
+				</td>
+				<td>html</td>
+				<td>Page for testing lookup UI</td>
+			</tr>
+
+
+		</tbody>
+
+	</table>
+
+
+	<table
+		id="core"
+		class="csap">
+		<thead>
+
+			<tr>
+				<th>
+					<div class="title">Application Editing</div>
+					Click to test
+				</th>
+				<th>returns</th>
+				<th>Description</th>
+			</tr>
+		</thead>
+
+		<tbody>
+
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/application'} }"> Application Editor </a>
+				</td>
+				<td>Web App</td>
+				<td>UI Used to modify the application definition</td>
+			</tr>
+
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.OS_URL + '/definitionZip'} }"> Application Definition </a>
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.OS_URL + '/folderZip'}(token=-p5zof6.inoz9dfexk6do1us,path=csap,service=kubeadm_8014) }">
+						Folder Zip </a>
+
+				</td>
+				<td>ZIP file</td>
+				<td>Download Application definition</td>
+			</tr>
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/summary'} }"> Application Summary </a>
+				</td>
+				<td>Web App</td>
+				<td>Summary report of Application, included limits, instance information</td>
+			</tr>
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/lifecycle'} }"> Environment Editor </a>
+						
+						
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/settingsDialog'} }"> Environment Settings </a>
+				</td>
+				<td>Web App</td>
+				<td>Modify clusters, services, landing page, agent collections,...</td>
+			</tr>
+
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/clusterDialog'}(clusterName='*') }"> Cluster Editor </a>
+
+				</td>
+				<td>Web App</td>
+				<td>Modify services and host assignment</td>
+			</tr>
+
+
+			<tr>
+				<td>
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=${T(org.csap.agent.CsapCore).AGENT_NAME},hostName='*') }">
+						[[ ${T(org.csap.agent.CsapCore).AGENT_NAME} ]] </a>
+
+
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=csap-package-java,hostName='*') }">
+						csap-package-java </a>
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=csap-package-linux,hostName='*') }">
+						csap-package-linux </a>
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=httpd,hostName='*') }"> httpd </a>
+
+
+				</td>
+				<td>Web App</td>
+				<td>CSAP-Core Service Editing</td>
+			</tr>
+
+			<tr>
+				<td>
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=docker,hostName='*') }"> docker </a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=nfs-server,hostName='*') }">
+						nfs-server </a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=test-docker-activemq,hostName='*') }">
+						test-docker-activemq </a>
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=test-docker-nginx,hostName='*') }"> test-docker-nginx </a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=test-docker-postgres,hostName='*') }">
+						test-docker-postgres </a>
+
+
+				</td>
+				<td>Web App</td>
+				<td>Docker Service Editing</td>
+			</tr>
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=kubelet,hostName='*') }"> kubelet </a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=my-kubernetes-copy-with-a-super-duper-long-name,hostName='*') }">
+						my-kubernetes-copy-with-a-super-duper-long-name </a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=demo-shared-service,hostName='*') }">
+						demo-shared-service</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=test-k8s-by-spec,hostName='*') }">
+						test-k8s-by-spec </a>
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=test-k8s-csap-reference,hostName='*') }">
+						test-k8s-csap-reference </a>
+
+
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=metrics-server,hostName='*') }">
+						metrics-server </a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=kubernetes-dashboard,hostName='*') }">
+						kubernetes-dashboard </a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=etcd,hostName='*') }"> etcd </a>
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=k8s-csap-test,hostName='*') }">
+						k8s-csap-test </a>
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=kube-apiserver,hostName='*') }">
+						kube-apiserver </a>
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=test-k8s-postgres,hostName='*') }">
+						test-k8s-postgres </a>
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=k8s-not-running-service,hostName='*') }">
+						k8s-not-running-service </a>
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=multiple-container-catcher,hostName='*') }">
+						multiple-container-catcher </a>
+
+
+
+				</td>
+				<td>Web App</td>
+				<td>Kubernetes Service Editing</td>
+			</tr>
+
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=csap-demo-tomcat,hostName='*') }">
+						csap-demo-tomcat </a>
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=csap-verify-service,hostName='*') }">
+						csap-verify-service </a>
+
+					<a
+						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=PackageAJvm,hostName='*') }">
+						PackageAJvm </a>
+
+				</td>
+				<td>Web App</td>
+				<td>In context editing of service definition</td>
+			</tr>
+
+
+		</tbody>
+
+	</table>
+
+
+	<table
+		id="appPerf"
+		class="csap">
+		<thead>
+
+			<tr>
+				<th>
+					<div class="title">Performance Portal</div>
+					Click to test
+				</th>
+				<th>returns</th>
+				<th>Description</th>
+			</tr>
+		</thead>
+
+		<tbody>
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev)}">Default(dev)</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev)}">Default(prod)</a>
+
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,appId=SensusCsap,life=dev,project='CSAP Platform')}">SensusCsap dev</a>
+
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,appId=SensusCsap,life=dev,project='CSAP HA Demo',report=os-process)}">CSAP HA Demo dev</a>
+
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,appId=netMetAppId,life=dev,project='CSAP Platform')}">netMetAppId  dev</a>
+
+				</td>
+				<td>Web App</td>
+				<td>Use to view performance dashboard, browse to select</td>
+			</tr>
+
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap)}">DesktopCsap</a>
+
+					<div class="code">reports</div>
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report=tableHost)}">Host</a>
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=netMetAppId,project='NetMet Services',report=tableHost)}">netMetAppId Host</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report=tableUser)}">User</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report=os-process)}">osProcess</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report='os-process/detail',service=csap-agent)}">csap-agent
+						osProcess</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report='java/detail',service=csap-agent)}">csap-agent
+						java</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report='application/detail',service=csap-agent)}">csap-agent
+						application</a>
+						
+						
+
+					<div class="code">graphs</div>
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report='graphHost',service=csap-agent,host=localhost)}">localhost
+						host</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report='graphOsProcess',service=csap-agent,host=localhost)}">
+						
+						osprocess csap-agent</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report='graphJava',service=csap-agent,host=localhost)}">localhost
+						java csap-agent</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report='graphJava',appGraph=appGraph,service=csap-agent,host=localhost)}">localhost
+						application csap-agent</a>
+						
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report='graphJava',appGraph=appGraph,service=csap-agent,host='csap-dev01,csap-dev02')}">
+						application csap-agent dev1/2</a>
+						
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report='graphJava',appGraph=appGraph,service=test-k8s-csap-reference,host='csap-dev04,csap-dev05')}">
+						application test-k8s-csap-reference dev4/5</a>
+
+
+
+				</td>
+				<td>Desktop Performance</td>
+				<td>Testing localhost</td>
+			</tr>
+			
+			
+			
+			
+			
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap)}">SensusCsap</a>
+
+					<div class="code">reports</div>
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report=tableHost)}">Host</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report=tableUser)}">User</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report=os-process)}">osProcess</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report='os-process/detail',service=csap-agent)}">csap-agent
+						osProcess</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report='os-process/detail',service=test-k8s-csap-reference)}">test-k8s-csap-reference
+						osProcess</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report='java/detail',service=csap-agent)}">csap-agent
+						java</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report='application/detail',service=csap-agent)}">csap-agent
+						application</a>
+						
+						
+
+					<div class="code">graphs</div>
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report='graphHost',service=csap-agent,host=csap-dev01)}">csap-dev01
+						host</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report='graphOsProcess',service=csap-agent,host=csap-dev01)}">
+						
+						osprocess csap-agent</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report='graphJava',service=csap-agent,host=csap-dev01)}">csap-dev01
+						java csap-agent</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report='graphJava',appGraph=appGraph,service=csap-agent,host=csap-dev01)}">csap-dev01
+						application csap-agent</a>
+						
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report='graphJava',appGraph=appGraph,service=csap-agent,host='csap-dev01,csap-dev02')}">
+						application csap-agent dev1/2</a>
+						
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report='graphJava',appGraph=appGraph,service=test-k8s-csap-reference,host='csap-dev04,csap-dev05')}">
+						application test-k8s-csap-reference dev4/5</a>
+
+
+
+				</td>
+				<td>SensusCsap</td>
+				<td> csap dev hosts</td>
+			</tr>
+			
+			
+			
+			
+			
+			
+			
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,host='csap-dev01',report=graphJmx,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap,appGraph=appGraph)}">
+						csap agent Application: csap-dev01 </a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(test=prod,life=dev,host='v01app-prd802,v01app-prd803',report=graphJmx,project='CSAP Platform',service=DataReaderSvc,appId=SensusCsap,appGraph=appGraph)}">
+						DataReader App Prod </a>
+
+				</td>
+
+				<td>Web App</td>
+				<td>Direct: show csagent application graphs</td>
+			</tr>
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,report=tableHost,project='CSAP Platform',appId=SensusCsap)}">
+						Host Analytics</a>
+				</td>
+
+				<td>Web App</td>
+				<td>Host Analytic Table</td>
+			</tr>
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,report=tableService,project='CSAP Platform',appId=SensusCsap)}">
+						csap-dev OS Analytics </a>
+
+
+				</td>
+
+				<td>Web App</td>
+				<td>Service Analytic Table</td>
+			</tr>
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,life=dev,report=tableUser,project='CSAP Platform',appId=SensusCsap)}">
+						User Summary</a>
+				</td>
+
+				<td>Web App</td>
+				<td>User Analytic Table</td>
+			</tr>
+
+			<tr>
+				<td>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(life=dev,host='csap-dev01,csap-dev02',report=graphOsProcess,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap)}">
+						csap agent OS</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(life=dev,host='csap-dev01',report=graphOsProcess,project='CSAP Platform',service=csap-verify-service,appId=SensusCsap)}">
+						csap-verify-service OS single</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(life=dev,host='csap-dev01,csap-dev02',report=graphOsProcess,project='CSAP Platform',service=csap-verify-service,appId=SensusCsap)}">
+						csap-verify-service OS all</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(life=dev,host='csap-dev01,csap-dev02,csap-dev03',report=graphOsProcess,project='CSAP Platform',service=httpd,appId=SensusCsap)}">
+						httpd all</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(life=dev,host='csap-dev04,csap-dev05,csap-dev06',report=graphOsProcess,project='CSAP Platform',service=test-k8s-csap-reference-1,appId=SensusCsap)}">
+						test-k8s-csap-reference (all pods)</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(life=dev,host='csap-dev04,csap-dev05,csap-dev06',report=graphOsProcess,project='CSAP Platform',service=test-k8s-postgres-1,appId=SensusCsap)}">
+						test-k8s-postgres-1 (all pods)</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(life=dev,host='csap-dev04,csap-dev05,csap-dev06',report=graphOsProcess,project='CSAP Platform',service=nfs-client-provisioner-1,appId=SensusCsap)}">
+						nfs-client-provisioner-1 (all pods)</a>
+
+				</td>
+
+				<td>Web App</td>
+				<td>Service Graphs - OS metrics</td>
+			</tr>
+
+
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(life=dev,host='csap-dev01',report=graphHost,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap,appGraph=appGraph)}">
+						csap-dev01 host</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(life=dev,host='csap-dev01',report=graphJmx,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap,appGraph=appGraph)}">
+						csap agent_APP</a>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(life=dev,host='csap-dev01',report=graphJmx,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap)}">
+						csap agent_JMX</a>
+
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(life=dev,host='csap-dev01,csap-dev02,csap-dev03,csap-dev04',report=graphJmx,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap)}">
+						csap agent_JMX_2hosts</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(life=dev,host='csap-dev01,csap-dev02,csap-dev03,csap-dev04',report=graphJmx,appGraph=appGraph,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap)}">
+						csap agent App 2 hosts</a>
+
+				</td>
+
+				<td>Web App</td>
+				<td>csapdev graphs</td>
+			</tr>
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,appId=SensusCsap,life=dev,project='CSAP Platform',report=graphHost,host='csap-dev01,csap-dev02,csap-dev03,csap-dev04')}">
+						csap-dev Host Graphs </a>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,appId=SensusCsap,life=dev,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},report=graphOsProcess,host='csap-dev01,csap-dev02,csap-dev03,csap-dev04')}">
+						csap agent OS </a>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,appId=SensusCsap,life=dev,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},report=graphJmx,host='csap-dev01,csap-dev02,csap-dev03,csap-dev04')}">
+						csap agent JMX </a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,appId=SensusCsap,life=dev,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},report=graphJmx,appGraph=appGraph,host='csap-dev01,csap-dev02,csap-dev03,csap-dev04')}">
+						csap agent APP </a>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,appId=SensusCsap,life=dev,project='CSAP Platform',service=activemq,report=graphJmx,host='csap-dev01,csap-dev02,csap-dev03,csap-dev04')}">
+						activemq JMX </a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,appId=SensusCsap,life=dev,project='CSAP Platform',service=activemq,report=graphJmx,appGraph=appGraph,host='csap-dev01,csap-dev02,csap-dev03,csap-dev04')}">
+						activemq APP </a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,appId=SensusCsap,life=dev,project='CSAP Platform',service=test-k8s-csap-reference,report=graphJmx,host='csap-dev04,csap-dev05,csap-dev06',k8sAuto=k8sAuto)}">
+						test-k8s-csap-reference JMX </a>
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,appId=SensusCsap,life=dev,project='CSAP Platform',service=test-k8s-csap-reference,report=graphJmx,appGraph=appGraph,host='csap-dev04,csap-dev05,csap-dev06',k8sAuto=k8sAuto)}">
+						test-k8s-csap-reference APP </a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(source=dev,appId=SensusCsap,life=dev,project='CSAP Platform',service=httpd,report=graphJmx,appGraph=appGraph,host='csap-dev01,csap-dev02')}">
+						httpd APP </a>
+
+
+				</td>
+
+				<td>Web App</td>
+				<td>csap-dev Graphs</td>
+			</tr>
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(life=dev,report='service/detail',project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap)}">
+						Analytics: Csagent OS</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(life=dev,report='jmx/detail',project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap)}">
+						Analytics: Csagent JMX</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(life=dev,report='jmxCustom/detail',project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap)}">
+						Analytics: Csagent Application</a>
+
+				</td>
+
+				<td>Web App</td>
+				<td>Service Portal cross launches for Analytics</td>
+			</tr>
+
+
+
+
+
+			<tr>
+				<td>
+					csaptools:
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(test=dev)}"> csap-dev_dev </a>
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(test=prod)}"> csap-dev_prod </a>
+				</td>
+				<td>Web App</td>
+				<td>Force view to ssp dev</td>
+			</tr>
+
+
+
+			<tr>
+				<td>
+					csaptools:
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(test=dev,host='v01app-dev010',report=graphJmx,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap,appGraph=appGraph)}">
+						csap agent_APP</a>
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(test=dev,host='v01app-dev010',report=graphJmx,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap)}">
+						csap agent_JMX</a>
+				</td>
+
+				<td>Web App</td>
+				<td>Direct: show csagent cross launches</td>
+			</tr>
+
+			<tr>
+				<td>
+					csaptools:
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(test=dev,report='service/detail',project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap)}">
+						csap agent_OS</a>
+					<a
+						class="csap-link"
+						th:href="@{/os/performance(test=dev,report='jmxCustom/detail',project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap)}">
+						csap agent_APP</a>
+				</td>
+
+				<td>Web App</td>
+				<td>Direct: show csagent analytics</td>
+			</tr>
+
+
+
+		</tbody>
+
+	</table>
+
+
+
+
+	<table
+		id="metrics"
+		class="csap">
+		<thead>
+
+			<tr>
+				<th>
+					<div class="title">Metrics Graphs</div>
+					Click to test
+				</th>
+				<th>returns</th>
+				<th>Description</th>
+			</tr>
+		</thead>
+
+		<tbody>
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/os/metricsData(metricChoice=host)}">host data</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/host(hosts=${ host })}">host graphs</a>
+				</td>
+				<td>json</td>
+				<td>Host SHARED Metrics: json and web app</td>
+			</tr>
+
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/os/metricsData(metricChoice=os-process)}">process data</a>
+
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/os-process(hosts=${ host })}">process graphs all</a>
+
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/os-process(hosts=${host},graph='diskWriteKb')}">process graphs: diskWriteKb</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/os-process(hosts=${host},service=${T(org.csap.agent.CsapCore).AGENT_NAME})}">csap agent all</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/os-process(hosts=${host},graph='rssMemory',service=${T(org.csap.agent.CsapCore).AGENT_NAME})}">csap
+						agent rss</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/os-process(hosts=${host},graph='topCpu',service=${T(org.csap.agent.CsapCore).AGENT_NAME})}">csap
+						agent topCpu</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/os-process(hosts=${host},graph='diskWriteKb',service=${T(org.csap.agent.CsapCore).AGENT_NAME})}">csap
+						agent diskWriteKb</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/os-process(hosts=${host},service='test-k8s-csap-reference-1')}">test-k8s-csap-reference-1 all</a>
+
+				</td>
+				<td>json</td>
+				<td>Host PROCESS Metrics: json and web app</td>
+			</tr>
+
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/os/metricsData(metricChoice=java)}">java data</a>
+
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/java(hosts=${host})}">java graphs: All</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/java(hosts=${host},service=${T(org.csap.agent.CsapCore).AGENT_NAME})}">java graphs: csap agent</a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/java(hosts=${host},service=csap-demo-tomcat	)}">java graphs: csap-demo-tomcat_8271</a>
+
+
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/java(hosts=${host},service='test-k8s-csap-reference-1')}">java graphs:
+						test-k8s-csap-reference-1</a>
+				</td>
+				<td>json</td>
+				<td>Host JAVA Metrics: json and web app</td>
+			</tr>
+
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/os/metricsData(metricChoice=application,hostName=localhost,serviceName=${T(org.csap.agent.CsapCore).AGENT_NAME})}">
+						csap agent Custom Data</a>
+
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/application(hosts=${host},service=${T(org.csap.agent.CsapCore).AGENT_NAME})}">csap agent Graphs</a>
+
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/application(hosts=${host},service=csap-demo-tomcat)}">csap-demo-tomcat_8271 Graphs</a>
+
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/application(hosts=${host},service='test-k8s-csap-reference')}">test-k8s-csap-reference graphs </a>
+
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/application(hosts=${host},service=csap-verify-service)}">csap-verify-service</a>
+
+				</td>
+				<td>json</td>
+				<td>Application Metrics: json and web app</td>
+			</tr>
+
+
+		</tbody>
+
+	</table>
+
+
+
+
+	<table
+		id="Files"
+		class="csap">
+		<thead>
+
+			<tr>
+				<th>
+					<div class="title">File Manager and commands</div>
+					Click to test
+				</th>
+				<th>returns</th>
+				<th>Description</th>
+			</tr>
+		</thead>
+
+		<tbody th:with="double=__">
+
+			<tr>
+				<td>
+
+					<a
+						class="csap-link"
+						th:href="@{/file/FileMonitor(serviceName=${T(org.csap.agent.CsapCore).AGENT_NAME},isLogFile=true,hostName=localhost)}">
+						File Monitor - csap agent </a>
+
+					<a
+						class="csap-link"
+						th:href="@{/file/FileMonitor(serviceName=${T(org.csap.agent.CsapCore).AGENT_NAME},isLogFile=true,hostName=localhost,corsHost=csap-dev01.***REMOVED***)}">
+						File Monitor - CORS </a>
+
+				</td>
+				<td>Web App</td>
+				<td>Tail files</td>
+			</tr>
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/file/FileManager(serviceName=${T(org.csap.agent.CsapCore).AGENT_NAME},fromFolder=.)}"> File Manager
+						- csap agent </a>
+
+
+
+					<a
+						class="csap-link"
+						th:href="@{/file/FileManager(quickview='csap-platform',fromFolder=${ double + 'platform__'})}"> File Manager - platform </a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/file/FileManager(quickview='/',fromFolder=${ double + 'root__'})}"> File Manager - root </a>
+						
+					<a
+						class="csap-link"
+						th:href="@{/os/command(command='logSearch',fromFolder='/aaa',searchText='desktop-sample')}"> Search - root </a>
+				</td>
+				<td>Web App</td>
+				<td>File Manager used to Browse file system, with support for viewing, editing, uploading, tailing, .....</td>
+			</tr>
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/service/query/deployProgress(serviceName=csap-demo-tomcat_8271,logFileOffset=-1,hostName=csap-dev01)}">
+						deployProgress: csap-demo-tomcat_8271 </a>
+
+				</td>
+				<td>deployProgress</td>
+				<td>deployProgress</td>
+			</tr>
+
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/file/downloadFile/csap-agent(fromFolder='/jarExtract/BOOT-INF/classes/csap-templates/test/simple.html')}">
+						/file/service/csap-agent?filePath=/jarExtract/BOOT-INF/classes/csap-templates/test/simple.html </a>
+				</td>
+				<td>html</td>
+				<td>html viewer via file</td>
+			</tr>
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/file/browser/csap platform}">/file/browser/csap platform</a>
+				</td>
+				<td>Web App</td>
+				<td>Browse file system, with support read only access for group based ACL</td>
+			</tr>
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/os/command(command=script,host=localhost,fromFolder=.)}"> run script </a>
+						
+					<a
+						class="csap-link"
+						th:href="@{/os/command(command=script,template=csap-host-install.sh,fromFolder=.)}"> run installer </a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/command(command=script,host=localhost,fromFolder=.,template=socketPid,pid='19453,19570,19494,19493,2813,19452')}">
+						run script - socket </a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/command(command=script,host=localhost,fromFolder=.,template='cowPatch')}"> cow patch </a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/command(command=delete,host=localhost,fromFolder=.)}"> delete </a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/command(command=sync,host=localhost,fromFolder=.)}"> sync </a>
+
+
+					<a
+						class="csap-link"
+						th:href="@{/os/command(command=upload,host=localhost,fromFolder=.)}"> upload </a>
+
+
+
+				</td>
+				<td>Web App</td>
+				<td>OS Commands</td>
+			</tr>
+
+
+
+
+		</tbody>
+
+	</table>
+
+
+	<table
+		id="status"
+		class="csap">
+		<thead>
+
+			<tr>
+				<th>
+					<div class="title">Agent Status</div>
+					Click to test
+				</th>
+				<th>returns</th>
+				<th>Description</th>
+			</tr>
+		</thead>
+
+		<tbody>
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/api/agent/runtime}">/api/agent/runtime</a>
+				</td>
+				<td>json</td>
+				<td>The agent operational data - including real time meters</td>
+			</tr>
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/os/cached/status}">/os/cached/status</a>
+				</td>
+				<td>json</td>
+				<td>OS Dashboard View</td>
+			</tr>
+
+
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/os/lastCollected}">/os/lastCollected</a>
+				</td>
+				<td>json</td>
+				<td>The last collected value for all services.</td>
+			</tr>
+			<tr>
+				<td>
+					<a
+						class="csap-link"
+						th:href="@{/os/diskActivity}">/os/diskActivity</a>
+				</td>
+				<td>json</td>
+				<td>diskActivity.</td>
+			</tr>
+
+		</tbody>
+
+	</table>
+
+
+
+
+</body>
+
+</html>

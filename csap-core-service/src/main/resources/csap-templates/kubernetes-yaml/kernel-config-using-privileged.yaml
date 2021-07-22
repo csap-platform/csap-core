@@ -1,0 +1,27 @@
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: netmet-startup-configuration
+  labels:
+    app: startup-script
+spec:
+  template:
+    metadata:
+      labels:
+        app: startup-script
+    spec:
+      hostPID: true
+      containers:
+      - name: netmet-startup-configuration-container
+        image: gcr.io/google-containers/startup-script:v1
+        securityContext:
+          privileged: true
+        env:
+        - name: STARTUP_SCRIPT
+          value: |
+          
+            # Disable hugepages
+            echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled
+            echo 'never' > /sys/kernel/mm/transparent_hugepage/defrag
+            
+            echo 0 > /sys/kernel/mm/transparent_hugepage/khugepaged/defrag

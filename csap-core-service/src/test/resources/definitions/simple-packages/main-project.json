@@ -1,0 +1,244 @@
+{
+  "project" : {
+    "api-version" : 2.1,
+    "project-version" : 1.0,
+    "name" : "SampleDefaultPackage",
+    "architect" : "someUser@yourCompany.com",
+    "emailNotifications" : "support@notConfigured.com"
+  },
+  "environments" : {
+    "defaults" : {
+      "settings" : {
+        "base-env-only" : true,
+        "application" : {
+          "name" : "Junit Simple Packages",
+          "sub-projects" : [ "packageA.json", "packageB.json" ],
+          "definition-repo-url" : "https://github.com/csap-platform/sample-definition.git",
+          "definition-repo-branch" : "",
+          "maven-url" : "https://repo.maven.apache.org/maven2/",
+          "help-menu-items" : {
+            "User Guide" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP",
+            "Release Notes" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211856/Release+Notes",
+            "Quick Install" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/395282580/CSAP+Quick+Install",
+            "Health Status" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211861/CSAP+Health",
+            "Application Editor" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211875/CSAP+Application+Editor",
+            "FAQ" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/347177032/CSAP+FAQ"
+          }
+        },
+        "csap-data" : {
+          "user" : "$user",
+          "credential" : "$pass",
+          "service-url" : "events-disabled"
+        },
+        "monitorDefaults" : {
+          "maxDiskPercent" : 60,
+          "maxHostCpuLoad" : 77,
+          "maxHostCpuIoWait" : 11,
+          "minFreeMemoryMb" : 500,
+          "max_diskWriteKb" : 15
+        },
+        "configuration-maps" : {
+          "global" : {
+            "csap_auto" : "test_only"
+          }
+        }
+      },
+      "base-os" : { }
+    },
+    "dev" : {
+      "settings" : {
+        "imports" : [ "defaults" ],
+        "loadbalancer-url" : "",
+        "configuration-maps" : { }
+      },
+      "simple-cluster" : {
+        "type" : "modjk",
+        "hosts" : [ "mainHostA", "mainHostB", "mainHostC" ],
+        "template-references" : [ "httpd", "docker", "postgres", "service-from-file", "CsspSample", "FactorySample", "ServletSample", "csap-verify-service", "springmvc-showcase" ]
+      }
+    }
+  },
+  "service-templates" : {
+    "CsspSample" : {
+      "server" : "tomcat7.x",
+      "description" : "Provides reference implementation for engineering, along with core platform regression tests.",
+      "docUrl" : "https://github.com/csap-platform/csap-core/wiki#/Code+Samples",
+      "parameters" : "-Xms128M -Xmx128M -XX:MaxPermSize=128m",
+      "source" : {
+        "scm" : "svn",
+        "path" : "http://yourSvnOrGit/svn/smartservices/coreservices/trunk/cssp/CsspSampleJms",
+        "branch" : "HEAD"
+      },
+      "maven" : {
+        "dependency" : "com.your.group:CsspSampleJms:1.0.23:war"
+      },
+      "context" : "csspSample"
+    },
+    "FactorySample" : {
+      "server" : "tomcat7.x",
+      "description" : "Provides reference implementation for engineering, along with core platform regression tests.",
+      "docUrl" : "https://github.com/csap-platform/csap-core/wiki#/Code+Samples",
+      "parameters" : "-Xms256M -Xmx256M -XX:MaxPermSize=192m",
+      "source" : {
+        "scm" : "svn",
+        "path" : "http://yourSvnOrGit/svn/smartservices/coreservices/trunk/cssp/CsspFactorySample",
+        "branch" : "HEAD"
+      },
+      "maven" : {
+        "dependency" : "com.your.group:CsspFactorySample:1.0.24:war"
+      }
+    },
+    "ServletSample" : {
+      "server" : "tomcat7.x",
+      "description" : "ServletSample provides a simple tomcat 7 implementation to validate the tomcat runtime",
+      "docUrl" : "https://github.com/csap-platform/csap-core/wiki#/CSAP+-+CsAgent",
+      "parameters" : "-Xms128M -Xmx128M -XX:MaxPermSize=128m",
+      "source" : {
+        "scm" : "svn",
+        "path" : "http://yourSvnOrGit/svn/smartservices/coreservices/trunk/cssp/Servlet3Sample",
+        "branch" : "HEAD"
+      },
+      "maven" : {
+        "dependency" : "com.your.group:Servlet3Sample:1.0.0:war"
+      }
+    },
+    "postgres" : {
+      "server" : "docker",
+      "autoStart" : 80,
+      "port" : 5432,
+      "description" : "Added by pnightingale. Service provides ...",
+      "docUrl" : "https://hub.docker.com/_/postgres/",
+      "processFilter" : ".*postgres.*",
+      "isDataStore" : "true",
+      "parameters" : "",
+      "jmxPort" : "-1",
+      "source" : {
+        "scm" : "git",
+        "path" : "https://github.com/csap-platform/csap-packages.git",
+        "branch" : "HEAD",
+        "buildLocation" : "/csap-starter-tester"
+      },
+      "maven" : { },
+      "docker" : {
+        "volumes" : [ {
+          "containerMount" : "/var/lib/postgresql/data",
+          "readOnly" : false,
+          "sharedUser" : false,
+          "hostPath" : "postgres-volume",
+          "createPersistent" : {
+            "enabled" : true,
+            "driver" : "local"
+          }
+        } ],
+        "network" : {
+          "name" : "csap-test-network",
+          "note" : "name can be bridge, host, or custom network name",
+          "createPersistent" : {
+            "enabled" : true,
+            "driver" : "bridge"
+          }
+        },
+        "image" : "docker.io/postgres:latest",
+        "environmentVariables" : [ "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/10/bin", "GOSU_VERSION=1.10", "LANG=en_US.utf8", "PG_MAJOR=10", "PG_VERSION=10.2-1.pgdg90+1", "PGDATA=/var/lib/postgresql/data" ],
+        "command" : [ "postgres" ],
+        "entryPoint" : [ "docker-entrypoint.sh" ],
+        "portMappings" : [ {
+          "PrivatePort" : "5432",
+          "PublicPort" : "5432"
+        } ],
+        "versionCommand" : "postgres --version | cut -d\u0027 \u0027 -f3 | cat"
+      },
+      "performance" : {
+        "config" : {
+          "httpCollectionUrl" : "http://$$service-host:8261/CsapTestDocker/spring-rest/db/statistics",
+          "patternMatch" : "JSON",
+          "notes" : "db stats are published via test service"
+        },
+        "PerfTableRows" : {
+          "attribute" : "/indexByTable/demo_event/rowCount",
+          "title" : "Row count (Perf Test)"
+        },
+        "PerfTableIndex" : {
+          "attribute" : "/indexByTable/job_schedule/indexPercentUsed",
+          "title" : "Index Used % (Perf Test)"
+        },
+        "Inserts" : {
+          "attribute" : "/statsByUser/postgres/inserts",
+          "delta" : "delta",
+          "title" : "Insert Operations"
+        },
+        "Queries" : {
+          "attribute" : "/statsByUser/postgres/querys",
+          "delta" : "delta",
+          "title" : "Query Operations"
+        },
+        "Updates" : {
+          "attribute" : "/statsByUser/postgres/updates",
+          "delta" : "delta",
+          "title" : "Update Operations"
+        },
+        "Deletes" : {
+          "attribute" : "/statsByUser/postgres/deletes",
+          "delta" : "delta",
+          "title" : "Delete Operations"
+        },
+        "transComm" : {
+          "attribute" : "/statsByUser/postgres/transactionsCommitted",
+          "delta" : "delta",
+          "title" : "Transactions Committed"
+        },
+        "transRolled" : {
+          "attribute" : "/statsByUser/postgres/transactionsRolledBack",
+          "delta" : "delta",
+          "title" : "Transactions RolledBack"
+        },
+        "TableSize" : {
+          "attribute" : "/tableSizeInKb",
+          "title" : "Table Size (kb)"
+        },
+        "IndexSize" : {
+          "attribute" : "/indexSizeInKb",
+          "title" : "Index Size (kb)"
+        },
+        "heapCacheRatio" : {
+          "attribute" : "/heapCache/ratio",
+          "title" : "Heap Cache (%)",
+          "decimals" : "1",
+          "multiplyBy" : 100
+        },
+        "heapCacheHits2" : {
+          "attribute" : "/heapCache/hits",
+          "delta" : "delta",
+          "title" : "Heap Cache (Hits)"
+        },
+        "indexCacheRatio" : {
+          "attribute" : "/indexCache/ratio",
+          "title" : "Index Cache (%)",
+          "decimals" : "1",
+          "multiplyBy" : 100
+        },
+        "indexCacheHits" : {
+          "attribute" : "/indexCache/hits",
+          "delta" : "delta",
+          "title" : "Index Cache (Hits)"
+        }
+      },
+      "url" : "https://hub.docker.com/_/postgres/"
+    },
+    "springmvc-showcase" : {
+      "server" : "tomcat7.x",
+      "autoStart" : 91,
+      "description" : "SpringMVC showcase",
+      "docUrl" : "https://github.com/spring-projects/spring-mvc-showcase",
+      "parameters" : "-Xms128M -Xmx128M -XX:MaxPermSize=128m",
+      "source" : {
+        "scm" : "git",
+        "path" : "https://github.com/spring-projects/spring-mvc-showcase.git",
+        "branch" : "HEAD"
+      },
+      "maven" : {
+        "dependency" : "com.your.group:SpringMvcShowCases:1.0.0:war"
+      }
+    }
+  }
+}

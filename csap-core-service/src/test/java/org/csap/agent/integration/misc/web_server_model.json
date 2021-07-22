@@ -1,0 +1,321 @@
+{
+  "project" : {
+    "api-version" : 2.1,
+    "project-version" : 1.0
+  },
+  "environments" : {
+    "defaults" : {
+      "settings" : {
+        "base-env-only" : true,
+        "application" : {
+          "name" : "DEFAULT APPLICATION FOR JUNITS",
+          "sub-projects" : [ ],
+          "definition-repo-url" : "https://github.com/csap-platform/sample-definition.git",
+          "definition-repo-branch" : "",
+          "maven-url" : "https://repo.maven.apache.org/maven2/",
+          "help-menu-items" : {
+            "User Guide" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP",
+            "Release Notes" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211856/Release+Notes",
+            "Quick Install" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/395282580/CSAP+Quick+Install",
+            "Health Status" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211861/CSAP+Health",
+            "Application Editor" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211875/CSAP+Application+Editor",
+            "FAQ" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/347177032/CSAP+FAQ"
+          }
+        },
+        "operatorNotifications" : [ "monitoring@na.***REMOVED***.net" ],
+        "csap-host-agent" : {
+          "test" : "yes",
+          "maxJmxCollectionMs" : 3000,
+          "numberWorkerThreads" : "3",
+          "adminToAgentTimeoutInMs" : 6000,
+          "lsofIntervalMins" : 1,
+          "duIntervalMins" : 5,
+          "apiLocal" : true,
+          "apiUser" : "agentUser",
+          "apiPass" : "CSAP Developmentdev",
+          "infraTests" : {
+            "cpuIntervalMinutes" : "30",
+            "diskIntervalMinutes" : "30",
+            "cpuLoopsMillions" : "1",
+            "diskWriteMb" : "600"
+          },
+          "gitSslVerificationDisabledUrls" : [ "https://moc-bb.***REMOVED***" ]
+        },
+        "csap-data" : {
+          "user" : "$user",
+          "pass" : "$pass",
+          "service-url" : "$eventServiceUrl"
+        },
+        "monitorDefaults" : {
+          "jvm_jmxHeartbeat" : true,
+          "maxDiskPercent" : 60,
+          "maxDeviceIoPercent" : 11,
+          "maxDiskPercentIgnorePatterns" : "/auto/.*",
+          "maxHostCpuLoad" : 4,
+          "maxHostCpu" : 50,
+          "maxHostCpuIoWait" : 11,
+          "minFreeMemoryMb" : "1000",
+          "max_diskUtil" : "150",
+          "max_threadCount" : "120",
+          "max_fileCount" : "350",
+          "max_rssMemory" : "500m",
+          "max_tomcatConnections" : "40",
+          "max_topCpu" : "150"
+        },
+        "configuration-maps" : {
+          "global" : {
+            "csap_auto" : "test_only"
+          }
+        },
+        "csap-collection" : {
+          "processDumps" : {
+            "resouceInterval" : 30,
+            "maxInInterval" : 3,
+            "lowMemoryInMb" : "500"
+          },
+          "host" : [ 30, 300, 3600 ],
+          "os-process" : [ 30, 300, 3600 ],
+          "application" : [ 30, 300, 3600 ]
+        },
+        "reports" : {
+          "trending" : [ {
+            "label" : "Linux: Cores Used (All Hosts)",
+            "report" : "custom/core",
+            "metric" : "coresUsed",
+            "divideBy" : "1"
+          }, {
+            "label" : "Java: Heap GC Seconds (All Jvms) ",
+            "report" : "java/detail",
+            "metric" : "minorGcInMs",
+            "serviceName" : "all",
+            "allVmTotal" : true,
+            "divideBy" : "1000"
+          }, {
+            "label" : "CPU Response Test (Seconds)",
+            "report" : "host",
+            "metric" : "totalCpuTestTime",
+            "divideBy" : "numberOfSamples",
+            "allVmTotal" : true
+          }, {
+            "label" : "Disk Response  Test (Seconds)",
+            "report" : "host",
+            "metric" : "totalDiskTestTime",
+            "divideBy" : "numberOfSamples",
+            "allVmTotal" : true
+          }, {
+            "label" : "Host Threads",
+            "report" : "host",
+            "metric" : "threadsTotal",
+            "divideBy" : "numberOfSamples"
+          }, {
+            "label" : "CsAgent Socket Count",
+            "report" : "os-detail/detail",
+            "metric" : "socketCount",
+            "serviceName" : "CsAgent",
+            "divideBy" : "numberOfSamples"
+          }, {
+            "label" : "CsAgent OS Commands",
+            "report" : "application/detail",
+            "metric" : "OsCommandsCounter",
+            "serviceName" : "CsAgent",
+            "divideBy" : "numberOfSamples"
+          } ],
+          "realTimeMeters" : [ {
+            "label" : "Cpu Cores Active",
+            "id" : "host.coresActive",
+            "intervals" : [ 3, 5, 10 ],
+            "min" : 0
+          }, {
+            "label" : "Cpu Response (s)",
+            "id" : "host.cpuTest",
+            "intervals" : [ 5, 6, 7 ],
+            "min" : 0,
+            "divideBy" : "vmCount"
+          }, {
+            "label" : "Disk Response (s)",
+            "id" : "host.diskTest",
+            "intervals" : [ 3, 5, 10 ],
+            "min" : 0,
+            "divideBy" : "vmCount"
+          }, {
+            "label" : "CsAgent Cpu (Total)",
+            "id" : "os-process.topCpu_CsAgent",
+            "intervals" : [ 10, 30, 100 ]
+          } ]
+        },
+        "loadBalanceVmFilter" : [ "none" ],
+        "monitoringUrl" : "http://monitoring.na.***REMOVED***.net",
+        "mavenCommand" : "-B -Dmaven.test.skip=true clean package",
+        "newsItems" : [ "\u003Ca href=\"https://github.com/csap-platform/csap-core/wiki\" class=\"simple\" target=\"_blank\"\u003ECSAP Project Documentation\u003C/a\u003E ", "_noteIcon_ \u003Ca href=\"https://github.com/csap-platform/csap-core/wiki#updateRefCSAP+Event+Service\" class=\"simple\" target=\"_blank\"\u003ECSAP Event Service\u003C/a\u003E " ],
+        "portRange" : {
+          "start" : 8200,
+          "end" : 9300
+        },
+        "secureUrl" : "https://csap-secure.na.***REMOVED***.net/admin",
+        "autoRestartHttpdOnClusterReload" : "yes",
+        "launchUrls" : [ {
+          "description" : "1) http(Tomcat Embed)",
+          "url" : "default"
+        }, {
+          "description" : "2) ajp(LB - Internal)",
+          "url" : "http://yourlb.na.***REMOVED***.net"
+        } ],
+        "metricsPublication" : [ {
+          "type" : "csapCallHome",
+          "intervalInSeconds" : 300,
+          "url" : "http://nightingale-one:8080/CsapGlobalAnalytics/rest/vm/health",
+          "token" : "notUsed"
+        } ],
+        "lastModifiedBy" : "pnightingale"
+      },
+      "base-os" : { }
+    },
+    "dev" : {
+      "csspLocal" : {
+        "type" : "modjk",
+        "hosts" : [ "localhost" ],
+        "template-references" : [ "httpd", "Cssp3ReferenceMq", "simple-hyphen-service", "ServiceWithCustomRouting" ]
+      },
+      "factory" : {
+        "type" : "singleVmPartition",
+        "hosts" : [ "factoryHost-dev01", "factoryHost-dev-002" ],
+        "template-references" : [ "httpd", "Cssp3ReferenceMq", "simple-hyphen-service", "ServiceWithCustomRouting" ]
+      },
+      "settings" : {
+        "imports" : [ "defaults" ],
+        "loadbalancer-url" : "http://yourlb.na.***REMOVED***.net",
+        "configuration-maps" : {
+          "global" : {
+            "test-global-1" : "test-global-value-1"
+          },
+          "map-for-testing" : {
+            "test-map-name-1" : "test-map-value-1",
+            "test-map-name-2" : "test-map-value-2"
+          },
+          "map-for-testing-base-os" : {
+            "test-map-name-2" : "test-map-value-2-override"
+          }
+        },
+        "vsphere" : {
+          "filters" : {
+            "vm-path" : "RNIs/CSAP-DEV_p",
+            "resource-pool-path" : "BLDCluster/Resources/CSAP",
+            "datastore-regex" : "(.*)CSAP(.*)"
+          },
+          "env" : {
+            "GOVC_USERNAME" : "lab\\csapstorage",
+            "GOVC_PASSWORD" : "iEQoM1eTsrVNKjJh5Z28",
+            "GOVC_URL" : "vcenter6.***REMOVED***",
+            "GOVC_DATACENTER" : "***REMOVED***",
+            "GOVC_DATASTORE" : "CSAP_DS1_NFS",
+            "GOVC_INSECURE" : "1"
+          }
+        }
+      }
+    },
+    "dev2" : {
+      "csspLocal" : {
+        "type" : "modjk",
+        "hosts" : [ "peter" ],
+        "template-references" : [ "httpd", "Cssp3ReferenceMq", "ServiceWithCustomRouting" ]
+      },
+      "settings" : {
+        "imports" : [ "defaults" ],
+        "loadbalancer-url" : "http://yourlb.na.***REMOVED***.net",
+        "configuration-maps" : {
+          "global" : {
+            "test-global-1" : "test-global-value-1"
+          },
+          "map-for-testing" : {
+            "test-map-name-1" : "test-map-value-1",
+            "test-map-name-2" : "test-map-value-2"
+          },
+          "map-for-testing-base-os" : {
+            "test-map-name-2" : "test-map-value-2-override"
+          }
+        },
+        "vsphere" : {
+          "filters" : {
+            "vm-path" : "RNIs/CSAP-DEV_p",
+            "resource-pool-path" : "BLDCluster/Resources/CSAP",
+            "datastore-regex" : "(.*)CSAP(.*)"
+          },
+          "env" : {
+            "GOVC_USERNAME" : "lab\\csapstorage",
+            "GOVC_PASSWORD" : "iEQoM1eTsrVNKjJh5Z28",
+            "GOVC_URL" : "vcenter6.***REMOVED***",
+            "GOVC_DATACENTER" : "***REMOVED***",
+            "GOVC_DATASTORE" : "CSAP_DS1_NFS",
+            "GOVC_INSECURE" : "1"
+          }
+        }
+      }
+    }
+  },
+  "service-templates" : {
+    "Cssp3ReferenceMq" : {
+      "server" : "tomcat8.x",
+      "autoStart" : 55,
+      "description" : "Provides tomcat8.x reference implementation for engineering, along with core platform regression tests.",
+      "docUrl" : "https://github.com/csap-platform/csap-core/wiki#updateRefCode+Samples",
+      "alerts" : {
+        "max_diskUtil" : "3000",
+        "max_threadCount" : "300",
+        "max_fileCount" : "489",
+        "max_rssMemory" : "768000",
+        "max_tomcatConnections" : "20",
+        "max_topCpu" : "150"
+      },
+      "parameters" : "  -Xms16M -Xmx256M -XX:+UseParNewGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10",
+      "source" : {
+        "scm" : "svn",
+        "path" : "http://yourSvnOrGit/yourPathToSource/Cssp3Reference",
+        "branch" : "trunk"
+      },
+      "maven" : {
+        "dependency" : "com.your.group:Cssp3Reference:1.0.14.1:war"
+      },
+      "metaData" : "exportWeb, -nio",
+      "servletMaxConnections" : "400",
+      "servletTimeoutMs" : "10000",
+      "servletThreadCount" : "100"
+    },
+    "ServiceWithCustomRouting" : {
+      "server" : "tomcat7.x",
+      "autoStart" : 91,
+      "description" : "SpringMVC showcase",
+      "docUrl" : "https://github.com/spring-projects/spring-mvc-showcase",
+      "parameters" : "-Xms128M -Xmx128M -XX:MaxPermSize=128m",
+      "source" : {
+        "scm" : "git",
+        "path" : "https://github.com/spring-projects/spring-mvc-showcase.git",
+        "branch" : "HEAD"
+      },
+      "maven" : {
+        "dependency" : "com.your.group:SpringMvcShowCases:1.0.0:war"
+      },
+      "apacheModJk" : {
+        "loadBalance" : [ "method=Next", "sticky_session=1" ],
+        "connection" : [ "reply_timeout=10000" ]
+      },
+      "apacheModRewrite" : [ "RewriteRule ^/test1/(.*)$  /ServiceWithCustomRouting/$1 [PT]", "RewriteRule ^/test2/(.*)$  /ServiceWithCustomRouting/$1 [PT]" ]
+    },
+    "simple-hyphen-service" : {
+      "server" : "SpringBoot",
+      "autoStart" : 82,
+      "description" : "csap-starter reference implementation",
+      "isTomcatAjp" : "true",
+      "osProcessPriority" : 0,
+      "parameters" : "-Dspring.profiles.active=CSAP_LIFE -XX:+UseG1GC  -Xms64M -Xmx256M -XX:MaxMetaspaceSize=128M -XX:+ExitOnOutOfMemoryError",
+      "source" : {
+        "scm" : "git",
+        "path" : "https://github.com/csap-platform/csap-starter.git",
+        "branch" : "HEAD",
+        "buildLocation" : "/csap-starter-tester"
+      },
+      "maven" : {
+        "dependency" : "org.csap:csap-starter-tester:2.0.0:jar"
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+#
+# Target file
+#
+operator: modify
+target: default
+
+environments: 
+  base: dev
+  application-name: "Auto Play Demo"
+  

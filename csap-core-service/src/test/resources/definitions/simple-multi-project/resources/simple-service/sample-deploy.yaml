@@ -1,0 +1,148 @@
+#
+#  Note: all $variables are replaced by csap prior to deployment
+#       - https://github.com/csap-platform/csap-core/wiki/Service-Settings#service-variables
+#
+# refer: 
+# - https://blog.heptio.com/using-kubectl-to-jumpstart-a-yaml-file-heptioprotip-6f5b8a63a3ea
+# - https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+#
+#  JUNIT TEST DO NOT DELETE: $$test-csap-name
+#
+---
+
+kind: Deployment
+
+apiVersion: apps/v1
+
+metadata:
+  name: $$service-name
+  namespace: $$service-namespace
+  labels:
+    run: $$service-name-id
+    
+spec:
+  selector:
+    matchLabels:
+      run: $$service-name-id
+      
+  replicas: $$service-replica-count
+  
+  template:
+  
+    metadata:
+      name: "$$service-name-pod-template"
+      labels:
+        run: $$service-name-id
+        matchForDemoService: $$service-name-service-target
+        
+    spec:
+      containers:
+      - name: $$service-name-container
+        image: $$service-image
+        ports:
+        - containerPort: $$service-primary-port
+        
+        env:
+        - name: test_variable
+          value: "the test value"
+        - name: test_nested
+          value: "$$test-csap-nested"
+        - name: javaOptions
+          value: "$$service-parameters"
+          
+        volumeMounts:
+        
+        - name: $$service-name-temp-volume
+          mountPath: /demo-k8s-volumes/my-temp-storage-folder
+          
+        - name: $$service-name-host-volume
+          mountPath: /demo-k8s-volumes/my-host-folder
+          
+        - name: host-time
+          mountPath: /etc/localtime
+          readOnly: true
+        
+        - name: $$service-name-nfs-volume
+          mountPath: /demo-k8s-volumes/my-nfs-folder
+          
+          
+      volumes:
+      
+      - name: host-time
+        hostPath:
+          path: /etc/localtime
+          
+      - name: $$service-name-temp-volume
+        emptyDir: {}
+        
+      - name: $$service-name-host-volume
+        hostPath:
+          type: DirectoryOrCreate
+          path: /opt/csapUser/demo-k8s
+          
+      - name: $$service-name-nfs-volume
+        persistentVolumeClaim: 
+          claimName: $$service-name-pvc 
+        
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: $$service-name-service
+  namespace: $$service-namespace
+spec:
+  selector:
+    matchForDemoService: $$service-name-service-target
+  ports:
+  - protocol: TCP
+    port: $$service-primary-port
+    targetPort: $$service-primary-port
+    
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+
+metadata:
+
+  name: $$service-name-ingress
+  namespace: $$service-namespace
+  
+  annotations: 
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "k8_route"
+    nginx.ingress.kubernetes.io/session-cookie-hash: "sha1"
+  
+spec:
+  rules: 
+  - host: "$$ingress-host"
+    http:
+      paths:
+        - backend: 
+            serviceName: $$service-name-service
+            servicePort: $$service-primary-port
+          path: /$$service-name
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

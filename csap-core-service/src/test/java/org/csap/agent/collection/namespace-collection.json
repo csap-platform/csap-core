@@ -1,0 +1,212 @@
+{
+	"project": {
+		"api-version": 2.1,
+		"project-version": 1.0,
+		"name": "JunitApplicationCollector",
+		"architect": "someDeveloper"
+	},
+	"environments": {
+		"defaults": {
+			"settings": {
+				"base-env-only": true,
+				"application": {
+					"name": "junit-namespace-collection"
+				},
+				"csap-collection": {
+					"host": [
+						30
+					],
+					"os-process": [
+						30
+					],
+					"application": [
+						30
+					]
+				}
+			},
+			"base-os": {
+			}
+		},
+		"dev": {
+			"settings": {
+				"imports": [
+					"defaults"
+				]
+			},
+			"kubernetes-1": {
+				"type": "kubernetes-provider",
+				"notes": "simple cluster",
+				"hosts": [
+					"localhost"
+				],
+				"template-references": [
+					"kubelet"
+				]
+			},
+			"k8-services": {
+				"type": "kubernetes",
+				"kubernetes-provider": "kubernetes-1",
+				"notes": "k8 services",
+				"template-references": [
+					"csap-test-k8s-service"
+				]
+			}
+		}
+	},
+	"service-templates": {
+		"csap-test-k8s-service": {
+			"server": "docker",
+			"autoStart": 420,
+			"port": 6090,
+			"description": "Template: csap test app using source, docker, and k8s ",
+			"alerts": {
+				"max_diskUtil": "200",
+				"max_threadCount": "200",
+				"max_fileCount": "500",
+				"max_socketCount": "100",
+				"max_rssMemory": "1000m",
+				"max_tomcatConnections": "10",
+				"max_topCpu": "150"
+			},
+			"parameters": "-Duser.timezone=America/New_York -Xms256M -Xmx256M -Dcsap.security.enabled=true -Dserver.servlet.context-path=/$$service-name -Dspring.profiles.active=services -DcsapJmxPort=$$service-jmx-port -Dserver.port=$$service-primary-port -jar csap-test-app.jar",
+			"environmentVariables": {
+				"jmsHost": "csap-test-k8s-activemq-8161-service",
+				"dbHost": "csap-test-k8s-postgres-5432-service"
+			},
+			"source": {
+				"scm": "git",
+				"path": "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-starter.git",
+				"branch": "HEAD",
+				"buildLocation": "/csap-starter-tester"
+			},
+			"maven": {
+				"dependency": "org.csap:csap-starter-tester:2.0.0-SNAPSHOT:jar"
+			},
+			"logJournalServices": "docker,kubelet",
+			"scheduledJobs": {
+				"scripts": [
+					{
+						"description": "wait for pod startup",
+						"frequency": "event-post-deploy",
+						"script": "wait_for_pod_log $$service-name \u0027Started Csap_Tester_Application\u0027 $csap_replica_count"
+					},
+					{
+						"description": "wait for pod shutdown",
+						"frequency": "event-post-stop",
+						"script": "wait_for_pod_removed $$service-name"
+					}
+				]
+			},
+			"docker": {
+				
+				"image": "csap/csap-test-app:latest",
+				"aggregateContainers": true,
+				"containerName-uncomment-to-use": "$$service-name",
+				"locator-uncomment-to-use": {
+					"podNamespace": "csap-test",
+					"value": "*"
+				},
+				"kubernetes-settings": {
+					"replica-count": "1",
+					"service-type": "NodePort",
+					"ingress-path": "/$$service-name",
+					"ingress-port": "$$service-primary-port",
+					"add-csap-tools": "true",
+					"node-selectors": {
+						"kubernetes.io/hostname": "csap-dev04.***REMOVED***"
+					}
+				},
+				"runUser": "$csapUser",
+				"workingDirectory": "",
+				"networkMode": "",
+				"versionCommand": "echo 1.3.0",
+				"environmentVariables": [
+					"PARENT_HOST=$$service-host",
+					"javaOptions=$$service-parameters"
+				],
+				"portMappings": [
+					{
+						"containerPort": "$$service-primary-port",
+						"servicePort": "$$service-primary-port",
+						"name": "http-$$service-primary-port"
+					}
+				],
+				"volumes": [
+					{
+						"name": "csap-test-demo",
+						"mountPath": "/mnt/empty-dir",
+						"emptyDir": {
+							"sizeLimit": "1Mi"
+						}
+					}
+				]
+			},
+			"performance": {
+				"config": {
+					"live-httpCollectionUrl": "http://csap-dev06.***REMOVED***:30080/test-k8s-csap-reference/csap/metrics/simon",
+					"httpCollectionUrl": "classpath:/httpCollect/csap-reference-app.json",
+					"javaCollectionUrl": "classpath:/httpCollect/csap-reference-java.json",
+					"healthCollectionUrl": "classpath:/httpCollect/csap-reference-java.json",
+					"patternMatch": "JSON",
+					"notes": "db stats are published via test service"
+				},
+				"HttpRequests": {
+					"attribute": "/http.csap-test-k8s-service.GET/count",
+					"title": "Http Gets Received",
+					"delta": false
+				},
+				"HttpRequestsMs": {
+					"attribute": "/http.csap-test-k8s-service.GET/mean-ms",
+					"title": "Http Gets (ms)",
+					"delta": false
+				},
+				"JmsCount": {
+					"attribute": "/jms.SimpleJms.processRawMessageForTestScenarios()/count",
+					"title": "Jms Received",
+					"delta": false
+				},
+				"JmsMs": {
+					"attribute": "/jms.SimpleJms.processRawMessageForTestScenarios()/mean-ms",
+					"title": "Jms Received(ms)",
+					"delta": false
+				},
+				"DbQueryWithFilter": {
+					"attribute": "/database.DemoManager.showScheduleItemsWithFilter()/count",
+					"title": "Db Queries Filter",
+					"delta": false
+				},
+				"DbQueryWithFilterMs": {
+					"attribute": "/database.DemoManager.showScheduleItemsWithFilter()/mean-ms",
+					"title": "Db Queries Filter (ms)",
+					"delta": false
+				},
+				"DbQuery": {
+					"attribute": "/database.DemoManager.findUsingJpql()/count",
+					"title": "Db Queries",
+					"delta": false
+				},
+				"DbQueryMaxMs": {
+					"attribute": "/database.DemoManager.findUsingJpql()/max-ms",
+					"title": "Db Queries MAX (ms)",
+					"delta": false
+				},
+				"DbInsert": {
+					"attribute": "/database.DemoManager.addSchedule()/count",
+					"title": "Db Inserts",
+					"delta": false
+				},
+				"DbInsertMaxMs": {
+					"attribute": "/database.DemoManager.addSchedule()/max-ms",
+					"title": "Db Inserts MAX (ms)",
+					"delta": false
+				},
+				"DbConnection": {
+					"attribute": "/dbcp.BasicDataSource.getConnection()/count",
+					"title": "DBCP connection requests",
+					"delta": false
+				}
+			},
+			"url": "$$kubernetes-ingress?path=/$$service-name"
+		}
+	}
+}

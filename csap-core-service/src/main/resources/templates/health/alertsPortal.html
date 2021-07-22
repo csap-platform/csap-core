@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+
+<head>
+<title>CSAP Service Health</title>
+<script th:replace="~{ csap/fragments/libsAndStyles :: pageContent }"></script>
+
+<!--  testing only, not used -->
+<script th:replace="~{ csap/fragments/jqplot-includes :: pageContent }"></script>
+<script th:replace="~{ csap/fragments/misc :: pageContent }"></script>
+
+<script th:inline="javascript">
+var healthReportUrl=[[@{ /health/alerts }]] ;
+var imagesBase=[[@{ /images }]] ;
+var	testCountParam=[[ ${ #httpServletRequest.getParameter('testCount') } ]] ;
+
+
+var agentHostUrlPattern = [[${ agentHostUrlPattern }]];
+
+</script>
+
+
+<script th:src="@{ /js/csapLibs/csap-misc.js }"></script>
+
+<script
+	th:attr="data-main=@{ ${csapApp.requiresUrl('/js/health/_healthMain.js')}   }"
+	th:src="@{/webjars/requirejs/2.1.20/require.min.js}"></script>
+
+<style>
+a.simple, a.simple:hover {
+	font-weight: normal;
+}
+
+img.loadMetric {
+	cursor: pointer;
+	width: 12px;
+	margin-left: 10px;
+}
+
+table {
+	margin-bottom: 5em;
+}
+
+table.simple td.num {
+	text-align: right;
+}
+
+#health td div {
+	float: right;
+	font-style: italic;
+	font-size: 8pt;
+}
+
+#health td {
+	font-size: 10pt;
+}
+
+#health td div span {
+	font-style: italic;
+	font-size: 8pt;
+	color: red;
+}
+
+table#health td:nth-child(1), table#health td:nth-child(2), table#health td:nth-child(3),
+	table#health td:nth-child(4), table#health td:nth-child(5) {
+	overflow-wrap: normal;
+	word-break: normal;
+	min-width: 6em ;
+}
+table#health td:nth-child(1) {
+	min-width: 9em
+}
+
+#health, #metricTable {
+	width: auto;
+}
+
+#numberHoursSelect {
+	margin-right: 3px;
+}
+
+#config {
+	margin-left: 2em;
+	font-size: 10pt;
+}
+
+div.headers {
+	margin-top: 2em;
+	font-weight: bold;
+}
+
+td {
+	word-break: break-all;
+	word-wrap: break-word;
+}
+
+#simonTab button {
+	margin-left: 2em;
+	margin-right: 2em;
+}
+
+#metricFilter {
+	position: absolute;
+	left: 10em;
+	top: 3.9em;
+	line-height: 12px;
+}
+
+div.news {
+	font-size: 10pt;
+}
+
+div.infoBlock {
+	font-weight: normal;
+}
+
+#firstTime, #lastTime, #maxTime {
+	margin-right: 2em;
+	font-weight: bold;
+}
+
+.name {
+	font-weight: bold;
+	font-size: 14pt;
+	margin-right: 2em;
+}
+
+#metricItems {
+	margin-left: 0;
+}
+
+.showInColumns {
+
+	display: grid;
+	color: black; 
+    grid-template-columns: repeat( auto-fit, minmax(300px, 1fr) );
+}
+
+#healthUrls {
+	width: 90%;
+}
+
+#healthUrls td:nth-child(1) {
+	width: 15em;
+}
+
+table#healthUrls .showInColumns span {
+	display: block;
+	padding: 5px;
+}
+
+#health .loadingPanel {
+	float: none;
+	padding-top: 1.8em;
+	padding-left: 5em;
+}
+</style>
+</head>
+
+<body>
+
+	<header th:replace="~{ csap/fragments/page :: header } "></header>
+
+	<div
+		id="tabs"
+		style="margin-top: 1em;">
+		<ul>
+			<li data-tab="alertsTab">
+				<a
+					id=""
+					href="#alertsTab"
+					title="Alerts Recorded">Alert History</a>
+			</li>
+			<li data-tab="settingsTab">
+				<a
+					id=""
+					href="#settingsTab"
+					title="Settings">Settings</a>
+			</li>
+		</ul>
+
+
+		<div
+			id="alertsTab"
+			style="display: block">
+
+
+			<div id="config">
+
+				<button
+					id="refreshAlerts"
+					class="pushButton"
+					title="Refresh Alerts">
+					<img
+						style="width: 12px"
+						th:src="@{/images/16x16/view-refresh.png}" />
+				</button>
+
+				Show Alerts from:
+				<label>
+					<select
+						id="numberHoursSelect"
+						style="padding-right: 0">
+						<option>1</option>
+						<option>2</option>
+						<option>3</option>
+						<option>4</option>
+						<option>8</option>
+						<option>12</option>
+						<option selected="selected">24</option>
+						<option>48</option>
+						<option value="-1">all</option>
+					</select>
+					Hours
+				</label>
+				<span
+					id="filterCounts"
+					style="font-style: italic; padding-left: 3em;">
+					Displaying:
+					<span></span>
+					of
+					<span></span>
+					.
+				</span>
+			</div>
+
+			<table
+				id="health"
+				style="margin-top: 5px;"
+				class="bordered tablesorter  tablesorter-csapSummary">
+				<thead>
+					<tr>
+						<th
+							class="sorter-raw"
+							style="width: 9em">Time</th>
+						<th>Service</th>
+						<th style="min-width: 7em">Host</th>
+						<th>Alert</th>
+						<th style="min-width: 10em">Type</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+				<tbody class="loadingBody">
+					<tr>
+						<td colspan="99">
+							<div class="loadingPanel">Loading Health Reports</div>
+						</td>
+					</tr>
+				</tbody>
+				<tbody id="alertsBody">
+
+				</tbody>
+
+			</table>
+
+
+		</div>
+
+
+		<div
+			id="settingsTab"
+			style="display: block">
+
+
+			<table class="simple">
+				<thead>
+					<tr>
+						<th class="sorter-raw">Item</th>
+						<th>Setting</th>
+					</tr>
+				</thead>
+				<tbody id="defBody">
+					<tr th:each="setting : ${ settings } ">
+						<td>[[ ${ setting.key } ]]</td>
+						<td>[[ ${ setting.value } ]]</td>
+					</tr>
+
+				</tbody>
+
+			</table>
+
+			<table
+				id="healthUrls"
+				class="simple">
+				<thead>
+					<tr>
+						<th
+							class="sorter-raw"
+							style="min-width: 10em;">Service</th>
+						<th>Health Portal By Host</th>
+					</tr>
+				</thead>
+				<tbody id="defBody">
+					<tr th:each="serviceEntry : ${ healthUrlsByServiceByInstance } ">
+						<td>[[ ${ serviceEntry.key } ]]</td>
+						<td>
+							<div class="showInColumns">
+
+								<div
+									th:each="serviceIdToUrl : ${ serviceEntry.value }"
+									style="display: inline-block;">
+									<span th:each="urlEntry : ${ serviceIdToUrl }">
+										<a
+											th:href="${ urlEntry.value }"
+											th:text="${ urlEntry.key }"
+											target="_blank"
+											class="simple"></a>
+									</span>
+
+								</div>
+
+							</div>
+						</td>
+					</tr>
+
+				</tbody>
+
+			</table>
+
+		</div>
+
+
+
+	</div>
+
+
+
+
+	<footer th:replace="csap/fragments/page :: footer"></footer>
+</body>
+
+</html>

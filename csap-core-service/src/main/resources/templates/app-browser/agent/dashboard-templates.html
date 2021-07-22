@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>explorer fragment</title>
+</head>
+
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+
+	<div
+		id="node-info-panel"
+		class=csap-white>
+
+		<section class=csap-panel-header>
+			<label>
+				<input
+					id="wrap-info-panel"
+					type='checkbox' />
+				Wrap text
+			</label>
+
+			<button class="csap-icon csap-remove"></button>
+		</section>
+
+		<div id="linux-service-info">
+			<div class="description info">Being updated</div>
+		</div>
+
+		<div id="linux-package-info">
+
+			<div class="description info">Being updated</div>
+			<br />
+
+			<button
+				class="csap-button"
+				title="Show/hide details">Details...</button>
+			<div class="details info">Being updated</div>
+
+		</div>
+
+	</div>
+
+	<div id="jsTemplates">
+
+
+		<div th:replace="/app-browser/agent/dashboard-templates-create :: pageContent"></div>
+		<div th:replace="/app-browser/agent/dashboard-templates-docker :: pageContent"></div>
+		<div th:replace="/app-browser/agent/dashboard-templates-kubernetes :: pageContent"></div>
+
+		<div id="vsphere-add-disk">
+
+			<div>
+
+				<span id="disk-operation">Operation:</span>
+
+				<label title="Disk Find: searchs kubernetes hosts for disk">
+					<input
+						id="vsphere-disk-find"
+						type="radio"
+						name="vsphere-disk-radio"
+						value="find" />
+					Find
+				</label>
+
+				<label title="Disk Create">
+					<input
+						id="vsphere-disk-add"
+						type="radio"
+						name="vsphere-disk-radio"
+						value="add" />
+					Create
+				</label>
+
+				<label title="Disk Remove">
+					<input
+						id="vsphere-disk-delete"
+						type="radio"
+						name="vsphere-disk-radio"
+						value="delete" />
+					Delete
+				</label>
+
+			</div>
+
+
+			<label
+				class="line"
+				title="Datastore name">
+				<span>Datastore:</span>
+				<input id="vsphere-datastore-name" />
+			</label>
+
+			<label
+				class="line"
+				title="Disk name">
+				<span>disk:</span>
+				<input
+					id="vsphere-disk-path"
+					value="demo-folder/demo-disk.vmdk" />
+			</label>
+
+			<label
+				class="line"
+				title="Disk Type">
+				<span>type:</span>
+				<input
+					id="vsphere-disk-type"
+					value="thin" />
+			</label>
+
+			<label
+				class="line"
+				title="Disk Size: eg. 10M or 5G">
+				<span>size:</span>
+				<input
+					id="vsphere-disk-size"
+					value="10M" />
+			</label>
+
+
+
+			<div class="quote">
+				For more information, review the
+				<a
+					class="csap-link-button"
+					target="_blank"
+					href="https://github.com/vmware/govmomi/blob/master/govc/USAGE.md">reference guide</a>
+				.
+			</div>
+
+		</div>
+
+
+		<div id="filterControls">
+			<input
+				id="tree-display-filter"
+				title="one or more comma separated patterns to filter files"
+				placeholder="comma separated filter(s)" />
+			<span
+				id="showFilteredItems"
+				class="comment"
+				title="Show all images or containers, including items filtered by default (intermediate images, kubernetes pod containers,etc)">
+				All:
+				<input type="checkbox" />
+			</span>
+
+		</div>
+
+
+		<div id="os-results-dialog">
+			<div id="os-results-head">
+
+				<span id="os-results-title"></span>
+				<span th:replace="/file/ace-settings :: pageContent"></span>
+
+			</div>
+			<pre id="os-results-text">loading</pre>
+		</div>
+
+		<div id="progress-results-dialog">
+
+			<button
+				id="tailLogs"
+				class="csap-button">Tail Logs</button>
+
+			<div id="progress-controls" class=flex-container>
+					<button
+						id="progress-clear-button"
+						title="Clear text display"
+						class="csap-icon text csap-clear">
+						Clear
+					</button>
+
+
+					<button
+						class="csap-icon text csap-window"
+						id="progress-new-window"
+						title="Open in new window and change url to number of lines to view">
+						CSAP Monitor
+					</button>
+					<label class=csap title="If checked logs of the last terminated container will be displayed.">
+						<input
+							id="previous-terminated"
+							type='checkbox' />
+						Previous
+					</label>
+
+					<label class=csap>
+						<input
+							id="wrapOutput"
+							type='checkbox'
+							checked="checked" />
+						Wrap
+					</label>
+
+					<label class=csap>
+						<input
+							id="autoScrollResults"
+							type='checkbox'
+							checked="checked" />
+						Auto Scroll
+					</label>
+
+					<label class=csap title="Selects the initial lines to diplay; after 2x this value oldest content is truncated">
+						<span style="margin-right: 0;">Lines:</span>
+						<select id="progress-line-select">
+							<option>10</option>
+							<option selected="selected">500</option>
+							<option>1000</option>
+							<option>2000</option>
+							<option>5000</option>
+							<option>10000</option>
+						</select>
+					</label>
+					<span
+						id="progress-truncate-message"
+						style=""></span>
+	
+
+				<label id="last-refresh-time" class=flex-right-info>
+					<span id="progress-refresh-time"></span>
+				</label>
+			</div>
+
+
+			<pre id="progress-results-text">loading</pre>
+		</div>
+
+
+		<div id="process-kill-dialog">
+
+			<div class="quote">Kills os process. Use: -9 or -KILL, -2 or -SIGINT, -1 or -HUP, ...</div>
+
+			<label title="Older then...">
+				<span class="label">Kill signal:</span>
+				<input
+					id="kill-signal"
+					style="width: 5em"
+					value="-9" />
+			</label>
+
+		</div>
+
+		<div
+			id="priorityPrompt"
+			style="width: 40em;">
+			<div>
+				For permanent changes, use CS-AP Capability Editor to assign prior to process definition (it will auto apply on
+				restarts).
+				<br />
+				<br />
+				<select class="priorityDesc">
+					<option value="999">Current...</option>
+					<option value="0">Normal (0)</option>
+					<option value="-5">More Cpu (-5)</option>
+					<option value="-10">Most Cpu (-10)</option>
+					<option value="5">Less Cpu(+5)</option>
+					<option value="10">Least Cpu (+10)</option>
+				</select>
+
+				<a
+					style="padding-left: 3em"
+					class="csap-link-button"
+					target="_blank"
+					href="http://www.ibm.com/developerworks/library/l-lpic1-v3-103-6/">About linux priorites</a>
+
+			</div>
+		</div>
+	</div>
+
+
+
+</body>
+
+
+</html>

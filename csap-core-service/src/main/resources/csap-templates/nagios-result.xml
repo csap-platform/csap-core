@@ -1,0 +1,6 @@
+	<checkresult type='service'>
+		<hostname>__HOST__</hostname>
+		<servicename>__SERVICE__</servicename>
+		<state>__STATE__</state>
+		<output>__OUTPUT__</output>
+	</checkresult>

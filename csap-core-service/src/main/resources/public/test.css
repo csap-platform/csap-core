@@ -1,0 +1,27 @@
+
+html, body, .csap-scrollable {
+	height: 100%;
+}
+
+
+:root { 
+	--small-padding: 15px; 
+	--border-radius-small: 5px;
+	--bg-color: green;
+	--body-bg: linear-gradient(to right, #90bff0, #6ba8e5);
+}
+
+body div {
+	background-color: var(--bg-color);
+	height: 10em;
+	margin: 5em;
+	border-radius: var(--border-radius-small);
+}
+
+
+body.css-scrollable {
+	margin: 0;
+	font-family: arial, helvetica, sans-serif;
+	background-image: var(--body-bg);
+}
+

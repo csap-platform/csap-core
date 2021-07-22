@@ -1,0 +1,33 @@
+#
+# dnsutils is used to troubleshoot/debug kubernetes networking
+#   - https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/
+#
+# eg. kubectl exec -it dnsutils --namespace=default -- nslookup kubernetes.default
+#
+# if the above fails: kubectl exec -ti dnsutils -- cat /etc/resolv.conf
+#
+
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: dnsutils
+  
+  #
+  # if a specific namespace is failing - switch to it
+  #
+  namespace: default
+
+spec:
+
+#  nodeSelector: 
+#    kubernetes.io/hostname: csap-dev06.***REMOVED***
+        
+  containers:
+  - name: dnsutils
+    image: gcr.io/kubernetes-e2e-test-images/dnsutils:1.3
+    command:
+      - sleep
+      - "3600"
+    imagePullPolicy: IfNotPresent
+  restartPolicy: Always

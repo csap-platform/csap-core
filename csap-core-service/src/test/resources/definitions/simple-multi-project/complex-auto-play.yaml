@@ -1,0 +1,241 @@
+#
+# Target file
+#
+operator: modify
+target: default
+#
+# shortcut: deletes all environments but specified and its bases
+#
+environments:
+  # environment name; required for environment processing
+  base: test
+  name: my-new-environment # optional, defaults to base
+  
+  # remove-inactive: false   # defaults true: all environments but the active and its imports are removed
+
+  #
+  # shortcuts: alternately use settings.application, or operations.updates
+  #
+  application-name: auto-play-demo-application
+  project-name: "XXX Project"
+  contact: "xxx.xxx@***REMOVED***.com"
+  
+  git: https://moc-bb.***REMOVED***/bitbucket/update-with-your-repo
+  branch: my-branch-name
+  
+  default-settings:
+    
+    csap-data:
+      user: xxx
+      credential: "pAH+tsfwU/kgW+34WPXQW/8Z0a9SJpXq8dNOirMmUxM="
+      service-url: "http://csap-dev01.***REMOVED***:8080/events-service"
+      
+    configuration-maps:
+      global:
+        testDefaultAutoplay: yyyy
+      
+  
+  # settings will be merged with existing settings: modified if exists, inserted if not
+  settings:
+
+    loadbalancer-url: http://my.loadbalancer.com
+
+    configuration-maps:
+      global:
+        some-new-variable: $$some-value
+      storage-settings: 
+        $$storage_type: nfs 
+        $$storage_folder: my-storage-folder
+        $$nfs_server: nfs-server-ip-address
+        $$nfs_path: nfs-server-export-path
+        $$nfs_mount: /mnt/host-mount-folder
+        $$nfs_provisioner: kubernetes-pvcs-folder
+        
+    monitorDefaults:
+      maxDiskPercent: 99
+  
+  hosts:
+    base-os: 
+      - auto-1
+      - auto-2
+      - auto-3
+      - auto-4
+    kubernetes-masters:  [ 3 ]
+    csap-logging-cluster: [ 4 ]
+    
+    # alternate array syntax: single line syntax
+    # note: integers are resolved using base-os cluster index starting at 1  
+    test-cluster2: [ 3, 4, auto-99 ]
+    
+    
+  clusters:
+    
+    cluster-to-be-deleted:
+      delete: true
+      
+    csap-logging-cluster:
+      type: simple
+      hosts: [ "updated-in-hosts-section" ]
+      template-references: 
+        - elastic-search
+
+#
+# services - contents are merged if dot syntax used
+#
+service-templates:
+  # csap compressed syntax
+  simple-service.scheduledJobs.scripts.0.frequency: onDemand
+
+  # yaml default and csap compressed combined
+  simple-service:
+    port: 9998
+    docker.image: nginx:99
+    scheduledJobs.scripts.0.description: updated description
+  
+  #Entire new service
+  elastic-search:
+    server: docker
+    isDataStore: true
+    autoStart: 500
+    description: fluentd scrapes logs off of filesystem to uploads to storage (elastic)
+    docker.image: elasticsearch/elasticsearch-oss:6.6.1
+    environmentVariables:
+      configuration-maps:
+        - storage-settings
+    docker: 
+      deployment-files-use: true,
+      locator: 
+        type: io.kubernetes.container.name
+        value: elasticsearch
+      container-count: 3
+      deployment-file-names: 
+        - SEARCH_FOR_RESOURCE:deploy-only-volume.yaml
+        - SEARCH_FOR_RESOURCE:curator-config-map.yaml
+        - SEARCH_FOR_RESOURCE:elastic-search.yaml
+#
+# General Purpose modifications using json paths to target operation
+#
+
+operations:
+  - deletes: 
+    - /environments/defaults/settings/application/sub-projects
+    - /environments/my-new-environment/settings/application/sub-projects
+    
+  
+  #
+  # Updates:
+  #   path: /a/b/c   will retrieve parent: a/b, and then set c with the value
+  #   value: can be any valid structure (array, object, or value)
+  #
+  - updates:
+    - path: /missing/path
+      value: not-gonna-be-found
+    - path: /environments/my-new-environment/settings/csap-collection/host
+      value:
+        - 1
+        - 2
+
+  #
+  # Inserts:
+  #   path: /a/b/c  
+  #       - if /a/b/c exists - and is an object: setAll will be used to insert or replace existing keys
+  #       - if /a/b/c exists - and is an array - and value is textual - value will be added to array
+  #       - if /a/b/c does NOT exist: if a/b exists, then c will be set with the value
+  #   value: can be any valid structure (array, object, or value)
+  #
+  - inserts:
+    - path: /missing/path
+      value: not-gonna-be-found
+
+    - path: /environments/my-new-environment/settings/configuration-maps/generated-map
+      value:
+        key-1: value-1
+        key-2: value-2
+
+    - path: /environments/my-new-environment/settings/configuration-maps/global
+      value:
+        PROCESSING: $$csap-working
+        STAGING: $$csap-base
+        $$test-template-variable: $$csap-base
+
+    - path: /environments/defaults/base-os/template-references
+      value: new-service-to-cluster #add service to cluster
+    
+---
+operator: delete
+target: test-delete.yaml
+
+---
+
+operator: create
+target: resources/hi.sh
+
+content: |
+  #!/bin/bash
+  echo "hi"
+  
+---
+
+operator: create
+target: resources/docker/common/configuration/daemon.json
+
+exec-opts: ["native.cgroupdriver=systemd"]
+  
+registry-mirrors: ["http://docker.***REMOVED***"]
+insecure-registries: [ "***REMOVED***-docker.***REMOVED***", "docker.***REMOVED***" ]
+storage-driver: "_CSAP_DRIVER_"
+data-root: "_CSAP_STORAGE_"
+hosts: [ "unix:///var/run/docker.sock", "_CSAP_ALLOW_REMOTE_" ]
+log-driver: "json-file"
+log-opts: 
+  max-size: "30m"
+  max-file: "1"
+  
+---
+
+operator: create
+target: application-company.yml
+
+#
+# Global settings for applications - test
+#
+
+spring: 
+  mail: 
+    host: "${mailServer:myrelay.***REMOVED***.com}"
+    port: "${mailPort:25}"
+
+csap.security: 
+    rest-api-filter.token: "k16ljSCT5UnF8o1fCyshcD3+VZtrWm2c"
+    roles:
+      view-group: ROLE_${csap_view_role:AUTHENTICATED}
+      admin-group: ROLE_${csap_admin_role:AUTHENTICATED}
+      build-group: ROLE_${csap_build_role:AUTHENTICATED}
+      infra-group: ROLE_${csap_infra_role:AUTHENTICATED}
+      
+    provider:
+      type: ldap
+      url: ldap://ldap.davis.***REMOVED***.lab:389
+      directory-dn: search:uid={0}
+      search-user: ou=People,dc=flexnet,dc=net
+      search-groups: ou=Groups,dc=flexnet,dc=net
+      
+csap-core:
+
+  kubernetes: 
+    enabled: true
+
+  docker: 
+    enabled: true
+    
+
+#
+# health and data services
+#
+csap-events: 
+
+  health-monitoring: 
+    appIds:
+      - netMetAppId
+    lifes:
+      - dev

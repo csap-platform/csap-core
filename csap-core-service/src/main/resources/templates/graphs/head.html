@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+
+<head
+	th:fragment="pageContent"
+	th:remove="tag">
+
+<script th:replace="~{ csap/fragments/csap-common-includes :: pageContent }"></script>
+
+<script th:replace="csap-constants-include :: includeSection"></script>
+
+
+<script th:src="@{ ${csapApp.versionedUrl('/js/csapLibs/csap-misc.js')} }"></script>
+
+
+
+<link
+	th:href="@{ ${csapApp.versionedUrl('/js/csapLibs/qtip/jquery.qtip.min.css')} }"
+	rel="stylesheet"
+	type="text/css"
+	media="screen" />
+<script th:src="@{ ${csapApp.versionedUrl('/js/csapLibs/qtip/jquery.qtip.min.js')} }"></script>
+
+
+<script
+	th:attr="data-main=@{ ${csapApp.requiresUrl('/js/graphs/modules/graphPackage/ResourceGraph.js')}   }"
+	th:src="@{/webjars/requirejs/2.1.20/require.min.js}"></script>
+	
+<script th:inline="javascript">
+require.config( {
+    // 3rd party script alias names. note the relative path may need to be overwritten in user packages
+    paths: {
+        
+    	ace: BASE_URL + "webjars/ace-builds/1.4.11/src",
+        jsYaml: BASE_URL + "webjars/js-yaml/3.14.0/dist",
+        // CRITICAL: use relative paths to leverage spring boot VersionResourceResolver
+        deployment: "../../../deployment/modules",
+        editor: "../../../editor/modules",
+        file: "../../../file/modules",
+        browser: "../../../app-browser/modules",
+        
+		mathjs: "../../../csapLibs/mathjs/modules/math.min",
+        csapflot: "../../../csapLibs/modules/csap-flot-helpers" 
+    },
+    shim: {
+        csapflot: {
+            exports: 'csapflot',
+            init: function () {
+                return {
+                    getUsCentralTime: getUsCentralTime,
+                    calculateUsCentralDays: calculateUsCentralDays
+                } ;
+            }
+        }
+    },
+    waitSeconds: 15
+} ) ;
+
+</script> 
+
+</head>
+
+</html>

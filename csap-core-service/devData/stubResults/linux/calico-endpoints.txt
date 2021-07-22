@@ -1,0 +1,36 @@
+NAMESPACE              WORKLOAD                                    NODE                        NETWORKS             INTERFACE
+csap-logging           curator-cron-1603288800-m5p5c               csap-dev06.***REMOVED***                        cali0151d066150
+csap-logging           elastic-hq-56f5b86477-jtkwn                 csap-dev05.***REMOVED***   192.168.134.135/32   cali57584d6b241
+csap-logging           elastic-search-cluster-0                    csap-dev05.***REMOVED***   192.168.134.134/32   calib6952a50da7
+csap-logging           elastic-search-cluster-1                    csap-dev06.***REMOVED***   192.168.248.138/32   cali42391d6e1fe
+csap-logging           elastic-search-cluster-2                    csap-dev04.***REMOVED***   192.168.203.71/32    cali3f386f299d3
+csap-logging           fluentd-5brvq                               csap-dev04.***REMOVED***   192.168.203.72/32    cali3c1cfd48eec
+csap-logging           fluentd-9scsd                               csap-dev05.***REMOVED***   192.168.134.137/32   cali56503df4e6c
+csap-logging           fluentd-qb8xb                               csap-dev06.***REMOVED***   192.168.248.139/32   caliadf280dc6af
+csap-logging           kibana-6f66b98f6f-jcns4                     csap-dev05.***REMOVED***   192.168.134.136/32   cali98913013e7e
+csap-test              test-k8s-activemq-645fbc7c9b-j2ms6          csap-dev05.***REMOVED***   192.168.134.131/32   calib9faa62d939
+csap-test              test-k8s-by-spec-74d5b6d669-8dr2l           csap-dev04.***REMOVED***   192.168.203.70/32    calid94f23f9bf3
+csap-test              test-k8s-by-spec-74d5b6d669-gkf94           csap-dev06.***REMOVED***   192.168.248.136/32   cali76ddf4e5083
+csap-test              test-k8s-by-spec-cron-1603281600-8g54n      csap-dev06.***REMOVED***                        cali36df73af4f1
+csap-test              test-k8s-by-spec-cron-1603285200-ngpnx      csap-dev05.***REMOVED***                        cali2bcf710bf4f
+csap-test              test-k8s-by-spec-cron-1603288800-j75xv      csap-dev06.***REMOVED***                        calif616d344253
+csap-test              test-k8s-csap-reference-84448fc4f7-4djwh    csap-dev04.***REMOVED***   192.168.203.68/32    cali60b9699a6e8
+csap-test              test-k8s-csap-reference-84448fc4f7-4tdp9    csap-dev06.***REMOVED***   192.168.248.134/32   calia033961ce95
+csap-test              test-k8s-csap-reference-84448fc4f7-7mrz7    csap-dev04.***REMOVED***   192.168.203.69/32    cali1a2a13ab9ce
+csap-test              test-k8s-csap-reference-84448fc4f7-j6lg2    csap-dev05.***REMOVED***   192.168.134.132/32   cali09ba6a8ec5e
+csap-test              test-k8s-csap-reference-84448fc4f7-kfhmc    csap-dev06.***REMOVED***   192.168.248.135/32   cali165eecd390b
+csap-test              test-k8s-csap-reference-84448fc4f7-vx8dq    csap-dev05.***REMOVED***   192.168.134.133/32   cali73a93d173e4
+csap-test              test-k8s-postgres-8664487f7f-ptppv          csap-dev06.***REMOVED***   192.168.248.133/32   calie8309c464f0
+csap-test              xxx-service-6c44bc85cb-p9v4w                csap-dev06.***REMOVED***   192.168.248.137/32   cali49be511bb64
+default                dnsutils                                    csap-dev05.***REMOVED***   192.168.134.176/32   calib3c61c3cba9
+default                nginx-cron-1603289100-pd5hl                 csap-dev06.***REMOVED***                        cali9be8331daf9
+default                nginx-cron-1603289160-zqxxc                 csap-dev05.***REMOVED***                        cali921046f47c3
+default                nginx-cron-1603289220-pz57c                 csap-dev05.***REMOVED***                        cali2a4393dcba7
+default                nginx-simple-5dfb8bdd7c-8t7vw               csap-dev06.***REMOVED***   192.168.248.177/32   calia8d75e3ae8d
+kube-system            calico-kube-controllers-578894d4cd-x56pc    csap-dev04.***REMOVED***   192.168.203.66/32    cali0fe54f31d2b
+kube-system            coredns-66bff467f8-6n9nz                    csap-dev04.***REMOVED***   192.168.203.65/32    cali8ba1c6e0338
+kube-system            coredns-66bff467f8-zgqmh                    csap-dev04.***REMOVED***   192.168.203.67/32    cali9b4a187638b
+kube-system            metrics-server-77cdf59659-rs7f5             csap-dev05.***REMOVED***   192.168.134.130/32   cali1ef2e9559b2
+kube-system            nfs-client-provisioner-858df95847-kf62v     csap-dev05.***REMOVED***   192.168.134.129/32   cali7df9d09b14c
+kubernetes-dashboard   dashboard-metrics-scraper-dc6947fbf-gb6wq   csap-dev06.***REMOVED***   192.168.248.131/32   cali1de2e392d03
+kubernetes-dashboard   kubernetes-dashboard-648d567f5b-25gnd       csap-dev06.***REMOVED***   192.168.248.132/32   caliec1d26926b1
