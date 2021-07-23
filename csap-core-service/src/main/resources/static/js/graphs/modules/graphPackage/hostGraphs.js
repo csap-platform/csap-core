@@ -110,7 +110,7 @@ define( [ "./flotUtils", "./graphLayout", "./settings" ], function ( flotUtils, 
         console.log( "drawGraph(): " + metricsJson.attributes.id + " timezone: " + metricsOffset ) ;
 
         // error check here for empty data
-        let flotTimeOffsetArray = dataManager.getLocalTime( 
+        let flotTimeOffsetArray = dataManager.getLocalTime(
                 metricsJson.data.timeStamp,
                 metricsOffset ) ;
 
@@ -227,14 +227,14 @@ define( [ "./flotUtils", "./graphLayout", "./settings" ], function ( flotUtils, 
         let lastGraphName = "" ;
         for ( let graphName in graphs ) {
             console.groupCollapsed( `Building: ${ graphName } on  ${host}` ) ;
-            
-            let needToGenerateStubData = Object.keys( graphs[graphName] ).length === 0;
-            if ( !needToGenerateStubData 
+
+            let needToGenerateStubData = Object.keys( graphs[graphName] ).length === 0 ;
+            if ( !needToGenerateStubData
                     && graphName == "topCpu" ) {
                 // topCpu graphs always include totalCpu. 
                 needToGenerateStubData = Object.keys( graphs[graphName] ).length === 1
             }
-            
+
 
             if ( needToGenerateStubData ) {
                 console.log( `*** Generating empty graph: ${graphName } on  ${ host } because no keys found` ) ;
@@ -282,7 +282,7 @@ define( [ "./flotUtils", "./graphLayout", "./settings" ], function ( flotUtils, 
             }
             for ( let seriesName in graphItems ) {
 
-                console.log("Adding Graph: " + graphName + " Series: " + seriesName) ;
+                console.log( "Adding Graph: " + graphName + " Series: " + seriesName ) ;
 
                 let optionalSeries = getOptionalSeries( resourceGraph, seriesName, metricsJson, $currentGraph ) ;
 
@@ -385,7 +385,7 @@ define( [ "./flotUtils", "./graphLayout", "./settings" ], function ( flotUtils, 
                         $currentGraph, metricsJson.attributes.sampleInterval, dataManager.isDataAutoSampled(), false ) ;
 
                 console.log( `Plotting: '${title}' plotDiv id: ${ $plotTargetDiv.attr( "id" ) }, width: ${ plotWidth }, height: ${ plotHeight}`, plotOptions ) ;
-                
+
 //                return ;
                 let plotObj = $.plot( $plotTargetDiv, linesOnGraphArray, plotOptions ) ;
 
@@ -481,11 +481,11 @@ define( [ "./flotUtils", "./graphLayout", "./settings" ], function ( flotUtils, 
             $newContainer, stackedHostPlots,
             linesOnGraphArray, checkId ) {
 
-        let currentGraph = resourceGraph.getCurrentGraph() ;
+        let $currentGraph = resourceGraph.getCurrentGraph() ;
         let dataManager = resourceGraph.getDataManager() ;
 
         if ( dataManager.getStackedGraph( graphName ) == undefined ) {
-            console.log( "buildStackedPanels(): creating array for " + graphName ) ;
+            console.log( `buildStackedPanels(): currentGraph: ${ $currentGraph } creating array for  graph name${ graphName }` ) ;
 //						+ JSON.stringify( linesOnGraphArray[0] , null,"\t") ) ;
             dataManager.initStackedGraph( graphName ) ;
             ;
@@ -497,7 +497,9 @@ define( [ "./flotUtils", "./graphLayout", "./settings" ], function ( flotUtils, 
         let userSeriesSelection = $( "#isStackHosts" ).val() ;
 
         let isShowAllSeries = ( userSeriesSelection == "99" ) ;
-        console.log("isShowAllSeries: " + isShowAllSeries) ;
+        console.log( `currentGraph: ${ $currentGraph.attr("id") } isShowAllSeries: ${ isShowAllSeries } `) ;
+        
+        $( "#show-mismatch-data", $currentGraph ).css("opacity", "0.0");
 
         for ( let seriesIndexToGraph = 0 ; seriesIndexToGraph < linesOnGraphArray.length ; seriesIndexToGraph++ ) {
 
@@ -536,7 +538,7 @@ define( [ "./flotUtils", "./graphLayout", "./settings" ], function ( flotUtils, 
             graphDataOnHost.lines = { lineWidth: 2 } ;
 
             //console.log("Adding About for: " + host) ;
-            let containerDiv = $( "." + host + "Container", currentGraph ) ;
+            let $graphHostContainer = $( "." + host + "Container", $currentGraph ) ;
             // Draw once we have all responses
             //console.log( fullLabel + " numberOfHostsSoFar: " + numberOfHostsSoFar + " of " + dataManager.getHostCount())
 
@@ -545,7 +547,7 @@ define( [ "./flotUtils", "./graphLayout", "./settings" ], function ( flotUtils, 
             let statsBuilder = null ;
             if ( numberOfHostsForGraphSoFar > 1 ) {
                 statsBuilder = _statsForHostsGraphs[graphName] ;
-                console.log( "statsBuilder retreived: " , statsBuilder ) ;
+                console.log( "statsBuilder retreived: ", statsBuilder ) ;
             }
 
 
@@ -559,13 +561,13 @@ define( [ "./flotUtils", "./graphLayout", "./settings" ], function ( flotUtils, 
 
             if ( dataManager.getHostCount() > numberOfHostsForGraphSoFar ) {
                 // Stacked/restore seems to require
-                containerDiv.hide() ;
-                console.log( `*** Waiting for more results before graphing`) ;
+                $graphHostContainer.hide() ;
+                console.log( `*** Waiting for more results before graphing` ) ;
             } else {
 
                 resourceGraph.setStackHostContainer( host ) ;
-                containerDiv.show() ; // customLayouts requires
-                $( ".hostName", containerDiv ).text( "Merged" ) ;
+                $graphHostContainer.show() ; // customLayouts requires
+                $( ".hostName", $graphHostContainer ).text( "Merged" ) ;
 
                 let title = getGraphTitle( graphName, metricsJson ) ;
 
@@ -588,55 +590,97 @@ define( [ "./flotUtils", "./graphLayout", "./settings" ], function ( flotUtils, 
 
                 let plotOptions = flotUtils.getPlotOptionsAndXaxis(
                         $plotPanel, graphName, flotTimeOffsetArray, linesOnGraphArray,
-                        currentGraph, metricsJson.attributes.sampleInterval, dataManager.isDataAutoSampled(), true ) ;
+                        $currentGraph, metricsJson.attributes.sampleInterval, dataManager.isDataAutoSampled(), true ) ;
 
                 let graphData = dataManager.getStackedGraph( graphName ) ;
-                console.log( `buildStackedPanels() ${graphName} options: `, plotOptions, ` data: ` ,graphData ) ;
+                console.log( `buildStackedPanels() ${graphName} options: `, plotOptions, ` data: `, graphData ) ;
                 let hostPointCount, hostPointName ;
+
                 for ( let hostGraph of graphData ) {
                     if ( !hostPointCount ) {
                         hostPointCount = hostGraph.data.length ;
                         hostPointName = hostGraph.label ;
                     }
-                    let mismatchMessageDisplay = $( "#mis-match-message" ).length == 0 && $( "input.show-mismatched", currentGraph ).prop( "checked" ) ;
-                    if ( mismatchMessageDisplay && hostPointCount != hostGraph.data.length ) {
 
-                        let $message = jQuery( "<div/>", { } ) ;
-                        
-                        let $title = jQuery( "<div/>", {
-                            id: "mis-match-message",
-                            class: "stackLabel hquote"
-                        } ).appendTo($message) ;
-                        
-                        jQuery( "<span/>", {
-                            text: `Mismatch in data points collected: '${ graphName }'`
-                        } ).appendTo($title) ;
-                        
-                        jQuery( "<div/>", {
-                            text: `host: ${ hostGraph.label}  has ${hostGraph.data.length} points`
-                        } ).appendTo($message) ;
-                        
-                        jQuery( "<div/>", {
-                            text: `host: ${ hostPointName}  has ${hostPointCount} points`
-                        } ).appendTo($message) ;
-                        
-                        let $notes = jQuery( "<ul/>", { } ).appendTo($message) ;
-                        
-                        jQuery( "<li/>", {
-                            text: `use graph metrics to view collection counts (top right of panel next to maximize button)`
-                        } ).appendTo($notes) ;
-                        
-                        jQuery( "<li/>", {
-                            text: `graph options: enable 'line mode' enables gaps to be viewed on graph`
-                        } ).appendTo($notes) ;
-                        
-                        jQuery( "<li/>", {
-                            text: `graph options -> uncheck 'Show Mismatch' to disable this warning`
-                        } ).appendTo($notes) ;
+                    if ( hostPointCount != hostGraph.data.length ) {
+                        $( "#show-mismatch-data", $currentGraph ).css("opacity", "1.0");
+                        $( "#show-mismatch-data", $currentGraph ).off().click( function () {
+                            let $message = jQuery( "<div/>", { } ) ;
 
-                        alertify.csapWarning( $message ) ;
+                            let $title = jQuery( "<div/>", {
+                                id: "mis-match-message",
+                                class: "stackLabel hquote"
+                            } ).appendTo( $message ) ;
+
+                            jQuery( "<span/>", {
+                                text: `Mismatch in data points collected: '${ graphName }'`
+                            } ).appendTo( $title ) ;
+
+                            jQuery( "<div/>", {
+                                text: `host: ${ hostGraph.label}  has ${hostGraph.data.length} points`
+                            } ).appendTo( $message ) ;
+
+                            jQuery( "<div/>", {
+                                text: `host: ${ hostPointName}  has ${hostPointCount} points`
+                            } ).appendTo( $message ) ;
+
+                            let $notes = jQuery( "<ul/>", { } ).appendTo( $message ) ;
+
+                            jQuery( "<li/>", {
+                                text: `use graph metrics to view collection counts (top right of panel next to maximize button)`
+                            } ).appendTo( $notes ) ;
+
+                            jQuery( "<li/>", {
+                                text: `graph options: enable 'line mode' enables gaps to be viewed on graph`
+                            } ).appendTo( $notes ) ;
+
+                            jQuery( "<li/>", {
+                                text: `graph options -> uncheck 'Show Mismatch' to disable this warning`
+                            } ).appendTo( $notes ) ;
+
+                            alertify.csapWarning( $message ) ;
+                        } ) ;
                     }
                 }
+//                    let mismatchMessageDisplay = $( "#mis-match-message" ).length == 0 && $( "input.show-mismatched", currentGraph ).prop( "checked" ) ;
+//                    if ( mismatchMessageDisplay && hostPointCount != hostGraph.data.length ) {
+//
+//                        let $message = jQuery( "<div/>", { } ) ;
+//                        
+//                        let $title = jQuery( "<div/>", {
+//                            id: "mis-match-message",
+//                            class: "stackLabel hquote"
+//                        } ).appendTo($message) ;
+//                        
+//                        jQuery( "<span/>", {
+//                            text: `Mismatch in data points collected: '${ graphName }'`
+//                        } ).appendTo($title) ;
+//                        
+//                        jQuery( "<div/>", {
+//                            text: `host: ${ hostGraph.label}  has ${hostGraph.data.length} points`
+//                        } ).appendTo($message) ;
+//                        
+//                        jQuery( "<div/>", {
+//                            text: `host: ${ hostPointName}  has ${hostPointCount} points`
+//                        } ).appendTo($message) ;
+//                        
+//                        let $notes = jQuery( "<ul/>", { } ).appendTo($message) ;
+//                        
+//                        jQuery( "<li/>", {
+//                            text: `use graph metrics to view collection counts (top right of panel next to maximize button)`
+//                        } ).appendTo($notes) ;
+//                        
+//                        jQuery( "<li/>", {
+//                            text: `graph options: enable 'line mode' enables gaps to be viewed on graph`
+//                        } ).appendTo($notes) ;
+//                        
+//                        jQuery( "<li/>", {
+//                            text: `graph options -> uncheck 'Show Mismatch' to disable this warning`
+//                        } ).appendTo($notes) ;
+//
+//                        alertify.csapWarning( $message ) ;
+//                    }
+//                }
 
                 let plotObj = $.plot( plotDiv, graphData, plotOptions ) ;
 
@@ -645,12 +689,12 @@ define( [ "./flotUtils", "./graphLayout", "./settings" ], function ( flotUtils, 
                 stackedHostPlots.push( plotObj ) ;
 
                 checkSampling( resourceGraph, flotTimeOffsetArray, linesOnGraphArray, plotDiv ) ;
-                
+
                 let seriesLabel = jQuery( "<span/>", {
                     class: "stackLabel",
                     title: fullLabel,
                     html: fullLabel
-                } ).appendTo(  $( ".graphTitle .graphNotes", $plotPanel ) ) ;
+                } ).appendTo( $( ".graphTitle .graphNotes", $plotPanel ) ) ;
 
                 let graphType = resourceGraph.getCurrentGraph().attr( "id" ) ;
                 console.log( "Stack graph resource type", graphType ) ;
@@ -663,7 +707,7 @@ define( [ "./flotUtils", "./graphLayout", "./settings" ], function ( flotUtils, 
                 } else {
                     $( "#applicationNameLabel" ).hide() ;
                 }
- 
+
 
                 if ( isShowAllSeries ) {
                     $plotPanel.css( "height", $plotPanel.outerHeight( true ) - 20 ) ;
@@ -739,7 +783,7 @@ define( [ "./flotUtils", "./graphLayout", "./settings" ], function ( flotUtils, 
             if ( !$checkBox.is( ':checked' ) ) {
 
                 console.log( `buildSeriesForGraph() : Not selected:  seriesName: ${seriesName}`
-                        + ` key:  ${graphItems[seriesName] } `) ;
+                        + ` key:  ${graphItems[seriesName] } ` ) ;
                 // console.log("Skipping: " + graphKey) ;
                 return null ;
             }
@@ -758,7 +802,7 @@ define( [ "./flotUtils", "./graphLayout", "./settings" ], function ( flotUtils, 
         let graphDefn = new Object() ;
 
         if ( !isAttribute( seriesName ) ) {
-            
+
             if ( metricsJson.data[seriesName] == null ) {
 //                alertify.notify( "No Data available for: " + seriesName );
                 console.log( `No Data available for host: ${ host } series: ${ seriesName } ` ) ;
@@ -826,7 +870,7 @@ define( [ "./flotUtils", "./graphLayout", "./settings" ], function ( flotUtils, 
         }
 
         graphDefn.label = seriesLabel ;
-        
+
 //        if ( _isNeedsLabel ) {
 //            _isNeedsLabel = false ;
 //            graphDefn.label = seriesLabel
