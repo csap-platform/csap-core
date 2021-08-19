@@ -87,15 +87,11 @@ csap-core:
     template-repository: "${dockerRepo:docker.***REMOVED***}"
     
   docker-ui-default-images:
+    - csapplatform/csap:demo
+    - csapplatform/csap:installer
+    - csapplatform/csap:csap-test-app
+    - csapplatform/csap:java
     - ***REMOVED***/openjdk8-jdk:latest
-    - csap/csap-stress
-    - csap/csap-activemq
-    - csap/csap-java:11.0.4
-    - csap/csap-mongo:4.0.13
-    - csap/csap-test-app
-    - csap/csap-agent
-    - csap/csap-tomcat
-    - csap/csap-tools
     - jboss/keycloak:8.0.1
     - nginx:1.17.5
     - postgres:12.1
@@ -104,6 +100,14 @@ csap-core:
     - jenkins/jenkins
     - docker.bintray.io/jfrog/artifactory-oss:latest    
 
+#    - csap/csap-stress
+#    - csap/csap-activemq
+#    - csap/csap-java:11.0.4
+#    - csap/csap-mongo:4.0.13
+#    - csap/csap-test-app
+#    - csap/csap-agent
+#    - csap/csap-tomcat
+#    - csap/csap-tools
 csap:
 
   web-server:

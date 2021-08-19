@@ -302,6 +302,19 @@ public class OsCommandRunner {
 		var theLogger = LoggerFactory.getLogger( Application.class ) ;
 
 		theLogger.info( "Running: {}", targetFile ) ;
+		
+		if ( ! targetFile.exists( ) ) {
+			theLogger.info( "File does not exist - delaying for a second in case FS is slow: {}", targetFile ) ;
+			try {
+
+				TimeUnit.SECONDS.sleep( 2 ) ;
+
+			} catch ( Exception e ) {
+
+				theLogger.warn("Failed sleeping on delay {}", CSAP.buildCsapStack( e )) ;
+
+			}
+		}
 
 		if ( targetFile.getName( ).contains( ".py_" ) ) {
 
