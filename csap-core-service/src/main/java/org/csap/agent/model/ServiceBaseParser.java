@@ -945,7 +945,14 @@ public class ServiceBaseParser extends ServiceBase {
 
 				} else if ( is_java_application_server( ) ) {
 
-					setProcessFilter( ".*java.*csapProcessId=" + getName( ) + ".*" ) ;
+					
+					if ( is_springboot_server( ) ) {
+						
+						// handle spawned docker container on different port
+						setProcessFilter( ".*java.*csapProcessId=" + getName( ) + ".*" + getPort( ) + ".*" ) ;
+					} else {
+						setProcessFilter( ".*java.*csapProcessId=" + getName( ) + ".*" ) ;
+					}
 
 				}
 

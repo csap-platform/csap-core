@@ -445,7 +445,7 @@ class Model_As_Agent extends CsapBareTest {
 
 			assertThat( refService.getProcessFilter( ) )
 					.as( "process filter" )
-					.isEqualTo( ".*java.*csapProcessId=Cssp3ReferenceMq.*" ) ;
+					.isEqualTo( ".*java.*csapProcessId=Cssp3ReferenceMq.*0.*" ) ;
 
 			assertThat( refService.getJmxPort( ) )
 					.as( "jmx port" )
@@ -524,7 +524,7 @@ class Model_As_Agent extends CsapBareTest {
 
 			assertThat( agentInstance.getProcessFilter( ) )
 					.as( "process filter" )
-					.isEqualTo( ".*java.*csapProcessId=" + CsapCore.AGENT_NAME + ".*" ) ;
+					.isEqualTo( ".*java.*csapProcessId=" + CsapCore.AGENT_NAME + ".*8011.*" ) ;
 
 			assertThat( agentInstance.getOsProcessPriority( ) )
 					.as( "process override" )
@@ -713,7 +713,7 @@ class Model_As_Agent extends CsapBareTest {
 
 			assertThat( bootService.getProcessFilter( ) )
 					.as( "process filter" )
-					.isEqualTo( ".*java.*csapProcessId=SpringBootRest.*" ) ;
+					.isEqualTo( ".*java.*csapProcessId=SpringBootRest.*0.*" ) ;
 
 			assertThat( bootService.getOsProcessPriority( ) )
 					.as( "process override" )
@@ -747,7 +747,7 @@ class Model_As_Agent extends CsapBareTest {
 
 			assertThat( hyphenService.getProcessFilter( ) )
 					.as( "process filter" )
-					.isEqualTo( ".*java.*csapProcessId=factory-service-2.*" ) ;
+					.isEqualTo( ".*java.*csapProcessId=factory-service-2.*0.*" ) ;
 
 			assertThat( hyphenService.getHostName( ) )
 					.as( "hostname" )
@@ -777,7 +777,7 @@ class Model_As_Agent extends CsapBareTest {
 
 			assertThat( factoryService.getProcessFilter( ) )
 					.as( "process filter" )
-					.isEqualTo( ".*java.*csapProcessId=FactoryService.*" ) ;
+					.isEqualTo( ".*java.*csapProcessId=FactoryService.*0.*" ) ;
 
 			assertThat( factoryService.getHostName( ) )
 					.as( "hostname" )

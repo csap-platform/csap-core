@@ -1,6 +1,6 @@
 define( [ "services/kubernetes", "performance/summary-trends", "performance/events", "performance/event-details", "performance/health", "performance/meters", "browser/utils" ], function ( kubernetes, summaryTrends, events, eventDetails, health, meters, utils ) {
 
-    console.log( "Module loaded" ) ;
+    console.log( "Module loaded2" ) ;
     let $contentLoaded = null ;
 
     let kubernetesServiceName = "kubelet" ;
@@ -8,6 +8,7 @@ define( [ "services/kubernetes", "performance/summary-trends", "performance/even
 
     const $healthServiceNames = utils.findContent( "#health-service-names" ) ;
     const $kubernetesNav = utils.findNavigation( ".kubernetes-active" ) ;
+    const $kubernetesNavLabel = utils.findNavigation( "label.kubernetes-active" ) ;
 
 
 
@@ -287,6 +288,7 @@ define( [ "services/kubernetes", "performance/summary-trends", "performance/even
                         addServiceHealthNames( statusReport.servicesWithHealth ) ;
                     }
 
+
                     if ( statusReport.kubernetesNodes === 0 ) {
                         $kubernetesNav.hide() ;
                     } else {
@@ -295,6 +297,26 @@ define( [ "services/kubernetes", "performance/summary-trends", "performance/even
                         utils.navigationCount( "#pod-count", statusReport.podCount, 5000 ) ;
                         utils.navigationCount( "#node-count", statusReport.kubernetesNodes, 5000 ) ;
                         utils.navigationCount( "#volume-count", statusReport.volumeCount, 5000 ) ;
+
+                        if ( statusReport.kubernetesMetrics ) {
+                            $( "button", $kubernetesNavLabel ).remove() ;
+                             utils.flash( $kubernetesNavLabel, false ) ;
+                        } else {
+
+                            let msg = "Kubernetes metrics collection is currently disabled - very metrics-server is deployed and running";
+                            $( "button", $kubernetesNavLabel ).remove() ;
+                            let $metrics = jQuery( '<button/>', {
+                                class: "csap-icon csap-warn",
+                                title: "Metrics Disabled"
+                            } )
+                                    .css( "float", "right" )
+                                    .click( function () {
+                                        alertify.csapWarning( msg ) ;
+                                    } ) ;
+                            $kubernetesNavLabel.append( $metrics ) ;
+                             utils.flash( $kubernetesNavLabel, true ) ;
+
+                        }
 
                     }
 
@@ -1373,7 +1395,6 @@ define( [ "services/kubernetes", "performance/summary-trends", "performance/even
 
                 //console.debug( "error: ", errorRawMessage ) ;
                 errorCount++ ;
-
                 let firstWordInErrorMessage = errorRawMessage.split( " " )[0] ;
                 if ( firstWordInErrorMessage.contains( ":" ) ) {
                     try {
@@ -1404,40 +1425,40 @@ define( [ "services/kubernetes", "performance/summary-trends", "performance/even
                         //
                         // Group errors by type. Eg the same error could be on multiple hosts
                         //
-                        let first4words =  getWords( targetMessage, 5 ).trim() ;
-                        let first3words =  getWords( targetMessage, 4 ).trim() ;
-                        let first2words =  getWords( targetMessage, 2 ).trim() ;
-                        let firstWord =  getWords( targetMessage, 2 ).trim() ;
-                        let errorGroup =  first4words ;
-                        if ( firstWord == "current") {
+                        let first4words = getWords( targetMessage, 5 ).trim() ;
+                        let first3words = getWords( targetMessage, 4 ).trim() ;
+                        let first2words = getWords( targetMessage, 2 ).trim() ;
+                        let firstWord = getWords( targetMessage, 2 ).trim() ;
+                        let errorGroup = first4words ;
+                        if ( firstWord == "current" ) {
                             // host stats
-                            errorGroup = first2words;
-                        } else if ( firstWord.endsWith(":")) {
+                            errorGroup = first2words ;
+                        } else if ( firstWord.endsWith( ":" ) ) {
                             // service name:
                             // trim the colon and the last char in case of kubernetes
-                            errorGroup = firstWord.substring(0, firstWord.length - 2)
-                                    + first3words.substring(firstWord.length );
-                        } 
-                        
-                        console.debug( `firstWord: '${ firstWord }' errorGroup: ${ errorGroup }`) ;
+                            errorGroup = firstWord.substring( 0, firstWord.length - 2 )
+                                    + first3words.substring( firstWord.length ) ;
+                        }
+
+                        console.debug( `firstWord: '${ firstWord }' errorGroup: ${ errorGroup }` ) ;
                         if ( errorGroupContainers[ errorGroup ] !== undefined ) {
 
                             let $existingItem = errorGroupContainers[ errorGroup ] ;
                             let $subDiv = jQuery( '<div/>', { class: "sub-alert" } ) ;
                             $existingItem.append( $subDiv ) ;
                             //$existingItem.append( $hostPortalLink ) ;
-                            
-                            
+
+
                             $subDiv.append( targetMessage ) ;
                             if ( $healthLink ) {
                                 $subDiv.append( $healthLink ) ;
                             }
-                            
-                            
+
+
                             if ( errorGroupHostNames[ errorGroup ] !== hostName ) {
-                                $subDiv.append(" (") ;
-                                $subDiv.append($hostPortalLink) ;
-                                $subDiv.append(") ") ;
+                                $subDiv.append( " (" ) ;
+                                $subDiv.append( $hostPortalLink ) ;
+                                $subDiv.append( ") " ) ;
                             }
 
                         } else {
@@ -1477,15 +1498,15 @@ define( [ "services/kubernetes", "performance/summary-trends", "performance/even
                         } ) ) ;
                     }
                 } else {
-                        $errorList.append( jQuery( '<span/>', {
-                            text: errorItemNumber++ + ")"
-                        } ) ) ;
-                        $errorList.append( jQuery( '<span/>', {
-                            text: "-"
-                        } ) ) ;
-                        $errorList.append( jQuery( '<span/>', {
-                            text: errorRawMessage
-                        } ) ) ;
+                    $errorList.append( jQuery( '<span/>', {
+                        text: errorItemNumber++ + ")"
+                    } ) ) ;
+                    $errorList.append( jQuery( '<span/>', {
+                        text: "-"
+                    } ) ) ;
+                    $errorList.append( jQuery( '<span/>', {
+                        text: errorRawMessage
+                    } ) ) ;
                 }
             }
         }
@@ -1502,16 +1523,14 @@ define( [ "services/kubernetes", "performance/summary-trends", "performance/even
                 for ( let hostLoginSession of hostLoginSessions ) {
 
                     errorCount++ ;
-                    
-                    
-                        $errorList.append( jQuery( '<span/>', {
-                            text: errorItemNumber++ + ")"
-                        } ) ) ;
-                        $errorList.append( utils.buildAgentLink( hostName ) ) ;
-                        $errorList.append( jQuery( '<span/>', {
-                            text:  " login:" + hostLoginSession
-                        } ) ) ;
-                    
+                    $errorList.append( jQuery( '<span/>', {
+                        text: errorItemNumber++ + ")"
+                    } ) ) ;
+                    $errorList.append( utils.buildAgentLink( hostName ) ) ;
+                    $errorList.append( jQuery( '<span/>', {
+                        text: " login:" + hostLoginSession
+                    } ) ) ;
+
 //                    let $errorItem = jQuery( '<li/>', { class: "decimal" } ) ;
 //                    $errorList.append( $errorItem ) ;
 //

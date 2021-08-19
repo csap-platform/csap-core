@@ -513,14 +513,14 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist" ], function ( utils, ac
                         || maxPods > uiMax ) {
                     $maxPodCount.val( maxPods ) ;
                 }
-                
+
                 if ( nodePods
                         && ( nodePods / maxPods * 100 ) > 90 ) {
-                    $maxPodWarning.attr("title", "One ore more nodes is over 90% capacity").addClass( "status-red" ) ;
+                    $maxPodWarning.attr( "title", "One ore more nodes is over 90% capacity" ).addClass( "status-red" ) ;
                 } else if ( nodePods
                         && !$maxPodCount.hasClass( "status-red" )
                         && ( nodePods / maxPods * 100 ) > 80 ) {
-                    $maxPodWarning.attr("title", "One ore more nodes is over 80% capacity").addClass( "status-yellow" ) ;
+                    $maxPodWarning.attr( "title", "One ore more nodes is over 80% capacity" ).addClass( "status-yellow" ) ;
                 }
             }
 
@@ -1261,18 +1261,18 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist" ], function ( utils, ac
             let isContainerReport = attributeReport[ "image" ] != undefined ;
 
             // placedholder for css
-            let helpMessage = `View kubenetes describe output` ;
-            if ( isPodReport || isContainerReport ) {
-                helpMessage = `View kubenetes describe output and pod logs` ;
-            }
+            let helpMessage = `View kubernetes describe` ;
 
-            let nameButton = jQuery( '<button/>', {
-                class: "csap-button",
+            let $kubectlDescribeButton = jQuery( '<button/>', {
+                class: "csap-button-icon csap-info",
                 title: helpMessage,
                 text: ` ${ fieldValue }`
             } ).appendTo( $nameLabel ) ;
 
-            nameButton.click( function () {
+            let $handleClickFunction = function () {
+                
+                let isLogsButton = $(this).hasClass("csap-logs") ;
+                
                 let $tableBody = $column.closest( "tbody" ) ;
 
                 // remove previous selections
@@ -1288,6 +1288,9 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist" ], function ( utils, ac
                     $menuNav = $volumeMenuItems ;
                 } else if ( isPodReport || isContainerReport ) {
                     menuNavigation = "services-tab,pod-describe" ;
+                    if ( isLogsButton ) {
+                        menuNavigation = "services-tab,pod-logs" ;
+                    }
                     $menuNav = $podMenuItems ;
 
                     // mark selected for logs
@@ -1299,7 +1302,21 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist" ], function ( utils, ac
                 }
                 utils.launchMenu( menuNavigation ) ;
                 $menuNav.show() ;
-            } ) ;
+            }
+
+            $kubectlDescribeButton.click( $handleClickFunction ) ;
+            
+            
+            
+            if ( isPodReport || isContainerReport ) {
+                let $podLogButton = jQuery( '<button/>', {
+                    class: "csap-icon csap-logs",
+                    title: "View pod logs",
+                } ).appendTo( $nameLabel ) ;
+                
+                $podLogButton.click( $handleClickFunction ) ;
+            }
+            
 
         }
 

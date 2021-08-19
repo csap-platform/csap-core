@@ -1,16 +1,30 @@
-define( [ "browser/utils", "services/kubernetes", "ace/ace", "ace/ext-modelist" ], function ( utils, kubernetes, aceEditor, aceModeListLoader ) {
+define( [ "browser/utils", "file/log-formatters", "services/kubernetes", "ace/ace", "ace/ext-modelist" ], function ( utils, logFormatters, kubernetes, aceEditor, aceModeListLoader ) {
 
 
-    const $podLogPanel = $( "#services-tab-pod-logs" ) ;
-    const $hideOutput = $( "#hide-pod-logs", $podLogPanel ) ;
-    let $logContainerSelect = $( "#pod-log-container-name", $podLogPanel ) ;
-    let $logPodSelect = $( "#pod-log-pod-name", $podLogPanel ) ;
-    let $maxLineCount = $( "#pod-log-line-count", $podLogPanel ) ;
-    let $podTail = $( "#pod-tail", $podLogPanel ) ;
+    //
+    // Cloned to explorer-pod-logs and pod-logs
+    //
+    const $targetLogViewerPanel = $( "#services-tab-pod-logs" ) ;
+    const $hideOutput = $( "#hide-pod-logs", $targetLogViewerPanel ) ;
+    let $logContainerSelect = $( "#pod-log-container-name", $targetLogViewerPanel ) ;
+    let $logPodSelect = $( "#pod-log-pod-name", $targetLogViewerPanel ) ;
+    let $maxLineCount = $( "#pod-log-line-count", $targetLogViewerPanel ) ;
+
+
+    let $podLogsAutoFormat = $( "#pod-logs-auto-format", $targetLogViewerPanel ) ;
+
+    let $podTail = $( "#pod-tail", $targetLogViewerPanel ) ;
+    let $podScroll = $( "#pod-scroll", $targetLogViewerPanel ) ;
+
+
     let _podLogRefreshTimer ;
     let _podLogViewer = null ;
     let _podLogUpdate = false ;
     let _logSince ;
+
+    let scrollFlashTimer ;
+
+    let _scrollEventCount = 0 ;
 
     let _podName, _podNamespace, _containers, _podHost, _relatedPods ;
 
@@ -20,6 +34,8 @@ define( [ "browser/utils", "services/kubernetes", "ace/ace", "ace/ext-modelist" 
         configure: function ( podName, podNamespace, containerNames, podHost, relatedPods ) {
 
             console.log( `configuration updated: ${podName}` ) ;
+
+            $maxLineCount.val( 5000 ) ;
 
             _podName = podName ;
             _podNamespace = podNamespace ;
@@ -47,27 +63,39 @@ define( [ "browser/utils", "services/kubernetes", "ace/ace", "ace/ext-modelist" 
 
         if ( !_podLogViewer ) {
             _podLogViewer = aceEditor.edit( "kubernetes-log-viewer" ) ;
-            _podLogViewer.setOptions( utils.getAceDefaults( "ace/mode/sh", true ) ) ;
+
+            let aceOptions = utils.getAceDefaults( "ace/mode/yaml", true ) ;
+            aceOptions.theme = "ace/theme/merbivore_soft" ;
+
+            _podLogViewer.setOptions( aceOptions ) ;
+
 
 
             //$hideOutput.hide() ;
 
-            $hideOutput.click( function () {
+            let hideFunction = function () {
                 let navMenu = ".pod-selected.level4" ;
                 let   launchTarget = "services-tab,kpod-instances" ;
 
                 utils.findNavigation( ".pod-selected.level4" ).hide() ;
                 utils.launchMenu( launchTarget ) ;
+            }
+
+            $hideOutput.click( hideFunction ) ;
+
+
+
+            $podScroll.change( function () {
+                _scrollEventCount = 0 ;
             } ) ;
-
-
-
             _podLogViewer.getSession().on( "changeScrollTop", function () {
-                if ( !_podLogUpdate ) {
-                    console.log( "Disabling tail" ) ;
-                    clearTimeout( _podLogRefreshTimer ) ;
-                    utils.flash( $podTail.parent(), true, 5 ) ;
-                    $podTail.prop( "checked", false ) ;
+                if ( !_podLogUpdate
+                        && $podScroll.prop( "checked" ) ) {
+                    _scrollEventCount++ ;
+                    if ( _scrollEventCount > 5 ) {
+                        console.log( "Disabling scroll" ) ;
+                        $podScroll.prop( "checked", false ) ;
+                    }
                 }
             } ) ;
 
@@ -76,7 +104,7 @@ define( [ "browser/utils", "services/kubernetes", "ace/ace", "ace/ext-modelist" 
                     getPodLogs(  ) ;
                 }
             } )
-            $( "button.csap-clear", $podLogPanel ).click( function () {
+            $( "button.csap-empty", $targetLogViewerPanel ).click( function () {
                 _podLogUpdate = true ;
                 _podLogViewer.setValue( "" ) ;
                 setTimeout( function () {
@@ -85,7 +113,7 @@ define( [ "browser/utils", "services/kubernetes", "ace/ace", "ace/ext-modelist" 
             } )
 
 
-            $( "button.csap-download", $podLogPanel ).click( function () {
+            $( "button.csap-download", $targetLogViewerPanel ).click( function () {
                 let tailParameters = {
                     numberOfLines: 10000
                 }
@@ -93,12 +121,31 @@ define( [ "browser/utils", "services/kubernetes", "ace/ace", "ace/ext-modelist" 
                 utils.openAgentWindow( _podHost, path, tailParameters ) ;
             } )
 
-            $( "select,input#pod-previous-terminated", $podLogPanel ).change( function () {
+            $( "select,input#pod-previous-terminated", $targetLogViewerPanel ).change( function () {
+
+                utils.loading( "loading logs" ) ;
                 resetPodLogs() ;
                 getPodLogs( ) ;
             } ) ;
 
-            $( "button.launch-window", $podLogPanel ).click( function () {
+            $podLogsAutoFormat.change( function () {
+
+                utils.loading( "loading" ) ;
+
+                let isPodLogFormat = $podLogsAutoFormat.prop( "checked" ) ;
+                let aceOptions = utils.getAceDefaults( "ace/mode/yaml", true ) ;
+
+                let theme = aceOptions.theme ;
+                if ( isPodLogFormat ) {
+                    theme = "ace/theme/merbivore_soft" ;
+                }
+
+                _podLogViewer.setTheme( theme ) ;
+                resetPodLogs() ;
+                getPodLogs( ) ;
+            } ) ;
+
+            $( "button.launch-window", $targetLogViewerPanel ).click( function () {
                 // podName=/explorer/kubernetes/pods/logs/kube-system/calico-kube-controllers-578894d4cd-zwkd4
                 let fileManagerUrl = utils.agentUrl( _podHost, "logs" )
                         + "?fileName=__docker__/" + $logContainerSelect.val()
@@ -137,11 +184,12 @@ define( [ "browser/utils", "services/kubernetes", "ace/ace", "ace/ext-modelist" 
             $option.appendTo( $logContainerSelect ) ;
         }
 
+        setTimeout( function () {
+            utils.loading( "loading logs" ) ;
+            setTimeout( getPodLogs, 100 ) ;
+        }, 50 ) ;
 
-        let $contentLoaded = new $.Deferred() ;
-        getPodLogs( ) ;
-
-        return $contentLoaded ;
+        return null ;
 
     }
 
@@ -164,7 +212,7 @@ define( [ "browser/utils", "services/kubernetes", "ace/ace", "ace/ext-modelist" 
             project: utils.getActiveProject(),
         }
 
-        console.log( `getPodLogs: ${ podLogUrl }`, parameters ) ;
+        console.debug( `getPodLogs: ${ podLogUrl }`, parameters ) ;
 
         $.getJSON(
                 podLogUrl,
@@ -175,9 +223,10 @@ define( [ "browser/utils", "services/kubernetes", "ace/ace", "ace/ext-modelist" 
 //                    if ( $contentLoaded ) {
 //                        $contentLoaded.resolve() ;
 //                    }
-                    utils.loadingComplete() ;
 
                     showLogs( podLogs ) ;
+
+                    utils.loadingComplete() ;
 
                 } )
 
@@ -194,8 +243,17 @@ define( [ "browser/utils", "services/kubernetes", "ace/ace", "ace/ext-modelist" 
 
         let logContent = null ;
         let isPodTail = $podTail.prop( "checked" ) ;
+        let isPodLogFormat = $podLogsAutoFormat.prop( "checked" ) ;
+
         if ( podLogs.plainText ) {
-            logContent = podLogs.plainText ;
+
+
+
+            if ( isPodLogFormat ) {
+                logContent = logFormatters.simpleFormatter( podLogs.plainText ) ;
+            } else {
+                logContent = podLogs.plainText ;
+            }
 
         } else if ( podLogs.error ) {
 
@@ -217,8 +275,15 @@ define( [ "browser/utils", "services/kubernetes", "ace/ace", "ace/ext-modelist" 
                 column: 0
             }, logContent ) ;
             _podLogViewer.resize( true ) ;
-            let lastLine = editSession.getLength() ;
-            _podLogViewer.scrollToLine( lastLine, false, false ) ;
+
+
+            if ( $podScroll.prop( "checked" ) ) {
+                let lastLine = editSession.getLength() ;
+                _podLogViewer.scrollToLine( lastLine, false, false ) ;
+            }
+
+
+
             setTimeout( function () {
                 _podLogUpdate = false ;
             }, 400 ) ;
@@ -227,17 +292,17 @@ define( [ "browser/utils", "services/kubernetes", "ace/ace", "ace/ext-modelist" 
             let maxLines = $maxLineCount.val() ;
             if ( currentEditorLines > maxLines ) {
                 let Range = ace.require( 'ace/range' ).Range ;
-                let linesToRemove = new Range( 0, 0, currentEditorLines - maxLines   , 0 ) ;
+                let linesToRemove = new Range( 0, 0, currentEditorLines - maxLines, 0 ) ;
                 console.log( `reducing content: size: ${ currentEditorLines }, maxLines: ${maxLines}` ) ;
                 editSession.remove( linesToRemove ) ;
             }
 
         }
 
-        $( "#pod-log-count", $podLogPanel ).text( _podLogViewer.getSession().getLength()  + "" ) ;
+        $( "#pod-log-count", $targetLogViewerPanel ).text( _podLogViewer.getSession().getLength() + "" ) ;
 
         if ( podLogs.time ) {
-            $( "#pod-load-time", $podLogPanel ).text( podLogs.time ) ;
+            $( "#pod-load-time", $targetLogViewerPanel ).text( podLogs.time ) ;
             _logSince = podLogs.since ;
         }
 
@@ -247,6 +312,8 @@ define( [ "browser/utils", "services/kubernetes", "ace/ace", "ace/ext-modelist" 
             _podLogRefreshTimer = setTimeout( function () {
                 getPodLogs() ;
             }, 2000 ) ;
+        } else {
+            console.log( `aborting log refresh ` ) ;
         }
 
 

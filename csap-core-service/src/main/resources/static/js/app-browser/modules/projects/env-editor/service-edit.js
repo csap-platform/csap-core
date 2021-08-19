@@ -932,7 +932,8 @@ define( [ "browser/utils", "projects/env-editor/service-edit-config", "editor/va
         // set default placeHolder on Alerts tab
         $( " #alerts label.alerts input", $serviceEditor ).attr( "placeholder", " *" ) ;
 
-        $( " input," + _editorSelector + " select", $serviceEditor ).change( function () {
+
+        $( " input," + " select", $serviceEditor ).change( function () {
             jsonForms.updateDefinition( _serviceJson, $( this ) ) ;
         } ) ;
 

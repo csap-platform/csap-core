@@ -36,7 +36,10 @@ csap-core:
     
     
 csap:
-  web-server.enabled: false
+
+  web-server:
+    enabled: true
+
   performance.enabled: false
   security: 
     enabled: true # several test cases require security

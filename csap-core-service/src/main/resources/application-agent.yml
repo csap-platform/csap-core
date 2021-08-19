@@ -107,7 +107,8 @@ csap-core:
 csap:
 
   web-server:
-    enabled: false
+    
+    ajp-connection-port: 0 # disables ajp
 
   security:
     enabled: true

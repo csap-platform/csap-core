@@ -1,7 +1,7 @@
 
-define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( utils, aceEditor, aceModeListLoader, yaml ) {
+define( [ "browser/utils", "file/log-formatters", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( utils, logFormatters, aceEditor, aceModeListLoader, yaml ) {
 
-    console.log( "module loaded file-monitor" ) ;
+    console.log( "module loaded file-monitor ddd3" ) ;
     let $container, $header, $fileSelection, $csapFileNameFilterEnable, $clearFilterButton, $options, $logDefinition, $formatSelection, $scrollCheck, $languageMode, $stripAnsi, $editorTheme ;
     let serviceName, serviceFullName, hostName ;
 
@@ -273,7 +273,7 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], fu
         $fileSelection.change( function () {
 
             _autoSelectViewFormat = !utils.isLogAutoFormatDisabled() ;
-            
+
 
             if ( $( this ).val().indexOf( ".gz" ) != -1 || $( this ).val().indexOf( ".zip" ) != -1 ) {
                 let inputMap = {
@@ -443,8 +443,15 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], fu
 
         $editorTheme.change( function () {
 
-            console.log( `Updating theme: ${ $editorTheme.val() }` )
-            activeEditor().setTheme( $editorTheme.val() ) ;
+            let userTheme = $editorTheme.val() ;
+
+            if ( $formatSelection.val( ) == "text" 
+                    && ! isCsapDeployFileSelected() ) {
+                userTheme = utils.getAceDefaults( "ace/mode/yaml", true ).theme ;
+            }
+
+            console.log( `Updating theme: ${ userTheme }` )
+            activeEditor().setTheme( userTheme ) ;
         } ) ;
 
 
@@ -503,10 +510,10 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], fu
             },
 
             _createAutocomplete: function () {
-                
-                
-                console.log( `build _createAutocomplete`) ;
-                
+
+
+                console.log( `build _createAutocomplete` ) ;
+
                 let selected = this.element.children( ":selected" ),
                         value = selected.val() ? selected.text() : "" ;
 
@@ -569,7 +576,7 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], fu
                             if ( wasOpen ) {
                                 return ;
                             }
-                            
+
                             console.log( `invoking autocomplete` ) ;
 
                             // Pass empty string as value to search for, displaying all results
@@ -578,12 +585,12 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], fu
             },
 
             _source: function ( request, response ) {
-                
-                console.log( `build source2`) ;
-                
+
+                console.log( `build source2` ) ;
+
                 let matcher = new RegExp( $.ui.autocomplete.escapeRegex( request.term ), "i" ) ;
 //                response( this.element.children( "option" ).map( function () {
-                response( $( "option",$fileSelection).map( function () {
+                response( $( "option", $fileSelection ).map( function () {
                     let text = $( this ).text() ;
 //                    console.log( `build source: ${text}`) ;
                     if ( this.value && ( !request.term || matcher.test( text ) ) )
@@ -638,12 +645,12 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], fu
 
         console.log( `Building combo box for ${ $( "option", $fileSelection ).length } items` ) ;
         $fileSelection.combobox( {
-            select: function( event, ui ) {
-                $fileSelection.trigger( "change") ;
+            select: function ( event, ui ) {
+                $fileSelection.trigger( "change" ) ;
             }
-        }) ;
-        
-        $("input.custom-combobox-input", $header ).val( $( "option:selected", $fileSelection).text() ) ;
+        } ) ;
+
+        $( "input.custom-combobox-input", $header ).val( $( "option:selected", $fileSelection ).text() ) ;
     }
 
     function joinCsv( arrayItems ) {
@@ -894,7 +901,6 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], fu
         activeEditor().session.on( "changeScrollTop", function () {
             //console.log(`scroll position: ${activeEditor().session.getScrollTop()}, session length: ${activeEditor().session.getLength()}` ) ;
 
-            let isMonitorVisible = true ;
             if ( !_is_auto_scroll_in_progress
                     && $scrollCheck.prop( "checked" ) ) {
                 _scrollEventCount++ ;
@@ -1126,19 +1132,9 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], fu
 
     function isCsapDeployFileSelected() {
 
-        return $fileSelection.val().startsWith( "__working__" ) ;
-//        let  showFileName = $( "option:selected", $fileSelection ).text() ;
-//        if ( showFileName.endsWith( "start.log" )
-//                || showFileName.endsWith( "start-1.log" )
-//                || showFileName.endsWith( "deploy.log" )
-//                || showFileName.endsWith( "kill.log" )
-//                || showFileName.endsWith( "ment.log" )
-//                || showFileName.endsWith( "warnings.log" )
-//                || $fileSelection.val().includes( "__journal__" ) ) {
-//            return true ;
-//        }
+        return $fileSelection.val().startsWith( "__working__" )
+                || $fileSelection.val().startsWith( "__root__/opt/csap/csap-platform/working" ) ;
 
-//        return false ;
     }
 
     function checkApplicationLogTemplates( selectedFilePath, outputLines ) {
@@ -1262,6 +1258,15 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], fu
         let selectedFilePath = $fileSelection.val() ;
         let outputLines = fileOutput.split( `\n` ) ;
 
+        // defaults
+        $formatSelection.val( "simple" ) ;
+
+        console.log( `determineParser() selectedFilePath: ${ selectedFilePath }` ) ;
+
+        if ( isCsapDeployFileSelected() ) {
+            $formatSelection.val( "text" ) ;
+        }
+
         if ( checkApplicationLogTemplates( selectedFilePath, outputLines ) ) {
             console.log( `Found a matching column parser` ) ;
             $formatSelection.val( "columns" ) ;
@@ -1279,6 +1284,13 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], fu
 
                 let linesTested = 0 ;
                 for ( let testLine of outputLines ) {
+
+                    if ( testLine.length === 0
+                            || testLine.charAt( 0 ) === " "
+                            || testLine.charAt( 0 ) === "\n"
+                            || testLine.charAt( 0 ) === "\t" ) {
+                        continue ;
+                    }
 
                     if ( ++linesTested > 10 ) {
                         break ;
@@ -1330,7 +1342,11 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], fu
 
         let outputLineSeparator = "\n" ;
 
-        if ( currentFormat === "kubelet" ) {
+        if ( currentFormat === "simple" ) {
+
+            logLine = logFormatters.simpleFormatter( logLine ) ;
+
+        } else if ( currentFormat === "kubelet" ) {
             //
             // format 1: typical
             // Mar 22 09:41:42 csap-dev07.***REMOVED*** kubelet[650075]: E0322 09:41:42.876820  650075 reflector.go:138] object-"kube-system"/"kubernetes-services-endpoint":
@@ -1545,13 +1561,13 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], fu
             try {
                 let lineAsJson = JSON.parse( logLine ) ;
                 if ( currentFormat === "log4j" ) {
-                    logLine = formatLog4j2Output( lineAsJson ) ;
+                    logLine = logFormatters.formatLog4j2Output( lineAsJson ) ;
                     if ( !logLine ) {
                         return "" ;
                     }
 
                 } else if ( currentFormat === "log4jDetails" ) {
-                    logLine = formatLog4j2Output( lineAsJson, true ) ;
+                    logLine = logFormatters.formatLog4j2Output( lineAsJson, true ) ;
                     if ( !logLine ) {
                         return "" ;
                     }
@@ -1599,62 +1615,7 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], fu
     }
 
 
-    function formatLog4j2Output( lineAsJson, isDetails ) {
-        let timestamp = lineAsJson.timeMillis ;
-        if ( lineAsJson.friendlyDate ) {
-            timestamp = lineAsJson.friendlyDate ;
-        }
-        let classPath = lineAsJson.loggerFqcn ;
-        if ( lineAsJson.source ) {
-            classPath = lineAsJson.source.class ;
-//            if ( subsystem.length > 20 ) {
-//                subsystem = subsystem.substr( subsystem.length - 20) ;
-//            }
-        }
-        if ( !classPath ) {
-            classPath = "unknown" ;
-        }
-        let logLevel = lineAsJson.level ;
-        if ( !logLevel ) {
-            logLevel = "unknown" ;
-        }
 
-        let outputText = `\n--- # ${ logLevel }\n`
-//        let outputText = "\n---\n" + padLeft( "level" ) + `${ logLevel }\n`
-
-
-        outputText += padLeft( "time:" ) + ` ${ timestamp }\n` ;
-        if ( lineAsJson.source ) {
-
-            let packageSummary = lineAsJson.source.class ;
-            let sourcePackages = packageSummary.split( "." ) ;
-            if ( sourcePackages.length > 3 ) {
-                packageSummary = `${ sourcePackages[0] }.${ sourcePackages[1] }.${ sourcePackages[2] }.<>.` ;
-            }
-            outputText += padLeft( "source:" ) + " " + packageSummary
-                    + `${ lineAsJson.source.file}:${ lineAsJson.source.line } ${ lineAsJson.source.method }()\n`
-        } else {
-            outputText += padLeft( "class:" ) + ` ${ classPath }\n` ;
-        }
-
-        if ( isDetails ) {
-            outputText += padLeft( "thread:" ) + ` ${ lineAsJson.thread }\n`
-
-            if ( lineAsJson.source ) {
-                outputText += padLeft( "class:" ) + ` ${ classPath }\n` ;
-            }
-        }
-
-        let message = lineAsJson.message ;
-        let newLineWords = [ "{", "[" ] ;
-//        let keywords = [ ] ;
-        for ( keyword of newLineWords ) {
-            message = message.replaceAll( `${ keyword }`, `\n${ padLeft( keyword )}` ) ;
-        }
-        outputText += padLeft( "message:" ) + ` ${ message }` ;
-
-        return  outputText ;
-    }
 
     function padLeft( message ) {
         if ( !message.endsWith( ":" ) ) {
@@ -1683,7 +1644,7 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], fu
                 || logLevel.toUpperCase() === "WARN" ) {
 
             // always print 
-            logOutput += dumpAndIndentAsYaml( lineAsJson ) ;
+            logOutput += logFormatters.dumpAndIndentAsYaml( lineAsJson ) ;
             return logOutput ;
 
         }
@@ -1737,7 +1698,7 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], fu
                 || logLevel.toUpperCase() === "WARNING" ) {
 
             // always print 
-            logOutput += dumpAndIndentAsYaml( lineAsJson ) ;
+            logOutput += logFormatters.dumpAndIndentAsYaml( lineAsJson ) ;
             return logOutput ;
 
         }
@@ -1788,7 +1749,7 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], fu
                 || logLevel === "WARN" ) {
 
             // always print 
-            mongoLine += dumpAndIndentAsYaml( lineAsJson ) ;
+            mongoLine += logFormatters.dumpAndIndentAsYaml( lineAsJson ) ;
             return mongoLine ;
 
         }
@@ -1827,27 +1788,23 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], fu
                     || message === "Slow query" )
                     && attributes.command ) {
 
-                mongoLine += dumpAndIndentAsYaml( attributes.command ) ;
+                mongoLine += logFormatters.dumpAndIndentAsYaml( attributes.command ) ;
 
             }
             if ( subsystem === "CONTROL" ) {
-                mongoLine += dumpAndIndentAsYaml( attributes ) ;
+                mongoLine += logFormatters.dumpAndIndentAsYaml( attributes ) ;
 
             } else if ( attributes.message ) {
-                mongoLine += dumpAndIndentAsYaml( attributes.message ) ;
+                mongoLine += logFormatters.dumpAndIndentAsYaml( attributes.message ) ;
             }
 
             if ( attributes.planSummary ) {
-                mongoLine += dumpAndIndentAsYaml( attributes.planSummary ) ;
+                mongoLine += logFormatters.dumpAndIndentAsYaml( attributes.planSummary ) ;
             }
         }
 
 
         return mongoLine ;
-    }
-
-    function dumpAndIndentAsYaml( json ) {
-        return "\n\t\t" + yaml.dump( json ).replaceAll( "\n", "\n\t\t" ) + "\n\n" ;
     }
 
     function  processLogReport( dockerOrPodLogReport ) {

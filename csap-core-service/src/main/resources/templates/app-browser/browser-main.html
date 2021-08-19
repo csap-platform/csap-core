@@ -38,6 +38,11 @@
 
 		<span id=application-name th:text=${applicationName}></span>
 		
+		<label th:if="${ secureUrl != null }" title="https connection available">
+			<a class="csap-link-icon csap-lock" th:href="${ secureUrl }">
+				secure connection available</a>
+		</label>
+		
 		
 
 		<label
@@ -139,7 +144,7 @@
 							
 						<span
 							class="agent-pod-selected level4"
-							data-path="explorer-pod-logs">pod logs</span>
+							data-path="explorer-pod-logs">container logs</span>
 							
 						<span
 							class=" level2"

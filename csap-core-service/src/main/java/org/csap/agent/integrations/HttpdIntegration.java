@@ -4,6 +4,10 @@ import java.io.BufferedWriter ;
 import java.io.File ;
 import java.io.FileWriter ;
 import java.io.IOException ;
+import java.net.URL ;
+import java.nio.file.Files ;
+import java.nio.file.Paths ;
+import java.nio.file.StandardCopyOption ;
 import java.util.ArrayList ;
 import java.util.Arrays ;
 import java.util.HashMap ;
@@ -19,8 +23,11 @@ import org.csap.agent.model.ProjectLoader ;
 import org.csap.agent.model.ServiceAttributes ;
 import org.csap.agent.model.ServiceInstance ;
 import org.csap.helpers.CSAP ;
+import org.csap.integations.CsapWebSettings.SslSettings ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
+import org.springframework.core.io.ClassPathResource ;
+import org.springframework.core.io.DefaultResourceLoader ;
 
 import com.fasterxml.jackson.databind.JsonNode ;
 import com.fasterxml.jackson.databind.ObjectMapper ;
@@ -51,6 +58,10 @@ public class HttpdIntegration {
 	public static String EXPORT_WEB_TAG = "exportWeb" ;
 	public static String PROXY_FILE ;
 	public static String REWRITE_FILE ;
+	public static String SSL_CERT__FILE ;
+	public static String SSL_KEY__FILE ;
+	public static String SSL_P12__FILE ;
+	public static String SSL_PEM__FILE ;
 
 	public static final String GENERATE_WORKER_PROPERTIES = "generateWorkerProperties" ;
 	public static String SKIP_INTERNAL_AJP_TAG = "skipInternalAjp" ;
@@ -60,9 +71,9 @@ public class HttpdIntegration {
 
 	Application csapApp = null ;
 
-	public HttpdIntegration ( Application manager ) {
+	public HttpdIntegration ( Application csapApplication ) {
 
-		this.csapApp = manager ;
+		this.csapApp = csapApplication ;
 
 	}
 
@@ -78,6 +89,10 @@ public class HttpdIntegration {
 		EXPORT_TRIGGER_FILE = csap_web_folder + "exportTrigger.txt" ;
 		HTTP_MODJK_EXPORT_FILE = csap_web_folder + "csspJkMountExport.conf" ;
 		PROXY_FILE = csap_web_folder + "proxy.conf" ;
+		SSL_CERT__FILE = csap_web_folder + "csap.crt" ;
+		SSL_KEY__FILE = csap_web_folder + "csap.key" ;
+		SSL_P12__FILE = csap_web_folder + "csap.p12" ;
+		SSL_PEM__FILE = csap_web_folder + "csap.pem" ;
 
 		logger.debug( "Http Configuration Folder: {}", csap_web_folder ) ;
 
@@ -177,7 +192,15 @@ public class HttpdIntegration {
 
 		}
 
-		StringBuilder progress = new StringBuilder( ) ;
+		var progress = new StringBuilder( ) ;
+
+		var sslSettings = csapApp.getCsapCoreService( ).getCsapWebServer( ).getSettings( ).getSsl( ) ;
+
+		if ( sslSettings.isEnabled( ) ) {
+
+			generateSslFiles( progress, sslSettings ) ;
+
+		}
 
 		generateHttpProxy( progress ) ;
 
@@ -1183,6 +1206,41 @@ public class HttpdIntegration {
 		} catch ( Exception e ) {
 
 			logger.error( "Failed to write file: {}", CSAP.buildCsapStack( e ) ) ;
+
+		}
+
+	}
+
+	private void generateSslFiles ( StringBuilder progress , SslSettings sslSettings ) {
+
+		progress.append( CSAP.buildDescription( "copying",
+				"source", sslSettings.getKeystoreFile( ),
+				"dest", SSL_P12__FILE ) ) ;
+
+		// build certs
+
+//		var p12Url = new URL( sslSettings.getKeystoreFile( ) ) ;
+
+		try {
+
+			var resourceLoader = new DefaultResourceLoader( ) ;
+			var cp = resourceLoader.getResource( sslSettings.getKeystoreFile( ) ) ;
+
+			var src = cp.getInputStream( ) ;
+			Files.copy( src, Paths.get( SSL_P12__FILE ), StandardCopyOption.REPLACE_EXISTING ) ;
+
+			var script = List.of(
+					"bash",
+					"-c",
+					"openssl pkcs12 -in " + SSL_P12__FILE
+							+ " -out " + SSL_PEM__FILE 
+							+ " -nodes -passin pass:" + sslSettings.getKeystorePassword( )) ;
+
+			progress.append( osCommandRunner.executeString( script, csapApp.getCsapWorkingFolder( ) ) ) ;
+
+		} catch ( Exception e ) {
+
+			logger.warn( "Failed loading: {} {}", sslSettings.getKeystoreFile( ), CSAP.buildCsapStack( e ) ) ;
 
 		}
 

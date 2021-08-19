@@ -2306,6 +2306,7 @@ public class KubernetesIntegration {
 				summary.put( "version", versionInfo.getGitVersion( ) ) ;
 				summary.put( "nodeCount", nodeCount( ) ) ;
 				summary.put( "eventCount", eventCount( namespace ) ) ;
+				
 				List<String> namespaces = nameSpaces( ) ;
 				summary.put( "namespaceCount", namespaces.size( ) ) ;
 				summary.set( "namespaces", jsonMapper.valueToTree( namespaces ) ) ;
@@ -2324,6 +2325,8 @@ public class KubernetesIntegration {
 				summary.put( "replicaSetCount", listingsBuilder.replicaSetCount( namespace ) ) ;
 
 				summary.setAll( getCachedNodeHealthMetrics( ) ) ;
+
+				summary.put( "metricsAvailable", metricsBuilder( ).areMetricsAvailable( )  ) ;
 
 			} catch ( Exception e ) {
 

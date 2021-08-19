@@ -693,7 +693,7 @@ class Csap_Reference_Tests extends CsapBareTest {
 					CsapCore.AGENT_NAME ) ;
 			assertThat( agentDefinition.path( Project.DEFINITION_SOURCE ).asText( ) ).isEqualTo( "csap-templates" ) ;
 
-			var agentInstance = getApplication( ).findServiceByNameOnCurrentHost( CsapCore.AGENT_NAME ) ;
+			var agentInstance = getApplication( ).getLocalAgent() ;
 			var agentMonitors = agentInstance.getMonitors( ) ;
 
 			logger.info( "agentMonitors: {}", CSAP.jsonPrint( agentMonitors ) ) ;

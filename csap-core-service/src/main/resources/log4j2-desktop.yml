@@ -99,6 +99,17 @@ Configuration:
         - ref : errorsAppender
           level: warn
         
+#      - name: org.csap.agent.linux.HostStatusManager
+#        level: debug
+#        additivity: false
+#        AppenderRef:  
+#        - ref: consoleAppender
+#        - ref: json-file-appender
+#        - ref : errorsAppender
+#          level: warn
+#        
+        
+        
 #      - name: org.csap.agent.model.ProjectLoader
 #        level: debug
 #        additivity: false

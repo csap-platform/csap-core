@@ -2052,10 +2052,10 @@ public class ProjectLoader {
 
 		} else {
 
-			String url = csapApplication
-					.buildLaunchUrl(
+			var url = csapApplication
+					.buildJavaLaunchUrl(
 							serviceInstance.getHostName( ),
-							":" + serviceInstance.getPort( ) + "/" + serviceInstance.getContext( ) ) ;
+							serviceInstance.getPort( ), "/" + serviceInstance.getContext( ) ) ;
 
 			serviceInstance.setUrl( url ) ;
 
@@ -2064,13 +2064,13 @@ public class ProjectLoader {
 		// override if launchUrl specified
 		if ( serviceDefinition.has( "launchUrl" ) ) {
 
-			String launchUrl = serviceDefinition.path( "launchUrl" ).asText( ) ;
+			var launchUrl = serviceDefinition.path( "launchUrl" ).asText( ) ;
 
 			if ( ! launchUrl.startsWith( "http" ) ) {
 
-				launchUrl = csapApplication.buildLaunchUrl(
+				launchUrl = csapApplication.buildJavaLaunchUrl(
 						serviceInstance.getHostName( ),
-						":" + serviceInstance.getPort( ) + "/" + launchUrl ) ;
+						serviceInstance.getPort( ), "/" + launchUrl ) ;
 
 			}
 
@@ -2082,7 +2082,7 @@ public class ProjectLoader {
 
 			csapProject.getLifeCycleToHostMap( ).get( fullEnvironmentName ).add( hostName ) ;
 
-			String restUrl = csapApplication.getAgentUrl( hostName, "/api/" ) ;
+			var restUrl = csapApplication.getAgentUrl( hostName, "/api/" ) ;
 
 			// hostList.add(hostName);
 			csapProject

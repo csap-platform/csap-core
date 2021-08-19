@@ -10,7 +10,7 @@ const explorerSources = [
 //
 //
 //
-define( explorerSources, function ( utils, podLogs, progress, hostOperations, aceEditor, jsonForms, jsYaml ) {
+define( explorerSources, function ( utils, podLogs, explorerProgress, hostOperations, aceEditor, jsonForms, jsYaml ) {
     
     
     console.log( "Module loaded" ) ;
@@ -75,12 +75,18 @@ define( explorerSources, function ( utils, podLogs, progress, hostOperations, ac
 
 
     let _podsByOwner ;
+    
+    let _dockerContainerNames ;
 
 
     return {
 
         setPodsByOwner: function ( podsByOwner ) {
             _podsByOwner = podsByOwner ;
+        },
+
+        setDockerContainers: function ( containerNames ) {
+            _dockerContainerNames = containerNames ;
         },
 
         refresh_host_status: function () {
@@ -103,9 +109,6 @@ define( explorerSources, function ( utils, podLogs, progress, hostOperations, ac
             service_proxy_dialog( $link ) ;
         },
 
-        kubernetes_container_logs: function ( namespace, podName, containerName, hostName ) {
-            return kubernetes_container_logs( namespace, podName, containerName, hostName ) ;
-        },
 
         containerCommandPath: function () {
             return _dockerContainerPath ;
@@ -116,7 +119,7 @@ define( explorerSources, function ( utils, podLogs, progress, hostOperations, ac
             // THis gets moved around - so hang on 
             $kubernetesNameSpaceSelect = $( "#kubernetes-namespace-select" ) ;
 
-            progress.initialize() ;
+            explorerProgress.initialize() ;
 
             $dockerTree = dockerTree ;
             if ( !_initComplete ) {
@@ -1177,7 +1180,7 @@ define( explorerSources, function ( utils, podLogs, progress, hostOperations, ac
                         reload_folder( hostOperations.categories().dockerImages ) ;
                     }
 
-                    progress.image(
+                    explorerProgress.image(
                             _dockerCommandUrl + "/image/pull/progress",
                             0,
                             onCompleteFunction ) ;
@@ -1493,18 +1496,6 @@ define( explorerSources, function ( utils, podLogs, progress, hostOperations, ac
     }
 
 
-
-
-
-
-    function kubernetes_container_logs( namespace, podName, containerName, hostName ) {
-
-        let commandUrl = utils.getOsExplorerUrl() + "/kubernetes/pods/logs/" + namespace
-                + "/" + podName ;
-
-        progress.kubernetes( 100, commandUrl, containerName, hostName ) ;
-    }
-
     function kubernetes_perform_command( $button ) {
 
         let resourceType = _current_ft_node.type ;
@@ -1627,12 +1618,7 @@ define( explorerSources, function ( utils, podLogs, progress, hostOperations, ac
                             containerNames.push( container.name ) ;
                         }
                     }
-//                    kubernetes.podRows().each( function () {
-//                        let name = $( this ).data( "name" ) ;
-//                        if ( name !== selectedName ) {
-//                            relatedPods.push( name ) ;
-//                        }
-//                    } ) ;
+
                     podLogs.configure(
                             podMetaData.name,
                             podMetaData.namespace,
@@ -1642,9 +1628,6 @@ define( explorerSources, function ( utils, podLogs, progress, hostOperations, ac
 
 
                     utils.launchMenu( "agent-tab,explorer-pod-logs" ) ;
-//                    utils.openAgentWindow( hostName, "/app-browser#agent-tab,logs", appParams ) ;
-//                    kubernetes_container_logs( podMetaData.namespace, podMetaData.name,
-//                            podSpec.containers[0].name, podAttributes.hostname ) ;
                 }
                 break ;
 
@@ -1815,7 +1798,11 @@ define( explorerSources, function ( utils, podLogs, progress, hostOperations, ac
                 break ;
 
             case "tail" :
-                progress.docker( _currentContainerNode.containerName, 100 ) ;
+                // explorerProgress.docker( _currentContainerNode.containerName, 100 ) ;
+
+                    podLogs.configure( _currentContainerNode.containerName, null, _dockerContainerNames ) ;
+                    utils.launchMenu( "agent-tab,explorer-pod-logs" ) ;
+                    
                 break ;
 
 

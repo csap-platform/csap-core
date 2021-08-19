@@ -405,14 +405,14 @@ public class HttpCollector {
 
 	private ResponseEntity<String> perform_collection (
 														ServiceInstance serviceInstance ,
-														String httpCollectionUrl ,
+														String httpCollectionUrlRequested ,
 														ObjectNode httpConfig ,
 														ContainerState container )
 		throws IOException {
 
-		logger.debug( "httpCollectionUrl: {}", httpCollectionUrl ) ;
+		logger.debug( "httpCollectionUrl: {}", httpCollectionUrlRequested ) ;
 
-		httpCollectionUrl = serviceInstance.resolveRuntimeVariables( httpCollectionUrl ) ;
+		var httpCollectionUrl = serviceInstance.resolveRuntimeVariables( httpCollectionUrlRequested ) ;
 
 		if ( serviceInstance.is_cluster_kubernetes( ) && httpCollectionUrl.contains( CsapCore.K8_POD_IP ) ) {
 
@@ -421,7 +421,9 @@ public class HttpCollector {
 					container.getPodIp( ) ) ;
 
 		}
+		
 
+		var desktopTest = false ;
 		if ( csapApplication.isDesktopProfileActive( ) && httpCollectionUrl.contains( "localhost" ) ) {
 
 			if ( printLocalWarning ) {
@@ -431,6 +433,7 @@ public class HttpCollector {
 				printLocalWarning = false ;
 
 			}
+			desktopTest = true ;
 
 			httpCollectionUrl = httpCollectionUrl.replaceAll(
 					Matcher.quoteReplacement( "localhost.***REMOVED***:7011/api" ),
@@ -466,10 +469,23 @@ public class HttpCollector {
 
 		}
 
-		RestTemplate localRestTemplate = getRestTemplate(
-				serviceCollector.getMaxCollectionAllowedInMs( ),
-				user,
-				pass, serviceInstance.getName( ) + " collection password" ) ;
+		RestTemplate localRestTemplate ;
+
+		var currentHostUrl = csapApplication.getAgentUrl( "", "" ) ;
+		if ( httpCollectionUrl.startsWith( currentHostUrl  ) 
+				|| desktopTest)  {
+
+			localRestTemplate = csapApplication.getAgentPooledConnection( 10l, 
+					(int) serviceCollector.getMaxCollectionAllowedInMs( ) / 1000 ) ;
+
+		} else {
+
+			localRestTemplate = getRestTemplate(
+					serviceCollector.getMaxCollectionAllowedInMs( ),
+					user,
+					pass, serviceInstance.getName( ) + " collection password" ) ;
+
+		}
 
 		ResponseEntity<String> collectionResponse ;
 

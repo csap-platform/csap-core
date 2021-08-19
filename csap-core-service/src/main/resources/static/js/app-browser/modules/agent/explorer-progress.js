@@ -1,4 +1,4 @@
-define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
+define( [ "file/log-formatters", "browser/utils", "ace/ace" ], function ( logFormatters, utils, aceEditor ) {
 
     console.log( "Module loaded" ) ;
 
@@ -6,7 +6,12 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
     let _progressViewer ;
 
 
-    let $progressText, $progressDialog ;
+    //let $progressText, $progressDialog ;
+
+    const $progressDialog = $( "#progress-results-dialog" ) ;
+    const $progressText = $( "#progress-results-text", $progressDialog ) ;
+
+    const $progressFormatCheckbox = $( "#progress-auto-format", $progressDialog ) ;
 
     // resources
     let _dockerRefreshFunction = null, _kubernetesRefreshFunction = null ;
@@ -44,17 +49,6 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
             docker_progress( delay ) ;
         },
 
-        kubernetes: function ( delay, podLogUrl, containerName, host ) {
-
-            _containerName = "/" + containerName ;
-            _hostName = host ;
-            _podLogUrl = podLogUrl ;
-
-            buildKuberntesRefreshFunction( podLogUrl, containerName ) ;
-            show_progress_dialog( "Kubernetes Logs:" + containerName ) ;
-            kubernetes_progress( delay ) ;
-        },
-
         image: function ( progressUrl, offset, onCompleteFunction ) {
             show_progress_dialog( "Image Pull:" ) ;
             image_progress( progressUrl, offset, onCompleteFunction ) ;
@@ -66,8 +60,6 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
     function initialize() {
 
 
-        $progressDialog = $( "#progress-results-dialog" ) ;
-        $progressText = $( "#progress-results-text", $progressDialog ) ;
 
         $( "#progress-clear-button" ).click( function () {
             console.log( "clearing" ) ;
@@ -77,7 +69,16 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
         } ) ;
 
 
-        $( "#previous-terminated" ).change( function () {
+        $progressFormatCheckbox.change( function () {
+
+            let theme = utils.getAceDefaults( "ace/mode/yaml", true ).theme ;
+            let isLogFormat = $progressFormatCheckbox.prop( "checked" ) ;
+
+            if ( isLogFormat ) {
+                theme = "ace/theme/merbivore_soft" ;
+            }
+            _progressViewer.setTheme( theme ) ;
+
             $( "#progress-clear-button" ).trigger( "click" ) ;
             $( "#progress-line-select" ).trigger( "change" ) ;
         } ) ;
@@ -98,7 +99,7 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
             }
         } ) ;
 
-        $( "#wrapOutput" ).change( function () {
+        $( "#wrapOutput", $progressDialog ).change( function () {
 
             if ( $( this ).is( ":checked" ) ) {
                 _progressViewer.session.setUseWrapMode( true ) ;
@@ -112,10 +113,10 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
         $( "#progress-new-window" ).click( openLogsInNewWindow ) ;
 
         _progressViewer = aceEditor.edit( "progress-results-text" ) ;
-        //editor.setTheme("ace/theme/twilight");
-        //editor.session.setMode("ace/mode/yaml");
 
-        _progressViewer.setOptions( utils.getAceDefaults("ace/mode/sh", true) ) ;
+        let aceOptions = utils.getAceDefaults( "ace/mode/yaml", true ) ;
+        aceOptions.theme = "ace/theme/merbivore_soft" ;
+        _progressViewer.setOptions( aceOptions ) ;
 
     }
 
@@ -126,69 +127,26 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
 
         if ( _hostName != null ) {
             theLogHost = _hostName ;
-//            let baseUrl = agentHostUrlPattern.replace( /CSAP_HOST/g, _hostName ) ;
-//            launchUrl = baseUrl + "/file/FileMonitor" ;
-//
-//            if ( isIpAddress( _hostName ) ) {
-//                launchUrl = `http://${ _hostName }${ AGENT_ENDPOINT }/file/FileMonitor` ;
-//                console.log( "Warning: stripping domain name from IP:", launchUrl ) ;
-//            }
+
         }
 
-//        let parameters = `fileName=${ "__docker__" + _containerName}&hostName=${theLogHost}&podName=${_podLogUrl}` ;
-//        let encodedUrl = launchUrl + "?" + encodeURI( parameters ) ;
-            let paramaters = {
-                fileName: `__docker__${ _containerName }`,
-                podName: _podLogUrl ,
-                hostName: theLogHost
-            } ;
-            
-            
+        let paramaters = {
+            fileName: `__docker__${ _containerName }`,
+            podName: _podLogUrl,
+            hostName: theLogHost
+        } ;
+
+
         console.log( `openLogsInNewWindow:`, paramaters ) ;
 
-            utils.openAgentWindow(
-                    theLogHost,
-                    `${ utils.getFileUrl() }/FileMonitor`,
-                    paramaters ) ;
+        utils.openAgentWindow(
+                theLogHost,
+                `${ utils.getFileUrl() }/FileMonitor`,
+                paramaters ) ;
 
-//        window.open( encodedUrl, '_blank' );
 
-//        let parameters = {
-//            fileName: "__docker__" + _containerName,
-//            serviceName: null,
-//            hostName: theLogHost,
-//            podName: _podLogUrl
-//        } ;
-//
-//
-//        console.log( "tailing container in new window: ",
-//                parameters ) ;
-//
-//        postAndRemove( "_blank",
-//                launchUrl,
-//                parameters ) ;
 
         return false ;
-    }
-
-
-    function progress_resize() {
-
-        clearTimeout( _results_resize_timer ) ;
-
-        _results_resize_timer = setTimeout( function () {
-
-            let logControlsHeight = Math.round( $( "#logControls" ).outerHeight( true ) ) ;
-            let maxHeight = Math.round( $progressText.parent().parent().outerHeight( true ) )
-                    - 45 ;
-
-            let maxWidth = Math.round( $progressText.parent().parent().outerWidth( true ) ) - 10 ;
-            console.log( "maxHeight:", maxHeight, " logControlsHeight:", logControlsHeight ) ;
-            $progressText.css( "height", maxHeight ) ;
-            $progressText.css( "width", maxWidth ) ;
-            _progressViewer.resize() ;
-            //$resultsText.css( "width", Math.round($resultsText.parent().parent().outerWidth( true ) - 200) );
-        }, 500 ) ;
     }
 
 
@@ -207,8 +165,6 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
         progress_alertify.setting( {
             title: "Operation: " + operation
         } ) ;
-
-//        progress_resize() ;
 
     }
 
@@ -267,44 +223,6 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
 
     }
 
-    function kubernetes_progress( delay ) {
-        clearTimeout( _progressTimer ) ;
-        _progressTimer = setTimeout( _kubernetesRefreshFunction, delay ) ;
-    }
-
-    function buildKuberntesRefreshFunction( podLogUrl, containerName ) {
-        _kubernetesRefreshFunction = function () {
-
-
-            _tailParameters = {
-                "since": _logSince,
-                "containerName": containerName,
-                "previousTerminated": $( "#previous-terminated" ).is( ":checked" ),
-                numberOfLines: $( "#progress-line-select" ).val()
-            }
-
-
-            console.log( "performContainerTail: ", podLogUrl )
-
-            $.get( podLogUrl, _tailParameters )
-                    .done( function ( commandResults ) {
-                        // showContainerTail( commandUrl, commandResults );
-                        if ( _progressTimer == null ) {
-                            console.log( "window closed - skipping update" ) ;
-                            return ;
-                        }
-                        progress_append( commandResults ) ;
-                        _logSince = commandResults.since ;
-                        kubernetes_progress( 2000, podLogUrl, containerName ) ;
-                    } )
-                    .fail( function ( jqXHR, textStatus, errorThrown ) {
-                        alertify.alert( "Failed Operation: " + jqXHR.statusText, "Contact your administrator" ) ;
-                    } ) ;
-
-        }
-    }
-
-
 
     function docker_progress( delay ) {
 
@@ -357,16 +275,31 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
         let emptyLogsMessage = "No container logs found - verify start has been issued" ;
         let aceEditorSession = _progressViewer.session ;
 
-        if ( ( _firstTail && result.plainText && result.plainText.length == 0 ) ||
-                emptyLogsMessage == $progressText.text() ) {
+        if ( ( _firstTail
+                && result.plainText
+                && result.plainText.length === 0 )
+                || emptyLogsMessage === $progressText.text() ) {
+
             _progressViewer.setValue( emptyLogsMessage, -1 ) ;
 
-        } else if ( result.plainText && result.plainText.length != _progressViewer.getValue().length ) {
+        } else if ( result.plainText
+                && result.plainText.length != _progressViewer.getValue().length ) {
+
             console.log( "updateResultText() newContent length: ", result.plainText.length, "editor length: ", _progressViewer.getValue().length ) ;
+
+
+            let isLogFormat = $progressFormatCheckbox.prop( "checked" ) ;
+            let logContent = result.plainText ;
+
+            if ( isLogFormat ) {
+                logContent = logFormatters.simpleFormatter( result.plainText ) ;
+            }
+
+
             aceEditorSession.insert( {
                 row: aceEditorSession.getLength(),
                 column: 0
-            }, result.plainText ) ;
+            }, logContent ) ;
 
         } else if ( result.error ) {
 

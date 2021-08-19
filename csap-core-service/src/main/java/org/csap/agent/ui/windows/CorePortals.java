@@ -96,6 +96,17 @@ public class CorePortals {
 		this.application = csapApp ;
 		this.csapInformation = globalContext ;
 		this.csapEventClient = csapEventClient ;
+		
+		var restTemplateFactory = new CsapRestTemplateFactory( 
+				csapApp.getCsapCoreService( ).getSslCertificateUrl( ), 
+				csapApp.getCsapCoreService( ).getSslCertificatePass( ) ) ;
+		
+		podProxyRestTemplate = restTemplateFactory.buildDefaultTemplate(
+				"PodProxyConnections",
+				false,
+				1, 20, // max per route, max total
+				5, 5, // timeouts
+				30 + 30 ) ; // idle time
 
 	}
 
@@ -378,7 +389,7 @@ public class CorePortals {
 
 		if ( adminInstance == null ) {
 
-			adminInstance = application.findServiceByNameOnCurrentHost( CsapCore.AGENT_NAME ) ;
+			adminInstance = application.getLocalAgent() ;
 
 		}
 
@@ -490,13 +501,8 @@ public class CorePortals {
 
 	}
 
-	CsapRestTemplateFactory restTemplateFactory = new CsapRestTemplateFactory( ) ;
-	private RestTemplate podProxyRestTemplate = restTemplateFactory.buildDefaultTemplate(
-			"PodProxyConnections",
-			false,
-			1, 20, // max per route, max total
-			5, 5, // timeouts
-			30 + 30 ) ; // idle time
+
+	private RestTemplate podProxyRestTemplate ;
 
 	@GetMapping ( "/podProxy/{serviceid}" )
 	@ResponseBody

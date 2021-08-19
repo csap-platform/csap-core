@@ -40,8 +40,9 @@ csap-core:
 
   screen-cast-server-url: "http://csap-dev01.***REMOVED***:7080/"
 
-  # http://CSAP_HOST.yourcompany.com:8011/CsAgent
-  host-url-pattern: "${hostUrlPattern:auto}"
+  # http://CSAP_HOST.yourcompany.com:8011
+#  host-url-pattern: "${hostUrlPattern:auto}"
+  host-url-pattern: auto
 
   disable-ssl-validation: false
   
@@ -80,10 +81,19 @@ csap-core:
     service-live-help: https://github.com/csap-platform/csap-core/wiki/CsapMicroMeter
     autoplay-help: https://github.com/csap-platform/csap-core/wiki/Csap-Autoplay
     command-runner: https://github.com/csap-platform/csap-core/wiki/Host-Portal#command-runner
+    ssl-configuration: https://github.com/csap-platform/csap-core/wiki/SSL-Configuration
     
   
     
 csap:
+  web-server:
+  
+    ssl:
+      # trigger rest templates and UI
+      self-signed: true
+#      client: false     # disable server side ssl client
+#      keystore-file: "" # disable embedded ssl server
+
 
   security:
 

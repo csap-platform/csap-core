@@ -1213,7 +1213,8 @@ public class HealthManager {
 		var podCount = 0 ;
 		var podRestartCount = 0 ;
 		var volumeCount = 0 ;
-		var kuberntesNodeCount = 0 ;
+		var kubernetesNodeCount = 0 ;
+		var kubernetesMetrics = false ;
 
 		var hostSessions = summaryReport.putArray( "host-sessions" ) ;
 
@@ -1236,7 +1237,14 @@ public class HealthManager {
 			if ( application.isKubernetesInstalledAndActive( ) ) {
 
 				kubernetesEventCount = (int) application.getKubernetesIntegration( ).eventCount( null ) ;
-				kuberntesNodeCount = (int) application.getKubernetesIntegration( ).nodeCount( ) ;
+				
+				//refresh Metrics 
+				application.getKubernetesIntegration( ).metricsBuilder( ).cachedKubeletReport( ) ;
+				
+				kubernetesMetrics = application.getKubernetesIntegration( )
+						.metricsBuilder( )
+						.areMetricsAvailable( ) ;
+				kubernetesNodeCount = (int) application.getKubernetesIntegration( ).nodeCount( ) ;
 				var podCountsReport = application.getKubernetesIntegration( ).podCountsReport( null ) ;
 				podCount = podCountsReport.path( "count" ).asInt( ) ;
 				podRestartCount = podCountsReport.path( "restarts" ).asInt( ) ;
@@ -1306,8 +1314,8 @@ public class HealthManager {
 
 					}
 
-					var hostPodRestartCount = hostStatus.path( "kubernetes" ).path( "podReport" ).path( "restarts" )
-							.asInt( ) ;
+					var hostPodRestartCount = hostStatus.path( "kubernetes" )
+							.path( "podReport" ).path( "restarts" ).asInt( ) ;
 
 					if ( hostPodRestartCount > 0 ) {
 
@@ -1319,7 +1327,15 @@ public class HealthManager {
 
 					if ( hostNodeCount > 0 ) {
 
-						kuberntesNodeCount = hostNodeCount ;
+						kubernetesNodeCount = hostNodeCount ;
+
+					}
+
+					var hostKubMetrics = hostStatus.path( "kubernetes" ).path( "metricsAvailable" ).asBoolean( ) ;
+
+					if ( hostKubMetrics ) {
+
+						kubernetesMetrics = hostKubMetrics ;
 
 					}
 
@@ -1345,7 +1361,8 @@ public class HealthManager {
 		summaryReport.put( "hosts", hostCount ) ;
 		summaryReport.put( "hosts-all-projects", hostAllProjectCount ) ;
 
-		summaryReport.put( "kubernetesNodes", kuberntesNodeCount ) ;
+		summaryReport.put( "kubernetesNodes", kubernetesNodeCount ) ;
+		summaryReport.put( "kubernetesMetrics", kubernetesMetrics ) ;
 		summaryReport.put( "volumeCount", volumeCount ) ;
 		summaryReport.put( "kubernetesEvents", kubernetesEventCount ) ;
 		summaryReport.put( "podCount", podCount ) ;

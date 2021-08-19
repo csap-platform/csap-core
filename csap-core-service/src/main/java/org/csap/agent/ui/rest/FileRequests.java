@@ -1013,8 +1013,9 @@ public class FileRequests {
 
 							if ( jobItem.isFile( ) ) {
 
-								String fullFilePath = Application.FileToken.ROOT.value + "/" + jobItem.getPath( ) ;
-								String label = getShortNameFromCsapFilePath( fullFilePath ) ;
+//								var fullFilePath = Application.FileToken.ROOT.value + "/" + jobItem.getPath( ) ;
+								var fullFilePath = Application.FileToken.ROOT.value + jobItem.getPath( ) ;
+								var label = getShortNameFromCsapFilePath( fullFilePath ) ;
 								serviceJobMap.put( label.substring( "serviceJobs".length( ) + 1 ), fullFilePath ) ;
 
 							}

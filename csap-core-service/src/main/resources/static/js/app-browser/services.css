@@ -1026,10 +1026,10 @@ div#services-tab-content #services-tab-kpods div#pods-summary {
 	word-break: break-all ;
 }
 
-#services-tab-kpod-instances table tr td button.csap-search {
+#services-tab-kpod-instances table tr td button.csap-icon {
 	opacity: 0;
 }
-#services-tab-kpod-instances table tr:hover td button.csap-search {
+#services-tab-kpod-instances table tr:hover td button.csap-icon {
 	opacity: 1.0;
 }
 
@@ -1037,10 +1037,18 @@ div#services-tab-content #services-tab-kpods div#pods-summary {
 	#services-tab-knode-instances table tr td label, #services-tab-kvolumes table tr td label
 	{
 	display: grid;
-	grid-template-columns: 2em auto;
+	grid-template-columns: 1em auto;
+	column-gap: 1em;
 	align-items: start;
 }
 
+#services-tab-kpod-instances table tr td label {
+	grid-template-columns: 1em auto 1em;
+}
+
+#services-tab-kpod-instances table tr td span.host {
+	margin-top: 2px;
+}
 #services-tab-content .describe-container, #services-tab-content .describe-container pre
 	{
 	height: 100%;
@@ -1088,6 +1096,10 @@ div#services-tab-content #services-tab-kpods div#pods-summary {
 	height: 100%;
 }
 
+#services-tab-pod-logs label.csap {
+	margin-left: 10px ;
+}
+
 #services-tab-pod-logs #kubernetes-log-viewer {
 	height: 100%;
 	overflow: hidden;
@@ -1112,9 +1124,14 @@ div#services-tab-content #services-tab-kpods div#pods-summary {
 }
 
 #k8s-logs-controls select {
-	max-width: 20em;
+	max-width: 12em;
 	text-overflow: ellipsis;
 }
+
+#k8s-logs-controls #pod-hover-controls {
+	font-size: 10pt ;
+}
+
 
 #k8s-logs-controls span.quote {
 	margin: 0;

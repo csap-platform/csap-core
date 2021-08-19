@@ -105,14 +105,10 @@ article.navigation div.tab-menu>span.agent-pod-selected {
 	align-items: center ;
 }
 
-#agent-tab-explorer-pod-logs #k8s-logs-controls #hide-pod-logs {
-	font-size: 10pt;
-	margin-right: 1em;
-}
 
-#agent-tab-explorer-pod-logs #k8s-logs-controls select {
-	max-width: 20em;
-	text-overflow: ellipsis;
+article.content #agent-tab-explorer-pod-logs a.csap-remove {
+	padding-left: 20px;
+	background-size: 16px 16px;
 }
 
 #agent-tab-explorer-pod-logs #k8s-logs-controls span.quote {

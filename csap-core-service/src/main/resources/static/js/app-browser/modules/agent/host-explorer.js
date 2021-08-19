@@ -86,7 +86,9 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
         } ) ;
 
 
-        createContainerDialog.initialize() ;
+        createContainerDialog.initialize( function() {
+            explorerOps.refreshFolder( hostOps.categories().dockerImages ) ;
+        }) ;
 
         $filterControls = $( "#filterControls" ) ;
         $treeFilter = $( "#tree-display-filter" ) ;
@@ -1052,7 +1054,7 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
 
     function children_using_parent_dockerPorts( portArray ) {
 
-        console.log( "buildDockerPortsTable", portArray ) ;
+        console.debug( "buildDockerPortsTable", portArray ) ;
         $portTable = $( "#dockerPortsTemplate" ).clone() ;
 
         $portBody = $( "tbody", $portTable ) ;
@@ -1062,8 +1064,8 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
             let $row = jQuery( '<tr/>', { } ) ;
             let portIp = portSetting.IP ;
 
-            if ( portIp.length < 5 ) {
-                console.debug( `portIp is less the 5 characters, skipping table`, portSetting ) ;
+            if ( portIp == "::" ) {
+                console.debug( `skipping null ip`, portSetting ) ;
                 continue ;
             }
 
@@ -1074,7 +1076,7 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
             $publicCol = jQuery( '<td/>', { } ) ;
             $publicCol.appendTo( $row ) ;
 
-            console.log( "window.location.hostname ", window.location.hostname ) ;
+            console.debug( "window.location.hostname ", window.location.hostname ) ;
 
             // default to url shown
             let portUrl = "http://" + window.location.hostname + ":" + portSetting.PublicPort ;
@@ -1086,14 +1088,23 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
                     portUrl = "http" + portUrl.substring( 3 ) ;
                 }
 
-                console.log( "localhost workaround - using docker Url", portUrl ) ;
+                console.info( "localhost workaround - using docker Url", portUrl ) ;
             }
-            jQuery( '<a/>', {
-                href: portUrl,
-                class: "csap-link-icon launch-window",
-                target: "_blank",
-                text: portSetting.PublicPort
-            } ).appendTo( $publicCol ) ;
+
+            if ( !portIp ) {
+                jQuery( '<span/>', {
+                    text: "not-assigned"
+                } )
+                        .css( "font-style", "italic" )
+                        .appendTo( $publicCol ) ;
+            } else {
+                jQuery( '<a/>', {
+                    href: portUrl,
+                    class: "csap-link-icon launch-window",
+                    target: "_blank",
+                    text: portSetting.PublicPort
+                } ).appendTo( $publicCol ) ;
+            }
 
 
             jQuery( '<td/>', {
@@ -1567,6 +1578,16 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
 
         console.log( `children_using_array() - parentType: ${parentType}, children: `, folderItems, "\n event ", event ) ;
 
+        if ( parentType
+                && parentType === hostOps.categories( ).dockerContainers ) {
+
+            let containerNames = new Array() ;
+            for ( let folderItem of folderItems ) {
+                containerNames.push( folderItem.label ) ;
+            }
+
+            explorerOps.setDockerContainers( containerNames ) ;
+        }
 
 
         if ( parentType == hostOps.categories().kubernetesPods ) {

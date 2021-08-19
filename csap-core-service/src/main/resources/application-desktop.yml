@@ -9,6 +9,16 @@ csap-core:
 
   installation-folder: target/csap-platform
   
+  # testing only
+  ssl-force-hosts:
+    - csap-dev20
+    
+  disable-ssl-validation: false
+  
+#  host-url-pattern: "https://CSAP_HOST.***REMOVED***:8011"
+#  host-url-pattern: "${hostUrlPattern:auto}"
+
+  
   docker: 
     url: "tcp://localhost:4243"
   

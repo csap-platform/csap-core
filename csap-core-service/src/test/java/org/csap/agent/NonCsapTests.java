@@ -2,8 +2,10 @@ package org.csap.agent ;
 
 import static org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder ;
 
+import java.io.BufferedReader ;
 import java.io.File ;
 import java.io.IOException ;
+import java.io.InputStreamReader ;
 import java.io.OutputStream ;
 import java.lang.management.ManagementFactory ;
 import java.lang.management.MemoryMXBean ;
@@ -16,6 +18,7 @@ import java.nio.charset.Charset ;
 import java.nio.file.Files ;
 import java.nio.file.Path ;
 import java.nio.file.Paths ;
+import java.nio.file.StandardCopyOption ;
 import java.text.DecimalFormat ;
 import java.time.Duration ;
 import java.time.LocalDate ;
@@ -55,6 +58,9 @@ import org.junit.jupiter.api.Disabled ;
 import org.junit.jupiter.api.Test ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
+import org.springframework.core.io.ByteArrayResource ;
+import org.springframework.core.io.ClassPathResource ;
+import org.springframework.core.io.DefaultResourceLoader ;
 import org.springframework.http.HttpEntity ;
 import org.springframework.http.HttpHeaders ;
 import org.springframework.http.HttpMethod ;
@@ -117,16 +123,49 @@ public class NonCsapTests {
 	}
 
 	ObjectMapper jsonMapper = new ObjectMapper( ) ;
-	
+
+	@Disabled
+	@Test
+	void writeResource ( ) throws Exception {
+
+		logger.info( CsapApplication.testHeader( ) ) ;
+
+		//var cp = new ClassPathResource("/info.png" ) ;
+		var resourceLoader = new DefaultResourceLoader();
+		var cp = resourceLoader.getResource("/info.png" ) ;
+
+		var src = cp.getInputStream( ) ;
+		
+
+//		try ( var reader = new BufferedReader(
+//				new InputStreamReader( resource ) ) ) {
+//			
+//
+//			String springContent = reader.lines( )
+//					.collect( Collectors.joining( "\n" ) ) ;
+//			
+//			
+//			logger.info( "springContent: {}", springContent ) ;
+//
+//		}
+
+		
+		//InputStream src = c.getResourceAsStream(res);
+	    Files.copy(src, Paths.get("/dev/peter.png"), StandardCopyOption.REPLACE_EXISTING);
+	    
+		// logger.info( "MissingNode.getInstance int value: {}", misValue );
+
+	}
 
 	@Test
 	void missingNodeToInt ( ) {
+
 		logger.info( CsapApplication.testHeader( ) ) ;
-		
+
 		int misValue = MissingNode.getInstance( ).asInt( ) ;
-		
-		logger.info( "MissingNode.getInstance int value: {}", misValue );
-		
+
+		logger.info( "MissingNode.getInstance int value: {}", misValue ) ;
+
 	}
 
 	@Test
@@ -789,7 +828,7 @@ public class NonCsapTests {
 
 		logger.info( CsapApplication.testHeader( ) ) ;
 
-		CsapRestTemplateFactory factory = new CsapRestTemplateFactory( ) ;
+		CsapRestTemplateFactory factory = new CsapRestTemplateFactory( null, null ) ;
 
 		RestTemplate sslTestTemplate = factory.buildDefaultTemplate( "junit", false, 10, 10, 5, 60, 300 ) ;
 

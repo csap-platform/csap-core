@@ -1,6 +1,9 @@
 package org.csap.agent ;
 
+import java.io.IOException ;
 import java.lang.reflect.Method ;
+import java.net.MalformedURLException ;
+import java.net.URL ;
 import java.util.Arrays ;
 import java.util.List ;
 import java.util.Map ;
@@ -18,11 +21,14 @@ import org.csap.agent.ui.rest.HostRequests ;
 import org.csap.agent.ui.rest.ServiceRequests ;
 import org.csap.agent.ui.rest.TrendCache ;
 import org.csap.alerts.AlertSettings ;
+import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
 import org.csap.helpers.CsapRestTemplateFactory ;
+import org.csap.integations.CsapEncryptionConfiguration ;
 import org.csap.integations.CsapInformation ;
 import org.csap.integations.CsapMicroMeter ;
 import org.csap.integations.CsapSecurityConfiguration ;
+import org.csap.integations.CsapWebServerConfig ;
 import org.csap.security.config.CsapSecurityRoles ;
 import org.csap.security.config.CsapSecuritySettings ;
 import org.slf4j.Logger ;
@@ -33,6 +39,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties ;
 import org.springframework.cache.interceptor.KeyGenerator ;
 import org.springframework.context.annotation.Bean ;
 import org.springframework.context.annotation.Import ;
+import org.springframework.core.io.Resource ;
 import org.springframework.core.task.TaskExecutor ;
 import org.springframework.http.HttpMethod ;
 import org.springframework.http.converter.FormHttpMessageConverter ;
@@ -86,15 +93,39 @@ public class CsapCoreService implements WebMvcConfigurer {
 	private String hostUrlPattern = "" ;
 	private String hostUrlPatternInternal = null ;
 
+	//
+	//  ssl settings: map to CsapRestTemplate
+	//
+	private List<String> sslForceHosts ;
+
 	private List<String> dockerUiDefaultImages ;
 
 	private Map<String, String> helpUrls ;
+	
+
+
+	@Autowired
+	CsapInformation csapInformation ;
+	
+	@Autowired
+	CsapMicroMeter.Utilities meterUtilities ;
+
+	CsapWebServerConfig csapWebServer ;
+	CsapEncryptionConfiguration csapEncrypt ;
+	
+	public CsapCoreService( CsapWebServerConfig csapWebServer, CsapEncryptionConfiguration csapEncrypt ) {
+		
+		this.csapWebServer = csapWebServer ;
+		this.csapEncrypt = csapEncrypt ;
+		
+	}
 
 	public static boolean isRunningOnDesktop ( ) {
 
 		return ! CsapApplication.isCsapFolderSet( ) ;
 
 	}
+	
 
 	// Security
 	// must be synced with ehcache.xml
@@ -243,9 +274,6 @@ public class CsapCoreService implements WebMvcConfigurer {
 	}
 
 	private int ONE_YEAR_SECONDS = 60 * 60 * 24 * 365 ;
-
-	@Autowired
-	CsapInformation csapInformation ;
 
 	// https://spring.io/blog/2014/07/24/spring-framework-4-1-handling-static-web-resources
 	// http://www.mscharhag.com/spring/resource-versioning-with-spring-mvc
@@ -435,8 +463,8 @@ public class CsapCoreService implements WebMvcConfigurer {
 
 	@Bean
 	public CsapRestTemplateFactory csapRestFactory ( ) {
-
-		return new CsapRestTemplateFactory( ) ;
+		
+		return new CsapRestTemplateFactory( getSslCertificateUrl( ) , getSslCertificatePass( ) ) ;
 
 	}
 
@@ -445,7 +473,7 @@ public class CsapCoreService implements WebMvcConfigurer {
 	public RestTemplate getAdminConnection ( CsapRestTemplateFactory factory ) {
 
 		// 1 1 for testing, 20, 20
-		return factory.buildDefaultTemplate( "Admin", isDisableSslValidation( ), 10, 10, 2, 4, 300 ) ;
+		return factory.buildDefaultTemplate( "csap-admin", isDisableSslValidation( ), 10, 10, 2, 4, 300 ) ;
 
 	}
 
@@ -454,7 +482,7 @@ public class CsapCoreService implements WebMvcConfigurer {
 	public RestTemplate getCsapAnalyticsService ( CsapRestTemplateFactory factory ) {
 
 		// 1 1 for testing, 20, 20
-		return factory.buildDefaultTemplate( "Analytics", isDisableSslValidation( ), 10, 10, 5, 60, 300 ) ;
+		return factory.buildDefaultTemplate( "csap-analytics", isDisableSslValidation( ), 10, 10, 5, 60, 300 ) ;
 
 	}
 
@@ -462,7 +490,7 @@ public class CsapCoreService implements WebMvcConfigurer {
 	@Bean ( name = "trendRestTemplate" )
 	public RestTemplate getTrendAnalyticsService ( CsapRestTemplateFactory factory ) {
 
-		return factory.buildDefaultTemplate( "Trending", isDisableSslValidation( ), 10, 10, 5, 60, 300 ) ;
+		return factory.buildDefaultTemplate( "csap-event-trends", isDisableSslValidation( ), 10, 10, 5, 60, 300 ) ;
 
 	}
 
@@ -515,62 +543,12 @@ public class CsapCoreService implements WebMvcConfigurer {
 
 	}
 
-	@Autowired
-	CsapMicroMeter.Utilities meterUtilities ;
-
-	// // Summary of all public events in class
-	// @Pointcut ( "execution(public *
-	// org.csap.agent.ui.rest.ServiceRequests.*(..))" )
-	// private void servicePC () {}
-	//
-	// ;
-	//
-	// @Around ( "servicePC()" )
-	// public Object serviceAdvice ( ProceedingJoinPoint pjp )
-	// throws Throwable {
-	// return microMeterHelper.timedExecution( pjp, "ui." ) ;
-	//
-	// }
-
-	// @Pointcut ( "execution(public * org.csap.agent.integrations.Vsphere.*(..))" )
-	// private void govcPC () {}
-	//
-	// ;
-	//
-	// @Around ( "govcPC()" )
-	// public Object govcAdvice ( ProceedingJoinPoint pjp )
-	// throws Throwable {
-	// return microMeterHelper.timedExecution( pjp, "ui." ) ;
-	//
-	// }
-
-	// Summary of all public events in class
-	// @Pointcut ( "execution(public * org.csap.agent.ui.rest.HostRequests.*(..))" )
-	// private void hostPC () {}
-	//
-	// ;
-	//
-	// @Around ( "hostPC()" )
-	// public Object hostAdvice ( ProceedingJoinPoint pjp )
-	// throws Throwable {
-	//
-	// return microMeterHelper.timedExecution( pjp, "ui." ) ;
-	//
-	// }
-
 	@Pointcut ( "within(org.csap.agent.model.Application)" )
 	private void csapModelPC ( ) {
 
 	}
 
-	// @Around ( "csapModelPC()" )
-	// public Object modelAdvice ( ProceedingJoinPoint pjp )
-	// throws Throwable {
-	//
-	// Object obj = CsapPerformance.executeSimon( pjp, "model." );
-	//
-	// return obj;
-	// }
+
 
 	@Pointcut ( "within(org.csap.agent.integrations..*)" )
 	private void integrationsPC ( ) {
@@ -629,29 +607,6 @@ public class CsapCoreService implements WebMvcConfigurer {
 
 	}
 
-	// @Pointcut ( "within(@org.springframework.stereotype.Controller *)" )
-	// private void mvcPC () {}
-	//
-	// ;
-	//
-	// @Around ( "mvcPC()" )
-	// public Object mvcAdvice ( ProceedingJoinPoint pjp )
-	// throws Throwable {
-	//
-	// return meterUtilities.timedExecution( pjp, "xtimer-ui." ) ;
-	// }
-
-	// ref.
-	// http://guptavikas.wordpress.com/2010/04/15/aspectj-pointcut-expressions/
-	// @Around ( "within(org.csap.agent.input..*) && !linuxPC() &&
-	// !csapModelPC() && !mvcPC() && !initPC()" )
-	// public Object inputSimonAdvice ( ProceedingJoinPoint pjp )
-	// throws Throwable {
-	//
-	// Object obj = CsapPerformance.executeSimon( pjp, "java.input." );
-	// return obj;
-	// }
-	// && !mvcPC() && !initPC()
 
 	@Around ( "within(org.csap.agent.services..*)  && !linuxPC()  && !csapModelPC() " )
 	public Object servicesSimonAdvice ( ProceedingJoinPoint pjp )
@@ -882,4 +837,68 @@ public class CsapCoreService implements WebMvcConfigurer {
 		this.helpUrls = helpUrls ;
 
 	}
+
+	public List<String> getSslForceHosts ( ) {
+	
+		return sslForceHosts ;
+	
+	}
+
+	public void setSslForceHosts ( List<String> sslHosts ) {
+		
+		logger.info( CsapApplication.testHeader( "{}" ), sslHosts);
+	
+		this.sslForceHosts = sslHosts ;
+	
+	}
+
+
+	public String getSslCertificatePass ( ) {
+	
+		if ( csapWebServer != null
+				&& csapWebServer.isSsl_and_client_and_self_signed( ) ) {
+			
+			return csapWebServer.getSettings( ).getSsl( ).getKeystorePassword( ) ;
+			
+		}
+	
+		return null ;
+	
+	}
+
+
+
+
+	public URL getSslCertificateUrl ( ) {
+		
+		if (  csapWebServer != null
+				&& csapWebServer.isSsl_and_client_and_self_signed( ) ) {
+			
+			try {
+
+				return new URL(csapWebServer.getSettings( ).getSsl( ).getKeystoreFile( )) ;
+
+			} catch ( Exception e ) {
+
+				logger.info( "Failed creating url for {} {}", csapWebServer.getSettings( ).getSsl( ), CSAP.buildCsapStack( e ) );
+
+			}
+		}
+	
+		return null ;
+	
+	}
+
+	public CsapWebServerConfig getCsapWebServer ( ) {
+	
+		return csapWebServer ;
+	
+	}
+
+	public void setCsapWebServer ( CsapWebServerConfig csapWebServer ) {
+	
+		this.csapWebServer = csapWebServer ;
+	
+	}
+
 }

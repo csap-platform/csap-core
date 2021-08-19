@@ -22,11 +22,15 @@ import java.util.concurrent.ScheduledFuture ;
 import java.util.concurrent.TimeUnit ;
 import java.util.concurrent.atomic.AtomicBoolean ;
 import java.util.concurrent.atomic.AtomicInteger ;
+import java.util.concurrent.atomic.AtomicLong ;
 import java.util.concurrent.locks.ReentrantLock ;
 import java.util.regex.Pattern ;
 import java.util.stream.Collectors ;
 
+import javax.net.ssl.SSLHandshakeException ;
+
 import org.apache.commons.lang3.concurrent.BasicThreadFactory ;
+import org.apache.commons.lang3.exception.ExceptionUtils ;
 import org.csap.agent.CsapCoreService ;
 import org.csap.agent.api.AgentApi ;
 import org.csap.agent.model.Application ;
@@ -1120,12 +1124,13 @@ public class HostStatusManager {
 
 			RestTemplate pooledRest = csapApp.getAgentPooledConnection( 1, csapApp.rootProjectEnvSettings( )
 					.getAdminToAgentTimeoutSeconds( ) ) ;
+
 			jsonResponse = queryAgentStatus( pooledRest ) ;
 
 			var nanos = csapApp.metrics( ).stopTimer( hostTimer, PERFORMANCE_ID + "." + host ) ;
 			csapApp.metrics( ).record( PERFORMANCE_ID, nanos, TimeUnit.NANOSECONDS ) ;
 
-			logger.debug( "{} pool: {} \n response: {}", host, pooledRest, jsonResponse ) ;
+			logger.trace( "{} pool: {} \n response: {}", host, pooledRest, jsonResponse ) ;
 			return new AgentStatus( host, jsonResponse ) ;
 
 		}
@@ -1143,7 +1148,9 @@ public class HostStatusManager {
 
 			String jsonResponse ;
 
-			String statusUrl = csapApp.getAgentUrl( host, CsapCoreService.API_AGENT_URL + AgentApi.RUNTIME_URL + "?",
+			String statusUrl = csapApp.getAgentUrl(
+					host,
+					CsapCoreService.API_AGENT_URL + AgentApi.RUNTIME_URL + "?",
 					true ) ;
 
 			if ( resetCache ) {
@@ -1186,7 +1193,38 @@ public class HostStatusManager {
 				// + e.getMessage().replaceAll("\"", "") + "\"}" ;
 				jsonResponse = "{\"error\": \"Connection Failure - verify agent is running and accessible on: "
 						+ host + "\"}" ;
-				logger.debug( "{} has an invalid response: {}", statusUrl, CSAP.buildCsapStack( e ) ) ;
+
+				var errorDetails = CSAP.buildCsapStack( e ) ;
+
+				if ( logger.isDebugEnabled( ) ) {
+
+					logger.debug( "{} has an invalid response: {}", statusUrl, errorDetails ) ;
+
+				} else {
+					
+					var nowMillis = System.currentTimeMillis( ) ;
+					if ( nowMillis - latestMillis.get() > HOUR_MILLIS ) {
+
+						latestMillis.set( nowMillis ) ;
+						numPrinted.set( 0 ) ;
+
+					}
+
+					if ( numPrinted.incrementAndGet( ) < 5 ) {
+
+						logger.warn(
+								"{} connection error. url '{}' has an invalid response: {}  \n Note: {} of 5 per hour are printed",
+								host, statusUrl, errorDetails, numPrinted.get( ) ) ;
+
+					}
+
+					if ( errorDetails.contains( "SSLHandshakeException" ) ) {
+
+						logger.warn( "Failed SSL from: {} {}", statusUrl, errorDetails ) ;
+
+					}
+
+				}
 
 			}
 
@@ -1195,6 +1233,12 @@ public class HostStatusManager {
 		}
 
 	}
+
+	static final long HOUR_MILLIS = TimeUnit.HOURS.toMillis( 1 ) ; 
+//	static final long HOUR_MILLIS = TimeUnit.MINUTES.toMillis( 1 ) ; 
+
+	AtomicInteger numPrinted = new AtomicInteger( ) ;
+	AtomicLong latestMillis = new AtomicLong( ) ;
 
 	/**
 	 * Invoked in response to UI by a user. If a full refresh is issued, restart the

@@ -6,6 +6,8 @@ import java.util.HashMap ;
 import java.util.List ;
 import java.util.Optional ;
 import java.util.concurrent.TimeUnit ;
+import java.util.concurrent.atomic.AtomicBoolean ;
+import java.util.concurrent.atomic.AtomicInteger ;
 import java.util.concurrent.locks.ReentrantLock ;
 import java.util.stream.Collectors ;
 
@@ -189,11 +191,12 @@ public class MetricsBuilder {
 		// ensure it is a object node - even if loading failed for some reason
 		var cachedReport = metricsCache.getCachedObject( ) ;
 
+		var initReport = jsonMapper.createObjectNode( ) ;
+		initReport.put( "init", true ) ;
+
 		if ( cachedReport == null
 				|| ! ObjectNode.class.isInstance( cachedReport ) ) {
 
-			var initReport = jsonMapper.createObjectNode( ) ;
-			initReport.put( "init", true ) ;
 			metricsCache.setCachedObject( initReport ) ;
 
 		}
@@ -233,32 +236,45 @@ public class MetricsBuilder {
 
 		}
 
-		return (ObjectNode) metricsCache.getCachedObject( ) ;
+		var kubeletReport = metricsCache.getCachedObject( ) ;
+
+		if ( kubeletReport != null
+				&& kubeletReport instanceof ObjectNode ) {
+
+			return (ObjectNode) kubeletReport ;
+
+		}
+
+		logger.warn( "Cached report is not an objectnode: {}", kubeletReport ) ;
+		initReport.put( "kubeletReport", "invalid" ) ;
+
+		return initReport ;
 
 	}
 
 	JsonNode metricsRefreshCache ( ) {
 
 		ObjectNode metricsReport = null ;
+		var latestMetricsAvailable = false ;
 
 		// body.apiVersion( "v1" );
 
 		try {
 
-			// var podStatus = podStatus( "system" ) ;
-
 			//
-
+			// metrics server report is run only if metrics server is running
+			//
 			var metricsServerPods = kubernetes.podsByLabel( "kube-system", "k8s-app=metrics-server" ) ;
 
-			if ( metricsServerPods.size( ) == 0 ) {
+//			if ( metricsServerPods.size( ) == 0 ) {
+//
+//				metricsServerPods = kubernetes.podsByLabel( 
+//						PROMETHEUS_ADAPTER_LABEL_NAMESPACE,
+//						PROMETHEUS_ADAPTER_LABEL ) ;
+//
+//			}
 
-				metricsServerPods = kubernetes.podsByLabel( PROMETHEUS_ADAPTER_LABEL_NAMESPACE,
-						PROMETHEUS_ADAPTER_LABEL ) ;
-
-			}
-
-			logger.info( "metricsServerPods: {}", metricsServerPods.size( ) ) ;
+			logger.debug( "metricsServerPods: {}", metricsServerPods.size( ) ) ;
 
 			if ( metricsServerPods.size( ) > 0 ) {
 
@@ -293,6 +309,7 @@ public class MetricsBuilder {
 							&& metricsReportOptional.get( ).isPresent( ) ) {
 
 						metricsReport = metricsReportOptional.get( ).get( ) ;
+						latestMetricsAvailable = true ;
 
 					}
 
@@ -315,9 +332,13 @@ public class MetricsBuilder {
 
 		}
 
+		metricsAvailable.set( latestMetricsAvailable ) ;
+
 		return metricsReport ;
 
 	}
+
+	AtomicBoolean metricsAvailable = new AtomicBoolean( false ) ;
 
 	public ObjectNode nodeReport ( String nodeFilter ) throws Exception {
 
@@ -440,44 +461,48 @@ public class MetricsBuilder {
 
 		}
 
-		var nodeName = fullNodeMetrics.fieldNames( ).next( ) ;
-		logger.debug( "filterHost: {} fullNodeMetrics: {}", filterHost, fullNodeMetrics ) ;
-		nodeMetrics = (ObjectNode) fullNodeMetrics.path( nodeName ) ;
+		if ( fullNodeMetrics.size( ) > 0 ) {
 
-		var api = new CoreV1Api( kubernetes.apiClient( ) ) ;
-		var nodeNameFieldSelector = "metadata.name=" + nodeName ;
+			var nodeName = fullNodeMetrics.fieldNames( ).next( ) ;
+			logger.debug( "filterHost: {} fullNodeMetrics: {}", filterHost, fullNodeMetrics ) ;
+			nodeMetrics = (ObjectNode) fullNodeMetrics.path( nodeName ) ;
+
+			var api = new CoreV1Api( kubernetes.apiClient( ) ) ;
+			var nodeNameFieldSelector = "metadata.name=" + nodeName ;
 //			var nodeListing = api.listNode( null, null, null, nodeNameFieldSelector, null, 1, null, null, null ) ;
 
-		var nodeListing = api.listNode(
-				ListingsBuilder.pretty_null,
-				ListingsBuilder.allowWatchBookmarks_null, ListingsBuilder._continue_null,
-				nodeNameFieldSelector, ListingsBuilder.labelSelector_null,
-				1,
-				ListingsBuilder.resourceVersion_null, ListingsBuilder.resourceVersionMatch_null,
-				ListingsBuilder.timeoutSeconds_max, ListingsBuilder.allowWatchBookmarks_null ) ;
+			var nodeListing = api.listNode(
+					ListingsBuilder.pretty_null,
+					ListingsBuilder.allowWatchBookmarks_null, ListingsBuilder._continue_null,
+					nodeNameFieldSelector, ListingsBuilder.labelSelector_null,
+					1,
+					ListingsBuilder.resourceVersion_null, ListingsBuilder.resourceVersionMatch_null,
+					ListingsBuilder.timeoutSeconds_max, ListingsBuilder.allowWatchBookmarks_null ) ;
 
-		var nodeInfo = nodeListing.getItems( ).get( 0 ) ;
+			var nodeInfo = nodeListing.getItems( ).get( 0 ) ;
 
-		nodeMetrics.put( "version", nodeInfo.getStatus( ).getNodeInfo( ).getKubeletVersion( ) ) ;
+			nodeMetrics.put( "version", nodeInfo.getStatus( ).getNodeInfo( ).getKubeletVersion( ) ) ;
 
-		var isHealthy = true ;
+			var isHealthy = true ;
 
-		for ( var condition : nodeInfo.getStatus( ).getConditions( ) ) {
+			for ( var condition : nodeInfo.getStatus( ).getConditions( ) ) {
 
-			var conditionHealth = condition.getStatus( ).equalsIgnoreCase( "False" ) ;
+				var conditionHealth = condition.getStatus( ).equalsIgnoreCase( "False" ) ;
 
-			if ( condition.getType( ).equalsIgnoreCase( "Ready" ) ) {
+				if ( condition.getType( ).equalsIgnoreCase( "Ready" ) ) {
 
-				conditionHealth = condition.getStatus( ).equalsIgnoreCase( "True" ) ;
+					conditionHealth = condition.getStatus( ).equalsIgnoreCase( "True" ) ;
+
+				}
+
+				isHealthy = isHealthy && conditionHealth ;
 
 			}
 
-			isHealthy = isHealthy && conditionHealth ;
+			nodeMetrics.put( "name", nodeName ) ;
+			nodeMetrics.put( "healthy", isHealthy ) ;
 
 		}
-
-		nodeMetrics.put( "name", nodeName ) ;
-		nodeMetrics.put( "healthy", isHealthy ) ;
 
 		return nodeMetrics ;
 
@@ -742,6 +767,12 @@ public class MetricsBuilder {
 	public void setTestHost ( String testHost ) {
 
 		this.testHost = testHost ;
+
+	}
+
+	public boolean areMetricsAvailable ( ) {
+
+		return metricsAvailable.get( ) ;
 
 	}
 

@@ -239,11 +239,19 @@ public class Project {
 		// legacy - copy from default package
 		if ( serviceDefinition.isMissingNode( ) && ! isRootPackage ) {
 
-			logger.warn( "Service {} not found in {}"
-					+ CSAP.padLine( "searching" ) + "root package, recommended to add: {}",
-					serviceName,
-					getSourceFileName( ),
-					DEFINITION_COPY ) ;
+			if ( numMissingMessages++ < 5 ) {
+				logger.warn( "Service {} not found in {}"
+						+ CSAP.padLine( "searching" ) + "root package, recommended to add: {}",
+						serviceName,
+						getSourceFileName( ),
+						DEFINITION_COPY ) ;
+			} else {
+				logger.debug( "Service {} not found in {}"
+						+ CSAP.padLine( "searching" ) + "root package, recommended to add: {}",
+						serviceName,
+						getSourceFileName( ),
+						DEFINITION_COPY ) ;
+			}
 			definitionSource = DEFINITION_COPY ;
 			// definitionSource = DEFINITION_COPY + "_" +
 			// getRootPackage().getReleasePackageName() ;
@@ -263,6 +271,8 @@ public class Project {
 		return extendedService ;
 
 	}
+	
+	int numMissingMessages = 0 ;
 
 	public String find_service_template_path ( String serviceName ) {
 

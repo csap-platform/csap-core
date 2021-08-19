@@ -66,7 +66,7 @@ require( [ ], function () {
 
             const $inactiveContent = $( "#manager-inactive-content", $uiTemplates ) ;
             const layout = utils.getParameterByName( "layout" ) ;
-            
+
 
             let historySuffix = "" ;
 
@@ -92,13 +92,13 @@ require( [ ], function () {
                 //  Before anything: store request parameters for use during cross launchs
                 //
                 utils.setPageParameters( ) ;
-                
+
                 let pageParams = new Object() ;
-                for (const [key, value] of utils.getPageParameters().entries()) {
+                for ( const [ key, value ] of utils.getPageParameters().entries() ) {
                     pageParams[ key ] = value ;
                 }
-                
-                console.log( `pageParams: ` , pageParams ) ;
+
+                console.log( `pageParams: `, pageParams ) ;
 
                 CsapCommon.configureCsapAlertify() ;
 
@@ -130,7 +130,7 @@ require( [ ], function () {
                 utils.initialize(
                         autoRefresh,
                         gotoMenu,
-                        projects.activeProjectFunction()) ;
+                        projects.activeProjectFunction() ) ;
 
                 let goDefault = true ;
 //                if ( !IS_FIRST_ACCESS ) {
@@ -139,18 +139,19 @@ require( [ ], function () {
                 console.log( ` service: '${ utils.getPageParameters().get( "service" ) }'` ) ;
 
                 if ( window.location.hash ) {
-                    
-                    let locator = window.location.hash.substring(1) ;
+
+                    let locator = window.location.hash.substring( 1 ) ;
                     gotoMenu( locator ) ;
                     goDefault = false ;
                 } else {
-                    console.log(`default location will be used`) ;
+                    console.log( `default location will be used` ) ;
                 }
 
 //                }
                 if ( AGENT_MODE ) {
-                    $defaultTab = utils.findNavigation("#agent-tab") ;
-                } ;
+                    $defaultTab = utils.findNavigation( "#agent-tab" ) ;
+                }
+                ;
                 if ( goDefault ) {
                     // trigger refresh process and display initial tab
                     $( ".tab-primary ", $defaultTab ).click() ;
@@ -184,7 +185,7 @@ require( [ ], function () {
                 let menu = menuNavItems[1] ;
 
                 console.log( `gotoMenu: ${tab}, ${menu} `, menuNavItems ) ;
-               
+
                 utils.closeAllDialogs() ;
 
                 let $tabMenuToRestore = $( "div.tab-primary",
@@ -201,8 +202,8 @@ require( [ ], function () {
                         if ( menuNavItems.length === 4 ) {
                             historySuffix = `,${serviceName},${ menuNavItems[3] }`
                             setTimeout( function () {
-                                    
-                                console.log(`state launch - waiting for instances to load: ${menuNavItems[3]}`) ;
+
+                                console.log( `state launch - waiting for instances to load: ${menuNavItems[3]}` ) ;
                                 tabMenuSelected( utils.menuMatch( menuNavItems[3], tab ) ) ;
 
                             }, 1000 ) ;
@@ -283,14 +284,14 @@ require( [ ], function () {
             }
 
             function tabSelected( $tabButton ) {
-                
+
                 //
                 //  Save stateful tab positions: limited number
                 //
 
-                console.debug( `lastNavigationClickedLabel: ${lastNavigationClickedLabel}`) ;
+                console.debug( `lastNavigationClickedLabel: ${lastNavigationClickedLabel}` ) ;
                 for ( let navListener of utils.getNavChangeFunctions() ) {
-                    console.debug(`navListener: `, navListener ) ;
+                    console.debug( `navListener: `, navListener ) ;
                     navListener( lastNavigationClickedLabel ) ;
                 }
 
@@ -391,7 +392,7 @@ require( [ ], function () {
                     utils.loadingComplete() ;
                     if ( lastNavigationClickedLabel == "performance-tab" ) {
                         // just displayed - so schedule
-                        autoRefreshTimer = setTimeout( autoRefresh,  utils.getRefreshInterval() ) ;
+                        autoRefreshTimer = setTimeout( autoRefresh, utils.getRefreshInterval() ) ;
                     } else {
                         autoRefresh() ;
                     }

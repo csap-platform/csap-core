@@ -78,6 +78,7 @@ import org.csap.helpers.CsapApplication ;
 import org.csap.helpers.CsapRestTemplateFactory ;
 import org.csap.integations.CsapInformation ;
 import org.csap.integations.CsapMicroMeter ;
+import org.csap.integations.CsapWebSettings ;
 import org.csap.security.CsapSecurityRestFilter ;
 import org.csap.security.CsapUser ;
 import org.csap.security.config.CsapSecuritySettings ;
@@ -92,8 +93,6 @@ import org.springframework.context.event.ContextRefreshedEvent ;
 import org.springframework.context.event.EventListener ;
 import org.springframework.core.annotation.Order ;
 import org.springframework.core.env.Environment ;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory ;
-import org.springframework.http.client.SimpleClientHttpRequestFactory ;
 import org.springframework.stereotype.Service ;
 import org.springframework.web.client.RestTemplate ;
 import org.springframework.web.servlet.resource.ResourceUrlProvider ;
@@ -193,6 +192,7 @@ public class Application {
 		this.securitySettings = securitySettings ;
 		this.encryptor = encryptor ;
 		this.metricUtilities = metricUtilities ;
+
 		_instance = this ;
 
 		scoreReport = new ScoreReport( this, jacksonMapper ) ;
@@ -267,12 +267,17 @@ public class Application {
 	//
 	static public Application testBuilder ( ) {
 
-		var theApp = new Application( null, null, new CsapCoreService( ), null ) ;
+		var csapCore = new CsapCoreService( null, null ) ;
+
+		var theApp = new Application( null, null, csapCore, null ) ;
 
 		theApp.scoreReport = new ScoreReport( theApp, theApp.jacksonMapper ) ;
 		theApp.projectLoader = new ProjectLoader( theApp ) ;
 		theApp.healthManager = new HealthManager( theApp, theApp.jacksonMapper ) ;
 		theApp.metricManager = new MetricManager( theApp, theApp.jacksonMapper ) ;
+		theApp.restTemplateFactory = new CsapRestTemplateFactory( null, null ) ;
+
+//		theApp.getCsapCoreService( ). ;
 
 		theApp.setEventClient( new CsapEvents( ) ) ;
 
@@ -309,7 +314,7 @@ public class Application {
 	//
 	public Application ( OsManager osManager ) {
 
-		this( null, null, new CsapCoreService( ), null ) ;
+		this( null, null, new CsapCoreService( null, null ), null ) ;
 		// testBuilder() ;
 		logger.info( CsapApplication.testHeader( "Using stubbed OsManager, KubernetesIntegration" ) ) ;
 
@@ -444,7 +449,7 @@ public class Application {
 					CsapApplication.CSAP_INSTALL_VARIABLE, csapInstallFolder,
 					"csapFqdn", System.getenv( "csapFqdn" ),
 					"Definition", rootDefinitionFile,
-					"Host Pattern", getAgentHostUrlPattern( false ),
+					"Host Url Pattern", getAgentHostUrlPattern( false ),
 					"mail", mailInfo ) ) ;
 
 			// final CHECK
@@ -539,7 +544,7 @@ public class Application {
 		// ;
 
 		if ( springEnvironment != null
-				&& springEnvironment.getProperty( "csapFqdn" ) != null ) {
+				&& StringUtils.isNotEmpty( springEnvironment.getProperty( "csapFqdn" ) ) ) {
 
 			// default to use env variable in csap-start.sh
 			csapHostName = springEnvironment.getProperty( "csapFqdn" ) ;
@@ -990,6 +995,14 @@ public class Application {
 
 	public File getCsapInstallFolder ( ) {
 
+		if ( csapInstallFolder == null ) {
+
+			var now = LocalDateTime.now( ).format( DateTimeFormatter.ofPattern( "MMM.d-HH.mm.ss" ) ) ;
+			csapInstallFolder = new File( "target/junit/junit-" + now + "/staging" ) ;
+			logger.warn( "csapInstallFolder is null, stubbing {}", csapInstallFolder ) ;
+
+		}
+
 		// initStagingFolderIfNeeded() ;
 		return csapInstallFolder ;
 
@@ -1215,6 +1228,28 @@ public class Application {
 
 	}
 
+	public String getAgentSslPortAndContext ( ) {
+
+		var agentSslPort = getAgentPort( ) + CsapWebSettings.SSL_PORT_OFFSET ;
+		var sslEndpoint = getAgentEndpoint( ).replace(
+				":" + getCsapCoreService( ).getAgentPort( ),
+				":" + agentSslPort ) ;
+
+		return sslEndpoint ;
+
+	}
+
+	public String getAdminSslPortAndContext ( ) {
+
+		var admin = findFirstServiceInstanceInLifecycle( CsapCore.ADMIN_NAME ) ;
+
+		var adminPort = Integer.parseInt( admin.getPort( ) ) + CsapWebSettings.SSL_PORT_OFFSET ;
+		var sslEndpoint = ":" + adminPort + "/" + admin.getContext( ) ;
+
+		return sslEndpoint ;
+
+	}
+
 	private void setAgentEndpoint ( String agentEndpoint ) {
 
 		// Slogger.info( "updating {} to {}", this.agentEndpoint, agentEndpoint );
@@ -1244,11 +1279,14 @@ public class Application {
 
 			agentUrl = csapCoreService.getHostUrlPattern( ) ;
 
-			if ( ( StringUtils.isEmpty( agentUrl ) || agentUrl.equalsIgnoreCase( "auto" ) )
+			logger.info( "initial host-url-pattern {}", agentUrl ) ;
+
+			if ( ( StringUtils.isEmpty( agentUrl )
+					|| agentUrl.equalsIgnoreCase( "auto" ) )
 					&& springEnvironment != null ) {
 
-				// change fqdn into http://CSAP_HOST.yourcompany.com:8011/CsAgent
-				String fqdn = springEnvironment.getProperty( "csapFqdn", getCsapHostName( ) ) ;
+				// change fqdn into http://CSAP_HOST.yourcompany.com:8011/
+				var fqdn = springEnvironment.getProperty( "csapFqdn", getCsapHostName( ) ) ;
 
 				if ( isRunningOnDesktop( ) ) {
 
@@ -1258,8 +1296,21 @@ public class Application {
 
 				if ( fqdn.contains( "." ) ) {
 
-					String newAgentUrl = "http://CSAP_HOST" + fqdn.substring( fqdn.indexOf( "." ) )
-							+ getAgentEndpoint( ) ;
+					var scheme = "http://CSAP_HOST" ;
+					var context = getAgentEndpoint( ) ;
+
+					if ( getCsapCoreService( ).getCsapWebServer( ) != null
+							&& getCsapCoreService( ).getCsapWebServer( ).isSslClient( ) ) {
+
+						scheme = "https://CSAP_HOST" ;
+						context = getAgentSslPortAndContext( ) ;
+
+					}
+
+					var newAgentUrl = scheme
+							+ fqdn.substring( fqdn.indexOf( "." ) )
+							+ context ;
+
 					agentUrl = newAgentUrl ;
 
 				}
@@ -1272,7 +1323,7 @@ public class Application {
 		}
 
 		// only if external (browser) networking different from host network
-		String internalAgentUrl = csapCoreService.getHostUrlPatternInternal( ) ;
+		var internalAgentUrl = csapCoreService.getHostUrlPatternInternal( ) ;
 
 		if ( ! checkForInternalOverride || StringUtils.isEmpty( internalAgentUrl ) ) {
 
@@ -1292,9 +1343,10 @@ public class Application {
 	}
 
 	// Used to get launch urls for services, using the suffix in yml
-	public String buildLaunchUrl (
-									String host ,
-									String context ) {
+	public String buildJavaLaunchUrl (
+										String host ,
+										String port ,
+										String context ) {
 
 		var appUrl = getAgentHostUrlPattern( true ).replaceAll( "CSAP_HOST", host ) ;
 
@@ -1305,23 +1357,51 @@ public class Application {
 
 		}
 
-		var agentPortAndName = getAgentEndpoint( ) ;
-
 		// logger.debug( "agentPortAndName: {}, appUrl: {} , ", agentPortAndName, appUrl
 		// ) ;
 		// strip off agent and port context
-		if ( appUrl.contains( agentPortAndName ) ) {
+		if ( appUrl.endsWith( getAgentEndpoint( ) ) ) {
 
-			appUrl = appUrl.substring( 0, appUrl.indexOf( agentPortAndName ) ) ;
+			appUrl = appUrl.substring( 0, appUrl.indexOf( getAgentEndpoint( ) ) ) ;
+
+		} else if ( appUrl.endsWith( getAgentSslPortAndContext( ) ) ) {
+
+			appUrl = appUrl.substring( 0, appUrl.indexOf( getAgentSslPortAndContext( ) ) ) ;
+
+			// always prefer http for cli examples
+//			appUrl = appUrl.replace( "https:", "http:" ) ;
+
+			if ( getCsapCoreService( ).getCsapWebServer( ) != null
+					&& getCsapCoreService( ).getCsapWebServer( ).isSslClient( ) ) {
+
+				try {
+
+					var sslPort = Integer.parseInt( port ) + CsapWebSettings.SSL_PORT_OFFSET ;
+					port = "" + sslPort ;
+
+				} catch ( NumberFormatException e ) {
+
+					logger.warn( "Failed to parse int {}", CSAP.buildCsapStack( e ) ) ;
+
+				}
+
+			}
 
 		}
 
-		appUrl += context ;
+		appUrl += ":" + port + context ;
 		// logger.debug("launch url: {}", appUrl) ;
 		// logger.debug("host pattern: {}, appUrl: {}", getAgentHostUrlPattern(
 		// true ), appUrl );
 
 		return appUrl ;
+
+	}
+
+	public String getAgentUrl (
+								String target ) {
+
+		return getAgentUrl( null, target, false ) ;
 
 	}
 
@@ -1338,7 +1418,8 @@ public class Application {
 								String target ,
 								boolean checkForInternalOverride ) {
 
-		if ( host.equals( "$host" ) ) {
+		if ( host.equals( "$host" )
+				|| StringUtils.isEmpty( host ) ) {
 
 			host = getCsapHostName( ) ;
 
@@ -1356,7 +1437,44 @@ public class Application {
 
 			}
 
-			// logger.info( "pattern: {} resolved: {}", pattern, url );
+			//
+			// legacy
+			//
+			if ( ! url.startsWith( "https" ) ) {
+
+				var convertToSsl = false ;
+
+				var sslHosts = csapCoreService.getSslForceHosts( ) ;
+
+				if ( sslHosts == null
+						&& getCsapCoreService( ).getCsapWebServer( ) != null
+						&& getCsapCoreService( ).getCsapWebServer( ).isSslClient( ) ) {
+
+					convertToSsl = true ;
+
+				} else if ( sslHosts != null
+						&& sslHosts.contains( host )
+						&& getCsapCoreService( ).getCsapWebServer( ) != null
+						&& getCsapCoreService( ).getCsapWebServer( ).isSslClient( ) ) {
+
+					convertToSsl = true ;
+
+				}
+
+				if ( convertToSsl ) {
+
+					url = url.replace( "http:", "https:" ) ;
+
+					var agentSslPort = getAgentPort( ) + 2 ;
+					url = url.replace(
+							":" + getCsapCoreService( ).getAgentPort( ),
+							":" + agentSslPort ) ;
+
+				}
+
+			}
+
+//			 logger.info( "pattern: {} resolved: {}", pattern, url );
 			return url ;
 
 		} catch ( Exception e ) {
@@ -2678,7 +2796,7 @@ public class Application {
 	@Autowired ( required = false )
 	CsapSecurityRestFilter csapRestFilter ;
 
-	CsapRestTemplateFactory restTemplateFactory = new CsapRestTemplateFactory( ) ;
+	CsapRestTemplateFactory restTemplateFactory ;
 	private RestTemplate agentRestTemplate ;
 
 	private int hostRefreshIntervalSeconds = 60 ;
@@ -2690,6 +2808,17 @@ public class Application {
 		checkGitSslVerificationSettings( rootProjectEnvSettings( ) ) ;
 
 		int latestHostCount = getAllPackages( ).getLifeCycleToHostMap( ).get( getCsapHostEnvironmentName( ) ).size( ) ;
+
+		if ( restTemplateFactory == null ) {
+
+			logger.info( "cert: {} {}", csapCoreService.getSslCertificateUrl( ), csapCoreService
+					.getSslCertificatePass( ) ) ;
+
+			this.restTemplateFactory = new CsapRestTemplateFactory(
+					csapCoreService.getSslCertificateUrl( ),
+					csapCoreService.getSslCertificatePass( ) ) ;
+
+		}
 
 		if ( latestHostCount > previousHostCount ) {
 
@@ -2727,6 +2856,65 @@ public class Application {
 			logger.warn( "Skipping template Factory because core services not injected (junit) " ) ;
 
 		}
+
+	}
+
+	public RestTemplate getAgentPooledConnection (
+													long fileSize ,
+													int timeoutSeconds ) {
+
+		/**
+		 * HttpClient will run OOM if filesize is large. Use the
+		 *
+		 */
+
+		if ( agentRestTemplate == null ) {
+
+			logger.error( "Pool not initialized - verify setup" ) ;
+
+		}
+
+		if ( agentRestTemplate == null
+				|| ( fileSize > CHUNKING_SIZE )
+				|| ( timeoutSeconds > getAgentConnectinReadTimeoutSeconds( ) ) ) {
+
+			// Pooled connections are NOT used when:
+			// Transfer of large objects (100's of mb for large packages)
+			// OOM exception will occur
+			// Transfer of scripts - possibly long timeouts
+
+			// logger.info( "csapCoreService: {}", csapCoreService );
+			var nonPooledFactory = getCsapCoreService( ).csapRestFactory( ).buildNonPooledFactory(
+					"csap-agent-not-pooled",
+					rootProjectEnvSettings( ).getAdminToAgentTimeoutSeconds( ),
+					timeoutSeconds ) ;
+
+			if ( getCsapCoreService( ).isDisableSslValidation( ) ) {
+
+				nonPooledFactory = getCsapCoreService( )
+						.csapRestFactory( )
+						.buildFactoryDisabledSslChecks(
+								"csap-agent-not-pooled-ssl-disabled",
+								rootProjectEnvSettings( ).getAdminToAgentTimeoutSeconds( ),
+								timeoutSeconds ) ;
+
+			}
+
+			nonPooledFactory.setBufferRequestBody( false ) ;
+			return new RestTemplate( nonPooledFactory ) ;
+
+//			SimpleClientHttpRequestFactory simpleFactory = new SimpleClientHttpRequestFactory( ) ;
+//			simpleFactory.setReadTimeout( timeoutSeconds * 1000 ) ;
+//			simpleFactory.setChunkSize( CHUNKING_SIZE ) ; //
+//			simpleFactory.setConnectTimeout( rootProjectEnvSettings( ).getAdminToAgentTimeoutMs( ) ) ;
+//			simpleFactory.setBufferRequestBody( false ) ;
+
+//			return new RestTemplate( simpleFactory ) ;
+
+		}
+
+		// return pooled/active connection
+		return agentRestTemplate ;
 
 	}
 
@@ -4319,6 +4507,12 @@ public class Application {
 
 	}
 
+	public ServiceInstance getLocalAgent ( ) {
+
+		return findServiceByNameOnCurrentHost( CsapCore.AGENT_NAME ) ;
+
+	}
+
 	public ServiceInstance findServiceByNameOnCurrentHost (
 															String name ) {
 
@@ -5352,58 +5546,6 @@ public class Application {
 	}
 
 	final static int CHUNKING_SIZE = 100 * 1024 ;
-
-	public RestTemplate getAgentPooledConnection (
-													long fileSize ,
-													int timeoutSeconds ) {
-
-		/**
-		 * HttpClient will run OOM if filesize is large. Use the
-		 *
-		 */
-
-		if ( agentRestTemplate == null ) {
-
-			logger.error( "Pool not initialized - verify setup" ) ;
-
-		}
-
-		if ( agentRestTemplate == null
-				|| ( fileSize > CHUNKING_SIZE )
-				|| ( timeoutSeconds > getAgentConnectinReadTimeoutSeconds( ) ) ) {
-
-			// Pooled connections are NOT used when:
-			// Transfer of large objects (100's of mb for large packages)
-			// OOM exception will occur
-			// Transfer of scripts - possibly long timeouts
-
-			// logger.info( "csapCoreService: {}", csapCoreService );
-			if ( getCsapCoreService( ).isDisableSslValidation( ) ) {
-
-				HttpComponentsClientHttpRequestFactory factory = getCsapCoreService( )
-						.csapRestFactory( )
-						.buildFactoryDisabledSslChecks( "AgentPoolOnDemand",
-								rootProjectEnvSettings( ).getAdminToAgentTimeoutSeconds( ),
-								timeoutSeconds ) ;
-				factory.setBufferRequestBody( false ) ;
-				return new RestTemplate( factory ) ;
-
-			}
-
-			SimpleClientHttpRequestFactory simpleFactory = new SimpleClientHttpRequestFactory( ) ;
-			simpleFactory.setReadTimeout( timeoutSeconds * 1000 ) ;
-			simpleFactory.setChunkSize( CHUNKING_SIZE ) ; //
-			simpleFactory.setConnectTimeout( rootProjectEnvSettings( ).getAdminToAgentTimeoutMs( ) ) ;
-			simpleFactory.setBufferRequestBody( false ) ;
-
-			return new RestTemplate( simpleFactory ) ;
-
-		}
-
-		// return pooled/active connection
-		return agentRestTemplate ;
-
-	}
 
 	public boolean isHostAuthenticatedMember (
 												String ipAddress ) {

@@ -1,11 +1,6 @@
 # dockerImage, Used by CSAP docker integration to add/update/delete images
 
 
-# Notes:
-# 1. Extend time for command to complete if Host is busy or a long running command
-# 2. Select additional hosts as needed
-
-
 imageName='_serviceName_' ;
 
 
@@ -14,13 +9,18 @@ exit_if_not_installed wget
 
 
 
-print_with_head "Images on Host"
-docker images
+print_command "Images on Host" "$(docker images)"
 
-print_with_head "Image details"
-docker inspect $imageName
+print_command "docker inspect $imageName" "$(docker inspect $imageName)"
+
+
 
 exit ;
+
+
+
+
+
 
 #
 #  samples

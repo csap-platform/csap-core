@@ -169,7 +169,7 @@ public class ApplicationBrowser {
 		mav.getModelMap( ).addAttribute( "theme", theme ) ;
 		mav.getModelMap( ).addAttribute( "preferences", userPrefs ) ;
 
-		var deployedArtifact = application.findServiceByNameOnCurrentHost( CsapCore.AGENT_NAME ).getDefaultContainer( )
+		var deployedArtifact = application.getLocalAgent( ).getDefaultContainer( )
 				.getDeployedArtifacts( ) ;
 
 		if ( application.isAdminProfile( ) ) {
@@ -222,6 +222,16 @@ public class ApplicationBrowser {
 		}
 
 		mav.getModelMap( ).addAttribute( "deployedArtifact", deployedArtifact ) ;
+
+		String secureUrl = null ;
+
+		if ( request.getScheme( ).equals( "http" ) ) {
+
+			secureUrl = application.getCsapCoreService( ).getCsapWebServer( ).getSecureUrl( request ) ;
+
+		}
+
+		mav.getModelMap( ).addAttribute( "secureUrl", secureUrl ) ;
 
 		mav.getModelMap( ).addAttribute( "activeProject", activeProject ) ;
 		mav.getModelMap( ).addAttribute( "applicationName", application.getName( ) ) ;
@@ -1696,7 +1706,9 @@ public class ApplicationBrowser {
 
 				// map kubernetes services to serviceIds
 				var serviceIdMapping = CSAP.jsonStream( servicesOnHost )
+
 						.map( JsonNode::asText )
+
 						.collect( Collectors.toMap(
 								serviceOsCollectId -> serviceOsCollectId,
 								serviceOsCollectId -> {

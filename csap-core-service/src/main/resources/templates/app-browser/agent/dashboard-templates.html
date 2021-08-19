@@ -167,25 +167,27 @@
 				class="csap-button">Tail Logs</button>
 
 			<div id="progress-controls" class=flex-container>
+			
+					<button
+						class="csap-icon launch-window"
+						id="progress-new-window"
+						title="Open new csap monitor window - which includes advanced formatting options and detection">
+					</button>
+			
 					<button
 						id="progress-clear-button"
 						title="Clear text display"
-						class="csap-icon text csap-clear">
-						Clear
+						class="csap-icon text csap-empty">
 					</button>
-
-
-					<button
-						class="csap-icon text csap-window"
-						id="progress-new-window"
-						title="Open in new window and change url to number of lines to view">
-						CSAP Monitor
-					</button>
-					<label class=csap title="If checked logs of the last terminated container will be displayed.">
+					
+					<label
+						class=csap
+						title="If checked output will be autoformated for readability.">
 						<input
-							id="previous-terminated"
+							id="progress-auto-format"
+							checked="checked"
 							type='checkbox' />
-						Previous
+						Format
 					</label>
 
 					<label class=csap>

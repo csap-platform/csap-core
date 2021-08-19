@@ -37,7 +37,7 @@
 
             <div >
 
-                <label title="Kubernetes deployments and docker containers both use host naming conventions: lowercase and hyphenated">
+                <label class=csap title="Kubernetes deployments and docker containers both use host naming conventions: lowercase and hyphenated">
                     <span id="createNameLabel">Name:</span>
                     <input id="createContainerName" placeholder="lower-case-hyphenated"/>
                 </label>
@@ -45,25 +45,23 @@
                 <a 
                     id="reloadFromImage"
                     title="Fields will be loaded using settings from image"
-                    class="simple" 
-                    style="margin-left: 2em; display: inline" 
+                    class="csap-link-icon csap-search" 
                     target="_blank" 
                     href="#scanImage">
-                    <img  class="but" th:src="@{/images/16x16/Zoom-In.png}"/>Scan Image
+                    Scan Image
                 </a>
 
                 <a 
-                    class="simple" 
-                    style="margin-left: 2em; display: inline" 
+                    class="csap-link-icon csap-help" 
                     target="_blank" 
                     href="https://github.com/csap-platform/csap-core/wiki/Host-Portal#host-dashboard">
-                    <img  class="but" th:src="@{/images/16x16/help.png}"/>Csap Docker
+                    Csap Docker
                 </a>
+                
                 <a 
-                    class="simple" 
-                    style="margin-left: 2em; display: inline" 
+                    class="csap-link-icon csap-window" 
                     target="_blank" 
-                    href="https://docs.docker.com/engine/reference/run"> docker run
+                    href="https://docs.docker.com/engine/reference/commandline/run/"> docker run
                 </a>
 
             </div>
@@ -155,56 +153,51 @@
 
             <div class="csap-green">
 
-                <label title="working directory when container is started">
-                    <span>Working Directory:</span>
-                    <input id="createWorkingDirectory" style="width: 20em; margin-left: 0"/>
+                <label class=csap-form-inline title="working directory when container is started">
+                    <span>Working Folder:</span>
+                    <input id=createWorkingDirectory class=words />
                 </label>
 
 
-                <label title="Check to start container after creating">
-                    <input id="create-start-checkbox" type="checkbox" checked="checked" 
-                           style="margin-left: 3em;margin-right: 0px; vertical-align: middle;" /> 
+                <label  class=csap title="Check to start container after creating">
+                    <input id="create-start-checkbox" type="checkbox" checked="checked"  /> 
                     Start
                 </label>
 
-                <label title="Policy: no,always,unless-stopped,on-failure:numberOfAttempts. eg. on-failure:3">
+                <label  class=csap-form-inline title="Policy: no,always,unless-stopped,on-failure:numberOfAttempts. eg. on-failure:3">
                     <span>Restart On Exit:</span>
-                    <input id="restartPolicy" style="width: 8em; margin-left: 0" placeholder="no"/>
+                    <input id="restartPolicy" placeholder="no"/>
                 </label>
 
-                <label 
+                <label class=csap-form-inline
                     title="Container user. Allowed: uid:gid, containerUser:containerGroup. Also:  $csapUser or $user will use host uid/gid for specified user"
                     >
-                    <span style="width: auto">User:</span>
-                    <input id="runUser" style="width: 8em; margin-left: 0" placeholder="containerUser:containerGroup"/>
+                    <span >User:</span>
+                    <input id="runUser" class=words placeholder="containerUser:containerGroup"/>
                 </label>
 
                 <br/>
 
-                <div>
-                    <label title="default command to run when container is started">
-                        <span>Entry Point:</span>
-                        <textarea id="createContainerEntry" class="jsonCompile"  spellcheck="false"></textarea>
-                    </label>
-                </div>
-                <div>
-                    <label  title="default command to run when container is started">
-                        <span>Command:</span>
-                        <textarea id="createContainerCommand" class="jsonCompile"  spellcheck="false"></textarea>
-                    </label>
-                </div> 
 
-                <div>
-                    <label  title="default command to run when container is started">
+                    <label class=csap-form title="default command to run when container is started">
+                        <span>Entry Point:</span>
+                        <textarea id="createContainerEntry" class="jsonCompile create-auto-size"   spellcheck="false"></textarea>
+                    </label>
+
+                    <label  class=csap-form title="default command to run when container is started">
+                        <span>Command:</span>
+                        <textarea id="createContainerCommand" class="jsonCompile create-auto-size"   spellcheck="false"></textarea>
+                    </label>
+
+                    <label  class=csap-form title="default command to run when container is started">
                         <span>Environment Variables: 
                             <br/>
                             <button data-type="variable" 
                                     title="add variable" class="csap-button">
                                 <img th:src="@{/images/plus.jpg}"/>
                             </button></span>
-                        <textarea id="createContainerEnvVariables" class="jsonCompile"  spellcheck="false"></textarea>
+                        <textarea id="createContainerEnvVariables" class="jsonCompile create-auto-size"  spellcheck="false"></textarea>
                     </label>
-                </div>
 
                 <div class="warning">error</div>
 

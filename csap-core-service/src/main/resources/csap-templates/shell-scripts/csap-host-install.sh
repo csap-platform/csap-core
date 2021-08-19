@@ -32,7 +32,7 @@ function configure() {
 	extraOptions="" ;   # extraOptions="-ignorePreflight"
 	
 	#csapZipUrl="http://***REMOVED***.***REMOVED***:8081/artifactory/csap-snapshots/org/csap/csap-host/2-SNAPSHOT/csap-host-2-SNAPSHOT.zip"
-	csapZipUrl="http://***REMOVED***.***REMOVED***:8081/artifactory/csap-release/org/csap/csap-host/21.06/csap-host-21.06.zip"
+	csapZipUrl="http://***REMOVED***.***REMOVED***:8081/artifactory/csap-release/org/csap/csap-host/21.08/csap-host-21.08.zip"
 
 }
 
@@ -74,7 +74,7 @@ function verify_host_access() {
 
 }
 
-function remote_intaller () {
+function remote_installer () {
 
 	configure
 	
@@ -191,7 +191,7 @@ function remote_intaller () {
 }
 
 
-remote_intaller
+remote_installer
 
 
 

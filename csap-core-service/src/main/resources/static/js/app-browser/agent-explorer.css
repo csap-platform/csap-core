@@ -647,10 +647,10 @@ div.comment button.tree {
 	margin-left: 2em;
 }
 
-#createContainerDialog label {
-	text-align: right;
-	display: inline-block;
-	font-weight: bold;
+
+#createContainerDialog a.csap-link-icon {
+	font-style: italic;
+	margin-left: 2em;
 }
 
 #createContainerName {
@@ -711,26 +711,20 @@ div.comment button.tree {
 	box-sizing: border-box;
 }
 
-#createContainerDialog #createContainerEntry, #createContainerDialog #createContainerCommand,
-	#createContainerDialog #createContainerEnvVariables {
-	vertical-align: top;
-	min-height: 2em;
-	height: 3em;
-	width: 60em;
-	white-space: pre-wrap;
+#createContainerDialog .csap-form textarea {
+	min-height: 3em ;
 }
 
-#createContainerDialog #createContainerEnvVariables {
-	min-height: 2em;
-	height: 10em;
+#createContainerDialog label.csap-form-inline span {
+	min-width: 8em;
+}
+#createContainerDialog label.csap-form  {
+	grid-template-columns: 8em auto
 }
 
-#createContainerDialog label span {
-	display: inline-block;
-	width: 9em;
-	text-align: right;
-	margin-right: 5px;
-}
+
+
+
 
 textarea {
 	-moz-tab-size: 2;

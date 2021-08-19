@@ -664,21 +664,21 @@
 		"csap-demo-source": {
 			"server": "csap-api",
 			"description": "Used to build the latest csap-starter",
-			"propDirectory": "/opt/csapUser/staging/build",
+			"propDirectory": "$$csap-base/build",
 			"processFilter": "none",
 			"environmentVariables": {
 				"javaBuildOnly": "true"
 			},
 			"source": {
 				"scm": "git",
-				"path": "https://bitbucket.org/***REMOVED***/oss-csap-starter.git",
+				"path": "https://github.com/csap-platform/csap-starter.git",
 				"branch": "HEAD",
 				"buildLocation": "/csap-starter"
 			},
 			"maven": {
 				"dependency": "org.csap:csap-starter:2.0.0.1:jar"
 			},
-			"logDirectory": "/opt/csapUser/staging/build",
+			"logDirectory": "$$csap-base/build",
 			"logRegEx": ".*\\.log",
 			"url": "https://github.com/csap-platform/csap-core/wiki"
 		},
@@ -696,7 +696,7 @@
 			"deployTimeoutMinutes": "1",
 			"source": {
 				"scm": "git",
-				"path": "https://bitbucket.org/***REMOVED***/oss-csap-java.git",
+				"path": "https://github.com/csap-platform/csap-java.git",
 				"buildLocation": "/csap-java-servlet",
 				"branch": "HEAD"
 			},
@@ -881,7 +881,7 @@
 			},
 			"source": {
 				"scm": "git",
-				"path": "https://bitbucket.org/***REMOVED***/oss-csap-starter.git",
+				"path": "https://github.com/csap-platform/csap-starter.git",
 				"branch": "HEAD",
 				"buildLocation": "/csap-starter-simple"
 			},
@@ -1811,6 +1811,16 @@
 						"description": "remove nfs mount",
 						"frequency": "onDemand",
 						"script": "nfs_remove_mount $$nfs-mount;"
+					},
+					{
+						"description": "restart",
+						"frequency": "onDemand",
+						"script": "apachectl -k restart;"
+					},
+					{
+						"description": "show-modules",
+						"frequency": "onDemand",
+						"script": "apachectl -t -D DUMP_MODULES;"
 					}
 				]
 			},
@@ -1859,7 +1869,7 @@
 			"autoStart": 200,
 			"port": 8099,
 			"description": "Java Statistics",
-			"propDirectory": "/home/csapUser/processing/mongodb/conf",
+			"propDirectory": "$$csap-base",
 			"processFilter": ".*jstatd.*",
 			"source": {
 				"scm": "git",

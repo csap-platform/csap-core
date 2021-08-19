@@ -260,7 +260,7 @@ public class Model_As_Manager extends CsapBareTest {
 
 		assertThat( agentInstance.getProcessFilter( ) )
 				.as( "process filter" )
-				.isEqualTo( ".*java.*csapProcessId=" + CsapCore.AGENT_NAME + ".*" ) ;
+				.isEqualTo( ".*java.*csapProcessId=" + CsapCore.AGENT_NAME + ".*8011.*" ) ;
 
 		assertThat( agentInstance.getOsProcessPriority( ) )
 				.as( "os priority" )

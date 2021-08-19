@@ -1113,7 +1113,12 @@ public class ServiceOsManager {
 
 		if ( firstAdmin != null ) {
 
-			serviceEnvironmentVariables.put( "csapAdminUrl", firstAdmin.getUrl( ) ) ;
+			var cliUrl = "http://"
+					+ csapApp.getHostUsingFqdn( firstAdmin.getHostName( ) )
+					+ ":" + firstAdmin.getPort() + "/"
+					+ firstAdmin.getContext( ) ;
+
+			serviceEnvironmentVariables.put( "csapAdminUrl", cliUrl ) ;
 
 		}
 

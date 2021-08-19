@@ -1,18 +1,25 @@
 define( [ "browser/utils", "agent/explorer-operations", "agent/host-operations" ], function ( utils, explorerOperations, hostOperations ) {
 
 
-    var _lastImage = "" ;
-    var _jsonParseTimer ;
-    var _targetImage ;
-
-    var $dialog ;
+    const $containerDialog = $( "#createContainerDialog" ) ;
+    const $envSettings = $("#createContainerEnvVariables", $containerDialog) ;
+    const $autoResizeContainers = $("textarea.create-auto-size", $containerDialog) ;
+    
+    let _lastImage = "" ;
+    let _jsonParseTimer ;
+    let _targetImage ;
+    
     console.log( "Module loaded" ) ;
 
-    var _initComplete = false ;
+    let _initComplete = false ;
+
+    let _reloadImageFunction  ;
 
     return {
 
-        initialize: function () {
+        initialize: function ( reloadImageFunction ) {
+            
+            _reloadImageFunction = reloadImageFunction ;
             initialize() ;
         }
 
@@ -24,15 +31,16 @@ define( [ "browser/utils", "agent/explorer-operations", "agent/host-operations" 
         console.log( "Initializing" ) ;
 
         $( "#containerCreate" ).click( function () {
-            showDialog(  ) ;
+            _reloadImageFunction() ;
+            setTimeout( showDialog, 10 ) ;
         } ) ;
 
-        $( "#reloadFromImage" ).click( function () {
+        $( "#reloadFromImage", $containerDialog ).click( function () {
             populateContainerDefaults() ;
             return false ;
         } ) ;
 
-        $( ".my-container-radio" ).change( function () {
+        $( ".my-container-radio", $containerDialog ).change( function () {
             populateContainerDefaults() ;
             if ( isDockerTarget() ) {
                 $( ".docker-only" ).show() ;
@@ -43,44 +51,38 @@ define( [ "browser/utils", "agent/explorer-operations", "agent/host-operations" 
 
             }
         } ) ;
-        $( "#container-radio-docker" ).click()
-//        if ( hostOperations.isKubernetesEnabled()  ) {   
-//            $( "#container-radio-kubernetes" ).click() ;
-//        } else {
-//            $( "#container-radio-docker" ).click() ;
-//        }
-
-        $dialog = $( "#createContainerDialog" ) ;
-
-
-        $( "button", $dialog ).click( function () {
-            var $button = $( this ) ;
-            var type = $button.data( "type" ) ;
+        
+        $( "#container-radio-docker", $containerDialog ).click() ;
+        
+        
+        $( "button", $containerDialog ).click( function () {
+            let $button = $( this ) ;
+            let type = $button.data( "type" ) ;
             console.log( "Updating model", type, $( this ) ) ;
 
-            var $targetText = $( "textarea", $button.parent() ) ;
+            let $targetText = $( "textarea", $button.parent() ) ;
 
             if ( type == "ignore" ) {
                 // do nothing
             } else if ( type == "variable" ) {
-                $targetText = $( "#createContainerEnvVariables" ) ;
-                var envs = JSON.parse( $targetText.val( ) ) ;
+                $targetText = $envSettings ;
+                let envs = JSON.parse( $targetText.val( ) ) ;
                 envs.push( "your_name=your_value" ) ;
                 console.log( "updated", envs ) ;
                 $targetText.val( JSON.stringify( envs, "\n", "\t" ) ) ;
 
             } else if ( type == "port" ) {
                 alertify.csapInfo( getSample( type ) ) ;
-//                var ports = JSON.parse( $targetText.val( ) ) ;
-//                var p = JSON.parse( getSample( type ) )
+//                let ports = JSON.parse( $targetText.val( ) ) ;
+//                let p = JSON.parse( getSample( type ) )
 //                ports.push( p[0] ) ;
 //                console.log( "updated", ports ) ;
 //                $targetText.val( JSON.stringify( ports, "\n", "\t" ) ) ;
 
             } else if ( type == "volume" ) {
                 alertify.csapInfo( getSample( type ) ) ;
-//                var volumes = JSON.parse( $targetText.val( ) ) ;
-//                var p = JSON.parse( getSample( type ) )
+//                let volumes = JSON.parse( $targetText.val( ) ) ;
+//                let p = JSON.parse( getSample( type ) )
 //                volumes.push( p[0] ) ;
 //                console.log( "updated", volumes ) ;
 //                $targetText.val( JSON.stringify( volumes, "\n", "\t" ) ) ;
@@ -94,7 +96,7 @@ define( [ "browser/utils", "agent/explorer-operations", "agent/host-operations" 
 
     function isDockerTarget() {
 
-        var containerTarget = $( 'input.my-container-radio:checked' ).val() ;
+        let containerTarget = $( 'input.my-container-radio:checked' ).val() ;
         console.log( "isDockerTarget () containerTarget: ", containerTarget ) ;
 
         if ( containerTarget == "docker" ) {
@@ -105,7 +107,7 @@ define( [ "browser/utils", "agent/explorer-operations", "agent/host-operations" 
     }
 
     function getSample( type ) {
-        var sample = {
+        let sample = {
             "variable": [
                 "JAVA_HOME=/opt/java",
                 "WORKING_DIR=/working"
@@ -223,14 +225,14 @@ define( [ "browser/utils", "agent/explorer-operations", "agent/host-operations" 
         // Lazy create
         _targetImage = explorerOperations.getCurrentImage() ;
 
-        $( ".warning", $dialog ).hide() ;
+        $( ".warning", $containerDialog ).hide() ;
         if ( !alertify.createContainer ) {
 
-            var containerFactory = function factory() {
+            let containerFactory = function factory() {
                 return{
                     build: function () {
                         // Move content from template
-                        this.setContent( $dialog.show()[0] ) ;
+                        this.setContent( $containerDialog.show()[0] ) ;
                         this.setting( {
                             'onok': function () {
                                 createContainer(  ) ;
@@ -260,10 +262,10 @@ define( [ "browser/utils", "agent/explorer-operations", "agent/host-operations" 
             alertify.dialog( 'createContainer', containerFactory, false, 'confirm' ) ;
         }
 
-        var instance = alertify.createContainer().show() ;
+        let instance = alertify.createContainer().show() ;
 
-        var targetWidth = $( window ).outerWidth( true ) - 100 ;
-        var targetHeight = $( window ).outerHeight( true ) - 100 ;
+        let targetWidth = $( window ).outerWidth( true ) - 100 ;
+        let targetHeight = $( window ).outerHeight( true ) - 100 ;
         instance.resizeTo( targetWidth, targetHeight )
 
         instance.setting( {
@@ -282,6 +284,18 @@ define( [ "browser/utils", "agent/explorer-operations", "agent/host-operations" 
 
 
         $( ".jsonCompile" ).off().keydown( verifyJsonChanges ) ;
+        
+        
+        $autoResizeContainers.off().focusin( function() {
+            console.log( `focus createContainerEnvVariables`) ;
+            $(this).height( $(this)[0].scrollHeight );
+        }) 
+        $autoResizeContainers.focusout( function() {
+            console.log( `focus out createContainerEnvVariables`) ;
+            $(this).height( "" );
+        }) 
+        
+        
     }
 
     function populateContainerDefaults() {
@@ -290,20 +304,29 @@ define( [ "browser/utils", "agent/explorer-operations", "agent/host-operations" 
             return ;
         }
         console.log( "_lastImageSelected", _targetImage ) ;
-        $( "#createWorkingDirectory" ).val( _targetImage.attributes.Config.WorkingDir ) ;
+        $( "#createWorkingDirectory", $containerDialog  ).val( _targetImage.attributes.Config.WorkingDir ) ;
+
+        let containerCommand = getDockerCommandString( _targetImage.attributes.Config.Cmd ) ;
+//        if ( containerCommand == "" ) {
+//            containerCommand = getDockerCommandString( _targetImage.attributes.ContainerConfig.Cmd ) ;
+//        }
+        $( "#createContainerCommand", $containerDialog  ).val( containerCommand ) ;
 
 
-        $( "#createContainerCommand" ).val( getDockerCommandString( _targetImage.attributes.Config.Cmd ) ) ;
-        $( "#createContainerEntry" ).val( getDockerCommandString( _targetImage.attributes.ContainerConfig.Entrypoint ) ) ;
+        let containerEntry = getDockerCommandString( _targetImage.attributes.ContainerConfig.Entrypoint ) ;
+        if ( containerEntry == "" ) {
+            containerEntry = getDockerCommandString( _targetImage.attributes.Config.Entrypoint ) ;
+        }
+        $( "#createContainerEntry", $containerDialog ).val( containerEntry ) ;
 
 
         // pre-populate from image data
-        var portDefaults = new Array() ;
-        var portInfo = _targetImage.attributes.ContainerConfig.ExposedPorts ;
+        let portDefaults = new Array() ;
+        let portInfo = _targetImage.attributes.ContainerConfig.ExposedPorts ;
         if ( portInfo ) {
             for ( exposedItem in portInfo ) {
                 // "80/tcp":
-                var port = exposedItem.split( "\/" )[0] ;
+                let port = exposedItem.split( "\/" )[0] ;
                 let binding = {
                     "PrivatePort": port,
                     "PublicPort": port
@@ -320,8 +343,8 @@ define( [ "browser/utils", "agent/explorer-operations", "agent/host-operations" 
         $( "#createContainerPorts" ).val( JSON.stringify( portDefaults, "\n", "\t" ) ) ;
 
 
-        var volumes = new Array() ;
-        var volumeInfo = _targetImage.attributes.ContainerConfig.Volumes ;
+        let volumes = new Array() ;
+        let volumeInfo = _targetImage.attributes.ContainerConfig.Volumes ;
         if ( volumeInfo ) {
             let volCount = 0 ;
             for ( exposedItem in volumeInfo ) {
@@ -346,16 +369,17 @@ define( [ "browser/utils", "agent/explorer-operations", "agent/host-operations" 
         }
         $( "#createContainerVolumes" ).val( JSON.stringify( volumes, "\n", "\t" ) ) ;
 
-        var envVariables = new Array() ;
+        let envVariables = new Array() ;
         if ( _targetImage.attributes.ContainerConfig.Env ) {
             envVariables = _targetImage.attributes.ContainerConfig.Env ;
         }
-        $( "#createContainerEnvVariables" ).val( JSON.stringify( envVariables, "\n", "\t" ) ) ;
+        $envSettings.val( JSON.stringify( envVariables, "\n", "\t" ) ) ;
 
         $( "#createContainerNetwork" ).val( getSample( "network" ) ) ;
 
         // $( "#createContainerLimits" ).val( getSample("limit") );
         $( "#createContainerLimits" ).val( "" ) ;
+        
     }
 
     function isArray( o ) {
@@ -364,11 +388,15 @@ define( [ "browser/utils", "agent/explorer-operations", "agent/host-operations" 
 
     function getDockerCommandString( commandArray ) {
 
-        var displayItem = "" ;
+        let displayItem = "" ;
         if ( isArray( commandArray ) ) {
             commandString = JSON.stringify( commandArray, null, "  " ) ;
             displayItem = commandString.replace( /\n/g, '' ) ;
-//            var anyParamsWithSpaces = false;
+            
+            if ( displayItem.length > 40 ) {
+                displayItem = JSON.stringify( commandArray, "\n", "\t" ) ;
+            }
+//            let anyParamsWithSpaces = false;
 //            attribute.forEach( function ( item ) {
 //                if (item.contains( " " )) {
 //                    anyParamsWithSpaces = true;
@@ -385,16 +413,16 @@ define( [ "browser/utils", "agent/explorer-operations", "agent/host-operations" 
     }
 
     function verifyJsonChanges( e ) {
-        var $jsonTextArea = $( this ) ;
+        let $jsonTextArea = $( this ) ;
 
         // support tab in textarea
         if ( e.keyCode === 9 ) {
 
             // get caret position/selection
-            var start = this.selectionStart ;
+            let start = this.selectionStart ;
             end = this.selectionEnd ;
 
-            var $this = $( this ) ;
+            let $this = $( this ) ;
 
             // set textarea value to: text before caret + tab + text after caret
             $this.val( $this.val().substring( 0, start )
@@ -418,7 +446,7 @@ define( [ "browser/utils", "agent/explorer-operations", "agent/host-operations" 
 
         try {
 
-            var parsedJson = JSON.parse( $jsonTextArea.val() ) ;
+            let parsedJson = JSON.parse( $jsonTextArea.val() ) ;
             $jsonTextArea.css( "background-color", "#D5F7DE" ) ;
 
         } catch ( e ) {
@@ -428,7 +456,7 @@ define( [ "browser/utils", "agent/explorer-operations", "agent/host-operations" 
 
 
     function buildJsonArray( entry ) {
-        var json = entry ;
+        let json = entry ;
         if ( entry.length > 0 && !entry.trim().startsWith( "[" ) ) {
             json = JSON.stringify( entry.split( " " ), "", "" ) ;
         }
@@ -440,13 +468,13 @@ define( [ "browser/utils", "agent/explorer-operations", "agent/host-operations" 
 
         utils.loading( "Loading image information" ) ;
 
-        var commandUrl = explorerUrl + "/docker/container/create" ;
+        let commandUrl = explorerUrl + "/docker/container/create" ;
 
-        var namespace = null ;
-        var serviceType = null ;
-        var ingressPath = null ;
-        var ingressPort = null ;
-        var ingressHost = null ;
+        let namespace = null ;
+        let serviceType = null ;
+        let ingressPath = null ;
+        let ingressPort = null ;
+        let ingressHost = null ;
         if ( !isDockerTarget() ) {
             commandUrl = explorerUrl + "/" + hostOperations.categories().kubernetesDeployments ;
             namespace = $( "#k8-create-namespace-select" ).val() ;
@@ -456,9 +484,9 @@ define( [ "browser/utils", "agent/explorer-operations", "agent/host-operations" 
             ingressHost = $( "#kubernetes-ingress-host" ).val() ;
         }
 
-        var dockerCommand = $( "#createContainerCommand" ).val() ;
-        var dockerEntry = $( "#createContainerEntry" ).val() ;
-        var paramObject = {
+        let dockerCommand = $( "#createContainerCommand" ).val() ;
+        let dockerEntry = $( "#createContainerEntry" ).val() ;
+        let paramObject = {
 
             // k8s params
             "namespace": namespace,
@@ -481,7 +509,7 @@ define( [ "browser/utils", "agent/explorer-operations", "agent/host-operations" 
             "entry": dockerEntry, // buildJsonArray( dockerEntry ),
             "ports": $( "#createContainerPorts" ).val(),
             "volumes": $( "#createContainerVolumes" ).val(),
-            "environmentVariables": $( "#createContainerEnvVariables" ).val(),
+            "environmentVariables": $envSettings.val(),
             "limits": $( "#createContainerLimits" ).val()
         } ;
 
@@ -492,7 +520,7 @@ define( [ "browser/utils", "agent/explorer-operations", "agent/host-operations" 
                     //explorerOperations.showResultsDialog( "/container/create", commandResults, commandUrl ) ;
                     hostOperations.showResultsDialog( commandUrl, commandResults ) ;
 
-                    var folder = hostOperations.categories().dockerContainers ;
+                    let folder = hostOperations.categories().dockerContainers ;
                     if ( !isDockerTarget() ) {
                         folder = hostOperations.categories().kubernetesDeployments ;
                     }
