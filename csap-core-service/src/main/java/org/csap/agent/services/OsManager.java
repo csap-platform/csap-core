@@ -1,7 +1,10 @@
 package org.csap.agent.services ;
 
 import java.io.BufferedWriter ;
+import java.io.DataInputStream ;
 import java.io.File ;
+import java.io.FileInputStream ;
+import java.io.FileNotFoundException ;
 import java.io.FileWriter ;
 import java.io.IOException ;
 import java.net.InetAddress ;
@@ -35,6 +38,8 @@ import java.util.stream.Stream ;
 import java.util.stream.StreamSupport ;
 
 import javax.inject.Inject ;
+import javax.servlet.ServletOutputStream ;
+import javax.servlet.http.HttpServletResponse ;
 
 import org.apache.commons.lang3.StringUtils ;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory ;
@@ -69,6 +74,7 @@ import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
 import org.springframework.beans.factory.annotation.Autowired ;
 import org.springframework.boot.context.properties.EnableConfigurationProperties ;
+import org.springframework.http.MediaType ;
 import org.springframework.stereotype.Service ;
 import org.springframework.web.multipart.MultipartFile ;
 
@@ -121,6 +127,87 @@ public class OsManager {
 		} else {
 
 			logger.warn( "OsProcessMapper not initialized" ) ;
+
+		}
+
+	}
+
+	public void buildAndWriteZip ( HttpServletResponse response , File source )
+		throws IOException {
+
+		File workingFolder = csapApp.csapPlatformTemp( ) ;
+
+		if ( ! workingFolder.exists( ) ) {
+
+			workingFolder.mkdirs( ) ;
+
+		}
+
+		File fileName = new File( workingFolder, source.getName( ) + ".zip" ) ;
+		File zipLocation = new File( workingFolder, fileName.getName( ) ) ;
+
+		if ( source.exists( ) && source.getName( ).endsWith( ".zip" ) ) {
+
+			logger.info( CSAP.buildDescription( "existing zip file for download",
+					"source", source.getAbsolutePath( ) ) ) ;
+			zipLocation = source ; // existing zip file passed in
+
+		} else {
+
+			logger.info( CSAP.buildDescription( "Building zip file for download",
+					"source", source.getAbsolutePath( ),
+					"location", zipLocation.getAbsolutePath( ) ) ) ;
+
+			if ( ! source.exists( ) ) {
+
+				logger.debug( "Zip does not exist" ) ;
+				response.setStatus( HttpServletResponse.SC_BAD_REQUEST ) ;
+				response.getWriter( ).println( HttpServletResponse.SC_BAD_REQUEST + ": BAD REQUEST" ) ;
+				return ;
+
+			}
+
+			if ( source.isDirectory( ) ) {
+
+				ZipUtility.zipDirectory( source, zipLocation ) ;
+
+			} else {
+
+				ZipUtility.zipFile( source, zipLocation ) ;
+
+			}
+
+		}
+
+		// response.setContentType("application/octet-stream");
+		response.setContentType( MediaType.APPLICATION_OCTET_STREAM_VALUE ) ;
+		response.setContentLength( (int) zipLocation.length( ) ) ;
+		response.setHeader( "Content-Disposition", "attachment; filename=\"" + zipLocation.getName( )
+				+ "\"" ) ;
+
+		try ( DataInputStream in = new DataInputStream( new FileInputStream(
+				zipLocation.getAbsolutePath( ) ) );
+				ServletOutputStream op = response.getOutputStream( ); ) {
+
+			byte[] bbuf = new byte[3000] ;
+
+			int numBytesRead ;
+			long startingMax = zipLocation.length( ) ;
+			long totalBytesRead = 0L ; // hook for files that are being updated
+
+			while ( ( in != null ) && ( ( numBytesRead = in.read( bbuf ) ) != -1 )
+					&& ( startingMax > totalBytesRead ) ) {
+
+				totalBytesRead += numBytesRead ;
+				op.write( bbuf, 0, numBytesRead ) ;
+
+			}
+
+		} catch ( FileNotFoundException e ) {
+
+			logger.error( "File not found", e ) ;
+			response.getWriter( )
+					.println( "Did not find file: " + zipLocation ) ;
 
 		}
 
@@ -413,7 +500,7 @@ public class OsManager {
 					} )
 					.forEach( serviceInstance -> {
 
-						if ( serviceInstance.is_cluster_kubernetes( ) 
+						if ( serviceInstance.is_cluster_kubernetes( )
 								&& ! serviceInstance.getDefaultContainer( ).isRunning( ) ) {
 
 							// filter out inactive kubernetes processes

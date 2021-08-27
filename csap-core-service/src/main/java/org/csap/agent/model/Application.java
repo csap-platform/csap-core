@@ -1325,7 +1325,8 @@ public class Application {
 		// only if external (browser) networking different from host network
 		var internalAgentUrl = csapCoreService.getHostUrlPatternInternal( ) ;
 
-		if ( ! checkForInternalOverride || StringUtils.isEmpty( internalAgentUrl ) ) {
+		if ( ! checkForInternalOverride 
+				|| StringUtils.isEmpty( internalAgentUrl ) ) {
 
 			// use for all Browser UI requests, and most of the time when
 			// internal/external hosts are the same

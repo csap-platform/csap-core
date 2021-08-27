@@ -2306,7 +2306,7 @@ public class KubernetesIntegration {
 				summary.put( "version", versionInfo.getGitVersion( ) ) ;
 				summary.put( "nodeCount", nodeCount( ) ) ;
 				summary.put( "eventCount", eventCount( namespace ) ) ;
-				
+
 				List<String> namespaces = nameSpaces( ) ;
 				summary.put( "namespaceCount", namespaces.size( ) ) ;
 				summary.set( "namespaces", jsonMapper.valueToTree( namespaces ) ) ;
@@ -2325,8 +2325,6 @@ public class KubernetesIntegration {
 				summary.put( "replicaSetCount", listingsBuilder.replicaSetCount( namespace ) ) ;
 
 				summary.setAll( getCachedNodeHealthMetrics( ) ) ;
-
-				summary.put( "metricsAvailable", metricsBuilder( ).areMetricsAvailable( )  ) ;
 
 			} catch ( Exception e ) {
 
@@ -2771,15 +2769,28 @@ public class KubernetesIntegration {
 
 		}
 
-		String finalLocation = location.replaceAll(
+		//
+		// replace agent http and https endpoints
+		//
+		var finalLocation = location.replaceAll(
 				Matcher.quoteReplacement( csapApp.getAgentEndpoint( ) ),
+				serviceNodePortFull ) ;
+
+		finalLocation = location.replaceAll(
+				Matcher.quoteReplacement( csapApp.getAgentSslPortAndContext( ) ),
 				serviceNodePortFull ) ;
 
 		if ( isSsl ) {
 
 			finalLocation = finalLocation.replaceAll(
-					Matcher.quoteReplacement( "http" ),
-					"https" ) ;
+					Matcher.quoteReplacement( "http:" ),
+					"https:" ) ;
+
+		} else {
+
+			finalLocation = finalLocation.replaceAll(
+					Matcher.quoteReplacement( "https:" ),
+					"http:" ) ;
 
 		}
 

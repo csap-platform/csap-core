@@ -1230,20 +1230,15 @@ public class HealthManager {
 			var hostLogin = hostSessions.addObject( ) ;
 			hostLogin.put( "name", application.getCsapHostName( ) ) ;
 
-			var agentReport = build_host_status_using_cached_data( ) ;
-			// var hostStatus = agentReport.path( HostKeys.hostStats.jsonId ) ;
-			hostLogin.set( "sessions", agentReport.path( "vmLoggedIn" ) ) ;
+			var agentHostReport = build_host_status_using_cached_data( ) ;
+			hostLogin.set( "sessions", agentHostReport.path( "vmLoggedIn" ) ) ;
 
 			if ( application.isKubernetesInstalledAndActive( ) ) {
 
 				kubernetesEventCount = (int) application.getKubernetesIntegration( ).eventCount( null ) ;
 				
-				//refresh Metrics 
-				application.getKubernetesIntegration( ).metricsBuilder( ).cachedKubeletReport( ) ;
+				kubernetesMetrics = ! agentHostReport.path( "kubernetes" ).path( "metrics" ).path("current").path( "cores" ).isMissingNode( ) ;
 				
-				kubernetesMetrics = application.getKubernetesIntegration( )
-						.metricsBuilder( )
-						.areMetricsAvailable( ) ;
 				kubernetesNodeCount = (int) application.getKubernetesIntegration( ).nodeCount( ) ;
 				var podCountsReport = application.getKubernetesIntegration( ).podCountsReport( null ) ;
 				podCount = podCountsReport.path( "count" ).asInt( ) ;
@@ -1331,11 +1326,11 @@ public class HealthManager {
 
 					}
 
-					var hostKubMetrics = hostStatus.path( "kubernetes" ).path( "metricsAvailable" ).asBoolean( ) ;
+					var hostKubMetrics = hostStatus.path( "kubernetes" ).path( "metrics" ).path("current").path( "cores" ) ;
 
-					if ( hostKubMetrics ) {
+					if ( ! hostKubMetrics.isMissingNode( ) ) {
 
-						kubernetesMetrics = hostKubMetrics ;
+						kubernetesMetrics = true ;
 
 					}
 

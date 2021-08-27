@@ -205,7 +205,6 @@ define( [ "editor/json-forms" ], function ( jsonForms ) {
 
         },
 
-
         isLogAutoFormatDisabled: function () {
             console.log( ` $disableLogFormat: ${ $disableLogFormat.length }` ) ;
             return $disableLogFormat.is( ":checked" ) ;
@@ -572,18 +571,30 @@ define( [ "editor/json-forms" ], function ( jsonForms ) {
             return OS_URL ;
         },
 
-        cancelConfirm: function ( d ) {
-            // resets confirm button names
-            console.log( "cancelConfirm" ) ;
-            let dialog = alertify.confirm( "stub for restoring label names" ) ;
-            if ( dialog ) {
-                dialog.setting( {
+        confirmDialog( title, okFunction, okLabel = "ok", message="proceed or cancel",  cancelFunction, cancelLabel = "cancel" ) {
+
+            if ( !cancelFunction ) {
+                cancelFunction = function () {
+                    console.log( `${ title } cancelled` ) ;
+                }
+            }
+
+            let confirmDialog = alertify.confirm(
+                    title,
+                    `<div class="quote">${ message }</div>`,
+                    okFunction,
+                    cancelFunction
+                    ) ;
+
+
+            if ( confirmDialog ) {
+                confirmDialog.setting( {
                     'labels': {
-                        ok: "ok",
-                        cancel: "cancel"
+                        ok: okLabel,
+                        cancel: cancelLabel
                     }
                 } ) ;
-            }
+        }
         },
 
         getParameterByName: function ( name ) {
@@ -615,17 +626,17 @@ define( [ "editor/json-forms" ], function ( jsonForms ) {
             let $itemSource = findNavigation( navSelector ) ;
             //console.log( "navigationCount", $itemSource) ;
             let currentVal = $itemSource.text() ;
-            
+
 
             $itemSource.text( count + suffix ) ;
             $itemSource.removeClass( "up down" )
-            
-            
+
+
             if ( currentVal === "disabled" ) {
                 flash( $itemSource, true ) ;
                 return $itemSource ;
             }
-            
+
             if ( currentVal != 0 ) {
                 if ( count > currentVal ) {
                     $itemSource.addClass( "up" ) ;
@@ -641,8 +652,7 @@ define( [ "editor/json-forms" ], function ( jsonForms ) {
 
             return $itemSource ;
         },
-        
-        
+
         launchService: function ( serviceName, servicePath ) {
             $.getJSON( `${APP_BROWSER_URL  }/launch/${ serviceName }`, null )
                     .done( function ( launchReport ) {
@@ -652,15 +662,15 @@ define( [ "editor/json-forms" ], function ( jsonForms ) {
                             let targetUrl = launchReport.location ;
 
                             if ( serviceName == "csap-analytics" ) {
-                                targetUrl += "&project=" + activeProjectFunction(  false ) + "&appId=" + APP_ID ;
+                                targetUrl += "&project=" + activeProjectFunction( false ) + "&appId=" + APP_ID ;
                             }
                             if ( servicePath ) {
-                                if (targetUrl.endsWith( "/") && servicePath.startsWith("/") ) {
-                                    
-                                    if ( servicePath.length == 1) {
-                                        servicePath="" ;
+                                if ( targetUrl.endsWith( "/" ) && servicePath.startsWith( "/" ) ) {
+
+                                    if ( servicePath.length == 1 ) {
+                                        servicePath = "" ;
                                     } else {
-                                        servicePath = servicePath.substring(1) ;
+                                        servicePath = servicePath.substring( 1 ) ;
                                     }
                                 }
                                 targetUrl += servicePath ;
@@ -861,7 +871,7 @@ define( [ "editor/json-forms" ], function ( jsonForms ) {
             return theArray ;
         },
 
-        launch: function ( theUrl, frameTarget  ) {
+        launch: function ( theUrl, frameTarget ) {
             launch( theUrl, frameTarget )
         },
 

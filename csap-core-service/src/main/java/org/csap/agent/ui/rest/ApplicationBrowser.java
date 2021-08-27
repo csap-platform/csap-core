@@ -1257,23 +1257,26 @@ public class ApplicationBrowser {
 
 		var instances = service_instances( false, serviceName, null ).at( "/instances" ) ;
 
-		logger.info( "serviceName{}, {} ", serviceName, location, instances ) ;
+		logger.info( "serviceName {}, location: {},  instances: {}", serviceName, location, instances ) ;
 
-		if ( instances.isArray( ) ) {
+		if ( instances.isArray( )
+				&& instances.size( ) > 0 ) {
 
-			var optionalLaunch = CSAP.jsonStream( instances )
-					.filter( instance -> ! instance.path( "host" ).asText( ).equals( "localhost" ) )
-					.filter( instance -> instance.path( "running" ).asBoolean( ) )
-					.map( instance -> instance.path( "launchUrl" ).asText( ) )
-					.findFirst( ) ;
+			location = instances.at( "/0/launchUrl" ).asText( ) ;
 
-			if ( optionalLaunch.isPresent( ) ) {
+			if ( application.isDesktopHost( ) ) {
 
-				location = optionalLaunch.get( ) ;
+				var optionalLaunch = CSAP.jsonStream( instances )
+						.filter( instance -> ! instance.path( "host" ).asText( ).equals( "localhost" ) )
+						.filter( instance -> instance.path( "running" ).asBoolean( ) )
+						.map( instance -> instance.path( "launchUrl" ).asText( ) )
+						.findFirst( ) ;
 
-			} else {
+				if ( optionalLaunch.isPresent( ) ) {
 
-				location = instances.at( "/0/launchUrl" ).asText( ) ;
+					location = optionalLaunch.get( ) ;
+
+				}
 
 			}
 

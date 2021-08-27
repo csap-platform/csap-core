@@ -410,6 +410,35 @@ public class ProjectLoader {
 
 			// load csap global templates
 			var csapDefaults = definition_file_reader( CsapTemplate.default_service_definitions.getFile( ), false ) ;
+
+			// load in source overrides for company specific settings
+			var sourceOverrides = csapApplication.getCsapCoreService( ).getSourceOverrides( ) ;
+
+			if ( sourceOverrides != null ) {
+
+				logger.info( "Found sourceOverrides: {}", sourceOverrides ) ;
+				for ( var serviceName : sourceOverrides.keySet( ) ) {
+
+					var templateSource = csapDefaults.path( SERVICE_TEMPLATES )
+							.path( serviceName )
+							.path( ServiceAttributes.deployFromSource.json( ) )  ;
+
+					var targetPath = templateSource.path( "path" ) ;
+					
+//					logger.debug( "targetPath: {}, targetPath: {}", targetPath.isValueNode( ), targetPath );
+
+					if ( targetPath.isValueNode( ) ) {
+
+						( (ObjectNode) templateSource ).put(
+								"path",
+								sourceOverrides.get( serviceName ) ) ;
+
+					}
+
+				}
+
+			}
+
 			var defaultTemplate = serviceTemplates.addObject( ) ;
 			defaultTemplate.set( DefinitionConstants.definition.key( ), csapDefaults ) ;
 			defaultTemplate.put( DefinitionConstants.pathToTemplate.key( ), "" ) ;

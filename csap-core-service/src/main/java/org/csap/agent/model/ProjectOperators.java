@@ -8,6 +8,7 @@ import static org.csap.agent.model.ProjectLoader.ENVIRONMENT_IMPORTS ;
 import static org.csap.agent.model.ProjectLoader.SETTINGS ;
 
 import java.io.File ;
+import java.nio.file.Files ;
 import java.util.ArrayList ;
 import java.util.List ;
 import java.util.regex.Pattern ;
@@ -132,8 +133,28 @@ public class ProjectOperators {
 
 			if ( createFile.exists( ) ) {
 
-				FileUtils.deleteQuietly( createFile ) ;
-				createResults.put( "deleted", createFile.getAbsolutePath( ) ) ;
+				try {
+
+					Files.move(
+							createFile.toPath( ),
+							createFile.toPath( ).resolveSibling( createFile.getName( ) + ".previous" ) ) ;
+
+					createResults.put( "deleted", createFile.getAbsolutePath( ) ) ;
+					createResults.put( "previous", createFile.getName( ) + ".previous" ) ;
+
+				} catch ( Exception e ) {
+
+					logger.warn( "Failed to create previous file: ", createFile, e ) ;
+
+				}
+
+				if ( createFile.exists( ) ) {
+
+					FileUtils.deleteQuietly( createFile ) ;
+
+					createResults.put( "deleted", createFile.getAbsolutePath( ) ) ;
+
+				}
 
 			}
 

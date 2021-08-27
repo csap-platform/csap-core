@@ -190,16 +190,16 @@ public class Host_Status_Manager_Test extends CsapThinTests {
 
 		// ArrayList<String> hostList = new ArrayList<>( Arrays.asList( testAdminHost1,
 		// testAdminHost1 ) ) ;
-		ArrayList<String> hostList = new ArrayList<>( Arrays.asList( "csap-dev01.***REMOVED***" ) ) ;
+		var testHosts = new ArrayList<>( Arrays.asList( "csap-dev01.***REMOVED***" ) ) ;
 
-		HostStatusManager hostStatusManager = new HostStatusManager( getApplication( ), 2, hostList ) ;
+		HostStatusManager hostStatusManager = new HostStatusManager( getApplication( ), 2, testHosts ) ;
 
 		CSAP.setLogToDebug( HostStatusManager.class.getName( ) ) ;
 
 		hostStatusManager.refreshAndWaitForComplete( null ) ;
 
 		CSAP.setLogToInfo( HostStatusManager.class.getName( ) ) ;
-		ObjectNode hostReport = hostStatusManager.getHostAsJson( hostList.get( 0 ) ) ;
+		ObjectNode hostReport = hostStatusManager.getHostAsJson( testHosts.get( 0 ) ) ;
 
 		logger.debug( "Host Status: {}", CSAP.jsonPrint( hostReport ) ) ;
 
@@ -207,11 +207,16 @@ public class Host_Status_Manager_Test extends CsapThinTests {
 				.as( "cpuCount" )
 				.isGreaterThanOrEqualTo( 1 ) ;
 
-		hostStatusManager.updateServiceHealth( hostList.get( 0 ), hostReport ) ;
+		hostStatusManager.updateServiceHealth( testHosts.get( 0 ), hostReport ) ;
 
 		CSAP.setLogToInfo( HostStatusManager.class.getName( ) ) ;
 		ArrayNode alerts = hostStatusManager.getAllAlerts( ) ;
 		logger.info( "alerts: {}", CSAP.jsonPrint( alerts ) ) ;
+		
+		var backlogReport = hostStatusManager.hostsBacklog( testHosts , "/junit/api/") ;
+
+		logger.info( "backlogReport: {} ", 
+				CSAP.jsonPrint( backlogReport ) ) ;
 
 	}
 

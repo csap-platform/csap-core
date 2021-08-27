@@ -139,7 +139,43 @@
 
 		<div class="service-deploy-files">
 			<div class="heading">
-				Kubernetes Deployment Files:
+				Kubernetes yaml specifications  <a class="csap-link-icon csap-help" target="_blank" href="https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/"></a>
+			</div>
+
+			<div>
+
+				<label
+						class=csap-form
+					title="List of files that will be loaded during deployment"
+					style="vertical-align: top">
+					<span>File names:</span>
+					<textarea
+						id="container-deploy-files"
+						class=words
+						data-path="docker.deployment-file-names"
+						data-fit="true"
+						rows="1"
+						data-adjust="30"
+						data-adjustwidth="250"
+						spellcheck=false
+						placeholder="deployment filenames. specify as JSON array elements"></textarea>
+
+				</label>
+				<label 
+					class=csap-form
+					title="container image name: specify, and use $$service-image in your deployment templates">
+					<span>Image (Optional):</span>
+					<input
+						placeholder="optional"
+						data-path="docker.image" />
+
+				</label>
+
+
+			</div>
+			
+			<div class=quote>
+			
 				<ol style="list-style: lower-alpha; padding-left: 3em">
 					<li>Specifications will be deployed in the order listed, and removed in the reverse order.</li>
 					<li><a
@@ -153,41 +189,6 @@
 					<li>File paths that include '*deploy-only*' (eg. /path/to/volume-create-deploy-only.yaml) will NOT be removed
 						unless clean option is checked. Typically used for persistent volumes, etc.</li>
 				</ol>
-			</div>
-
-			<div>
-
-				<div>
-					<label 
-						class=csap-form-inline
-						title="container image name: specify, and use $$service-image in your deployment templates">
-						<span>Image:</span>
-						<input
-							placeholder="optional"
-							data-path="docker.image" />
-
-					</label>
-				</div>
-
-				<label
-						class=csap-form-inline
-					title="List of files that will be loaded during deployment"
-					style="vertical-align: top">
-					<span>File names:</span>
-
-				</label>
-				<div class="floating-ace-editor">
-					<textarea
-						id="container-deploy-files"
-						data-path="docker.deployment-file-names"
-						data-fit="true"
-						rows="1"
-						data-adjust="30"
-						data-adjustwidth="200"
-						spellcheck=false
-						placeholder="deployment filenames. specify as JSON array elements"></textarea>
-				</div>
-
 			</div>
 		</div>
 	</div>

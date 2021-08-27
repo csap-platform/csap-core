@@ -16,12 +16,7 @@
 		<div class="adminNote is-files-only">Note: This is a CSAP package service. CSAP Package services need to be
 			manually kill/cleaned prior to upgrading to a new version.</div>
 
-		<span class="is-datastore">
-			<img th:src="@{/images/16x16/warning.png}" />
-			<span style="font-weight: bold"> Warning - This service is a data-store. Refer to help for appropriate deploy
-				processes.</span>
-			<br />
-		</span>
+		<div class="is-datastore warning">Warning - This service is a data-store. Refer to help for appropriate deploy processes.</div>
 
 		
 		
@@ -38,10 +33,8 @@
 
 
 			<div id="dockerDeployOptions">
-				<label class="optionLabel">
-					<span
-						id="docker-deploy-label"
-						style="padding-left: 2em;">Docker Image:</span>
+				<label class=csap-form>
+					<span>Docker Image:</span>
 					<input
 						id="dockerImageVersion"
 						title="The docker Image to deploy">
@@ -106,26 +99,29 @@
 
 
 
-				<div id="mavenOptions">
+				<div id=mavenOptions >
 
-					<input
-						id="mavenArtifact"
-						title="The version of the service to deploy. By default - it is the version defined by SCM team in the capability definition file."
-						name="maven"
-						value="serviceInstance.getMavenId()">
+					<label class=csap-form style="margin: 2em" >
+						<span><a class=csap-link target=_blank href="https://maven.apache.org/pom.html#Maven_Coordinates"> Maven Coordinates:</a></span>
+						<input
+							id="mavenArtifact"
+							title="The version of the service to deploy. By default - it is the version defined by SCM team in the capability definition file."
+							name="maven"
+							value="serviceInstance.getMavenId()">
+					</label>
 
 				</div>
 
 
 				<div id="sourceOptions">
 
-					<label class=csap-form-inline>
+					<label  class=csap-form >
 						<span>userid:</span>
 						<input id=scmUserid class=words>
 					</label>
 					
 					
-					<label class=csap-form-inline>
+					<label   class=csap-form >
 						<span>password:</span>
 						<input
 							id="scmPass" class=words
@@ -133,7 +129,7 @@
 					</label>
 					
 					<label
-						class=csap-form-inline
+						  class=csap-form 
 						title="Adds deploy to maven command">
 						<span>upload to maven:</span>
 						<input
@@ -143,7 +139,7 @@
 					</label>
 
 					<label
-						class=csap-form-inline
+						class=csap-form 
 						title="This value will be string substited in URL below with trunk. If you change this you will need to run service clean. Branches are usually named /branches/branchname.">
 						<span>branch/tag:</span>
 						
@@ -159,31 +155,35 @@
 							id=scmCommand class=words
 							th:value="${ environmentSettings.getMavenCommand() }">
 					</label>
-					<br />
-
-					<label
-						class="csap comment"
-						title="Click to browse source location">
-						source:
-						<a
-							id="scmLocation"
-							class="csap-link"
-							target="_blank"
-							href="#"></a>
-
-					</label>
 					
-					<label class="csap comment">
-						build folder:
-						<span id="scmFolder"> [[ serviceInstance.getScmBuildLocation() </span>
-					</label>
+					<div class=flex-container style="margin: 2em">
+					
+
+						<label
+							class="csap comment"
+							title="Click to browse source location">
+							source:
+							<a
+								id="scmLocation"
+								class="csap-link"
+								target="_blank"
+								href="#"></a>
+	
+						</label>
+					
+						<label class="csap flex-right-info">
+							build folder:
+							<span id="scmFolder"> [[ serviceInstance.getScmBuildLocation() </span>
+						</label>
+						
+					</div>
 
 
 				</div>
 
 				<div
 					id="uploadOptions"
-					style="padding-top: 2em; padding-bottom: 2em">
+					 style="margin-top: 2em;margin-bottom: 2em ">
 					<form
 						id="uploadForm"
 						action="service/uploadArtifact"
@@ -191,11 +191,15 @@
 						method="post"
 						style="">
 
-						<input
-							id="uploadServiceFile"
-							type="file"
-							name="distFile"
-							size="60" />
+						<label class=csap-form>
+							<span>File:</span> 
+							<input
+								id="uploadServiceFile"
+								type="file"
+								name="distFile"
+								size="60" />
+						</label>
+							
 						<input
 							id="upService"
 							type="hidden"
@@ -282,12 +286,7 @@
 
 		<div class="csap-white quote ">
 
-			<div class="is-datastore">
-				<img th:src="@{/images/16x16/warning.png}" />
-				<span style="font-weight: bold"> Warning - This service is a data-store. Refer to help for appropriate start
-					processes.</span>
-				<br />
-			</div>
+			<div class="is-datastore warning">Warning - This service is a data-store. Refer to help for appropriate start</div>
 
 			<span class="is-docker"> If container already exists, it will be stopped and deleted prior to new container
 				being created </span>
@@ -456,10 +455,7 @@
 
 		</div>
 
-		<div class="is-datastore">
-			<img th:src="@{/images/16x16/warning.png}" />
-			Warning - This service is a data-store. Refer to help for appropriate shutdown processes.
-		</div>
+		<div class="is-datastore warning">Warning - This service is a data-store. Refer to help for appropriate shutdown processes.</div>
 
 
 		<div style="margin-top: 2em">

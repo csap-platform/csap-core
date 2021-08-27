@@ -7,11 +7,14 @@ package org.csap.agent.api ;
 
 import java.io.File ;
 import java.io.IOException ;
+import java.nio.file.Files ;
+import java.nio.file.Paths ;
 import java.time.LocalDate ;
 import java.time.LocalDateTime ;
 import java.time.format.DateTimeFormatter ;
 import java.util.ArrayList ;
 import java.util.Arrays ;
+import java.util.Comparator ;
 import java.util.List ;
 import java.util.Map ;
 
@@ -1918,6 +1921,59 @@ public class AgentApi {
 		}
 
 		return instance ;
+
+	}
+
+	@CsapDoc ( notes = {
+			"Download the host installer used to install current host"
+	}  )
+	@GetMapping ( {
+			"/installer"
+	} )
+	public void installer ( HttpServletResponse response )
+		throws Exception {
+
+		var sourceFile = new File( "/root/csap-host.zip" ) ;
+
+		if ( ! sourceFile.exists( ) ) {
+
+			var rootPath = Paths.get( "/root" ) ;
+
+			if ( csapApp.isDesktopHost( ) ) {
+
+				rootPath = Paths.get( System.getProperty( "user.home" ) ) ;
+				csapApp.getAgentRunUser( ) ;
+
+			}
+
+			var hostFiles = new ArrayList<File>( ) ;
+
+			// Files.newDirectoryStream(dir, "*.{java,class,jar}"))
+			try ( var pathStream = Files.newDirectoryStream( rootPath, "csap-host*.{zip}" ) ) {
+
+				for ( var itemPath : pathStream ) {
+
+					// files.add(entry.toFile());
+					hostFiles.add( itemPath.toFile( ) ) ;
+
+				}
+
+//				hostFiles.sort( Comparator.comparingLong( File::lastModified ) ) ;
+				hostFiles.sort( Comparator.comparingLong( File::lastModified ).reversed( ) ) ;
+
+				logger.info( "hostFiles: {}", hostFiles ) ;
+
+				sourceFile = hostFiles.get( 0 ) ;
+
+				csapApp.getOsManager( ).buildAndWriteZip( response, sourceFile ) ;
+
+			} catch ( Exception e ) {
+
+				logger.warn( "Failed to list files at {} {}", sourceFile, CSAP.buildCsapStack( e ) ) ;
+
+			}
+
+		}
 
 	}
 

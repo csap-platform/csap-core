@@ -11,10 +11,10 @@ const explorerSources = [
 //
 //
 define( explorerSources, function ( utils, podLogs, explorerProgress, hostOperations, aceEditor, jsonForms, jsYaml ) {
-    
-    
+
+
     console.log( "Module loaded" ) ;
-    
+
 
     const $agentTabButton = utils.findNavigation( "#agent-tab" ) ;
     const $agentTabContent = utils.findContent( "#agent-tab-content" ) ;
@@ -75,7 +75,7 @@ define( explorerSources, function ( utils, podLogs, explorerProgress, hostOperat
 
 
     let _podsByOwner ;
-    
+
     let _dockerContainerNames ;
 
 
@@ -108,7 +108,6 @@ define( explorerSources, function ( utils, podLogs, explorerProgress, hostOperat
         service_proxy_dialog: function ( $link ) {
             service_proxy_dialog( $link ) ;
         },
-
 
         containerCommandPath: function () {
             return _dockerContainerPath ;
@@ -197,9 +196,24 @@ define( explorerSources, function ( utils, podLogs, explorerProgress, hostOperat
         console.log( "Initializing" ) ;
 
         $( "#yaml-editor-operations button" ).click( function () {
-            yamlEditorOperation( $( this ) ) ;
+
+            let $button = $( this ) ;
+            utils.confirmDialog(
+                    `Confirmation Dialog ${ $button.text() }`,
+                    function () {
+                        yamlEditorOperation( $button ) ;
+                    },
+                    `Perform: ${ $button.text() }`,
+                    `Operation cannot be undone, proceed with caution`
+                    ) ;
+
         } ) ;
 
+        $yamlSpacing.change( function () {
+
+            alertify.csapInfo( "close/reopen dialog to view updated format" ) ;
+
+        } )
 
         $linuxServiceControls = $( "#linuxServiceControls" ) ;
         $( "button", $linuxServiceControls ).click( function () {
@@ -849,9 +863,9 @@ define( explorerSources, function ( utils, podLogs, explorerProgress, hostOperat
     function refresh_host_status() {
 
         let intervalInSeconds = $( "#cpuIntervalId" ).val() ;
-        if ( ! intervalInSeconds ) {
+        if ( !intervalInSeconds ) {
             console.debug( `Warning: intervalInSeconds not set - defaulting to 10` ) ;
-            intervalInSeconds = 10;
+            intervalInSeconds = 10 ;
         }
         console.debug( `refresh_host_status(): updates agent view every ${intervalInSeconds } seconds` ) ;
         let isAgentTabActive = $agentTabButton.hasClass( "active" ) ;
@@ -1454,36 +1468,9 @@ define( explorerSources, function ( utils, podLogs, explorerProgress, hostOperat
 
                     $( "#last-loaded-yaml" ).text( resourcePath ).attr( "title", resourcePath ) ;
 
-                    let yamlText = commandResults["response-yaml"] ;
-
-                    if ( $yamlSpacing.is( ":checked" ) ) {
-
-                        try {
-                            let specAsYaml = jsYaml.safeLoadAll( yamlText ) ;
-                            let specAsJsonText = JSON.stringify( specAsYaml ) ;
-                            let specAsJsonObject = JSON.parse( specAsJsonText ) ;
-                            console.log( `specAsJson: `, specAsJsonObject ) ;
-                            let managedFields = utils.json( "metadata.managedFields", specAsJsonObject ) ;
-                            if ( managedFields ) {
-                                console.log( "removing managed fields" ) ;
-                                let metadata = specAsJsonObject["metadata"] ;
-                                delete metadata.managedFields ;
-                                //specAsYaml = jsYaml.load( JSON.stringify( specAsJsonObject ) ) ;
-                                yamlText = jsYaml.dump( specAsJsonObject ) ;
-                            }
+                    let yamlText = checkYamlFormatting( commandResults["response-yaml"] ) ;
 
 
-                            let spaceTopLevel = false ;
-
-                            yamlText = utils.yamlSpaces(
-                                    yamlText,
-                                    [ "metadata", "spec", "status" ],
-                                    spaceTopLevel ) ;
-                        } catch ( e ) {
-                            alertify.csapWarning( "Failed to perform yaml spacing" ) ;
-                            console.error( "Failed to perform yaml spacing", e ) ;
-                        }
-                    }
                     _yamlEditor.setValue(
                             yamlText,
                             -1 ) ;
@@ -1493,6 +1480,50 @@ define( explorerSources, function ( utils, podLogs, explorerProgress, hostOperat
                 .fail( function ( jqXHR, textStatus, errorThrown ) {
                     alertify.alert( "Failed Operation: " + jqXHR.statusText, "Contact your administrator" ) ;
                 } ) ;
+    }
+
+    function checkYamlFormatting( loadedContent ) {
+
+        let formatedContent = loadedContent ;
+
+        if ( $yamlSpacing.is( ":checked" ) ) {
+
+            try {
+                let specAsYaml = jsYaml.safeLoadAll( loadedContent ) ;
+                let specAsJsonText = JSON.stringify( specAsYaml ) ;
+                let specJsonDocuments = JSON.parse( specAsJsonText ) ;
+                console.log( `yaml formating enabled, specAsJson: `, specJsonDocuments ) ;
+
+                let deletedFields = false ;
+                for ( let specJsonDoc of specJsonDocuments ) {
+
+                    let managedFields = utils.json( "metadata.managedFields", specJsonDoc ) ;
+                    if ( managedFields ) {
+                        console.log( "removing managed fields" ) ;
+                        let metadata = specJsonDoc["metadata"] ;
+                        delete metadata.managedFields ;
+                        deletedFields = true ;
+
+                    }
+                }
+                if ( deletedFields ) {
+                    formatedContent = jsYaml.dump( specJsonDocuments ) ;
+                }
+
+
+                let spaceTopLevel = false ;
+
+                formatedContent = utils.yamlSpaces(
+                        formatedContent,
+                        [ "metadata", "spec", "status" ],
+                        spaceTopLevel ) ;
+            } catch ( e ) {
+                alertify.csapWarning( "Failed to perform yaml spacing" ) ;
+                console.error( "Failed to perform yaml spacing", e ) ;
+            }
+        }
+
+        return formatedContent ;
     }
 
 
@@ -1800,9 +1831,9 @@ define( explorerSources, function ( utils, podLogs, explorerProgress, hostOperat
             case "tail" :
                 // explorerProgress.docker( _currentContainerNode.containerName, 100 ) ;
 
-                    podLogs.configure( _currentContainerNode.containerName, null, _dockerContainerNames ) ;
-                    utils.launchMenu( "agent-tab,explorer-pod-logs" ) ;
-                    
+                podLogs.configure( _currentContainerNode.containerName, null, _dockerContainerNames ) ;
+                utils.launchMenu( "agent-tab,explorer-pod-logs" ) ;
+
                 break ;
 
 

@@ -6,6 +6,36 @@ if is_package_installed dnf ; then
 	osPackages="$osPackages dnf-plugins-core python3-dnf-plugins-core python3-dnf-plugin-versionlock" ; # use dnf autoremove
 	packageCommand="dnf";
 fi ;
+
+
+
+
+#
+# find a package for specified command
+#
+function find_package() {
+	local command_to_find_package=${1:-bash} ;
+	print_separator "Locating the package: '$command_to_find_package'"
+	
+	local full_path_to_command ;
+	full_path_to_command=$(which $command_to_find_package 2>&1) ;
+	local return_code=$? ;
+	
+	if (( $return_code == 0 )) ; then
+		
+		print_two_columns "package" "$(rpm -qf $full_path_to_command)" ;
+		
+	else
+		print_two_columns "package" "not found" ;
+	fi ;
+	
+}
+
+find_package "bash"
+
+
+
+
 #
 #  updated yum repositories		
 #
@@ -78,25 +108,6 @@ function view_repositorys() {
 
 view_repositorys
 
-function find_package() {
-	local command_to_find_package=${1:-bash} ;
-	print_separator "Locating the package: '$command_to_find_package'"
-	
-	local full_path_to_command ;
-	full_path_to_command=$(which $command_to_find_package 2>&1) ;
-	local return_code=$? ;
-	
-	if (( $return_code == 0 )) ; then
-		
-		print_two_columns "package" "$(rpm -qf $full_path_to_command)" ;
-		
-	else
-		print_two_columns "package" "not found" ;
-	fi ;
-	
-}
-
-find_package "bash"
 
 
 function dnf_fast_mirror() {

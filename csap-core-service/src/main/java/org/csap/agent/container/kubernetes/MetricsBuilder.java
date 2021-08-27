@@ -332,13 +332,11 @@ public class MetricsBuilder {
 
 		}
 
-		metricsAvailable.set( latestMetricsAvailable ) ;
 
 		return metricsReport ;
 
 	}
 
-	AtomicBoolean metricsAvailable = new AtomicBoolean( false ) ;
 
 	public ObjectNode nodeReport ( String nodeFilter ) throws Exception {
 
@@ -770,10 +768,5 @@ public class MetricsBuilder {
 
 	}
 
-	public boolean areMetricsAvailable ( ) {
-
-		return metricsAvailable.get( ) ;
-
-	}
 
 }

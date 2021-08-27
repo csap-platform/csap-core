@@ -1115,7 +1115,7 @@ public class ServiceOsManager {
 
 			var cliUrl = "http://"
 					+ csapApp.getHostUsingFqdn( firstAdmin.getHostName( ) )
-					+ ":" + firstAdmin.getPort() + "/"
+					+ ":" + firstAdmin.getPort( ) + "/"
 					+ firstAdmin.getContext( ) ;
 
 			serviceEnvironmentVariables.put( "csapAdminUrl", cliUrl ) ;
@@ -4093,24 +4093,24 @@ public class ServiceOsManager {
 									String ssoCookieStringForHeader ,
 									HttpMethod httpMethod ) {
 
-		ObjectNode resultsJson = jsonMapper.createObjectNode( ) ;
+		var httpRequestReport = jsonMapper.createObjectNode( ) ;
 		// API calls do not need sso token.
 
 		logger.debug( "ssoCookieStringForHeader: {}", ssoCookieStringForHeader ) ;
 
 		if ( hosts == null || hosts.size( ) == 0 ) {
 
-			resultsJson.put( CsapCore.CONFIG_PARSE_ERROR, "One or more hosts required" ) ;
-			return resultsJson ;
+			httpRequestReport.put( CsapCore.CONFIG_PARSE_ERROR, "One or more hosts required" ) ;
+			return httpRequestReport ;
 
 		}
 
 		// hook to prune null params and get max timeout
-		int maxTimeoutInMs = 25000 ;
-		var timeoutSecondsForNonSsl = 3 ;
-		ArrayList<String> keysToPrune = new ArrayList<String>( ) ;
+		var maxTimeoutInMs = 25000 ;
+		var timeoutSecondsForAnonymousRequests = 3 ;
+		var keysToPrune = new ArrayList<String>( ) ;
 
-		for ( String key : urlVariables.keySet( ) ) {
+		for ( var key : urlVariables.keySet( ) ) {
 
 			if ( urlVariables.get( key ).get( 0 ) == null ) {
 
@@ -4121,9 +4121,9 @@ public class ServiceOsManager {
 
 			if ( key.equals( CsapCore.SERVICE_NOPORT_PARAM ) ) {
 
-				for ( String serviceName : urlVariables.get( key ) ) {
+				for ( var serviceName : urlVariables.get( key ) ) {
 
-					timeoutSecondsForNonSsl = csapApp.getMaxDeploySecondsForService( serviceName ) ;
+					timeoutSecondsForAnonymousRequests = csapApp.getMaxDeploySecondsForService( serviceName ) ;
 
 					int serviceMaxMs = csapApp.getMaxDeploySecondsForService( serviceName ) * 1000 ;
 
@@ -4139,10 +4139,10 @@ public class ServiceOsManager {
 
 			if ( key.equals( CsapCore.SERVICE_PORT_PARAM ) ) {
 
-				for ( String serviceName_port : urlVariables.get( key ) ) {
+				for ( var serviceName_port : urlVariables.get( key ) ) {
 
 					// Use the longest time configured
-					timeoutSecondsForNonSsl = csapApp.getMaxDeploySecondsForService( serviceName_port ) ;
+					timeoutSecondsForAnonymousRequests = csapApp.getMaxDeploySecondsForService( serviceName_port ) ;
 
 					int serviceMaxMs = csapApp.getMaxDeploySecondsForService( serviceName_port ) * 1000 ;
 
@@ -4158,12 +4158,12 @@ public class ServiceOsManager {
 
 		}
 
-		logger.debug( "timeoutSecondsForNonSsl: {}, variables: {}", timeoutSecondsForNonSsl, urlVariables ) ;
+		logger.debug( "timeoutSecondsForNonSsl: {}, variables: {}", timeoutSecondsForAnonymousRequests, urlVariables ) ;
 
-		if ( timeoutSecondsForNonSsl > 60 ) {
+		if ( timeoutSecondsForAnonymousRequests > 60 ) {
 
 			logger.debug( "Maxing connection time to 60 seconds" ) ;
-			timeoutSecondsForNonSsl = 60 ;
+			timeoutSecondsForAnonymousRequests = 60 ;
 
 		}
 
@@ -4173,21 +4173,45 @@ public class ServiceOsManager {
 
 		}
 
-		RestTemplate restTemplate = csapApp.getAgentPooledConnection( 1, timeoutSecondsForNonSsl ) ;
+		var agentRestTemplate = csapApp.getAgentPooledConnection( 1, timeoutSecondsForAnonymousRequests ) ;
 		String connectionType = "pooled" ;
 
 		if ( ! ssoCookieStringForHeader.equals( STATELESS ) ) {
 
-			connectionType = "transient" ;
-			SsoRequestFactory simpleClientRequestFactory = new SsoRequestFactory(
-					ssoCookieStringForHeader, maxTimeoutInMs ) ;
+			//
+			// ssoCookie ensures we have record if initiating userid, and provides extended
+			// timeout
+			//
 
-			restTemplate = new RestTemplate( simpleClientRequestFactory ) ;
+			agentRestTemplate = csapApp.getAgentPooledConnection( 1, maxTimeoutInMs ) ;
+
+//			connectionType = "transient" ;
+//			
+//			SsoRequestFactory simpleClientRequestFactory = new SsoRequestFactory(
+//					ssoCookieStringForHeader, maxTimeoutInMs ) ;
+//
+//			restTemplate = new RestTemplate( simpleClientRequestFactory ) ;
 
 			if ( csapOauthConfig != null ) {
 
 				logger.debug( "Updating web sso" ) ;
-				csapOauthConfig.addWebSso( restTemplate ) ;
+				csapOauthConfig.addWebSso( agentRestTemplate ) ;
+
+			} else {
+
+				agentRestTemplate.setInterceptors(
+						Collections.singletonList( (
+														request ,
+														body ,
+														execution ) -> {
+
+							request
+									.getHeaders( )
+									.add( "Cookie", ssoCookieStringForHeader ) ;
+
+							return execution.execute( request, body ) ;
+
+						} ) ) ;
 
 			}
 
@@ -4199,7 +4223,7 @@ public class ServiceOsManager {
 
 			if ( Application.isRunningOnDesktop( ) && host.equals( "localhost" ) ) {
 
-				resultsJson.put( host, "Skipping host because desktop detected" ) ;
+				httpRequestReport.put( host, "Skipping host because desktop detected" ) ;
 				continue ;
 
 			}
@@ -4217,7 +4241,7 @@ public class ServiceOsManager {
 
 				if ( httpMethod == HttpMethod.POST ) {
 
-					response = restTemplate.postForEntity( url, urlVariables,
+					response = agentRestTemplate.postForEntity( url, urlVariables,
 							String.class ) ;
 
 				} else {
@@ -4233,7 +4257,7 @@ public class ServiceOsManager {
 
 					logger.debug( "HttpGet: {}", builder.toUriString( ) ) ;
 
-					response = restTemplate.getForEntity( builder.toUriString( ), String.class ) ;
+					response = agentRestTemplate.getForEntity( builder.toUriString( ), String.class ) ;
 
 				}
 
@@ -4247,12 +4271,12 @@ public class ServiceOsManager {
 
 					if ( type != null && type.toString( ).contains( "html" ) ) {
 
-						resultsJson.put( host, response.getBody( ) ) ;
+						httpRequestReport.put( host, response.getBody( ) ) ;
 
 					} else {
 
 						remoteCommandResponse = (JsonNode) jsonMapper.readTree( response.getBody( ) ) ;
-						resultsJson.set( host, remoteCommandResponse ) ;
+						httpRequestReport.set( host, remoteCommandResponse ) ;
 
 					}
 
@@ -4264,8 +4288,8 @@ public class ServiceOsManager {
 							TimeUnit.NANOSECONDS.toSeconds( timeNanos ), urlVariables,
 							response ) ;
 
-					resultsJson.put( host, CsapCore.CONFIG_PARSE_ERROR ) ;
-					resultsJson.set( host + "_reason", jsonMapper.convertValue( response, ObjectNode.class ) ) ;
+					httpRequestReport.put( host, CsapCore.CONFIG_PARSE_ERROR ) ;
+					httpRequestReport.set( host + "_reason", jsonMapper.convertValue( response, ObjectNode.class ) ) ;
 
 				}
 
@@ -4276,13 +4300,13 @@ public class ServiceOsManager {
 
 				logger.warn( "Exception on url: {}, connection: {}, time out: {} (s) variables: {}, {}", url,
 						connectionType,
-						timeoutSecondsForNonSsl, urlVariables,
+						timeoutSecondsForAnonymousRequests, urlVariables,
 						CSAP.buildCsapStack( e ) ) ;
 				logger.debug( "Failed remote connection", e ) ;
 
-				logger.info( "converters: {}", restTemplate.getMessageConverters( ) ) ;
+				logger.info( "converters: {}", agentRestTemplate.getMessageConverters( ) ) ;
 
-				resultsJson.put( host, CsapCore.CONFIG_PARSE_ERROR + " Connection Failure"
+				httpRequestReport.put( host, CsapCore.CONFIG_PARSE_ERROR + " Connection Failure"
 						+ "\n\n Resource: " + url + "\n\nMessage: "
 						+ e.getMessage( )
 						+ "\n\nIf caused by timeout, consider extending deploy timeout in the application definition" ) ;
@@ -4314,7 +4338,7 @@ public class ServiceOsManager {
 
 		}
 
-		return resultsJson ;
+		return httpRequestReport ;
 
 	}
 

@@ -45,6 +45,7 @@ import org.springframework.beans.factory.annotation.Qualifier ;
 import org.springframework.http.MediaType ;
 import org.springframework.ldap.NameNotFoundException ;
 import org.springframework.ldap.core.LdapTemplate ;
+import org.springframework.util.LinkedMultiValueMap ;
 import org.springframework.web.bind.annotation.GetMapping ;
 import org.springframework.web.bind.annotation.PathVariable ;
 import org.springframework.web.bind.annotation.PostMapping ;
@@ -350,7 +351,7 @@ public class ApplicationApi {
 	ServiceOsManager serviceManager ;
 
 	@CsapDoc ( notes = {
-			"Deployment backlog on host",
+			"Deployment backlog on host(s)",
 			"Optional Parameter: project may be specified to filter results. Default is all packages",
 			"Optional Parameter: isTotal will return only the total"
 	} , linkTests = {
@@ -362,6 +363,7 @@ public class ApplicationApi {
 	} )
 	@GetMapping ( value = "/deployment/backlog" )
 	public JsonNode deploymentBacklog (
+										HttpServletRequest request ,
 										@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false , defaultValue = Application.ALL_PACKAGES ) String csapProjectName ,
 										boolean isTotal )
 		throws Exception {
@@ -393,7 +395,8 @@ public class ApplicationApi {
 		}
 
 		Project model = csapApp.getProject( csapProjectName ) ;
-		var adminBacklogReport = csapApp.getHostStatusManager( ).hostsBacklog( model.getHostsCurrentLc( ) ) ;
+		var adminBacklogReport = csapApp.getHostStatusManager( ).hostsBacklog( model.getHostsCurrentLc( ), request
+				.getContextPath( ) + "/api/application/service/jobs/" ) ;
 
 		JsonNode result ;
 
@@ -415,6 +418,54 @@ public class ApplicationApi {
 		}
 
 		return result ;
+
+	}
+
+	@CsapDoc ( notes = {
+			"Get the number of jobs (start, stop, deploy) queued for execution."
+	} , linkTests = {
+			"Show Jobs"
+	} )
+	@GetMapping ( "/service/jobs/{host}" )
+	public JsonNode serviceJobStatus ( @PathVariable String host )
+		throws Exception {
+
+		JsonNode hostJobReport ;
+		;
+
+		if ( csapApp.isAdminProfile( ) ) {
+
+			var requestParameters = new LinkedMultiValueMap<String, String>( ) ;
+			var hostJobReports = serviceManager.remoteAgentsGet( List.of( host ), "/api/agent/service/jobs",
+					requestParameters ) ;
+
+			var remoteReport = hostJobReports.path( host ) ;
+
+			if ( remoteReport.has( "host" ) ) {
+
+				hostJobReport = remoteReport ;
+
+			} else {
+
+				var errorReport = jacksonMapper.createObjectNode( ) ;
+
+				errorReport.put( "host", host ) ;
+				errorReport.put( "connectionFailure", true ) ;
+				errorReport.putArray( "queue" ) ;
+
+				errorReport.set( "error", remoteReport ) ;
+
+				hostJobReport = errorReport ;
+
+			}
+
+		} else {
+
+			hostJobReport = serviceManager.getJobStatus( ) ;
+
+		}
+
+		return hostJobReport ;
 
 	}
 
@@ -1084,30 +1135,6 @@ public class ApplicationApi {
 
 		// logger.info("aggregateList: " + aggregateList);
 		return hosts ;
-
-	}
-
-	@CsapDoc ( notes = {
-			"Get the number of jobs (start, stop, deploy) queued for execution."
-	} , linkTests = {
-			"Show Jobs"
-	} )
-	@GetMapping ( "/service/jobs" )
-	public ObjectNode serviceJobStatus ( )
-		throws Exception {
-
-		if ( ! csapApp.isAdminProfile( ) ) {
-
-			return managerError ;
-
-		}
-
-		ObjectNode resultNode = jacksonMapper.createObjectNode( ) ;
-
-		logger.debug( "List of resultNode: {}", resultNode.toString( ) ) ;
-		resultNode.put( "tasksRemaining", csapApp.getHostStatusManager( ).totalOpsQueued( ) ) ;
-
-		return resultNode ;
 
 	}
 

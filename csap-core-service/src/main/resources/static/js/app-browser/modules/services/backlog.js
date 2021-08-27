@@ -237,7 +237,17 @@ define( [ "browser/utils" ], function ( utils ) {
 
         let $hostColumn = $( "<td/>" ) ;
         $row.append( $hostColumn ) ;
+        
+        
+        if ( ! hostResponse.host ) { 
+            console.log( `hostResponse`, hostResponse) ;
+            return $row;
+        }
+        
         $hostColumn.append( utils.buildAgentLink( hostResponse.host, "host-dash" ) ) ;
+        
+            
+           
 
 
         let  $itemColumn = $( "<td/>", { class: "deploy-backlog" } ) ;

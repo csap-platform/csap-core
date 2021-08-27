@@ -96,11 +96,11 @@ public class CorePortals {
 		this.application = csapApp ;
 		this.csapInformation = globalContext ;
 		this.csapEventClient = csapEventClient ;
-		
-		var restTemplateFactory = new CsapRestTemplateFactory( 
-				csapApp.getCsapCoreService( ).getSslCertificateUrl( ), 
+
+		var restTemplateFactory = new CsapRestTemplateFactory(
+				csapApp.getCsapCoreService( ).getSslCertificateUrl( ),
 				csapApp.getCsapCoreService( ).getSslCertificatePass( ) ) ;
-		
+
 		podProxyRestTemplate = restTemplateFactory.buildDefaultTemplate(
 				"PodProxyConnections",
 				false,
@@ -389,7 +389,7 @@ public class CorePortals {
 
 		if ( adminInstance == null ) {
 
-			adminInstance = application.getLocalAgent() ;
+			adminInstance = application.getLocalAgent( ) ;
 
 		}
 
@@ -500,7 +500,6 @@ public class CorePortals {
 		return new ModelAndView( CsapCoreService.OS_URL + "/launch-dashboard" ) ;
 
 	}
-
 
 	private RestTemplate podProxyRestTemplate ;
 
@@ -615,15 +614,30 @@ public class CorePortals {
 									@RequestParam String serviceName ,
 									@RequestParam ( defaultValue = "" ) String path ,
 									@RequestParam ( defaultValue = "false" ) boolean ssl ,
+									boolean debug ,
 									HttpServletResponse response )
 		throws Exception {
 
-		String location = application.getKubernetesIntegration( ).nodePortUrl( application, serviceName, "$host", path,
+		String location = application.getKubernetesIntegration( ).nodePortUrl(
+				application,
+				serviceName,
+				"$host",
+				path,
 				ssl ) ;
 		logger.info( "Path location: '{}'", location ) ;
 		response.setHeader( "Location", location ) ;
 
-		response.setStatus( 302 ) ;
+		if ( debug ) {
+
+			response.setStatus( 200 ) ;
+			response.getWriter( ).println( "debug mode"  ) ;
+
+		} else {
+
+			response.setStatus( 302 ) ;
+
+		}
+
 		response.getWriter( ).println( "node port lookup, location: " + location ) ;
 
 	}
@@ -635,6 +649,7 @@ public class CorePortals {
 	public void ingressRedirect (
 									@RequestParam String path ,
 									String serviceName ,
+									boolean debug ,
 									HttpServletResponse response )
 		throws Exception {
 
@@ -657,7 +672,7 @@ public class CorePortals {
 
 			}
 
-			LinkedHashMap<String, String> serviceVariables = serviceOsManager.buildServiceEnvironmentVariables(
+			var serviceVariables = serviceOsManager.buildServiceEnvironmentVariables(
 					serviceInstance ) ;
 
 			logger.debug( "{} variables: {}", serviceVariables ) ;
@@ -681,8 +696,16 @@ public class CorePortals {
 
 		logger.info( "Path location: '{}'", location ) ;
 		response.setHeader( "Location", location ) ;
+		if ( debug ) {
 
-		response.setStatus( 302 ) ;
+			response.setStatus( 200 ) ;
+			response.getWriter( ).println( "debug mode"  ) ;
+
+		} else {
+
+			response.setStatus( 302 ) ;
+
+		}
 		response.getWriter( ).println( "ingress lookup, location: " + location ) ;
 
 	}

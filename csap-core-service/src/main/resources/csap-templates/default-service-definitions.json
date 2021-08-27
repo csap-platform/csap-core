@@ -201,7 +201,7 @@
 			"autoStart": 11,
 			"port": 8021,
 			"description": "CSAP Manager provides the application portal",
-			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/347177032/CSAP+FAQ",
+			"docUrl": "https://github.com/csap-platform/csap-core/tree/master/csap-core-service",
 			"alerts": {
 				"max_diskUtil": "170",
 				"max_threadCount": "140",
@@ -221,7 +221,7 @@
 			},
 			"source": {
 				"scm": "git",
-				"path": "https://bitbucket.org/***REMOVED***/oss-csap-core.git",
+				"path": "https://github.com/csap-platform/csap-core.git",
 				"buildLocation": "/csap-core-service",
 				"branch": "HEAD"
 			},
@@ -296,7 +296,7 @@
 			"port": 8011,
 			"description": "csap managment agent providing CLI, API,and UI; runs on every host",
 			"deploymentNotes": "csap-agent will automatically be restarted via the stop/restart operation.", 
-			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/347177032/CSAP+FAQ",
+			"docUrl": "https://github.com/csap-platform/csap-core/tree/master/csap-core-service",
 			"alerts": {
 				"max_diskUtil": "170",
 				"max_threadCount": "150",
@@ -315,8 +315,8 @@
 				]
 			},
 			"source": {
-				"scm": "git",
-				"path": "https://bitbucket.org/***REMOVED***/oss-csap-core.git",
+				"scm": "git", 
+				"path": "https://github.com/csap-platform/csap-core.git",
 				"buildLocation": "/csap-core-service",
 				"branch": "HEAD"
 			},
@@ -785,7 +785,7 @@
 			"autoStart": 3,
 			"port": 0,
 			"description": "Provides csap java integration (Openjdk)",
-			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211867/CSAP+Packages,https://wiki.openjdk.java.net/display/JDKUpdates/JDK11u",
+			"docUrl": "https://github.com/csap-platform/csap-packages,https://wiki.openjdk.java.net/display/JDKUpdates/JDK11u",
 			"propDirectory": "/opt/csap/java",
 			"processFilter": "none",
 			"environmentVariables": {
@@ -793,7 +793,7 @@
 			},
 			"source": {
 				"scm": "git",
-				"path": "https://bitbucket.org/***REMOVED***/oss-csap-packages.git",
+				"path": "https://github.com/csap-platform/csap-packages.git",
 				"branch": "HEAD",
 				"buildLocation": "/csap-package-java"
 			},
@@ -810,7 +810,7 @@
 			"url": "launcher:csap-agent,/app-browser#agent-tab,explorer",
 			"port": 0,
 			"description": "Provides csap linux integrations (deployment, maven, vcenter)",
-			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211867/CSAP+Packages",
+			"docUrl": "https://github.com/csap-platform/csap-packages",
 			"propDirectory": "$$csap-working/$$service-name/installer",
 			"appDirectory": "/etc",
 			"processFilter": "none",
@@ -819,7 +819,7 @@
 			},
 			"source": {
 				"scm": "git",
-				"path": "https://bitbucket.org/***REMOVED***/oss-csap-packages.git",
+				"path": "https://github.com/csap-platform/csap-packages.git",
 				"branch": "HEAD",
 				"buildLocation": "/csap-package-linux"
 			},
@@ -838,7 +838,7 @@
 			"autoStart": 13,
 			"port": 0,
 			"description": "Provides csap tomcat integration(Tomcat 9+)",
-			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211867/CSAP+Packages",
+			"docUrl": "https://github.com/csap-platform/csap-packages",
 			"propDirectory": "$$csap-working/$$service-name-runtime",
 			"processFilter": "none",
 			"alerts": {
@@ -849,7 +849,7 @@
 			},
 			"source": {
 				"scm": "git",
-				"path": "https://bitbucket.org/***REMOVED***/oss-csap-packages.git",
+				"path": "https://github.com/csap-platform/csap-packages.git",
 				"branch": "HEAD",
 				"buildLocation": "/csap-package-tomcat"
 			},
@@ -924,7 +924,7 @@
 			"autoStart": 61,
 			"port": 7011,
 			"description": "Enables both on demand and scheduled verification of both CSAP and Infrastructure",
-			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/993103156/csap-verify-service",
+			"docUrl": "https://github.com/csap-platform/csap-starter/tree/master/csap-starter-tester",
 			"alerts": {
 				"max_diskUtil": "200m",
 				"max_threadCount": "200",
@@ -943,7 +943,7 @@
 			},
 			"source": {
 				"scm": "git",
-				"path": "https://bitbucket.org/***REMOVED***/oss-csap-starter.git",
+				"path": "https://github.com/csap-platform/csap-starter.git",
 				"branch": "HEAD",
 				"buildLocation": "/csap-starter-tester"
 			},
@@ -1087,7 +1087,7 @@
 			"port": 4243,
 			"description": "Docker node agent providing CLI/API. CSAP docker package uses systemctl to manage start/stops/removes",
 			"deploymentNotes": "Stopping docker will also stop all docker services on the host. Remove will also remove the os packages", 
-			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/403669979/csap-package-docker",
+			"docUrl": "https://github.com/csap-platform/csap-packages/tree/master/csap-package-docker",
 			"propDirectory": "$$service-resources",
 			"appDirectory": "/var/lib/docker",
 			"processFilter": ".*dockerd.*",
@@ -1105,7 +1105,7 @@
 			},
 			"source": {
 				"scm": "git",
-				"path": "https://bitbucket.org/***REMOVED***/oss-csap-packages.git",
+				"path": "https://github.com/csap-platform/csap-packages.git",
 				"branch": "HEAD",
 				"buildLocation": "/csap-package-docker"
 			},
@@ -1200,7 +1200,7 @@
 					"title": "Networks"
 				}
 			},
-			"url": "https://moc-bb.***REMOVED***/bitbucket/projects/CSAP/repos/csap-packages/browse/csap-package-docker",
+			"url": "https://github.com/csap-platform/csap-packages/tree/master/csap-package-docker",
 			"disk": "lib/docker",
 			"user": "root"
 		},
@@ -1258,7 +1258,7 @@
 				]
 			},
 			"source": {
-				"path": "https://bitbucket.org/***REMOVED***/csap-images.git"
+				"path": "https://github.com/csap-platform/csap-images.git"
 			},
 			"maven": {
 				
@@ -1524,7 +1524,7 @@
 			},
 			"source": {
 				"scm": "git",
-				"path": "https://bitbucket.org/***REMOVED***/csap-event-services.git",
+				"path": "https://github.com/csap-platform/csap-event-services.git",
 				"buildLocation": "/csap-events",
 				"branch": "HEAD"
 			},
@@ -1771,7 +1771,7 @@
 			"autoStart": 20,
 			"port": 8080,
 			"description": "High Availability and loadbalancing functions for springboot and tomcat services. Apache Web Server & Modjk",
-			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211867/CSAP+Packages",
+			"docUrl": "https://github.com/csap-platform/csap-packages",
 			"propDirectory": "/mnt",
 			"processFilter": "$$service-working/bin/httpd.*",
 			"alerts": {
@@ -1792,7 +1792,7 @@
 			"deployTimeoutMinutes": "10",
 			"source": {
 				"scm": "git",
-				"path": "https://bitbucket.org/***REMOVED***/oss-csap-packages.git",
+				"path": "https://github.com/csap-platform/csap-packages.git",
 				"branch": "HEAD",
 				"buildLocation": "/csap-package-httpd"
 			},
@@ -1873,7 +1873,7 @@
 			"processFilter": ".*jstatd.*",
 			"source": {
 				"scm": "git",
-				"path": "https://github.com/csap-platform/oss-csap-packages.git",
+				"path": "https://github.com/csap-platform/csap-packages.git",
 				"branch": "HEAD",
 				"buildLocation": "/csap-package-java-statd"
 			},
@@ -1980,7 +1980,7 @@
 			"port": 8014,
 			"description": "Kubernetes node agent providing CLI/API: CSAP kubelet package uses systemctl to manage start/stops/removes",
 			"deploymentNotes": "Stopping kubelet will first evict any pods on the node, then issue a systemctl stop on the service. Remove will also remove the os packages", 
-			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211870/csap-package-kubelet",
+			"docUrl": "https://github.com/csap-platform/csap-packages/tree/master/csap-package-kubelet",
 			"propDirectory": "configuration",
 			"appDirectory": "/var/lib/kubelet",
 			"processFilter": ".*/usr/bin/kubelet --bootstrap.*",
@@ -2000,7 +2000,7 @@
 			"deployTimeoutMinutes": "10",
 			"source": {
 				"scm": "git",
-				"path": "https://bitbucket.org/***REMOVED***/oss-csap-packages.git",
+				"path": "https://github.com/csap-platform/csap-packages.git",
 				"branch": "HEAD",
 				"buildLocation": "/csap-package-kubelet"
 			},

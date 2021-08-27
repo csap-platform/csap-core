@@ -27,10 +27,7 @@ import java.util.concurrent.locks.ReentrantLock ;
 import java.util.regex.Pattern ;
 import java.util.stream.Collectors ;
 
-import javax.net.ssl.SSLHandshakeException ;
-
 import org.apache.commons.lang3.concurrent.BasicThreadFactory ;
-import org.apache.commons.lang3.exception.ExceptionUtils ;
 import org.csap.agent.CsapCoreService ;
 import org.csap.agent.api.AgentApi ;
 import org.csap.agent.model.Application ;
@@ -45,6 +42,7 @@ import org.csap.alerts.AlertFields ;
 import org.csap.alerts.AlertInstance ;
 import org.csap.alerts.AlertInstance.AlertItem ;
 import org.csap.helpers.CSAP ;
+import org.csap.helpers.CsapApplication ;
 import org.csap.helpers.CsapSimpleCache ;
 import org.csap.integations.CsapMicroMeter ;
 import org.slf4j.Logger ;
@@ -561,9 +559,10 @@ public class HostStatusManager {
 
 	}
 
-	public ArrayNode hostsBacklog ( List<String> hosts ) {
+	public ArrayNode hostsBacklog ( List<String> hosts, String apiPath ) {
 
 		ArrayNode backlog = jsonMapper.createArrayNode( ) ;
+		
 
 		hosts.stream( )
 				.forEach( host -> {
@@ -580,7 +579,9 @@ public class HostStatusManager {
 					}
 
 					hostBacklog.put( "total-backlog", totalBacklog ) ;
-					hostBacklog.put( "host-details", csapApp.getAgentUrl( host, "/api/agent/service/jobs" ) ) ;
+//					hostBacklog.put( "host-details", csapApp.getAgentUrl( host, "/api/agent/service/jobs" ) ) ;
+					
+					hostBacklog.put( "host-details", apiPath + csapApp.hostShortName( host ) ) ;
 
 				} ) ;
 
@@ -1201,9 +1202,10 @@ public class HostStatusManager {
 					logger.debug( "{} has an invalid response: {}", statusUrl, errorDetails ) ;
 
 				} else {
-					
+
 					var nowMillis = System.currentTimeMillis( ) ;
-					if ( nowMillis - latestMillis.get() > HOUR_MILLIS ) {
+
+					if ( nowMillis - latestMillis.get( ) > HOUR_MILLIS ) {
 
 						latestMillis.set( nowMillis ) ;
 						numPrinted.set( 0 ) ;
@@ -1234,7 +1236,7 @@ public class HostStatusManager {
 
 	}
 
-	static final long HOUR_MILLIS = TimeUnit.HOURS.toMillis( 1 ) ; 
+	static final long HOUR_MILLIS = TimeUnit.HOURS.toMillis( 1 ) ;
 //	static final long HOUR_MILLIS = TimeUnit.MINUTES.toMillis( 1 ) ; 
 
 	AtomicInteger numPrinted = new AtomicInteger( ) ;

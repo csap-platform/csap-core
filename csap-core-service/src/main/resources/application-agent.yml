@@ -87,12 +87,14 @@ csap-core:
     template-repository: "${dockerRepo:docker.***REMOVED***}"
     
   docker-ui-default-images:
-    - csapplatform/csap:demo
-    - csapplatform/csap:installer
-    - csapplatform/csap:csap-test-app
-    - csapplatform/csap:java
-    - ***REMOVED***/openjdk8-jdk:latest
-    - jboss/keycloak:8.0.1
+    - csapplatform/demo
+    - csapplatform/installer
+    - csapplatform/test-app
+    - csapplatform/csap-java
+    - csapplatform/ldap-server
+    - openldap bitnami/openldap:latest
+    - osixia/phpldapadmin
+    - jboss/keycloak:12.0.4
     - nginx:1.17.5
     - postgres:12.1
     - webcenter/activemq

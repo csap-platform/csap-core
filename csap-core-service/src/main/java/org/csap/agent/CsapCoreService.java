@@ -1,8 +1,6 @@
 package org.csap.agent ;
 
-import java.io.IOException ;
 import java.lang.reflect.Method ;
-import java.net.MalformedURLException ;
 import java.net.URL ;
 import java.util.Arrays ;
 import java.util.List ;
@@ -39,7 +37,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties ;
 import org.springframework.cache.interceptor.KeyGenerator ;
 import org.springframework.context.annotation.Bean ;
 import org.springframework.context.annotation.Import ;
-import org.springframework.core.io.Resource ;
 import org.springframework.core.task.TaskExecutor ;
 import org.springframework.http.HttpMethod ;
 import org.springframework.http.converter.FormHttpMessageConverter ;
@@ -94,30 +91,30 @@ public class CsapCoreService implements WebMvcConfigurer {
 	private String hostUrlPatternInternal = null ;
 
 	//
-	//  ssl settings: map to CsapRestTemplate
+	// ssl settings: map to CsapRestTemplate
 	//
 	private List<String> sslForceHosts ;
 
 	private List<String> dockerUiDefaultImages ;
 
 	private Map<String, String> helpUrls ;
-	
 
+	private Map<String, String> sourceOverrides ;
 
 	@Autowired
 	CsapInformation csapInformation ;
-	
+
 	@Autowired
 	CsapMicroMeter.Utilities meterUtilities ;
 
 	CsapWebServerConfig csapWebServer ;
 	CsapEncryptionConfiguration csapEncrypt ;
-	
-	public CsapCoreService( CsapWebServerConfig csapWebServer, CsapEncryptionConfiguration csapEncrypt ) {
-		
+
+	public CsapCoreService ( CsapWebServerConfig csapWebServer, CsapEncryptionConfiguration csapEncrypt ) {
+
 		this.csapWebServer = csapWebServer ;
 		this.csapEncrypt = csapEncrypt ;
-		
+
 	}
 
 	public static boolean isRunningOnDesktop ( ) {
@@ -125,7 +122,6 @@ public class CsapCoreService implements WebMvcConfigurer {
 		return ! CsapApplication.isCsapFolderSet( ) ;
 
 	}
-	
 
 	// Security
 	// must be synced with ehcache.xml
@@ -463,8 +459,8 @@ public class CsapCoreService implements WebMvcConfigurer {
 
 	@Bean
 	public CsapRestTemplateFactory csapRestFactory ( ) {
-		
-		return new CsapRestTemplateFactory( getSslCertificateUrl( ) , getSslCertificatePass( ) ) ;
+
+		return new CsapRestTemplateFactory( getSslCertificateUrl( ), getSslCertificatePass( ) ) ;
 
 	}
 
@@ -548,8 +544,6 @@ public class CsapCoreService implements WebMvcConfigurer {
 
 	}
 
-
-
 	@Pointcut ( "within(org.csap.agent.integrations..*)" )
 	private void integrationsPC ( ) {
 
@@ -606,7 +600,6 @@ public class CsapCoreService implements WebMvcConfigurer {
 		return meterUtilities.timedExecution( pjp, "xtimer-linux." ) ;
 
 	}
-
 
 	@Around ( "within(org.csap.agent.services..*)  && !linuxPC()  && !csapModelPC() " )
 	public Object servicesSimonAdvice ( ProceedingJoinPoint pjp )
@@ -839,65 +832,77 @@ public class CsapCoreService implements WebMvcConfigurer {
 	}
 
 	public List<String> getSslForceHosts ( ) {
-	
+
 		return sslForceHosts ;
-	
+
 	}
 
 	public void setSslForceHosts ( List<String> sslHosts ) {
-		
-		logger.info( CsapApplication.testHeader( "{}" ), sslHosts);
-	
-		this.sslForceHosts = sslHosts ;
-	
-	}
 
+		logger.info( CsapApplication.testHeader( "{}" ), sslHosts ) ;
+
+		this.sslForceHosts = sslHosts ;
+
+	}
 
 	public String getSslCertificatePass ( ) {
-	
+
 		if ( csapWebServer != null
 				&& csapWebServer.isSsl_and_client_and_self_signed( ) ) {
-			
+
 			return csapWebServer.getSettings( ).getSsl( ).getKeystorePassword( ) ;
-			
+
 		}
-	
+
 		return null ;
-	
+
 	}
 
-
-
-
 	public URL getSslCertificateUrl ( ) {
-		
-		if (  csapWebServer != null
+
+		if ( csapWebServer != null
 				&& csapWebServer.isSsl_and_client_and_self_signed( ) ) {
-			
+
 			try {
 
-				return new URL(csapWebServer.getSettings( ).getSsl( ).getKeystoreFile( )) ;
+				return new URL( csapWebServer.getSettings( ).getSsl( ).getKeystoreFile( ) ) ;
 
 			} catch ( Exception e ) {
 
-				logger.info( "Failed creating url for {} {}", csapWebServer.getSettings( ).getSsl( ), CSAP.buildCsapStack( e ) );
+				logger.info( "Failed creating url for {} {}", csapWebServer.getSettings( ).getSsl( ), CSAP
+						.buildCsapStack( e ) ) ;
 
 			}
+
 		}
-	
+
 		return null ;
-	
+
 	}
 
 	public CsapWebServerConfig getCsapWebServer ( ) {
-	
+
 		return csapWebServer ;
-	
+
 	}
 
 	public void setCsapWebServer ( CsapWebServerConfig csapWebServer ) {
-	
+
 		this.csapWebServer = csapWebServer ;
+
+	}
+
+	public Map<String, String> getSourceOverrides ( ) {
+	
+		return sourceOverrides ;
+	
+	}
+
+	public void setSourceOverrides ( Map<String, String> sourceOverrides ) {
+		
+		logger.debug( "sourceOverrides: {}", sourceOverrides );
+	
+		this.sourceOverrides = sourceOverrides ;
 	
 	}
 

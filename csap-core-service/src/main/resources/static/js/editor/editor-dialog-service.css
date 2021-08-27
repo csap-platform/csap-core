@@ -24,6 +24,9 @@ div.image-block {
 	margin-top: 5px;
 }
 
+#serviceEditor label.csap-form pre.ace_editor {
+	margin-top: 3px;
+}
 
 #serviceEditor div.csap-purple div.heading:not(:first-child), 
 #serviceEditor div.csap-blue div.heading:not(:first-child),

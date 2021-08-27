@@ -4,6 +4,15 @@
 #
 
 #
+# csap settings
+#      
+csap-core:
+
+  docker: 
+    enabled: true
+
+
+#
 # Global settings for applications
 #
 
@@ -12,16 +21,72 @@
 #    host: "${mailServer:myrelay.yourcompany.com}"
 #    port: "${mailPort:25}"
 #
-csap.security: 
-#    rest-api-filter.token: k16ljSCT5UnF8o1fCyshcD3+VZtrWm2c          
+
+
+#
+# provide a cert, reference:  https://github.com/csap-platform/csap-core/wiki/SSL-Configuration
+#
+# csap.web-server.ssl.keystore-file: ""
+
+
+#
+# Notes: https://github.com/csap-platform/csap-core/wiki/Access-Control
+#
+csap.security:
+
+    #
+    #  credentials for apis via event services and agents
+    #
+         
+    # rest-api-filter.token: k16ljSCT5UnF8o1fCyshcD3+VZtrWm2c       
+
+    provider:
+      
+      #
+      #  Simple in memory provider; other provider examples below    
+      #
+      type: memory
+      
+      memory-users:
+        - admin,password,AUTHENTICATED,dummy1,dummy2
+        - user,password,AUTHENTICATED,dummy3,dummy4
+        
+      #
+      # role definition
+      #
+ 
 #    roles:
 #      view-group: ROLE_AUTHENTICATED
 #      admin-group: ROLE_AUTHENTICATED
 #      build-group: ROLE_AUTHENTICATED
 #      infra-group: ROLE_AUTHENTICATED
 #      
-    provider:
-#      type: ldap  # memory, ldap, active dir
+        
+      #
+      # LDAP: https://github.com/csap-platform/csap-core/wiki/Access-Control
+      #
+      
+        #
+        #  docker caspplatform/csap:ldap ,https://github.com/bitnami/bitnami-docker-openldap
+        #
+        #  test openldap: docker run --rm --detach --name=ldap-server --publish 389:1389 csapplatform/ldap-server
+        #  
+        #  test ldap browser: docker run --rm --detach --name=ldap-ui --publish 8080:80 --env PHPLDAPADMIN_LDAP_HOSTS=$(hostname --long)  --env PHPLDAPADMIN_HTTPS=false osixia/phpldapadmin:latest
+        #  ldap admin: cn=admin,dc=example,dc=org, pass: admin
+        #
+        
+        # type: ldap
+        # url: ldap://your-host.yourdomain.com:389
+        # directory-dn: search:uid={0}
+        # search-user: ou=people,dc=example,dc=org
+        # search-groups: ou=groups,dc=example,dc=org
+        # search-group-filter: "(uniquemember={0})"
+      
+      
+      #
+      # typical ldap
+      #
+#      type: ldap 
 #      url: ldap://ldap.yourcompany.lab:389
 #      directory-dn: search:uid={0} # search will be a search binding. If omitted - binds direct
 #      search-user: ou=People,dc=yourdc,dc=net
@@ -38,54 +103,61 @@ csap.security:
 #          - ${infra_role:AUTHENTICATED}
 
 
-# example: using spring memory with local users
-      type: memory
-      memory-users:
-        - admin,password,AUTHENTICATED,dummy1,dummy2
-        - user,password,AUTHENTICATED,dummy3,dummy4
+        #
+        #  oauth2 
+        #
+        
+        # type: oauth2
+        # oauth-login-page: /oauth2/authorization/keycloak-user-auth
+        # oauth-login-local: /login
+        # oauth-user-token-name: csap-service-claim
+
            
-#      additional-ldap-roles: 
-#        pnightingale: 
-#          - a1
-#          - a2
-#          - a3
+#
+#  oauth2: spring settings
+#
 
-
+#spring.security:
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#          jwk-set-uri: ${openIdIssuerUri:http://localhost:8080/auth/realms/csap-default}/protocol/openid-connect/certs
+#          
+#      client:
 #      
-csap-core:
-#  kubernetes: 
-#    enabled: true
-#    event-increase-limit: 1
-#    event-max-backlog: 300 
-  docker: 
-    enabled: true
-#    url: "tcp://localhost:4243"
-#    connection-pool: 5
-#    template-repository: "${dockerRepo:docker.io}"
-#    
-#  docker-ui-default-images:
-#    - ***REMOVED***/openjdk8-jdk:latest
-#    - csap/csap-stress
-#    - csap/csap-activemq
-#    - csap/csap-java9
-#    - csap/csap-test-app
-#    - csap/csap-agent
-#    - csap/csap-tomcat
-#    - csap/csap-tools
-#    - jboss/keycloak:5.0.0
-#    - nginx
-#    - postgres
-#    - webcenter/activemq
-#    - httpd
-#    - jenkins/jenkins
-#    - docker.bintray.io/jfrog/artifactory-oss:latest
-
-#
-# analytics health ids - pinged to ensure availability
-#
-#my-service-configuration:
-#  health:
-#    appIds:
-#    - yourcompanyDevops
-#    lifes:
-#    - dev
+#        registration:
+#        
+#          keycloak-user-auth:
+#            client-id: csap-ui
+#            client-secret: ${oauthUserSecret:xx-xx-xx-xx-xx}
+#            clientName: "Keycloak: User authentication and Authorization"
+#            authorization-grant-type: authorization_code
+#            redirectUri: '{baseUrl}/login/oauth2/code/{registrationId}'
+#            scope: [ openid, profile,email, csap-roles-scope ]
+#              
+#              
+#          #
+#          # Requires keycloak service role enabled
+#          #
+#          keycloak-service-auth:
+#            client-id: csap-service
+#            client-secret: ${oauthServiceSecret:xx-xx-xx-xx-xx}
+#            clientName: "Keycloak: client_credentials"
+#            authorization-grant-type: client_credentials
+#            redirectUri: '{baseUrl}/login/oauth2/code/{registrationId}'
+#            scope: [ openid, profile,email, csap-roles-scope ]
+##            
+#        provider:
+#        
+#          keycloak-user-auth:
+#            issuer-uri: http://csap-dev03.***REMOVED***:8095/auth/realms/csap-default
+#            user-name-attribute: preferred_username
+#            
+#          keycloak-service-auth:
+#            issuer-uri: http://csap-dev03.***REMOVED***:8095/auth/realms/csap-default
+#            
+#            # authorization-uri: ${openIdUrl}/auth
+#            # token-uri: ${openIdUrl}/token
+#            # user-info-uri: ${openIdUrl}/userinfo
+#            # jwk-set-uri: ${openIdUrl}sts/certs
+#            # user-name-attribute: preferred_username

@@ -1,9 +1,6 @@
 package org.csap.agent.ui.rest ;
 
-import java.io.DataInputStream ;
 import java.io.File ;
-import java.io.FileInputStream ;
-import java.io.FileNotFoundException ;
 import java.io.IOException ;
 import java.lang.management.ManagementFactory ;
 import java.lang.management.OperatingSystemMXBean ;
@@ -26,7 +23,6 @@ import java.util.concurrent.TimeUnit ;
 import java.util.regex.Matcher ;
 
 import javax.inject.Inject ;
-import javax.servlet.ServletOutputStream ;
 import javax.servlet.http.HttpServletRequest ;
 import javax.servlet.http.HttpServletResponse ;
 import javax.servlet.http.HttpSession ;
@@ -39,7 +35,6 @@ import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.linux.OsCommandRunner ;
 import org.csap.agent.linux.OutputFileMgr ;
 import org.csap.agent.linux.TransferManager ;
-import org.csap.agent.linux.ZipUtility ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.ServiceInstance ;
 import org.csap.agent.services.OsManager ;
@@ -599,7 +594,7 @@ public class HostRequests {
 		throws IOException {
 
 		File source = new File( csapApp.getDefinitionFolder( ), path ) ;
-		buildAndWriteZip( response, source ) ;
+		csapApp.getOsManager( ).buildAndWriteZip( response, source ) ;
 
 		return ;
 
@@ -643,80 +638,11 @@ public class HostRequests {
 
 			logger.debug( "source: '{}' token: '{}'", source.getAbsolutePath( ), token ) ;
 
-			buildAndWriteZip( response, source ) ;
+			csapApp.getOsManager( ).buildAndWriteZip( response, source ) ;
 
 		}
 
 		return ;
-
-	}
-
-	public void buildAndWriteZip ( HttpServletResponse response , File source )
-		throws IOException {
-
-		File workingFolder = csapApp.csapPlatformTemp( ) ;
-
-		if ( ! workingFolder.exists( ) ) {
-
-			workingFolder.mkdirs( ) ;
-
-		}
-
-		File fileName = new File( workingFolder, source.getName( ) + ".zip" ) ;
-		File zipLocation = new File( workingFolder, fileName.getName( ) ) ;
-
-		logger.info( "Zipping source: '{}' to '{}'", source.getAbsolutePath( ), zipLocation.getAbsolutePath( ) ) ;
-
-		if ( ! source.exists( ) ) {
-
-			logger.debug( "Zip does not exist" ) ;
-			response.setStatus( HttpServletResponse.SC_BAD_REQUEST ) ;
-			response.getWriter( ).println( HttpServletResponse.SC_BAD_REQUEST + ": BAD REQUEST" ) ;
-			return ;
-
-		}
-
-		if ( source.isDirectory( ) ) {
-
-			ZipUtility.zipDirectory( source, zipLocation ) ;
-
-		} else {
-
-			ZipUtility.zipFile( source, zipLocation ) ;
-
-		}
-
-		// response.setContentType("application/octet-stream");
-		response.setContentType( MediaType.APPLICATION_OCTET_STREAM_VALUE ) ;
-		response.setContentLength( (int) zipLocation.length( ) ) ;
-		response.setHeader( "Content-Disposition", "attachment; filename=\"" + zipLocation.getName( )
-				+ "\"" ) ;
-
-		try ( DataInputStream in = new DataInputStream( new FileInputStream(
-				zipLocation.getAbsolutePath( ) ) );
-				ServletOutputStream op = response.getOutputStream( ); ) {
-
-			byte[] bbuf = new byte[3000] ;
-
-			int numBytesRead ;
-			long startingMax = zipLocation.length( ) ;
-			long totalBytesRead = 0L ; // hook for files that are being updated
-
-			while ( ( in != null ) && ( ( numBytesRead = in.read( bbuf ) ) != -1 )
-					&& ( startingMax > totalBytesRead ) ) {
-
-				totalBytesRead += numBytesRead ;
-				op.write( bbuf, 0, numBytesRead ) ;
-
-			}
-
-		} catch ( FileNotFoundException e ) {
-
-			logger.error( "File not found", e ) ;
-			response.getWriter( )
-					.println( "Did not find file: " + zipLocation ) ;
-
-		}
 
 	}
 

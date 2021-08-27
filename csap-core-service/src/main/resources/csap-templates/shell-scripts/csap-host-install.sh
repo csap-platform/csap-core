@@ -5,6 +5,7 @@
 #
 #     To run:
 #		- update configure function 
+#		- Sample:  definitionProvider="default" ; hostsToInstall="csap-dev20" ; hostsRootPassword=xxxx ; 
 # 
 
 function configure() {
@@ -15,25 +16,60 @@ function configure() {
 	
 	hostsRootPassword="${hostsRootPassword:-yourRootPassword}" ;
 	
-	installerFile="disabled" ;										# $CSAP_FOLDER/auto-plays/***REMOVED***/kubernetes-cluster-auto-play.yaml
-	
-	# Sample settings
-	#definitionProvider="default" ; hostsToInstall="csap-dev20" ; hostsRootPassword=xxxx ; installerFile="$csapDefinitionFolder/scripts/***REMOVED***-auto-play.yaml"
-	
 	runInForeground=false ;				# install output placed in /root/csap-install.txt
 	isKillContainers=true ;				# if true all docker,kubernetes, and containers are reinstalled
 	isCleanJournal=true ;				# cleaning up system logs makes troubleshooting much easier
 	remoteUser="root" ;
 	
+	#
+	# install using the csap-host.zip used to install current host
+	#
+	hostInstallerZip="http://${csapFqdn:-$(hostname --long)}:${agentPort:-8011}/api/agent/installer"
+	
+	installerFile="disabled" ;         # sample function: kubernetes_autoplay_singlenode
+	
+	
 	# -skipOs : bypass repo checks, kernel parameters, and security limits
 	# -ignorePreflight : bypass setup tests
-	# -overwriteOsRepos : epel should be configured; set both following variables csapBaseRepo, csapEpelRepo
-	#   eg csapEpelRepo="http://media.***REMOVED***/media/third_party/linux/CentOS/Sensus-epel-7.repo""
-	extraOptions="" ;   # extraOptions="-ignorePreflight"
+	# -uninstall: remove csap
+	extraOptions="" ;
 	
-	#csapZipUrl="http://***REMOVED***.***REMOVED***:8081/artifactory/csap-snapshots/org/csap/csap-host/2-SNAPSHOT/csap-host-2-SNAPSHOT.zip"
-	csapZipUrl="http://***REMOVED***.***REMOVED***:8081/artifactory/csap-release/org/csap/csap-host/21.08/csap-host-21.08.zip"
+	
+	#
+	# alternatly - use a artifactory instance available
+	#
+	# hostInstallerZip="http://my-artifactory:8081/artifactory/csap-snapshots/org/csap/csap-host/2-SNAPSHOT/csap-host-2-SNAPSHOT.zip"
+	# hostInstallerZip="http://my-artifactory:8081/artifactory/csap-release/org/csap/csap-host/21.08/csap-host-21.08.zip"
+	
 
+}
+
+#
+#  Usually just edit the file. This is for demo only
+#
+function kubernetes_autoplay_singlenode() {
+	
+	
+	local numHosts=$(echo "$hostsToInstall" | wc -w) ;
+	if (( $numHosts > 1 )) ; then
+		print_error "Aborting: this demo is for a single host. Configure a differnent autoplay file" ;
+		exit 99;
+	fi ;
+	
+	
+ 	installerFile="$CSAP_FOLDER/auto-plays/demo.yaml"
+	
+	print_section "kubernetes_autoplay_singlenode creating: $installerFile" ;
+	
+	cp --force --verbose $CSAP_FOLDER/auto-plays/all-in-one-auto-play.yaml $installerFile
+ 	
+	replace_all_in_file "xxxHost" "$hostsToInstall" $installerFile
+	
+	myDomain=$(expr "$(hostname --long)" : '[^.][^.]*\.\(.*\)')
+	replace_all_in_file "yyyDomain" "$myDomain" $installerFile
+	
+	print_command "$installerFile" "$(cat $installerFile)" ;
+	
 }
 
 function verify_host_access() {
@@ -41,8 +77,15 @@ function verify_host_access() {
 	print_separator "connection tests"
 
 	if $(is_need_package sshpass) ; then
-		run_using_root yum --assumeyes install sshpass ;
+		run_using_root yum --assumeyes install sshpass openssh-clients;
 	fi ;
+	
+	if $(is_need_package sshpass) ; then
+		# ensure epel is enabled
+		run_using_root 'yum search epel-release; yum info epel-release; yum --assumeyes install epel-release'
+		run_using_root yum --assumeyes install sshpass openssh-clients;
+	fi ;
+	
 	
 	exit_if_not_installed sshpass ;
 	
@@ -80,7 +123,7 @@ function remote_installer () {
 	
 	verify_host_access
 	
-	csapZipName=$(basename $csapZipUrl)
+	delay_with_message 10 "Installation resuming" ; 
 	
 	cleanupParameters="" ;
 	if $isKillContainers ; then
@@ -172,8 +215,8 @@ function remote_installer () {
 	     "$cleanJournalCommand"
 	     'rm --recursive --force --verbose csap*.zip* *linux.zip installer'
 	     "$installerOsCommands"
-	     "wget -nv $csapZipUrl"
-	     "unzip  -j $csapZipName csap-platform/packages/csap-package-linux.zip"
+	     "wget --no-verbose --content-disposition $hostInstallerZip"
+	     'unzip  -j csap-host-*.zip csap-platform/packages/csap-package-linux.zip'
 	     'unzip -qq csap-package-linux.zip installer/*'
 	     "nohup installer/install.sh -noPrompt $autoPlayParam -runCleanUp $cleanupParameters \
 	    -installDisk default  \
