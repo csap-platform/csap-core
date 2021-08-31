@@ -6,6 +6,10 @@ define( [ "browser/utils", "jsYaml/js-yaml" ], function ( utils, yaml ) {
 
 
     const jsonPattern = new RegExp( "^{.*}[ ,\r]*$" ) ;
+    
+    
+    const ansiPattern = new RegExp( "[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]", "g" ) ;
+
 
 
     return {
@@ -25,6 +29,12 @@ define( [ "browser/utils", "jsYaml/js-yaml" ], function ( utils, yaml ) {
 
 
             for ( let testLine of outputLines ) {
+                
+                try {
+                    testLine = testLine.replace( ansiPattern, '' ) ; 
+                } catch ( err ) {
+                    console.debug( `Failed parsing json line: '${ testLine}'`, err ) ;
+                }
 
                 let formatedLine = testLine ;
                 if ( jsonPattern.test( testLine ) ) {
@@ -51,7 +61,7 @@ define( [ "browser/utils", "jsYaml/js-yaml" ], function ( utils, yaml ) {
                         }
 
                     } catch ( err ) {
-                        console.debug( `Failed parsing json line: '${ textContent}'`, err ) ;
+                        console.debug( `Failed parsing json line: '${ testLine}'`, err ) ;
                     }
                 } else if ( testLine.length === 0
                         || testLine.charAt( 0 ) === " "

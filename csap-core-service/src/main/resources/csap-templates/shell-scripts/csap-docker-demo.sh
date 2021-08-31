@@ -1,5 +1,23 @@
-# uptime and df, Summary of host availability
+# demo and install, launch csap docker demo containers for csap-agent, ldap and installer
 
+
+
+
+print_section "Starting csap demo on port 9011 , web credentials: csap / csap"
+
+docker run \
+	--rm --detach \
+	--name csap-demo \
+	--publish 9011:9011 --publish 9013:9013 --publish 9021:9021 \
+	--env dockerHostFqdn=$(hostname --long) \
+	csapplatform/demo:latest
+	
+print_line "In ~2 minutes, open http://$(hostname --long):9011"
+
+print_section "to monitor init progress -  use csap docker log viewer, or run: docker logs --follow csap-demo"
+	
+exit ;
+	
 
 
 print_section "Starting open ldap server on host port 389"

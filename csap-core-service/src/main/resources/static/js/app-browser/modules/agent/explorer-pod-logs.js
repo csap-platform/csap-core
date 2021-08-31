@@ -167,8 +167,14 @@ define( [ "browser/utils", "file/log-formatters", "ace/ace", "ace/ext-modelist" 
                     targetHost = utils.getHostName() ;
                 }
 
+                let dockerContainer = $logContainerSelect.val() ;
+                // ensure starts with / for backend log path
+                if ( !dockerContainer.startsWith( "/" ) ) {
+                    dockerContainer = "/" + dockerContainer ;
+                }
+
                 let fileManagerUrl = utils.agentUrl( targetHost, "logs" )
-                        + "?fileName=__docker__/" + $logContainerSelect.val() ;
+                        + "?fileName=__docker__" + dockerContainer ;
 
                 if ( !containerMode ) {
                     fileManagerUrl += "&podName=" + $logPodSelect.val() ;

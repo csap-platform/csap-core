@@ -57,10 +57,11 @@ function kubernetes_autoplay_singlenode() {
 	fi ;
 	
 	
- 	installerFile="$CSAP_FOLDER/auto-plays/demo.yaml"
+ 	installerFile="$CSAP_FOLDER/auto-plays/demo.yaml" 
 	
 	print_section "kubernetes_autoplay_singlenode creating: $installerFile" ;
 	
+	# data center in a box: dcib-auto-play.yaml
 	cp --force --verbose $CSAP_FOLDER/auto-plays/all-in-one-auto-play.yaml $installerFile
  	
 	replace_all_in_file "xxxHost" "$hostsToInstall" $installerFile

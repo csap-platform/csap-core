@@ -1335,7 +1335,7 @@
 				]
 			},
 			"docker": {
-				"image": "csap/csap-mongo:4.4.4",
+				"image": "csapplatform/mongo:21.08",
 				"portMappings": [
 					{
 						"PrivatePort": "27017",
