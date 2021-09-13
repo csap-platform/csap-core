@@ -114,7 +114,7 @@
 *	
 */
 
-#projects-tab-summary #application-summary a.csap-link {
+#projects-tab-summary #application-summary a.csap-link-icon {
 	display: block;
 	margin-bottom: 1em;
 }
@@ -136,8 +136,32 @@
 	word-break: break-all;
 }
 
+#projects-tab-summary .inspector-break-all {
+	word-break: break-all;
+}
+
+#projects-tab-summary div.title a.csap-link, #projects-tab-summary h1 a.csap-link {
+	float: right;
+	font-style: italic;
+	font-size: 10pt;
+}
+
 #projects-tab-summary table {
 	width: 100%;
+	margin-bottom: 2em; 
+	margin-top: 1em;
+}
+
+#projects-tab-summary table tr a.csap-go, #projects-tab-summary table tr a.csap-window {
+	background-image: none
+}
+
+#projects-tab-summary table tr a.csap-go:hover  {
+	background-image: url('../../images/16x16/go-forward-hover.svg')
+}
+
+#projects-tab-summary table tr a.csap-window:hover  {
+	background-image: url('../../images/16x16/window-hover.svg')
 }
 
 

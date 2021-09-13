@@ -80,7 +80,7 @@ public class DockerSettings {
 	public String toString ( ) {
 
 		return CSAP.buildDescription(
-				"KubernetesSettings",
+				"DockerSettings",
 				"enabled", enabled,
 				"url", url,
 				"templateRepository", templateRepository,

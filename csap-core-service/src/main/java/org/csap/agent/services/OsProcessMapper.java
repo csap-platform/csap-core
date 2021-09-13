@@ -49,8 +49,8 @@ public class OsProcessMapper {
 
 	}
 
-	private List<ContainerProcess> latestDiscoveredContainers ;
-	private List<OsProcess> latestDiscoveredProcesses ;
+	private List<ContainerProcess> latestDiscoveredContainers  = new ArrayList<>() ;
+	private List<OsProcess> latestDiscoveredProcesses = new ArrayList<>() ;
 
 	private MultiValueMap<String, OsProcess> processByParent ;
 

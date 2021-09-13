@@ -7,8 +7,16 @@
 	-->
 
 	<body  th:fragment="pageContent" th:remove="tag" >
-		<h1>Service Manifest</h1>
-		<table id="services" class="csap simple" >
+		
+		<h1 id="service-manifests">Service Manifests
+		
+					<a
+						class="csap-link"
+						href="#app-attributes"
+						title="Navigate back to summary table">Application Attributes</a>
+		</h1>
+		
+		<table  class="csap" >
 			<thead>
 
 				<tr>
@@ -20,36 +28,34 @@
 			</thead>
 
 
-			<tbody th:each="serviceEntry : ${ project.serviceInstancesInCurrentLifeByName () }"
-				   th:with="firstServiceInstance=${  project.getServiceToAllInstancesMap().get(serviceEntry.key).get(0)  }"
-				   >
-				<tr th:title="${firstServiceInstance.getDescription() }">
 
-					<td th:title="${firstServiceInstance.getDescription() }">
-						<a class="csap-link" th:href="${ '#' + serviceEntry.key }"> [[ ${ serviceEntry.key  } ]]</a></td>
-
-					<td> [[ ${ firstServiceInstance.getMavenId() } ]] </td>
-
-					<td th:title="${ firstServiceInstance.scmVersion }"
-						th:with="serviceToArtifactMap = ${ csapApp.getServiceToArtifactMap( project )}">
-						<span th:if="null == ${serviceToArtifactMap}">
-							Not found: [[ ${ firstServiceInstance.getDefaultContainer().getDeployedArtifacts() } ]]
-						</span>
-						<span th:if="null != ${serviceToArtifactMap}">
-							<span style="padding-right: 2em; display: inline-block; min-width: 8em"  th:each="version : ${serviceToArtifactMap.get (serviceEntry.key)}">
-								[[ ${ version } ]]
-							</span>
-						</span>
-					</td>
-
-					<td> 
-						<span th:if="null != ${ firstServiceInstance.getDocUrl() }">
-							<a th:href="${ firstServiceInstance.getDocUrl() }" target="_blank"> link </a> </span>
-						<span th:if="null == ${ firstServiceInstance.getDocUrl() }">none</span>
-					</td>
-				</tr>
-
-			</tbody>
+            
+            <tbody>
+            
+            	<tr th:each="serviceManfestReport : ${ serviceManfestReports }">
+            		
+            		<td>
+            		 	<a class="csap-link-icon csap-go" title="View instance details"
+            		 		th:href="${ '#details-' + serviceManfestReport.get(0) }" >[[ ${  serviceManfestReport.get(0) } ]] </a> 
+            		</td>
+            		
+            		<td
+            			th:each="itemDetails,iterationStatus : ${ serviceManfestReport }"
+            			th:if="${ iterationStatus.index > 0 }" >
+            			
+            			<span th:if="${ itemDetails.startsWith('http') }">
+            				<a class="csap-link-icon csap-window" target="_blank" th:href="${itemDetails}" >link</a>
+            			</span>
+            			<span class=inspector-break-all th:unless="${ itemDetails.startsWith('http') }">
+            				[[ ${  itemDetails } ]] 
+            			</span>
+            		 	
+            		</td>
+            		
+            	</tr>
+            
+            </tbody>
+            
 
 		</table>
 

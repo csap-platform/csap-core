@@ -7,60 +7,49 @@
     -->
 
     <body  th:fragment="pageContent" th:remove="tag" >
-        <h1>Service Limits</h1>
+        <h1 id=service-limits>Service Limits
         
-        <table id="serviceLimits" class="csap simple" >
+					<a
+						class="csap-link"
+						href="#app-attributes"
+						title="Navigate back to summary table">Application Attributes</a>
+        </h1>
+        
+        <table id="serviceLimits" class="csap" >
             <thead>
 
                 <tr>
                     <th style="width: 12em">Service  </th>
 
-                    <th style="width: 5em"
+                    <th style="width: 3em"
                         th:each="alert : ${ T(org.csap.agent.model.ServiceAlertsEnum).values() }"> 
 
-                        [[ ${  alert } ]] 
-                        <span th:if="${ alert == T(org.csap.agent.model.ServiceAlertsEnum).diskSpace }"> In MB</span>
+                        [[ ${  T(org.csap.helpers.CSAP).camelToSnake( alert ) } ]] 
                     </th>
 
                 </tr>
             </thead>
-
-
-            <tbody 
-                th:each="serviceEntry : ${ project.serviceInstancesInCurrentLifeByName () }"
-                th:with="firstServiceInstance=${  project.getServiceToAllInstancesMap().get(serviceEntry.key).get(0)  }" >
-                <tr
-                    th:if="${ firstServiceInstance != null && !firstServiceInstance.is_files_only_package() && null != project.serviceInstancesInCurrentLifeByName().get(serviceEntry.key)}">
-
-                    <td>[[ ${ serviceEntry.key } ]] <a
-                            class="csap-link viewDataButton" href="#viewData" target="_blank"
-                            th:attr="data-url=${prodDataUrl+serviceEntry.key}">
-                            <img class="but" title="Click to view production data"
-                                 th:src="@{/images/16x16/Zoom-In.png}"/>
-                        </a>
-
-                        <a th:if="${firstServiceInstance.is_java_application_server()}"
-                           class="csap-link editLimitsButton" href="#EditConfig" target="_blank"
-                           th:attr="data-editorpath=${'jvms.'+serviceEntry.key}">
-                            <img class="but" title="Click to Edit"
-                                 th:src="@{/images/16x16/preferences-system.png}"/>
-                        </a>
-
-                        <a th:if="${! firstServiceInstance.is_java_application_server() }"
-                           class="csap-link editLimitsButton" href="#EditConfig" target="_blank"
-                           th:attr="data-editorpath=${'osProcesses.'+serviceEntry.key}">
-                            <img class="but" title="Click to Edit"
-                                 th:src="@{/images/16x16/preferences-system.png}"/>
-                        </a>
-                    </td>
-
-
-
-                    <td
-                        th:each="alert : ${ T(org.csap.agent.model.ServiceAlertsEnum).values() }">
-                        [[ ${ T(org.csap.agent.model.ServiceAlertsEnum).getMaxAllowedSummary( firstServiceInstance,lifeCycleSettings, alert) } ]]</td>
-                </tr>
+            
+            <tbody>
+            
+            	<tr th:each="serviceLimitReport : ${ serviceLimitReports }">
+            		
+            		<td>
+            		 	<a class="csap-link-icon csap-go" title="View instance details"
+            		 		th:href="${ '#details-' + serviceLimitReport.get(0) }" >[[ ${  serviceLimitReport.get(0) } ]] </a> 
+            		</td>
+            		
+            		<td class="numeric"
+            			th:each="itemDetails,iterationStatus : ${ serviceLimitReport }"
+            			th:if="${ iterationStatus.index > 0 }" >
+            		 	[[ ${  itemDetails } ]] 
+            		</td>
+            		
+            	</tr>
+            
             </tbody>
+
+
         </table>
     </body>
 </html>

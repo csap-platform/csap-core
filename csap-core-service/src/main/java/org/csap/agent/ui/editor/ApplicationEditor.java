@@ -15,6 +15,7 @@ import java.util.Map ;
 import java.util.Optional ;
 import java.util.concurrent.atomic.AtomicInteger ;
 import java.util.function.Predicate ;
+import java.util.stream.Collectors ;
 import java.util.stream.IntStream ;
 
 import javax.servlet.http.HttpServletRequest ;
@@ -26,6 +27,7 @@ import org.csap.agent.CsapCoreService ;
 import org.csap.agent.container.kubernetes.KubernetesJson ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.ClusterType ;
+import org.csap.agent.model.ContainerState ;
 import org.csap.agent.model.DefinitionConstants ;
 import org.csap.agent.model.ProcessRuntime ;
 import org.csap.agent.model.Project ;
@@ -310,7 +312,7 @@ public class ApplicationEditor {
 
 		modelMap.addAttribute( "tomcatServers", ProcessRuntime.javaServers( ) ) ;
 
-		Map<String, String> limits = ServiceAlertsEnum.limitsForService( serviceDefinition, csapApp
+		Map<String, String> limits = ServiceAlertsEnum.limitDefinitionsForService( serviceDefinition, csapApp
 				.rootProjectEnvSettings( ) ) ;
 
 		modelMap.addAttribute( "limits", limits ) ;
@@ -620,6 +622,149 @@ public class ApplicationEditor {
 		csapApp.run_application_scan( ) ;
 
 		corePortals.setCommonAttributes( modelMap, session ) ;
+
+		var serviceToInstances = project.serviceInstancesInCurrentLifeByName( ) ;
+
+		var serviceLimitReports = new ArrayList<List<String>>( ) ;
+		var serviceManfestReports = new ArrayList<List<String>>( ) ;
+
+		for ( var serviceEntry : serviceToInstances.entrySet( ) ) {
+
+			var serviceName = serviceEntry.getKey( ) ;
+
+			var firstServiceInstance = project.getServiceToAllInstancesMap( ).get( serviceName ).get( 0 ) ;
+
+			if ( firstServiceInstance != null
+					&& ! firstServiceInstance.is_files_only_package( )
+					&& null != project.serviceInstancesInCurrentLifeByName( ).get( serviceName ) ) {
+
+				var serviceLimitReport = new ArrayList<String>( ) ;
+				serviceLimitReports.add( serviceLimitReport ) ;
+				serviceLimitReport.add( serviceName ) ;
+
+				for ( var alert : ServiceAlertsEnum.values( ) ) {
+
+					var maxAllowed = ServiceAlertsEnum.getEffectiveLimit(
+							firstServiceInstance,
+							csapApp.rootProjectEnvSettings( ),
+							alert ) ;
+
+					var alertLimitSummary = ServiceAlertsEnum.getMaxAllowedSummary(
+							firstServiceInstance,
+							csapApp.rootProjectEnvSettings( ),
+							alert ) ;
+
+					if ( alert == ServiceAlertsEnum.memory
+							|| alert == ServiceAlertsEnum.diskSpace ) {
+						
+						// reported in MB - convert to bytes and then print with unit
+
+						serviceLimitReport.add(
+								CSAP.printBytesWithUnits( maxAllowed * 1024 * 1024 ) ) ;
+
+
+
+					} else if ( alert == ServiceAlertsEnum.diskWriteRate  ) {
+						
+						// reported in KB - convert to bytes and then print with unit
+
+						serviceLimitReport.add(
+								CSAP.printBytesWithUnits( maxAllowed * 1024  ) ) ;
+
+
+
+					} else {
+
+						serviceLimitReport.add( alertLimitSummary ) ;
+
+					}
+
+				}
+
+				var serviceManfestReport = new ArrayList<String>( ) ;
+				serviceManfestReports.add( serviceManfestReport ) ;
+				serviceManfestReport.add( serviceName ) ;
+
+				var defVersion = firstServiceInstance.getMavenId( ) ;
+
+				if ( firstServiceInstance.is_docker_server( ) ) {
+
+					defVersion = firstServiceInstance.getDockerImageName( ) ;
+
+				} else if ( firstServiceInstance.is_os_process_monitor( ) ) {
+
+					defVersion = "OS managed" ;
+
+				}
+
+				serviceManfestReport.add( defVersion ) ;
+
+				// deployed
+
+				var foundVersions = new ArrayList<String>( ) ;
+
+				var lifeserviceInstances = csapApp.serviceInstancesByName(
+						csapProjectName,
+						serviceName ) ;
+
+				for ( var instance : lifeserviceInstances ) {
+
+					if ( csapApp.isAgentProfile( ) ) {
+
+						var deployedServices = instance.getContainerStatusList( ).stream( ).map(
+								ContainerState::getDeployedArtifacts ).collect( Collectors.toList( ) ) ;
+
+						if ( deployedServices != null ) {
+
+							foundVersions.addAll( deployedServices ) ;
+
+						}
+
+					} else {
+
+						var runningServices = csapApp.healthManager( ).buildServiceRuntimes( instance ) ;
+
+						if ( runningServices.isArray( ) ) {
+
+							var deployedServices = CSAP.jsonStream( runningServices )
+									.map( serviceStatus -> serviceStatus.path( ContainerState.DEPLOYED_ARTIFACTS )
+											.asText( ) )
+									.collect( Collectors.toList( ) ) ;
+
+							if ( deployedServices != null ) {
+
+								foundVersions.addAll( deployedServices ) ;
+
+							}
+
+						}
+
+					}
+
+				}
+
+				var versions = "not found" ;
+
+				if ( foundVersions.size( ) > 0 ) {
+
+					versions = foundVersions.stream( )
+							.distinct( )
+							.collect( Collectors.toList( ) )
+							.toString( ) ;
+
+				}
+
+				serviceManfestReport.add( versions ) ;
+
+				serviceManfestReport.add( firstServiceInstance.getDocUrl( ) ) ;
+
+			}
+
+		}
+
+		modelMap.addAttribute( "serviceLimitReports", serviceLimitReports ) ;
+
+		modelMap.addAttribute( "serviceManfestReports", serviceManfestReports ) ;
 
 		return "editor/summary-body" ;
 

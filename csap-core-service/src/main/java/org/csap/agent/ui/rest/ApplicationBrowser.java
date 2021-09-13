@@ -148,7 +148,12 @@ public class ApplicationBrowser {
 
 		if ( application.isAgentProfile( ) ) {
 
+			// only used while browser is loading - then preferences.js sets based on criteria
 			theme = "theme-dark agent" ;
+			
+			if ( System.getenv( "dockerHostFqdn") != null ) {
+				theme = "theme-dark agent theme-forest" ;
+			}
 
 		}
 

@@ -449,6 +449,21 @@ class OsManager_Stubbed extends CsapThinTests {
 	class ProcessMatching {
 
 		@Test
+		void verify_processes_running ( ) {
+
+			logger.info( CsapApplication.testHeader( ) ) ;
+
+			logger.info( "processes: {}", CSAP.jsonPrint( getApplication( ).getOsManager( ).processStatus( ) ) ) ;
+
+			assertThat( getApplication( ).getOsManager( ).isProcessRunning( ".*wewenot.*" ) )
+					.isFalse( ) ;
+
+			assertThat( getApplication( ).getOsManager( ).isProcessRunning( ".*dockerd.*" ) )
+					.isTrue( ) ;
+
+		}
+
+		@Test
 		void verify_time_taken_for_matching ( ) {
 
 			logger.info( CsapApplication.testHeader( ) ) ;

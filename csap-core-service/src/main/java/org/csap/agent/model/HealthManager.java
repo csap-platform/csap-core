@@ -804,10 +804,15 @@ public class HealthManager {
 
 	private boolean isServiceResourceRunawayAndTimeToKill ( ServiceInstance serviceDefinition ) {
 
-		boolean isTimeToKill = false ;
-		List reasons = new ArrayList<>( ) ;
-		long maxAllowedDisk = ServiceAlertsEnum.getMaxDiskInMb( serviceDefinition, application
-				.rootProjectEnvSettings( ) ) ;
+		var isTimeToKill = false ;
+		var reasons = new ArrayList<String>( ) ;
+		
+//		long maxAllowedDisk = ServiceAlertsEnum.getMaxDiskInMb( serviceDefinition, application
+//				.rootProjectEnvSettings( ) ) ;
+		
+		
+		var maxAllowedDisk = ServiceAlertsEnum.getEffectiveLimit( serviceDefinition, application.rootProjectEnvSettings( ), ServiceAlertsEnum.diskSpace ) ;
+		
 		double resourceThresholdMultiplier = application.rootProjectEnvSettings( )
 				.getAutoStopServiceThreshold( serviceDefinition.getHostName( ) ) ;
 
@@ -855,9 +860,11 @@ public class HealthManager {
 
 					}
 
-					long maxAllowed = ServiceAlertsEnum.getLimitFromHierarchy( serviceDefinition, application
-							.rootProjectEnvSettings( ),
+					long maxAllowed = ServiceAlertsEnum.getEffectiveLimit(
+							serviceDefinition,
+							application.rootProjectEnvSettings( ),
 							alert ) ;
+					
 					long killThreshold = Math.round( maxAllowed * resourceThresholdMultiplier ) ;
 
 					logger.debug( "{} : Item: {} lastCollectedValue: {}, threshold: {}, maxAllowed: {}, maxThresh: {}",
@@ -1236,9 +1243,10 @@ public class HealthManager {
 			if ( application.isKubernetesInstalledAndActive( ) ) {
 
 				kubernetesEventCount = (int) application.getKubernetesIntegration( ).eventCount( null ) ;
-				
-				kubernetesMetrics = ! agentHostReport.path( "kubernetes" ).path( "metrics" ).path("current").path( "cores" ).isMissingNode( ) ;
-				
+
+				kubernetesMetrics = ! agentHostReport.path( "kubernetes" ).path( "metrics" ).path( "current" ).path(
+						"cores" ).isMissingNode( ) ;
+
 				kubernetesNodeCount = (int) application.getKubernetesIntegration( ).nodeCount( ) ;
 				var podCountsReport = application.getKubernetesIntegration( ).podCountsReport( null ) ;
 				podCount = podCountsReport.path( "count" ).asInt( ) ;
@@ -1326,7 +1334,8 @@ public class HealthManager {
 
 					}
 
-					var hostKubMetrics = hostStatus.path( "kubernetes" ).path( "metrics" ).path("current").path( "cores" ) ;
+					var hostKubMetrics = hostStatus.path( "kubernetes" ).path( "metrics" ).path( "current" ).path(
+							"cores" ) ;
 
 					if ( ! hostKubMetrics.isMissingNode( ) ) {
 
@@ -1413,10 +1422,21 @@ public class HealthManager {
 
 			if ( application.isDockerInstalledAndActive( ) ) {
 
-				ObjectNode dockerStatus = application.getDockerIntegration( ).buildSummary( ) ;
-				ServiceInstance dockerInstance = application.findServiceByNameOnCurrentHost( "docker" ) ;
-				dockerStatus.put( "dockerStorage", dockerInstance.getDefaultContainer( ).getDiskUsageInMb( ) / 1024 ) ;
-				hostStatus.set( "docker", dockerStatus ) ;
+				var dockerSummaryReport = application.getDockerIntegration( ).buildSummary( ) ;
+				var dockerInstance = application.findServiceByNameOnCurrentHost( "docker" ) ;
+
+				if ( dockerInstance != null ) {
+
+					dockerSummaryReport.put( "dockerStorage", dockerInstance.getDefaultContainer( ).getDiskUsageInMb( )
+							/ 1024 ) ;
+
+				} else {
+
+					dockerSummaryReport.put( "dockerStorage", -1 ) ;
+
+				}
+
+				hostStatus.set( "docker", dockerSummaryReport ) ;
 
 			}
 

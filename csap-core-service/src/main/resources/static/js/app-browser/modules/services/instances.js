@@ -1449,7 +1449,7 @@ define( [ "services/kubernetes", "services/deployer", "browser/utils" ], functio
             //console.log( `latest_instanceReport`, latest_instanceReport)
             let isNamespaceMonitor = utils.json( "dockerSettings.namespaceMonitor", latest_instanceReport ) ;
             if ( isNamespaceMonitor ) {
-                service = "namespace-monitor-template" ;
+                //service = "namespace-monitor-template" ;
             }
             utils.launchServiceEditor( service ) ;
 

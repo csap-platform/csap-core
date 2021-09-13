@@ -68,6 +68,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode ;
  */
 public class ProjectLoader {
 
+	public static final String NAMESPACE_MONITOR_TEMPLATE = "namespace-monitor-template" ;
+
 	final Logger logger = LoggerFactory.getLogger( getClass( ) ) ;
 
 	private ObjectMapper jsonMapper = new ObjectMapper( ) ;
@@ -417,14 +419,15 @@ public class ProjectLoader {
 			if ( sourceOverrides != null ) {
 
 				logger.info( "Found sourceOverrides: {}", sourceOverrides ) ;
+
 				for ( var serviceName : sourceOverrides.keySet( ) ) {
 
 					var templateSource = csapDefaults.path( SERVICE_TEMPLATES )
 							.path( serviceName )
-							.path( ServiceAttributes.deployFromSource.json( ) )  ;
+							.path( ServiceAttributes.deployFromSource.json( ) ) ;
 
 					var targetPath = templateSource.path( "path" ) ;
-					
+
 //					logger.debug( "targetPath: {}, targetPath: {}", targetPath.isValueNode( ), targetPath );
 
 					if ( targetPath.isValueNode( ) ) {
@@ -634,9 +637,29 @@ public class ProjectLoader {
 			// String configJson = FileUtils.readFileToString( definitionFile ) ;
 			addCsapJsonConfiguration( jsonMapper ) ;
 
-			projectDefinition = (ObjectNode) jsonMapper.readTree( definitionFile ) ;
+			if ( definitionFile.getName( ).endsWith( "yml" )
+					|| definitionFile.getName( ).endsWith( "yaml" ) ) {
 
-			logger.trace( "Parsed Cluster from file: {} Contains: \n{}", definitionFile.getAbsolutePath( ),
+				var resultReport = jsonMapper.createObjectNode( ) ;
+				var projectDefinitions = getProjectOperators( ).loadYaml( definitionFile, resultReport ) ;
+
+				if ( projectDefinitions.size( ) != 1 ) {
+
+					logger.warn( "YAML docs should only be a equal to one, but found: {}",
+							projectDefinitions.size( ) ) ;
+
+				}
+				
+				projectDefinition = projectDefinitions.get( 0 )  ;
+
+			} else {
+
+				projectDefinition = (ObjectNode) jsonMapper.readTree( definitionFile ) ;
+
+			}
+
+			logger.trace( "Parsed Cluster from file: {} Contains: \n{}", 
+					definitionFile.getAbsolutePath( ),
 					projectDefinition.toString( ) ) ;
 
 			String packageName = projectDefinition.path( APPLICATION ).path( "name" ).asText( definitionFile
@@ -2540,7 +2563,7 @@ public class ProjectLoader {
 
 		if ( testForOverrideMonitor.isMissingNode( ) ) {
 
-			testForOverrideMonitor = project.findAndCloneServiceDefinition( "namespace-monitor-template" ) ;
+			testForOverrideMonitor = project.findAndCloneServiceDefinition( NAMESPACE_MONITOR_TEMPLATE ) ;
 
 		}
 

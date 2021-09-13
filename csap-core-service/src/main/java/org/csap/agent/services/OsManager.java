@@ -457,6 +457,16 @@ public class OsManager {
 		return jsonMapper.convertValue( processMapper.getLatestDiscoveredProcesses( ), ArrayNode.class ) ;
 
 	}
+	
+	public boolean isProcessRunning( String namePattern ) {
+		
+		var optionalMatch = processMapper.getLatestDiscoveredProcesses( ).stream( )
+			.map( OsProcess::getParameters )
+			.filter( params -> params.matches( namePattern ) )
+			.findFirst( );
+		
+		return optionalMatch.isPresent( );
+	}
 
 	/**
 	 * Synchronized as multiple metrics collections will try to hit this frequently.

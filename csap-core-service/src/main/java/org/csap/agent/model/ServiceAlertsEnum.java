@@ -221,9 +221,13 @@ public enum ServiceAlertsEnum {
 
 				try {
 
-					long maxAllowed = Math.round( alertLevel * getLimitFromHierarchy( serviceDefinition,
-							lifeCycleMetaData, alert ) ) ;
-					long collected = -1 ;
+					var maxAllowed = Math.round(
+							alertLevel *
+									getEffectiveLimit(
+											serviceDefinition,
+											lifeCycleMetaData,
+											alert ) ) ;
+					var collected = -1 ;
 
 					if ( collectedContainerState.has( alert.value ) ) {
 
@@ -237,9 +241,12 @@ public enum ServiceAlertsEnum {
 					// maxValues.get(attributeName)
 					if ( collected > maxAllowed ) {
 
-						String alertMessage = alert.buildMessage( serviceId, serviceDefinition, collected,
+						var alertMessage = alert.buildMessage( serviceId, serviceDefinition,
+								collected,
 								maxAllowed ) ;
+
 						summaryErrors.add( alertMessage.toString( ) ) ;
+
 						ServiceAlertsEnum.addServiceResourceAlerts(
 								healthReport, serviceDefinition.getHostName( ),
 								collectedContainerState,
@@ -588,41 +595,59 @@ public enum ServiceAlertsEnum {
 
 	}
 
-	// Service level, Cluster Level, then lifecycle
-	static public long getLimitFromHierarchy (
-												ServiceInstance serviceDefinition ,
-												EnvironmentSettings environmentSettings ,
-												ServiceAlertsEnum alert ) {
+	//
+	// get csap default
+	// -> override with environment default if exists
+	// -> override with cluster default if exists
+	// -> override with service limit if exists
+	//
+	static public long getEffectiveLimit (
+											ServiceInstance serviceDefinition ,
+											EnvironmentSettings environmentSettings ,
+											ServiceAlertsEnum alert ) {
 
-		// default to the value in lifecycle
-		long maxAllowed = environmentSettings.getMonitorForCluster(
+		// default to the value in environment
+		var maxAllowedEnv = environmentSettings.getMonitorForCluster(
 				// serviceDefinition.getHostName(),
 				serviceDefinition.getCluster( ),
 				alert ) ;
 
-		if ( alert == ServiceAlertsEnum.diskSpace ) {
+		logger.debug( "{} maxAllowedEnv: {}", alert, maxAllowedEnv ) ;
 
-			return getMaxDiskInMb( serviceDefinition, environmentSettings ) ;
+//		if ( alert == ServiceAlertsEnum.diskSpace ) {
+//
+//			return getMaxDiskInMb( serviceDefinition, environmentSettings ) ;
+//
+//		}
 
-		}
+		var maxAllowed = maxAllowedEnv ;
 
 		// check for local
-		if ( serviceDefinition.getMonitors( ) != null && serviceDefinition.getMonitors( ).has( alert.maxId( ) ) ) {
+		if ( serviceDefinition.getMonitors( ) != null
+				&& serviceDefinition.getMonitors( ).has( alert.maxId( ) ) ) {
 
-			JsonNode itemJson = serviceDefinition.getMonitors( ).get( alert.maxId( ) ) ;
-			// maxAllowed = itemJson.asInt();
+			var alertSetting = serviceDefinition.getMonitors( )
+					.path( alert.maxId( ) ).asText( )
+					.toLowerCase( ) ;
 
-			String alertSetting = itemJson.asText( ).toLowerCase( ) ;
-			maxAllowed = EnvironmentSettings.convertUnitToKb( alertSetting ) ;
-			logger.debug( "{} alertSetting: {} , maxInKb: {}", serviceDefinition.getName( ), alertSetting,
-					maxAllowed ) ;
+			//
+			// any attribute can use m or g
+			//
+			maxAllowed = EnvironmentSettings.convertUnitToKb( alertSetting, alert ) ;
 
 			if ( alert == ServiceAlertsEnum.memory ) {
 
 				// stored as mb
 				maxAllowed = maxAllowed / 1024 ;
 
+				// handle default byte scenario
+
 			}
+
+//			logger.info( "{} alertSetting: {} , maxAllowed: {}",
+//					serviceDefinition.getName( ),
+//					alertSetting,
+//					maxAllowed ) ;
 
 		}
 
@@ -637,7 +662,7 @@ public enum ServiceAlertsEnum {
 												EnvironmentSettings lifecycleSettings ,
 												ServiceAlertsEnum alert ) {
 
-		String maxString = "" + getLimitFromHierarchy( serviceDefinition, lifecycleSettings, alert ) ;
+		String maxString = "" + getEffectiveLimit( serviceDefinition, lifecycleSettings, alert ) ;
 
 		if ( serviceDefinition.getMonitors( ) != null && serviceDefinition.getMonitors( ).has( alert.maxId( ) ) ) {
 
@@ -649,9 +674,9 @@ public enum ServiceAlertsEnum {
 
 	}
 
-	static public Map<String, String> limitsForService (
-															ServiceInstance serviceDefinition ,
-															EnvironmentSettings lifeCycleSettings ) {
+	static public Map<String, String> limitDefinitionsForService (
+																	ServiceInstance serviceDefinition ,
+																	EnvironmentSettings lifeCycleSettings ) {
 
 		Map<String, String> limits = Arrays.stream( ServiceAlertsEnum.values( ) )
 				.collect( Collectors.toMap(
@@ -683,7 +708,7 @@ public enum ServiceAlertsEnum {
 
 		for ( ServiceAlertsEnum alert : ServiceAlertsEnum.values( ) ) {
 
-			String maxAllowed = "" + getLimitFromHierarchy( serviceDefinition, lifecycleSettings, alert ) ;
+			String maxAllowed = "" + getEffectiveLimit( serviceDefinition, lifecycleSettings, alert ) ;
 
 			if ( alert == ServiceAlertsEnum.memory ) {
 
@@ -699,7 +724,7 @@ public enum ServiceAlertsEnum {
 				// force into MB; use when no units are specified as limits
 				if ( maxAllowed.matches( "^[0-9]+$" ) ) {
 
-					maxAllowed = ( getLimitFromHierarchy( serviceDefinition, lifecycleSettings, alert ) ) + "m" ;
+					maxAllowed = ( getEffectiveLimit( serviceDefinition, lifecycleSettings, alert ) ) + "m" ;
 
 				}
 
@@ -788,36 +813,32 @@ public enum ServiceAlertsEnum {
 
 	}
 
-	static public long getMaxDiskInMb (
-										ServiceInstance serviceDefinition ,
-										EnvironmentSettings lifecycleSettings ) {
-
-		long maxAllowed = lifecycleSettings.getMonitorForCluster(
-				serviceDefinition.getCluster( ),
-				diskSpace ) ;
-
-		if ( serviceDefinition.getMonitors( ) != null && serviceDefinition.getMonitors( ).has( diskSpace.maxId( ) ) ) {
-
-			// maxAllowed = serviceDefinition.getMonitors().get(
-			// diskSpace.maxId() ).asInt();
-			String alertSetting = serviceDefinition.getMonitors( ).get( diskSpace.maxId( ) ).asText( ).toLowerCase( ) ;
-
-			maxAllowed = EnvironmentSettings.convertUnitToKb( alertSetting ) ;
-
-			// in case user specified limit with m or g - the above switches to
-			// kb
-			// but we default to MB for disk
-			if ( alertSetting.endsWith( "m" ) || alertSetting.endsWith( "g" ) ) {
-
-				maxAllowed = maxAllowed / 1024 ;
-
-			}
-
-		}
-
-		return maxAllowed ;
-
-	}
+//	static public long getMaxDiskInMb (
+//										ServiceInstance serviceDefinition ,
+//										EnvironmentSettings environmentSettings ) {
+//
+//		long maxAllowed = environmentSettings.getMonitorForCluster(
+//				serviceDefinition.getCluster( ),
+//				diskSpace ) ;
+//
+//		if ( serviceDefinition.getMonitors( ) != null && serviceDefinition.getMonitors( ).has( diskSpace.maxId( ) ) ) {
+//
+//			// maxAllowed = serviceDefinition.getMonitors().get(
+//			// diskSpace.maxId() ).asInt();
+//			String alertSetting = serviceDefinition.getMonitors( ).get( diskSpace.maxId( ) ).asText( ).toLowerCase( ) ;
+//
+//			maxAllowed = EnvironmentSettings.convertUnitToKb( alertSetting, diskSpace ) ;
+//
+//			// in case user specified limit with m or g - the above switches to
+//			// kb
+//			// but we default to MB for disk
+//			maxAllowed = maxAllowed / 1024 ;
+//
+//		}
+//
+//		return maxAllowed ;
+//
+//	}
 
 	public static String fromK8sToCrashOrKill ( String errorText ) {
 

@@ -54,7 +54,7 @@
 				"max_fileCount": "2000",
 				"max_diskUtil": "150g",
 				"max_socketCount": "400",
-				"max_diskWriteKb": "100",
+				"max_diskWriteKb": "1m",
 				"max_diskReadKb": "100",
 				"max_rssMemory": "12g"
 			}
@@ -203,7 +203,7 @@
 			"description": "CSAP Manager provides the application portal",
 			"docUrl": "https://github.com/csap-platform/csap-core/tree/master/csap-core-service",
 			"alerts": {
-				"max_diskUtil": "170",
+				"max_diskUtil": "170m",
 				"max_threadCount": "140",
 				"max_fileCount": "450",
 				"max_socketCount": "30",
@@ -298,14 +298,14 @@
 			"deploymentNotes": "csap-agent will automatically be restarted via the stop/restart operation.", 
 			"docUrl": "https://github.com/csap-platform/csap-core/tree/master/csap-core-service",
 			"alerts": {
-				"max_diskUtil": "170",
+				"max_diskUtil": "170m",
 				"max_threadCount": "150",
 				"max_fileCount": "500",
 				"max_socketCount": "50",
 				"max_rssMemory": "1500m",
 				"max_tomcatConnections": "40",
 				"max_topCpu": "50",
-				"max_diskWriteKb": "50000"
+				"max_diskWriteKb": "50m"
 			},
 			"osProcessPriority": -12,
 			"parameters": "-Dspring.profiles.active=CSAP_LIFE,agent,company -Dsun.rmi.transport.tcp.responseTimeout=3000 -XX:MaxMetaspaceSize=144M -Xms512M -Xmx512M",
@@ -865,7 +865,7 @@
 			"port": 7041,
 			"description": "Csap simple tests",
 			"alerts": {
-				"max_diskUtil": "230",
+				"max_diskUtil": "230m",
 				"max_threadCount": "100",
 				"max_fileCount": "300",
 				"max_socketCount": "20",
@@ -1775,7 +1775,7 @@
 			"propDirectory": "/mnt",
 			"processFilter": "$$service-working/bin/httpd.*",
 			"alerts": {
-				"max_diskUtil": "1000",
+				"max_diskUtil": "1000m",
 				"max_threadCount": "300",
 				"max_fileCount": "300",
 				"max_rssMemory": "250m",
@@ -1889,7 +1889,8 @@
 			"appDirectory": "/",
 			"propDirectory": "/$$kubernetes-config",
 			"alerts": {
-				"max_socketCount": "200"
+				"max_socketCount": "200",
+				"max_rssMemory": "2g"
 			},
 			"logJournalServices": "kubelet,docker",
 			"runUsingDocker": "true",
@@ -2342,7 +2343,8 @@
 			"alerts": {
 				"max_threadCount": "1800",
 				"max_fileCount": "5000",
-				"max_socketCount": "200"
+				"max_socketCount": "200",
+				"max_rssMemory": "2g"
 			},
 			"scheduledJobs": {
 				"scripts": [

@@ -34,8 +34,11 @@ public class Host_Alert_Processing extends CsapThinTests {
 
 	HealthManager healthManager ;
 
+//	File csapApplicationDefinition = new File(
+//			Host_Status_Manager_Test.class.getResource( "host-status-test-app.json" ).getPath( ) ) ;
+
 	File csapApplicationDefinition = new File(
-			Host_Status_Manager_Test.class.getResource( "host-status-test-app.json" ).getPath( ) ) ;
+			Host_Status_Manager_Test.class.getResource( "host-status-application.yml" ).getPath( ) ) ;
 
 	@BeforeAll
 	void beforeAll ( )
@@ -68,7 +71,7 @@ public class Host_Alert_Processing extends CsapThinTests {
 
 		assertThat( getApplication( ).getServicesOnHost( ).size( ) )
 				.as( "Number of services on host" )
-				.isEqualTo( 15 ) ;
+				.isEqualTo( 10 ) ;
 
 		List<String> serviceNames = getApplication( )
 				.getActiveProject( )
@@ -80,7 +83,7 @@ public class Host_Alert_Processing extends CsapThinTests {
 
 		assertThat( serviceNames.size( ) )
 				.as( "Number of services on host" )
-				.isEqualTo( 15 ) ;
+				.isEqualTo( 10 ) ;
 
 		assertThat( getApplication( ).getServiceInstanceCurrentHost( "TestService_8241" ) )
 				.as( "TestService_8241 found" )
@@ -107,7 +110,7 @@ public class Host_Alert_Processing extends CsapThinTests {
 
 		logger.info( "hsql monitors: {}", CSAP.jsonPrint( hsqlService.getMonitors( ) ) ) ;
 
-		Map<String, String> hsqlLimits = ServiceAlertsEnum.limitsForService( hsqlService, getApplication( )
+		var hsqlLimits = ServiceAlertsEnum.limitDefinitionsForService( hsqlService, getApplication( )
 				.rootProjectEnvSettings( ) ) ;
 		logger.info( "hsql limits: {}", hsqlLimits ) ;
 
@@ -126,16 +129,111 @@ public class Host_Alert_Processing extends CsapThinTests {
 		assertThat( hsqlLimits.get( OsProcessEnum.RSS_MEMORY ) )
 				.as( "cluster definition default" )
 				.isEqualTo( "1" ) ;
+		
+
+		//
+		// nginx - defaults from environment settings
+		//
 
 		var nginxService = getApplication( ).findFirstServiceInstanceInLifecycle( "nginx" ) ;
 
-		Map<String, String> nginxLimts = ServiceAlertsEnum.limitsForService( nginxService, getApplication( )
-				.rootProjectEnvSettings( ) ) ;
-		logger.info( "nginxLimts limits: {}", nginxLimts ) ;
+		var nginxLimitDefinitions = ServiceAlertsEnum.limitDefinitionsForService(
+				nginxService,
+				getApplication( ).rootProjectEnvSettings( ) ) ;
+		
+		assertThat( nginxLimitDefinitions.get( OsProcessEnum.THREAD_COUNT ) )
+				.isEqualTo( "121" ) ;
 
-		assertThat( nginxLimts.get( OsProcessEnum.RSS_MEMORY ) )
-				.as( "cluster definition default" )
-				.isEqualTo( "512000" ) ;
+		var nginxMemoryValue = ServiceAlertsEnum.getEffectiveLimit( 
+				nginxService, getActiveProjectSettings( ),
+				ServiceAlertsEnum.memory ) ;
+
+		logger.info( "nginxMemory: {}  nginxLimitDefinitions: {}", nginxMemoryValue, nginxLimitDefinitions ) ;
+
+		assertThat( nginxMemoryValue )
+				.isEqualTo( 500 ) ;
+
+
+		assertThat( nginxLimitDefinitions.get( OsProcessEnum.RSS_MEMORY ) )
+				.isEqualTo( "500" ) ;
+		
+		
+		//
+		// csap-agent service overrides
+		//
+
+		var agentService = getApplication( ).findFirstServiceInstanceInLifecycle( "csap-agent" ) ;
+
+		var agentLimitDefinitions = ServiceAlertsEnum.limitDefinitionsForService(
+				agentService,
+				getApplication( ).rootProjectEnvSettings( ) ) ;
+		
+
+		assertThat( agentLimitDefinitions.get( OsProcessEnum.THREAD_COUNT ) )
+				.isEqualTo( "333" ) ;
+
+		var agentMemoryMax = ServiceAlertsEnum.getEffectiveLimit( agentService, getActiveProjectSettings( ),
+				ServiceAlertsEnum.memory ) ;
+
+		logger.info( "agentMemoryMax: {}  agentLimitDefinitions: {}", agentMemoryMax, agentLimitDefinitions ) ;
+
+		assertThat( agentMemoryMax )
+				.isEqualTo( 888 ) ;
+		
+		
+
+
+		//
+		// docker traffic memory in bytes
+		//
+
+		var dockerTrafficService = getApplication( ).findFirstServiceInstanceInLifecycle( "csap-test-docker-traffic" ) ;
+
+		var dockerTrafficLimitDefinitions = ServiceAlertsEnum.limitDefinitionsForService(
+				dockerTrafficService,
+				getApplication( ).rootProjectEnvSettings( ) ) ;
+		
+
+		assertThat( dockerTrafficLimitDefinitions.get( OsProcessEnum.THREAD_COUNT ) )
+				.isEqualTo( "121" ) ;
+
+		var dockerTrafficMemoryMax = ServiceAlertsEnum.getEffectiveLimit( dockerTrafficService, getActiveProjectSettings( ),
+				ServiceAlertsEnum.memory ) ;
+
+		logger.info( "dockerTrafficMemoryValue: {}  dockerTrafficLimitDefinitions: {}", dockerTrafficMemoryMax, dockerTrafficLimitDefinitions ) ;
+
+		var dockerTrafficDiskMax = ServiceAlertsEnum.getEffectiveLimit( dockerTrafficService, getActiveProjectSettings( ),
+				ServiceAlertsEnum.diskSpace ) ;
+
+		logger.info( "dockerTrafficDiskMax: {}  dockerTrafficLimitDefinitions: {}", dockerTrafficDiskMax, dockerTrafficLimitDefinitions ) ;
+		
+
+		assertThat( dockerTrafficDiskMax )
+				.isEqualTo( 2000l ) ;
+
+		//
+		// CsapTestDocker disk
+		//
+
+		var ctdService = getApplication( ).findFirstServiceInstanceInLifecycle( "CsapTestDocker" ) ;
+
+		var ctdLimitDefinitions = ServiceAlertsEnum.limitDefinitionsForService(
+				ctdService,
+				getApplication( ).rootProjectEnvSettings( ) ) ;
+		
+
+		assertThat( ctdLimitDefinitions.get( OsProcessEnum.THREAD_COUNT ) )
+				.isEqualTo( "200" ) ;
+
+		var ctdDiskValue = ServiceAlertsEnum.getEffectiveLimit( ctdService, getActiveProjectSettings( ),
+				ServiceAlertsEnum.diskSpace ) ;
+		
+
+		assertThat( ctdDiskValue )
+				.isEqualTo( 1024l ) ;
+
+
+		logger.info( "ctdDiskValue: {}  ctdLimitDefinitions: {}", ctdDiskValue, ctdLimitDefinitions ) ;
 
 	}
 
@@ -221,7 +319,7 @@ public class Host_Alert_Processing extends CsapThinTests {
 
 		assertThat( errorArray )
 				.as( "disk space" )
-				.contains( "csapTest-six: csap-test-docker-traffic: Disk Space: 97.66 gb, Alert threshold: 2.0 gb" ) ;
+				.contains( "csapTest-six: csap-test-docker-traffic: Disk Space: 97.66 gb, Alert threshold: 1.95 gb" ) ;
 
 		assertThat( errorArray )
 				.as( "abort message" )
@@ -392,8 +490,8 @@ public class Host_Alert_Processing extends CsapThinTests {
 
 		assertThat( alerts.path( HealthManager.HEALTH_SUMMARY ).toString( ) )
 				.as( "ActiveMq thread error" )
-				.contains( "csapTest-six: ActiveMq: OS Threads: 69, Alert threshold: 60",
-						"csapTest-six: csap-agent: Memory (RSS): 912.0 mb, Alert threshold: 400.0 mb" ) ;
+				.contains( "csapTest-six: ActiveMq: OS Threads: 69, Alert threshold: 61",
+						"csapTest-six: csap-agent: Memory (RSS): 912.0 mb, Alert threshold: 444.0 mb" ) ;
 
 	}
 

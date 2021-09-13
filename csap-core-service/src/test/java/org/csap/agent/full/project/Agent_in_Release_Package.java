@@ -124,7 +124,7 @@ public class Agent_in_Release_Package {
 
 		assertThat( limitsJson.get( ServiceAlertsEnum.diskSpace.value ).asInt( ) )
 				.as( "Cluster Disk space default limit" )
-				.isEqualTo( 15360 ) ; // 15360
+				.isEqualTo( 15 ) ; // 15360
 
 	}
 

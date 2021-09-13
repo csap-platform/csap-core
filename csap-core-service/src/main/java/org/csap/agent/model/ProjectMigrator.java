@@ -56,9 +56,9 @@ public class ProjectMigrator {
 
 	}
 
-	public void migrateIfRequired ( File projectFile , ObjectNode modelDefinition ) {
+	public void migrateIfRequired ( File projectFile , ObjectNode projectDefinition ) {
 
-		var modelVersion = modelDefinition.path( PROJECT ).path( API_VERSION ).asDouble( 1.0 ) ;
+		var modelVersion = projectDefinition.path( PROJECT ).path( API_VERSION ).asDouble( 1.0 ) ;
 
 		if ( modelVersion < CURRENT_VERSION ) {
 
@@ -75,7 +75,7 @@ public class ProjectMigrator {
 
 				try {
 
-					migrate_2_0( projectFile.getName( ), modelDefinition ) ;
+					migrate_2_0( projectFile.getName( ), projectDefinition ) ;
 
 				} catch ( Exception e ) {
 
@@ -95,7 +95,7 @@ public class ProjectMigrator {
 				logger.warn( CsapApplication.testHeader( "Exporting migrated definition: {}" ), projectFile
 						.getAbsolutePath( ) ) ;
 				ProjectLoader.addCsapJsonConfiguration( jsonMapper ) ;
-				FileUtils.write( projectFile, CSAP.jsonPrint( jsonMapper, modelDefinition ) ) ;
+				FileUtils.write( projectFile, CSAP.jsonPrint( jsonMapper, projectDefinition ) ) ;
 
 			} else {
 

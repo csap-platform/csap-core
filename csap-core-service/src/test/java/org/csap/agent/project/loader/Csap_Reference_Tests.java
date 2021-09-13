@@ -472,10 +472,14 @@ class Csap_Reference_Tests extends CsapBareTest {
 			logger.info( "alertSettings: {}", alertSettings ) ;
 
 			assertThat( alertSettings ).isNotNull( ) ;
-			assertThat( ServiceAlertsEnum.getMaxDiskInMb(
-					csapDockerReferenceService,
-					getAppEnv( ) ) )
-							.isEqualTo( 1024L ) ;
+			
+//			var diskLimit = ServiceAlertsEnum.getMaxDiskInMb(
+//					csapDockerReferenceService,
+//					getAppEnv( ) ) ;
+			
+			var maxAllowedDisk = ServiceAlertsEnum.getEffectiveLimit( csapDockerReferenceService, getAppEnv( ), ServiceAlertsEnum.diskSpace ) ;
+			
+			assertThat( maxAllowedDisk ).isEqualTo( 1024L ) ;
 
 			var serviceLimitsForUi = ServiceAlertsEnum.getAdminUiLimits( csapDockerReferenceService,
 					getAppEnv( ) ) ;

@@ -7,117 +7,57 @@
 
 <title th:inline="text">CSAP Summary</title>
 
-<script th:replace="~{ csap/fragments/libsAndStyles :: pageContent }"></script>
+<script th:replace="~{ csap/fragments/csap-common-includes :: pageContent }"></script>
+
 <style>
-table th {
-	text-align: left;
+
+
+table {
+	margin-left: 10px
 }
 
-div.service {
-	font-size: 12pt;
-	word-break: break-all;
-}
-
-div.info {
-	font-size: 11pt;
-	word-break: break-all;
-}
-
-table td {
-	word-wrap: break-word
-}
-
-.clusterType {
-	font-size: 0.8em;
-	color: red;
-}
-
-pre.scroll {
-	max-height: 600px;
-	overflow: auto;
-	background-color: black;
-	color: white;
-	border-radius: 5px;
-	margin: 1em;
-	padding: 5px;
-	white-space: pre-wrap;
-}
-
-h1 {
-	margin-top: 2em;
-	padding-top: 1em;
-	padding-left: 2em;
-	border-top: 3px solid black;
-	font-weight: bold;
-}
-
-#serviceLimits td, #serviceLimits th {
-	text-align: center;
-}
-
-#serviceLimits td, #serviceLimits th {
-	text-align: center;
-}
-
-#serviceLimits td:nth-child(1), #serviceLimits th:nth-child(1) {
-	text-align: left;
-}
-
-#serviceLimits .simple {
-	float: right
-}
-
-#life {
-	margin: 2em;
-}
-
-#life td:nth-child(1), #life th:nth-child(1) {
-	width: 10em;
-}
-
-#life td:nth-child(2), #life th:nth-child(2) {
-	word-break: break-all;
-}
-
-div.label {
-	width: auto;
-	min-width: 10em;
-	font-size: 11pt;
-}
-
-div.entry {
-	font-weight: bold;
-	font-size: 10pt;
-}
-
-div.gridded {
-	min-width: 300px;
-	display: grid;
-	color: red;
-	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-}
-
-div.gridded>span {
-	display: block;
-	min-height: 3em;
-	width: 80%;
-}
-
-div.gridded>span a.simple {
-	word-break: break-all;
-	width: 80%;
-}
-
-table.cluster-table td:nth-child(4) {
-	
+article.content {
+	margin-right: 0;
 }
 </style>
 
 <script th:src="@{ ${csapApp.versionedUrl('/js/editor/summary.js')} }"></script>
 
+<link
+	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/agent.css')} }"
+	rel="stylesheet"
+	type="text/css"
+	media="screen" />
+<link
+	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/agent-explorer.css')} }"
+	rel="stylesheet"
+	type="text/css"
+	media="screen" />
+
+<link
+	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/browser.css')} }"
+	rel="stylesheet"
+	type="text/css"
+	media="screen" />
+
+<link
+	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/services.css')} }"
+	rel="stylesheet"
+	type="text/css"
+	media="screen" />
+
+<link
+	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/projects.css')} }"
+	rel="stylesheet"
+	type="text/css"
+	media="screen" />
+
+
 </head>
 
-<body th:inline="text">
+<body
+	th:inline="text"
+	class="csap-scrollable theme-dark theme-aqua">
 
 
 	<header id="header">
@@ -140,16 +80,22 @@ table.cluster-table td:nth-child(4) {
 	<!-- 
                 - Summary
         -->
+    
+    <article class=content>
+    
+    <div id=projects-tab-summary>
 
 	<div id="content-for-browser">
+	
+		<h1 id=app-attributes> Application Attributes</h1>
 
 		<table
 			id="application-summary"
-			class="csap simple">
+			class="csap ">
 			<thead>
 
 				<tr>
-					<th style="width: 10em">Item</th>
+					<th style="width: 10em">Attribute</th>
 					<th>Navigation Link(s)</th>
 				</tr>
 			</thead>
@@ -159,7 +105,7 @@ table.cluster-table td:nth-child(4) {
 				<td>
 					<a
 						th:each="modelName : ${csapApp.getPackageNames()}"
-						class="csap-link"
+						class="csap-link-icon csap-window"
 						target="_blank"
 						th:href="@{${'/api/model/application?releasePackage=' + modelName}}"> [[
 						'/api/model/application?releasePackage='+${ modelName }]] </a>
@@ -171,19 +117,28 @@ table.cluster-table td:nth-child(4) {
 				<td>
 					<a
 						th:each="menuEntry : ${csapApp.getHelpMenuMap() }"
-						class="csap-link"
+						class="csap-link-icon csap-window"
 						target="_blank"
 						th:href="@{${menuEntry.value}}"> [[ ${ menuEntry.key } ]] </a>
 				</td>
 			</tr>
 
 			<tr>
-				<td>Services</td>
 				<td>
+				[[ ${ project.getServiceToAllInstancesMap().size() } ]]  services on [[ ${ project.getHostsInAllLifecycles().size() } ]] hosts
+					
+				</td>
+				<td>
+					
+					
 					<a
-						class="csap-link"
-						href="#services"> [[ ${ project.getServiceToAllInstancesMap().size() } ]] Services</a>
-					on [[ ${ project.getHostsInAllLifecycles().size() } ]] Hosts
+						class="csap-link-icon csap-go"
+						href="#service-limits">Service Limits</a>
+					
+					
+					<a
+						class="csap-link-icon csap-go"
+						href="#service-manifests">Service Versions</a>
 				</td>
 			</tr>
 
@@ -192,7 +147,7 @@ table.cluster-table td:nth-child(4) {
 				<td>Environments</td>
 				<td>
 					<a
-						class="csap-link"
+						class="csap-link-icon csap-go"
 						th:each="lc : ${ project.getLifecycleToClusterMap().keySet() }"
 						th:href="${ '#' + lc }"> [[ ${ lc } ]] </a>
 				</td>
@@ -203,7 +158,7 @@ table.cluster-table td:nth-child(4) {
 				<td>Current Environment Url</td>
 				<td>
 					<a
-						class="csap-link"
+						class="csap-link-icon csap-go"
 						th:href="${ csapApp.getRootProjectDefinitionUrl() }"> [[ ${ csapApp.getRootProjectDefinitionUrl() } ]] </a>
 				</td>
 			</tr>
@@ -220,10 +175,6 @@ table.cluster-table td:nth-child(4) {
         -->
 
 
-		<a
-			class="button"
-			href="#application-summary"
-			title="Navigate back to summary table">Top</a>
 
 		<section
 			style="margin-top: 2em;"
@@ -234,14 +185,22 @@ table.cluster-table td:nth-child(4) {
 				class="service"
 				th:if=" ${ svcInstanceList } != null "
 				th:with="firstServiceInstance = ${svcInstanceList.get(0)} ">
+				
+				<a th:id="${ 'details-' +serviceEntry.key }"></a>
 
 				<div
-					th:id="${ serviceEntry.key }"
-					class="title">Service Name: [[ ${ serviceEntry.key } ]]</div>
+					th:id="${  serviceEntry.key }"
+					class="title">  Service Name: [[ ${ serviceEntry.key } ]]
+					
+					<a
+						class="csap-link"
+						href="#service-limits"
+						title="Navigate back to summary table">service list</a>
+					
+					</div>
 
-				<br />
 
-				<table class="csap simple">
+				<table class="csap">
 					<thead>
 
 						<tr>
@@ -258,7 +217,7 @@ table.cluster-table td:nth-child(4) {
 
 							<a
 								target="_blank"
-								class="csap-link"
+								class="csap-link-icon csap-window"
 								th:href="${ csapApp.getAgentUrl(svcInstance.getHostName(), '/api/agent/service/definition/' ) + svcInstance.getName()  }">
 								[[ ${ svcInstance.getHostName() } ]] / [[ ${ svcInstance.getPort() } ]]</a>
 
@@ -269,7 +228,7 @@ table.cluster-table td:nth-child(4) {
 
 							<a
 								target="_blank"
-								class="csap-link"
+								class="csap-link-icon csap-window"
 								th:href="${ csapApp.getAgentUrl(svcInstance.getHostName(), '/api/agent/service/runtime/' ) + svcInstance.getName()  }">View</a>
 
 						</td>
@@ -279,15 +238,15 @@ table.cluster-table td:nth-child(4) {
 
 							<a
 								target="_blank"
-								class="csap-link"
-								th:href="${ csapApp.getAgentUrl(svcInstance.getHostName(), '/api/agent/collection/os/' ) + svcInstance.getServiceName_Port() +'/30/5' }">OS</a>
+								class="csap-link-icon csap-window"
+								th:href="${ csapApp.getAgentUrl(svcInstance.getHostName(), '/api/agent/collection/os/' ) + svcInstance.getName() +'/30/5' }">OS</a>
 
 
 							<a
 								style="margin-left: 2em"
 								target="_blank"
-								class="csap-link"
-								th:href="${ csapApp.getAgentUrl(svcInstance.getHostName(), '/api/agent/collection/application/' )  + svcInstance.getServiceName_Port() +'/30/5' }">App</a>
+								class="csap-link-icon csap-window"
+								th:href="${ csapApp.getAgentUrl(svcInstance.getHostName(), '/api/agent/collection/application/' )  + svcInstance.getName() +'/30/5' }">App</a>
 						</td>
 						<td>[[ ${ svcInstance.getPlatformVersion() } ]]</td>
 					</tr>
@@ -305,10 +264,7 @@ table.cluster-table td:nth-child(4) {
 		<div
 			th:each="environmentName : ${ project.getLifecycleToClusterMap().keySet()  }"
 			th:if="${ ! environmentName.contains('-') }">
-			<a
-				class="button"
-				href="#application-summary"
-				title="Navigate back to summary table">Top</a>
+			
 
 
 			<section
@@ -318,9 +274,18 @@ table.cluster-table td:nth-child(4) {
 
 				<div
 					th:id="${ environmentName }"
-					class="title">Environment: [[ ${ environmentName } ]]</div>
+					class="title">Environment: [[ ${ environmentName } ]]
+					
+					
+					
+					<a
+						class="csap-link"
+						href="#app-attributes"
+						title="Navigate back to summary table">Application Attributes</a>
+					
+					</div>
 
-				<table class="csap cluster-table simple">
+				<table class="csap cluster-table ">
 
 
 					<thead>
@@ -410,7 +375,7 @@ table.cluster-table td:nth-child(4) {
 
 				<table
 					id="life"
-					class="csap simple">
+					class="csap ">
 					<thead>
 
 						<tr>
@@ -546,5 +511,10 @@ table.cluster-table td:nth-child(4) {
 
 		</div>
 	</div>
+	</div>
+	
+    </article>    
+    
+	<footer th:replace="csap/fragments/page :: footer"></footer>
 </body>
 </html>

@@ -951,9 +951,9 @@ div.options-scroller div:nth-child(2) {
 #preferences-tab-content .preferences  {
 	display: grid;
 	color: black;
-	grid-template-columns:  8em  12em  minmax(15em, 1fr);
+	grid-template-columns:  11em  14em  minmax(15em, 1fr);
 	padding: 5px;
-	grid-column-gap: 1em;
+	grid-column-gap: 5px;
 	grid-row-gap: 10px;
 	margin-bottom: 2em;
 	align-items: baseline ;

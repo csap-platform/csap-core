@@ -1325,7 +1325,7 @@ public class Application {
 		// only if external (browser) networking different from host network
 		var internalAgentUrl = csapCoreService.getHostUrlPatternInternal( ) ;
 
-		if ( ! checkForInternalOverride 
+		if ( ! checkForInternalOverride
 				|| StringUtils.isEmpty( internalAgentUrl ) ) {
 
 			// use for all Browser UI requests, and most of the time when
@@ -3969,12 +3969,36 @@ public class Application {
 
 	}
 
+	private File dockerSocket = new File( "/var/run/docker.sock" ) ;
+
 	public boolean isDockerInstalledAndActive ( ) {
 
-		if ( dockerIntegration == null || dockerIntegration.getDockerClient( ) == null || isDockerDeployInProgress )
+		if ( dockerIntegration == null
+				|| dockerIntegration.getDockerClient( ) == null
+				|| isDockerDeployInProgress ) {
+
 			return false ;
 
-		return is_service_running( "docker" ) ;
+		}
+
+		if ( is_service_running( "docker" ) ) {
+
+			return true ;
+
+		}
+
+		// docker started outside of csap instance: agent in container or agent in
+		// monitor mode
+		if ( dockerSocket.exists( )
+				&& dockerSocket.canRead( )
+				&& dockerSocket.canWrite( ) ) {
+
+			logger.debug( "found dockerd running" ) ;
+			return true ;
+
+		}
+
+		return false ;
 
 	}
 

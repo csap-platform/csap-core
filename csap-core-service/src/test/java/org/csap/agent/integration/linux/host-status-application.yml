@@ -1,0 +1,260 @@
+
+project:
+  api-version: 2.1
+  project-version: 1
+  name: default
+  architect: you@you.com
+  emailNotifications: support@notConfigured.com
+  
+environments:
+
+  defaults:
+  
+    settings:
+      base-env-only: true
+      
+      application:
+        
+        name: Sensus DevOps
+        sub-projects: []
+        definition-repo-url: https://moc-bb.***REMOVED***/bitbucket/scm/csap/***REMOVED***-tools-definition
+        definition-repo-branch: master
+        maven-url: http://***REMOVED***pro-00.***REMOVED***.lab/artifactory/csap-release
+        
+        help-menu-items:
+          User Guide: https://***REMOVED***.atlassian.net/wiki/spaces/CSAP
+          Release Notes: https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211856/Release+Notes
+          Quick Install: https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/395282580/CSAP+Quick+Install
+          Health Status: https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211861/CSAP+Health
+          Application Editor: https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211875/CSAP+Application+Editor
+          FAQ: https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/347177032/CSAP+FAQ
+      
+      
+      monitorDefaults:
+      
+        jvm_jmxHeartbeat: true
+        
+        maxDiskPercent: '85'
+        maxDiskPercentIgnorePatterns: "/auto/.*"
+        maxHostCpuLoad: 4
+        maxHostCpu: 50
+        maxHostCpuIoWait: 11
+        minFreeMemoryMb: 1000
+        
+        max_diskUtil: 150
+        max_threadCount: 121
+        max_fileCount: 350
+        max_rssMemory: 500m
+        max_tomcatConnections: 40
+        max_topCpu: 150
+      
+      configuration-maps:
+        global:
+          csap_auto: test_only
+    
+    
+  dev:
+    settings:
+      imports:
+      - defaults
+      loadbalancer-url: ''
+    
+    csapEvent:
+      type: simple
+      hosts:
+      - csapTest-one
+      - csapTest-two
+      template-references:
+      - data
+      - analytics
+    
+    devOpsTest:
+      type: simple
+      hosts:
+      - csapTest-five
+      - csapTest-six
+
+      template-references:
+      - nginx
+      - csap-test-docker-traffic
+      - TestService
+      
+    baseOsServices:
+      type: simple
+      hosts:
+      - csapTest-five
+      - csapTest-one
+      - csapTest-six
+      - csapTest-two
+      notes: For ease of management - common services are typically placed in a single  cluster.
+      template-references:
+      - docker
+      - jstatd
+      - csap-package-linux
+      
+    csapManagementServices:
+      type: simple
+      hosts:
+      - csapTest-one
+      - csapTest-two
+      notes: CSAP admin service and httpd provide the application portal and http
+        loadbalancing
+      template-references:
+      - httpd
+      - csap-package-tomcat
+      - csap-admin
+      
+    zDockerTest:
+      type: simple
+      display: high
+      notes: Used to demo load test
+      hosts:
+      - csapTest-five
+      - csapTest-six
+      monitors:
+        maxDiskPercentIgnorePatterns: "/ignored.*"
+        max_rssMemory: '1'
+      template-references:
+      - ActiveMq
+      - HsqlDatabase
+      - CsapTestDocker
+      
+      
+service-templates:
+
+  csap-agent:
+    
+    server: SpringBoot
+    autoStart: 3
+    description: xxx test description
+      
+    alerts:
+      max_diskUtil: 222
+      max_threadCount: 333
+      max_fileCount: 444
+      max_socketCount: 555
+      max_tomcatConnections: 666
+      max_topCpu: 777
+      max_rssMemory: 888m
+      nagiosCommand: 'check_http! -v -u /CsAgent/api/CapabilityHealth --regex ".*Healthy.*true.*"  -t
+        3   '
+      max_diskWriteKb: '50000'
+      
+  ActiveMq:
+    server: docker
+    autoStart: 50
+    port: 8161
+    docker:
+      image: ***REMOVED***-docker.davis.***REMOVED***.lab/csap-activemq:latest
+ 
+  CsapTestDocker:
+    server: SpringBoot
+    autoStart: 53
+    port: 8261
+    description: csap-starter reference implementation
+    alerts:
+      max_diskUtil: 1g
+      max_threadCount: '200'
+      max_fileCount: '500'
+      max_socketCount: '100'
+      max_rssMemory: 1000m
+      max_tomcatConnections: '10'
+      max_topCpu: '150'
+
+    runUsingDocker: 'true'
+    docker:
+      image: ***REMOVED***-docker.davis.***REMOVED***.lab/csap-base:latest
+
+  HsqlDatabase:
+    server: docker
+    autoStart: 51
+    port: 9002
+    description: activemq docker instance providing JMS messaging
+    docUrl: http://hsqldb.org/
+    appDirectory: "/hsqldb"
+    propDirectory: "/hsqldb/data"
+    processFilter: ".*org.hsqldb.server.Server.*"
+    alerts:
+      max_diskUtil: 800m
+    isDataStore: 'true'
+    isMessaging: 'true'
+    jmxPort: '9003'
+    docker:
+      image: ***REMOVED***-docker.davis.***REMOVED***.lab/csap-db-hsql:latest
+
+    
+  TestService:
+    server: SpringBoot
+    autoStart: 82
+    port: 8241
+    description: csap-starter reference implementation
+    alerts:
+      max_diskUtil: '100'
+      max_threadCount: '200'
+      max_fileCount: '500'
+      max_socketCount: '100'
+      max_rssMemory: 1000m
+      max_tomcatConnections: '10'
+      max_topCpu: '150'
+    isTomcatAjp: 'true'
+    osProcessPriority: 0
+
+    runUsingDocker: 'true'
+    docker:
+      image: ***REMOVED***-docker.davis.***REMOVED***.lab/csap-base:latest
+  
+  analytics:
+    server: SpringBoot
+    autoStart: 21
+    description: Csap Analytics project provides historical data and adoption analytics
+    alerts:
+      max_diskUtil: '70'
+      max_threadCount: '100'
+      max_fileCount: '300'
+      max_rssMemory: 4g
+      max_tomcatConnections: '40'
+      max_topCpu: '30'
+      max_socketCount: '50'
+
+
+
+  csap-test-docker-traffic:
+    server: csap-api
+    description: Added by pnightingale. Service provides ...
+    processFilter: ".*-DcsapVerify=$$service-name.*"
+    alerts:
+      max_diskUtil: 2000m
+      max_rssMemory: 10000000
+
+        
+        
+  data:
+    server: SpringBoot
+    autoStart: 20
+    description: Csap Data receives user and system events from all CSAP agents
+    alerts:
+      max_diskUtil: '150'
+      max_threadCount: '150'
+      max_fileCount: '500'
+      max_rssMemory: 800m
+      max_tomcatConnections: '40'
+      max_topCpu: '150'
+      max_socketCount: '85'
+ 
+ 
+
+
+  nginx:
+    server: docker
+    autoStart: 98
+    port: 7080
+    description: nginx docker demo, runs on 7080 and 7443
+    docUrl: https://hub.docker.com/_/nginx/
+    appDirectory: "/usr/share/nginx"
+    propDirectory: "/etc/nginx"
+    processFilter: ".*nginx.*"
+    jmxPort: "-1"
+    docker:
+      image: docker.io/nginx:latest
+
+

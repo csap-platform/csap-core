@@ -195,7 +195,7 @@ public class EnvironmentSettings {
 		serviceLimits.put( ServiceAlertsEnum.diskWriteRate, 10l ) ;
 		serviceLimits.put( ServiceAlertsEnum.openFileHandles, 400l ) ;
 		serviceLimits.put( ServiceAlertsEnum.httpConnections, 40l ) ;
-		serviceLimits.put( ServiceAlertsEnum.memory, convertUnitToKb( "765m" ) ) ;
+		serviceLimits.put( ServiceAlertsEnum.memory, convertUnitToKb( "765m", ServiceAlertsEnum.memory ) ) ;
 		serviceLimits.put( ServiceAlertsEnum.sockets, 30l ) ;
 		serviceLimits.put( ServiceAlertsEnum.threads, 100l ) ;
 		serviceLimits.put( ServiceAlertsEnum.cpu, 200l ) ;
@@ -1336,15 +1336,15 @@ public class EnvironmentSettings {
 
 				if ( monitorDefaultsDefinition.has( serviceLimit.maxId( ) ) ) {
 
-					serviceLimits.put( serviceLimit, monitorDefaultsDefinition.path( serviceLimit.maxId( ) )
-							.asLong( ) ) ;
+					serviceLimits.put( serviceLimit,
+							monitorDefaultsDefinition.path( serviceLimit.maxId( ) ).asLong( ) ) ;
 
 					if ( serviceLimit == ServiceAlertsEnum.memory ) {
 
 						serviceLimits.put( ServiceAlertsEnum.memory,
 								convertUnitToKb(
-										monitorDefaultsDefinition.path( ServiceAlertsEnum.memory.maxId( ) )
-												.asText( ) ) ) ;
+										monitorDefaultsDefinition.path( ServiceAlertsEnum.memory.maxId( ) ).asText( ),
+										ServiceAlertsEnum.memory ) / 1024 ) ;
 
 					}
 
@@ -1895,12 +1895,15 @@ public class EnvironmentSettings {
 
 			if ( alert == ServiceAlertsEnum.diskSpace ) {
 
-				String diskAlert = cluster_to_alertLimits.get( clusterName ).path( alert.maxId( ) ).asText( ) ;
-				return convertUnitToKb( diskAlert ) / 1024 ;
+				var diskAlert = cluster_to_alertLimits.get( clusterName ).path( alert.maxId( ) ).asText( ) ;
+
+				return convertUnitToKb( diskAlert, ServiceAlertsEnum.diskSpace ) / 1024 ;
 
 			}
 
-			return cluster_to_alertLimits.get( clusterName ).path( alert.maxId( ) ).asInt( ) ;
+			var clusterVal = cluster_to_alertLimits.get( clusterName ).path( alert.maxId( ) ).asInt( ) ;
+
+			return clusterVal ;
 
 		}
 
@@ -1908,7 +1911,11 @@ public class EnvironmentSettings {
 		// by lifecycle
 		try {
 
-			return serviceLimits.get( alert ) ;
+			var environmentValue = serviceLimits.get( alert ) ;
+
+			logger.debug( "clusterName: {} alert: {} environmentValue: {}", clusterName, alert, environmentValue ) ;
+
+			return environmentValue ;
 
 		} catch ( Exception e ) {
 
@@ -1919,37 +1926,75 @@ public class EnvironmentSettings {
 		return 1 ;
 
 	}
-
-	public static long convertUnitToKb ( String alertSetting ) {
+	
+	//
+	//  Manage limit units: note memory and disk have custom settings
+	//
+	public static long convertUnitToKb ( String alertSetting , ServiceAlertsEnum alert ) {
 
 		String alertSettingLowerCase = alertSetting.toLowerCase( ) ;
 		// NumberFormat.getInstance().parse(itemJson.asText()).intValue(),
-		long result = -1 ;
+		long resultInKb = -1 ;
 
 		try {
 
-			result = NumberFormat.getInstance( ).parse( alertSetting ).longValue( ) ;
+			//
+			// default unit is assumed kb for disk read/write limits
+			//
+			resultInKb = NumberFormat.getInstance( ).parse( alertSetting ).longValue( ) ;
+
+			if ( alertSettingLowerCase.contains( "g" ) ) {
+
+				if ( alert == ServiceAlertsEnum.diskSpace ) {
+
+					resultInKb = resultInKb * 1024 ;
+
+				} else {
+
+					resultInKb = resultInKb * 1024 * 1024 ;
+
+				}
+
+			} else if ( alertSettingLowerCase.contains( "m" ) ) {
+
+				if ( alert == ServiceAlertsEnum.diskSpace ) {
+
+					resultInKb = resultInKb  ;
+
+				} else {
+
+					resultInKb = resultInKb * 1024 ;
+
+				}
+
+			} else {
+
+				// no unit specified: disk is mb and memory is bytes
+
+				if ( alert == ServiceAlertsEnum.memory ) {
+
+					// baseunit is bytes, note kb
+					resultInKb = resultInKb / 1024 ;
+
+				} else if ( alert == ServiceAlertsEnum.diskSpace ) {
+
+					// baseunit is mb, note kb
+					resultInKb = resultInKb * 1024 / 1024 ;
+
+				}
+
+			}
 
 		} catch ( ParseException e ) {
 
 			logger.error( "Unexpected limit: \"{}\" . Verify in application definition ", alertSetting ) ;
-			return result ;
+			return resultInKb ;
 
 		}
 
-		if ( alertSettingLowerCase.contains( "g" ) ) {
+		logger.debug( "alertSetting: {} , Result: {}", alertSetting, resultInKb ) ;
 
-			result = result * 1024 * 1024 ;
-
-		} else if ( alertSettingLowerCase.contains( "m" ) ) {
-
-			result = result * 1024 ;
-
-		}
-
-		logger.debug( "alertSetting: {} , Result: {}", alertSetting, result ) ;
-
-		return result ;
+		return resultInKb ;
 
 	}
 

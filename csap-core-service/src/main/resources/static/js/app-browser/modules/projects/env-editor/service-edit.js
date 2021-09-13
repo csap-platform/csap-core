@@ -1500,11 +1500,11 @@ define( [ "browser/utils", "projects/env-editor/service-edit-config", "editor/va
 
 
                     if ( !isUpdate ) {
-                        $userMessage.append( '<div class="info">Uncheck validation only to commit changes.</div>' ) ;
+                        $userMessage.append( `<div class="csap-info">Uncheck validation only to commit changes</div>` ) ;
                     }
 
                     if ( updatesResult.message ) {
-                        $userMessage.append( "<br/><br/>" + updatesResult.message ) ;
+                        $userMessage.append( `<div class="csap-info">${ updatesResult.message }</div>`  ) ;
                     }
 
 

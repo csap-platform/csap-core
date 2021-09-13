@@ -66,30 +66,42 @@
 			<label class="csap">Theme</label>
 			<select id="csap-theme">
 				<option>auto</option>
+				
+				<option
+					class="deep-blue"
+					value="theme-dark theme-deep-blue">deep-blue: admin default</option>
+					
+				<option
+					class="agent"
+					value="theme-dark agent">agent: agent default</option>
+					
 				<option
 					class="light"
 					value="theme-light">light</option>
 				<option
 					class="ocean"
-					value="theme-light theme-ocean">ocean: dev</option>
+					value="theme-light theme-ocean">ocean</option>
 				<option
 					class="sand"
 					value="theme-light theme-sand">sand: sandbox</option>
 				<option
 					class="sun"
-					value="theme-light theme-sun">sun: stage</option>
+					value="theme-light theme-sun">sun: *stage*</option>
 				<option
 					class="tree"
-					value="theme-light theme-tree">tree: test/qa</option>
+					value="theme-light theme-tree">tree: *test*|*qa*</option>
 				<option
-					class="xylem"
-					value="theme-light theme-xylem">xylem: prod</option>
+					class="aqua"
+					value="theme-dark theme-aqua">aqua: *prod*</option>
 				<option
 					class="dark"
 					value="theme-dark">dark</option>
 				<option
 					class="metal"
 					value="theme-dark theme-metal">metal: metal/perf</option>
+				<option
+					class="forest"
+					value="theme-dark theme-forest">forest: *container*</option>
 				<option
 					class="apple"
 					value="theme-dark theme-apple">apple: acceptance</option>
@@ -134,11 +146,18 @@
 			<span>On deployments - deployment logs will be automatically shown following deployment operations</span>
 
 
-			<label class="csap">Disable Format</label>
+			<label class="csap">Disable Log Format</label>
 			<input
 				id=disable-log-format
 				type="checkbox" />
 			<span>CSAP File monitor will auto parse logs into a more reader friendly format (modifiable via env settings)</span>
+
+
+			<label class="csap">Disable YAML Format</label>
+			<input
+				id=disable-yaml-format
+				type="checkbox" />
+			<span>Kubernetes yaml editor will auto format yaml, and remove managed fields elements</span>
 
 
 			<label class="csap">Disable scm id generation</label>
@@ -239,7 +258,7 @@
 
 			<label
 				class=csap
-				title="Lines exceeding browser width will be wrapped. Uncheck for a horizontal scroll."> Editor Wrap </label>
+				title="Lines exceeding browser width will be wrapped. Uncheck for a horizontal scroll.">Editor Wrap</label>
 			<input
 				id="ace-wrap-checkbox"
 				type="checkbox"
@@ -250,7 +269,7 @@
 
 			<label
 				class=csap
-				title="Lines exceeding browser width will be wrapped. Uncheck for a horizontal scroll."> Editor Theme </label>
+				title="Lines exceeding browser width will be wrapped. Uncheck for a horizontal scroll.">Editor Theme</label>
 			<select id="ace-theme-select">
 				<optgroup label="Bright">
 					<option

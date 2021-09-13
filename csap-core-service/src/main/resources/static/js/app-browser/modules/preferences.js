@@ -13,6 +13,8 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
     const $aceTheme = $( "#ace-theme-select", $prefs ) ;
     const $aceFontSize = $( "#ace-font-size", $prefs ) ;
 
+    const $disableYamlFormat = $( "#disable-yaml-format", $prefs ) ;
+
 
 
 
@@ -118,18 +120,32 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
             updatePreferences() ;
         } ) ;
 
-        $( "#csap-theme" ).change( function () {
+        $( "#csap-theme", $prefs ).change( function () {
 
             let theme = $( this ).val() ;
-            console.log( `updating theme: ${theme} ` ) ;
+            
+            let loadTheme = $( "body" ).attr('class') ;
+            console.log( `updating theme: ${theme} loadTheme: ${ loadTheme } ` ) ;
             $( "body" ).removeClass() ;
 
-            if ( AGENT_MODE ) {
+            if ( utils.isAgent() ) {
+                
                 $( "body" ).addClass( `agent` ) ;
+                
+                // support docker default theme for agent
+                if ( loadTheme.includes( "theme-forest" )  ) {
+                    $( "body" ).addClass( `theme-forest` ) ;
+                }
                 theme = $( `.dark`, $( this ) ).attr( "value" ) ;
-            } else if ( theme == "auto" ) {
+                
+                $(this).attr("title", "themes are not modifiable on agent") ;
+                
+                utils.disableButtons( $(this) ) ;
+                
+            } else 
+                if ( theme == "auto" ) {
 
-                let autoType = "ocean" ;
+                let autoType = "deep-blue" ;
                 let env = HOST_ENVIRONMENT_NAME ;
 
                 if ( env.includes( "sand" ) ) {
@@ -143,7 +159,11 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
                 } else if ( env.includes( "stage" ) ) {
                     autoType = "sun" ;
                 } else if ( env.includes( "prod" ) || env.includes( "tenant" ) ) {
-                    autoType = "xylem" ;
+                    autoType = "aqua" ;
+                } else if (
+                        env.includes( "container" )
+                        ) {
+                    autoType = "forest" ;
                 }
                 theme = $( `.${ autoType }`, $( this ) ).attr( "value" ) ;
             }
@@ -194,6 +214,13 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
             if ( _demoEditor ) {
                 _demoEditor.setFontSize( $( this ).val() ) ;
             }
+            updatePreferences( ) ;
+        } ) ;
+
+        $disableYamlFormat.change( function () {
+
+            $( "#yaml-op-spacing" ).prop( "checked", !$disableYamlFormat.is( ":checked" ) ) ;
+
             updatePreferences( ) ;
         } ) ;
 
@@ -267,7 +294,7 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
     }
 
     function snapNavClosed() {
-        if ( utils.findNavigation().hasClass( "auto-hide" ) && ! $( "#auto-hide-snap" ).is( ":checked" ) ) {
+        if ( utils.findNavigation().hasClass( "auto-hide" ) && !$( "#auto-hide-snap" ).is( ":checked" ) ) {
             console.log( "hiding tabs" ) ;
             $( "#tabs", utils.findNavigation() ).hide() ;
 
@@ -305,7 +332,7 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
                         $( this ).prop( "checked", false ) ;
                     }
                 }
-                
+
             } ) ;
         } else {
             $inputs.each( function () {

@@ -10,7 +10,7 @@ spring:
 
   profiles:
  
-    active: agent,desktop,localhost
+    active: admin,desktop,localhost
     
     
   config:
