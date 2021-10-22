@@ -139,19 +139,55 @@
 
 		<div class="service-deploy-files">
 			<div class="heading">
-				Kubernetes yaml specifications  <a class="csap-link-icon csap-help" target="_blank" href="https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/"></a>
+				Kubernetes Deployment Specifications  
+				<a class="csap-link-icon csap-help" style="margin-left: 1em" target="_blank" href="https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/"></a>
 			</div>
 
 			<div>
+				<label 
+					class=csap-form
+					title="container image name: specify, and use $$service-image in your deployment templates">
+					<span>Image:</span>
+					<input
+						placeholder="optional"
+						data-path="docker.image" />
+
+				</label>
+				<label 
+					class=csap-form-inline
+					title="optional helm chart name: specify, and use $$service-chart-name in your deployment templates">
+					<span>Helm Chart Name:</span>
+					<input class=words
+						placeholder="optional"
+						data-path="docker.helm-chart-name" />
+
+				</label>
+				<label 
+					class=csap-form-inline
+					title="optional helm chart version: specify, and use $$service-chart-version in your deployment templates">
+					<span>Version:</span>
+					<input
+						placeholder="latest"
+						data-path="docker.helm-chart-version" />
+
+				</label>
+				<label 
+					class=csap-form
+					title="optional helm chart repo: specify, and use $$service-chart-repo in your deployment templates">
+					<span>Repo:</span>
+					<input class=words
+						placeholder="optional alias space url"
+						data-path="docker.helm-chart-repo" />
+
+				</label>
 
 				<label
-						class=csap-form
+					class=csap-form
 					title="List of files that will be loaded during deployment"
 					style="vertical-align: top">
-					<span>File names:</span>
+					<span>Files:</span>
 					<textarea
 						id="container-deploy-files"
-						class=words
 						data-path="docker.deployment-file-names"
 						data-fit="true"
 						rows="1"
@@ -161,33 +197,33 @@
 						placeholder="deployment filenames. specify as JSON array elements"></textarea>
 
 				</label>
-				<label 
-					class=csap-form
-					title="container image name: specify, and use $$service-image in your deployment templates">
-					<span>Image (Optional):</span>
-					<input
-						placeholder="optional"
-						data-path="docker.image" />
-
-				</label>
 
 
 			</div>
 			
 			<div class=quote>
 			
-				<ol style="list-style: lower-alpha; padding-left: 3em">
+				<ol class=quote-list>
 					<li>Specifications will be deployed in the order listed, and removed in the reverse order.</li>
-					<li><a
-							target="_blank"
-							title="Learn more about CSAP Runtime Support"
-							class="simple"
-							href="https://github.com/csap-platform/csap-core/wiki/Service-Settings#service-variables"> csap definition
-							variables </a> may be used to specify path. eg. 'SEARCH_FOR_RESOURCE:my.yaml' will search in definition resource
-						folders using the following precedence: lifecycle, common, then /. $$service-resources is the location csap
-						service files Specifying image, and using $$service-image in the templates is strongly recommended.</li>
-					<li>File paths that include '*deploy-only*' (eg. /path/to/volume-create-deploy-only.yaml) will NOT be removed
+					<ol style="list-style: lower-alpha; padding-left: 3em">
+						<li>ALL files will have any service variables updated, and then stored in the $$service-working folder</li>
+						<li>File names ending with .sh will be executed</li>
+						<li>File names starting with 'helm-' will NOT be deployed using kubectl</li>
+						<li>All remaining files WILL be deployed/removed using kubectl</li>
+					</ol>
+					<li>File names that include 'deploy-only' will NOT be removed
 						unless clean option is checked. Typically used for persistent volumes, etc.</li>
+					<li>File path 'SEARCH_FOR_RESOURCE:my.yaml' will search in definition resource
+						folders using the following precedence: lifecycle, common, then /.</li>
+					<li>
+						<a
+							target="_blank"
+							title="Learn more about CSAP Service Definitions"
+							class="csap-link-icon csap-help"
+							th:href="${@csapCoreService.getHelpUrl('service-template-help') }" >csap template variables</a>
+					
+						may be used to specify path. eg.  $$service-resources is the location csap
+						service files</li>
 				</ol>
 			</div>
 		</div>

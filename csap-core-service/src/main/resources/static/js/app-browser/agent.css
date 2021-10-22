@@ -322,7 +322,7 @@ article.navigation #command-output-nav {
 #agent-tab-command-output #command-output-header {
 	display: grid;
 	white-space: nowrap;
-	grid-template-columns: 12em auto;
+	grid-template-columns: 8em auto;
 	align-items: first baseline;
 }
 
@@ -406,7 +406,7 @@ article.navigation #command-output-nav {
 #agent-tab-command-output #cancel-command {
 	position: absolute;
 	font-size: 14pt;
-	width: 8em;
+	width: 6em;
 	top: -3px;
 }
 
@@ -718,7 +718,7 @@ a.formSmallButton {
 	white-space: nowrap;
 }
 
-#agent-tab-content #agent-tab-processes  #processTable span.ptab-container {
+#agent-tab-content #agent-tab-processes  #processTable .ptab-container {
 	font-size: 10pt;
 	font-style: italic ;
 }
@@ -780,6 +780,7 @@ a.formSmallButton {
 
 #agent-tab-content #agent-tab-live #service-live-header #healthStatus {
 	padding-left: 16px;
+	margin-right: 10px;
 }
 
 
@@ -812,7 +813,11 @@ a.formSmallButton {
 	position: absolute;
 	left: 7em;
 	top: 3px;
-	z-index: 1;
+	z-index: 2;
+}
+
+#agent-tab-live #metricFilter {
+	position: fixed ;
 }
 
 #agent-tab-live  #meter-tag-filter {

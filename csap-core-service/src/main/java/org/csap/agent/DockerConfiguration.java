@@ -4,7 +4,7 @@ import javax.cache.CacheManager ;
 import javax.inject.Inject ;
 
 import org.apache.hc.core5.util.Timeout ;
-import org.csap.agent.container.DockerIntegration ;
+import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.container.WrapperApacheDockerHttpClientImpl ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.services.OsCommands ;
@@ -50,9 +50,9 @@ public class DockerConfiguration {
 	private DockerClient testClient = null ;
 
 	@Bean
-	public DockerIntegration dockerHelper ( ) {
+	public ContainerIntegration dockerHelper ( ) {
 
-		DockerIntegration helper = new DockerIntegration( this, jsonMapper ) ;
+		ContainerIntegration helper = new ContainerIntegration( this, jsonMapper ) ;
 		return helper ;
 
 	}
@@ -77,8 +77,11 @@ public class DockerConfiguration {
 			// Latest Docker Client uses apache client, but without timeouts. Class is
 			// wrapped to expose
 			//
+
+			var dockerUrl = docker.getUrl( ) ;
+
 			DockerClientConfig dockerConfiguration = DefaultDockerClientConfig.createDefaultConfigBuilder( )
-					.withDockerHost( docker.getUrl( ) )
+					.withDockerHost( dockerUrl )
 					.build( ) ;
 
 			WrapperApacheDockerHttpClientImpl csapApacheClient = new WrapperApacheDockerHttpClientImpl(

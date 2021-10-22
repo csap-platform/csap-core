@@ -53,7 +53,7 @@
       },
       "simple-cluster" : {
         "type" : "modjk",
-        "hosts" : [ "mainHostA", "mainHostB", "mainHostC" ],
+        "hosts" : [ "main-host-a", "main-host-b", "main-host-c" ], 
         "template-references" : [ "httpd", "docker", "postgres", "service-from-file", "CsspSample", "FactorySample", "ServletSample", "csap-verify-service", "springmvc-showcase" ]
       }
     }

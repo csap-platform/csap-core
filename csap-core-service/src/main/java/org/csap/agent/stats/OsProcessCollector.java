@@ -43,12 +43,14 @@ public class OsProcessCollector extends HostCollector implements Runnable {
 		totalCpuArray = jacksonMapper.createArrayNode( ) ;
 
 		scheduleCollection( this ) ;
-		
+
 		if ( csapApplication.isDesktopHost( ) ) {
-			cleanStaleServicesMs = TimeUnit.MINUTES.toMillis( 5 ) ;	
+
+			cleanStaleServicesMs = TimeUnit.MINUTES.toMillis( 5 ) ;
+
 		}
-		
-		logger.info( "stale services will be removed after: {}", CSAP.autoFormatMillis( cleanStaleServicesMs ) );
+
+		logger.info( "stale services will be removed after: {}", CSAP.autoFormatMillis( cleanStaleServicesMs ) ) ;
 
 	}
 
@@ -339,16 +341,17 @@ public class OsProcessCollector extends HostCollector implements Runnable {
 						}
 
 					}
-					
+
 					if ( ! serviceStatus.isMissingNode( ) ) {
-						
+
 						if ( stale_services.containsKey( serviceNameInCache ) ) {
-							logger.info( "found {} - removing from stale_services list", serviceNameInCache) ;
+
+							logger.info( "found {} - removing from stale_services list", serviceNameInCache ) ;
 							stale_services.remove( serviceNameInCache ) ;
+
 						}
+
 					}
-					
-					
 
 					return serviceStatus.isMissingNode( ) ;
 
@@ -356,60 +359,65 @@ public class OsProcessCollector extends HostCollector implements Runnable {
 				.collect( Collectors.toList( ) ) ;
 
 		if ( collectionStaleServices.size( ) > 0 ) {
-			
-			for ( var serviceName : collectionStaleServices) {
-				
-				if ( stale_services.containsKey(  serviceName )) {
-					
+
+			for ( var serviceName : collectionStaleServices ) {
+
+				if ( stale_services.containsKey( serviceName ) ) {
+
 					var staleDurationMs = System.currentTimeMillis( ) - stale_services.get( serviceName ) ;
+
 					if ( staleDurationMs > cleanStaleServicesMs ) {
 
 						logger.warn(
 								"Did not find the following service in latest collection, removing from collection cache: \n\t {}",
 								serviceName ) ;
-						
-						
+
 						service_to_metricsArrays.remove( serviceName ) ;
 						kubernetes_services.remove( serviceName ) ;
 						stale_services.remove( serviceName ) ;
-						
+
 					} else {
-						logger.debug( "{} was last found: {}; it will be removed from host reports in {}", 
-								serviceName, 
-								CSAP.autoFormatMillis( staleDurationMs ) , 
+
+						logger.debug( "{} was last found: {}; it will be removed from host reports in {}",
+								serviceName,
+								CSAP.autoFormatMillis( staleDurationMs ),
 								CSAP.autoFormatMillis( cleanStaleServicesMs ) ) ;
-						
+
 						addNullCollectionData( serviceName ) ;
+
 					}
-					
+
 				} else {
+
 					stale_services.put( serviceName, System.currentTimeMillis( ) ) ;
-					
+
 					addNullCollectionData( serviceName ) ;
+
 				}
-				
+
 			}
 
 		}
-
 
 	}
 
 	private void addNullCollectionData ( String serviceName ) {
 
 		var serviceCollectionCache = service_to_metricsArrays.get( serviceName ) ;
-		
+
 		for ( OsProcessEnum os : OsProcessEnum.values( ) ) {
+
 			var metric = os.value ;
 			var metricFullName = metric + "_" + serviceName ;
 			var serviceMetricCollection = ( (ArrayNode) serviceCollectionCache.get( metricFullName ) ) ;
-			serviceMetricCollection.insert( 0, 0) ;
+			serviceMetricCollection.insert( 0, 0 ) ;
 
 			if ( serviceMetricCollection.size( ) > getInMemoryCacheSize( ) ) {
 
 				serviceMetricCollection.remove( serviceMetricCollection.size( ) - 1 ) ;
 
 			}
+
 		}
 
 	}
@@ -488,7 +496,7 @@ public class OsProcessCollector extends HostCollector implements Runnable {
 										int skipFirstItems ,
 										String... services ) {
 
-		if ( services[0].toLowerCase( ).equals( ALL_SERVICES ) ) {
+		if ( services[ 0 ].toLowerCase( ).equals( ALL_SERVICES ) ) {
 
 			services = service_to_metricsArrays.keySet( ).toArray( new String[0] ) ;
 

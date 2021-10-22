@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode ;
 import com.fasterxml.jackson.databind.node.ObjectNode ;
 
 @RestController
-@RequestMapping ( DockerExplorer.EXPLORER_URL + "/vsphere" )
+@RequestMapping ( ContainerExplorer.EXPLORER_URL + "/vsphere" )
 public class VsphereExplorer {
 
 	final Logger logger = LoggerFactory.getLogger( this.getClass( ) ) ;
@@ -151,12 +151,12 @@ public class VsphereExplorer {
 
 		var paths = path.split( ":", 2 ) ;
 
-		var datastoreName = paths[0] ;
+		var datastoreName = paths[ 0 ] ;
 		var datastorePath = "" ;
 
 		if ( paths.length == 2 ) {
 
-			datastorePath = paths[1] ;
+			datastorePath = paths[ 1 ] ;
 
 		}
 

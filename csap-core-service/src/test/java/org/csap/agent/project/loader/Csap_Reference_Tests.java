@@ -472,13 +472,14 @@ class Csap_Reference_Tests extends CsapBareTest {
 			logger.info( "alertSettings: {}", alertSettings ) ;
 
 			assertThat( alertSettings ).isNotNull( ) ;
-			
+
 //			var diskLimit = ServiceAlertsEnum.getMaxDiskInMb(
 //					csapDockerReferenceService,
 //					getAppEnv( ) ) ;
-			
-			var maxAllowedDisk = ServiceAlertsEnum.getEffectiveLimit( csapDockerReferenceService, getAppEnv( ), ServiceAlertsEnum.diskSpace ) ;
-			
+
+			var maxAllowedDisk = ServiceAlertsEnum.getEffectiveLimit( csapDockerReferenceService, getAppEnv( ),
+					ServiceAlertsEnum.diskSpace ) ;
+
 			assertThat( maxAllowedDisk ).isEqualTo( 1024L ) ;
 
 			var serviceLimitsForUi = ServiceAlertsEnum.getAdminUiLimits( csapDockerReferenceService,
@@ -697,7 +698,7 @@ class Csap_Reference_Tests extends CsapBareTest {
 					CsapCore.AGENT_NAME ) ;
 			assertThat( agentDefinition.path( Project.DEFINITION_SOURCE ).asText( ) ).isEqualTo( "csap-templates" ) ;
 
-			var agentInstance = getApplication( ).getLocalAgent() ;
+			var agentInstance = getApplication( ).getLocalAgent( ) ;
 			var agentMonitors = agentInstance.getMonitors( ) ;
 
 			logger.info( "agentMonitors: {}", CSAP.jsonPrint( agentMonitors ) ) ;

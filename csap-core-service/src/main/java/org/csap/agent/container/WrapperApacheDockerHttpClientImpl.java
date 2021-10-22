@@ -619,7 +619,7 @@ public class WrapperApacheDockerHttpClientImpl implements DockerHttpClient {
 
 				}
 
-				return bytes[0] & 0xff ;
+				return bytes[ 0 ] & 0xff ;
 
 			}
 

@@ -1,0 +1,351 @@
+{
+	"name":"helm-nginx-full",
+	"info":{
+		"first_deployed":"2021-10-01T15:38:22.82987202-04:00",
+		"last_deployed":"2021-10-04T10:29:49.671281538-04:00",
+		"deleted":"",
+		"description":"Upgrade complete",
+		"status":"deployed",
+		"notes":"** Please be patient while the chart is being deployed **\n\nNGINX can be accessed through the following DNS name from within your cluster:\n\n    helm-nginx-full.helm-demos.svc.cluster.local (port 80)\n\nTo access NGINX from outside the cluster, follow the steps below:\n\n1. Get the NGINX URL by running these commands:\n\n  NOTE: It may take a few minutes for the LoadBalancer IP to be available.\n        Watch the status with: 'kubectl get svc --namespace helm-demos -w helm-nginx-full'\n\n    export SERVICE_PORT=$(kubectl get --namespace helm-demos -o jsonpath=\"{.spec.ports[0].port}\" services helm-nginx-full)\n    export SERVICE_IP=$(kubectl get svc --namespace helm-demos helm-nginx-full -o jsonpath='{.status.loadBalancer.ingress[0].ip}')\n    echo \"http://${SERVICE_IP}:${SERVICE_PORT}\"\n"
+	},
+	"config":{
+		"affinity":{
+			
+		},
+		"args":[
+			
+		],
+		"autoscaling":{
+			"enabled":false,
+			"maxReplicas":"",
+			"minReplicas":"",
+			"targetCPU":"",
+			"targetMemory":""
+		},
+		"cloneStaticSiteFromGit":{
+			"branch":"",
+			"enabled":false,
+			"extraEnvVars":[
+				
+			],
+			"extraVolumeMounts":[
+				
+			],
+			"gitClone":{
+				"args":[
+					
+				],
+				"command":[
+					
+				]
+			},
+			"gitSync":{
+				"args":[
+					
+				],
+				"command":[
+					
+				]
+			},
+			"image":{
+				"pullPolicy":"IfNotPresent",
+				"pullSecrets":[
+					
+				],
+				"registry":"docker.io",
+				"repository":"bitnami/git",
+				"tag":"2.33.0-debian-10-r21"
+			},
+			"interval":60,
+			"repository":""
+		},
+		"clusterDomain":"cluster.local",
+		"command":[
+			
+		],
+		"commonAnnotations":{
+			
+		},
+		"commonLabels":{
+			
+		},
+		"containerPorts":{
+			"http":8080,
+			"https":""
+		},
+		"containerSecurityContext":{
+			"enabled":false,
+			"runAsNonRoot":true,
+			"runAsUser":1001
+		},
+		"customLivenessProbe":{
+			
+		},
+		"customReadinessProbe":{
+			
+		},
+		"existingServerBlockConfigmap":"",
+		"extraDeploy":[
+			
+		],
+		"extraEnvVars":[
+			
+		],
+		"extraEnvVarsCM":"",
+		"extraEnvVarsSecret":"",
+		"extraVolumeMounts":[
+			
+		],
+		"extraVolumes":[
+			
+		],
+		"fullnameOverride":"",
+		"global":{
+			"imagePullSecrets":[
+				
+			],
+			"imageRegistry":""
+		},
+		"healthIngress":{
+			"annotations":{
+				
+			},
+			"enabled":false,
+			"extraHosts":[
+				
+			],
+			"extraTls":[
+				
+			],
+			"hostname":"example.local",
+			"pathType":"ImplementationSpecific",
+			"secrets":[
+				
+			],
+			"tls":false
+		},
+		"hostAliases":[
+			
+		],
+		"image":{
+			"debug":false,
+			"pullPolicy":"IfNotPresent",
+			"pullSecrets":[
+				
+			],
+			"registry":"docker.io",
+			"repository":"bitnami/nginx",
+			"tag":"1.21.3-debian-10-r0"
+		},
+		"ingress":{
+			"annotations":{
+				
+			},
+			"apiVersion":"",
+			"enabled":false,
+			"extraHosts":[
+				
+			],
+			"extraPaths":[
+				
+			],
+			"extraTls":[
+				
+			],
+			"hostname":"nginx.local",
+			"path":"/",
+			"pathType":"ImplementationSpecific",
+			"secrets":[
+				
+			],
+			"tls":false
+		},
+		"initContainers":[
+			
+		],
+		"kubeVersion":"",
+		"ldapDaemon":{
+			"customLivenessProbe":{
+				
+			},
+			"customReadinessProbe":{
+				
+			},
+			"enabled":false,
+			"existingNginxServerBlockSecret":"",
+			"image":{
+				"pullPolicy":"IfNotPresent",
+				"registry":"docker.io",
+				"repository":"bitnami/nginx-ldap-auth-daemon",
+				"tag":"0.20200116.0-debian-10-r446"
+			},
+			"ldapConfig":{
+				"baseDN":"",
+				"bindDN":"",
+				"bindPassword":"",
+				"filter":"",
+				"httpCookieName":"",
+				"httpRealm":"",
+				"uri":""
+			},
+			"livenessProbe":{
+				"enabled":true,
+				"failureThreshold":6,
+				"initialDelaySeconds":30,
+				"periodSeconds":10,
+				"successThreshold":1,
+				"timeoutSeconds":5
+			},
+			"nginxServerBlock":"server {\nlisten 0.0.0.0:{{ .Values.containerPorts.http }};\n\n# You can provide a special subPath or the root\nlocation = / {\n    auth_request /auth-proxy;\n}\n\nlocation = /auth-proxy {\n    internal;\n\n    proxy_pass http://127.0.0.1:{{ .Values.ldapDaemon.port }};\n\n    ###############################################################\n    # YOU SHOULD CHANGE THE FOLLOWING TO YOUR LDAP CONFIGURATION  #\n    ###############################################################\n\n    # URL and port for connecting to the LDAP server\n    # proxy_set_header X-Ldap-URL \"ldap://YOUR_LDAP_SERVER_IP:YOUR_LDAP_SERVER_PORT\";\n\n    # Base DN\n    # proxy_set_header X-Ldap-BaseDN \"dc=example,dc=org\";\n\n    # Bind DN\n    # proxy_set_header X-Ldap-BindDN \"cn=admin,dc=example,dc=org\";\n\n    # Bind password\n    # proxy_set_header X-Ldap-BindPass \"adminpassword\";\n}\n}",
+			"port":8888,
+			"readinessProbe":{
+				"enabled":true,
+				"failureThreshold":3,
+				"initialDelaySeconds":5,
+				"periodSeconds":5,
+				"successThreshold":1,
+				"timeoutSeconds":3
+			}
+		},
+		"livenessProbe":{
+			"enabled":true,
+			"failureThreshold":6,
+			"initialDelaySeconds":30,
+			"periodSeconds":10,
+			"successThreshold":1,
+			"timeoutSeconds":5
+		},
+		"metrics":{
+			"enabled":false,
+			"image":{
+				"pullPolicy":"IfNotPresent",
+				"pullSecrets":[
+					
+				],
+				"registry":"docker.io",
+				"repository":"bitnami/nginx-exporter",
+				"tag":"0.9.0-debian-10-r153"
+			},
+			"podAnnotations":{
+				
+			},
+			"port":"",
+			"resources":{
+				"limits":{
+					
+				},
+				"requests":{
+					
+				}
+			},
+			"securityContext":{
+				"enabled":false,
+				"runAsUser":1001
+			},
+			"service":{
+				"annotations":{
+					"prometheus.io/port":"{{ .Values.metrics.service.port }}",
+					"prometheus.io/scrape":"true"
+				},
+				"port":9113
+			},
+			"serviceMonitor":{
+				"enabled":false,
+				"interval":"",
+				"namespace":"",
+				"scrapeTimeout":"",
+				"selector":{
+					
+				}
+			}
+		},
+		"nameOverride":"",
+		"nodeAffinityPreset":{
+			"key":"",
+			"type":"",
+			"values":[
+				
+			]
+		},
+		"nodeSelector":{
+			
+		},
+		"pdb":{
+			"create":false,
+			"maxUnavailable":0,
+			"minAvailable":1
+		},
+		"podAffinityPreset":"",
+		"podAnnotations":{
+			
+		},
+		"podAntiAffinityPreset":"soft",
+		"podLabels":{
+			
+		},
+		"podSecurityContext":{
+			"enabled":false,
+			"fsGroup":1001,
+			"sysctls":[
+				
+			]
+		},
+		"priorityClassName":"",
+		"readinessProbe":{
+			"enabled":true,
+			"failureThreshold":3,
+			"initialDelaySeconds":5,
+			"periodSeconds":5,
+			"successThreshold":1,
+			"timeoutSeconds":3
+		},
+		"replicaCount":1,
+		"resources":{
+			"limits":{
+				
+			},
+			"requests":{
+				
+			}
+		},
+		"serverBlock":"",
+		"service":{
+			"annotations":{
+				
+			},
+			"externalTrafficPolicy":"Cluster",
+			"httpsPort":443,
+			"loadBalancerIP":"",
+			"nodePorts":{
+				"http":"",
+				"https":""
+			},
+			"port":80,
+			"targetPort":{
+				"http":"http",
+				"https":"https"
+			},
+			"type":"LoadBalancer"
+		},
+		"serviceAccount":{
+			"annotations":{
+				
+			},
+			"autoMount":false,
+			"create":false,
+			"name":""
+		},
+		"sidecarSingleProcessNamespace":false,
+		"sidecars":[
+			
+		],
+		"staticSiteConfigmap":"",
+		"staticSitePVC":"",
+		"tolerations":{
+			
+		}
+	},
+	"manifest":"---\n# Source: nginx/templates/server-block-configmap.yaml\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: helm-nginx-full-server-block\n  labels:\n    app.kubernetes.io/name: nginx\n    helm.sh/chart: nginx-9.5.4\n    app.kubernetes.io/instance: helm-nginx-full\n    app.kubernetes.io/managed-by: Helm\ndata:\n  server-blocks-paths.conf: |-\n    include  \"/opt/bitnami/nginx/conf/server_blocks/ldap/*.conf\";\n    include  \"/opt/bitnami/nginx/conf/server_blocks/common/*.conf\";\n---\n# Source: nginx/templates/svc.yaml\napiVersion: v1\nkind: Service\nmetadata:\n  name: helm-nginx-full\n  labels:\n    app.kubernetes.io/name: nginx\n    helm.sh/chart: nginx-9.5.4\n    app.kubernetes.io/instance: helm-nginx-full\n    app.kubernetes.io/managed-by: Helm\nspec:\n  type: LoadBalancer\n  externalTrafficPolicy: \"Cluster\"\n  ports:\n    - name: http\n      port: 80\n      targetPort: http\n  selector:\n    app.kubernetes.io/name: nginx\n    app.kubernetes.io/instance: helm-nginx-full\n---\n# Source: nginx/templates/deployment.yaml\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: helm-nginx-full\n  labels:\n    app.kubernetes.io/name: nginx\n    helm.sh/chart: nginx-9.5.4\n    app.kubernetes.io/instance: helm-nginx-full\n    app.kubernetes.io/managed-by: Helm\nspec:\n  replicas: 1\n  selector:\n    matchLabels:\n      app.kubernetes.io/name: nginx\n      app.kubernetes.io/instance: helm-nginx-full\n  template:\n    metadata:\n      labels:\n        app.kubernetes.io/name: nginx\n        helm.sh/chart: nginx-9.5.4\n        app.kubernetes.io/instance: helm-nginx-full\n        app.kubernetes.io/managed-by: Helm\n    spec:\n      \n      automountServiceAccountToken: false\n      shareProcessNamespace: false\n      serviceAccountName: default\n      affinity:\n        podAffinity:\n          \n        podAntiAffinity:\n          preferredDuringSchedulingIgnoredDuringExecution:\n            - podAffinityTerm:\n                labelSelector:\n                  matchLabels:\n                    app.kubernetes.io/name: nginx\n                    app.kubernetes.io/instance: helm-nginx-full\n                namespaces:\n                  - \"helm-demos\"\n                topologyKey: kubernetes.io/hostname\n              weight: 1\n        nodeAffinity:\n          \n      containers:\n        - name: nginx\n          image: docker.io/bitnami/nginx:1.21.3-debian-10-r0\n          imagePullPolicy: \"IfNotPresent\"\n          env:\n            - name: BITNAMI_DEBUG\n              value: \"false\"\n          ports:\n            - name: http\n              containerPort: 8080\n          livenessProbe:\n            tcpSocket:\n              port: http\n            periodSeconds: 10\n            timeoutSeconds: 5\n            successThreshold: 1\n            failureThreshold: 6\n          readinessProbe:\n            tcpSocket:\n              port: http\n            initialDelaySeconds: 5\n            periodSeconds: 5\n            timeoutSeconds: 3\n            successThreshold: 1\n            failureThreshold: 3\n          resources:\n            limits: {}\n            requests: {}\n          volumeMounts:\n      volumes:\n        - name: nginx-server-block-paths\n          configMap:\n            name: helm-nginx-full-server-block\n            items:\n              - key: server-blocks-paths.conf\n                path: server-blocks-paths.conf\n",
+	"version":3,
+	"namespace":"helm-demos"
+}

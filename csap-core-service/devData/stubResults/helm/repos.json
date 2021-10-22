@@ -1,0 +1,10 @@
+[
+	{
+		"name": "bitnami",
+		"url": "https://charts.bitnami.com/bitnami"
+	},
+	{
+		"name": "jenkins",
+		"url": "https://charts.jenkins.io"
+	}
+]

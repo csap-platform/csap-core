@@ -211,9 +211,9 @@ body#manager .copy-buffer {
 	background-image: url('../../images/home.png');
 }
 
-.csap-file-browser .file-browser span.fancytree-node.ft_docker>span.fancytree-icon {
+.csap-file-browser .file-browser span.fancytree-node.ft_containers>span.fancytree-icon {
 	background-position: 0 0;
-	background-image: url('../../images/docker.png');
+	background-image: url('../../images/16x16/run3.png');
 }
 
 .csap-file-browser .file-browser span.fancytree-node.ft_jmeter>span.fancytree-icon {

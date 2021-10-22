@@ -22,7 +22,8 @@ import org.apache.commons.lang3.StringUtils ;
 import org.apache.commons.lang3.text.WordUtils ;
 import org.csap.agent.CsapCore ;
 import org.csap.agent.CsapCoreService ;
-import org.csap.agent.container.DockerIntegration ;
+import org.csap.agent.CsapTemplate ;
+import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.container.DockerJson ;
 import org.csap.agent.container.kubernetes.KubernetesIntegration ;
 import org.csap.agent.container.kubernetes.KubernetesJson ;
@@ -39,6 +40,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties ;
 import com.fasterxml.jackson.annotation.JsonProperty ;
 import com.fasterxml.jackson.databind.JsonNode ;
 import com.fasterxml.jackson.databind.ObjectMapper ;
+import com.fasterxml.jackson.databind.node.ArrayNode ;
 import com.fasterxml.jackson.databind.node.MissingNode ;
 import com.fasterxml.jackson.databind.node.ObjectNode ;
 
@@ -110,11 +112,45 @@ public class ServiceBaseParser extends ServiceBase {
 
 		}
 
+		var dockerImage = getDockerImageName( ) ;
+
+		if ( StringUtils.isEmpty( dockerImage ) ) {
+
+			dockerImage = "image-not-specified" ;
+
+		}
+
 		input_with_variables_replaced = input_with_variables_replaced
 				.trim( )
 				.replaceAll(
 						Matcher.quoteReplacement( CsapCore.CSAP_DEF_IMAGE ),
-						Matcher.quoteReplacement( getDockerImageName( ) ) ) ;
+						Matcher.quoteReplacement( dockerImage ) ) ;
+
+		var helmChartName = getHelmChartName( ) ;
+
+		if ( StringUtils.isEmpty( helmChartName ) ) {
+
+			helmChartName = "chart-not-specified" ;
+
+		}
+
+		input_with_variables_replaced = input_with_variables_replaced
+				.trim( )
+				.replaceAll(
+						Matcher.quoteReplacement( CsapCore.CSAP_DEF_HELM_CHART_NAME ),
+						Matcher.quoteReplacement( helmChartName ) ) ;
+
+		input_with_variables_replaced = input_with_variables_replaced
+				.trim( )
+				.replaceAll(
+						Matcher.quoteReplacement( CsapCore.CSAP_DEF_HELM_CHART_VERSION ),
+						Matcher.quoteReplacement( getHelmChartVersion( ) ) ) ;
+
+		input_with_variables_replaced = input_with_variables_replaced
+				.trim( )
+				.replaceAll(
+						Matcher.quoteReplacement( CsapCore.CSAP_DEF_HELM_CHART_REPO ),
+						Matcher.quoteReplacement( getHelmChartRepo( ) ) ) ;
 
 		input_with_variables_replaced = resolveTemplateVariables( input_with_variables_replaced ) ;
 
@@ -689,7 +725,48 @@ public class ServiceBaseParser extends ServiceBase {
 	@JsonIgnore
 	public JsonNode getKubernetesDeploymentSpecifications ( ) {
 
-		return getDockerSettingsOrMissing( ).path( DockerJson.deploymentFileNames.json( ) ) ;
+		var deployFiles = getDockerSettingsOrMissing( ).path( DockerJson.deploymentFileNames.json( ) ) ;
+
+		//
+		// handle helm deploy injection
+		//
+
+		if ( isHelmConfigured( ) ) {
+
+			var addHelmDeployTemplate = false ;
+
+			if ( deployFiles.isMissingNode( ) ) {
+
+				addHelmDeployTemplate = true ;
+
+				deployFiles = jacksonMapper.createArrayNode( ) ;
+
+			} else {
+
+				var shellScriptOptional = CSAP.jsonStream( deployFiles )
+						.map( JsonNode::asText )
+						.filter( fileName -> fileName.endsWith( ".sh" ) )
+						.findFirst( ) ;
+
+				if ( shellScriptOptional.isEmpty( ) ) {
+
+					addHelmDeployTemplate = true ;
+
+				}
+
+			}
+
+			if ( addHelmDeployTemplate
+					&& deployFiles.isArray( ) ) {
+
+				( (ArrayNode) deployFiles ).add(
+						CsapTemplate.helmDeploy.getFile( ).getAbsolutePath( ) ) ;
+
+			}
+
+		}
+
+		return deployFiles ;
 
 	}
 
@@ -822,7 +899,7 @@ public class ServiceBaseParser extends ServiceBase {
 
 		}
 
-		return DockerIntegration.getNetworkSafeContainerName(
+		return ContainerIntegration.getNetworkSafeContainerName(
 				resolveTemplateVariables( name ) ) ;
 
 	}
@@ -894,7 +971,73 @@ public class ServiceBaseParser extends ServiceBase {
 
 		}
 
-		return DockerIntegration.DOCKER_DEFAULT_IMAGE ;
+		return ContainerIntegration.DOCKER_DEFAULT_IMAGE ;
+
+	}
+
+	public String getHelmChartName ( ) {
+
+		if ( getDockerSettings( ) != null && getDockerSettings( ).has( DockerJson.helmChartName.json( ) ) ) {
+
+			return getDockerSettings( ).path( DockerJson.helmChartName.json( ) ).asText( ) ;
+
+		}
+
+		return null ;
+
+	}
+
+	public boolean isHelmConfigured ( ) {
+
+		return StringUtils.isNotEmpty( getHelmChartName( ) ) ;
+
+	}
+
+	public String getHelmChartVersion ( ) {
+
+		if ( getDockerSettings( ) != null && getDockerSettings( ).has( DockerJson.helmChartVersion.json( ) ) ) {
+
+			return getDockerSettings( ).path( DockerJson.helmChartVersion.json( ) ).asText( ) ;
+
+		}
+
+		return "latest" ;
+
+	}
+
+	public String getHelmChartRepo ( ) {
+
+		if ( getDockerSettings( ) != null && getDockerSettings( ).has( DockerJson.helmChartRepo.json( ) ) ) {
+
+			return getDockerSettings( ).path( DockerJson.helmChartRepo.json( ) ).asText( ) ;
+
+		}
+
+		return "none" ;
+
+	}
+	
+
+	// URL or text
+	public String getReadme ( ) {
+
+		// logger.info( "raw: {}", definitionAttributes.get(
+		// ServiceAttributes.parameters ) );
+		if ( definitionAttributes.containsKey( ServiceAttributes.readme ) ) {
+
+			return definitionAttributes.get( ServiceAttributes.readme ).asText( ).trim( ) ;
+
+		}
+
+		return "" ;
+
+	}
+	
+
+
+	public boolean isReadmeConfigured ( ) {
+
+		return StringUtils.isNotEmpty( getReadme( ) ) ;
 
 	}
 
@@ -945,13 +1088,15 @@ public class ServiceBaseParser extends ServiceBase {
 
 				} else if ( is_java_application_server( ) ) {
 
-					
 					if ( is_springboot_server( ) ) {
-						
+
 						// handle spawned docker container on different port
 						setProcessFilter( ".*java.*csapProcessId=" + getName( ) + ".*" + getPort( ) + ".*" ) ;
+
 					} else {
+
 						setProcessFilter( ".*java.*csapProcessId=" + getName( ) + ".*" ) ;
+
 					}
 
 				}
@@ -1068,6 +1213,7 @@ public class ServiceBaseParser extends ServiceBase {
 		case environmentVariables:
 		case environmentOverload:
 		case parameters:
+		case readme:
 		case webServerTomcat:
 		case webServerReWrite:
 		case osAlertLimits:
@@ -1369,7 +1515,7 @@ public class ServiceBaseParser extends ServiceBase {
 		logger.debug( "{} log directory: {}", getServiceName_Port( ), logDir.getAbsolutePath( ) ) ;
 
 		if ( is_docker_server( )
-				&& ! getLogDirectory( ).startsWith( DockerIntegration.DOCKER_LOG_HOST ) ) {
+				&& ! getLogDirectory( ).startsWith( ContainerIntegration.DOCKER_LOG_HOST ) ) {
 
 			logDir = new File( FileToken.DOCKER.value, getDockerContainerPath( ) ) ;
 

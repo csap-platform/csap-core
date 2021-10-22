@@ -672,8 +672,11 @@ public class Simple_Multi_Main_Project extends CsapBareTest {
 		var newImage = "image: nginx:1.2.4" ;
 		envSettings.put( currentImage, newImage ) ;
 
-		String yaml_with_vars_updated = getServiceOsManager( )
-				.buildYamlTemplate( simpleService, simpleYamlDeployFile, getJsonMapper( ).createObjectNode( ) ) ;
+		var deploymentFile = getServiceOsManager( )
+				.buildDeplomentFile( simpleService, simpleYamlDeployFile, getJsonMapper( ).createObjectNode( ) ) ;
+
+		var yaml_with_vars_updated = Application.readFile( deploymentFile ) ;
+
 		logger.info( "yaml_with_vars_updated: {} ", yaml_with_vars_updated ) ;
 
 		assertThat( yaml_with_vars_updated )

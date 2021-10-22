@@ -69,7 +69,7 @@
 
 <body
 	id=csap-main
-	class="csap-scrollable theme-light theme-xylem">
+	class="csap-scrollable theme-dark agent">
 
 
 
@@ -222,11 +222,14 @@
 
 		<div id='settingsEditor'>
 			<ul>
+				<li
+					class="root-view non-root-view"
+					title="Access to definition in json text editor"><a href="#jsonEditor">Specification Editor</a></li>
 
 				<li
 					class="root-view non-root-view"
 					title="Lifecycle references are used in service definitions to avoid multiple locations for configuration items such as passwords, etc">
-					<a href="#references">Configuration Maps</a>
+					<a href="#references">Config Maps</a>
 				</li>
 
 				<li class="root-view"><a href="#general">System</a></li>
@@ -253,22 +256,47 @@
 				<li
 					class="root-view non-root-view"
 					title="CSAP Integrations with external systems"><a href="#csap-integrations">CSAP Integrations</a></li>
-				<li
-					class="root-view non-root-view"
-					title="Access to definition in json text editor"><a href="#jsonEditor">Json Editor</a></li>
 			</ul>
 
 
 			<div
 				id="jsonEditor"
 				class="group serviceDef">
+				
+				
+
+				
+				<div class=flex-container>
+					<label
+						class="flex-right-info"
+						title="Toggle folding of code - note alt-0, alt-shift-0 can be used as well"
+						>
+						
+<!--						<span>Fold
+						</span>
+						<input
+							class="editor-toggle-last"
+							type="checkbox"
+							/>-->
+						
+
+						<span>Json
+						</span>
+						<input
+							class=editor-toggle-json
+							type="checkbox"
+							/>
+						
+					</label>
+				</div>
 
 				<textarea
 					id="serviceJson"
 					name="serviceJson"
+					data-adjustwidth="-30"
+					data-convert_yaml="true"
 					spellcheck=false
 					data-path="ROOT">Loading</textarea>
-				<br />
 			</div>
 
 			<div
@@ -1018,18 +1046,19 @@
 				</div>
 
 				<div class="csap-red">
+				<div class="heading"></div>
 					<div
 						title=""
-						style="display: inline-block; width: 40em; vertical-align: top">
-						<div class=heading>kubernetes container collection: container names (not pod) <br/> collected: node count, total count, total cpu and total memory</div>
+						style="display: inline-block; width: 470px; vertical-align: top">
+						<div class=heading>kubernetes container collection: container names (not pod)  collected: node count, total count, total cpu and total memory</div>
 						<div
 							class="floating-ace-editor"
 							style="min-height: 100px">
 							<textarea
-								id="collect-k8s"
+								id="collect-k8s-containers"
 								data-path="csap-collection.kubernetes"
 								data-fit="true"
-								data-fixedwidth="450"
+								data-fixedwidth="420"
 								spellcheck=false
 								placeholder="default from image"></textarea>
 
@@ -1039,16 +1068,16 @@
 					
 					<div
 						title=""
-						style="display: inline-block; width: 40em; vertical-align: top">
-						<div class=heading>kubernetes namespace monitoring (defaults to all)<br/>to disable - add: [ "disabled "]. Alternately - specify namespaces.</div>
+						style="display: inline-block; width: 470px; vertical-align: top">
+						<div class=heading>kubernetes namespace monitoring (defaults to all) to disable - add: [ "disabled "].</div>
 						<div
 							class="floating-ace-editor"
 							style="min-height: 100px">
 							<textarea
-								id="collect-k8s"
+								id="collect-k8s-namespaces"
 								data-path="csap-collection.kubernetes-namespaces"
 								data-fit="true"
-								data-fixedwidth="450"
+								data-fixedwidth="420"
 								spellcheck=false
 								placeholder="all discovered namespaces"></textarea>
 
@@ -1056,15 +1085,13 @@
 
 					</div>
 
-					<div
-						title=""
-						style="display: inline-block; width: 25em; vertical-align: top">
-
 						<div class="heading">Optional Collection: Low memory trigger: initiates listing of all processes and sends
 							/csap/system/memory/low event</div>
+					<div>
+
 
 						<label
-						class=csap-form-inline
+							class=csap-form-inline
 							title="Collecting open files can cause significant resource consumption.">
 							<span>When Memory less than (MB):</span>
 							<input
@@ -1273,6 +1300,7 @@
 							id="vsphere"
 							spellcheck=false
 							data-fit="true"
+							adjust="-20"
 							data-path="vsphere"></textarea>
 					</div>
 				</div>
@@ -1343,7 +1371,7 @@
 				<div class="heading">Application Disks: appear on landing page</div>
 				<div class="floating-ace-editor">
 					<textarea
-						id="application-disks"
+						id="application-disk-demos"
 						data-adjust="50"
 						data-fit="true"
 						spellcheck=false

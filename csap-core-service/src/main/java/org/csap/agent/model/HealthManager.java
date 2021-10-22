@@ -806,13 +806,13 @@ public class HealthManager {
 
 		var isTimeToKill = false ;
 		var reasons = new ArrayList<String>( ) ;
-		
+
 //		long maxAllowedDisk = ServiceAlertsEnum.getMaxDiskInMb( serviceDefinition, application
 //				.rootProjectEnvSettings( ) ) ;
-		
-		
-		var maxAllowedDisk = ServiceAlertsEnum.getEffectiveLimit( serviceDefinition, application.rootProjectEnvSettings( ), ServiceAlertsEnum.diskSpace ) ;
-		
+
+		var maxAllowedDisk = ServiceAlertsEnum.getEffectiveLimit( serviceDefinition, application
+				.rootProjectEnvSettings( ), ServiceAlertsEnum.diskSpace ) ;
+
 		double resourceThresholdMultiplier = application.rootProjectEnvSettings( )
 				.getAutoStopServiceThreshold( serviceDefinition.getHostName( ) ) ;
 
@@ -864,7 +864,7 @@ public class HealthManager {
 							serviceDefinition,
 							application.rootProjectEnvSettings( ),
 							alert ) ;
-					
+
 					long killThreshold = Math.round( maxAllowed * resourceThresholdMultiplier ) ;
 
 					logger.debug( "{} : Item: {} lastCollectedValue: {}, threshold: {}, maxAllowed: {}, maxThresh: {}",

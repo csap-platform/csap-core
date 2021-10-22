@@ -33,7 +33,7 @@ import org.apache.commons.io.FileUtils ;
 import org.apache.commons.lang3.StringUtils ;
 import org.csap.agent.KubernetesConfiguration ;
 import org.csap.agent.KubernetesSettings ;
-import org.csap.agent.container.DockerIntegration ;
+import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.container.DockerJson ;
 import org.csap.agent.linux.ZipUtility ;
 import org.csap.agent.model.Application ;
@@ -485,10 +485,38 @@ public class KubernetesIntegration {
 							Optional<V1Pod> matchedPod = podList.getItems( ).stream( )
 									.filter( pod -> {
 
-										// + "_" + pod.getMetadata().getNamespace() );
-										// return containerName.contains( pod.getMetadata().getName() ) ;
-										return containerState.getContainerName( ).contains( pod.getMetadata( )
-												.getName( ) ) ;
+										// docker container name ONLY
+//										return containerState.getContainerName( )
+//												.contains( 
+//														pod.getMetadata( ).getName( ) ) ;
+
+										var podName = pod.getMetadata( ).getName( ) ;
+										var namespace = pod.getMetadata( ).getNamespace( ) ;
+
+										if ( logger.isDebugEnabled( )
+												&& serviceInstance.getName( ).contains( "by-spec" )
+												&& podName.contains( "by-spec" ) ) {
+
+											logger.info( "podName {}, namespace: {}  containerState: {} ", podName,
+													namespace, containerState ) ;
+
+										}
+
+										var csapContainerStatePodName = containerState.getPodName( ) ;
+
+										if ( StringUtils.isNotEmpty( csapContainerStatePodName )
+
+												&& containerState.getPodName( )
+														.equals( podName )
+
+												&& containerState.getPodNamespace( )
+														.equals( namespace ) ) {
+
+											return true ;
+
+										}
+
+										return false ;
 
 									} )
 									.findFirst( ) ;
@@ -551,7 +579,7 @@ public class KubernetesIntegration {
 
 				}
 
-				String containerNameMatch = DockerIntegration.getProcessMatch( csapService ) ;
+				String containerNameMatch = ContainerIntegration.getProcessMatch( csapService ) ;
 				logger.info( "containerNameMatch: {}", containerNameMatch ) ;
 
 				Pattern testPattern = null ;
@@ -1427,35 +1455,35 @@ public class KubernetesIntegration {
 		if ( decodedResourcePath.startsWith( KubernetesExplorer.CSAP_PATH ) ) {
 
 			// namespace = "--namespace=" + resourceLinkPaths[5] ;
-			type = resourceLinkPaths[2] ;
+			type = resourceLinkPaths[ 2 ] ;
 
 			if ( resourceLinkPaths.length > 3 ) {
 
-				namespace = "--namespace=" + resourceLinkPaths[3] ;
+				namespace = "--namespace=" + resourceLinkPaths[ 3 ] ;
 
 			}
 
 		} else if ( resourceLinkPaths.length == 8 ) {
 
-			namespace = "--namespace=" + resourceLinkPaths[5] ;
-			type = resourceLinkPaths[6] ;
-			source = resourceLinkPaths[7] ;
+			namespace = "--namespace=" + resourceLinkPaths[ 5 ] ;
+			type = resourceLinkPaths[ 6 ] ;
+			source = resourceLinkPaths[ 7 ] ;
 
 		} else if ( resourceLinkPaths.length == 7 ) {
 
-			namespace = "--namespace=" + resourceLinkPaths[4] ;
-			type = resourceLinkPaths[5] ;
-			source = resourceLinkPaths[6] ;
+			namespace = "--namespace=" + resourceLinkPaths[ 4 ] ;
+			type = resourceLinkPaths[ 5 ] ;
+			source = resourceLinkPaths[ 6 ] ;
 
 		} else if ( resourceLinkPaths.length == 6 ) {
 
-			type = resourceLinkPaths[4] ;
-			source = resourceLinkPaths[5] ;
+			type = resourceLinkPaths[ 4 ] ;
+			source = resourceLinkPaths[ 5 ] ;
 
 		} else if ( resourceLinkPaths.length == 5 ) {
 
-			type = resourceLinkPaths[3] ;
-			source = resourceLinkPaths[4] ;
+			type = resourceLinkPaths[ 3 ] ;
+			source = resourceLinkPaths[ 4 ] ;
 
 		}
 
@@ -1467,12 +1495,12 @@ public class KubernetesIntegration {
 //		if ( resourceLinkPaths.length == 8
 //				&& ! resourceLinkPaths[1].equals( "v1" ) ) {
 		if ( resourceLinkPaths.length > 5
-				&& resourceLinkPaths[2].equals( "metrics.k8s.io" ) ) {
+				&& resourceLinkPaths[ 2 ].equals( "metrics.k8s.io" ) ) {
 
 			// /apis/metrics.k8s.io/v1beta1/namespaces/csap-monitoring/pods/alertmanager-main-0
 			// becomes: pods.v1beta1.metrics.k8s.io
 
-			type += "." + resourceLinkPaths[3] + "." + resourceLinkPaths[2] ;
+			type += "." + resourceLinkPaths[ 3 ] + "." + resourceLinkPaths[ 2 ] ;
 
 		}
 
@@ -1700,7 +1728,7 @@ public class KubernetesIntegration {
 
 							logger.debug( "event: \n {}", CSAP.jsonPrint( eventItemReport ) ) ;
 
-							String simpleHost = hostSplit( event.getSource( ).getHost( ) )[0] ;
+							String simpleHost = hostSplit( event.getSource( ).getHost( ) )[ 0 ] ;
 							attributes.put( "simpleHost", simpleHost ) ;
 							attributes.put( "simpleName", mapEventName( event ) ) ;
 
@@ -1904,7 +1932,7 @@ public class KubernetesIntegration {
 
 		try {
 
-			mappedName = name.split( Pattern.quote( "." ) )[0] ;
+			mappedName = name.split( Pattern.quote( "." ) )[ 0 ] ;
 			var involveType = event.getInvolvedObject( ).getKind( ) ;
 
 			var samplePodSuffix = "-68c79575cc-95bwz" ;
@@ -2323,6 +2351,19 @@ public class KubernetesIntegration {
 				summary.put( "volumeClaimCount", listingsBuilder.persistentVolumeCount( namespace ) ) ;
 				summary.put( "daemonSetCount", listingsBuilder.daemonSetCount( namespace ) ) ;
 				summary.put( "replicaSetCount", listingsBuilder.replicaSetCount( namespace ) ) ;
+
+				var helmReleaseCount = 0 ;
+				var resultReport = Application.getInstance( ).getOsManager( ).helmCli(
+						"list --all-namespaces --output json" ) ;
+				var report = resultReport.path( "result" ) ;
+
+				if ( report.isArray( ) ) {
+
+					helmReleaseCount = report.size( ) ;
+
+				}
+
+				summary.put( "helmReleaseCount", helmReleaseCount ) ;
 
 				summary.setAll( getCachedNodeHealthMetrics( ) ) ;
 
@@ -2751,7 +2792,7 @@ public class KubernetesIntegration {
 
 		var hostPort = hostAndMaybePort.split( ":", 2 ) ;
 
-		String location = csapApp.getAgentUrl( hostPort[0], path ) ;
+		String location = csapApp.getAgentUrl( hostPort[ 0 ], path ) ;
 
 		var serviceNodePort = nodePort( serviceName ) ;
 		var serviceNodePortFull = ":" + serviceNodePort ;
@@ -2765,7 +2806,7 @@ public class KubernetesIntegration {
 		if ( hostPort.length == 2 ) {
 
 			// ingress is on a host network
-			serviceNodePortFull = ":" + hostPort[1] ;
+			serviceNodePortFull = ":" + hostPort[ 1 ] ;
 
 		}
 

@@ -4,7 +4,6 @@ import java.io.BufferedWriter ;
 import java.io.File ;
 import java.io.FileWriter ;
 import java.io.IOException ;
-import java.net.URL ;
 import java.nio.file.Files ;
 import java.nio.file.Paths ;
 import java.nio.file.StandardCopyOption ;
@@ -26,7 +25,6 @@ import org.csap.helpers.CSAP ;
 import org.csap.integations.CsapWebSettings.SslSettings ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
-import org.springframework.core.io.ClassPathResource ;
 import org.springframework.core.io.DefaultResourceLoader ;
 
 import com.fasterxml.jackson.databind.JsonNode ;
@@ -1233,8 +1231,8 @@ public class HttpdIntegration {
 					"bash",
 					"-c",
 					"openssl pkcs12 -in " + SSL_P12__FILE
-							+ " -out " + SSL_PEM__FILE 
-							+ " -nodes -passin pass:" + sslSettings.getKeystorePassword( )) ;
+							+ " -out " + SSL_PEM__FILE
+							+ " -nodes -passin pass:" + sslSettings.getKeystorePassword( ) ) ;
 
 			progress.append( osCommandRunner.executeString( script, csapApp.getCsapWorkingFolder( ) ) ) ;
 

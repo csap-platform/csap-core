@@ -34,12 +34,18 @@ function cleanUp() {
 	
 	systemctl stop kubelet
 	
+	print_command \
+		"removing journals" \
+		"$(rm --recursive --force /run/log/journal/*)"
+	
 	
 	print_separator "perform_kubeadm_reset() cleaning up previous installs"
 	echo y | kubeadm --v 8 reset
 	
 	iptable_wipe
 	
+	
+	print_separator "legacy cleanup"; 
 	rm  --verbose  --recursive --force $HOME/.kube/config
 	rm  --verbose  --recursive --force /etc/cni/net.d
 	rm  --verbose  --recursive --force /run/log/journal/*
@@ -77,3 +83,6 @@ exit
 
 print_section "list cgroups"
 systemctl list-units | grep pod
+
+
+

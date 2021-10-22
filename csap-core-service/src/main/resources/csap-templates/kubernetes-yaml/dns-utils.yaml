@@ -24,10 +24,33 @@ spec:
 #    kubernetes.io/hostname: csap-dev06.***REMOVED***
         
   containers:
+  
   - name: dnsutils
+  
+    #
+    # full os: rockylinux/rockylinux:8 
+    #   - yum -y install nc
+    #
+    # minimal net tools: gcr.io/kubernetes-e2e-test-images/dnsutils:1.3
+    #
     image: gcr.io/kubernetes-e2e-test-images/dnsutils:1.3
+    
+    securityContext:
+      privileged: true
+      capabilities:
+        add:
+        - SYS_CHROOT
+        - NET_RAW 
+    
     command:
       - sleep
       - "3600"
-    imagePullPolicy: IfNotPresent
+    
+    ports:
+
+    - containerPort: 7080
+
+      protocol: TCP
+  
+  
   restartPolicy: Always

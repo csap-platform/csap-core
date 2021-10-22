@@ -62,7 +62,7 @@
 
 <body
 	id=csap-main
-	class="csap-scrollable theme-light theme-xylem">
+	class="csap-scrollable theme-dark agent">
 
 
 	<header>
@@ -193,9 +193,9 @@
 
 		<div id='clusterEditor'>
 			<ul>
+				<li><a href="#jsonEditor">Specification Editor</a></li>
 				<li><a href="#assign">Service Assignment</a></li>
 				<li><a href="#alerts">Alerts Configuration</a></li>
-				<li><a href="#jsonEditor">Json Editor</a></li>
 			</ul>
 
 
@@ -203,21 +203,38 @@
 				id="jsonEditor"
 				class="group serviceDef">
 
+				
+				<div class=flex-container>
+					<label
+						class="flex-right-info"
+						title="Toggle folding of code - note alt-0, alt-shift-0 can be used as well"
+						>
+						<span>Fold
+						</span>
+						<input
+							class="editor-toggle-last"
+							type="checkbox"
+							/>
+						
 
-				<label
-					title="Toggle folding of code - note alt-0, alt-shift-0 can be used as well"
-					style="width: 10em">
-					<input
-						class="editor-toggle-last"
-						type="checkbox"
-						style="margin-right: 0; vertical-align: middle" />
-					Fold
-				</label>
+						<span>Json
+						</span>
+						<input
+							class=editor-toggle-json
+							type="checkbox"
+							/>
+						
+					</label>
+				</div>
+				
+				
 				<textarea
 					id="serviceJson"
 					name="serviceJson"
-					spellcheck=false>Loading</textarea>
-				<br />
+					data-adjustwidth="-30"
+					data-convert_yaml="true"
+					spellcheck=false
+					data-path="ROOT">Loading</textarea>
 			</div>
 
 			<div

@@ -90,7 +90,7 @@ public class ProjectOperators {
 
 		}
 
-		var prefix = CsapCore.AUTO_PLAY_FILE.split( Pattern.quote( "." ) )[0] ;
+		var prefix = CsapCore.AUTO_PLAY_FILE.split( Pattern.quote( "." ) )[ 0 ] ;
 		var newName = new File( autoplayFile.getParentFile( ), prefix + "-completed.yaml" ) ;
 		autoplayFile.renameTo( newName ) ;
 		results.put( "renamed", newName.getAbsolutePath( ) ) ;

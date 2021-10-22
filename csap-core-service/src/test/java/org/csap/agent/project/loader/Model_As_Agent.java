@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils ;
 import org.apache.commons.lang3.text.WordUtils ;
 import org.csap.agent.CsapBareTest ;
 import org.csap.agent.CsapCore ;
+import org.csap.agent.model.Application ;
 import org.csap.agent.model.ClusterType ;
 import org.csap.agent.model.ContainerState ;
 import org.csap.agent.model.EnvironmentSettings ;
@@ -1081,8 +1082,10 @@ class Model_As_Agent extends CsapBareTest {
 					.contains( "context-path=/k8s-spec-deploy-service" ) ;
 
 			logger.debug( "Original yaml: {} ", getApplication( ).readFile( simpleYaml ) ) ;
-			String yaml_with_vars_updated = serviceOsManager.buildYamlTemplate( k8SpecService, simpleYaml,
+			var deploymentFile = serviceOsManager.buildDeplomentFile( k8SpecService, simpleYaml,
 					getJsonMapper( ).createObjectNode( ) ) ;
+
+			var yaml_with_vars_updated = Application.readFile( deploymentFile ) ;
 
 			logger.debug( "yaml_with_vars_updated: {}", yaml_with_vars_updated ) ;
 

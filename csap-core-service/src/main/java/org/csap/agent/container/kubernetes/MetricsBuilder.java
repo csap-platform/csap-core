@@ -6,8 +6,6 @@ import java.util.HashMap ;
 import java.util.List ;
 import java.util.Optional ;
 import java.util.concurrent.TimeUnit ;
-import java.util.concurrent.atomic.AtomicBoolean ;
-import java.util.concurrent.atomic.AtomicInteger ;
 import java.util.concurrent.locks.ReentrantLock ;
 import java.util.stream.Collectors ;
 
@@ -332,11 +330,9 @@ public class MetricsBuilder {
 
 		}
 
-
 		return metricsReport ;
 
 	}
-
 
 	public ObjectNode nodeReport ( String nodeFilter ) throws Exception {
 
@@ -713,15 +709,15 @@ public class MetricsBuilder {
 
 		if ( cpuWithKubernetesUnits.endsWith( "n" ) ) {
 
-			cpuAsCore = Long.parseLong( cpuWithKubernetesUnits.split( "n" )[0] ) / CORE_UNIT_FROM_N ;
+			cpuAsCore = Long.parseLong( cpuWithKubernetesUnits.split( "n" )[ 0 ] ) / CORE_UNIT_FROM_N ;
 
 		} else if ( cpuWithKubernetesUnits.endsWith( "m" ) ) {
 
-			cpuAsCore = Long.parseLong( cpuWithKubernetesUnits.split( "m" )[0] ) / CORE_UNIT_FROM_M ;
+			cpuAsCore = Long.parseLong( cpuWithKubernetesUnits.split( "m" )[ 0 ] ) / CORE_UNIT_FROM_M ;
 
 		} else if ( cpuWithKubernetesUnits.endsWith( "u" ) ) {
 
-			cpuAsCore = Long.parseLong( cpuWithKubernetesUnits.split( "u" )[0] ) / CORE_UNIT_FROM_U ;
+			cpuAsCore = Long.parseLong( cpuWithKubernetesUnits.split( "u" )[ 0 ] ) / CORE_UNIT_FROM_U ;
 
 		}
 
@@ -736,15 +732,15 @@ public class MetricsBuilder {
 
 		if ( memoryWithKubernetesUnits.endsWith( "Ki" ) ) {
 
-			memoryInMb = Long.parseLong( memoryWithKubernetesUnits.split( "Ki" )[0] ) / 1024 ;
+			memoryInMb = Long.parseLong( memoryWithKubernetesUnits.split( "Ki" )[ 0 ] ) / 1024 ;
 
 		} else if ( memoryWithKubernetesUnits.endsWith( "Mi" ) ) {
 
-			memoryInMb = Long.parseLong( memoryWithKubernetesUnits.split( "Mi" )[0] ) ;
+			memoryInMb = Long.parseLong( memoryWithKubernetesUnits.split( "Mi" )[ 0 ] ) ;
 
 		} else if ( memoryWithKubernetesUnits.endsWith( "Gi" ) ) {
 
-			memoryInMb = Long.parseLong( memoryWithKubernetesUnits.split( "Gi" )[0] ) ;
+			memoryInMb = Long.parseLong( memoryWithKubernetesUnits.split( "Gi" )[ 0 ] ) ;
 
 		} else {
 
@@ -767,6 +763,5 @@ public class MetricsBuilder {
 		this.testHost = testHost ;
 
 	}
-
 
 }

@@ -19,7 +19,8 @@
 }
 
 #settingsEditor #csap-integrations div.heading {
-	height: 2em;
+	height: auto;
+	margin-bottom: 5px;
 }
 
 #system-env {

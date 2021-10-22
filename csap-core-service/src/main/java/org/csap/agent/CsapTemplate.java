@@ -16,6 +16,8 @@ public enum CsapTemplate {
 
 	search("search-template.sh"),
 
+	helmDeploy("helm-deploy.sh"),
+
 	nagios_config("nagios-config.cfg"), nagios_result("nagios-result.xml"),
 
 	project_template("new-project.json"),

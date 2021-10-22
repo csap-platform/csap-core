@@ -70,6 +70,7 @@ csap-core:
     training: https://github.com/csap-platform/csap-core/wiki/Training
     service-template-help: https://github.com/csap-platform/csap-core/wiki/Service-Definition
     service-variables: https://github.com/csap-platform/csap-core/wiki/Service-Definition#runtime-variables
+    service-jobs: https://github.com/csap-platform/csap-core/wiki/Service-Definition#service-jobs
     process-match-help: https://github.com/csap-platform/csap-core/wiki/Application-Model#os-process-mapping
     cluster-help: https://github.com/csap-platform/csap-core/wiki/Application-Model
     environment-help: https://github.com/csap-platform/csap-core/wiki/Environment-Definition

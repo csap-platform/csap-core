@@ -11,8 +11,8 @@ import java.util.regex.Pattern ;
 import java.util.stream.Collectors ;
 
 import org.apache.commons.lang3.StringUtils ;
+import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.container.ContainerProcess ;
-import org.csap.agent.container.DockerIntegration ;
 import org.csap.agent.container.DockerJson ;
 import org.csap.agent.model.ContainerState ;
 import org.csap.agent.model.ServiceInstance ;
@@ -49,8 +49,8 @@ public class OsProcessMapper {
 
 	}
 
-	private List<ContainerProcess> latestDiscoveredContainers  = new ArrayList<>() ;
-	private List<OsProcess> latestDiscoveredProcesses = new ArrayList<>() ;
+	private List<ContainerProcess> latestDiscoveredContainers = new ArrayList<>( ) ;
+	private List<OsProcess> latestDiscoveredProcesses = new ArrayList<>( ) ;
 
 	private MultiValueMap<String, OsProcess> processByParent ;
 
@@ -382,7 +382,7 @@ public class OsProcessMapper {
 
 		// var dockerSettings = serviceDefinition.getDockerSettingsOrMissing( ) ;
 		JsonNode resolvedLocators = activeService.getResolvedLocators( ) ;
-		String containerNameMatch = DockerIntegration.getProcessMatch( activeService ) ;
+		String containerNameMatch = ContainerIntegration.getProcessMatch( activeService ) ;
 
 		Pattern testPattern = null ;
 
@@ -644,12 +644,12 @@ public class OsProcessMapper {
 						// logger.info("Match found") ;
 						String[] duFields = diskLine.split( "\\s+" ) ;
 
-						String diskUsedField = duFields[0] ;
+						String diskUsedField = duFields[ 0 ] ;
 
 						if ( diskUsedField.contains( "/" ) ) {
 
 							// df output 815M/7942M /run 11% tmpfs
-							diskUsedField = diskUsedField.split( "/" )[0] ;
+							diskUsedField = diskUsedField.split( "/" )[ 0 ] ;
 
 						}
 

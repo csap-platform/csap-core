@@ -4,6 +4,7 @@ define( [ "services/kubernetes", "performance/summary-trends", "performance/even
     let $contentLoaded = null ;
 
     let kubernetesServiceName = "kubelet" ;
+    let containerServiceName = "docker" ;
 
 
     const $healthServiceNames = utils.findContent( "#health-service-names" ) ;
@@ -101,7 +102,7 @@ define( [ "services/kubernetes", "performance/summary-trends", "performance/even
         "app": showAppTrends,
         "host": showHostTrends,
         "service": showServiceTrends,
-        "docker": showDockerTrends,
+        "docker": showContainerTrends,
         "kubelet": showKubeletTrends,
         "activity-trends": showUserActivityTrends,
         "meters": function ( $menuContainer, forceHostRefresh, menuPath ) {
@@ -200,7 +201,7 @@ define( [ "services/kubernetes", "performance/summary-trends", "performance/even
         } ) ;
         $serviceDays.change( showServiceTrends ) ;
         $hostDays.change( showHostTrends ) ;
-        $dockerDays.change( showDockerTrends ) ;
+        $dockerDays.change( showContainerTrends ) ;
         $kubeletDays.change( showKubeletTrends ) ;
         $activityDays.change( showUserActivityTrends ) ;
         $alertWeeks.change( showAlertSummaryGraph ) ;
@@ -279,6 +280,7 @@ define( [ "services/kubernetes", "performance/summary-trends", "performance/even
                     utils.setStatusReport( statusReport ) ;
 
                     kubernetesServiceName = statusReport["kubernetes-service"] ;
+                    containerServiceName = statusReport["container-service"] ;
 
                     if ( statusReport.serviceIdMapping ) {
                         addServiceNames( statusReport.serviceIdMapping ) ;
@@ -739,7 +741,7 @@ define( [ "services/kubernetes", "performance/summary-trends", "performance/even
 
     }
 
-    function showDockerTrends() {
+    function showContainerTrends() {
 
         summaryTrends.cleanUp() ;
 
@@ -750,18 +752,34 @@ define( [ "services/kubernetes", "performance/summary-trends", "performance/even
         let $containers = $( ".the-plot", $dockerTrends ) ;
         $containers.empty() ;
 
-        $dockerByHost.off().change( showDockerTrends ) ;
-        $dockerSlideShow.off().change( showDockerTrends ) ;
+        $dockerByHost.off().change( showContainerTrends ) ;
+        $dockerSlideShow.off().change( showContainerTrends ) ;
 
         summaryTrends.showTrend( $( "#is-healthy", $dockerTrends ),
-                "Docker Healthy Hosts",
+                `${containerServiceName} Healthy Hosts`,
                 $dockerByHost.is( ":checked" ),
                 4,
                 "application",
                 numberOfDays,
                 "isHealthy",
-                "docker",
+                containerServiceName,
                 "numberOfSamples" ) ;
+                
+        if ( containerServiceName != "docker" ) {
+
+            summaryTrends.showTrend( $( "#crio-containers", $dockerTrends ),
+                    "CRIO Containers",
+                    $dockerByHost.is( ":checked" ),
+                    4,
+                    "application",
+                    numberOfDays,
+                    "crioContainerCount",
+                    containerServiceName,
+                    "numberOfSamples" ) ;
+            
+        } else {
+            $( "#crio-containers", $dockerTrends ).hide();
+        }
 
         summaryTrends.showTrend( $( "#running-containers", $dockerTrends ),
                 "Running Containers",
@@ -770,7 +788,7 @@ define( [ "services/kubernetes", "performance/summary-trends", "performance/even
                 "application",
                 numberOfDays,
                 "containerRunning",
-                "docker",
+                containerServiceName,
                 "numberOfSamples" ) ;
 
         summaryTrends.showTrend(
@@ -781,7 +799,19 @@ define( [ "services/kubernetes", "performance/summary-trends", "performance/even
                 "application",
                 numberOfDays,
                 "containerCount",
-                "docker",
+                containerServiceName,
+                "numberOfSamples" ) ;
+                    
+
+        summaryTrends.showTrend(
+                $( "#images", $dockerTrends ),
+                "Images",
+                $dockerByHost.is( ":checked" ),
+                4,
+                "application",
+                numberOfDays,
+                "imageCount",
+                containerServiceName,
                 "numberOfSamples" ) ;
 
         summaryTrends.showTrend(
@@ -792,18 +822,7 @@ define( [ "services/kubernetes", "performance/summary-trends", "performance/even
                 "application",
                 numberOfDays,
                 "volumeCount",
-                "docker",
-                "numberOfSamples" ) ;
-
-        summaryTrends.showTrend(
-                $( "#images", $dockerTrends ),
-                "Images",
-                $dockerByHost.is( ":checked" ),
-                4,
-                "application",
-                numberOfDays,
-                "imageCount",
-                "docker",
+                containerServiceName,
                 "numberOfSamples" ) ;
     }
 
@@ -1440,7 +1459,7 @@ define( [ "services/kubernetes", "performance/summary-trends", "performance/even
                                     + first3words.substring( firstWord.length ) ;
                         }
 
-                        console.debug( `firstWord: '${ firstWord }' errorGroup: ${ errorGroup }` ) ;
+                        //console.debug( `firstWord: '${ firstWord }' errorGroup: ${ errorGroup }` ) ;
                         if ( errorGroupContainers[ errorGroup ] !== undefined ) {
 
                             let $existingItem = errorGroupContainers[ errorGroup ] ;

@@ -91,8 +91,8 @@ public class Vsphere {
 				.filter( keyValueArray -> keyValueArray.length == 2 )
 				.forEach( keyValueArray -> {
 
-					var key = keyValueArray[0].trim( ).toLowerCase( ) ;
-					var value = keyValueArray[1].trim( ) ;
+					var key = keyValueArray[ 0 ].trim( ).toLowerCase( ) ;
+					var value = keyValueArray[ 1 ].trim( ) ;
 
 					ObjectNode datastore = null ;
 
@@ -313,7 +313,7 @@ public class Vsphere {
 		try {
 
 			findOutput = govcRunner.runUsingDefaultUser( "find-vsphere-disk", findCommand, null,
-					environmentVariables ) ;
+					environmentVariables, true ) ;
 
 		} catch ( IOException e ) {
 
@@ -398,7 +398,7 @@ public class Vsphere {
 
 						// pvcs.add( ) ;
 						var folderNames = dsFolder.path( "FolderPath" ).asText( ).split( " " ) ;
-						var folderName = folderNames[folderNames.length - 1].replaceAll( "/", "_" ) ;
+						var folderName = folderNames[ folderNames.length - 1 ].replaceAll( "/", "_" ) ;
 						var kubeFolder = fileListing.putArray( folderName ) ;
 
 						CSAP.jsonStream( dsFolder.path( "File" ) )
@@ -455,7 +455,7 @@ public class Vsphere {
 					.forEach( dsFolder -> {
 
 						var names = dsFolder.path( "FolderPath" ).asText( ).split( " " ) ;
-						( (ObjectNode) dsFolder ).put( "name", names[names.length - 1] ) ;
+						( (ObjectNode) dsFolder ).put( "name", names[ names.length - 1 ] ) ;
 
 					} ) ;
 
@@ -615,7 +615,7 @@ public class Vsphere {
 
 					var fullName = diskDetails.path( "Name" ).asText( ) ;
 					var shorterName = fullName.split( " " ) ;
-					detail.put( "name", ( new File( shorterName[shorterName.length - 1] ) ).getName( ) + ","
+					detail.put( "name", ( new File( shorterName[ shorterName.length - 1 ] ) ).getName( ) + ","
 							+ sizeWithUnits ) ;
 					detail.put( "path", fullName ) ;
 					detail.put( "size", sizeWithUnits ) ;

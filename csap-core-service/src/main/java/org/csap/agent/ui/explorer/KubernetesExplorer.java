@@ -4,6 +4,7 @@ import java.io.File ;
 import java.io.IOException ;
 import java.util.ArrayList ;
 import java.util.List ;
+import java.util.Map ;
 import java.util.regex.Matcher ;
 
 import javax.inject.Inject ;
@@ -92,6 +93,282 @@ public class KubernetesExplorer {
 		}
 
 		return listing ;
+
+	}
+
+	@GetMapping ( "/helm" )
+	public JsonNode helmResources ( String namespace ) {
+
+		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+			return build_not_configured_listing( ) ;
+
+		var listing = helmResourceListing( namespace ) ;
+
+		return listing ;
+
+	}
+
+	private ArrayNode helmResourceListing ( String namespace ) {
+
+		ArrayNode apis = jsonMapper.createArrayNode( ) ;
+
+		try {
+
+			var helmResources = Map.of( "Repositories", helmRepositoriesCount( ), "Releases", helmReleasesCount(
+					namespace ) ) ;
+
+			helmResources.entrySet( ).stream( )
+					.forEach( resourceEntry -> {
+
+						var helmResource = resourceEntry.getKey( ) ;
+						var count = resourceEntry.getValue( ) ;
+
+						var label = helmResource + "," + count + " found" ;
+
+						var apiItem = apis.addObject( ) ;
+						apiItem.put( DockerJson.list_label.json( ), label ) ;
+						apiItem.put( "folder", true ) ;
+						apiItem.put( "lazy", true ) ;
+						var attributes = apiItem.putObject( "attributes" ) ;
+						attributes.put( DockerJson.list_folderUrl.json( ), "kubernetes/helm/" + helmResource
+								.toLowerCase( ) ) ;
+						attributes.put( "path", "/" ) ;
+
+					} ) ;
+
+		} catch ( Exception e ) {
+
+			ObjectNode msg = apis.addObject( ) ;
+			msg.put( DockerJson.error.json( ), "No resources found" ) ;
+
+		}
+
+		return apis ;
+
+	}
+
+	private int helmRepositoriesCount ( ) {
+
+		var count = 0 ;
+
+		var currentRepos = helmRepositories( ) ;
+
+		if ( ! currentRepos.path( 0 ).has( DockerJson.error.json( ) ) ) {
+
+			count = currentRepos.size( ) ;
+
+		}
+
+		return count ;
+
+	}
+
+	private int helmReleasesCount ( String namespace ) {
+
+		var count = 0 ;
+
+		var currentRepos = helmReleases( namespace ) ;
+
+		if ( ! currentRepos.path( 0 ).has( DockerJson.error.json( ) ) ) {
+
+			count = currentRepos.size( ) ;
+
+		}
+
+		return count ;
+
+	}
+
+	@GetMapping ( "/helm/repositories" )
+	public JsonNode helmRepositories ( ) {
+
+		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+			return build_not_configured_listing( ) ;
+
+		var listing = jsonMapper.createArrayNode( ) ;
+
+		var resultReport = csapApp.getOsManager( ).helmCli( "repo list --output json" ) ;
+
+		logger.info( CSAP.jsonPrint( resultReport ) ) ;
+
+		var report = resultReport.path( "result" ) ;
+
+		if ( report.isArray( ) ) {
+
+			CSAP.jsonStream( report )
+					.forEach( releaseReport -> {
+
+						var repoName = releaseReport.path( "name" ).asText( ) ;
+						var repoUrl = releaseReport.path( "url" ).asText( ) ;
+
+						var apiItem = listing.addObject( ) ;
+						apiItem.put( DockerJson.list_label.json( ),
+								repoName + "," + repoUrl ) ;
+						apiItem.put( "folder", true ) ;
+						apiItem.put( "lazy", true ) ;
+						var attributes = apiItem.putObject( "attributes" ) ;
+						attributes.put( DockerJson.list_folderUrl.json( ), "kubernetes/helm/repositories/status/"
+								+ repoName ) ;
+						attributes.put( "path", "/" ) ;
+
+					} ) ;
+
+			// listing = (ArrayNode) report ;
+		} else {
+
+			logger.warn( CSAP.jsonPrint( resultReport ) ) ;
+
+		}
+
+		if ( listing.size( ) == 0 ) {
+
+			ObjectNode msg = listing.addObject( ) ;
+			msg.put( DockerJson.error.json( ), "No resources found" ) ;
+
+		}
+
+		return listing ;
+
+	}
+
+	@GetMapping ( "/helm/repositories/status/{repoName}" )
+	public JsonNode helmRepositoriesStatus (
+												@PathVariable String repoName ) {
+
+		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+			return build_not_configured_listing( ) ;
+
+		var allReposReport = jsonMapper.createObjectNode( ) ;
+
+		var resultReport = csapApp.getOsManager( ).helmCli( "search repo  " + repoName
+				+ " --output json" ) ;
+
+		logger.info( CSAP.jsonPrint( resultReport ) ) ;
+
+		var report = resultReport.path( "result" ) ;
+
+		if ( report.isArray( ) ) {
+
+			CSAP.jsonStream( report ).forEach( repoReport -> {
+
+				var repoSummary = repoReport.path( "name" ).asText( ) ;
+
+				allReposReport.set( repoSummary, repoReport ) ;
+
+			} ) ;
+
+			// statusReport = (ArrayNode) report ;
+
+			// listing = (ArrayNode) report ;
+		} else {
+
+			logger.warn( CSAP.jsonPrint( resultReport ) ) ;
+			allReposReport.set( "failed", resultReport ) ;
+
+		}
+
+		return allReposReport ;
+
+	}
+
+	@GetMapping ( "/helm/releases" )
+	public JsonNode helmReleases ( String namespace ) {
+
+		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+			return build_not_configured_listing( ) ;
+
+		var listing = jsonMapper.createArrayNode( ) ;
+
+		var namespaceFilter = "--namespace " + namespace ;
+
+		if ( namespace.equals( "all" ) ) {
+
+			namespaceFilter = "--all-namespaces" ;
+
+		}
+
+		var resultReport = csapApp.getOsManager( ).helmCli( "list " + namespaceFilter + " --output json" ) ;
+		logger.info( CSAP.jsonPrint( resultReport ) ) ;
+
+		var report = resultReport.path( "result" ) ;
+
+		if ( report.isArray( ) ) {
+
+			CSAP.jsonStream( report )
+					.forEach( releaseReport -> {
+
+						var chartName = releaseReport.path( "name" ).asText( ) ;
+						var chartNamespace = releaseReport.path( "namespace" ).asText( ) ;
+
+						var apiItem = listing.addObject( ) ;
+						apiItem.put( DockerJson.list_label.json( ),
+								chartName + ", chart: " + releaseReport.path( "chart" ).asText( )
+										+ "  " + chartNamespace ) ;
+						apiItem.put( "folder", true ) ;
+						apiItem.put( "lazy", true ) ;
+						var attributes = apiItem.putObject( "attributes" ) ;
+						attributes.put( DockerJson.list_folderUrl.json( ), "kubernetes/helm/release/status/"
+								+ chartNamespace
+								+ "/" + chartName ) ;
+						attributes.put( "path", "/" ) ;
+
+					} ) ;
+
+			// listing = (ArrayNode) report ;
+		} else {
+
+			logger.warn( CSAP.jsonPrint( resultReport ) ) ;
+
+		}
+
+		if ( listing.size( ) == 0 ) {
+
+			ObjectNode msg = listing.addObject( ) ;
+			msg.put( DockerJson.error.json( ), "No resources found" ) ;
+
+		}
+
+		return listing ;
+
+	}
+
+	@GetMapping ( "/helm/release/status/{namespace}/{releaseName}" )
+	public JsonNode helmReleaseStatus (
+										@PathVariable String namespace ,
+										@PathVariable String releaseName ) {
+
+		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+			return build_not_configured_listing( ) ;
+
+		var statusReport = jsonMapper.createObjectNode( ) ;
+
+		var namespaceFilter = "--namespace " + namespace ;
+
+		if ( namespace.equals( "all" ) ) {
+
+			namespaceFilter = "--all-namespaces" ;
+
+		}
+
+		var resultReport = csapApp.getOsManager( ).helmCli( "status " + namespaceFilter + " " + releaseName
+				+ " --output json" ) ;
+		logger.info( CSAP.jsonPrint( resultReport ) ) ;
+
+		var report = resultReport.path( "result" ) ;
+
+		if ( report.isObject( ) ) {
+
+			statusReport = (ObjectNode) report ;
+
+			// listing = (ArrayNode) report ;
+		} else {
+
+			logger.warn( CSAP.jsonPrint( resultReport ) ) ;
+			statusReport = (ObjectNode) resultReport ;
+
+		}
+
+		return statusReport ;
 
 	}
 

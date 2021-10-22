@@ -630,19 +630,32 @@ public class ContainerState {
 	@Override
 	public String toString ( ) {
 
-		return "ContainerState [containerName=" + containerName + ", resourceViolations=" + resourceViolations
-				+ ", cpuUtil=" + cpuUtil
-				+ ", pid=" + pid + ", rssMemory=" + rssMemory + ", virtualMemory=" + virtualMemory
-				+ ", autoKillInProgress="
-				+ autoKillInProgress + ", jmxHeartbeatMs=" + jmxHeartbeatMs + ", numTomcatConns=" + numTomcatConns
-				+ ", jvmThreadCount="
-				+ jvmThreadCount + ", diskReadKb=" + diskReadKb + ", diskWriteKb=" + diskWriteKb + ", topCpu=" + topCpu
-				+ ", diskUsageInMb="
-				+ diskUsageInMb + ", fileCount=" + fileCount + ", socketCount=" + socketCount + ", threadCount="
-				+ threadCount
-				+ ", currentProcessPriority=" + currentProcessPriority + ", runHeap=" + runHeap + ", healthReport= "
-				+ healthReportCollected
-				+ "]" ;
+		return CSAP.buildDescription( "ContainerState",
+				"pid", pid,
+				"cpuUtil", cpuUtil,
+				"topCpu", topCpu,
+				"threadCount", threadCount,
+				"jvmThreadCount", jvmThreadCount,
+				"rssMemory", rssMemory,
+				"virtualMemory", virtualMemory,
+				"runHeap", runHeap,
+				"socketCount", socketCount,
+				"deployedArtifacts", deployedArtifacts,
+				"containerName", containerName,
+				"containerLabel", containerLabel,
+				"podNamespace", podNamespace,
+				"podIp", podIp,
+				"podName", podName,
+				"diskReadKb", diskReadKb,
+				"diskWriteKb", diskWriteKb,
+				"diskUsageInMb", diskUsageInMb,
+				"fileCount", fileCount,
+				"resourceViolations", resourceViolations,
+				"autoKillInProgress", autoKillInProgress,
+				"jmxHeartbeatMs", jmxHeartbeatMs,
+				"numTomcatConns", numTomcatConns,
+				"currentProcessPriority", currentProcessPriority,
+				"healthReportCollected", healthReportCollected ) ;
 
 	}
 

@@ -295,7 +295,7 @@ public class JmxCustomCollector {
 				version = jmxResults
 						.getServiceInstance( )
 						.getScmVersion( ) ;
-				version = version.split( " " )[0] ; // first word of
+				version = version.split( " " )[ 0 ] ; // first word of
 				// scm
 				// scmVersion=3.5.6-SNAPSHOT
 				// Source build

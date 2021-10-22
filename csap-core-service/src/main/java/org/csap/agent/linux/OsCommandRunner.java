@@ -134,7 +134,7 @@ public class OsCommandRunner {
 	public String runUsingDefaultUser ( String short_desc , List<String> script )
 		throws IOException {
 
-		return runUsingDefaultUser( short_desc, script, null, null ) ;
+		return runUsingDefaultUser( short_desc, script, null, null, true ) ;
 
 	}
 
@@ -142,7 +142,8 @@ public class OsCommandRunner {
 										String short_desc ,
 										List<String> script ,
 										BufferedWriter outputWriter ,
-										Map<String, String> envVars )
+										Map<String, String> envVars ,
+										boolean trimRoot )
 		throws IOException {
 
 		String name = short_desc.replaceAll( " ", "_" ).replaceAll( "-", "_" ) ;
@@ -178,19 +179,21 @@ public class OsCommandRunner {
 
 		logger.debug( "Script Output; {}", scriptOutput ) ;
 		// strip off script info
-		int tokenIndex = scriptOutput.lastIndexOf( RUN_USER_OUTPUT_TOKEN ) ;
+		var trimStart = 0 ;
 
-		if ( tokenIndex == -1 ) {
+		if ( trimRoot ) {
 
-			tokenIndex = 0 ;
+			int tokenIndex = scriptOutput.lastIndexOf( RUN_USER_OUTPUT_TOKEN ) ;
 
-		} else {
+			if ( tokenIndex > 0 ) {
 
-			tokenIndex += RUN_USER_OUTPUT_TOKEN.length( ) ;
+				trimStart = tokenIndex + RUN_USER_OUTPUT_TOKEN.length( ) ;
+
+			}
 
 		}
 
-		return scriptOutput.substring( tokenIndex ) ;
+		return scriptOutput.substring( trimStart ) ;
 
 	}
 
@@ -271,15 +274,15 @@ public class OsCommandRunner {
 		}
 
 		// some commands we skip creating output files.
-		BufferedWriter bw = null ;
+		BufferedWriter bufferedWriter = null ;
 
 		if ( outputFm != null ) {
 
-			bw = outputFm.getBufferedWriter( ) ;
+			bufferedWriter = outputFm.getBufferedWriter( ) ;
 
 		}
 
-		String output = "\n" + executeString( bw, parmList ) ;
+		String output = "\n" + executeString( bufferedWriter, parmList ) ;
 		return output ;
 
 	}
@@ -302,18 +305,21 @@ public class OsCommandRunner {
 		var theLogger = LoggerFactory.getLogger( Application.class ) ;
 
 		theLogger.info( "Running: {}", targetFile ) ;
-		
+
 		if ( ! targetFile.exists( ) ) {
+
 			theLogger.info( "File does not exist - delaying for a second in case FS is slow: {}", targetFile ) ;
+
 			try {
 
 				TimeUnit.SECONDS.sleep( 2 ) ;
 
 			} catch ( Exception e ) {
 
-				theLogger.warn("Failed sleeping on delay {}", CSAP.buildCsapStack( e )) ;
+				theLogger.warn( "Failed sleeping on delay {}", CSAP.buildCsapStack( e ) ) ;
 
 			}
+
 		}
 
 		if ( targetFile.getName( ).contains( ".py_" ) ) {
@@ -980,7 +986,7 @@ public class OsCommandRunner {
 
 	private void stopTimers ( String commandName , Timer.Sample allButServiceJobsTimer , Sample osCommandsSample ) {
 
-		String timerName = "os-commands." + commandName.split( "-" )[0] ;
+		String timerName = "os-commands." + commandName.split( "-" )[ 0 ] ;
 
 		if ( allButServiceJobsTimer != null ) {
 

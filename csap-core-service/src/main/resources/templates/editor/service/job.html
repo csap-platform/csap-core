@@ -25,11 +25,22 @@
 		id="containerConfig"
 		class="csap-blue">
 		<div class="heading">
-			Log Rotation: logs are checked hourly using the defined policy
+			Log Rotation: logs are checked hourly using the 
+			
 			<a
-				class="simple"
 				target="_blank"
-				href="https://github.com/csap-platform/csap-core/wiki#updateRefLog+Configuration"> reference manual </a>
+				title="open manual"
+				class="csap-link-icon csap-window"
+				href="https://linux.die.net/man/8/logrotate">
+				logrotate policy </a>
+				
+			<a
+				target="_blank"
+				title="open reference manual"
+				class="csap-link-icon csap-help"
+				th:href="${@csapCoreService.getHelpUrl('service-jobs') }">
+				reference manual </a>
+						
 		</div>
 		<textarea
 			id="jobs-logrotate"

@@ -33,6 +33,8 @@ define( [ "services/kubernetes", "services/deployer", "browser/utils" ], functio
     const $servicesTab = $( "#services-tab" ) ;
     const $serviceInstanceMenu = $( "#instances-for-service", $servicesTab ) ;
     const $serviceMenuItems = $( ".service-selected", $servicesTab ) ;
+    const $helmMenuItems = $( ".service-selected.helm", $servicesTab ) ;
+    const $readmeMenuItems = $( ".service-selected.readme", $servicesTab ) ;
 
 
 
@@ -280,6 +282,8 @@ define( [ "services/kubernetes", "services/deployer", "browser/utils" ], functio
             $serviceInstanceMenu.data( "name", name ) ;
             $( "#instance-name", $serviceInstanceMenu ).text( name ) ;
             $serviceMenuItems.css( "display", "flex" ) ;
+            $helmMenuItems.css( "display", "none" ) ;
+            $readmeMenuItems.css( "display", "none" ) ;
             $( ".registered-only", $tableOperations ).show() ;
             $serviceDescription.show() ;
             $unregisteredTable.hide() ;
@@ -570,6 +574,14 @@ define( [ "services/kubernetes", "services/deployer", "browser/utils" ], functio
         if ( instanceReport.kubernetes ) {
             desc = " containers" ;
         }
+        if ( instanceReport.helm ) {
+            $helmMenuItems.css( "display", "flex" ) ;
+        }
+        if ( instanceReport.readme || instanceReport.helm  ) {
+            $readmeMenuItems.css( "display", "flex" ) ;
+        }
+        
+        
         $( "#instance-count" ).text( `${ sortedInstances.length } ${ desc }` ) ;
 
         $( "tr", $detailsBody ).addClass( "purge" ) ;
@@ -1315,7 +1327,8 @@ define( [ "services/kubernetes", "services/deployer", "browser/utils" ], functio
 
             let serviceName = $rows.data( "service" ) ;
 
-            if ( ( report === "graphJava" )
+            if ( ( report === "graphJava" 
+                    || report === "graphOsProcess" )
                     && isKubernetes ) {
                 serviceName += podSuffix ;
             }

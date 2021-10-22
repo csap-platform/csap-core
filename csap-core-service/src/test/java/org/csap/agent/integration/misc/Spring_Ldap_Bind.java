@@ -228,7 +228,7 @@ public class Spring_Ldap_Bind {
 
 			assertThat( authenticated ).as( "Incorrect password attempt" ).isFalse( ) ;
 
-			String rootTree = genericTree.split( "," )[1] ;
+			String rootTree = genericTree.split( "," )[ 1 ] ;
 			authenticated = ldapSpringTemplate
 					.authenticate(
 							rootTree,

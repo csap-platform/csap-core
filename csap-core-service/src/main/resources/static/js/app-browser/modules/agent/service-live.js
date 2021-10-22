@@ -1,12 +1,18 @@
 
 
 define( [ "browser/utils", "agent/service-live-plots" ], function ( utils, alertPlot ) {
+    
+    
+    console.log( "Module loaded 99" ) ;
 
     const $liveContent = $( "#agent-tab-live", "#agent-tab-content" ) ;
 
 
     let $metricDetails = $( "#metricDetails", $liveContent ) ;
     let $dataPanel = $( "#data-panel", $liveContent ) ;
+    
+    
+    const $healthStatusSpan = $( "#healthStatus", $liveContent ) ;
 
     let lastCollectionSeconds = 0 ;
 
@@ -72,7 +78,7 @@ define( [ "browser/utils", "agent/service-live-plots" ], function ( utils, alert
 
         isAlarmInfoHidden = true ;
 
-        
+
         $( ".simon-only" ).hide() ;
 //        $( ".ui-tabs-nav" ).hide() ;
         $( "#meter-view" ).val( "api" ) ;
@@ -221,12 +227,12 @@ define( [ "browser/utils", "agent/service-live-plots" ], function ( utils, alert
             _alertsCountMap[defId] = 0 ;
         } ) ;
 
-        
+
     }
 
 
     function autoRefreshMetrics( doNow ) {
-        
+
         $( "#meter-source", $liveContent ).empty().text( podName ) ;
 
         let newInterval = $refreshData.val() ;
@@ -371,17 +377,17 @@ define( [ "browser/utils", "agent/service-live-plots" ], function ( utils, alert
             } ).appendTo( $row ) ;
 
             //$row.append( buildMicroValue(  ) ) ;
-            
-            
+
+
             let $detailsCol = jQuery( '<td/>', {
                 colspan: 99
             } ).appendTo( $row ) ;
-            
+
             let $details = jQuery( '<pre/>', {
-                text: JSON.stringify(report[fieldName], "\n", "   ") ,
+                text: JSON.stringify( report[fieldName], "\n", "   " ),
                 colspan: 99
             } ).appendTo( $detailsCol ) ;
-            
+
 //            $row.append( buildMicroValue(  ) ) ;
 //            $row.append( buildMicroValue(  ) ) ;
 //            $row.append( buildMicroValue(  ) ) ;
@@ -411,7 +417,9 @@ define( [ "browser/utils", "agent/service-live-plots" ], function ( utils, alert
         for ( let meterName in microMeterReport ) {
             if ( meterName == "health-report" ) {
                 let healthReport = microMeterReport["health-report"] ;
-                console.log( "healthReport: ", healthReport )
+                
+                console.log( "healthReport: ", healthReport ) ;
+                
                 updateStatus( healthReport.isHealthy,
                         healthReport.lastCollected,
                         upTimeSeconds ) ;
@@ -423,8 +431,9 @@ define( [ "browser/utils", "agent/service-live-plots" ], function ( utils, alert
                             alertify.csapInfo( message ) ;
                         } )
                         .show() ;
+                
                 if ( !healthReport.isHealthy && healthReport.errors ) {
-                    $( "#healthStatus" ).append( "(" + healthReport.errors.length + ")" ) ;
+                    $healthStatusSpan.append( "(" + healthReport.errors.length + ")" ) ;
                 }
 
 
@@ -601,7 +610,10 @@ define( [ "browser/utils", "agent/service-live-plots" ], function ( utils, alert
         let sortVal = "" ;
         if ( val != undefined ) {
             sortVal = val ;
-            collected = val.toFixed( 1 ) ;
+            let collected = val ;
+            if ( $.isNumeric( val ) ) {
+                collected = val.toFixed( 1 ) ;
+            }
             showVal = collected ;
             if ( unit && unit == "ms" ) {
                 showVal = adjustTimeUnitFromMs( collected )
@@ -645,23 +657,19 @@ define( [ "browser/utils", "agent/service-live-plots" ], function ( utils, alert
     }
 
     function updateStatus( isHealthy, lastCollected, uptimeSeconds ) {
-        $( "#healthStatus" ).empty() ;
-        let status = `status-success` ;
-//        let $alertImage = jQuery( '<img/>', {
-//            src: IMAGES_URL + "/16x16/green.png",
-//            class: "loadMetric"
-//        } ) ;
+        
+        
+         $healthStatusSpan.removeClass( `status-green status-red` ) ;
+         
+        $healthStatusSpan.empty() ;
+        let status = `status-green` ;
         if ( !isHealthy ) {
             status = 'status-red' ;
-//            $alertImage = jQuery( '<img/>', {
-//                src: IMAGES_URL + "/16x16/red.png",
-//                class: "loadMetric"
-//            } ) ;
         }
 
-        $( "#healthStatus" ).parent().attr( "title", "last refreshed: " + lastCollected ) ;
+        $healthStatusSpan.parent().attr( "title", "last refreshed: " + lastCollected ) ;
 
-        $( "#healthStatus" ).addClass( status ) ;
+        $healthStatusSpan.addClass( status ) ;
 
         let uptimeWithUnit = adjustTimeUnitFromMs( uptimeSeconds * 1000 ) ;
         $( "#uptime" ).html( ` up: ${uptimeWithUnit}` ) ;

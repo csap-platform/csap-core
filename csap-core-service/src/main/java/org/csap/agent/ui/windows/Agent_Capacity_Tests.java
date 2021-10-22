@@ -178,11 +178,11 @@ public class Agent_Capacity_Tests {
 	public void publishRandomEvent ( int numRandomDays , int numRandomHosts , String summary )
 		throws Exception {
 
-		String life = lifecycles[javaRandom.nextInt( lifecycles.length )] ;
+		String life = lifecycles[ javaRandom.nextInt( lifecycles.length ) ] ;
 		// seed defaults to System.currentTimeMillis(), which is generally good
 		// enough to spread upload requests
 
-		String appId = appIds[javaRandom.nextInt( appIds.length )] ;
+		String appId = appIds[ javaRandom.nextInt( appIds.length ) ] ;
 		String pass = "5Rzsdzt5dHARBQjZlcmgLiIpwFhY+37C" ;
 
 		// random day/hour/15 minute interval
@@ -203,7 +203,7 @@ public class Agent_Capacity_Tests {
 
 		String hostName = appId + "_" + life + javaRandom.nextInt( numRandomHosts ) ;
 
-		String category = categories[javaRandom.nextInt( categories.length )] ;
+		String category = categories[ javaRandom.nextInt( categories.length ) ] ;
 		ObjectNode meta = null ;
 		ObjectNode data = null ;
 

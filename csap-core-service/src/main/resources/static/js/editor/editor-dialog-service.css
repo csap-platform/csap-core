@@ -36,6 +36,13 @@ div.image-block {
 	margin-top: 1em;
 }
 
+#serviceEditor #jsonEditor {
+	padding: 5px;
+}
+
+#serviceEditor #fileContainer {
+	margin-top: 5px;
+}
 
 
 #serviceEditor div.image-block label span {

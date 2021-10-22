@@ -209,7 +209,7 @@
 				placeholder="non:docker: http://$$service-fqdn-host:$$service-primary-port" />
 		</label>
 
-		<label 
+<!--		<label 
 			class=csap-form
 			title="Provide one or more comma separated urls.">
 			<span>Documentation Url:</span>
@@ -217,7 +217,20 @@
 				data-path="docUrl"
 				placeholder="sourcelocation/README.md"
 				value="" />
-		</label>
+		</label>-->
+		
+		<div class="heading" >Read Me: Provide either a markdown url, or actual markdown contents</div>
+		<div class="floating-ace-editor">
+			<textarea
+				id="service-readme"
+				spellcheck=false
+				placeholder="provide EITHER url of a markdown  OR actual markdown"
+				data-path="read-me"
+				data-plain="true"
+				data-fit="true"
+				data-adjust="1"
+				data-removenewlines="true"></textarea>
+		</div>
 	</div>
 	<div
 		id="containerConfig"
@@ -320,18 +333,18 @@
 			class="heading"
 			>OS Process Parameters passed when starting service: no newlines permitted. CSAP
 			custom: -DcsapJava7, -DcsapJava8</div>
-		<div class="floating-ace-editor">
-			<textarea
-				id="service-params-edit"
-				class="paramJdk"
-				spellcheck=false
-				placeholder="Optional: add your parameters. Eg. for java: -Xmx500m -Xms500m -XX:+UseG1GC XX:+ExitOnOutOfMemoryError"
-				data-path="parameters"
-				data-plain="true"
-				data-fit="true"
-				data-adjust="1"
-				data-removenewlines="true"></textarea>
-		</div>
+			<div class="floating-ace-editor">
+				<textarea
+					id="service-params-edit"
+					class="paramJdk"
+					spellcheck=false
+					placeholder="Optional: add your parameters. Eg. for java: -Xmx500m -Xms500m -XX:+UseG1GC XX:+ExitOnOutOfMemoryError"
+					data-path="parameters"
+					data-plain="true"
+					data-fit="true"
+					data-adjust="1"
+					data-removenewlines="true"></textarea>
+			</div>
 	</div>
 	<div
 		id="containerConfig"

@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils ;
 import org.csap.CsapMonitor ;
 import org.csap.agent.CsapCore ;
 import org.csap.agent.CsapCoreService ;
-import org.csap.agent.container.DockerIntegration ;
+import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.container.kubernetes.KubernetesIntegration ;
 import org.csap.agent.container.kubernetes.KubernetesJson ;
 import org.csap.agent.container.kubernetes.SpecBuilder ;
@@ -356,14 +356,14 @@ public class AgentApi {
 		ObjectNode timers = dockerReport.putObject( "timers" ) ;
 		meterReport.addMicroMeter(
 				timers,
-				csapApp.metrics( ).find( DockerIntegration.SUMMARY_TIMER ),
+				csapApp.metrics( ).find( ContainerIntegration.SUMMARY_TIMER ),
 				"summary",
 				1,
 				false ) ;
 
 		meterReport.addMicroMeter(
 				timers,
-				csapApp.metrics( ).find( DockerIntegration.DEPLOY_TIMER ),
+				csapApp.metrics( ).find( ContainerIntegration.DEPLOY_TIMER ),
 				"deploy",
 				1,
 				false ) ;
@@ -1926,7 +1926,7 @@ public class AgentApi {
 
 	@CsapDoc ( notes = {
 			"Download the host installer used to install current host"
-	}  )
+	} )
 	@GetMapping ( {
 			"/installer"
 	} )

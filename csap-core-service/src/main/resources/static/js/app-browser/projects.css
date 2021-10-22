@@ -369,6 +369,7 @@ article.navigation div.tab-menu #pending-edits {
 
 #settingsEditor pre.ace_editor, #serviceEditor pre.ace_editor, #clusterEditor pre.ace_editor {
 	border: 1px solid grey;
+	margin: 0;
 }
 
 
@@ -422,6 +423,7 @@ div.ajs-content > div.warning {
 	width: 100%;
 	position: relative;
 	left: -10px;
+	min-width: 10em;
 }
 
 .tedit select {

@@ -1,0 +1,8 @@
+total 16
+-rw-r--r-- 1 root   root    844 Sep  6 04:57 Gemfile
+-rw-r--r-- 1 root   root   4761 Sep  6 04:57 Gemfile.lock
+-rwxr-xr-x 1 root   root    444 Sep  6 04:57 entrypoint.sh
+drwxr-xr-x 1 fluent fluent   26 Sep  6 04:59 etc
+drwxr-xr-x 2 fluent fluent    6 Aug 30 06:20 log
+drwxr-xr-x 1 fluent fluent   72 Sep  6 04:59 plugins
+drwxr-xr-x 3 root   root     20 Sep  6 04:58 vendor

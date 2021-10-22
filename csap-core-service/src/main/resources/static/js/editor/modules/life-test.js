@@ -9,19 +9,23 @@ require.config( {
 } ) ;
 
 
-require( ["browser/projects/env-editor/life-editor", "browser/utils"], function ( lifeEdit, utils ) {
+require( ["browser/projects/env-editor/life-editor", "editor/json-forms", "browser/utils"], function ( lifeEdit, jsonForms, utils ) {
 
 	console.log( "\n\n ************** _main: loaded *** \n\n" );
 
 	// Shared variables need to be visible prior to scope
 
 	$( document ).ready( function () {
+		
 		initialize();
-                CsapCommon.configureCsapAlertify();
 	} );
 
 
 	function initialize() {
+		
+		
+        CsapCommon.configureCsapAlertify();
+		jsonForms.setUtils( utils ) ;
 
 		$( '#updateServiceButton' ).click( function () {
 			serviceEdit.updateServiceDefinition();

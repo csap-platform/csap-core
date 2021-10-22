@@ -40,7 +40,7 @@ import org.apache.commons.lang3.StringUtils ;
 import org.csap.agent.CsapCore ;
 import org.csap.agent.CsapCoreService ;
 import org.csap.agent.api.AgentApi ;
-import org.csap.agent.container.DockerIntegration ;
+import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.linux.OsCommandRunner ;
 import org.csap.agent.model.Application ;
@@ -326,7 +326,7 @@ public class FileRequests {
 
 			try {
 
-				String dockerRoot = dockerIntegration.buildSummary( ).path( "rootDirectory" ).asText( "_error_" ) ;
+				var dockerRoot = dockerIntegration.buildSummary( ).path( "rootDirectory" ).asText( "_error_" ) ;
 				diskPathsForTips.put( "dockerDisk", dockerRoot ) ;
 
 				if ( isDockerFolder( fromFolder ) ) {
@@ -341,6 +341,22 @@ public class FileRequests {
 				logger.error( "Failed to parse docker information: {}", CSAP.buildCsapStack( e ) ) ;
 
 			}
+
+		}
+
+		try {
+
+			var containersFolder = new File( "/var/lib/containers" ) ;
+
+			if ( containersFolder.isDirectory( ) ) {
+
+				diskPathsForTips.put( "containersDisk", "/var/lib/containers" ) ;
+
+			}
+
+		} catch ( Exception e ) {
+
+			logger.error( "Failed to parse docker information: {}", CSAP.buildCsapStack( e ) ) ;
 
 		}
 
@@ -450,18 +466,18 @@ public class FileRequests {
 
 		// logger.info( "fromFolder: {}, folders2: {}", fromFolder, Arrays.asList(
 		// folders2 ) );
-		var firstFolder = folders[1] ;
+		var firstFolder = folders[ 1 ] ;
 		var mountSource = volumeNfsServer + ":/" + firstFolder ;
 
 		var mountLocation = csapApp.getOsManager( ).getMountPath( mountSource ) ;
 
-		volumePath = mountLocation + "/" + folders[2] ;
+		volumePath = mountLocation + "/" + folders[ 2 ] ;
 		File testNfsFolder = new File( volumePath ) ;
 
 		if ( ! testNfsFolder.exists( ) ) {
 
 			// some time nfs is subfoldered, strip off another level\
-			volumePath = mountLocation + "/" + folders2[3] ;
+			volumePath = mountLocation + "/" + folders2[ 3 ] ;
 			testNfsFolder = new File( volumePath ) ;
 
 			if ( ! testNfsFolder.exists( ) ) {
@@ -964,7 +980,7 @@ public class FileRequests {
 							modelMap.addAttribute( "podContainer", pod ) ;
 							var podNameFields = pod.getPodName( ).split( "-" ) ;
 							var csapContainerLabel = pod.getContainerLabel( ) + " ("
-									+ podNameFields[podNameFields.length - 1] + ")" ;
+									+ podNameFields[ podNameFields.length - 1 ] + ")" ;
 							modelMap.addAttribute( "csapContainerLabel", csapContainerLabel ) ;
 							modelMap.addAttribute( "container", pod.getContainerLabel( ) ) ;
 							modelMap.addAttribute( "pod", pod.getPodName( ) ) ;
@@ -1171,7 +1187,7 @@ public class FileRequests {
 
 					String location = logListing.get( "location" ).asText( ) ;
 
-					if ( ! location.contains( DockerIntegration.MISSING_FILE_NAME ) ) {
+					if ( ! location.contains( ContainerIntegration.MISSING_FILE_NAME ) ) {
 
 						subFileNames.add( location ) ;
 
@@ -1681,6 +1697,14 @@ public class FileRequests {
 			}
 
 		}
+
+		if ( csapApp.isDesktopHost( ) && fromFolder.contains( "pod--test" ) ) {
+
+			var podJson = csapApp.check_for_stub( "", "linux/ls-pod.json" ) ;
+			logger.info( podJson ) ;
+			fileListing = (ArrayNode) jacksonMapper.readTree( podJson ) ;
+
+		}
 		// response.getWriter().println("</fromFolder>");
 
 		// fileResponseJson folderJsonArray
@@ -1733,14 +1757,15 @@ public class FileRequests {
 				.filter( line -> ! line.startsWith( "#" ) )
 				.map( line -> line.split( " ", 2 ) )
 				.filter( keyValueArray -> keyValueArray.length == 2 )
-				.collect( Collectors.toMap( keyValueArray -> keyValueArray[1], keyValueArray -> keyValueArray[0] ) ) ;
+				.collect( Collectors.toMap( keyValueArray -> keyValueArray[ 1 ],
+						keyValueArray -> keyValueArray[ 0 ] ) ) ;
 
 		return diskNameToSizeMap ;
 
 	}
 
 	@Autowired ( required = false )
-	DockerIntegration dockerIntegration ;
+	ContainerIntegration dockerIntegration ;
 
 	private ArrayNode buildListingUsingDocker (
 												String targetFolder ,
@@ -1753,19 +1778,32 @@ public class FileRequests {
 
 		if ( targetFolder.equals( "/" ) ) {
 
-			ArrayNode containerListing = jacksonMapper.createArrayNode( ) ;
-			dockerIntegration //
+			var containerListing = jacksonMapper.createArrayNode( ) ;
 
-					.containerNames( true )
-					// .containerNames( false )
+			var containerNames = dockerIntegration.containerNames( true ) ;
+
+			if ( csapApp.isCrioInstalledAndActive( ) ) {
+
+				containerNames.addAll( csapApp.crio( ).containerNames( ) ) ;
+
+			}
+
+			containerNames
 
 					.forEach( fullName -> {
 
 						ObjectNode itemJson = containerListing.addObject( ) ;
-						String name = fullName.substring( 1 ) ; // strip off leading
-																// slash added by ui
+						var name = fullName ;
+
+						if ( fullName.startsWith( "/" ) ) { // docker listings
+
+							name = fullName.substring( 1 ) ;
+
+						}
+
 						itemJson.put( "folder", true ) ;
 						itemJson.put( "lazy", true ) ;
+
 						itemJson.put( "name", name ) ;
 						itemJson.put( "location", fromFolder + name ) ;
 						// itemJson.put("data", dataNode) ;
@@ -1776,12 +1814,33 @@ public class FileRequests {
 			fileListing = containerListing ;
 
 		} else {
-			// do docker ls & feed to OS listing
+			// do container ls & feed to OS listing
 
 			String[] dockerContainerAndPath = splitDockerTarget( targetFolder ) ;
-			String lsOutput = dockerIntegration.listFiles(
-					dockerContainerAndPath[0],
-					dockerContainerAndPath[1] ) ;
+			String lsOutput ;
+
+			if ( csapApp.isCrioInstalledAndActive( )
+					&& targetFolder.contains( OsManager.CRIO_DELIMETER ) ) {
+
+				var containerName = dockerContainerAndPath[ 0 ] ;
+
+				if ( containerName.startsWith( "/" ) ) { // docker listings
+
+					containerName = containerName.substring( 1 ) ;
+
+				}
+
+				lsOutput = csapApp.crio( ).listFiles(
+						containerName,
+						dockerContainerAndPath[ 1 ] ) ;
+
+			} else {
+
+				lsOutput = dockerIntegration.listFiles(
+						dockerContainerAndPath[ 0 ],
+						dockerContainerAndPath[ 1 ] ) ;
+
+			}
 
 			fileListing = buildListingUsingOs( fromFolder, lsOutput, duLines ) ;
 
@@ -1849,8 +1908,9 @@ public class FileRequests {
 
 		logger.debug( CsapApplication.header( "ls: {} " ) + CsapApplication.header( "duLines: {} " ), lsOutput,
 				duLines ) ;
-		String[] lsOutputLines = lsOutput.split( "\n" ) ;
-		ArrayNode fileListing = jacksonMapper.createArrayNode( ) ;
+
+		var lsOutputLines = lsOutput.split( "\n" ) ;
+		var fileListing = jacksonMapper.createArrayNode( ) ;
 
 		for ( String line : lsOutputLines ) {
 
@@ -1860,18 +1920,18 @@ public class FileRequests {
 
 			logger.debug( "line: {} words: {} ", line, lsOutputWords.length ) ;
 
-			if ( lsOutputWords.length == 9 && lsOutputWords[0].length( ) >= 10 ) {
+			if ( lsOutputWords.length == 9 && lsOutputWords[ 0 ].length( ) >= 10 ) {
 
 				ObjectNode itemJson = fileListing.addObject( ) ;
-				String currentItemName = lsOutputWords[8] ;
+				String currentItemName = lsOutputWords[ 8 ] ;
 				itemJson.put( "name", currentItemName ) ;
 
-				String fsize = lsOutputWords[4] + " b, " ;
+				String fsize = lsOutputWords[ 4 ] + " b, " ;
 				long fsizeNumeric = 0 ;
 
 				try {
 
-					Long fileSize = Long.parseLong( lsOutputWords[4] ) ;
+					Long fileSize = Long.parseLong( lsOutputWords[ 4 ] ) ;
 					fsizeNumeric = fileSize.longValue( ) ;
 					if ( fileSize > 1000 )
 						fsize = fsizeNumeric / 1000 + "kb, " ;
@@ -1884,7 +1944,7 @@ public class FileRequests {
 
 				}
 
-				if ( lsOutputWords[0].contains( "d" ) ) {
+				if ( lsOutputWords[ 0 ].contains( "d" ) ) {
 
 					itemJson.put( "folder", true ) ;
 					itemJson.put( "lazy", true ) ;
@@ -1917,23 +1977,23 @@ public class FileRequests {
 				itemJson.put( "restricted", true ) ;
 				itemJson.put( "filter", false ) ;
 				itemJson.put( "location",
-						fromFolder + lsOutputWords[8] ) ;
+						fromFolder + lsOutputWords[ 8 ] ) ;
 				// itemJson.put("data", dataNode) ;
-				itemJson.put( "title", lsOutputWords[8] ) ;
+				itemJson.put( "title", lsOutputWords[ 8 ] ) ;
 				itemJson.put(
 						"meta",
 						"~"
 								+ fsize
-								+ lsOutputWords[5] + " "
-								+ lsOutputWords[6] + " "
-								+ lsOutputWords[7] + ","
-								+ lsOutputWords[0] + ","
-								+ lsOutputWords[1] + ","
-								+ lsOutputWords[2] + ","
-								+ lsOutputWords[3] ) ;
+								+ lsOutputWords[ 5 ] + " "
+								+ lsOutputWords[ 6 ] + " "
+								+ lsOutputWords[ 7 ] + ","
+								+ lsOutputWords[ 0 ] + ","
+								+ lsOutputWords[ 1 ] + ","
+								+ lsOutputWords[ 2 ] + ","
+								+ lsOutputWords[ 3 ] ) ;
 
 				itemJson.put( "size", fsizeNumeric ) ;
-				itemJson.put( "target", fromFolder + lsOutputWords[8]
+				itemJson.put( "target", fromFolder + lsOutputWords[ 8 ]
 						+ "/" ) ;
 
 			}
@@ -2300,13 +2360,36 @@ public class FileRequests {
 
 				}
 
-				dockerIntegration.writeContainerFileToHttpResponse(
-						isBinary,
-						dockerContainerAndPath[0],
-						dockerContainerAndPath[1],
-						response,
-						maxSizeForDocker,
-						CHUNK_SIZE_PER_REQUEST ) ;
+				if ( csapApp.isCrioInstalledAndActive( )
+						&& dockerTarget.contains( OsManager.CRIO_DELIMETER ) ) {
+
+					var containerName = dockerContainerAndPath[ 0 ] ;
+
+					if ( containerName.startsWith( "/" ) ) { // docker listings
+
+						containerName = containerName.substring( 1 ) ;
+
+					}
+
+					csapApp.crio( ).writeContainerFileToHttpResponse(
+							isBinary,
+							containerName,
+							dockerContainerAndPath[ 1 ],
+							response,
+							maxSizeForDocker,
+							CHUNK_SIZE_PER_REQUEST ) ;
+
+				} else {
+
+					dockerIntegration.writeContainerFileToHttpResponse(
+							isBinary,
+							dockerContainerAndPath[ 0 ],
+							dockerContainerAndPath[ 1 ],
+							response,
+							maxSizeForDocker,
+							CHUNK_SIZE_PER_REQUEST ) ;
+
+				}
 
 			} else {
 
@@ -2770,21 +2853,42 @@ public class FileRequests {
 
 			if ( StringUtils.isEmpty( contents ) ) {
 
-				contents = dockerIntegration.writeContainerFileToString(
-						modelMap,
-						dockerContainerAndPath[0],
-						dockerContainerAndPath[1],
-						getMaxEditSize( ),
-						CHUNK_SIZE_PER_REQUEST ).toString( ) ;
+				if ( csapApp.isCrioInstalledAndActive( )
+						&& dockerTarget.contains( OsManager.CRIO_DELIMETER ) ) {
+
+					contents = "Skipping save: CRIO file updates will be implement in final release" ;
+
+				} else {
+
+					contents = dockerIntegration.writeContainerFileToString(
+							modelMap,
+							dockerContainerAndPath[ 0 ],
+							dockerContainerAndPath[ 1 ],
+							getMaxEditSize( ),
+							CHUNK_SIZE_PER_REQUEST ).toString( ) ;
+
+				}
 
 			} else {
 
-				var dockerWriteResults = dockerIntegration.writeFileToContainer(
-						contents,
-						dockerContainerAndPath[0],
-						dockerContainerAndPath[1],
-						getMaxEditSize( ),
-						CHUNK_SIZE_PER_REQUEST ) ;
+				var dockerWriteResults = jacksonMapper.createObjectNode( ) ;
+
+				if ( csapApp.isCrioInstalledAndActive( )
+						&& dockerTarget.contains( OsManager.CRIO_DELIMETER ) ) {
+
+					dockerWriteResults.put( "error",
+							"Skipping save: CRIO file updates will be implement in final release " ) ;
+
+				} else {
+
+					dockerWriteResults = dockerIntegration.writeFileToContainer(
+							contents,
+							dockerContainerAndPath[ 0 ],
+							dockerContainerAndPath[ 1 ],
+							getMaxEditSize( ),
+							CHUNK_SIZE_PER_REQUEST ) ;
+
+				}
 
 				logger.info( "dockerWriteResults {}", dockerWriteResults ) ;
 
@@ -3316,12 +3420,12 @@ public class FileRequests {
 
 		try {
 
-			if ( dockerContainerAndPath[1] == null || dockerContainerAndPath[1].trim( ).length( ) == 0 ) {
+			if ( dockerContainerAndPath[ 1 ] == null || dockerContainerAndPath[ 1 ].trim( ).length( ) == 0 ) {
 
 				// show container logs
 				ObjectNode tailResult = dockerIntegration.containerTail(
 						null,
-						dockerContainerAndPath[0],
+						dockerContainerAndPath[ 0 ],
 						numberOfLines,
 						Integer.parseInt( dockerSince ) ) ;
 
@@ -3343,8 +3447,8 @@ public class FileRequests {
 				// tail on docker file
 				String logsAsText = dockerIntegration
 						.tailFile(
-								dockerContainerAndPath[0],
-								dockerContainerAndPath[1],
+								dockerContainerAndPath[ 0 ],
+								dockerContainerAndPath[ 1 ],
 								numberOfLines ) ;
 
 				fileChangesJson.put( "since", -1 ) ;

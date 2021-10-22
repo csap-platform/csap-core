@@ -581,7 +581,7 @@ public class ServiceCollector extends HostCollector implements Runnable {
 
 	public ObjectNode getJavaCollection ( int requestedSampleSize , int skipFirstItems , String... services ) {
 
-		if ( services[0].toLowerCase( ).equals( ALL_SERVICES ) ) {
+		if ( services[ 0 ].toLowerCase( ).equals( ALL_SERVICES ) ) {
 
 			services = getJavaServiceNames( ) ;
 

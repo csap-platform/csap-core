@@ -40,7 +40,7 @@ import org.apache.commons.lang3.StringUtils ;
 import org.apache.commons.lang3.text.WordUtils ;
 import org.csap.agent.CsapCore ;
 import org.csap.agent.api.AgentApi ;
-import org.csap.agent.container.DockerIntegration ;
+import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.container.DockerJson ;
 import org.csap.agent.container.kubernetes.KubernetesIntegration ;
 import org.csap.agent.container.kubernetes.KubernetesJson ;
@@ -61,7 +61,6 @@ import org.csap.agent.model.ServiceInstance ;
 import org.csap.agent.ui.editor.ServiceResources ;
 import org.csap.agent.ui.rest.ApplicationBrowser ;
 import org.csap.agent.ui.rest.ServiceRequests ;
-import org.csap.agent.ui.rest.SsoRequestFactory ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
 import org.csap.integations.CsapEncryptionConfiguration ;
@@ -82,7 +81,6 @@ import org.springframework.http.ResponseEntity ;
 import org.springframework.stereotype.Service ;
 import org.springframework.util.LinkedMultiValueMap ;
 import org.springframework.util.MultiValueMap ;
-import org.springframework.web.client.RestTemplate ;
 import org.springframework.web.util.UriComponentsBuilder ;
 import org.springframework.web.util.WebUtils ;
 
@@ -1623,46 +1621,57 @@ public class ServiceOsManager {
 
 	}
 
-	public String buildYamlTemplate (
+	public File buildDeplomentFile (
 										ServiceInstance serviceInstance ,
 										File sourceFile ,
 										ObjectNode containerConfiguration ) {
 
-		String yaml = Application.readFile( sourceFile ) ;
+		var fileContents = Application.readFile( sourceFile ) ;
 
-		// support user overrides
-		var imageName = containerConfiguration.path( DockerJson.imageName.json( ) ).asText( ) ;
+		//
+		// First: replace any UI modifications to deployment
+		//
 
-		if ( StringUtils.isNotEmpty( imageName ) ) {
+		fileContents = replaceDeployOverRides(
+				CsapCore.CSAP_DEF_IMAGE,
+				DockerJson.imageName.json( ),
+				containerConfiguration, fileContents ) ;
 
-			yaml = yaml.replaceAll(
-					Matcher.quoteReplacement( CsapCore.CSAP_DEF_IMAGE ),
-					Matcher.quoteReplacement( imageName ) ) ;
+		fileContents = replaceDeployOverRides(
+				CsapCore.CSAP_DEF_HELM_CHART_NAME,
+				DockerJson.helmChartName.json( ),
+				containerConfiguration, fileContents ) ;
 
-		}
+		fileContents = replaceDeployOverRides(
+				CsapCore.CSAP_DEF_HELM_CHART_VERSION,
+				DockerJson.helmChartVersion.json( ),
+				containerConfiguration, fileContents ) ;
 
-		var replicaCount = containerConfiguration.path( DockerJson.containerCount.json( ) ).asText( ) ;
+		fileContents = replaceDeployOverRides(
+				CsapCore.CSAP_DEF_HELM_CHART_REPO,
+				DockerJson.helmChartRepo.json( ),
+				containerConfiguration, fileContents ) ;
 
-		if ( StringUtils.isNotEmpty( replicaCount ) ) {
+		fileContents = replaceDeployOverRides(
+				CsapCore.CSAP_DEF_REPLICA,
+				DockerJson.containerCount.json( ),
+				containerConfiguration, fileContents ) ;
 
-			yaml = yaml.replaceAll(
-					Matcher.quoteReplacement( CsapCore.CSAP_DEF_REPLICA ),
-					Matcher.quoteReplacement( replicaCount ) ) ;
-
-		}
-
-		yaml = csapApp.resolveDefinitionVariables( yaml, serviceInstance ) ;
+		//
+		// Second: replace any remaining variables
+		//
+		fileContents = csapApp.resolveDefinitionVariables( fileContents, serviceInstance ) ;
 
 		// resolve image names eg. image: csap/ to junit-test/
 		for ( var set : csapApp.environmentSettings( ).getKubernetesYamlReplacements( ).entrySet( ) ) {
 
-			yaml = yaml.replaceAll(
+			fileContents = fileContents.replaceAll(
 					Matcher.quoteReplacement( set.getKey( ) ),
 					Matcher.quoteReplacement( set.getValue( ) ) ) ;
 
 		}
 
-		File workingFolder = serviceInstance.getWorkingDirectory( ) ;
+		var workingFolder = serviceInstance.getWorkingDirectory( ) ;
 		var yamlFile = new File( workingFolder, sourceFile.getName( ) ) ;
 
 		try {
@@ -1670,7 +1679,7 @@ public class ServiceOsManager {
 			logger.debug( "Creating: {}", yamlFile ) ;
 			yamlFile.delete( ) ;
 			FileUtils.forceMkdir( workingFolder ) ;
-			FileUtils.writeStringToFile( yamlFile, yaml ) ;
+			FileUtils.writeStringToFile( yamlFile, fileContents ) ;
 
 		} catch ( Exception e ) {
 
@@ -1678,7 +1687,27 @@ public class ServiceOsManager {
 
 		}
 
-		return yaml ;
+		return yamlFile ;
+
+	}
+
+	private String replaceDeployOverRides (
+											String targetToken ,
+											String targetPath ,
+											ObjectNode containerConfiguration ,
+											String fileContents ) {
+
+		var chartVersion = containerConfiguration.path( targetPath ).asText( ) ;
+
+		if ( StringUtils.isNotEmpty( chartVersion ) ) {
+
+			fileContents = fileContents.replaceAll(
+					Matcher.quoteReplacement( targetToken ),
+					Matcher.quoteReplacement( chartVersion ) ) ;
+
+		}
+
+		return fileContents ;
 
 	}
 
@@ -2554,7 +2583,7 @@ public class ServiceOsManager {
 	}
 
 	@Autowired ( required = false )
-	DockerIntegration dockerHelper = null ;
+	ContainerIntegration dockerHelper = null ;
 
 	private String deployContainerService (
 											ServiceInstance serviceInstance ,
@@ -2568,7 +2597,8 @@ public class ServiceOsManager {
 					serviceInstance ) ;
 
 			if ( isCurrentlyRunning
-					&& ! serviceInstance.isSkipSpecificationGeneration( ) ) {
+					&& ! serviceInstance.isSkipSpecificationGeneration( )
+					&& ! serviceInstance.isHelmConfigured( ) ) {
 
 				outputFileMgr.printHeader(
 						"Found running container instance  for a generate spec - issueing a remove" ) ;
@@ -2691,10 +2721,10 @@ public class ServiceOsManager {
 														String scmUserid ,
 														boolean isCurrentlyRunning ) {
 
-		String deploymentCommands = filesToDeploy
+		var deploymentCommands = filesToDeploy
 				.map( filePath -> {
 
-					String command = "unable to run" ;
+					var command = "unable to run" ;
 
 					try {
 
@@ -2705,30 +2735,55 @@ public class ServiceOsManager {
 							outputFileMgr.printHeader( "Error: unable to locate deployment file : " + sourceFile
 									.getAbsolutePath( ) ) ;
 
+							command = "skipping " + sourceFile.getAbsolutePath( ) + " file not found" ;
+
 						} else {
 
-							String yaml = buildYamlTemplate( serviceInstance, sourceFile, containerConfiguration ) ;
-							File yamlFile = csapApp.createYamlFile(
-									"-deploy-" + sourceFile.getName( )
-											+ "-",
-									yaml,
-									serviceInstance.getName( ) ) ;
+							var deploymentFile = buildDeplomentFile(
+									serviceInstance,
+									sourceFile,
+									containerConfiguration ) ;
 
-							String deployCommand = "create --save-config" ;
+							if ( sourceFile.getName( ).endsWith( ".sh" ) ) {
 
-							if ( isCurrentlyRunning ) {
+								outputFileMgr.printHeader( "invoking script with deploy " + deploymentFile
+										.getAbsolutePath( ) ) ;
 
-								outputFileMgr.print( CSAP.padNoLine( "note" )
-										+ "found running containers, switching to updating the existing deployment" ) ;
-								deployCommand = "apply" ;
+								var output = osManager.kubernetesShell(
+										"deploy", deploymentFile,
+										DockerJson.response_shell ) ;
+
+								outputFileMgr.printHeader( output.path( DockerJson.response_shell.json( ) )
+										.asText( ) ) ;
+
+							} else if ( sourceFile.getName( ).startsWith( "helm" ) ) {
+								// just written out
+
+							} else {
+
+								var yamlFile = csapApp.createYamlFile(
+										"-deploy-" + sourceFile.getName( ) + "-",
+										Application.readFile( deploymentFile ),
+										serviceInstance.getName( ) ) ;
+
+								var deployCommand = "create --save-config" ;
+
+								if ( isCurrentlyRunning ) {
+
+									outputFileMgr.print( CSAP.padNoLine( "note" )
+											+ "found running containers, switching to updating the existing deployment" ) ;
+									deployCommand = "apply" ;
+
+								}
+
+								command = deployCommand + " -f " + yamlFile.getAbsolutePath( ) ;
+
+								outputFileMgr.printHeader( command ) ;
+								ObjectNode output = osManager.kubernetesCli( command, DockerJson.response_shell ) ;
+								outputFileMgr.printHeader( output.path( DockerJson.response_shell.json( ) )
+										.asText( ) ) ;
 
 							}
-
-							command = deployCommand + " -f " + yamlFile.getAbsolutePath( ) ;
-
-							outputFileMgr.printHeader( command ) ;
-							ObjectNode output = osManager.kubernetesCli( command, DockerJson.response_shell ) ;
-							outputFileMgr.printHeader( output.path( DockerJson.response_shell.json( ) ).asText( ) ) ;
 
 						}
 
@@ -2741,6 +2796,7 @@ public class ServiceOsManager {
 					return command ;
 
 				} )
+
 				.collect( Collectors.joining( "\n\t" ) ) ;
 
 		logger.info( "Deployment specification files (kubectl): '{}'", deploymentCommands ) ;
@@ -3238,20 +3294,46 @@ public class ServiceOsManager {
 
 						} else {
 
-							String yaml = buildYamlTemplate( serviceInstance, sourceFile, jsonMapper
-									.createObjectNode( ) ) ;
-							File yamlFile = csapApp.createYamlFile( "-delete-" + sourceFile.getName( ) + "-", yaml,
-									serviceInstance.getName( ) ) ;
-							String command = "delete -f " + yamlFile.getAbsolutePath( ) ;
+							var deploymentFile = buildDeplomentFile(
+									serviceInstance,
+									sourceFile,
+									jsonMapper.createObjectNode( ) ) ;
 
-							// if ( (params != null) && (params.contains( "clean" )) ) {
-							// command += " --grace-period=0 --force " ;
-							// }
+							if ( sourceFile.getName( ).endsWith( ".sh" ) ) {
 
-							outputFileMgr.printHeader( command ) ;
-							ObjectNode output = osManager.kubernetesCli( command, DockerJson.response_shell ) ;
-							outputFileMgr.printHeader( output.path( DockerJson.response_shell.json( ) ).asText( ) ) ;
-							results.put( filePath.toString( ), "completed" ) ;
+								outputFileMgr.printHeader( "invoking script with remove " + deploymentFile
+										.getAbsolutePath( ) ) ;
+
+								var output = osManager.kubernetesShell(
+										"remove", deploymentFile,
+										DockerJson.response_shell ) ;
+
+								outputFileMgr.printHeader( output.path( DockerJson.response_shell.json( ) )
+										.asText( ) ) ;
+
+							} else if ( sourceFile.getName( ).startsWith( "helm" ) ) {
+								// just written out
+
+							} else {
+
+								var preservedYamlFile = csapApp.createYamlFile(
+										"-delete-" + sourceFile.getName( ) + "-",
+										Application.readFile( deploymentFile ),
+										serviceInstance.getName( ) ) ;
+
+								var command = "delete -f " + preservedYamlFile.getAbsolutePath( ) ;
+
+								// if ( (params != null) && (params.contains( "clean" )) ) {
+								// command += " --grace-period=0 --force " ;
+								// }
+
+								outputFileMgr.printHeader( command ) ;
+								ObjectNode output = osManager.kubernetesCli( command, DockerJson.response_shell ) ;
+								outputFileMgr.printHeader( output.path( DockerJson.response_shell.json( ) )
+										.asText( ) ) ;
+								results.put( filePath.toString( ), "completed" ) ;
+
+							}
 
 						}
 

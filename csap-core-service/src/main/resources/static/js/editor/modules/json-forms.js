@@ -1,6 +1,6 @@
 
 
-define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEditor, aceModeListLoader, yaml ) {
+define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEditor, aceModeListLoader, jsYaml ) {
 
 
     console.log( "Module loaded" ) ;
@@ -33,12 +33,20 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
         wrap: true
     } ;
 
+    let _yamlError ;
+
     let utils ;
+
+    let commentBlocks = [
+        "alerts", "environmentVariables", "docker", "scheduledJobs", "performance", "files",
+        "hosts", "template-references", "masters", "monitors",
+        "configuration-maps", "vsphere"
+    ] ;
 
 
 
     let jsonForms = {
-        
+
         //
         // Convenience Methods for working with JSON objects
         //
@@ -46,19 +54,26 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
             let defManager = new DefinitionManager( definitionJson, jsonKey, false ) ;
             return defManager.getValue() ;
         },
-        
-        mergeJson: function ( dotPathToUpdate, updatedJson,  ) {
-            
+
+        mergeJson: function ( dotPathToUpdate, updatedJson, ) {
+
             let defManager = new DefinitionManager( fullDefinitionJson, dotPathToUpdate, false ) ;
             let  parsedJson = JSON.parse( updatedJson ) ;
             defManager.updateValue( parsedJson ) ;
-            
+
             return defManager.getValue() ;
         },
-        
+
         //
         //  methods for csap dialog editors
         //
+
+        getJsonText: function ( $textArea ) {
+
+            return getJsonText( $textArea ) ;
+
+        },
+
         setAceDefaults: function ( aceDefaults ) {
             _aceDefaults = aceDefaults ;
         },
@@ -132,7 +147,7 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
             } ) ;
 
         },
-        
+
         isDialogBuilt: function ( dialogId ) {
             return alertify[ dialogId ] ;
         },
@@ -238,12 +253,12 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
             let defManager = new DefinitionManager( definitionJson, jsonKey, false ) ;
             let dataValue = defManager.getValue() ;
 
-            if ( jsonKey == ROOT ) {
+            if ( jsonKey === ROOT ) {
                 dataValue = definitionJson ;
             }
 
             let currentElementValue = $itemContainer.val() ;
-            console.log( `jsonKey: ${jsonKey}, type: ${$itemContainer.prop( 'tagName' )},`
+            console.debug( `jsonKey: ${jsonKey}, type: ${$itemContainer.prop( 'tagName' )},`
                     + ` id: ${ $itemContainer.attr( "id" ) },  dataValue: ${ dataValue },`
                     + ` current value: ${ max50( currentElementValue ) }, type: ${ typeof dataValue} ` ) ;
 
@@ -265,7 +280,13 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
 //                    $itemContainer.css( "color", "black" );
 //                }
 
-                if ( isConvertLines( $itemContainer ) ) {
+                if ( isConvertYaml( $itemContainer ) ) {
+                    console.log( `Loading yaml ${ jsonKey } ` ) ;
+                    const yamlText = dumpAndIndentAsYaml( dataValue, "root" ) ;
+                    $itemContainer.val( yamlText ) ;
+                    //$itemContainer.css( "white-space", "pre" ) ;
+
+                } else if ( isConvertLines( $itemContainer ) ) {
                     console.log( "Loading jsonarrayToText", jsonKey )
                     let textLines = "" ;
                     for ( let i = 0 ; i < dataValue.length ; i++ ) {
@@ -317,7 +338,7 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
 
                 let defaultDefinitionManager = new DefinitionManager( defaultValues, jsonKey, false ) ;
                 let foundValues = defaultDefinitionManager.getValue() ;
-                console.log( "Defaults: key", jsonKey, foundValues ) ;
+                console.debug( "Defaults: key", jsonKey, foundValues ) ;
                 // defaultValues
                 if ( foundValues ) {
                     //console.log( "Found Default	for key: ", jsonKey );
@@ -333,7 +354,7 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
                         $itemContainer.val( SAMPLE + ": " + foundValues ) ;
                     }
                 } else {
-                    console.log( "no Default for key:", jsonKey ) ;
+                    console.debug( "no Default for key:", jsonKey ) ;
                     $itemContainer.val( "" ) ;
                 }
             }
@@ -342,6 +363,31 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
 
         console.log( "Service does not contain the following elements", undefinedAttributes ) ;
         console.groupEnd() ;
+    }
+
+    function dumpAndIndentAsYaml( editSnippet, path ) {
+
+        console.log( `dumpAndIndentAsYaml: ${ path } ` )
+
+        let options = {
+            indent: 2
+//            forceQuotes: true supported 4.x
+        }
+        let yamlText = jsYaml.dump( editSnippet, options ) ;
+
+        //if ( $( "#pje-yaml-spacing", $projectJsonPre.parent() ).is( ':checked' ) ) {
+
+//        let spaceTopLevel = path.startsWith( "service-templates." )
+//                || path.startsWith( "project" ) ;
+
+
+        yamlText = utils.yamlSpaces(
+                yamlText,
+                commentBlocks,
+                false ) ;
+        //}
+
+        return yamlText ;
     }
 
     function registerOperations() {
@@ -629,12 +675,22 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
         function updateValue( stringOrArrayOrObject ) {
 
             let desc = max50( stringOrArrayOrObject ) ;
-            console.log( `updating:  attribute: '${ attributeMatched }' jsonKey: ${jsonKey} type: ${ typeof stringOrArrayOrObject} new value: ${ desc }` ) ;
-            
+            console.log( `\n\n updating  attribute: '${ attributeMatched }' `
+                    + `\n\t jsonKey: ${jsonKey} \n\t type: ${ typeof stringOrArrayOrObject} `
+                    + ` new value: ${ desc }` ) ;
+            console.log( `stringOrArrayOrObject`, stringOrArrayOrObject ) ;
+
             if ( jsonKey === ROOT ) {
                 definitionJson = stringOrArrayOrObject ;
             } else {
-                elementToUpdate[ attributeMatched ] = stringOrArrayOrObject ;
+
+                if ( $.isNumeric( stringOrArrayOrObject ) ) {
+                    console.debug( ` is a number ${ stringOrArrayOrObject }` ) ;
+                    elementToUpdate[ attributeMatched ] = Number.parseInt( stringOrArrayOrObject ) ;
+                } else {
+                    console.debug( ` is not a number ${ stringOrArrayOrObject }` ) ;
+                    elementToUpdate[ attributeMatched ] = stringOrArrayOrObject ;
+                }
             }
 
             if ( _notifyChangeFunction ) {
@@ -661,12 +717,14 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
     }
 
     function updateDefinition( definitionJson, $inputChanged, optionalValue ) {
-        let jsonKey = $inputChanged.data( "path" ) ;
+        let inputPath = $inputChanged.data( "path" ) ;
 
-        if ( !jsonKey )
+        if ( !inputPath ) {
+            console.log( `ignoring ${$inputChanged.val()}, no path` ) ;
             return ;
+        }
 
-        let jsonUpdater = new DefinitionManager( definitionJson, jsonKey, true ) ;
+        let jsonUpdater = new DefinitionManager( definitionJson, inputPath, true ) ;
 
         let isRawJson = $inputChanged.data( "json" ) ;
         let isRemoveNewLines = $inputChanged.data( "removenewlines" ) ;
@@ -674,6 +732,7 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
         if ( optionalValue ) {
             // usually for textareas with raw json
             jsonUpdater.updateValue( optionalValue ) ;
+
         } else {
 
             if ( $inputChanged.is( "span" ) ) {
@@ -697,7 +756,14 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
 
                     } else {
                         let newVal = $inputChanged.val() ;
-                        if ( isRemoveNewLines ) {
+                        if ( isConvertYaml( $inputChanged ) ) {
+                            //let  parsedJson = JSON.parse( newVal ) ;
+                            console.log( `attempting load of content as yaml` ) ;
+                            const updatedYaml = jsYaml.safeLoad( newVal ) ;
+                            newVal = JSON.stringify( updatedYaml, null, 2 )
+                            console.debug( `\n\n converted`, newVal ) ;
+
+                        } else if ( isRemoveNewLines ) {
                             console.log( "Removing new lines" ) ;
                             newVal = newVal.replace( /(\r\n|\n|\r)/gm, " " ) ;
                         }
@@ -746,6 +812,7 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
             isExternalAceBuilder = true ;
             textareafilter = "textarea.fitContent"
         }
+        console.log( `filtered by: '${textareafilter}'` ) ;
 
         $( textareafilter, $( dialogContainer + " #dialogOpsContainer" ).parent() ).each( function () {
 
@@ -755,7 +822,7 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
                 return ;
             }
             let targetTextId = $targetTextArea.attr( "id" ) ;
-            console.log( `Updating textarea: '${ targetTextId }' filtered by: '${textareafilter}'` ) ;
+            console.log( `\n\n Updating textarea: '${ targetTextId }'` ) ;
 
             if ( targetTextId == undefined ) {
                 console.log( `Found undefined textarea, aborting processing`, $targetTextArea.parent().html() ) ;
@@ -816,11 +883,7 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
 
             if ( $targetTextArea.attr( "id" ) != undefined ) {
 
-                let containerDesc = "" ;
-                if ( dialogContainer == "body" ) {
-                    containerDesc = "-body" ;
-                }
-                let aceEditorId = $targetTextArea.attr( "id" ) + "-ace" + containerDesc ;
+                let aceEditorId = getAceEditorId( $targetTextArea, dialogContainer ) ;
 
                 if ( !_aceEditors.hasOwnProperty( aceEditorId ) ) {
 
@@ -837,10 +900,21 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
                             false, readOnly ) ;
 
                     // bridging text content back into ace
-                    if ( $targetTextArea.val() != _aceEditors[ aceEditorId ].getValue() ) {
-                        console.log( `resizeVisibleEditors(): updating ace: '${targetTextId}' ` ) ;
-                        _aceEditors[ aceEditorId ].setValue( $targetTextArea.val(), 1 ) ;
-                    }
+                    const lagForRaceLoadingMs = 100 ;
+                    setTimeout( function () {
+
+                        let originalSourceOptionalYaml = getJsonText( $targetTextArea, true ) ;
+                        let workingSource = _aceEditors[ aceEditorId ].getValue() ;
+                        //console.log( "\n\n============= pre textArea: ", originalSourceOptionalYaml , "\n\n ============== pre aceEditor: ",  workingSource ) ;
+                        //console.log( "\n\n============= textArea: ", workingSource , "\n\n ============== aceEditor: ",  workingSource ) ;
+
+                        if ( originalSourceOptionalYaml != workingSource ) {
+                            console.log( `\n\n content of ace ${ aceEditorId }`
+                                    + ` differs from text:  ${targetTextId} \n\t forcing update of ace` ) ;
+                            _aceEditors[ aceEditorId ].setValue( originalSourceOptionalYaml, 1 ) ;
+                        }
+
+                    }, lagForRaceLoadingMs ) ;
                 }
 
                 $( "#" + aceEditorId, $targetTextArea.parent() )
@@ -849,12 +923,73 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
 
                 _aceEditors[ aceEditorId ].resize() ;
 
+                let jsonKey = $targetTextArea.data( "path" )
+                let lastActivatedEditor = _aceEditors[ aceEditorId ] ;
+//                if ( jsonKey === ROOT ) { // only bind once
+                let $osFoldCheckbox = $( ".editor-toggle-last" ) ;
+                $osFoldCheckbox.off().change( function () {
+                    console.log( `editor-toggle-last checked` ) ;
+                    if ( $( this ).is( ':checked' ) ) {
+                        lastActivatedEditor.getSession().foldAll( 1 ) ;
+                    } else {
+                        //_yamlEditor.getSession().unfoldAll( 2 ) ;
+                        lastActivatedEditor.getSession().unfold( ) ;
+                    }
+                } ) ;
+
+                let $jsonCheckbox = $( ".editor-toggle-json" ) ;
+                let $rootTextArea = $targetTextArea ;
+                $jsonCheckbox.off().change( function () {
+                    console.log( `json checked` ) ;
+                    //aceTextEditor.getSession()._emit('change')
+                    lastActivatedEditor.setValue( $rootTextArea.val() ) ;
+                } ) ;
+//                }
+//                setTimeout( function() {
+//                    
+//                    console.log( `refreshing ${ aceEditorId } again`) ;
+//                    _aceEditors[ aceEditorId ].resize() ;
+//                }, 1000)
+
             }
 
             console.log( `container: '${ $targetTextArea.attr( "id" ) }' height: '${ $targetTextArea.css( "height" )}'  width: '${ $targetTextArea.css( "width" ) }' ` ) ;
 
         } ) ;
         console.groupEnd() ;
+    }
+
+    function getAceEditorId( $targetTextArea, dialogContainer = "body" ) {
+
+        let containerDesc = "" ;
+        if ( dialogContainer == "body" ) {
+            containerDesc = "-body" ;
+        }
+        let aceEditorId = $targetTextArea.attr( "id" ) + "-ace" + containerDesc ;
+
+        return aceEditorId ;
+    }
+
+    function getJsonText( $textArea, isFormatYaml = false ) {
+        let originalSource = $textArea.val() ;
+
+        let isJsonMode = $( ".editor-toggle-json" ).is( ':checked' ) ;
+
+//        console.log( `getJsonText source`, originalSource ) ;
+
+        if ( isConvertYaml( $textArea ) && !isJsonMode ) {
+            console.log( `getJsonText converting yaml to json` ) ;
+            console.debug( originalSource ) ;
+            let jsonSource = JSON.parse( originalSource ) ;
+
+            if ( isFormatYaml ) {
+                originalSource = dumpAndIndentAsYaml( jsonSource, "root" ) ;
+            } else {
+                originalSource = JSON.stringify( jsonSource ) ;
+            }
+
+        }
+        return originalSource ;
     }
 
     function build_ace_editor( targetTextId, aceEditorId, $targetTextArea ) {
@@ -875,68 +1010,94 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
 
         _aceEditors[ aceEditorId ].setValue( $targetTextArea.val(), 1 ) ;
 
-        setTimeout( function () {
-
-            let $osFoldCheckbox = $( ".editor-toggle-last" ) ;
-            $osFoldCheckbox.off().change( function () {
-                if ( $( this ).is( ':checked' ) ) {
-                    aceTextEditor.getSession().foldAll( 1 ) ;
-                } else {
-                    //_yamlEditor.getSession().unfoldAll( 2 ) ;
-                    aceTextEditor.getSession().unfold( ) ;
-                }
-            } ) ;
-        }, 500 ) ;
 
         aceTextEditor.getSession().on( 'change', function () {
 
             clearTimeout( _jsonParseTimer ) ;
             _jsonParseTimer = setTimeout( function () {
-                console.log( ` ${aceEditorId} updated, forwarding to backing text area` ) ;
+                console.log( `\n\n Ace Editor Updated: ${aceEditorId} \n\t forwarding to backing text area` ) ;
 
                 let currentEditor = _aceEditors[ aceEditorId ] ;
+                let workAceContents = currentEditor.getValue() ;
 
-                if ( aceEditorId == "propFileText-ace" ) {
+                if ( aceEditorId.startsWith( "propFileText-ace") ) {
                     propertyFileName = $( "#serviceEditor #propFileName" ).val() ;
                     console.log( `propertyFileName: ${ propertyFileName }` ) ;
                     if ( propertyFileName.endsWith( ".yaml" ) || propertyFileName.endsWith( ".yml" ) ) {
-                        try {
-                            // https://github.com/nodeca/js-yaml
-                            yaml.safeLoadAll( currentEditor.getValue() ) ;
-                            currentEditor.getSession().clearAnnotations() ;
-
-                        } catch ( e ) {
-
-                            let defManager = new DefinitionManager( e, "mark.line", false ) ;
-
-                            let lineNumber = defManager.getValue() ;
-                            if ( !lineNumber ) {
-                                lineNumber = 0 ;
-                            }
-                            console.log( ` line: ${ lineNumber }, message: ${ e.message }` ) ;
-                            currentEditor.getSession().setAnnotations( [ {
-                                    row: lineNumber,
-                                    column: 0,
-                                    text: e.message, // Or the Json reply from the parser 
-                                    type: "error" // also "warning" and "information"
-                                } ] ) ;
-                        }
+                        isValidYaml( aceEditorId, currentEditor ) ;
                     }
                 }
+                console.debug( `workAceContents`, workAceContents ) ;
 
-                $targetTextArea.val( currentEditor.getValue() ) ;
+                if ( isConvertYaml( $targetTextArea ) ) {
+                    // leave backing set at json
+                    $( ".ui-tabs-active .status-warning" ).remove() ;
+                    if ( isValidYaml( aceEditorId, currentEditor ) ) {
+                        console.log( `converting yaml to json: ${ aceEditorId }` ) ;
+                        const updatedYamlObject = jsYaml.safeLoad( workAceContents ) ;
+                        let newVal = JSON.stringify( updatedYamlObject, null, 2 ) ;
+                        $targetTextArea.val( newVal ) ;
+                        update_editor_state( $targetTextArea, currentEditor, true ) ;
+                        $targetTextArea.trigger( "change" ) ;
+                    } else {
+                        console.log( `found yaml errors - skipping updates` ) ;
+                        let message = "Failed to parse document: " + _yamlError ;
+                        markTabWithError( message ) ;
+                    }
 
-                update_editor_state( $targetTextArea, currentEditor, true ) ;
+                } else {
+                    $targetTextArea.val( workAceContents ) ;
+                    update_editor_state( $targetTextArea, currentEditor, true ) ;
+                    $targetTextArea.trigger( "change" ) ;
+                }
 
-                $targetTextArea.trigger( "change" ) ;
             }, 500 ) ;
 
         } ) ;
     }
 
+    function isValidYaml( aceEditorId, aceEditor ) {
+
+        let isPassed = false ;
+        try {
+            clearTabError() ;
+            let workAceContents = aceEditor.getValue() ;
+
+            console.log( `\n\n validating yaml in editor: ${aceEditorId}`, workAceContents ) ;
+            // https://github.com/nodeca/js-jsYaml
+            jsYaml.safeLoadAll( workAceContents ) ;
+            aceEditor.getSession().clearAnnotations() ;
+
+            isPassed = true ;
+
+        } catch ( e ) {
+
+            _yamlError = e ;
+
+            let defManager = new DefinitionManager( e, "mark.line", false ) ;
+
+            let lineNumber = defManager.getValue() ;
+            if ( !lineNumber ) {
+                lineNumber = 0 ;
+            }
+            console.log( ` line: ${ lineNumber }, message: ${ e.message }` ) ;
+            aceEditor.getSession().setAnnotations( [ {
+                    row: lineNumber,
+                    column: 0,
+                    text: e.message, // Or the Json reply from the parser 
+                    type: "error" // also "warning" and "information"
+                } ] ) ;
+
+            markTabWithError( e.message ) ;
+        }
+
+        return isPassed ;
+    }
+
     function update_editor_state( $targetTextArea, aceTextEditor, isUpdate, readOnly = false ) {
 
         console.log( `update_editor_state(): updating ace readOnly: '${readOnly}' ` ) ;
+
         let isNotJson = $targetTextArea.data( "plain" ) ;
 
         // // iplastic github pastel_on_dark textmate solarized_light
@@ -955,6 +1116,8 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
 
         if ( isNotJson ) {
             editMode = "ace/mode/sh" ;
+        } else if ( isConvertYaml( $targetTextArea ) ) {
+            editMode = "ace/mode/yaml" ;
         }
 
 
@@ -1009,30 +1172,55 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
             let $targetTextArea = $( this ) ;
 
             $targetTextArea.change( function ( e ) {
-                let $editor = $( this ) ;
-                console.log( "configureJsonEditors(): Updating textarea: " + $editor.attr( "id" ) ) ;
+                let $theTextArea = $( this ) ;
+                console.log( "textarea updated - json editor: " + $theTextArea.attr( "id" ) ) ;
                 clearTimeout( _jsonParseTimer ) ;
-                parseAndUpdateJsonEdits( getDefinitionFunction(), $editor, definitionDomId )
+                parseAndUpdateJsonEdits( getDefinitionFunction(), $theTextArea, definitionDomId )
             } ) ;
         } ) ;
 
         console.groupEnd() ;
     }
+
     function isConvertLines( $textArea ) {
         return $textArea.data( "convert_lines" ) ;
+    }
+
+    function isConvertYaml( $textArea ) {
+        return $textArea.data( "convert_yaml" ) ;
     }
 
     function parseAndUpdateJsonEdits( definitionJson, $jsonTextArea, definitionDomId ) {
         let isPlainData = $jsonTextArea.data( "plain" ) ;
 
         let success = true ;
-        console.group( `Updating definition textarea: '${ $jsonTextArea.attr( "id" ) }'', path: '${$jsonTextArea.data( "path" )}'` ) ;
-        if ( $jsonTextArea.data( "init-load" ) == "true" ) {
+
+        const itemPath = $jsonTextArea.data( "path" ) ;
+        const initLoad = $jsonTextArea.data( "init-load" ) ;
+        console.log( `\n\n ` ) ;
+        console.group( `textArea modified: ${ $jsonTextArea.attr( "id" ) },`
+                + ` path: '${ itemPath }' \n\t propogating to ace, initLoad: ${initLoad}` ) ;
+
+
+
+
+        if ( initLoad === "true" ) {
             console.log( `skipping initial update - supports lazy loads` ) ;
             return ;
         }
 
-        if ( isConvertLines( $jsonTextArea ) ) {
+        if ( isConvertYaml( $jsonTextArea ) ) {
+
+            updateDefinition( definitionJson, $jsonTextArea ) ;
+
+            $jsonTextArea.css( "background-color", "grey" ) ;
+
+            //let aceEditorId = getAceEditorId( $jsonTextArea ) ;
+            //_aceEditors[ aceEditorId ].setValue( $jsonTextArea.val(), 1 ) ;
+            // clear timeout right away to avoid looping
+
+
+        } else if ( isConvertLines( $jsonTextArea ) ) {
 
             let rawText = $jsonTextArea.val() ;
             let lines = rawText.split( "\n" ) ;
@@ -1042,7 +1230,7 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
             for ( let text_line of  lines ) {
                 jsonLines.push( text_line ) ;
             }
-            let jsonKey = $jsonTextArea.data( "path" ) ;
+
             updateDefinition( definitionJson, $jsonTextArea, jsonLines ) ;
 
             $jsonTextArea.css( "background-color", "#D5F7DE" ) ;
@@ -1056,8 +1244,8 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
 //            $jsonTextArea.css( "font-style", "normal" );
 //            $jsonTextArea.css( "color", "black" );
 
-            $( ".ui-tabs-active img" ).remove() ;
 
+            clearTabError() ;
             try {
                 if ( $jsonTextArea.val().indexOf( SAMPLE ) == 0 ) {
                     return ; // no parsing on sample
@@ -1091,22 +1279,27 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
                 let message = "Failed to parse document: " + e ;
                 $jsonTextArea.css( "background-color", "#F2D3D3" ) ;
 
-                let resultsImage = baseUrl + "images/error.jpg" ;
-                let $error = jQuery( '<img/>', {
-                    class: "jsonFormsError",
-                    src: resultsImage
-                } ).css( "height", "1.2em" ) ;
+                markTabWithError( message ) ;
 
-                // alertify.alert( message );
-                $( ".ui-tabs-active" ).append( $error ) ;
 
-                $( ".ui-tabs-active" ).attr( "title", message ) ;
                 success = false ;
             }
         }
         console.groupEnd() ;
 
         return success ;
+    }
+
+    function clearTabError() {
+        $( ".ui-tabs-active .status-warning" ).remove() ;
+    }
+
+    function markTabWithError( message ) {
+        let $error = jQuery( '<a/>', {
+            class: "csap-link-icon status-warning"
+        } ).css( "position", "absolute" ).css( "height", "20px" ) ;
+        $( ".ui-tabs-active" ).prepend( $error ) ;
+        $( ".ui-tabs-active" ).attr( "title", message ) ;
     }
 
     function getContainer( editorPanelId ) {
@@ -1119,12 +1312,15 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
 
         let containerHeight = getContainer( editorPanelId ).outerHeight( true ) - 150 ;
 
-        if ( containerHeight < 300 )
-            containerHeight = 300 ;
+        if ( containerHeight < 500 ) {
+            containerHeight = 500 ;
+        }
 
-        if ( dialogContainer == window ) {
+        if ( dialogContainer === "body" ) {
             containerHeight = $( window ).outerHeight( true ) - 300 ;
         }
+
+        console.log( `dialogContainer ${ dialogContainer } containerHeight ${containerHeight}` ) ;
 
         return    Math.round( containerHeight ) ;
     }
@@ -1133,7 +1329,7 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
 
         let width = $( window ).outerWidth( true ) - 100 ;
 
-        if ( dialogContainer != window ) {
+        if ( dialogContainer === "body"  ) {
             width = getContainer( editorPanelId ).outerWidth( true ) - 100 ;
         }
 

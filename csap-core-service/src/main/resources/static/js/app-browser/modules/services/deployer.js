@@ -547,7 +547,7 @@ define( [ "browser/utils", "ace/ace", ], function ( utils, aceEditor ) {
     function buildAlertifyOptions( title ) {
         let options = {
             title: title,
-            movable: false,
+            movable: true,
             maximizable: true,
             resizable: true,
             autoReset: false

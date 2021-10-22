@@ -626,9 +626,9 @@ public class ListingsBuilder {
 
 				} else if ( isAllNamespaces( namespace ) ) {
 
-					logger.debug( "param 0 type: '{}'", apiMethod.getParameters( )[0].getType( ) ) ;
+					logger.debug( "param 0 type: '{}'", apiMethod.getParameters( )[ 0 ].getType( ) ) ;
 
-					if ( apiMethod.getParameters( )[0].getType( ) == String.class ) {
+					if ( apiMethod.getParameters( )[ 0 ].getType( ) == String.class ) {
 
 						// non namespace query
 						listing = apiMethod.invoke( api,

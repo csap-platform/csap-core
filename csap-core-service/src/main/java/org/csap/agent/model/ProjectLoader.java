@@ -91,7 +91,8 @@ public class ProjectLoader {
 	public static final String API_VERSION = "api-version" ;
 	public static final String PROJECT_VERSION = "project-version" ;
 	public static final double CURRENT_VERSION = 2.1 ;
-	public static final String CSAP_SERVICE_FILE = "csap-service.json" ;
+	public static final String CSAP_SERVICE_FILE_LEGACY = "csap-service.json" ;
+	public static final String CSAP_SERVICE_FILE = "csap-service.yaml" ;
 	public static final String AGENT_AUTO_CLUSTER = "agent-auto-assign" ;
 	public static final String PARSER_CLUSTER_VERSION = "version" ;
 
@@ -251,7 +252,7 @@ public class ProjectLoader {
 
 		generateProjectHosts( rootProject, parsing_results ) ;
 
-		validateProject( rootProject, parsing_results ) ;
+		validateRootProject( rootProject, parsing_results ) ;
 
 		load_package_release_files( parsing_results, rootProject ) ;
 
@@ -418,7 +419,7 @@ public class ProjectLoader {
 
 			if ( sourceOverrides != null ) {
 
-				logger.info( "Found sourceOverrides: {}", sourceOverrides ) ;
+				logger.info( "Found sourceOverrides, used for overridding source code location: {}", sourceOverrides ) ;
 
 				for ( var serviceName : sourceOverrides.keySet( ) ) {
 
@@ -649,8 +650,8 @@ public class ProjectLoader {
 							projectDefinitions.size( ) ) ;
 
 				}
-				
-				projectDefinition = projectDefinitions.get( 0 )  ;
+
+				projectDefinition = projectDefinitions.get( 0 ) ;
 
 			} else {
 
@@ -658,7 +659,7 @@ public class ProjectLoader {
 
 			}
 
-			logger.trace( "Parsed Cluster from file: {} Contains: \n{}", 
+			logger.trace( "Parsed Cluster from file: {} Contains: \n{}",
 					definitionFile.getAbsolutePath( ),
 					projectDefinition.toString( ) ) ;
 
@@ -1216,38 +1217,68 @@ public class ProjectLoader {
 
 	}
 
-	private void validateProject ( Project testProject , StringBuilder resultsBuf ) {
+	public static final String UNABLE_TO_ACTIVATE_ENV = "Unable to determine which application environment to activate using host" ;
 
-		if ( testProject.getHostsCurrentLc( ) == null ) {
+	boolean isValidHostName ( String hostName ) {
 
-			logger.warn(
-					"\n\n\n Unable to determine host for environment: Ensure host '{}', fqdn: '{}' is assigned to base-os cluster \n\n\n",
-					csapApplication.getCsapHostName( ), csapApplication.getHostFqdn( ) ) ;
+		//
+		// Loose checking - simple or fqdn names
+		//
+		if ( StringUtils.isEmpty( hostName )
+				|| ! StringUtils.isAlpha( hostName.substring( 0, 1 ) )
+				|| ! hostName.equals( hostName.toLowerCase( ) )
+				|| ! StringUtils.isAlphanumeric(
+						hostName
+								.replace( "-", "" )
+								.replace( ".", "" ) ) ) {
 
-			Runtime.getRuntime( ).halt( 999 ) ;
+			return false ;
 
 		}
 
-		// List<JsonNode> eolAttributes =
-		// testRootModel.getJsonModelDefinition().findValues( "maxLoad" ) ;
-		//
-		// if ( eolAttributes.size() > 0 ) {
-		// resultsBuf.append( CsapCore.CONFIG_PARSE_WARN + "Found " +
-		// eolAttributes.size()
-		// + " instances of maxLoad in definition. Replace with: maxHostCpuLoad.\n" ) ;
-		// }
+		return true ;
 
-		// End to End check for factories. Must ensure that unique suffix is
-		// present as the suffix is used for
-		// both DB SID names and modjk worker keys/cookies
-		StringBuilder checkForDuplicateSuffix = new StringBuilder( "" ) ;
+	}
+
+	private void validateRootProject ( Project rootProject , StringBuilder validationResults ) throws IOException {
+
+		if ( rootProject.getHostsCurrentLc( ) == null ) {
+
+			logger.warn(
+					"\n\n\n " + UNABLE_TO_ACTIVATE_ENV
+							+ " '{}', fqdn: '{}': ensure it is assigned to at least one cluster \n\n\n",
+					csapApplication.getCsapHostName( ), csapApplication.getHostFqdn( ) ) ;
+
+			// Runtime.getRuntime( ).halt( 999 ) ;
+
+			throw new IOException(
+					UNABLE_TO_ACTIVATE_ENV + " '"
+							+ csapApplication.getCsapHostName( )
+							+ "': ensure it is assigned to at least one cluster" ) ;
+
+		}
+
+		for ( var host : rootProject.getHostsCurrentLc( ) ) {
+
+			if ( ! isValidHostName( host ) ) {
+
+				String message = CsapCore.CONFIG_PARSE_WARN
+						+ "Host name validation failure: " + host + " (lowercase alphanumeric, simple host or fqdn)\n" ;
+				logger.warn( message ) ;
+				validationResults.append( message ) ;
+
+			}
+
+		}
+
+		var checkForDuplicateSuffix = new StringBuilder( "" ) ;
 
 		var serviceSummaries = new ArrayList<String>( ) ;
 
-		for ( String host : testProject.getHostToServicesMap( ).keySet( ) ) {
+		for ( var host : rootProject.getHostToServicesMap( ).keySet( ) ) {
 			// sbuf.append("\n\t" + host + "\n\t\t");
 
-			var servicesOnHost = testProject.getServicesListOnHost( host ) ;
+			var servicesOnHost = rootProject.getServicesListOnHost( host ) ;
 
 			// check for duplicate instances
 
@@ -1260,7 +1291,7 @@ public class ProjectLoader {
 							+ instance.getName( )
 							+ ". It is recommended assign each service once (via cluster assignment) \n" ;
 					logger.warn( message ) ;
-					resultsBuf.append( message ) ;
+					validationResults.append( message ) ;
 
 				} else {
 
@@ -1288,7 +1319,7 @@ public class ProjectLoader {
 							+ ". Port should be changed vi the UI to ensure it is unique on each host. The other instance with this port:"
 							+ portToLifeAndService.get( instance.getPort( ) ) + "\n" ;
 					logger.warn( message ) ;
-					resultsBuf.append( message ) ;
+					validationResults.append( message ) ;
 
 				} else if ( ! instance.is_csap_api_server( ) && ! instance.getPort( ).equals( "0" ) ) {
 
@@ -1305,13 +1336,13 @@ public class ProjectLoader {
 
 			if ( isFactory ) {
 
-				String hostSuffix = getPartitionRoutingId( host, resultsBuf ) ;
+				String hostSuffix = getPartitionRoutingId( host, validationResults ) ;
 
 				if ( hostSuffix != null ) {
 
 					if ( checkForDuplicateSuffix.indexOf( "," + hostSuffix + "," ) != -1 ) {
 
-						resultsBuf
+						validationResults
 								.append( CsapCore.CONFIG_PARSE_ERROR
 										+ "Duplicate singleVmPartion host suffix found:"
 										+ host
@@ -1346,11 +1377,11 @@ public class ProjectLoader {
 
 			if ( hostNameArray.length == 2 ) {
 
-				factorySuffix = hostNameArray[1] ;
+				factorySuffix = hostNameArray[ 1 ] ;
 
 			} else if ( hostNameArray.length == 3 ) {
 
-				factorySuffix = hostNameArray[1] + hostNameArray[2] ;
+				factorySuffix = hostNameArray[ 1 ] + hostNameArray[ 2 ] ;
 
 			}
 
@@ -2151,6 +2182,38 @@ public class ProjectLoader {
 
 	}
 
+	private void checkForLegacyServiceMigration ( File serviceDefinitionYaml ) {
+
+		if ( ! serviceDefinitionYaml.isFile( ) ) {
+
+			var legacyJsonFile = new File( serviceDefinitionYaml.getParentFile( ), CSAP_SERVICE_FILE_LEGACY ) ;
+
+			if ( legacyJsonFile.isFile( ) ) {
+
+				logger.info( CSAP.buildDescription( "Migrating legacy json",
+						"legacy", legacyJsonFile.getAbsolutePath( ),
+						"new", serviceDefinitionYaml.getAbsolutePath( ) ) ) ;
+
+				try {
+
+					var serviceAsJson = jsonMapper.readTree( legacyJsonFile ) ;
+
+					var serviceAsYamlString = getProjectOperators( ).generateYaml( serviceAsJson ) ;
+
+					FileUtils.write( serviceDefinitionYaml, serviceAsYamlString ) ;
+
+				} catch ( Exception e ) {
+
+					logger.warn( "Failed converting file: {}", CSAP.buildCsapStack( e ) ) ;
+
+				}
+
+			}
+
+		}
+
+	}
+
 	private void update_service_with_lifecycle_settings (
 															ServiceInstance serviceInstance ,
 															JsonNode serviceDefinition ,
@@ -2177,13 +2240,20 @@ public class ProjectLoader {
 		var resourceFolder = ServiceResources.serviceResourceFolder( serviceInstance.getName( ) ) ;
 		var commonDefinition = new File( resourceFolder, "/common/" + CSAP_SERVICE_FILE ) ;
 
+		checkForLegacyServiceMigration( commonDefinition ) ;
+
 		if ( commonDefinition.isFile( ) ) {
 
 			logger.debug( "loading {}: {}", CSAP_SERVICE_FILE, commonDefinition.getAbsolutePath( ) ) ;
 
 			try {
 
-				var serviceDefinitionOverride = jsonMapper.readTree( commonDefinition ) ;
+//				var serviceDefinitionOverride = jsonMapper.readTree( commonDefinition ) ;
+				var processMessages = jsonMapper.createObjectNode( ) ;
+				var serviceDefinitionOverride = getProjectOperators( )
+						.loadYaml( commonDefinition, processMessages )
+						.get( 0 ) ;
+
 				logger.debug( "serviceDefinitionOverride: {}", CSAP.jsonPrint( serviceDefinitionOverride ) ) ;
 
 				serviceInstance.parseDefinition(
@@ -2193,8 +2263,9 @@ public class ProjectLoader {
 
 			} catch ( Exception e ) {
 
-				var message = "Failed parsing default defintion, instead an empty default will be used." + CSAP
-						.buildCsapStack( e ) ;
+				var message = CSAP.buildDescription( "Failed parsing service definition",
+						"file", commonDefinition.getAbsolutePath( ),
+						"reason", CSAP.buildCsapStack( e ) ) ;
 				resultsBuf.append( message ) ;
 				logger.warn( message ) ;
 
@@ -2204,13 +2275,19 @@ public class ProjectLoader {
 
 		var lifeDefinition = new File( resourceFolder, "/" + platformLifeCycle + "/" + CSAP_SERVICE_FILE ) ;
 
+		checkForLegacyServiceMigration( lifeDefinition ) ;
+
 		if ( lifeDefinition.isFile( ) ) {
 
 			logger.debug( "loading lifeDefinition: {}", lifeDefinition.getAbsolutePath( ) ) ;
 
 			try {
 
-				var serviceDefinitionOverride = jsonMapper.readTree( lifeDefinition ) ;
+//				var serviceDefinitionOverride = jsonMapper.readTree( lifeDefinition ) ;
+				var processMessages = jsonMapper.createObjectNode( ) ;
+				var serviceDefinitionOverride = getProjectOperators( )
+						.loadYaml( lifeDefinition, processMessages )
+						.get( 0 ) ;
 				logger.debug( "serviceDefinitionOverride: {}", CSAP.jsonPrint( serviceDefinitionOverride ) ) ;
 
 				serviceInstance.parseDefinition(
@@ -2273,7 +2350,7 @@ public class ProjectLoader {
 	private String resolveHostSpecification ( String hostPatternByComma ) {
 
 		String[] hostAndPatterns = hostPatternByComma.split( "," ) ;
-		String resolvedHost = hostAndPatterns[0] ;
+		String resolvedHost = hostAndPatterns[ 0 ] ;
 
 		resolvedHost = hostPatternByComma.replaceAll( Matcher.quoteReplacement( "csap_def_template_host" ),
 				csapApplication.getCsapHostName( ) ) ;
@@ -2282,7 +2359,7 @@ public class ProjectLoader {
 		// if match set current hostname
 		for ( int i = 1; i < hostAndPatterns.length; i++ ) {
 
-			if ( csapApplication.getCsapHostName( ).matches( hostAndPatterns[i] ) ) {
+			if ( csapApplication.getCsapHostName( ).matches( hostAndPatterns[ i ] ) ) {
 
 				resolvedHost = csapApplication.getCsapHostName( ) ;
 
@@ -2557,7 +2634,7 @@ public class ProjectLoader {
 
 	private ObjectNode buildNamespaceMonitor ( Project project , String namespaceHyphenServiceName ) {
 
-		var serviceName = namespaceHyphenServiceName.split( "-", 2 )[1] ;
+		var serviceName = namespaceHyphenServiceName.split( "-", 2 )[ 1 ] ;
 
 		var testForOverrideMonitor = project.findAndCloneServiceDefinition( namespaceHyphenServiceName ) ;
 
@@ -3087,7 +3164,7 @@ public class ProjectLoader {
 							.forEach( environmentAndClusterName -> {
 
 								String environmentName = environmentAndClusterName.split(
-										ENVIRONMENT_CLUSTER_DELIMITER )[0] ;
+										ENVIRONMENT_CLUSTER_DELIMITER )[ 0 ] ;
 								addCsapAgents( environmentName, environmentAndClusterName, parsingResults, project ) ;
 
 							} ) ;
@@ -3095,7 +3172,11 @@ public class ProjectLoader {
 				} ) ;
 
 		rootProject
+
 				.getProjects( )
+
+				.filter( project -> project.getHostsCurrentLc( ) != null )
+
 				.forEach( project -> {
 
 					project.getServiceNameStream( )
@@ -3160,7 +3241,8 @@ public class ProjectLoader {
 				project.getHostsCurrentLc( ) ) ;
 
 		List<ServiceInstance> instanceListLC = project.getServiceInstancesInAllLifecycles( service )
-				.filter( serviceInstance -> project.getHostsCurrentLc( ).contains( serviceInstance.getHostName( ) ) )
+				.filter( serviceInstance -> project.getHostsCurrentLc( ).contains( serviceInstance
+						.getHostName( ) ) )
 				.collect( Collectors.toList( ) ) ;
 
 		project.serviceInstancesInCurrentLifeByName( ).put( service, instanceListLC ) ;
@@ -3183,10 +3265,10 @@ public class ProjectLoader {
 			// (double-quote, backslash etc)
 			int[] esc = CharacterEscapes.standardAsciiEscapesForJSON( ) ;
 			// and force escaping of a few others:
-			esc['<'] = CharacterEscapes.ESCAPE_STANDARD ;
-			esc['>'] = CharacterEscapes.ESCAPE_STANDARD ;
-			esc['&'] = CharacterEscapes.ESCAPE_STANDARD ;
-			esc['\''] = CharacterEscapes.ESCAPE_STANDARD ;
+			esc[ '<' ] = CharacterEscapes.ESCAPE_STANDARD ;
+			esc[ '>' ] = CharacterEscapes.ESCAPE_STANDARD ;
+			esc[ '&' ] = CharacterEscapes.ESCAPE_STANDARD ;
+			esc[ '\'' ] = CharacterEscapes.ESCAPE_STANDARD ;
 			asciiEscapes = esc ;
 
 		}

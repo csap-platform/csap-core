@@ -151,7 +151,7 @@ public class VersionControl {
 		// ciFiles[0] = jsConfigFile;
 
 		// This will update ALL files found in config directory
-		commitFileArray[0] = applicationFolder ;
+		commitFileArray[ 0 ] = applicationFolder ;
 
 		if ( releasePackageFile.canRead( ) ) {
 
@@ -548,8 +548,11 @@ public class VersionControl {
 			FileUtils.deleteQuietly( outputFolder ) ;
 
 		}
+		
 
-		String message = "Performing git clone: " + inputUrl
+		var loadedMessage = CsapApplication.highlightHeader( "Performing git clone: " + inputUrl ) ;
+
+		String message = loadedMessage
 				+ CSAP.padLine( "destination" ) + outputFolder.getAbsolutePath( )
 				+ CSAP.padLine( "branch" ) + branch ;
 

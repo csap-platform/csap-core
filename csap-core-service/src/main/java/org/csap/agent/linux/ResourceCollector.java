@@ -2,7 +2,6 @@ package org.csap.agent.linux ;
 
 import java.io.File ;
 import java.io.IOException ;
-import java.nio.file.DirectoryStream ;
 import java.nio.file.FileSystems ;
 import java.nio.file.Files ;
 import java.nio.file.Path ;
@@ -10,9 +9,12 @@ import java.util.ArrayList ;
 import java.util.Arrays ;
 import java.util.List ;
 
+import org.apache.commons.lang3.StringUtils ;
+import org.csap.agent.CsapCore ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.ContainerState ;
 import org.csap.agent.model.ServiceInstance ;
+import org.csap.agent.services.OsManager ;
 import org.csap.helpers.CSAP ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
@@ -24,11 +26,11 @@ import org.slf4j.LoggerFactory ;
  * @author someDeveloper
  *
  */
-public class ServiceResourceRunnable implements Runnable {
+public class ResourceCollector implements Runnable {
 
 	final Logger logger = LoggerFactory.getLogger( this.getClass( ) ) ;
 
-	public ServiceResourceRunnable ( Application csapApp, OsCommandRunner osCommandRunner ) {
+	public ResourceCollector ( Application csapApp, OsCommandRunner osCommandRunner ) {
 
 		this.osCommandRunner = osCommandRunner ;
 		this.csapApp = csapApp ;
@@ -63,59 +65,52 @@ public class ServiceResourceRunnable implements Runnable {
 
 		try {
 
-			var socketStatTimer = csapApp.metrics( ).startTimer( ) ;
+			//
+			// Collect sockets
+			//
 			var socketCollectionForRootNamespace = executeSocketCollection( ) ;
-			csapApp.metrics( ).stopTimer( socketStatTimer, "java.OsManager.socketstat.all" ) ;
 
-			var pidStatTimer = csapApp.metrics( ).startTimer( ) ;
-			String pidStatResult = executePidStatCollection( ) ;
-			csapApp.metrics( ).stopTimer( pidStatTimer, "java.OsManager.pidstat" ) ;
+			//
+			// collect service IO : pidstat
+			//
+			var pidStatLines = executePidStatCollection( ).split( OsManager.LINE_SEPARATOR ) ;
 
+			//
+			// Process above reports, and collect File counts
+			//
 			var allServicesTimer = csapApp.metrics( ).startTimer( ) ;
 
 			logger.debug( "\n\n***** Refreshing open files cache   *******\n\n" ) ;
 
-			var svcList = csapApp.getServicesOnHost( ) ;
+			var hostServices = csapApp.getServicesOnHost( ) ;
 
-			for ( ServiceInstance instance : svcList ) {
+			for ( var serviceInstance : hostServices ) {
 
 				var serviceTimer = csapApp.metrics( ).startTimer( ) ;
 
-				if ( instance.is_files_only_package( )
-						|| instance.isRemoteCollection( )
-						|| ! instance.getDefaultContainer( ).isRunning( ) ) {
+				if ( serviceInstance.is_files_only_package( )
+						|| serviceInstance.isRemoteCollection( )
+						|| ! serviceInstance.getDefaultContainer( ).isRunning( ) ) {
 
 					// Set all to 0
-					instance.getDefaultContainer( ).setFileCount( 0 ) ;
-					instance.getDefaultContainer( ).setSocketCount( 0 ) ;
-					instance.getDefaultContainer( ).setDiskReadKb( 0 ) ;
-					instance.getDefaultContainer( ).setDiskWriteKb( 0 ) ;
+					serviceInstance.getDefaultContainer( ).setFileCount( 0 ) ;
+					serviceInstance.getDefaultContainer( ).setSocketCount( 0 ) ;
+					serviceInstance.getDefaultContainer( ).setDiskReadKb( 0 ) ;
+					serviceInstance.getDefaultContainer( ).setDiskWriteKb( 0 ) ;
 					continue ;
 
 				}
 
-				getOpenFilesForInstance( instance ) ;
-				updateInstanceSockets( socketCollectionForRootNamespace, instance ) ;
-				updateInstanceFileIo( pidStatResult, instance ) ;
+				getOpenFilesForInstance( serviceInstance ) ;
+				updateInstanceSockets( socketCollectionForRootNamespace, serviceInstance ) ;
+				updateInstanceFileIo( pidStatLines, serviceInstance ) ;
 
-				csapApp.metrics( ).stopTimer( serviceTimer, "collect-os.open-files-" + instance.getName( ) ) ;
-
-				try {
-
-					// logger.info("Sleeping 5 seconds between each call to
-					// allow system to queisce a bit");
-					Thread.sleep( 500 ) ;
-
-				} catch ( InterruptedException e ) {
-
-					// TODO Auto-generated catch block
-					e.printStackTrace( ) ;
-
-				}
+				csapApp.metrics( ).stopTimer( serviceTimer, OsManager.COLLECT_OS + "resources-" + serviceInstance
+						.getName( ) ) ;
 
 			}
 
-			csapApp.metrics( ).stopTimer( allServicesTimer, "csap.collect-os.open-files" ) ;
+			csapApp.metrics( ).stopTimer( allServicesTimer, "csap." + OsManager.COLLECT_OS + "resources-all" ) ;
 
 		} catch ( Exception e ) {
 
@@ -129,7 +124,7 @@ public class ServiceResourceRunnable implements Runnable {
 
 	private String executePidStatCollection ( ) {
 
-		String pidstatResults = "" ;
+		var pidstatResults = "" ;
 
 		logger.debug( "***X Starting" ) ;
 
@@ -171,17 +166,17 @@ public class ServiceResourceRunnable implements Runnable {
 	final static String SOCKET_STAT_STUB_FILE_RH7 = "/linux/socketStat_rh7.txt" ;
 	static String SOCKET_STAT_STUB_FILE = SOCKET_STAT_STUB_FILE_RH7 ;
 
-	public void testSocketParsing ( ServiceInstance service , boolean useRh6 ) {
+	public void testSocketParsing ( ServiceInstance service ) {
 
-		if ( useRh6 ) {
+//		if ( useRh6 ) {
+//
+//			SOCKET_STAT_STUB_FILE = SOCKET_STAT_STUB_FILE_RH6 ;
+//
+//		} else {
 
-			SOCKET_STAT_STUB_FILE = SOCKET_STAT_STUB_FILE_RH6 ;
+		SOCKET_STAT_STUB_FILE = SOCKET_STAT_STUB_FILE_RH7 ;
 
-		} else {
-
-			SOCKET_STAT_STUB_FILE = SOCKET_STAT_STUB_FILE_RH7 ;
-
-		}
+//		}
 
 		updateInstanceSockets( executeSocketCollection( ), service ) ;
 
@@ -195,7 +190,7 @@ public class ServiceResourceRunnable implements Runnable {
 
 	private String[] executeSocketCollection ( ) {
 
-		String socketStatResult = "Failed to run" ;
+		var socketStatResult = "Failed to run" ;
 
 		try {
 
@@ -220,7 +215,7 @@ public class ServiceResourceRunnable implements Runnable {
 		// isPidEqualsFormat = true ;
 		// }
 
-		return socketStatResult.split( LINE_SEPARATOR ) ;
+		return socketStatResult.split( OsManager.LINE_SEPARATOR ) ;
 
 	}
 
@@ -254,13 +249,11 @@ public class ServiceResourceRunnable implements Runnable {
 									.getOsCommands( )
 									.getServiceSocketsDocker( containerPid ) ;
 
-					var timer = csapApp.metrics( ).startTimer( ) ;
-
 					var containerSocketCount = 0 ;
 
 					try {
 
-						var containerSocketOutput = osCommandRunner.runUsingRootUser( "dockerSocketStat",
+						var containerSocketOutput = osCommandRunner.runUsingRootUser( "root-socket-stat",
 								socketCollectCommands ) ;
 						logger.debug( "{} commands: {}  , result: '{}'",
 								serviceInstance.getName( ),
@@ -277,7 +270,6 @@ public class ServiceResourceRunnable implements Runnable {
 
 					}
 
-					csapApp.metrics( ).stopTimer( timer, "java.OsManager.socketstat.docker" ) ;
 					container.setSocketCount( containerSocketCount ) ;
 
 				}
@@ -303,10 +295,10 @@ public class ServiceResourceRunnable implements Runnable {
 
 						Integer.parseInt( pid ) ;
 
-						if ( rootNamespaceCollectionLines[lineNumber].contains( "pid=" + pid + "," ) ) {
+						if ( rootNamespaceCollectionLines[ lineNumber ].contains( "pid=" + pid + "," ) ) {
 
 							socketCount++ ;
-							rootNamespaceCollectionLines[lineNumber] = "" ;
+							rootNamespaceCollectionLines[ lineNumber ] = "" ;
 
 						}
 
@@ -335,44 +327,43 @@ public class ServiceResourceRunnable implements Runnable {
 
 	}
 
-	private static String LINE_SEPARATOR = "\n" ;
+	private void updateInstanceFileIo ( String[] pidStatLines , ServiceInstance instance ) {
 
-	private void updateInstanceFileIo ( String pidStatResult , ServiceInstance instance ) {
+//		if ( instance.getName( ).equals( CsapCore.AGENT_NAME ) ) {
+//			logger.info( "pidStatLines: {}", Arrays.asList( pidStatLines ) ) ;
+//		}
 
-		String[] pidstatLines = pidStatResult.split( LINE_SEPARATOR ) ;
+		instance.getContainerStatusList( ).stream( )
+				.forEach( containerStatus -> {
 
-		for ( ContainerState container : instance.getContainerStatusList( ) ) {
+					int logsOutput = 0 ;
+					float diskReadKb = 0 ;
+					float diskWriteKb = 0 ;
 
-			int logsOutput = 10 ;
-			float diskReadKb = 0 ;
-			float diskWriteKb = 0 ;
+					for ( var pid : containerStatus.getPid( ) ) {
 
-			for ( String pid : container.getPid( ) ) {
+						var psIndex = 0 ;
 
-				for ( int i = 0; i < pidstatLines.length; i++ ) {
+						for ( var pidStatLine : pidStatLines ) {
 
-					String curline = pidstatLines[i].trim( ) ;
-					String[] cols = curline.split( " " ) ;
+							var currentIndex = psIndex++ ;
 
-					if ( logger.isDebugEnabled( ) && logsOutput++ < 20 ) {
+							String[] cols = pidStatLine.trim( ).split( " " ) ;
 
-						logger.debug( "cols: " + Arrays.asList( cols ) ) ;
+//							if ( instance.getName( ).equals( CsapCore.AGENT_NAME ) ) {
+//								logger.info( "pid: {},  columns: {}", pid, Arrays.asList( cols ) ) ;
+//							}
 
-					}
+							if ( cols.length != 7
+									|| ! StringUtils.isNumeric( cols[ 2 ] ) ) {
 
-					try {
+								pidStatLines[ currentIndex ] = "" ;
 
-						if ( cols.length == 6 ) {
-							// rh 5 line: Time PID kB_rd/s kB_wr/s kB_ccwr/s Command
-
-							String pidParsed = cols[1].trim( ) ;
-
-							if ( logger.isDebugEnabled( ) && logsOutput++ < 20 ) {
-
-								logger.debug(
-										instance.getName( ) + " pidParsed: " + pidParsed + " search pid: " + pid ) ;
+								continue ;
 
 							}
+
+							var pidParsed = cols[ 2 ].trim( ) ;
 
 							if ( ! pidParsed.equals( pid ) ) {
 
@@ -380,69 +371,39 @@ public class ServiceResourceRunnable implements Runnable {
 
 							}
 
-							// rh 6 line: Time UID PID kB_rd/s kB_wr/s kB_ccwr/s
-							// Command
-							float kbRead = Float.parseFloat( cols[2] ) ;
-							diskReadKb += kbRead ;
+							try {
 
-							float kbWrite = Float.parseFloat( cols[3] ) ;
-							diskWriteKb += kbWrite ;
+								var kbRead = Float.parseFloat( cols[ 3 ] ) ;
+								diskReadKb += kbRead ;
 
-							double cancelledWrites = Double.parseDouble( cols[4] ) ;
+								var kbWrite = Float.parseFloat( cols[ 4 ] ) ;
+								diskWriteKb += kbWrite ;
 
-						} else if ( cols.length == 7 ) {
-							// rh 6 line: Time UID PID kB_rd/s kB_wr/s kB_ccwr/s
-							// Command
+								// var cancelledWrites = Double.parseDouble( cols[5] ) ;
 
-							String pidParsed = cols[2].trim( ) ;
+							} catch ( Exception e ) {
 
-							if ( logger.isDebugEnabled( ) && logsOutput++ < 20 ) {
+								// failed to parse wipe it out
 
-								logger.debug(
-										instance.getName( ) + " pidParsed: " + pidParsed + " search pid: " + pid ) ;
+								if ( logsOutput++ == 0
+										&& instance.getName( ).equals( CsapCore.AGENT_NAME ) ) {
 
-							}
+									logger.warn( "Failed parsing: {}", pidStatLine ) ;
 
-							if ( ! pidParsed.equals( pid ) ) {
+								}
 
-								continue ;
+								pidStatLines[ currentIndex ] = "" ;
 
 							}
 
-							float kbRead = Float.parseFloat( cols[3] ) ;
-							diskReadKb += kbRead ;
-
-							float kbWrite = Float.parseFloat( cols[4] ) ;
-							diskWriteKb += kbWrite ;
-
-							double cancelledWrites = Double.parseDouble( cols[5] ) ;
-
 						}
-
-					} catch ( NumberFormatException e ) {
-
-						pidstatLines[i] = "" ; // wipe out unparsable lines
-						// TODO Auto-generated catch block
-						// e.printStackTrace();
-
-						if ( logger.isDebugEnabled( ) ) {
-
-							logger.debug( "pid is not an int, skipping" + pid ) ;
-
-						}
-
-						continue ;
 
 					}
 
-				}
+					containerStatus.setDiskReadKb( Math.round( diskReadKb ) ) ;
+					containerStatus.setDiskWriteKb( Math.round( diskWriteKb ) ) ;
 
-			}
-
-			container.setDiskReadKb( Math.round( diskReadKb ) ) ;
-			container.setDiskWriteKb( Math.round( diskWriteKb ) ) ;
-
-		}
+				} ) ;
 
 		return ;
 
@@ -450,16 +411,13 @@ public class ServiceResourceRunnable implements Runnable {
 
 	private void getOpenFilesForInstance ( ServiceInstance instance ) {
 
-		int fileCount = 0 ;
-
 		boolean isCsapProcess = ( instance.getUser( ) == null ) ;
 
 		var timer = csapApp.metrics( ).startTimer( ) ;
 
 		if ( isCsapProcess && ! instance.is_docker_server( ) ) {
 
-			fileCount = getFilesUsingJavaNio( instance, fileCount ) ;
-			instance.getDefaultContainer( ).setFileCount( fileCount ) ;
+			instance.getDefaultContainer( ).setFileCount( getFilesUsingJavaNio( instance ) ) ;
 
 		} else {
 
@@ -467,26 +425,20 @@ public class ServiceResourceRunnable implements Runnable {
 
 		}
 
-		csapApp.metrics( ).stopTimer( timer, "java.OsManager.getOpenFiles." + instance.getName( ) ) ;
-
-		if ( logger.isDebugEnabled( ) ) {
-
-			logger.debug( instance.getName( ) + " javaFileCount : " + fileCount ) ;
-
-		}
+		csapApp.metrics( ).stopTimer( timer, OsManager.COLLECT_OS + "java-nio-files." + instance.getName( ) ) ;
 
 	}
 
 	/**
 	 * 
 	 * services run using same user as agent can leverage java nios for getting file
-	 * counts
+	 * counts - avoiding opening new folders
 	 * 
 	 * @param instance
 	 * @param fileCount
 	 * @return
 	 */
-	private int getFilesUsingJavaNio ( ServiceInstance instance , int fileCount ) {
+	private int getFilesUsingJavaNio ( ServiceInstance instance ) {
 
 		if ( Application.isRunningOnDesktop( ) ) {
 
@@ -494,57 +446,49 @@ public class ServiceResourceRunnable implements Runnable {
 
 		}
 
-		for ( String pid : instance.getDefaultContainer( ).getPid( ) ) {
+		var totalFiles = instance.getDefaultContainer( ).getPid( ).stream( )
 
-			try {
+				.filter( StringUtils::isNumeric )
 
-				Integer.parseInt( pid ) ;
+				.mapToInt( pid -> {
 
-			} catch ( NumberFormatException e ) {
+					var lineTotal = 0 ;
 
-				// TODO Auto-generated catch block
-				// e.printStackTrace();
-				if ( logger.isDebugEnabled( ) ) {
+					// more defensive - nio handles large directorys
+					try ( var directoryStream = Files.newDirectoryStream(
+							FileSystems.getDefault( ).getPath( "/proc/" + pid + "/fd" ) ) ) {
 
-					logger.debug( "pid is not an int, skipping" + pid ) ;
+						for ( Path p : directoryStream ) {
 
-				}
+							if ( lineTotal++ > 9999 ) {
 
-				continue ;
+								lineTotal = -99 ;
+								break ;
 
-			}
+							}
 
-			// more defensive - nio handles large directorys
-			try ( DirectoryStream<Path> ds = Files
-					.newDirectoryStream( FileSystems.getDefault( ).getPath( "/proc/" + pid + "/fd" ) ) ) {
+						}
 
-				for ( Path p : ds ) {
+					} catch ( Exception e ) {
 
-					if ( fileCount++ > 9999 ) {
+						lineTotal = 0 ;
 
-						fileCount = -99 ;
-						break ;
+						if ( logger.isDebugEnabled( ) ) {
+
+							logger.debug( "Failed getting count for: {} {}", instance.getName( ), CSAP.buildCsapStack(
+									e ) ) ;
+
+						}
 
 					}
 
-				}
+					return lineTotal ;
 
-			} catch ( Exception e ) {
+				} )
 
-				fileCount = 0 ;
+				.sum( ) ;
 
-				if ( logger.isDebugEnabled( ) ) {
-
-					logger.debug( "Failed getting count for: " + instance.getName( ) + " Due to:"
-							+ e.getMessage( ) ) ;
-
-				}
-
-			}
-
-		}
-
-		return fileCount ;
+		return totalFiles ;
 
 	}
 
@@ -560,83 +504,93 @@ public class ServiceResourceRunnable implements Runnable {
 
 	private void updateOpenFilesForNonCsapProcesses ( ServiceInstance instance ) {
 
-		for ( ContainerState container : instance.getContainerStatusList( ) ) {
+		logger.debug( "{} running open files script", instance.getName( ) ) ;
 
-			int fileCount = 0 ;
+		if ( ! Application.getInstance( ).isRunningAsRoot( ) ) {
 
-			if ( ! Application.getInstance( ).isRunningAsRoot( ) ) {
+			if ( numOpenWarnings++ < 10 ) {
 
-				if ( numOpenWarnings++ < 10 ) {
-
-					logger.warn( "Root access is not available to determine file counts" ) ;
-
-				}
-
-				container.setFileCount( -1 ) ;
-				continue ;
+				logger.warn( "Root access is not available to determine file counts" ) ;
 
 			}
 
-			List<String> lines = new ArrayList<String>( ) ;
-			lines.add( "#!/bin/bash" ) ;
+			instance.getContainerStatusList( ).stream( ).forEach( containerState -> {
+
+				containerState.setFileCount( -1 ) ;
+
+			} ) ;
+
+			return ;
+
+		}
+
+		//
+		// double counts of namespace - ok because namespace filters will potentially
+		// have more pids
+		//
+
+		instance.getContainerStatusList( ).stream( ).forEach( containerState -> {
+
+			var fileCount = 0 ;
+			var openFilesCollectScript = new ArrayList<String>( ) ;
+			openFilesCollectScript.add( "#!/bin/bash" ) ;
 
 			StringBuilder lsCommandString = new StringBuilder( ) ;
 			lsCommandString.append( "ls " ) ;
 
-			container.getPid( ).forEach( pid -> {
+			containerState.getPid( ).forEach( pid -> {
 
 				lsCommandString.append( " /proc/" ) ;
 				lsCommandString.append( pid ) ;
 				lsCommandString.append( "/fd " ) ;
 
 			} ) ;
-			// lsCommandString.append( " | grep -v /proc/ | wc -w \n" );
+
 			lsCommandString.append( " | grep -v /proc/ | wc -w \n" ) ;
-			lines.add( lsCommandString.toString( ) ) ;
-			//
-			// String[] lines = {
-			// "#!/bin/bash",
-			// lsCommandString.toString()
-			// };
+			openFilesCollectScript.add( lsCommandString.toString( ) ) ;
 
 			try {
 
-				String commandResult = osCommandRunner.runUsingRootUser( "open-files", lines ) ;
+				var commandResult = osCommandRunner.runUsingRootUser( "open-files-as-root", openFilesCollectScript ) ;
+
+				commandResult = csapApp.check_for_stub( commandResult, "linux/open-files-as-root.txt" ) ;
 
 				logger.debug( "{} commandScript: \n {} \n\n commandResult:\n {}", instance.getName( ), lsCommandString,
 						commandResult ) ;
 
-				String[] lsoflines = commandResult.split( System
-						.getProperty( "line.separator" ) ) ;
+				fileCount = Arrays.stream( commandResult.split( OsManager.LINE_SEPARATOR ) )
+						.map( String::trim )
+						.filter( StringUtils::isNotEmpty )
+						.filter( line -> ! line.contains( " " ) )
+						.mapToInt( line -> {
 
-				for ( int i = 0; i < lsoflines.length; i++ ) {
+							var lineTotal = 0 ;
 
-					if ( lsoflines[i].trim( ).contains( " " ) ) {
+							try {
 
-						continue ;
+								lineTotal = Integer.parseInt( line ) ;
 
-					}
+							} catch ( Exception w ) {
 
-					try {
+							}
 
-						fileCount += Integer.parseInt( lsoflines[i].trim( ) ) ;
+							return lineTotal ;
 
-					} catch ( Exception w ) {
+						} )
 
-					}
-
-				}
+						.sum( ) ;
 
 			} catch ( Exception e ) {
 
-				logger.warn( "Failed running commandScript: \n {}", lsCommandString, e ) ;
+				logger.warn( "Failed running commandScript:  {} {}", openFilesCollectScript, CSAP.buildCsapStack(
+						e ) ) ;
 				fileCount = -2 ;
 
 			}
 
-			container.setFileCount( fileCount ) ;
+			containerState.setFileCount( fileCount ) ;
 
-		}
+		} ) ;
 
 	}
 }

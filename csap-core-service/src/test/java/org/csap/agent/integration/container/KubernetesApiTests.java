@@ -6,6 +6,8 @@ import java.io.ByteArrayOutputStream ;
 import java.io.File ;
 import java.io.IOException ;
 import java.io.InputStream ;
+import java.lang.reflect.Type ;
+import java.time.OffsetDateTime ;
 import java.util.ArrayList ;
 import java.util.Arrays ;
 import java.util.Collections ;
@@ -48,6 +50,10 @@ import com.google.gson.ExclusionStrategy ;
 import com.google.gson.FieldAttributes ;
 import com.google.gson.Gson ;
 import com.google.gson.GsonBuilder ;
+import com.google.gson.JsonElement ;
+import com.google.gson.JsonObject ;
+import com.google.gson.JsonSerializationContext ;
+import com.google.gson.JsonSerializer ;
 import com.google.gson.JsonSyntaxException ;
 import com.jayway.jsonpath.JsonPath ;
 
@@ -225,10 +231,23 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 
 			}
 		} ;
+		JsonSerializer<OffsetDateTime> offSetHandler = new JsonSerializer<>( ) {
+			@Override
+			public JsonElement serialize ( OffsetDateTime src , Type typeOfSrc , JsonSerializationContext context ) {
 
+				JsonObject jsonMerchant = new JsonObject( ) ;
+
+				jsonMerchant.addProperty( "csap-host-local", src.toString( ) ) ;
+				jsonMerchant.addProperty( "epoch-seconds", src.toEpochSecond( ) ) ;
+
+				return jsonMerchant ;
+
+			}
+		} ;
 		gsonWithExclusions = new GsonBuilder( )
 				.setPrettyPrinting( )
 				.setExclusionStrategies( managedFieldsExclusion ) // new JodaExclusion( ),
+				.registerTypeAdapter( OffsetDateTime.class, offSetHandler )
 				.create( ) ;
 
 	}
@@ -2058,7 +2077,7 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 		private String mapEventName ( CoreV1Event event ) {
 
 			var name = event.getMetadata( ).getName( ) ;
-			var mappedName = name.split( Pattern.quote( "." ) )[0] ;
+			var mappedName = name.split( Pattern.quote( "." ) )[ 0 ] ;
 
 			var involveType = event.getInvolvedObject( ).getKind( ) ;
 

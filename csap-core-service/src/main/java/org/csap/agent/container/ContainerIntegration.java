@@ -98,7 +98,9 @@ import com.github.dockerjava.api.model.Volume ;
 
 import io.micrometer.core.instrument.Timer ;
 
-public class DockerIntegration {
+public class ContainerIntegration {
+
+	public static final String CRIO_COMMAND_NOT_IMPLMENTED = "crio-command-not-implmented" ;
 
 	private static final String CSAP_DOCKER_METER = "csap.container.docker-" ;
 
@@ -108,7 +110,7 @@ public class DockerIntegration {
 
 	public static final String SUMMARY_TIMER = CSAP_DOCKER_METER + "summary" ;
 
-	private static final String IO_KUBERNETES_CONTAINER_NAME = "io.kubernetes.container.name" ;
+	public static final String IO_KUBERNETES_CONTAINER_NAME = "io.kubernetes.container.name" ;
 
 	public static final String CLI_COMMAND = "docker run" ;
 
@@ -116,7 +118,7 @@ public class DockerIntegration {
 
 	public static final String SYSTEM_DF = "/system/df" ;
 
-	final static Logger logger = LoggerFactory.getLogger( DockerIntegration.class ) ;
+	final static Logger logger = LoggerFactory.getLogger( ContainerIntegration.class ) ;
 
 	public static final String SKIPPING_VOLUME_CREATE = "Skipping volume create because volume already exists" ;
 	public static final String SKIPPING_NETWORK_CREATE = "Skipping network create because network already exists" ;
@@ -144,7 +146,7 @@ public class DockerIntegration {
 	private DockerSettings settings ;
 	private OsCommands osCommands ;
 
-	public DockerIntegration (
+	public ContainerIntegration (
 			DockerConfiguration dockerConfig,
 			ObjectMapper notUsedMapper ) {
 
@@ -434,7 +436,7 @@ public class DockerIntegration {
 
 				if ( container.isPresent( ) ) {
 
-					dockerContainerName = container.get( ).getNames( )[0] ;
+					dockerContainerName = container.get( ).getNames( )[ 0 ] ;
 
 				}
 
@@ -447,7 +449,7 @@ public class DockerIntegration {
 
 				if ( container.isPresent( ) ) {
 
-					dockerContainerName = container.get( ).getNames( )[0] ;
+					dockerContainerName = container.get( ).getNames( )[ 0 ] ;
 
 				}
 
@@ -493,7 +495,7 @@ public class DockerIntegration {
 					.findFirst( )
 					.map( container -> {
 
-						return container.getNames( )[0] ;
+						return container.getNames( )[ 0 ] ;
 
 					} )
 					.orElseGet( ( ) -> {
@@ -656,13 +658,25 @@ public class DockerIntegration {
 		// summary.put( "rootDirectory", "/not/available" );
 		try {
 
-			logger.debug( "Issueing dockerClient command" ) ;
+			// logger.debug( "Issueing dockerClient command" ) ;
 			Info info = dockerClient.infoCmd( ).exec( ) ;
-			logger.debug( "Completed dockerClient command" ) ;
+			// logger.debug( "Completed dockerClient command" ) ;
 
 			summary.put( "imageCount", info.getImages( ) ) ;
 			summary.put( "containerCount", info.getContainers( ) ) ;
 			summary.put( "containerRunning", info.getContainersRunning( ) ) ;
+
+			//
+			var crioContainers = 0 ;
+
+			if ( Application.getInstance( ).isCrioInstalledAndActive( ) ) {
+
+				crioContainers = Application.getInstance( ).crio( ).containerCount( ) ;
+
+			}
+
+			summary.put( "crioContainerCount", crioContainers ) ;
+
 			summary.put( "version", info.getServerVersion( ) ) ;
 
 			summary.put( "rootDirectory", info.getDockerRootDir( ) ) ;
@@ -681,13 +695,17 @@ public class DockerIntegration {
 
 			summary.put( "volumeCount", volumeCount ) ;
 
-			List<Network> networks = dockerClient.listNetworksCmd( ).exec( ) ;
-
 			int networkCount = 0 ;
 
-			if ( networks != null ) {
+			if ( ! Application.getInstance( ).isCrioInstalledAndActive( ) ) {
 
-				networkCount = networks.size( ) ;
+				List<Network> networks = dockerClient.listNetworksCmd( ).exec( ) ;
+
+				if ( networks != null ) {
+
+					networkCount = networks.size( ) ;
+
+				}
 
 			}
 
@@ -707,6 +725,13 @@ public class DockerIntegration {
 
 	boolean printProcessWarningsOnce = true ;
 
+	//
+	//
+	//
+	// Process Mappings
+	//
+	//
+
 	public List<ContainerProcess> build_process_info_for_containers ( ) {
 
 		var allTimer = getDockerConfig( ).getCsapApp( ).metrics( ).startTimer( ) ;
@@ -714,110 +739,39 @@ public class DockerIntegration {
 		List<ContainerProcess> containerProcesses = new ArrayList<>( ) ;
 		StringBuilder pidScanInfo = new StringBuilder( ) ;
 
+		//
+		// docker and podman container collection
+		//
 		try {
 
-			List<Container> containers = dockerClient.listContainersCmd( ).withShowAll( false ).exec( ) ;
-
-			containerProcesses = containers.stream( )
-					.map( container -> {
-
-						if ( isKubernetesPodWrapper( container ) || ( container.getNames( ) == null ) || ( container
-								.getNames( ).length == 0 ) ) {
-
-							// logger.info( "Filtering: {}", container );
-							if ( printProcessWarningsOnce ) {
-
-								pidScanInfo.append(
-										"\n Filtering:  image: " + container.getImage( ) + " description: "
-												+ containerDescription( container ) ) ;
-
-							}
-
-							return null ;
-
-						}
-
-						ContainerProcess process = new ContainerProcess( ) ;
-						logger.debug( "container: \n {}", container.toString( ) ) ;
-
-						String name = container.getNames( )[0] ;
-
-						process.setContainerName( name ) ;
-						process.setMatchName( name ) ;
-
-						if ( container.getLabels( ) != null ) {
-
-							String k8Name = container.getLabels( ).get( IO_KUBERNETES_CONTAINER_NAME ) ;
-
-							if ( k8Name != null ) {
-
-								process.setMatchName( k8Name ) ;
-
-								var podName = container.getLabels( ).get( "io.kubernetes.pod.name" ) ;
-
-								if ( podName != null ) {
-
-									process.setPodName( podName ) ;
-
-								}
-
-								process.setPodNamespace( container.getLabels( ).get( "io.kubernetes.pod.namespace" ) ) ;
-
-							}
-
-						}
-
-						var podTimer = getDockerConfig( ).getCsapApp( ).metrics( ).startTimer( ) ;
-
-						try {
-
-							InspectContainerResponse details = dockerClient.inspectContainerCmd( container.getId( ) )
-									.exec( ) ;
-							process.setPid( Integer.toString( details.getState( ).getPid( ) ) ) ;
-
-						} catch ( Exception e ) {
-
-							if ( printProcessWarningsOnce ) {
-
-								pidScanInfo.append(
-										"\n Inspection Error:  image: " + container.getImage( ) + " desc: "
-												+ containerDescription( container ) ) ;
-
-								// logger.warn( "Failed to inpect container: {}, {}", container,
-								// CSAP.buildCsapStack( e ) );
-							}
-
-							// fallback to cli - only known failure is coredns
-
-							var pid = cachedPidForCoreDnsInspectParseException( container.getId( ) ) ;
-
-							if ( StringUtils.isNotEmpty( pid ) ) {
-
-								process.setPid( pid ) ;
-
-							} else {
-
-								// logger.warn( "Failed to inspect pid: {}, {}", container, CSAP.buildCsapStack(
-								// e ) );
-								return null ;
-
-							}
-
-						}
-
-						getDockerConfig( ).getCsapApp( ).metrics( ).stopTimer( podTimer, "collect-docker.pids."
-								+ process.getPodName( ) ) ;
-
-						return process ;
-
-					} )
-					.filter( Objects::nonNull )
-					.collect( Collectors.toList( ) ) ;
-			;
+			// podman system seems to miss every 15 minutes or so
+			containerProcesses.addAll( buildContainerProcesses( pidScanInfo ) ) ;
 
 		} catch ( Exception e ) {
 
-			logger.warn( "Failed connecting to docker: {}", CSAP.buildCsapStack( e ) ) ;
+			logger.warn( "Failed connecting to container: {}", CSAP.buildCsapStack( e ) ) ;
+
+			// names.add( "** Unable-to-get-listing" );
+		}
+
+		//
+		// CRIO containers (Optional)
+		//
+		try {
+
+			if ( Application.getInstance( ).isCrioInstalledAndActive( ) ) {
+
+				var crioProcesses = Application.getInstance( ).crio( ).buildContainerProcesses( ) ;
+
+				logger.debug( "crioProcesses: {}", crioProcesses ) ;
+
+				containerProcesses.addAll( crioProcesses ) ;
+
+			}
+
+		} catch ( Exception e ) {
+
+			logger.warn( "Failed collecting CRIO containers: {}", CSAP.buildCsapStack( e ) ) ;
 
 			// names.add( "** Unable-to-get-listing" );
 		}
@@ -830,7 +784,112 @@ public class DockerIntegration {
 
 		}
 
-		getDockerConfig( ).getCsapApp( ).metrics( ).stopTimer( allTimer, "collect-docker.pids" ) ;
+		getDockerConfig( ).getCsapApp( ).metrics( ).stopTimer( allTimer, "collect-container.pids" ) ;
+
+		return containerProcesses ;
+
+	}
+
+	private List<ContainerProcess> buildContainerProcesses ( StringBuilder pidScanInfo ) {
+
+		List<ContainerProcess> containerProcesses ;
+		List<Container> containers = dockerClient.listContainersCmd( ).withShowAll( false ).exec( ) ;
+
+		containerProcesses = containers.stream( )
+				.map( container -> {
+
+					if ( isKubernetesPodWrapper( container ) || ( container.getNames( ) == null ) || ( container
+							.getNames( ).length == 0 ) ) {
+
+						// logger.info( "Filtering: {}", container );
+						if ( printProcessWarningsOnce ) {
+
+							pidScanInfo.append(
+									"\n Filtering:  image: " + container.getImage( ) + " description: "
+											+ containerDescription( container ) ) ;
+
+						}
+
+						return null ;
+
+					}
+
+					ContainerProcess process = new ContainerProcess( ) ;
+					logger.debug( "container: \n {}", container.toString( ) ) ;
+
+					String name = container.getNames( )[ 0 ] ;
+
+					process.setContainerName( name ) ;
+					process.setMatchName( name ) ;
+
+					if ( container.getLabels( ) != null ) {
+
+						String k8Name = container.getLabels( ).get( IO_KUBERNETES_CONTAINER_NAME ) ;
+
+						if ( k8Name != null ) {
+
+							process.setMatchName( k8Name ) ;
+
+							var podName = container.getLabels( ).get( "io.kubernetes.pod.name" ) ;
+
+							if ( podName != null ) {
+
+								process.setPodName( podName ) ;
+
+							}
+
+							process.setPodNamespace( container.getLabels( ).get( "io.kubernetes.pod.namespace" ) ) ;
+
+						}
+
+					}
+
+					var podTimer = getDockerConfig( ).getCsapApp( ).metrics( ).startTimer( ) ;
+
+					try {
+
+						InspectContainerResponse details = dockerClient.inspectContainerCmd( container.getId( ) )
+								.exec( ) ;
+						process.setPid( Integer.toString( details.getState( ).getPid( ) ) ) ;
+
+					} catch ( Exception e ) {
+
+						if ( printProcessWarningsOnce ) {
+
+							pidScanInfo.append(
+									"\n Inspection Error:  image: " + container.getImage( ) + " desc: "
+											+ containerDescription( container ) ) ;
+
+							// logger.warn( "Failed to inpect container: {}, {}", container,
+							// CSAP.buildCsapStack( e ) );
+						}
+
+						// fallback to cli - only known failure is coredns
+
+						var pid = cachedPidForCoreDnsInspectParseException( container.getId( ) ) ;
+
+						if ( StringUtils.isNotEmpty( pid ) ) {
+
+							process.setPid( pid ) ;
+
+						} else {
+
+							// logger.warn( "Failed to inspect pid: {}, {}", container, CSAP.buildCsapStack(
+							// e ) );
+							return null ;
+
+						}
+
+					}
+
+					getDockerConfig( ).getCsapApp( ).metrics( ).stopTimer( podTimer, "collect-container.pids."
+							+ process.getPodName( ) ) ;
+
+					return process ;
+
+				} )
+				.filter( Objects::nonNull )
+				.collect( Collectors.toList( ) ) ;
 
 		return containerProcesses ;
 
@@ -958,18 +1017,19 @@ public class DockerIntegration {
 			containers.forEach( container -> {
 
 				logger.debug( "container: \n {}", container.toString( ) ) ;
-				String label = Arrays.asList( container.getNames( ) ).toString( ) ;
+				String name = Arrays.asList( container.getNames( ) ).toString( ) ;
 
 				if ( container.getNames( ).length == 1 ) {
 
-					label = container.getNames( )[0] ;
+					name = container.getNames( )[ 0 ] ;
 
 				}
 
-				names.add( label ) ;
+				names.add( name ) ;
+				
+				//logger.info( "labels: {}, names: {}",  container.getLabels( ) ,  name )  ;
 
 			} ) ;
-			;
 
 		} catch ( Exception e ) {
 
@@ -1105,6 +1165,12 @@ public class DockerIntegration {
 	public String containerCommand ( String containerName , String... command ) {
 
 		String commandOutput = "" ;
+
+		if ( containerName.startsWith( "crio--" ) ) {
+
+			return CRIO_COMMAND_NOT_IMPLMENTED ;
+
+		}
 
 		try {
 
@@ -1624,7 +1690,7 @@ public class DockerIntegration {
 
 				if ( image.getRepoTags( ) != null && image.getRepoTags( ).length > 0 ) {
 
-					label = image.getRepoTags( )[0] ;
+					label = image.getRepoTags( )[ 0 ] ;
 
 					logger.debug( "tags: {}, length: {} ", image.getRepoTags( ), image.getRepoTags( ).length ) ;
 
@@ -3185,9 +3251,9 @@ public class DockerIntegration {
 
 	}
 
-	public ArrayNode containers ( boolean showFilteredItems ) {
+	public ArrayNode containerListing ( boolean showFilteredItems ) {
 
-		ArrayNode containerListing = jsonMapper.createArrayNode( ) ;
+		var containerListing = jsonMapper.createArrayNode( ) ;
 
 		try {
 
@@ -3195,7 +3261,7 @@ public class DockerIntegration {
 
 			containers.forEach( container -> {
 
-				logger.debug( "container: \n {}", container.toString( ) ) ;
+				// logger.debug( "container: \n {}", container.toString( ) ) ;
 
 				if ( ! showFilteredItems &&
 						isKubernetesPodWrapper( container ) ) {
@@ -3210,7 +3276,7 @@ public class DockerIntegration {
 
 				if ( container.getNames( ).length == 1 ) {
 
-					label = container.getNames( )[0] ;
+					label = container.getNames( )[ 0 ] ;
 
 				}
 
@@ -3231,7 +3297,7 @@ public class DockerIntegration {
 
 							try {
 
-								disk = Long.parseLong( line.split( " " )[0] ) ;
+								disk = Long.parseLong( line.split( " " )[ 0 ] ) ;
 
 							} catch ( Exception e ) {
 
@@ -3696,7 +3762,7 @@ public class DockerIntegration {
 
 		String[] docker_collect_script = {
 				"#!/bin/bash",
-				csapApp.csapPlatformPath( DockerIntegration.DOCKER_VOLUMES_SCRIPT ).getAbsolutePath( )
+				csapApp.csapPlatformPath( ContainerIntegration.DOCKER_VOLUMES_SCRIPT ).getAbsolutePath( )
 						+ " short", // short parameter does not detail all volume information
 				""
 		} ;

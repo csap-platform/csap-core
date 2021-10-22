@@ -1926,9 +1926,9 @@ public class EnvironmentSettings {
 		return 1 ;
 
 	}
-	
+
 	//
-	//  Manage limit units: note memory and disk have custom settings
+	// Manage limit units: note memory and disk have custom settings
 	//
 	public static long convertUnitToKb ( String alertSetting , ServiceAlertsEnum alert ) {
 
@@ -1959,7 +1959,7 @@ public class EnvironmentSettings {
 
 				if ( alert == ServiceAlertsEnum.diskSpace ) {
 
-					resultInKb = resultInKb  ;
+					resultInKb = resultInKb ;
 
 				} else {
 

@@ -750,7 +750,7 @@ public class ServiceCommands {
 
 						// some deploys select different ports - bad practice -
 						// but handled
-						instance = csapApp.findServiceByNameOnCurrentHost( service_port.split( "_" )[0] ) ;
+						instance = csapApp.findServiceByNameOnCurrentHost( service_port.split( "_" )[ 0 ] ) ;
 
 						if ( instance != null ) {
 

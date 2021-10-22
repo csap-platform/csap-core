@@ -11,6 +11,7 @@ import org.aspectj.lang.annotation.Around ;
 import org.aspectj.lang.annotation.Aspect ;
 import org.aspectj.lang.annotation.Pointcut ;
 import org.csap.CsapBootApplication ;
+import org.csap.agent.ui.explorer.CrioExplorer ;
 import org.csap.agent.ui.explorer.KubernetesExplorer ;
 import org.csap.agent.ui.explorer.OsExplorer ;
 import org.csap.agent.ui.rest.ApplicationBrowser ;
@@ -212,7 +213,7 @@ public class CsapCoreService implements WebMvcConfigurer {
 
 				if ( params.length == 2 ) {
 
-					key = params[1].toString( ) + TrendCache.buildReportHash( params[0].toString( ) ) ;
+					key = params[ 1 ].toString( ) + TrendCache.buildReportHash( params[ 0 ].toString( ) ) ;
 
 				} else {
 
@@ -354,12 +355,17 @@ public class CsapCoreService implements WebMvcConfigurer {
 					// App Browser get requests
 					//
 					.antMatchers( HttpMethod.GET,
+
 							FILE_URL + FileRequests.FILE_REMOTE_MONITOR,
+
+							CrioExplorer.CRIO_URL + "/**",
+
 							APP_BROWSER_URL + ApplicationBrowser.POD_RESOURCE_URL,
 							APP_BROWSER_URL + ApplicationBrowser.POD_LOG_URL,
 							APP_BROWSER_URL + ApplicationBrowser.POD_REPORT_URL,
 							APP_BROWSER_URL + ApplicationBrowser.NODE_REPORT_URL,
 							APP_BROWSER_URL + ApplicationBrowser.REALTIME_REPORT_URL,
+							APP_BROWSER_URL + ApplicationBrowser.HELM_INFO_URL,
 							APP_BROWSER_URL + ApplicationBrowser.VOLUME_REPORT_URL,
 							APP_BROWSER_URL + ApplicationBrowser.CSAP_EVENT_REPORT_URL,
 							APP_BROWSER_URL + ApplicationBrowser.KUBERNETES_EVENT_REPORT_URL,
@@ -893,17 +899,17 @@ public class CsapCoreService implements WebMvcConfigurer {
 	}
 
 	public Map<String, String> getSourceOverrides ( ) {
-	
+
 		return sourceOverrides ;
-	
+
 	}
 
 	public void setSourceOverrides ( Map<String, String> sourceOverrides ) {
-		
-		logger.debug( "sourceOverrides: {}", sourceOverrides );
-	
+
+		logger.debug( "sourceOverrides: {}", sourceOverrides ) ;
+
 		this.sourceOverrides = sourceOverrides ;
-	
+
 	}
 
 }

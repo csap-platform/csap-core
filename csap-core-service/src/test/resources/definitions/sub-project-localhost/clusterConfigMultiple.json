@@ -127,7 +127,7 @@
 			"cssp": {
 				"type": "modjk",
 				"hosts": [
-					"mainHostA"
+					"main-host-a"
 				],
 				"template-references": [
 					"httpd",

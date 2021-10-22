@@ -52,9 +52,9 @@ csap:
         # agent refreshes are triggered by admin
         - 
           id: csap.host-status
-          occurences-min: 2
-          collect-time: 2 # allows for migrations
-          collect-units: MINUTES
+          occurences-min: 9
+          collect-time: 1 # allows for migrations
+          collect-units: SECONDS
           max-time: 7
           max-units: SECONDS
           

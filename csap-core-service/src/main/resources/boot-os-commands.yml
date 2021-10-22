@@ -39,6 +39,24 @@ csap-core:
       #iostat -dx 1 2
       iostat -dx | awk '{ print $1 " " $NF}' | grep --invert-match 'util\|Linux'
       
+    cri-ps: |
+      #!/bin/bash
+      crictl ps --all --output=json
+      
+    cri-pid-report: |
+      #!/bin/bash
+      containerIds=$(crictl ps --quiet);
+      for containerId in $containerIds; do 
+        pid=$(crictl inspect --output go-template --template '{{.status.labels}},{{.info.pid}}' $containerId ) ;
+        #pid=$(crictl inspect --output go-template --template '{{.status.metadata.name}},{{.info.pid}}' $containerId ) ;
+        echo "$pid,$containerId"
+      done
+      
+      
+    cri-inspect: |
+      #!/bin/bash
+      crictl inspect --output=json $id
+      
     disk-usage-system: |
       #!/bin/bash
       timeout 2s df --print-type --portability --human-readable  | sed 's/  */ /g'

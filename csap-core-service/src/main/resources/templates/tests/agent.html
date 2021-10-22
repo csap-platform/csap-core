@@ -445,6 +445,12 @@
 
 					<a
 						class="csap-link"
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=simple-monitor,hostName='*') }">
+						simple-monitor </a>
+
+
+					<a
+						class="csap-link"
 						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=csap-package-java,hostName='*') }">
 						csap-package-java </a>
 

@@ -1,6 +1,7 @@
 define( [ "browser/utils", "projects/env-editor/service-edit-config", "editor/validation-handler", "editor/json-forms" ], function ( utils, configuration, validationHandler, jsonForms ) {
 
-    console.log( "Service Edit Module new loaded" ) ;
+    console.log( "Module loaded 222" ) ;
+    
     let _resultPanel = "#serviceEditorResult" ;
     let _editorSelector = "#serviceEditor" ;
 
@@ -25,13 +26,7 @@ define( [ "browser/utils", "projects/env-editor/service-edit-config", "editor/va
     let $propFileContainer, $propName, $propLifecycle, $propExternal, $propModified, $propContents, $propSelect ;
     let $containerTab, $serviceEditor, $dialogHeader ;
 
-//    let $propFileContainer = $( "#fileContainer" ) ;
-//    let $propName = $( "#propFileName" ) ;
-//    let $propLifecycle = $( "#propLifecycle" ) ;
-//    let $propExternal = $( "#propExternal" ) ;
-//    let $propModified = $( "#propModified" ) ;
-//    let $propContents = $( "#propFileText" ) ;
-//    let $propSelect = $( "#propertyFileSelect" ) ;
+    let _lastResource ;
 
 
 
@@ -97,12 +92,12 @@ define( [ "browser/utils", "projects/env-editor/service-edit-config", "editor/va
 
 
     function refreshJquerySelectors() {
-        
-        console.log(`refreshJquerySelectors()`) ;
+
+        console.log( `refreshJquerySelectors()` ) ;
 
         $serviceEditor = $( _editorSelector ) ;
         $containerTabs = $( _containerNav, $serviceEditor ) ;
-        
+
         $dialogHeader = $( "#dialogOpsContainer", $serviceEditor.parent() ) ;
 
         $propFileContainer = $( "#fileContainer", $serviceEditor ) ;
@@ -157,11 +152,17 @@ define( [ "browser/utils", "projects/env-editor/service-edit-config", "editor/va
 
                 if ( ui.oldTab.text().indexOf( "Editor" ) != -1 ) {
                     // refresh ui with edit changes.
-                    console.log( "beforeActivate():  parsing serviceJson" ) ;
-                    _serviceJson = JSON.parse( $( _definitionSelector ).val() ) ;
-                    getServiceDefinitionSuccess( _serviceJson ) ;
-                }
+                    console.log( "\n\n SPEC EDITOR: was last tab; reloading current definition" ) ;
 
+                    const currentDefinition = jsonForms.getJsonText( $( _definitionSelector ) ) ;
+                    _serviceJson = JSON.parse( currentDefinition ) ;
+
+                    getServiceDefinitionSuccess( _serviceJson ) ;
+//                    setTimeout( function () {
+//                        reloadResourceContents() ;
+//                    }, 50 ) ;
+                }
+  
             },
             activate: function ( event, ui ) {
                 console.log( "activate(): " + ui.newTab.text() ) ;
@@ -177,10 +178,11 @@ define( [ "browser/utils", "projects/env-editor/service-edit-config", "editor/va
 
 
                 if ( ui.newTab.text().indexOf( "Files" ) != -1 ) {
-                    update_files_tab() ;
+                    update_files_tab( ui.newTab ) ;
                 }
 
                 refresh_layout() ;
+                //setTimeout( refresh_layout, 1500)  ;
 
             }
 
@@ -295,6 +297,7 @@ define( [ "browser/utils", "projects/env-editor/service-edit-config", "editor/va
         _service = selectedService ;
 
         utils.loading( "loading service template" ) ;
+        _lastResource = new Array() ;
         $( ".serviceLoading" ).show() ;
 
         let paramObject = {
@@ -314,7 +317,7 @@ define( [ "browser/utils", "projects/env-editor/service-edit-config", "editor/va
 //            openWindowSafely( commandUrl, "_blank" ) ;
             return false ;
         } )
-        
+
         $propFileContainer.hide() ;
 
         $.getJSON( SERVICE_DEF_URL, paramObject )
@@ -324,7 +327,7 @@ define( [ "browser/utils", "projects/env-editor/service-edit-config", "editor/va
                     utils.loadingComplete() ;
                     $( ".serviceLoading" ).hide() ;
                     getServiceDefinitionSuccess( serviceJson ) ;
-                    update_files_tab() ;
+                    update_files_tab( $propFileContainer ) ;
                 } )
 
                 .fail( function ( jqXHR, textStatus, errorThrown ) {
@@ -628,50 +631,65 @@ define( [ "browser/utils", "projects/env-editor/service-edit-config", "editor/va
         let padding = Array( addPadding ).join( ' ' ) ;
         let paddedString = pad( life + ":", padding ) + name ;
         let propertyKey = paddedString.replace( / /g, '&nbsp;' ) ;
-        
+
         console.debug( `getPropertyKey() life: '${life}', name: ${ name }  result: ${ propertyKey }` ) ;
-        
+
         return propertyKey ;
     }
 
-    function update_files_tab( source, isNewItem = false ) {
+    function update_files_tab( $source, isNewItem = false ) {
+        
+        //console.log( `reloading files tab: event source: ${ $source.attr("id") }` ) ;
 
-        if ( _propSelectTimer ) {
-            clearTimeout( _propSelectTimer ) ;
-        }
+        clearTimeout( _propSelectTimer ) ;
+
 
         function delay_tab_configure() {
-            console.groupCollapsed( `update_files_tab()` ) ;
+            console.groupCollapsed( `update_files_tab: source: ${ $source.attr("id") }` ) ;
             if ( Array.isArray( _serviceJson.files ) ) {
 
-                
+                let prevSelected=$propSelect.val() ;
+                console.log( `prevSelected: ${prevSelected}`) ;
+                 
+                let prevSelectedIndex = getSelectedFileIndex() ;
+
                 $propSelect.empty() ;
-                console.log( `file count: ${ _serviceJson.files.length }` ) ;
+                console.log( `prevSelectedIndex: ${ prevSelectedIndex } files:`, _serviceJson.files ) ; 
 
                 let lastItemAdded = "" ;
+                let fileIndex = 0 ;
                 for ( let serviceFile of _serviceJson.files ) {
-                    lastItemAdded = getPropertyKey( serviceFile.lifecycle, serviceFile.name ) ;
+                    lastItemAdded = `${ fileIndex }---${getPropertyKey( serviceFile.lifecycle, serviceFile.name )}` ;
+                    
+                    if ( prevSelected === "" 
+                            || fileIndex === prevSelectedIndex  ) {
+                        prevSelected = lastItemAdded ;
+                    }
+                    
+                    fileIndex++ ;
+                    
                     console.log( `adding option: '${lastItemAdded}'` ) ;
                     jQuery( '<option/>', {
                         html: getPropertyKey( serviceFile.lifecycle, serviceFile.name, 10 ),
-                        value: lastItemAdded
+                        value: `${ lastItemAdded }`
                     } ).appendTo( $propSelect ) ;
                 }
-                
+
                 $propSelect.sortSelect() ;
 
                 if ( isNewItem ) {
-                    console.log(`new item`) ;
+                    console.log( `Selecting new item added` ) ;
                     $propSelect.val( lastItemAdded ) ;
-                    $propSelect.trigger( "change" ) ;
                 } else {
-                    let defaultItem = getPropertyKey( $propLifecycle.val(), $propName.val() ) ;
-                    console.log( `Selecting '${defaultItem}' `) ;
-                    //$propSelect.val( defaultItem ) ;
+                    //let defaultItem = getPropertyKey( $propLifecycle.val(), $propName.val() ) ;
+                    console.log( `Selecting previous: '${prevSelected}' ` ) ;
+                    $propSelect.val( prevSelected ) ;
                 }
+                 $propSelect.trigger( "change" ) ;
 
-                
 
+
+                console.log( `files: ${ _serviceJson.files.length } tab display: ${ $propFileContainer.css( "display" ) }` ) ;
                 if ( _serviceJson.files.length > 0 ) {
 
                     if ( $propFileContainer.css( "display" ) === "none" ) {
@@ -692,21 +710,31 @@ define( [ "browser/utils", "projects/env-editor/service-edit-config", "editor/va
         _propSelectTimer = setTimeout( delay_tab_configure, 500 ) ;
     }
 
-    function loadShellTemplate( templateName ) {
+    function loadResourceTemplate( templateName, $source ) {
 
 
         console.log( "templateName", templateName ) ;
 
         $.get( baseUrl + "os/command/template/" + templateName,
-                function ( text ) {
+                function ( templateContentText ) {
                     //console.log( text ) ;
-                    $propName.val( templateName ) ;
-                    $propName.trigger( "change" ) ;
+                    let latestFile =  _serviceJson.files[ _serviceJson.files.length -1 ] ;
+                    latestFile.name = templateName ;
+                    latestFile.content = templateContentText.split("\n") ;
+                    $propContents.data( "init-load", "false" ) ;
+//                    $propName.val( templateName ) ;
+//                    //$propName.trigger( "change" ) ;
+//
+//                    $propContents.val( templateContentText ) ;
+//                    $propContents.data( "init-load", "false" ) ;
+//                    $propContents.trigger( "change" ) ;
 
-                    $propContents.val( text ) ;
-                    $propContents.trigger( "change" ) ;
+                    //addServiceFile( $( "#load-file-template-select", $serviceEditor ) )
+                    
+                    update_files_tab( $source, true ) ;
+                    
 
-                    jsonForms.resizeVisibleEditors( _definitionSelector, _container, _editorSelector ) ;
+                    //jsonForms.resizeVisibleEditors( _definitionSelector, _container, _editorSelector ) ;
 
                 },
                 'text'
@@ -714,7 +742,7 @@ define( [ "browser/utils", "projects/env-editor/service-edit-config", "editor/va
 
     }
 
-    function addServiceFile( $source) {
+    function addServiceFile( $source ) {
 
         console.log( "Adding file" ) ;
 
@@ -728,136 +756,199 @@ define( [ "browser/utils", "projects/env-editor/service-edit-config", "editor/va
         let newFile = new Object() ;
         _serviceJson.files.push( newFile ) ;
         newFile.name = "fileName" + fileCount ;
+
         let contentLines = new Array() ;
         contentLines.push( "# updated with your content" + fileCount ) ;
-        newFile.content = contentLines ;
+        $propContents.data( "init-load", "true" ) ;
+        //$propContents.data( "file-index", _serviceJson.files.length ) ;
+        //newFile.content = contentLines ;
         newFile.lifecycle = "common" ;
         newFile.external = true ;
         newFile.newFile = true ;
 
-        update_files_tab( $source, true ) ;
+        //update_files_tab( $source, true ) ;
+//
+       // refresh_layout() ;
 
-        refresh_layout() ;
 
+    }
 
+    function getSelectedFileIndex() {
+
+        console.log( `selected file: ${ $propSelect.val() }` ) ;
+
+        if ( $propSelect.val() ) {
+            let selectedItems = $propSelect.val().split( "---" ) ;
+            if ( selectedItems.length == 2 ) {
+                return  parseInt(selectedItems[0]) ;
+            }
+        }
+
+        return -1 ;
     }
 
     function registerFileEvents() {
 
         console.log( "registering file events" ) ;
 
-        $( "#load-file-template-select", $serviceEditor ).change( function () {
+        $( "#load-file-template-select", $serviceEditor ).off().change( function () {
 
             let templateName = $( this ).val() ;
-            addServiceFile( $(this) ) ;
-            
+            addServiceFile( $( this ) ) ;
+
             setTimeout( function () {
 
-                loadShellTemplate( templateName ) ;
+                loadResourceTemplate( templateName,  $( this ) ) ;
                 $( "#load-file-template-select" ).val( "default" ) ;
 
             }, 100 ) ;
         } )
 
+        let updateLocationFunction = function() { 
+            update_files_tab( $(this) )  ;
+            $propContents.trigger("change") ;
+            let newFile = _serviceJson.files[  getSelectedFileIndex() ] ;
+            newFile.external = true ;
+            newFile.newFile = true ;
+        }
 
-        $propName.change( update_files_tab ) ;
-        $propLifecycle.change( update_files_tab ) ;
+        $propName.off().change( updateLocationFunction ) ;
 
-        $( "#service-delete-file-button" ).click( function () {
+        $propLifecycle.off().change( updateLocationFunction ) ;
 
-            console.log( `Deleting file, from files.length: ${_serviceJson.files.length}` )
-            for ( let serviceFile of _serviceJson.files ) {
+        $( "#service-delete-file-button", $serviceEditor ).click( function () {
 
-                let currentFile = getPropertyKey( serviceFile.lifecycle, serviceFile.name ) ;
-                if ( $propSelect.val() == currentFile ) {
-                    serviceFile.deleteFile = true ;
-                    //serviceFile.content ="File is marked for delete"
-                    $propContents.val( "File is marked for delete" ) ;
-                    // _serviceJson.files.splice( i, 1 );
-                }
+            let selectedFileIndex = getSelectedFileIndex() ;
+
+            console.log( `Deleting file ${selectedFileIndex}, from files.length: ${_serviceJson.files.length}` ) ;
+
+
+            if ( selectedFileIndex >= 0 ) {
+                let fileToBeDeleted = _serviceJson.files[ selectedFileIndex ] ;
+                console.log( `fileToBeDeleted`, fileToBeDeleted ) ;
+                fileToBeDeleted.deleteFile = true ;
+                $propContents.val( "File is marked for delete" ) ;
             }
+//            for ( let serviceFile of _serviceJson.files ) {
+//
+//                let currentFile = getPropertyKey( serviceFile.lifecycle, serviceFile.name ) ;
+//                if ( $propSelect.val() == currentFile ) {
+//                    
+//                    console.log( `marked for delete: ${currentFile}` ) ;
+//                    serviceFile.deleteFile = true ;
+//                    //serviceFile.content ="File is marked for delete"
+//                    $propContents.val( "File is marked for delete" ) ;
+//                    // _serviceJson.files.splice( i, 1 );
+//                }
+//            }
             refresh_layout() ;
             //$propName.val( "" );
             //syncPropertyFileSelect();
             //$propFileContainer.hide();
         } ) ;
 
-        $propContents.change( function () {
-            
-            console.log( `service file content updated` ) ;
+        $propContents.off().change( function () {
+
+            let selectedFileIndex = getSelectedFileIndex() ;
+            console.log( `service file content updated: ${selectedFileIndex}`
+                    + `\n file-index: ${ $propContents.data( "file-index" ) }`
+                    + `\n init-load: ${ $propContents.data( "init-load" ) }`) ;
+                    
             if ( _serviceJson.files
-                && $propContents.data( "init-load" ) !== "true" ) {
-                _serviceJson.files[ $propContents.data( "file-index" ) ].contentUpdated = true ;
+                    && $propContents.data( "init-load" ) !== "true" ) {
+
+                _serviceJson.files[ selectedFileIndex ].contentUpdated = true ;
+
+            } else {
+                console.log( `skipping file content update` ) ;
             }
-            
+
         } ) ;
 
         $propSelect.off().change( function () {
-            console.log( `file selection modified` ) ;
-            for ( let fileIndex = 0 ; fileIndex < _serviceJson.files.length ; fileIndex++ ) {
-                let propertyFile = _serviceJson.files[fileIndex] ;
 
-                let propertyFullName = getPropertyKey(
-                        _serviceJson.files[fileIndex].lifecycle,
-                        _serviceJson.files[fileIndex].name ) ;
+            let selectedFileIndex = getSelectedFileIndex() ;
+            console.log( `\n\n file selection modified: ${selectedFileIndex}` ) ;
 
-                if ( propertyFullName == $propSelect.val() ) {
+            //for ( let fileIndex = 0 ; fileIndex < _serviceJson.files.length ; fileIndex++ ) {
+            let propertyFile = _serviceJson.files[ selectedFileIndex ] ;
 
-                    // update json-forms data for extraction to json definition
-                    $propName.val( propertyFile.name ) ;
-                    $propName.data( "path", "files[" + fileIndex + "].name" ) ;
+            let propertyFullName = getPropertyKey(
+                    _serviceJson.files[selectedFileIndex].lifecycle,
+                    _serviceJson.files[selectedFileIndex].name ) ;
 
-                    $propLifecycle.val( propertyFile.lifecycle ) ;
-                    $propLifecycle.data( "path", "files[" + fileIndex + "].lifecycle" ) ;
+            //if ( propertyFullName === $propSelect.val() ) {
 
-                    $propExternal.val( propertyFile.external ) ;
-                    $propExternal.data( "path", "files[" + fileIndex + "].external" ) ;
+            // update json-forms data for extraction to json definition
+            $propName.val( propertyFile.name ) ;
+            $propName.data( "path", `files[${ selectedFileIndex }].name` ) ;
 
-                    $propModified.val( propertyFile.contentUpdated ) ;
-                    $propModified.data( "path", "files[" + fileIndex + "].contentUpdated" ) ;
+            $propLifecycle.val( propertyFile.lifecycle ) ;
+            $propLifecycle.data( "path", "files[" + selectedFileIndex + "].lifecycle" ) ;
 
+            $propExternal.val( propertyFile.external ) ;
+            $propExternal.data( "path", "files[" + selectedFileIndex + "].external" ) ;
 
+            $propModified.val( propertyFile.contentUpdated ) ;
+            $propModified.data( "path", "files[" + selectedFileIndex + "].contentUpdated" ) ;
 
-                    $propContents.data( "path", "files[" + fileIndex + "].content" ) ;
+            $propContents.data( "path", "files[" + selectedFileIndex + "].content" ) ;
 
-                    // take array data and convert for UI textarea
-                    let textLines = "" ;
+            // take array data and convert for UI textarea
+            let textLines = "" ;
 
-                    if ( propertyFile.content ) {
-                        for ( let line_in_file of  propertyFile.content ) {
-                            textLines += line_in_file + "\n" ;
-                        }
-                        loadResourceContents( textLines, fileIndex, propertyFullName )
-
-                    } else {
-                        utils.loading( `loading resource: ${propertyFile.name}` ) ;
-                        loadResourceFile( propertyFile.name, propertyFile.lifecycle,
-                                fileIndex, propertyFullName ) ;
-                    }
-
+            if ( propertyFile.content ) {
+                console.log( `loading existing content`, propertyFile.content ) ;
+                for ( let line_in_file of  propertyFile.content ) {
+                    textLines += line_in_file + "\n" ;
                 }
+                loadResourceContents( textLines, selectedFileIndex, propertyFullName )
+
+            } else {
+                utils.loading( `loading resource: ${propertyFile.name}` ) ;
+                loadResourceFile( propertyFile.name, propertyFile.lifecycle,
+                        selectedFileIndex, propertyFullName ) ;
             }
+            
+            
+
+            //}
+            // }
             //$propFileContainer.show() ;
         } ) ;
     }
 
+    function reloadResourceContents() {
+        console.log( `_lastResource parameters`, _lastResource ) ;
+
+        if ( _lastResource.length === 3 ) {
+            loadResourceContents( _lastResource[ 0 ], _lastResource[ 1 ], _lastResource[ 2 ] ) ;
+        }
+    }
+
     function loadResourceContents( textLines, fileIndex, propertyFullName ) {
+        
+        console.log( `loading ${ propertyFullName }, fileIndex: ${ fileIndex }`, textLines ) ;
+
+        _lastResource = [ textLines, fileIndex, propertyFullName ] ;
+        $propContents.data( "file-index", fileIndex ) ;
         $propContents.val( textLines ) ;
 
-        $propContents.data( "file-index", fileIndex ) ;
         $propContents.data( "init-load", "true" ) ;
-        $propContents.trigger( "change" ) ;
+        //$propContents.trigger( "change" ) ;
         jsonForms.assign_editor_mode( $propContents, propertyFullName ) ;
         refresh_layout() ;
 
         setTimeout( () => {
-            // mark subsequent changes
+            // mark subsequent changes - handles context switching
             $propContents.data( "init-load", "false" ) ;
-        }, 500 ) ;
+        }, 1000 ) ;
 
     }
 
     function loadResourceFile( fileName, environment, fileIndex, propertyFullName ) {
+        
+        $propFileContainer.show() ;
 
         $.getJSON( SERVICE_DEF_URL + "/resource", {
             project: utils.getActiveProject(),
@@ -869,6 +960,7 @@ define( [ "browser/utils", "projects/env-editor/service-edit-config", "editor/va
                 .done( function ( fileContents ) {
 
                     //console.log(`loadResourceFile`, fileContents) ;
+            
                     if ( fileContents ) {
 
                         let textLines = "" ;
@@ -885,7 +977,8 @@ define( [ "browser/utils", "projects/env-editor/service-edit-config", "editor/va
 
                 .fail( function ( jqXHR, textStatus, errorThrown ) {
 
-                    alertify.csapWarning( `Failed to load ${name} in env ${ environment}` ) ;
+                    console.error( `Failed loading resource ${ fileName }`, errorThrown) ;
+                    alertify.csapWarning( `Failed to load ${ fileName } in env ${ environment}` ) ;
                     utils.loadingComplete() ;
 
                 } ) ;
@@ -893,9 +986,9 @@ define( [ "browser/utils", "projects/env-editor/service-edit-config", "editor/va
 
 // Need to register events after dialog is loaded
     function registerInputEvents() {
-        
+
         refreshJquerySelectors() ;
-        
+
         registerFileEvents() ;
 
         $( "input[name=updateOp]" ).click( function () {
@@ -1132,7 +1225,7 @@ define( [ "browser/utils", "projects/env-editor/service-edit-config", "editor/va
                 $editValueContainer.html( options ) ;
                 $editValueContainer.sortSelect() ;
             } else {
-                let $editValueContainer = jQuery( '<input/>', {
+                $editValueContainer = jQuery( '<input/>', {
                     class: "",
                     "data-id": id,
                     "data-path": path,
@@ -1504,7 +1597,7 @@ define( [ "browser/utils", "projects/env-editor/service-edit-config", "editor/va
                     }
 
                     if ( updatesResult.message ) {
-                        $userMessage.append( `<div class="csap-info">${ updatesResult.message }</div>`  ) ;
+                        $userMessage.append( `<div class="csap-info">${ updatesResult.message }</div>` ) ;
                     }
 
 

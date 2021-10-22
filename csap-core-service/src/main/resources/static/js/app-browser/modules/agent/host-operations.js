@@ -1,18 +1,23 @@
 define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
 
-    console.log( "Module loaded" ) ;
+    console.log( "Module loaded aaa" ) ;
+    let _initComplete = false ;
+    let _resultsEditor ;
+    let $aceWrapCheckbox ;
 
-    var _initComplete = false ;
-    var _resultsEditor ;
-    var $aceWrapCheckbox ;
+    let previousCommands = new Array() ;
+
+    const $agentTabContent = utils.findContent( "#agent-tab-content" ) ;
+    const $cliRunnerSelect = $( "select#cli-runner", $agentTabContent ) ;
+    const $previousOptionGroup = $( "#cli-runner-previous", $cliRunnerSelect ) ;
 
 
-    var $processKillDialog ;
+    let $processKillDialog ;
 
-    var $resultsText, $resultsDialog ;
+    let $resultsText, $resultsDialog ;
 
     // folderTypes
-    var CATEGORIES = {
+    const CATEGORIES = {
         jsonContainer: "json-container",
         jsonValue: "json-value",
         jsonEditor: "json-editor",
@@ -41,6 +46,8 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
         socketConnections: "os/socket/connections",
         socketListeners: "os/socket/listeners",
 
+        crioContainers: "crio/containers",
+
         dockerConfig: "docker/configuration",
         dockerContainers: "docker/containers",
         dockerImages: "docker/images",
@@ -48,6 +55,7 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
         dockerNetworks: "docker/networks",
 
         kubernetesConfig: "kubernetes/configuration",
+        kubernetesHelm: "kubernetes/helm",
         kubernetesPods: "kubernetes/pods",
         kubernetesPodContainer: "kubernetes/pod/container",
         kubernetesServices: "kubernetes/services",
@@ -64,7 +72,7 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
     }
 
 
-    var NODE_TYPES = {
+    let NODE_TYPES = {
         "folder": { icon: "ft-folder", iconTooltip: "dynamic folder" },
 
         "host": { icon: "ft-host", iconTooltip: "" },
@@ -93,13 +101,16 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
         "os/socket/connections": { icon: "ft-k8-service", iconTooltip: "Socket Connections" },
         "os/socket/listeners": { icon: "ft-k8-service", iconTooltip: "Socket Listeners" },
 
-        "docker/configuration": { icon: "ft-configuration", iconTooltip: "Docker Settings" },
-        "docker/containers": { icon: "ft-docker-container", iconTooltip: "Docker Container" },
-        "docker/images": { icon: "ft-docker-image", iconTooltip: "Docker Image" },
-        "docker/volumes": { icon: "ft-docker-volume", iconTooltip: "Docker Volume" },
-        "docker/networks": { icon: "ft-docker-network", iconTooltip: "Docker Network" },
+        "crio/containers": { icon: "ft-docker-container", iconTooltip: "CRI-O Container" },
+
+        "docker/configuration": { icon: "ft-configuration", iconTooltip: "Host Container Settings" },
+        "docker/containers": { icon: "ft-docker-container", iconTooltip: "Host Containers" },
+        "docker/images": { icon: "ft-docker-image", iconTooltip: "Host Container Images" },
+        "docker/volumes": { icon: "ft-docker-volume", iconTooltip: "Host Container Volume" },
+        "docker/networks": { icon: "ft-docker-network", iconTooltip: "Host Container Network" },
 
         "kubernetes/configuration": { icon: "ft-configuration", iconTooltip: "Kubernetes Settings" },
+        "kubernetes/helm": { icon: "ft-k8-volume-claim", iconTooltip: "Helm Artifacts" },
         "kubernetes/configMaps": { icon: "ft-k8-volume-claim", iconTooltip: "Kubernetes Config Maps: settings and customization" },
         "kubernetes/pods": { icon: "ft-k8-pod", iconTooltip: "Kubernetes Pods" },
         "kubernetes/pod/container": { icon: "ft-k8-pod-container", iconTooltip: "Kubernetes Pods" },
@@ -108,10 +119,10 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
         "kubernetes/cronJobs": { icon: "ft-k8-cron-job", iconTooltip: "kubernetes cron job" },
         "kubernetes/deployments": { icon: "ft-k8-deploy", iconTooltip: "Kubernetes Deployments" },
         "kubernetes/events": { icon: "ft-events", iconTooltip: "Kubernetes Events" },
-        "kubernetes/endpoints": { icon: "ft-k8-replica", iconTooltip: "Kubernetes End Points" },
+        "kubernetes/endpoints": { icon: "ft-k8-replica", iconTooltip: "Kubernetes EndPoints" },
         "kubernetes/replicaSets": { icon: "ft-k8-replica", iconTooltip: "Kubernetes ReplicaSets" },
-        "kubernetes/statefulSets": { icon: "ft-k8-replica", iconTooltip: "Kubernetes Stateful Sets" },
-        "kubernetes/daemonSets": { icon: "ft-k8-replica", iconTooltip: "Kubernetes Daemon Sets" },
+        "kubernetes/statefulSets": { icon: "ft-k8-deploy", iconTooltip: "Kubernetes StatefulSets" },
+        "kubernetes/daemonSets": { icon: "ft-k8-deploy", iconTooltip: "Kubernetes DaemonSets" },
         "kubernetes/persistent-volume-claims": { icon: "ft-k8-volume-claim", iconTooltip: "Kubernetes Persistent Volume Claims" }
     }
 
@@ -119,6 +130,14 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
 
         initialize: function () {
             initialize() ;
+        },
+
+        restartCli: function ( type, name, namespace ) {
+            restartCli( type, name, namespace ) ;
+        },
+
+        pauseCli: function ( type, name, namespace ) {
+            pauseCli( type, name, namespace ) ;
         },
 
         showKillPidDialog: function ( $button, postKillFunction ) {
@@ -170,15 +189,22 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
 
         console.log( "initialize() Building ace  editor" ) ;
         _resultsEditor = aceEditor.edit( $resultsText.attr( "id" ) ) ;
+
+
+        _resultsEditor.setOptions( utils.getAceDefaults( "ace/mode/sh", true ) ) ;
+        _resultsEditor.setTheme( "ace/theme/merbivore_soft" ) ;
+
         //editor.setTheme("ace/theme/twilight");
         //editor.session.setMode("ace/mode/yaml");
 
-        $aceWrapCheckbox = $( '#ace-wrap-checkbox', $( "#os-results-head" ) ) ;
-        _resultsEditor.setOptions( utils.getAceDefaults( "ace/mode/sh", true ) ) ;
+//        _resultsEditor.setOptions( utils.getAceDefaults( "ace/mode/sh", true ) ) ;
+//        _resultsEditor.setTheme( "ace/theme/tomorrow_night" ) ;
+//        _resultsEditor.setTheme( "ace/theme/terminal" ) ;
 
 
+        $aceWrapCheckbox = $( '#os-results-wrap', $( "#os-results-head" ) ) ;
         $aceWrapCheckbox.change( function () {
-            if ( isAceWrapChecked() ) {
+            if ( $( this ).is( ':checked' ) ) {
                 _resultsEditor.session.setUseWrapMode( true ) ;
 
             } else {
@@ -186,7 +212,7 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
             }
         } ) ;
 
-        var $osFoldCheckbox = $( "#ace-fold-checkbox", $( "#os-results-head" ) ) ;
+        let $osFoldCheckbox = $( "#ace-fold-checkbox", $( "#os-results-head" ) ) ;
         $osFoldCheckbox.change( function () {
             if ( $( this ).is( ':checked' ) ) {
                 _resultsEditor.getSession().foldAll( 1 ) ;
@@ -196,55 +222,109 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
             }
         } ) ;
 
-        $( "#ace-theme-select", $( "#os-results-head" ) ).change( function () {
-            _resultsEditor.setTheme( $( this ).val() ) ;
-        } ) ;
-
 
 
     }
 
-    function isAceWrapChecked() {
-        if ( $aceWrapCheckbox.prop( 'checked' ) ) {
-            return true ;
-        } else {
-            return false ;
+
+    function restartCli( type, name, namespace ) {
+
+        let command = `kubectl --namespace=${ namespace } rollout restart ${ type }  ${ name }` ;
+
+        if ( type == "namespaces" ) {
+
+            command = "" ;
+            for ( let theType of [ "deployments", "statefulsets", "daemonsets" ] ) {
+                command += `kubectl --namespace=${ name } rollout restart ${ theType };` ;
+            }
+        }
+        addHistory( command ) ;
+
+        $cliRunnerSelect.val( command ).trigger( "change" ) ;
+
+    }
+
+    function pauseCli( type, name, namespace ) {
+
+        let command = `kubectl --namespace=${ namespace } scale --replicas=0 ${ type }  ${ name }` ;
+
+        addHistory( command ) ;
+
+        $cliRunnerSelect.val( command ).trigger( "change" ) ;
+
+    }
+
+    function addHistory( latestCommand ) {
+
+        console.log( ` addHistory: ${ latestCommand } `, previousCommands ) ;
+        $previousOptionGroup.show().empty() ;
+        previousCommands.unshift( latestCommand ) ;
+        let uniqueCommands = [ ...new Set( previousCommands ) ] ;
+        previousCommands = Array.from(uniqueCommands) ;
+        
+        while ( previousCommands.length > 8 ) {
+            previousCommands.pop() ;
         }
 
+        let numAdded = 0 ;
+        
+        for ( let command of previousCommands ) {
+
+            jQuery( '<option/>', {
+                value: command,
+                text: command,
+                title: command
+            } ).appendTo( $previousOptionGroup ) ;
+        }
     }
 
 
-    function commandRunner( command ) {
+    function commandRunner( $selectOrLink ) {
 
-        let targetUrl = command.data( "targeturl" ) ;
-        let parameters = command.data( "parameters" ) ;
-        console.log( `commandRunner() jquery link parameter,url: ${ targetUrl } parameters: ${parameters} id: ${command.attr( "id" )}` ) ;
+        let targetUrl = $selectOrLink.data( "targeturl" ) ;
+        let parameters = $selectOrLink.data( "parameters" ) ;
+        console.log( `commandRunner() jquery link parameter,url: ${ targetUrl } parameters: ${parameters} id: ${$selectOrLink.attr( "id" )}` ) ;
 
         if ( !_initComplete ) {
             initialize() ;
         }
 
         if ( parameters ) {
-            console.log( `prompting for parameters` ) ;
-            let paramWords = parameters.split( "=" ) ;
-            if ( paramWords.length == 2 ) {
-				let $promptDiv =  `<div id="command-runner-prompt"> ${paramWords[0]}</div>`;
-				
-				if ( paramWords[0].includes( "calicoctl") ) {
-					let helpLink = `<a class='csap-link-icon csap-window' style='margin-left: 5em' target=_blank href='https://docs.projectcalico.org/reference/calicoctl/get'>calicoctl reference guide</a>` ;
-					$promptDiv =  `<div id="command-runner-prompt"> ${paramWords[0]} ${ helpLink }</div>`;
-				}
-                alertify.prompt( $promptDiv, ""
-                        , function ( evt, promptParameters ) {
-                            utils.loading( `Running ${ targetUrl }` ) ;
-                            
-                            let paramUrl = utils.buildGetUrl( targetUrl , {
-                                parameters: promptParameters
-                            }) ;
 
-                            $.get( paramUrl )
+            console.log( `prompting for parameters` ) ;
+
+            if ( $selectOrLink.attr( "id" ) === "cli-runner" ) {
+                let $promptDiv = `<div id="command-runner-prompt">Command to run</div>` ;
+
+                let commandToRun = $selectOrLink.val() ;
+                let helpUrl = "" ;
+
+                if ( commandToRun.includes( "calicoctl" ) ) {
+                    helpUrl = 'https://docs.projectcalico.org/reference/calicoctl/get' ;
+                } else if ( commandToRun.includes( "crictl" ) ) {
+                    helpUrl = `https://github.com/kubernetes-sigs/cri-tools/blob/master/docs/crictl.md`
+                }
+
+                if ( helpUrl != "" ) {
+                    let helpLink = `<a class='csap-link-icon csap-window' style='margin-left: 5em' target=_blank href='${ helpUrl }'>calicoctl reference guide</a>` ;
+                    $promptDiv = `<div id="command-runner-prompt"> Command to run ${ helpLink }</div>` ;
+                }
+
+                let commandPrompt = alertify.prompt( $promptDiv, ""
+                        , function ( evt, commandToRunAfterUserEditedIt ) {
+                            utils.loading( `Running ${ targetUrl }` ) ;
+
+                            console.log( `$previousOptionGroup length: ${ $previousOptionGroup.length }` )
+
+                            addHistory( commandToRunAfterUserEditedIt ) ;
+
+                            let paramUrl = utils.buildGetUrl( targetUrl, {
+                                parameters: commandToRunAfterUserEditedIt
+                            } ) ;
+
+                            $.post( paramUrl )
                                     .done( function ( commandResults ) {
-                                     show_command_results_dialog( "Command Output", commandResults ) ;
+                                        show_command_results_dialog( "Command Output", commandResults ) ;
                                     } )
                                     .fail( function ( jqXHR, textStatus, errorThrown ) {
                                         alertify.alert( "Failed Operation: " + jqXHR.statusText, "Contact your administrator" ) ;
@@ -254,16 +334,24 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
                     alertify.error( 'Canceled' )
                 } ) ;
 
+                commandPrompt.setting( {
+                    'labels': {
+                        ok: "run command",
+                        cancel: "cancel"
+                    }
+                } ) ;
+
                 setTimeout( function () {
-                    $( "input", $( "#command-runner-prompt" ).parent().parent() ).attr( "placeholder", paramWords[1] )
-                }, 500 ) ;
+//                    $( "input", $( "#command-runner-prompt" ).parent().parent() ).attr( "placeholder", paramWords[1] ) ;
+                    $( "input", $( "#command-runner-prompt" ).parent().parent() ).val( commandToRun ) ;
+                }, 300 ) ;
             } else {
                 alertify.csapWarning( "Invalid parameters specs" ) ;
             }
 
         } else {
 
-           utils.loading( `Running ${ targetUrl }` ) ;
+            utils.loading( `Running ${ targetUrl }` ) ;
 
             $.get( targetUrl )
                     .done( function ( commandResults ) {
@@ -297,12 +385,12 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
         if ( !_initComplete )
             initialize() ;
 
-        var commandTitle = "Deployment Deletion" ;
+        let commandTitle = "Deployment Deletion" ;
         //
         // confirm dialog re-use: works because $processKillDialog is module variable
         //
 
-        var okFunction = function () {
+        let okFunction = function () {
             utils.loading( "Deleting " ) ;
 
             $.delete( commandUrl )
@@ -321,7 +409,7 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
         }
 
 
-        //var $description = jQuery( '<div/>', { "id:", ""} );
+        //let $description = jQuery( '<div/>', { "id:", ""} );
         alertify.confirm(
                 commandTitle + " Confirmation",
                 '<div id="k8DeleteConfirmation"></div>',
@@ -330,7 +418,7 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
                 ) ;
 
 
-        var $confirmationDialog = jQuery( '<div/>', {
+        let $confirmationDialog = jQuery( '<div/>', {
             class: "info",
             text: "Resource: " + commandUrl.substring( commandUrl.indexOf( "kubernetes" ) + 11 )
         } ).css( "font-size", "12pt" ) ;
@@ -344,12 +432,12 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
         if ( !_initComplete )
             initialize() ;
 
-        var commandTitle = "Deployment Deletion" ;
+        let commandTitle = "Deployment Deletion" ;
         //
         // confirm dialog re-use: works because $processKillDialog is module variable
         //
 
-        var okFunction = function () {
+        let okFunction = function () {
             utils.loading( "Deleteing deploy" )
 
             $.delete( commandUrl )
@@ -365,7 +453,7 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
         }
 
 
-        //var $description = jQuery( '<div/>', { "id:", ""} );
+        //let $description = jQuery( '<div/>', { "id:", ""} );
         alertify.confirm(
                 commandTitle + " Confirmation",
                 '<div id="deployContent"></div>',
@@ -392,10 +480,10 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
         // confirm dialog re-use: works because $processKillDialog is module variable
         //
 
-        var okFunction = function () {
+        let okFunction = function () {
             utils.loading( ` killing pid` )
 
-            var commandUrl = utils.getOsExplorerUrl()
+            let commandUrl = utils.getOsExplorerUrl()
                     + "/" + CATEGORIES.linuxProcesses
                     + "/" + $button.data( "pid" )
                     + "/" + $( "#kill-signal" ).val() ;
@@ -413,7 +501,7 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
         }
 
 
-        //var $description = jQuery( '<div/>', { "id:", ""} );
+        //let $description = jQuery( '<div/>', { "id:", ""} );
         alertify.confirm(
                 "Kill OS Process",
                 '<div id="process-kill-prompt"></div>',
@@ -441,7 +529,7 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
 
         $( "#os-results-title" ).text( operation ) ;
 
-        var targetMode = "sh" ;
+        let targetMode = "sh" ;
         if ( commandResults["response-sh"] ) {
             _resultsEditor.setValue( commandResults["response-sh"], -1 ) ;
 
@@ -487,7 +575,7 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
 
             alertify.dialog( 'hostResults', csapDialogFactory, false, 'alert' ) ;
         }
-        var instance = alertify.hostResults().show() ;
+        let instance = alertify.hostResults().show() ;
 
         return instance ;
     }

@@ -17,11 +17,15 @@ define( agentModules, function ( utils, podLogs, aboutHost, agentLogs, fileBrows
     const $processTable = $( "#processTable", $processContent ) ;
     const $processBody = $( "tbody.content", $processTable ) ;
 
+    const $wrapProcessTableCheckbox = $( '#wrap-process-table', $processContent ) ;
+
 
     let currentPriorityForProcess = 22 ;
     let processRefreshTimer ;
     let _processFilterFunction ;
     let _shown_process_once ;
+
+    let refreshPromise ;
 
     const $diskExcludeFilter = $( "#disk-exclude-pattern" ) ;
     let _diskFilterTimer, refreshDfTimer ;
@@ -126,6 +130,7 @@ define( agentModules, function ( utils, podLogs, aboutHost, agentLogs, fileBrows
             hostOperations.commandRunner( $( this ) ) ;
             return false ;
         } )
+        
 
         $( "a.script-runner", $agentContent ).click( function () {
             utils.launchScript( {
@@ -145,6 +150,7 @@ define( agentModules, function ( utils, podLogs, aboutHost, agentLogs, fileBrows
 
         } ) ;
 
+        $wrapProcessTableCheckbox.change( refreshProcessTab ) ;
 
         $diskExcludeFilter.off().keyup( function () {
             console.log( "Applying template filter" ) ;
@@ -178,7 +184,7 @@ define( agentModules, function ( utils, podLogs, aboutHost, agentLogs, fileBrows
         } ) ;
 
         _processFilterFunction = utils.addTableFilter( $processFilter, $processTable ) ;
-        $processFilter.val("!ns-") ;
+        $processFilter.val( "!ns-" ) ;
 
 
         $( "#memTableDiv table" ).tablesorter( {
@@ -592,6 +598,7 @@ define( agentModules, function ( utils, podLogs, aboutHost, agentLogs, fileBrows
 //        $( "#loadRow" ).show() ;
 
         utils.loading( "loading processes" ) ;
+        clearTimeout( processRefreshTimer ) ;
 
 //        let defaultService = utils.getSelectedService() ;
 //        if ( defaultService !== utils.agentServiceSelect() ) {
@@ -605,41 +612,65 @@ define( agentModules, function ( utils, podLogs, aboutHost, agentLogs, fileBrows
 //            $processFilter.val( "" ) ;
 //        }
 
+        if ( !refreshPromise ) {
+            refreshPromise = new Promise( ( resolve, reject ) => {
+                setTimeout( function () {
+                    resolve( "init" ) ;
+                }, 10 ) ;
+            } ) ;
+        }
+
         setTimeout( function () {
             // empty can be very slow of large tables. run after a ui delay
             // and do a detach
-            $processBody.children().detach().remove() ;
-            $processBody.empty() ;
-            refreshProcessData() ;
+
+            refreshPromise.then( function ( value ) {
+
+                $processBody.children().detach().remove() ;
+                $processBody.empty() ;
+                refreshProcessData() ;
+
+            } ) ;
         }, 10 ) ;
     }
 
 
-
-
     function refreshProcessData() {
 
-        // alert("refreshProcessTable") ;
 
-        let destUrl = "processes/all" ;
-        // console.log("clearing" + processRefreshTime) ; 
         clearTimeout( processRefreshTimer ) ;
-        if ( $( '#filterCsap', $processContent ).is( ':checked' ) ) {
-            destUrl = "processes/csap" ;
-        }
 
-        // this comes back extremly quickly with a lot of data- so add a lag to allow for UI update
-        $.getJSON( utils.getOsUrl( ) + "/" + destUrl, function ( processInfoJson ) {
-            hostProcessResponseHandler( processInfoJson ) ;
-            utils.loadingComplete() ;
+        // alert("refreshProcessTable") ;
+        refreshPromise = new Promise( ( resolve, reject ) => {
+
+            let destUrl = "processes/all" ;
+            // console.log("clearing" + processRefreshTime) ; 
+            if ( $( '#filterCsap', $processContent ).is( ':checked' ) ) {
+                destUrl = "processes/csap" ;
+            }
+
+//            console.log(`scheduled process refresh`) ;
+
+//            setTimeout( function() {
+
+            // this comes back extremly quickly with a lot of data- so add a lag to allow for UI update
+            $.getJSON( utils.getOsUrl( ) + "/" + destUrl, function ( processInfoJson ) {
+                hostProcessResponseHandler( processInfoJson ) ;
+                utils.loadingComplete() ;
+
+
+                resolve( "completed" ) ;
+
+            } ) ;
+
+//            },5000)
+
         } ) ;
 
 
     }
 
     function hostProcessResponseHandler( hostProcessReport ) {
-
-        $( 'body' ).css( 'cursor', 'default' ) ;
 
         // use the report to derive the display; handles in process updates
         // where another report will shortly overrid this one
@@ -745,6 +776,10 @@ define( agentModules, function ( utils, podLogs, aboutHost, agentLogs, fileBrows
 
     }
 
+    function getRandomInt( max ) {
+        return Math.floor( Math.random() * max ) ;
+    }
+
     function addProcessRow(
             containerStats,
             isCsapFilterChecked,
@@ -786,6 +821,13 @@ define( agentModules, function ( utils, podLogs, aboutHost, agentLogs, fileBrows
                 && !containerStats.containerLabel.includes( processLabel ) ) {
             // add container name
             nameColumn += `<span class=ptab-container> ${containerStats.containerLabel } </span> ` ;
+        }
+
+        if ( Array.isArray( containerStats.pid ) ) {
+            let numProcesses = containerStats.pid.length ;
+            if ( numProcesses > 1 ) {
+                nameColumn += `<div class=ptab-container> ${ numProcesses} processes</div> ` ;
+            }
         }
 
         if ( isProcessRunning ) { // && ! processLabel.serverType
@@ -963,8 +1005,13 @@ define( agentModules, function ( utils, podLogs, aboutHost, agentLogs, fileBrows
             // error check
             let diskColumn = containerStats.diskUtil.replace( commaRegex, ', ' ) ;
 
+            let wrapClass = "numeric" ;
+            if ( $wrapProcessTableCheckbox.is( ":checked" ) ) {
+                wrapClass = "" ;
+            }
+
             jQuery( '<td/>', {
-                class: "numeric processArgs",
+                class: `${ wrapClass } processArgs`,
                 html: diskColumn
             } ).appendTo( $processRow ) ;
 
@@ -996,6 +1043,7 @@ define( agentModules, function ( utils, podLogs, aboutHost, agentLogs, fileBrows
                 buildNumberCell(
                         isProcessRunning,
                         containerStats.diskReadKb * 1024,
+//                        getRandomInt( 10 ) * getRandomInt( 1024 ) * 1024,
                         function () {
 
                             utils.launchScript( {
@@ -1037,11 +1085,12 @@ define( agentModules, function ( utils, podLogs, aboutHost, agentLogs, fileBrows
         let $cell ;
         if ( !isProcessRunning
                 || ( number !== undefined
-                        && ( number === 0 || number === "0" )  ) ) {
+                        && ( number === 0 || number === "0" ) ) ) {
             $cell = jQuery( '<td/>', { } ) ;
+
         } else if ( isBytes ) {
-            $cell = utils.buildMemoryCell( number ); 
-            
+            $cell = utils.buildMemoryCell( number ) ;
+
         } else {
             $cell = jQuery( '<td/>', { class: "numeric", text: number } ) ;
         }

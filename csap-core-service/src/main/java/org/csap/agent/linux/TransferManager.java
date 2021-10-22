@@ -445,7 +445,7 @@ public class TransferManager {
 
 			if ( firstResultLines.length > 2 ) {
 
-				shortResults = firstResultLines[0] ;
+				shortResults = firstResultLines[ 0 ] ;
 
 			}
 

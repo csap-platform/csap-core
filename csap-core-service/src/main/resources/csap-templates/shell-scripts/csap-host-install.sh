@@ -24,7 +24,7 @@ function configure() {
 	#
 	# install using the csap-host.zip used to install current host
 	#
-	hostInstallerZip="http://${csapFqdn:-$(hostname --long)}:${agentPort:-8011}/api/agent/installer"
+	csapZipUrl="http://${csapFqdn:-$(hostname --long)}:${agentPort:-8011}/api/agent/installer"
 	
 	installerFile="disabled" ;         # sample function: kubernetes_autoplay_singlenode
 	
@@ -38,8 +38,8 @@ function configure() {
 	#
 	# alternatly - use a artifactory instance available
 	#
-	# hostInstallerZip="http://my-artifactory:8081/artifactory/csap-snapshots/org/csap/csap-host/2-SNAPSHOT/csap-host-2-SNAPSHOT.zip"
-	# hostInstallerZip="http://my-artifactory:8081/artifactory/csap-release/org/csap/csap-host/21.08/csap-host-21.08.zip"
+	# csapZipUrl="http://***REMOVED***.***REMOVED***:8081/artifactory/csap-snapshots/org/csap/csap-host/2-SNAPSHOT/csap-host-2-SNAPSHOT.zip"
+	# csapZipUrl="http://***REMOVED***.***REMOVED***:8081/artifactory/csap-release/org/csap/csap-host/21.10/csap-host-21.10.zip"
 	
 
 }
@@ -216,7 +216,7 @@ function remote_installer () {
 	     "$cleanJournalCommand"
 	     'rm --recursive --force --verbose csap*.zip* *linux.zip installer'
 	     "$installerOsCommands"
-	     "wget --no-verbose --content-disposition $hostInstallerZip"
+	     "wget --no-verbose --content-disposition $csapZipUrl"
 	     'unzip  -j csap-host-*.zip csap-platform/packages/csap-package-linux.zip'
 	     'unzip -qq csap-package-linux.zip installer/*'
 	     "nohup installer/install.sh -noPrompt $autoPlayParam -runCleanUp $cleanupParameters \

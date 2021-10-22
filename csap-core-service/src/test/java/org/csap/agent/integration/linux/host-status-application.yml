@@ -62,8 +62,8 @@ environments:
     csapEvent:
       type: simple
       hosts:
-      - csapTest-one
-      - csapTest-two
+      - csap-test-1
+      - csap-test-2
       template-references:
       - data
       - analytics
@@ -71,8 +71,8 @@ environments:
     devOpsTest:
       type: simple
       hosts:
-      - csapTest-five
-      - csapTest-six
+      - csap-test-5
+      - csap-test-6
 
       template-references:
       - nginx
@@ -82,10 +82,10 @@ environments:
     baseOsServices:
       type: simple
       hosts:
-      - csapTest-five
-      - csapTest-one
-      - csapTest-six
-      - csapTest-two
+      - csap-test-5
+      - csap-test-1
+      - csap-test-6
+      - csap-test-2
       notes: For ease of management - common services are typically placed in a single  cluster.
       template-references:
       - docker
@@ -95,8 +95,8 @@ environments:
     csapManagementServices:
       type: simple
       hosts:
-      - csapTest-one
-      - csapTest-two
+      - csap-test-1
+      - csap-test-2
       notes: CSAP admin service and httpd provide the application portal and http
         loadbalancing
       template-references:
@@ -109,8 +109,8 @@ environments:
       display: high
       notes: Used to demo load test
       hosts:
-      - csapTest-five
-      - csapTest-six
+      - csap-test-5
+      - csap-test-6
       monitors:
         maxDiskPercentIgnorePatterns: "/ignored.*"
         max_rssMemory: '1'

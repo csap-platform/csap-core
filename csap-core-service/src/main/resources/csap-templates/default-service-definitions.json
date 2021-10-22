@@ -5,6 +5,7 @@
 			"server": "os",
 			"url": "$$csap-agent-url",
 			"description": "kube system namespace monitor. To override defaults - include in application.json",
+			"read-me": "https://raw.githubusercontent.com/csap-platform/csap-packages/master/csap-package-kubelet/README.md",
 			"runUsingDocker": "true",
 			"default-appDirectory": "/",
 			"default-propDirectory": "/etc",
@@ -22,7 +23,7 @@
 			"alerts": {
 				"max_threadCount": "1000",
 				"max_fileCount": "1000",
-				"max_diskUtil": "5g",
+				"max_diskUtil": "10g",
 				"max_socketCount": "7000",
 				"max_diskWriteKb": "500",
 				"max_diskReadKb": "500",
@@ -35,6 +36,7 @@
 			"server": "os",
 			"url": "launcher:kibana",
 			"description": "csap logging namespace monitor. To override defaults - include in application.json",
+			"read-me": "https://raw.githubusercontent.com/csap-platform/csap-packages/master/csap-package-kubelet/README.md",
 			"runUsingDocker": "true",
 			"default-appDirectory": "/",
 			"default-propDirectory": "/etc",
@@ -65,6 +67,7 @@
 			"server": "os",
 			"url": "launcher:grafana",
 			"description": "csap monitoring namespace monitor. To override defaults - include in application.json",
+			"read-me": "https://raw.githubusercontent.com/csap-platform/csap-packages/master/csap-package-kubelet/README.md",
 			"runUsingDocker": "true",
 			"default-appDirectory": "/",
 			"default-propDirectory": "/etc",
@@ -95,6 +98,7 @@
 			"server": "os",
 			"url": "$$csap-agent-url",
 			"description": "kubernetes namespace monitor template. To override defaults - include in application.json",
+			"read-me": "https://raw.githubusercontent.com/csap-platform/csap-packages/master/csap-package-kubelet/README.md",
 			"runUsingDocker": "true",
 			"sample-appDirectory": "namespacePvc:/",
 			"sample-propDirectory": "namespacePvc:/",
@@ -124,7 +128,8 @@
 		"calico-kube-controllers": {
 			"server": "os",
 			"description": "Calico provides secure network connectivity for containers and virtual machine workloads",
-			"docUrl": "https://docs.projectcalico.org/v3.1/introduction/",
+			"docUrl": "https://docs.projectcalico.org/reference/kube-controllers/configuration",
+			"read-me": "https://raw.githubusercontent.com/projectcalico/kube-controllers/master/README.md",
 			"appDirectory": "/$$kubernetes-config/network",
 			"propDirectory": "/$$kubernetes-config/network",
 			"alerts": {
@@ -149,7 +154,7 @@
 		"calico-node": {
 			"server": "os",
 			"description": "Calico provides secure network connectivity for containers and virtual machine workloads",
-			"docUrl": "https://docs.projectcalico.org/v3.1/introduction/",
+			"read-me": "https://raw.githubusercontent.com/projectcalico/calico/master/README.md",
 			"appDirectory": "/",
 			"propDirectory": "/$$kubernetes-config/network",
 			"alerts": {
@@ -175,6 +180,7 @@
 			"server": "os",
 			"description": "general-purpose, authoritative DNS server that provides a backwards-compatible, but extensible, integration with Kubernetes",
 			"docUrl": "https://coredns.io/manual/toc/#what-is-coredns",
+			"read-me": "https://raw.githubusercontent.com/coredns/coredns/master/README.md",
 			"appDirectory": "/",
 			"propDirectory": "/$$kubernetes-config/network",
 			"alerts": {
@@ -202,6 +208,7 @@
 			"port": 8021,
 			"description": "CSAP Manager provides the application portal",
 			"docUrl": "https://github.com/csap-platform/csap-core/tree/master/csap-core-service",
+			"read-me": "https://raw.githubusercontent.com/csap-platform/csap-core/master/csap-core-service/README.md",
 			"alerts": {
 				"max_diskUtil": "170m",
 				"max_threadCount": "140",
@@ -297,6 +304,7 @@
 			"description": "csap managment agent providing CLI, API,and UI; runs on every host",
 			"deploymentNotes": "csap-agent will automatically be restarted via the stop/restart operation.", 
 			"docUrl": "https://github.com/csap-platform/csap-core/tree/master/csap-core-service",
+			"read-me": "https://raw.githubusercontent.com/csap-platform/csap-core/master/csap-core-service/README.md",
 			"alerts": {
 				"max_diskUtil": "170m",
 				"max_threadCount": "150",
@@ -487,8 +495,25 @@
 				},
 				"HttpRequests": {
 					"attribute": "/tomcat.global.request/count",
-					"title": "Http Gets Received",
+					"title": "Http Requests",
 					"delta": true
+				},
+				"HttpRequestsMb": {
+					"attribute": "/tomcat.global.sent.mb/count",
+					"title": "Http Requests (Mb)",
+					"delta": true
+				},
+				"CollectionServiceResourceCount": {
+					"attribute": "/csap.collect-os.resources-all/count",
+					"delta": true,
+					"title": "Collection: OS Service Resources",
+					"max": "20",
+					"reportRate": "perMinute"
+				},
+				"CollectionServiceResourceMs": {
+					"attribute": "/csap.collect-os.resources-all/bucket-max-ms",
+					"max": "800",
+					"title": "Collection: OS Service Resources (ms)"
 				},
 				"CollectionHttpCount": {
 					"attribute": "/csap.collect-http/count",
@@ -514,36 +539,12 @@
 					"max": "0",
 					"title": "Collection: Http Failures"
 				},
-				"JavaCollectionCounter": {
-					"attribute": "/csap.collect-jmx/count",
-					"delta": true,
-					"title": "Collection: JMX Count",
-					"max": "2",
-					"reportRate": "perMinute"
-				},
-				"JmxCollectionMs": {
-					"attribute": "/csap.collect-jmx/bucket-max-ms",
-					"max": "800",
-					"title": "Collection: JMX Max (ms)"
-				},
-				"JmxCollectionFailures": {
-					"attribute": "/csap.collect-jmx.failures",
-					"delta": true,
-					"title": "Collection: JMX Failures",
-					"max": 0
-				},
-				"JmxCustomCollectionFailures": {
-					"attribute": "/csap.collect-jmx.service.failures",
-					"delta": true,
-					"title": "Collection: JMX App Failures",
-					"max": 0
-				},
 				"serviceDiskUsage": {
 					"attribute": "/csap.collect-os.disk-and-devices/total-ms",
 					"delta": "true",
 					"divideBy": 1000,
 					"max": 60000,
-					"title": "Collection: Disk Usage (ms)"
+					"title": "Collection: Disk Usage (s)"
 				},
 				"LogRotationMs": {
 					"attribute": "/csap.service-jobs.logs/total-ms",
@@ -781,7 +782,7 @@
 		},
 		"csap-package-java": {
 			"server": "csap-api",
-			"url": "launcher:csap-agent",
+			"url": "$$csap-agent-url",
 			"autoStart": 3,
 			"port": 0,
 			"description": "Provides csap java integration (Openjdk)",
@@ -807,10 +808,11 @@
 		"csap-package-linux": {
 			"server": "csap-api",
 			"autoStart": 1,
-			"url": "launcher:csap-agent,/app-browser#agent-tab,explorer",
+			"url": "$$csap-agent-url",
 			"port": 0,
 			"description": "Provides csap linux integrations (deployment, maven, vcenter)",
 			"docUrl": "https://github.com/csap-platform/csap-packages",
+			"read-me": "https://raw.githubusercontent.com/csap-platform/csap-packages/master/csap-package-linux/README.md",
 			"propDirectory": "$$csap-working/$$service-name/installer",
 			"appDirectory": "/etc",
 			"processFilter": "none",
@@ -839,6 +841,7 @@
 			"port": 0,
 			"description": "Provides csap tomcat integration(Tomcat 9+)",
 			"docUrl": "https://github.com/csap-platform/csap-packages",
+			"read-me": "https://raw.githubusercontent.com/csap-platform/csap-packages/master/csap-package-tomcat/README.md",
 			"propDirectory": "$$csap-working/$$service-name-runtime",
 			"processFilter": "none",
 			"alerts": {
@@ -864,6 +867,7 @@
 			"autoStart": 60,
 			"port": 7041,
 			"description": "Csap simple tests",
+			"read-me": "https://raw.githubusercontent.com/csap-platform/csap-starter/master/README.md",
 			"alerts": {
 				"max_diskUtil": "230m",
 				"max_threadCount": "100",
@@ -925,6 +929,7 @@
 			"port": 7011,
 			"description": "Enables both on demand and scheduled verification of both CSAP and Infrastructure",
 			"docUrl": "https://github.com/csap-platform/csap-starter/tree/master/csap-starter-tester",
+			"read-me": "https://raw.githubusercontent.com/csap-platform/csap-starter/master/README.md",
 			"alerts": {
 				"max_diskUtil": "200m",
 				"max_threadCount": "200",
@@ -1088,6 +1093,7 @@
 			"description": "Docker node agent providing CLI/API. CSAP docker package uses systemctl to manage start/stops/removes",
 			"deploymentNotes": "Stopping docker will also stop all docker services on the host. Remove will also remove the os packages", 
 			"docUrl": "https://github.com/csap-platform/csap-packages/tree/master/csap-package-docker",
+			"read-me": "https://raw.githubusercontent.com/csap-platform/csap-packages/master/csap-package-docker/README.md",
 			"propDirectory": "$$service-resources",
 			"appDirectory": "/var/lib/docker",
 			"processFilter": ".*dockerd.*",
@@ -1117,6 +1123,21 @@
 			"logJournalServices": "docker,csap,sshd",
 			"scheduledJobs": {
 				"scripts": [
+					{
+						"description": "restart docker",
+						"frequency": "onDemand",
+						"script": "run_using_root systemctl restart docker"
+					},
+					{
+						"description": "Stop docker",
+						"frequency": "onDemand",
+						"script": "run_using_root systemctl stop docker"
+					},
+					{
+						"description": "Start kubelet",
+						"frequency": "onDemand",
+						"script": "run_using_root systemctl start docker"
+					},
 					{
 						"description": "Docker Volume Report",
 						"notes":"2-20 minutes depending on how many containers are deployed",
@@ -1208,6 +1229,7 @@
 			"server": "os",
 			"description": "backing storage for kubernetes clusters; includes calico",
 			"docUrl": "https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/",
+			"read-me": "https://raw.githubusercontent.com/etcd-io/etcd/main/README.md",
 			"appDirectory": "/",
 			"propDirectory": "/$$kubernetes-config/network",
 			"alerts": {
@@ -1235,6 +1257,7 @@
 		"events-mongo": {
 			"server": "docker",
 			"autoStart": 90,
+			"read-me": "https://raw.githubusercontent.com/csap-platform/csap-event-services/master/README.md",
 			"appDirectory": "/$$mongo-storage",
 			"propDirectory": "/$$service-resources",
 			"port": 27017,
@@ -1503,6 +1526,7 @@
 			"autoStart": 99,
 			"port": 7021,
 			"description": "Csap Analytics project provides historical data and adoption analytics",
+			"read-me": "https://raw.githubusercontent.com/csap-platform/csap-event-services/master/README.md",
 			"alerts": {
 				"max_diskUtil": "100m",
 				"max_threadCount": "120",
@@ -1724,6 +1748,7 @@
 			"port": 6443,
 			"description": "Development only - enables kubernetes HA deployment without updating DNS entries",
 			"docUrl": "http://cbonte.github.io/haproxy-dconv/1.9/configuration.html,https://blog.csnet.me/k8s-thw/part6/",
+			"read-me": "https://raw.githubusercontent.com/haproxy/haproxy/master/README",
 			"alerts": {
 				"max_socketCount": "200"
 			},
@@ -1772,6 +1797,7 @@
 			"port": 8080,
 			"description": "High Availability and loadbalancing functions for springboot and tomcat services. Apache Web Server & Modjk",
 			"docUrl": "https://github.com/csap-platform/csap-packages",
+			"read-me": "https://raw.githubusercontent.com/csap-platform/csap-packages/master/csap-package-httpd/README.md",
 			"propDirectory": "/mnt",
 			"processFilter": "$$service-working/bin/httpd.*",
 			"alerts": {
@@ -1886,6 +1912,7 @@
 			"server": "os",
 			"description": "core api service accessed by all users, automation, and components in the Kubernetes cluster",
 			"docUrl": "https://kubernetes.io/docs/reference/generated/kube-apiserver/",
+			"read-me": "https://raw.githubusercontent.com/kubernetes/apiserver/master/README.md",
 			"appDirectory": "/",
 			"propDirectory": "/$$kubernetes-config",
 			"alerts": {
@@ -1909,6 +1936,7 @@
 			"server": "os",
 			"description": "manages the core control loops shipped with Kubernetes",
 			"docUrl": "https://kubernetes.io/docs/reference/generated/kube-controller-manager/",
+			"read-me": "https://raw.githubusercontent.com/kubernetes/kube-controller-manager/master/README.md",
 			"appDirectory": "/",
 			"propDirectory": "/$$kubernetes-config",
 			"alerts": {
@@ -1934,6 +1962,7 @@
 			"server": "os",
 			"description": "simple TCP and UDP stream forwarding or round robin TCP and UDP",
 			"docUrl": "https://kubernetes.io/docs/reference/generated/kube-proxy/",
+			"read-me": "https://raw.githubusercontent.com/kubernetes/kube-proxy/master/README.md",
 			"appDirectory": "/",
 			"propDirectory": "/$$kubernetes-config",
 			"alerts": {
@@ -1956,6 +1985,7 @@
 			"server": "os",
 			"description": "watches newly created pods that have no node assigned, and selects a node for them to run on",
 			"docUrl": "https://kubernetes.io/docs/reference/generated/kube-scheduler/",
+			"read-me": "https://raw.githubusercontent.com/kubernetes/kube-scheduler/master/README.md",
 			"appDirectory": "/",
 			"propDirectory": "/$$kubernetes-config",
 			"alerts": {
@@ -1975,18 +2005,163 @@
 			"url": "https://kubernetes.io/docs/reference/generated/kube-scheduler/",
 			"scmVersion": "os"
 		},
+		"podman-system-service": {
+			"server": "csap-api",
+			"autoStart": 98,
+			"port": 4243,
+			"url": "$$csap-agent-url",
+			"description": "A tool for managing OCI containers and pods",
+			"deploymentNotes": "starts and stops podman system service - not the containers", 
+			"docUrl": "https://github.com/containers/podman",
+			"read-me": "https://raw.githubusercontent.com/containers/podman/main/README.md",
+			"propDirectory": "/etc/containers",
+			"appDirectory": "/var/lib/container",
+			"processFilter": ".*podman system service.*",
+			"environmentVariables": {
+				"configuration-maps": [
+					"podman-settings"
+				],
+				"about-maps": "exposeService will export api on specified port, podmanStorage will update /etc/containers/storage.conf"
+			},
+			"maven": {
+				"dependency": "org.csap:csap-package-podman:2-SNAPSHOT:zip"
+			},
+			"logJournalServices": "crio,kubelet,csap",
+			"source": {
+				"scm": "git",
+				"path": "https://github.com/csap-platform/csap-packages.git",
+				"branch": "HEAD",
+				"buildLocation": "/csap-package-podman"
+			},
+			"scheduledJobs": {
+				"scripts": [
+					{
+						"description": "verify_podman_run",
+						"frequency": "onDemand",
+						"script": "run_using_root $$service-working/scripts/sanity-tests.sh verify_podman_run"
+					}
+				],
+				"logRotation": [
+					{
+						"path": "$$service-logs/$$service-name.logs",
+						"settings": "copytruncate,weekly,rotate 3,compress,missingok,size 1M"
+					}
+				]
+			},
+			"performance": {
+				"config": {
+					"httpCollectionUrl": "$$csap-agent-url/api/agent/health/docker",
+					"healthCollectionUrl": "$$csap-agent-url/api/agent/health/docker",
+					"patternMatch": "JSON",
+					"notes": "CSAP collection will look for $numberLong in attributes and use it if found"
+				},
+				"isHealthy": {
+					"attribute": "/health-report/isHealthy",
+					"title": "Is Healthy"
+				},
+				"SummaryCount": {
+					"attribute": "/timers/summary/count",
+					"title": "Summary Requests",
+					"delta": true
+				},
+				"SummaryMs": {
+					"attribute": "/timers/summary/bucket-0.95-ms",
+					"title": "Summary 95% (ms)",
+					"delta": false
+				},
+				"DeployCount": {
+					"attribute": "/timers/deploy/count",
+					"title": "CSAP Deployments",
+					"delta": true
+				},
+				"DeployMs": {
+					"attribute": "/timers/deploy/bucket-0.95-ms",
+					"title": "CSAP Deploy 95% (ms)",
+					"delta": false
+				},
+				"imageCount": {
+					"attribute": "/report/imageCount",
+					"title": "Images"
+				},
+				"containerCount": {
+					"attribute": "/report/containerCount",
+					"title": "Containers Total"
+				},
+				"containerRunning": {
+					"attribute": "/report/containerRunning",
+					"title": "Containers Running"
+				},
+				"crioContainerCount": {
+					"attribute": "/report/crioContainerCount",
+					"title": "CRIO Containers"
+				},
+				"volumeCount": {
+					"attribute": "/report/volumeCount",
+					"title": "Volumes"
+				},
+				"networkCount": {
+					"attribute": "/report/networkCount",
+					"title": "Networks"
+				}
+			}
+			
+		},
+		"crio": {
+			"server": "csap-api",
+			"autoStart": 99,
+			"description": "CRI-O is an implementation of the Kubernetes CRI (Container Runtime Interface) to enable using OCI (Open Container Initiative) compatible runtimes",
+			"deploymentNotes": "starts and stops crio system service - not the containers", 
+			"docUrl": "https://github.com/cri-o/cri-o",
+			"read-me": "https://raw.githubusercontent.com/cri-o/cri-o/main/README.md",
+			"url": "$$csap-agent-url",
+			"propDirectory": "/etc/containers",
+			"appDirectory": "/var/lib/container",
+			"processFilter": ".*/usr/bin/crio.*",
+			"environmentVariables": {
+				"configuration-maps": [
+					"crio-settings"
+				],
+				"about-maps": "Note nginx-ingress is injected for port resolution in /lookup"
+			},
+			"maven": {
+				"dependency": "org.csap:csap-package-crio:2-SNAPSHOT:zip"
+			},
+			"defaultLogToShow": "crio",
+			"logJournalServices": "crio,kubelet",
+			"source": {
+				"scm": "git",
+				"path": "https://github.com/csap-platform/csap-packages.git",
+				"branch": "HEAD",
+				"buildLocation": "/csap-package-crio"
+			},
+			"scheduledJobs": {
+				"scripts": [
+					{
+						"description": "stop crio",
+						"frequency": "onDemand",
+						"script": "run_using_root systemctl stop crio"
+					},
+					{
+						"description": "Start crio",
+						"frequency": "onDemand",
+						"script": "run_using_root systemctl start crio"
+					}
+				]
+			}
+		},
 		"kubelet": {
 			"server": "csap-api",
 			"autoStart": 100,
 			"port": 8014,
 			"description": "Kubernetes node agent providing CLI/API: CSAP kubelet package uses systemctl to manage start/stops/removes",
 			"deploymentNotes": "Stopping kubelet will first evict any pods on the node, then issue a systemctl stop on the service. Remove will also remove the os packages", 
+			"read-me": "https://raw.githubusercontent.com/csap-platform/csap-packages/master/csap-package-kubelet/README.md",
 			"docUrl": "https://github.com/csap-platform/csap-packages/tree/master/csap-package-kubelet",
 			"propDirectory": "configuration",
 			"appDirectory": "/var/lib/kubelet",
 			"processFilter": ".*/usr/bin/kubelet --bootstrap.*",
 			"alerts": {
-				"max_diskUtil": "300m",
+				"max_diskUtil": "1g",
 				"max_socketCount": "30"
 			},
 			"environmentVariables": {
@@ -2191,6 +2366,7 @@
 			"autoStart": 120,
 			"description": "Kubernetes dashboard user interface",
 			"docUrl": "https://github.com/kubernetes/dashboard",
+			"read-me": "https://raw.githubusercontent.com/kubernetes/dashboard/master/README.md",
 			"propDirectory": "/$$kubernetes-config/dashboard-2.x",
 			"alerts": {
 				"max_socketCount": "30"
@@ -2230,6 +2406,7 @@
 			"server": "os",
 			"description": "Small binary to scrape and store a small window of metrics from the Metrics Server in Kubernetes",
 			"docUrl": "https://github.com/kubernetes-sigs/dashboard-metrics-scraper",
+			"read-me": "https://raw.githubusercontent.com/kubernetes-sigs/dashboard-metrics-scraper/master/README.md",
 			"appDirectory": "/",
 			"propDirectory": "/$$kubernetes-config",
 			"alerts": {
@@ -2256,6 +2433,7 @@
 			"autoStart": 140,
 			"description": "Kubernetes Metrics Service integrates with host dashboard to provide access to kubectl top and related functions",
 			"docUrl": "https://github.com/kubernetes-incubator/metrics-server/blob/master/README.md",
+			"read-me": "https://raw.githubusercontent.com/kubernetes-sigs/metrics-server/master/README.md",
 			"alerts": {
 				"max_socketCount": "30"
 			},
@@ -2279,6 +2457,7 @@
 			"autoStart": 105,
 			"description": "Kubernetes NFS Storage managment",
 			"docUrl": "https://github.com/kubernetes-incubator/external-storage/tree/master/nfs-client",
+			"read-me": "https://raw.githubusercontent.com/kubernetes-sigs/nfs-subdir-external-provisioner/master/README.md",
 			"propDirectory": "/$$kubernetes-config/storage-nfs-client",
 			"disk": "$$nfs-mount", 
 			"alerts": {
@@ -2334,6 +2513,7 @@
 			"description": "allows access to Kubernetes services from outside the Kubernetes cluster",
 			"deploymentNotes": "Note: $$ingress-host, $$ingress-node-selector, $$ingress-http-port, $$ingress-http-port MUST be set, usually in global configmap", 
 			"docUrl": "https://kubernetes.github.io/ingress-nginx/",
+			"read-me": "https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/README.md",
 			"propDirectory": "/$$kubernetes-config/ingress",
 			"environmentVariables": {
 				"configuration-maps": [

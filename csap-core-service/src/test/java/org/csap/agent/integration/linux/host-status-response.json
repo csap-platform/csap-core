@@ -1,5 +1,5 @@
 {
-	"csapTest-six": {
+	"csap-test-6": {
 		"timeStamp": "12:01:39",
 		"serviceOpsQueue": 0,
 		"hostStats": {
@@ -681,7 +681,7 @@
 				}
 			}
 		},
-		"collectedHost": "csapTest-six"
+		"collectedHost": "csap-test-6"
 	},
 	"csapTest-three": {
 		"timeStamp": "12:01:39",
@@ -1264,7 +1264,7 @@
 		},
 		"collectedHost": "csapTest-three"
 	},
-	"csapTest-five": {
+	"csap-test-5": {
 		"timeStamp": "12:01:39",
 		"serviceOpsQueue": 0,
 		"hostStats": {
@@ -1859,9 +1859,9 @@
 				}
 			}
 		},
-		"collectedHost": "csapTest-five"
+		"collectedHost": "csap-test-5"
 	},
-	"csapTest-one": {
+	"csap-test-1": {
 		"timeStamp": "12:01:39",
 		"serviceOpsQueue": 0,
 		"hostStats": {
@@ -2522,9 +2522,9 @@
 				}
 			}
 		},
-		"collectedHost": "csapTest-one"
+		"collectedHost": "csap-test-1"
 	},
-	"csapTest-two": {
+	"csap-test-2": {
 		"timeStamp": "12:01:39",
 		"serviceOpsQueue": 0,
 		"hostStats": {
@@ -3183,7 +3183,7 @@
 				}
 			}
 		},
-		"collectedHost": "csapTest-two"
+		"collectedHost": "csap-test-2"
 	},
 	"csapTest-four": {
 		"timeStamp": "12:01:39",

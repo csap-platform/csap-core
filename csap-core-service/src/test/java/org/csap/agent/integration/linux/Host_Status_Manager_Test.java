@@ -212,10 +212,10 @@ public class Host_Status_Manager_Test extends CsapThinTests {
 		CSAP.setLogToInfo( HostStatusManager.class.getName( ) ) ;
 		ArrayNode alerts = hostStatusManager.getAllAlerts( ) ;
 		logger.info( "alerts: {}", CSAP.jsonPrint( alerts ) ) ;
-		
-		var backlogReport = hostStatusManager.hostsBacklog( testHosts , "/junit/api/") ;
 
-		logger.info( "backlogReport: {} ", 
+		var backlogReport = hostStatusManager.hostsBacklog( testHosts, "/junit/api/" ) ;
+
+		logger.info( "backlogReport: {} ",
 				CSAP.jsonPrint( backlogReport ) ) ;
 
 	}

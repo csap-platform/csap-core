@@ -1,4 +1,9 @@
 
+
+#agent-tab-content #agent-tab-explorer #cli-runner {
+	max-width: 15em;
+}
+
 #agent-tab-content #agent-tab-explorer #dockerTree {
 	color: black;
 	height: 100% ;
@@ -483,18 +488,12 @@ div.dockerResults {
 }
 
 
-/*#containerControls button img, #imageControls button img , #linuxServiceControls button img, 
-#kubernetes-deploy-controls button img, #kubernetes-pod-controls button img,
-#kubernetes-service-controls button img,
-button.tree img {
-    top: -2px;
-    left: -2px;
-}*/
+
 div.comment button.tree {
 	background-color: white;
 	border: none;
-	position: relative;
-	top: -2px;
+	/*position: relative;
+	top: -2px;*/
 	height: 16px;
 }
 
@@ -911,6 +910,13 @@ textarea {
 
 #agent-tab-content #agent-tab-explorer #dockerTree .ft-docker-stopped>span.ft-docker-container {
 	background-image: url('../../images/16x16/red2.png');
+	background-repeat: no-repeat;
+	background-size: 10px 10px;
+	background-position: left center; 
+}
+
+#agent-tab-content #agent-tab-explorer #dockerTree .ft-docker-completed>span.ft-docker-container {
+	background-image: url('../../images/16x16/check.svg');
 	background-repeat: no-repeat;
 	background-size: 10px 10px;
 	background-position: left center; 

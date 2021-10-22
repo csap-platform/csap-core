@@ -15,41 +15,46 @@
 						title="Navigate back to summary table">Application Attributes</a>
         </h1>
         
-        <table id="serviceLimits" class="csap" >
-            <thead>
-
-                <tr>
-                    <th style="width: 12em">Service  </th>
-
-                    <th style="width: 3em"
-                        th:each="alert : ${ T(org.csap.agent.model.ServiceAlertsEnum).values() }"> 
-
-                        [[ ${  T(org.csap.helpers.CSAP).camelToSnake( alert ) } ]] 
-                    </th>
-
-                </tr>
-            </thead>
-            
-            <tbody>
-            
-            	<tr th:each="serviceLimitReport : ${ serviceLimitReports }">
-            		
-            		<td>
-            		 	<a class="csap-link-icon csap-go" title="View instance details"
-            		 		th:href="${ '#details-' + serviceLimitReport.get(0) }" >[[ ${  serviceLimitReport.get(0) } ]] </a> 
-            		</td>
-            		
-            		<td class="numeric"
-            			th:each="itemDetails,iterationStatus : ${ serviceLimitReport }"
-            			th:if="${ iterationStatus.index > 0 }" >
-            		 	[[ ${  itemDetails } ]] 
-            		</td>
-            		
-            	</tr>
-            
-            </tbody>
-
-
-        </table>
+        
+        <div style="height: 50em; overflow:auto; margin: 10px;">
+        
+	        <table id="serviceLimits" class="csap sticky-header" >
+	            <thead>
+	
+	                <tr>
+	                    <th style="width: 12em">Service  </th>
+	
+	                    <th style="width: 3em"
+	                        th:each="alert : ${ T(org.csap.agent.model.ServiceAlertsEnum).values() }"> 
+	
+	                        [[ ${  T(org.csap.helpers.CSAP).camelToSnake( alert ) } ]] 
+	                    </th>
+	
+	                </tr>
+	            </thead>
+	            
+	            <tbody>
+	            
+	            	<tr th:each="serviceLimitReport : ${ serviceLimitReports }">
+	            		
+	            		<td>
+	            		 	<a class="csap-link-icon csap-go" title="View instance details"
+	            		 		th:href="${ '#details-' + serviceLimitReport.get(0) }" >[[ ${  serviceLimitReport.get(0) } ]] </a> 
+	            		</td>
+	            		
+	            		<td class="numeric"
+	            			th:each="itemDetails,iterationStatus : ${ serviceLimitReport }"
+	            			th:if="${ iterationStatus.index > 0 }" >
+	            		 	[[ ${  itemDetails } ]] 
+	            		</td>
+	            		
+	            	</tr>
+	            
+	            </tbody>
+	
+	
+	        </table>
+        
+        </div>
     </body>
 </html>

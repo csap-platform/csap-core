@@ -135,7 +135,7 @@ class Load_Broken_Models_Test extends CsapBareTest {
 		StringBuilder parsingResults = getApplication( ).getProjectLoader( ).process( false,
 				csapApplicationDefinition ) ;
 
-		assertThat( getApplication( ).getLocalAgent() ).isNotNull( ) ;
+		assertThat( getApplication( ).getLocalAgent( ) ).isNotNull( ) ;
 
 		logger.info( parsingResults.toString( ) ) ;
 

@@ -82,6 +82,9 @@ public class CsapCore {
 	public static final String CSAP_DEF_REPLICA = SERVICE + "replica-count" ;
 	public static final String CSAP_DEF_NAMESPACE = SERVICE + "namespace" ;
 	public static final String CSAP_DEF_IMAGE = SERVICE + "image" ;
+	public static final String CSAP_DEF_HELM_CHART_NAME = SERVICE + "chart-name" ;
+	public static final String CSAP_DEF_HELM_CHART_VERSION = SERVICE + "chart-version" ;
+	public static final String CSAP_DEF_HELM_CHART_REPO = SERVICE + "chart-repo" ;
 
 	public static final String CSAP_DEF_PORT = SERVICE + "primary-port" ;
 	public static final String CSAP_DEF_AJP_PORT = SERVICE + "ajp-port" ;

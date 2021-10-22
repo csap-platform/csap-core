@@ -10,12 +10,13 @@ const serviceSources = [
     "services/kubernetes",
     "services/kubernetes-describe",
     "services/kevents",
-    "services/kevent-details"
+    "services/kevent-details",
+    "services/helm"
 ] ;
 //
 //
 //
-define( serviceSources, function ( utils, instances, batch, backlog, resourceBrowser, logs, podLogs, kubernetes, kubeDescribe, kevents, keventDetails ) {
+define( serviceSources, function ( utils, instances, batch, backlog, resourceBrowser, logs, podLogs, kubernetes, kubeDescribe, kevents, keventDetails, helm ) {
 
 
     console.log( "Module loaded" ) ;
@@ -69,6 +70,8 @@ define( serviceSources, function ( utils, instances, batch, backlog, resourceBro
         "node-describe": kubeDescribe.show,
         "kvolumes": kubernetes.showVolumes,
         "volume-describe": kubeDescribe.show,
+        "helm-readme": helm.readme,
+        "helm-values": helm.values
     } ;
 
     return {
@@ -114,8 +117,9 @@ define( serviceSources, function ( utils, instances, batch, backlog, resourceBro
         let $menuLoaded ;
 
         let operation = navigationOperations[ menuPath ] ;
+        
         if ( operation ) {
-            $menuLoaded = operation( $menuContent, forceHostRefresh ) ;
+            $menuLoaded = operation( $menuContent, forceHostRefresh, menuPath ) ;
         } else {
             console.warn( ` no operation for ${ menuPath }` ) ;
         }

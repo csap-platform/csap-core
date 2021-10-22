@@ -656,22 +656,18 @@ public class ApplicationEditor {
 
 					if ( alert == ServiceAlertsEnum.memory
 							|| alert == ServiceAlertsEnum.diskSpace ) {
-						
+
 						// reported in MB - convert to bytes and then print with unit
 
 						serviceLimitReport.add(
 								CSAP.printBytesWithUnits( maxAllowed * 1024 * 1024 ) ) ;
 
+					} else if ( alert == ServiceAlertsEnum.diskWriteRate ) {
 
-
-					} else if ( alert == ServiceAlertsEnum.diskWriteRate  ) {
-						
 						// reported in KB - convert to bytes and then print with unit
 
 						serviceLimitReport.add(
-								CSAP.printBytesWithUnits( maxAllowed * 1024  ) ) ;
-
-
+								CSAP.printBytesWithUnits( maxAllowed * 1024 ) ) ;
 
 					} else {
 

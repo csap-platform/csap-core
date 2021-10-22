@@ -1,0 +1,20 @@
+[
+	{
+		"name": "helm-nginx-full",
+		"namespace": "helm-demos",
+		"revision": "3",
+		"updated": "2021-10-04 10:29:49.671281538 -0400 EDT",
+		"status": "deployed",
+		"chart": "nginx-9.5.4",
+		"app_version": "1.21.3"
+	},
+	{
+		"name": "helm-nginx-simple",
+		"namespace": "helm-demos",
+		"revision": "1",
+		"updated": "2021-10-04 10:40:39.806829167 -0400 EDT",
+		"status": "deployed",
+		"chart": "nginx-9.5.4",
+		"app_version": "1.21.3"
+	}
+]

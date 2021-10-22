@@ -396,8 +396,8 @@ public class ServiceRequests {
 
 				String id = meterJson.get( "id" ).asText( ) ;
 				String[] jsonPath = id.split( Pattern.quote( "." ) ) ;
-				String collector = jsonPath[0] ;
-				String attribute = jsonPath[1] ;
+				String collector = jsonPath[ 0 ] ;
+				String attribute = jsonPath[ 1 ] ;
 				// logger.info("collector: " + collector + " attribute: " +
 				// attribute);
 				// vm. process. jmxCommon. jmxCustom.Service.var
@@ -412,8 +412,8 @@ public class ServiceRequests {
 
 					if ( collector.equals( MetricCategory.application.json( ) ) ) {
 
-						String serviceName = jsonPath[1] ;
-						attribute = jsonPath[2] ;
+						String serviceName = jsonPath[ 1 ] ;
+						attribute = jsonPath[ 2 ] ;
 
 						if ( ! collectedJson.has( serviceName ) ) {
 
@@ -1940,7 +1940,7 @@ public class ServiceRequests {
 
 		for ( int i = 0; i < svcNameArray.length; i++ ) {
 
-			String svcName = svcNameArray[i] ;
+			String svcName = svcNameArray[ i ] ;
 			ArrayList<String> params = new ArrayList<String>( ) ;
 
 			// check for host
@@ -2299,18 +2299,18 @@ public class ServiceRequests {
 
 			// from csap-eng01:8026 to
 			// service:jmx:rmi://csap-eng01:8028/jndi/rmi://csap-eng01:8027/jmxrmi
-			String jndiDest = jmxHostPortArray[i]
-					.substring( 0, jmxHostPortArray[i].length( ) - 1 ) + "7" ;
-			String firewallDest = jmxHostPortArray[i].substring( 0,
-					jmxHostPortArray[i].length( ) - 1 ) + "8" ;
+			String jndiDest = jmxHostPortArray[ i ]
+					.substring( 0, jmxHostPortArray[ i ].length( ) - 1 ) + "7" ;
+			String firewallDest = jmxHostPortArray[ i ].substring( 0,
+					jmxHostPortArray[ i ].length( ) - 1 ) + "8" ;
 
 			// if ( isJmxUsingRmi ) {
 			// batContents.append( "service:jmx:rmi://" + firewallDest );
 			// batContents.append( "/jndi/rmi://" + jndiDest + "/jmxrmi " );
 			// } else {
-			String hostPort[] = jmxHostPortArray[i].split( ":" ) ;
-			firstHost = hostPort[0] ;
-			batContents.append( csapApp.getHostUsingFqdn( firstHost ) + ":" + hostPort[1] ) ;
+			String hostPort[] = jmxHostPortArray[ i ].split( ":" ) ;
+			firstHost = hostPort[ 0 ] ;
+			batContents.append( csapApp.getHostUsingFqdn( firstHost ) + ":" + hostPort[ 1 ] ) ;
 			// }
 
 			if ( jvisualvm != null ) {
@@ -2328,7 +2328,7 @@ public class ServiceRequests {
 
 		for ( int i = 0; i < jmxHostPortArray.length; i++ ) {
 
-			batContents.append( jmxHostPortArray[i] ) ;
+			batContents.append( jmxHostPortArray[ i ] ) ;
 			batContents.append( " " ) ;
 
 		}

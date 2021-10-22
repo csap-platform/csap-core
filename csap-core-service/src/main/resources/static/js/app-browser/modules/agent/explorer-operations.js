@@ -25,6 +25,7 @@ define( explorerSources, function ( utils, podLogs, explorerProgress, hostOperat
 
     let _dockerCommandUrl = utils.getOsExplorerUrl() + "/docker"
     let _dockerContainerPath = "docker/container/" ;
+    let _crioContainerPath = "crio/container/" ;
     let _containerCommandUrl = utils.getOsExplorerUrl() + "/" + _dockerContainerPath ;
 
     let _jsonParseTimer, _loadTimer ;
@@ -111,6 +112,10 @@ define( explorerSources, function ( utils, podLogs, explorerProgress, hostOperat
 
         containerCommandPath: function () {
             return _dockerContainerPath ;
+        },
+
+        crioContainerCommandPath: function () {
+            return _crioContainerPath ;
         },
 
         initialize: function ( dockerTree ) {
@@ -666,6 +671,7 @@ define( explorerSources, function ( utils, podLogs, explorerProgress, hostOperat
                     + ", storage: " + spanForValue( loadResponse.docker.dockerStorage + "Gb", "zz" )
                     + dockerConnection ) ;
             $( "#containerTree" ).html( spanForValue( loadResponse.docker.containerCount, 100 ) + " total, " + loadResponse.docker.containerRunning + " running" ) ;
+            $( "#cri-commandsTree" ).html( spanForValue( loadResponse.docker.crioContainerCount, 100 ) + " containers" ) ;
             $( "#imageTree" ).html( spanForValue( loadResponse.docker.imageCount, 100 ) + " Images" ) ;
             $( "#docker-volumeTree" ).html( spanForValue( loadResponse.docker.volumeCount, 100 ) + " Volumes" ) ;
             $( "#docker-networkTree" ).html( spanForValue( loadResponse.docker.networkCount, 10 ) + " Networks" ) ;
@@ -775,6 +781,7 @@ define( explorerSources, function ( utils, podLogs, explorerProgress, hostOperat
                     + spanForValue( loadResponse.kubernetes.jobCount, 50 ) + " job(s)" ;
             $( "#k8JobTree", $dockerTree ).html( jobCount ) ;
 
+            $( "#helm-commandsTree" ).html( spanForValue( loadResponse.kubernetes.helmReleaseCount, 100 ) + " releases" ) ;
             $( "#k8ConfigMapTree", $dockerTree ).html( spanForValue( loadResponse.kubernetes.configMapCount, 100 ) + " ConfigMaps" ) ;
             $( "#k8DeployTree", $dockerTree ).html( spanForValue( loadResponse.kubernetes.deploymentCount, 100 ) + " Deployments" ) ;
             $( "#k8EndpointTree", $dockerTree ).html( spanForValue( loadResponse.kubernetes.endpointCount, 100 ) + " Endpoints" ) ;
@@ -1395,11 +1402,16 @@ define( explorerSources, function ( utils, podLogs, explorerProgress, hostOperat
 
     function addApiPathButtons( fancyTreeNode ) {
         //let 
+
+        let namespace = jsonForms.getValue( "data.attributes.metadata.namespace", fancyTreeNode ) ;
+        let name = jsonForms.getValue( "data.attributes.metadata.name", fancyTreeNode ) ;
+
         let apiPath = jsonForms.getValue( "data.attributes.apiPath", fancyTreeNode ) ;
         if ( apiPath == undefined ) {
             console.log( `addApiPathButtons: legacy check for kubernetes pre `, fancyTreeNode ) ;
             apiPath = jsonForms.getValue( "data.attributes.metadata.selfLink", fancyTreeNode ) ;
         }
+
 
         if ( apiPath == undefined ) {
             let csapLink = jsonForms.getValue( "data.attributes.csapLink", fancyTreeNode ) ;
@@ -1441,6 +1453,60 @@ define( explorerSources, function ( utils, podLogs, explorerProgress, hostOperat
 
 
             $( "span.fancytree-active .fancytree-title" ).append( $describeButton ) ;
+
+            if ( apiPath.endsWith( "/deployments/" + name )
+                    || apiPath.endsWith( "/statefulsets/" + name )
+                    || apiPath.endsWith( "/daemonsets/" + name )
+                    || apiPath.endsWith( "/namespaces/" + name ) ) {
+
+                let $restartButton = jQuery( '<button/>', {
+                    class: "csap-icon csap-recycle tree update-by-path",
+                    title: "restart (kubectl rollout restart )"
+                } )
+                        .css( "margin-left", "0" )
+                        .css( "margin-top", "1px" )
+                        .click( function () {
+
+                            let type = `deployments` ;
+
+                            if ( apiPath.endsWith( "/statefulsets/" + name ) ) {
+                                type = `statefulsets` ;
+                            } else if ( apiPath.endsWith( "/daemonsets/" + name ) ) {
+                                type = `daemonsets` ;
+                            } else if ( apiPath.endsWith( "/namespaces/" + name ) ) {
+                                type = `namespaces` ;
+                            }
+
+                            hostOperations.restartCli( type, name, namespace ) ;
+                        } )
+
+
+                $( "span.fancytree-active .fancytree-title" ).append( $restartButton ) ;
+            }
+
+            if ( apiPath.endsWith( "/deployments/" + name )
+                    || apiPath.endsWith( "/statefulsets/" + name ) ) {
+
+                let $pauseButton = jQuery( '<button/>', {
+                    class: "csap-icon csap-pause tree update-by-path",
+                    title: "pause (kubectl scale --replicas=0 )"
+                } )
+                        .css( "margin-left", "0" )
+                        .css( "margin-top", "1px" )
+                        .click( function () {
+
+                            let type = `deployments` ;
+
+                            if ( apiPath.endsWith( "/statefulsets/" + name ) ) {
+                                type = `statefulsets` ;
+                            }
+
+                            hostOperations.pauseCli( type, name, namespace ) ;
+                        } )
+
+
+                $( "span.fancytree-active .fancytree-title" ).append( $pauseButton ) ;
+            }
 
         } else {
             console.debug( `did not find apiPath attribute - skipping` ) ;

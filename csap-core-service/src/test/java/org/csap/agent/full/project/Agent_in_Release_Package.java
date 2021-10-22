@@ -282,7 +282,7 @@ public class Agent_in_Release_Package {
 		assertThat( dockerHosts )
 				.as( "Service count in all packages" )
 				.hasSize( 4 )
-				.contains( "mainHostA", "mainHostB", "mainHostC" ) ;
+				.contains( "main-host-a", "main-host-b", "main-host-c" ) ;
 
 		assertThat(
 				csapApp.getRootProject( ).getLifecycleToClusterMap( ) )
@@ -309,7 +309,7 @@ public class Agent_in_Release_Package {
 						.hasSize(
 								7 )
 						.contains(
-								"mainHostA",
+								"main-host-a",
 								"localhost",
 								"middlewareA2Host-dev98",
 								"SampleHostB-dev99" ) ;

@@ -1,6 +1,6 @@
 define( [ "projects/env-editor/life-editor", "projects/attribute-editor", "projects/browser", "editor/json-forms", "browser/utils" ], function ( lifeEdit, attributesEditor, defBrowser, jsonForms, utils ) {
 
-    console.log( "Module loadedaa" ) ;
+    console.log( "Module loaded" ) ;
 
     const $contentPane = $( "#projects-tab-content" ) ;
     const $editorPane = $( "#projects-tab-editor", $contentPane ) ;
@@ -79,7 +79,7 @@ define( [ "projects/env-editor/life-editor", "projects/attribute-editor", "proje
         defBrowser.addOnChangeFunction( project_source_updated ) ;
         attributesEditor.addOnChangeFunction( project_source_updated ) ;
 
-        utils.disableButtons( $( "button", $buttonContainer ) ) ;
+        //utils.disableButtons( $( "button", $buttonContainer ) ) ;
         utils.enableButtons( $( "#showReloadButton", $buttonContainer ) ) ;
 
 
@@ -820,17 +820,21 @@ define( [ "projects/env-editor/life-editor", "projects/attribute-editor", "proje
 
         lineOnly = full ;
         $( 'body' ).css( 'cursor', 'wait' ) ;
+        
+        let applicationDefinition = $( "#json" ).val() ;
+        
+        //applicationDefinition   = "{  sample test output }" ;
 
         let paramObject = {
             project: utils.getActiveProject( ),
-            updatedConfig: $( "#json" ).val()
+            updatedConfig:  applicationDefinition
         } ;
 
         $.post( DEFINITION_URL + "/validateDefinition", paramObject )
 
-                .done( function ( resultsJson ) {
+                .done( function ( validationReport ) {
                     // displayResults(results);
-                    validateDefinitionSuccess( resultsJson ) ;
+                    processValidationResponse( validationReport ) ;
                     haltProgressRefresh() ;
                 } )
 
@@ -842,62 +846,62 @@ define( [ "projects/env-editor/life-editor", "projects/attribute-editor", "proje
 
     }
 
-    function validateDefinitionSuccess( resultsJson ) {
+    function processValidationResponse( validationReport ) {
 
         // console.log("Results: " + resultsJson) ;
         $( 'body' ).css( 'cursor', 'default' ) ;
-        let containerJQ = jQuery( '<div/>', { } ) ;
+        let $parsingResults = jQuery( '<div/>', { } ) ;
 
-        processValidationResults( resultsJson ).appendTo( containerJQ ) ;
+        processValidationResults( validationReport ).appendTo( $parsingResults ) ;
 
         if ( !lineOnly ) {
-            alertify.alert( "Application Definition Validation", containerJQ.html() ) ;
+            //alertify.alert( "Application Definition Validation", containerJQ.html() ) ;
+            if ( !validationReport.success ) {
+                alertify.csapWarning( $parsingResults.html() )
+            } else {
+                alertify.csapInfo( $parsingResults.html() )
+            }
         }
     }
 
-    function processValidationResults( parsedJson ) {
+    function processValidationResults( validationReport ) {
 
         // Clear previous errors from text area
         $( ".errorIcon" ).removeClass( "errorIcon" ) ;
 
-        let resultsContainer = jQuery( '<div/>', {
+        let $resultContainer = jQuery( '<div/>', {
             id: "parseResults"
-        } ).css( "font-size", "1.2em" ) ;
+        } ) ;
 
 
         let resultsClass = "status-green" ;
-        let resultsText = "Parsing Successful" ;
+        let resultsText = "Application Definition validation successful" ;
 
 
-        if ( !parsedJson.success ) {
+        if ( !validationReport.success ) {
             resultsClass = "status-red" ;
-            resultsText = "Parsing Failed" ;
+            resultsText = "Application Definition validation failed" ;
         }
 
         jQuery( '<span/>', {
             class: resultsClass,
             text: resultsText
-        } ).css( "height", "1.2em" ).appendTo( resultsContainer ) ;
+        } ).css( "height", "1.2em" ).appendTo( $resultContainer ) ;
 
-        resultsContainer.append( "<br>" ) ;
+        $resultContainer.append( "<br>" ) ;
 
-        if ( parsedJson.errors && parsedJson.errors.length > 0 ) {
+        if ( validationReport.errors && validationReport.errors.length > 0 ) {
 
-            let errorsObj = jQuery( '<div/>', {
-                class: "warning"
-            } ).text( "Errors: " ).css( {
-                "overflow-y": "auto"
-            } ) ;
-            let listJQ = jQuery( '<ol/>', {
-                class: "error"
-            } ) ;
-            for ( let i = 0 ; i < parsedJson.errors.length ; i++ ) {
+            let $errorsDiv = jQuery( '<div/>', { } ) ;
+            let $errorList = jQuery( '<ol/>', { class: "csap-list"} ).css("white-space", "pre-wrap") ;
+            
+            for ( let processingError of validationReport.errors ) {
 
                 // 2 scenarios: a parsing error with a line number, and a semantic
                 // error with just contents
                 $( ".textWarning" ).html( "Found some Errors<br> Run validator to view" ).show() ;
-                let error = parsedJson.errors[i] ;
-                let errorMessage = parsedJson.errors[i] ;
+                let error = processingError ;
+                let errorMessage = processingError ;
                 if ( error.line ) {
                     console.log( "Found error: " + error.line ) ;
                     errorMessage = '<span style="font-weight: bold"> Line: ' + error.line + "</span> Message: <br>"
@@ -910,42 +914,46 @@ define( [ "projects/env-editor/life-editor", "projects/attribute-editor", "proje
                             text: errorMessage
                         }
                     } ) ;
+                } else if ( error.message ) {
+                    errorMessage = error.message ;
+                    
                 } else {
                     errorMessage = JSON.stringify( error, null, "\t" ) ;
                     errorMessage = errorMessage.replace( "__ERROR", "Error" ) ;
                 }
                 jQuery( '<li/>', {
                     class: "error"
-                } ).html( errorMessage ).appendTo( listJQ ) ;
+                } ).html( errorMessage ).appendTo( $errorList ) ;
 
             }
-            listJQ.appendTo( errorsObj ) ;
-            errorsObj.appendTo( resultsContainer ) ;
+            $errorList.appendTo( $errorsDiv ) ;
+            $errorsDiv.appendTo( $resultContainer ) ;
         } else {
-            if ( parsedJson.warnings && parsedJson.warnings.length > 0 ) {
+            if ( validationReport.warnings && validationReport.warnings.length > 0 ) {
 
-                let errorsObj = jQuery( '<div/>', {
-                    class: "warning"
-                } ).text( "Warnings: " ) ;
-                let listJQ = jQuery( '<ol/>', {
-                    class: "error"
+                let $warnings = jQuery( '<div/>', {
+                    class: "warning",
+                    text: "Warnings"
                 } ) ;
-                for ( let i = 0 ; i < parsedJson.warnings.length ; i++ ) {
+                
+                let $warningsList = jQuery( '<ol/>', { class: "csap-list" } );
+                
+                for ( let warning of  validationReport.warnings ) {
                     $( ".textWarning" ).html( "Found some Warnings<br> Run validator to view" ).show() ;
-                    let noteItem = parsedJson.warnings[i] ;
+                    let noteItem = warning ;
                     noteItem = noteItem.replace( "__WARN:", "" ) ;
                     jQuery( '<li/>', {
-                        class: "error"
-                    } ).html( noteItem ).appendTo( listJQ ) ;
+                        html: noteItem
+                    } ).appendTo( $warningsList ) ;
                 }
-                listJQ.appendTo( errorsObj ) ;
-                errorsObj.appendTo( resultsContainer ) ;
+                $warningsList.appendTo( $warnings ) ;
+                $warnings.appendTo( $resultContainer ) ;
             }
         }
 
-        resultsContainer.append( "<br>" ) ;
+        $resultContainer.append( "<br>" ) ;
 
-        return resultsContainer ;
+        return $resultContainer ;
     }
 
 } ) ;

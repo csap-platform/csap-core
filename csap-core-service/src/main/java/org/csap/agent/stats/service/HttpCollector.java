@@ -204,6 +204,7 @@ public class HttpCollector {
 					var message = "Collection failed for service '{}' \n configuration: {} \n\n reason: \"{}\";  ==> verify collection settings in definition" ;
 					logger.warn( message,
 							serviceInstance.getName( ), httpConfig, e.getMessage( ) ) ;
+
 					logger.debug( "Reason: {} ", CSAP.buildCsapStack( e ) ) ;
 
 				} finally {
@@ -421,10 +422,13 @@ public class HttpCollector {
 					container.getPodIp( ) ) ;
 
 		}
-		
 
 		var desktopTest = false ;
-		if ( csapApplication.isDesktopProfileActive( ) && httpCollectionUrl.contains( "localhost" ) ) {
+
+		if ( csapApplication.isDesktopProfileActiveOrSpringNull( )
+				&& httpCollectionUrl.contains( "localhost" )
+				&& ( csapApplication.isJunit( )
+						|| ! serviceInstance.getName( ).equals( CsapCore.AGENT_NAME ) ) ) {
 
 			if ( printLocalWarning ) {
 
@@ -433,6 +437,7 @@ public class HttpCollector {
 				printLocalWarning = false ;
 
 			}
+
 			desktopTest = true ;
 
 			httpCollectionUrl = httpCollectionUrl.replaceAll(
@@ -472,10 +477,11 @@ public class HttpCollector {
 		RestTemplate localRestTemplate ;
 
 		var currentHostUrl = csapApplication.getAgentUrl( "", "" ) ;
-		if ( httpCollectionUrl.startsWith( currentHostUrl  ) 
-				|| desktopTest)  {
 
-			localRestTemplate = csapApplication.getAgentPooledConnection( 10l, 
+		if ( httpCollectionUrl.startsWith( currentHostUrl )
+				|| desktopTest ) {
+
+			localRestTemplate = csapApplication.getAgentPooledConnection( 10l,
 					(int) serviceCollector.getMaxCollectionAllowedInMs( ) / 1000 ) ;
 
 		} else {
@@ -503,9 +509,23 @@ public class HttpCollector {
 
 		} else {
 
+			if ( logger.isDebugEnabled( ) &&
+					serviceInstance.getName( ).contains( "by-spec" ) ) {
+
+				logger.info( "httpCollectionUrl: {} ", httpCollectionUrl ) ;
+
+			}
+
 			logger.debug( "Performing collection from: {}", httpCollectionUrl ) ;
 			collectionResponse = localRestTemplate.getForEntity( httpCollectionUrl, String.class ) ;
 			logger.debug( "collectionResponse: {}", collectionResponse ) ;
+
+			if ( logger.isDebugEnabled( ) &&
+					serviceInstance.getName( ).contains( "by-spec" ) ) {
+
+				logger.info( "collectionResponse: {} ", collectionResponse ) ;
+
+			}
 
 			// logger.debug("Raw Response: \n{}",
 			// collectionResponse.toString());
@@ -658,7 +678,7 @@ public class HttpCollector {
 
 			} else if ( serviceMeter.getHttpAttribute( ).startsWith( CSAP_SERVICE_COUNT ) ) {
 
-				var containerNameToCount = serviceMeter.getHttpAttribute( ).split( ":", 2 )[1] ;
+				var containerNameToCount = serviceMeter.getHttpAttribute( ).split( ":", 2 )[ 1 ] ;
 
 				var dockerContainers = csapApplication.getOsManager( ).getDockerContainerProcesses( ) ;
 

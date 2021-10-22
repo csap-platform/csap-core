@@ -544,13 +544,13 @@ public class ServiceInstance extends ServiceBaseParser {
 
 		if ( s.length == 4 ) {
 
-			containerOrPodMatchName = s[0] ;
-			if ( StringUtils.isNotEmpty( s[1] ) )
-				containerName = s[1] ;
-			if ( StringUtils.isNotEmpty( s[2] ) )
-				podName = s[2] ;
-			if ( StringUtils.isNotEmpty( s[3] ) )
-				podNameSpace = s[3] ;
+			containerOrPodMatchName = s[ 0 ] ;
+			if ( StringUtils.isNotEmpty( s[ 1 ] ) )
+				containerName = s[ 1 ] ;
+			if ( StringUtils.isNotEmpty( s[ 2 ] ) )
+				podName = s[ 2 ] ;
+			if ( StringUtils.isNotEmpty( s[ 3 ] ) )
+				podNameSpace = s[ 3 ] ;
 
 		}
 

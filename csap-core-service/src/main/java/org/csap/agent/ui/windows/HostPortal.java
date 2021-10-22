@@ -22,7 +22,7 @@ import org.apache.commons.lang3.StringUtils ;
 import org.csap.agent.CsapCore ;
 import org.csap.agent.CsapCoreService ;
 import org.csap.agent.CsapTemplate ;
-import org.csap.agent.container.DockerIntegration ;
+import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.container.kubernetes.KubernetesJson ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.model.Application ;
@@ -366,7 +366,7 @@ public class HostPortal {
 	}
 
 	@Autowired ( required = false )
-	DockerIntegration dockerIntegration ;
+	ContainerIntegration dockerIntegration ;
 
 	@Autowired ( required = false )
 	FileRequests fileRequests ;
@@ -444,8 +444,8 @@ public class HostPortal {
 
 								if ( desc.length == 2 ) {
 
-									template.put( "command", desc[0].trim( ) ) ;
-									template.put( "description", desc[1].trim( ) ) ;
+									template.put( "command", desc[ 0 ].trim( ) ) ;
+									template.put( "description", desc[ 1 ].trim( ) ) ;
 
 								}
 
@@ -587,7 +587,7 @@ public class HostPortal {
 
 			ServiceInstance kubernetesInstance = csapApp.kubeletInstance( ) ;
 
-			modelMap.addAttribute( "kubernetesApiUrl", kubernetesInstance.getUrl( ).split( "," )[0] ) ;
+			modelMap.addAttribute( "kubernetesApiUrl", kubernetesInstance.getUrl( ).split( "," )[ 0 ] ) ;
 			modelMap.addAttribute( "kubernetesNamespaces", csapApp.getKubernetesIntegration( ).nameSpaces( ) ) ;
 			modelMap.addAttribute( "kubernetesServiceTypes", KubernetesJson.k8TypeList( ) ) ;
 

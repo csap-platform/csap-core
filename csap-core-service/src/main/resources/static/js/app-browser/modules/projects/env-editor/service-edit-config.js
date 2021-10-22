@@ -287,7 +287,11 @@ define( [ "editor/validation-handler", "editor/json-forms" ], function ( validat
                 } ],
             "logRotation": [
                 {
-                    "path": "$logFolder/consoleLogs.txt",
+                    "path": "$$service-logs/consoleLogs.txt",
+                    "settings": "copytruncate,weekly,rotate 3,compress,missingok,size 10M"
+                },
+                {
+                    "path": "$$service-logs/$$service-name.logs",
                     "settings": "copytruncate,weekly,rotate 3,compress,missingok,size 10M"
                 },
                 {

@@ -73,7 +73,7 @@
 
 <body
 	id=csap-main
-	class="csap-scrollable theme-light theme-xylem">
+	class="csap-scrollable theme-dark agent">
 
 	<header>
 		<label>Service Template Editor</label>
@@ -222,6 +222,10 @@
 		<div id='serviceEditor'>
 			<ul>
 				<li><a
+					title=""
+					href="#jsonEditor">Spec Editor</a></li>
+					
+				<li><a
 					title="command parameters, environment variables, etc."
 					href="#process">OS Process</a></li>
 
@@ -257,11 +261,8 @@
 
 				<li><a
 					title="Optionally override configuration for target deployment"
-					href="#life">Environment(s)</a></li>
+					href="#life">Env</a></li>
 
-				<li><a
-					title=""
-					href="#jsonEditor">Json Editor</a></li>
 			</ul>
 
 
@@ -270,21 +271,35 @@
 				class="group serviceDef">
 
 
-				<label
-					title="Toggle folding of code - note alt-0, alt-shift-0 can be used as well"
-					style="width: 10em">
-					<input
-						class="editor-toggle-last"
-						type="checkbox"
-						style="margin-right: 0; vertical-align: middle" />
-					Fold
-				</label>
+				<div class=flex-container>
+					<label
+						class="flex-right-info"
+						title="Toggle folding of code - note alt-0, alt-shift-0 can be used as well"
+						>
+						<span>Fold
+						</span>
+						<input
+							class="editor-toggle-last"
+							type="checkbox"
+							/>
+						
+
+						<span>Json
+						</span>
+						<input
+							class=editor-toggle-json
+							type="checkbox"
+							/>
+						
+					</label>
+				</div>
 				<textarea
 					id="serviceJson"
 					name="serviceJson"
+					data-adjustwidth="-55"
+					data-convert_yaml="true"
 					spellcheck=false
 					data-path="ROOT">Loading</textarea>
-				<br />
 			</div>
 
 
@@ -330,7 +345,9 @@
 
 				</div>
 
+				<div>
 				<label
+					class=csap-form-inline
 					style=""
 					title="File will be copied to run time folder">
 					<span>View:</span>
@@ -347,8 +364,7 @@
 
 					<option value="default">Add new file</option>
 					<option value="nginx-simple.yaml">Kubernetes Deployment (.yaml)</option>
-					<option value="csap-service.json">csap-service.json</option>
-					<option value="application-override.yml">application-override.yaml</option>
+					<option value="csap-service.yaml">csap-service.yaml</option>
 					<option value="simple.properties">Properties</option>
 					<option value="csap-events.sh">CSAP Events (.sh)</option>
 					<option value="simple-docker-compose.yaml">Docker Compose(.yaml)</option>
@@ -357,15 +373,15 @@
 
 				<button
 					id="service-delete-file-button"
-					class="csap-button-icon">
-					<img th:src="@{/images/16x16/deleteFolder.png}"> Delete
+					class="csap-button-icon csap-remove">
+					Delete
 				</button>
+				
+				</div>
 
+ 
 
-
-				<div
-					id="fileContainer"
-					style="display: none">
+				<div id=fileContainer>
 
 					<label
 						style=""
@@ -374,8 +390,7 @@
 						<input
 							id="propFileName"
 							class=""
-							placeholder="name of file"
-							data-path="files[0].name" />
+							placeholder="name of file" />
 					</label>
 					<label
 						style=""
@@ -383,8 +398,7 @@
 						<span>Environment: </span>
 						<input
 							id="propLifecycle"
-							placeholder="common"
-							data-path="files[0].lifecycle" />
+							placeholder="common" />
 					</label>
 <!-- 					<label
 						style=""
@@ -403,15 +417,14 @@
 						<input
 							id="propModified"
 							class="boolean"
-							placeholder="false"
-							data-path="files[0].contentUpdated" />
+							placeholder="false"/>
 					</label>
 					<textarea
 						id="propFileText"
 						data-convert_lines="true"
+						data-adjustwidth="-35"
 						data-plain="true"
-						data-adjust="-40"
-						data-path="files[0].contents">Empty</textarea>
+						data-adjust="-60">loading template....</textarea>
 
 				</div>
 

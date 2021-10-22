@@ -28,9 +28,13 @@ import javax.servlet.http.HttpSession ;
 import org.apache.commons.io.FileUtils ;
 import org.apache.commons.lang3.StringEscapeUtils ;
 import org.apache.commons.lang3.StringUtils ;
+import org.commonmark.ext.gfm.tables.TablesExtension ;
+import org.commonmark.parser.Parser ;
+import org.commonmark.renderer.html.HtmlRenderer ;
 import org.csap.agent.CsapCore ;
 import org.csap.agent.CsapCoreService ;
 import org.csap.agent.CsapTemplate ;
+import org.csap.agent.container.DockerJson ;
 import org.csap.agent.container.kubernetes.KubernetesJson ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.linux.OsCommandRunner ;
@@ -71,6 +75,7 @@ import org.springframework.web.bind.annotation.PostMapping ;
 import org.springframework.web.bind.annotation.RequestMapping ;
 import org.springframework.web.bind.annotation.RequestParam ;
 import org.springframework.web.bind.annotation.RestController ;
+import org.springframework.web.client.RestClientException ;
 import org.springframework.web.client.RestTemplate ;
 import org.springframework.web.servlet.ModelAndView ;
 
@@ -148,11 +153,20 @@ public class ApplicationBrowser {
 
 		if ( application.isAgentProfile( ) ) {
 
-			// only used while browser is loading - then preferences.js sets based on criteria
+			// only used while browser is loading - then preferences.js sets based on
+			// criteria
 			theme = "theme-dark agent" ;
-			
-			if ( System.getenv( "dockerHostFqdn") != null ) {
+
+			if ( System.getenv( "dockerHostFqdn" ) != null ) {
+
 				theme = "theme-dark agent theme-forest" ;
+
+			}
+
+			if ( application.isCrioInstalledAndActive( ) ) {
+
+				mav.getModelMap( ).addAttribute( "crio", true ) ;
+
 			}
 
 		}
@@ -398,11 +412,11 @@ public class ApplicationBrowser {
 			ServiceInstance kubernetesInstance = application.kubeletInstance( ) ;
 
 			var urls = kubernetesInstance.getUrl( ).split( "," ) ;
-			var apiUrl = urls[0] ;
+			var apiUrl = urls[ 0 ] ;
 
 			if ( urls.length >= 2 ) {
 
-				apiUrl = urls[1] ;
+				apiUrl = urls[ 1 ] ;
 
 			}
 
@@ -594,8 +608,8 @@ public class ApplicationBrowser {
 
 								if ( desc.length == 2 ) {
 
-									template.put( "command", desc[0].trim( ) ) ;
-									template.put( "description", desc[1].trim( ) ) ;
+									template.put( "command", desc[ 0 ].trim( ) ) ;
+									template.put( "description", desc[ 1 ].trim( ) ) ;
 
 								}
 
@@ -646,6 +660,151 @@ public class ApplicationBrowser {
 
 		return application.environmentSettings( ).getTrendingConfig( ) ;
 
+	}
+
+	public final static String HELM_INFO_URL = "/helm/info" ;
+
+	@GetMapping ( HELM_INFO_URL )
+	public JsonNode helmInfoReport (
+										String project ,
+										String command ,
+										String chart ,
+										boolean showAll ) {
+
+		var infoReport = jsonMapper.createObjectNode( ) ;
+
+		if ( application.isAdminProfile( ) ) {
+
+			var allHostReport = application.healthManager( ).build_host_report( project ) ;
+
+			var kubernetesHostOptional = CSAP.jsonStream( allHostReport )
+					.filter( hostReport -> hostReport.findParent( "kubernetes" ) != null )
+					.map( hostReport -> hostReport.path( "name" ).asText( ) )
+					.findFirst( ) ;
+
+			if ( kubernetesHostOptional.isPresent( ) ) {
+
+				var hostName = kubernetesHostOptional.get( ) ;
+				MultiValueMap<String, String> urlVariables = new LinkedMultiValueMap<String, String>( ) ;
+
+				urlVariables.set( "apiUser", CsapUser.currentUsersID( ) ) ;
+				urlVariables.set( "project", project ) ;
+				urlVariables.set( "command", command ) ;
+				urlVariables.set( "chart", chart ) ;
+				urlVariables.set( "showAll", Boolean.toString( showAll ) ) ;
+
+				String url = CsapCoreService.APP_BROWSER_URL + HELM_INFO_URL ;
+				List<String> hosts = new ArrayList<>( ) ;
+				hosts.add( hostName ) ;
+
+				logger.debug( "hitting: {}, hosts: {}, urlVariables: {} ", url, hosts, urlVariables ) ;
+
+				JsonNode remoteCall = application.getOsManager( ).getServiceManager( ).remoteAgentsGet(
+						hosts,
+						url,
+						urlVariables ) ;
+
+				return remoteCall.path( hostName ) ;
+
+			} else {
+
+				logger.warn( "Failed to locate kubernetes host" ) ;
+				infoReport.put( "error", "kubernetes not available" ) ;
+				return infoReport ;
+
+			}
+
+		}
+
+		var serviceInstance = application.findServiceByNameOnCurrentHost( chart ) ;
+
+		if ( serviceInstance != null
+				&& serviceInstance.isHelmConfigured( ) ) {
+
+			chart = serviceInstance.getHelmChartName( ) ;
+
+		}
+
+		var helmCommand = "helm show values " + chart ;
+
+		if ( showAll ) {
+
+			helmCommand = "helm show all " + chart ;
+
+		}
+
+		if ( command.equals( "helm-readme" ) ) {
+
+			helmCommand = "helm show readme " + chart ;
+
+		}
+
+		logger.info( helmCommand ) ;
+
+		var cliResults = application.getOsManager( ).cli( helmCommand ) ;
+
+		if ( command.equals( "helm-readme" ) ) {
+
+			cliResults = convertMarkdownToHtml( cliResults ) ;
+
+			infoReport.put( DockerJson.response_html.json( ), cliResults ) ;
+
+		} else {
+
+			infoReport.put( DockerJson.response_yaml.json( ), cliResults ) ;
+
+		}
+
+		return infoReport ;
+
+	}
+
+	private String convertMarkdownToHtml ( String cliResults ) {
+
+		var extensions = Arrays.asList( TablesExtension.create( ) ) ;
+		var parser = Parser.builder( ).extensions( extensions ).build( ) ;
+		var document = parser.parse( cliResults ) ;
+		var renderer = HtmlRenderer.builder( ).extensions( extensions ).build( ) ;
+		cliResults = renderer.render( document ) ;
+
+		cliResults = cliResults.replaceAll( "a href", "a class=csap-link target=_blank href" ) ;
+		cliResults = cliResults.replaceAll( "<table>", "<table class=csap>" ) ;
+		return cliResults ;
+
+	}
+	
+	@GetMapping ( "/readme" )
+	public JsonNode readme ( String name  ) {
+
+		var readMeReport = jsonMapper.createObjectNode( ) ;
+		
+		var readMeMarkDown = "#Failed to retrieve report " ;
+		try {
+
+			var restTemplate = new RestTemplate( ) ;
+
+			var readme = application.findFirstServiceInstanceInLifecycle( name ).getReadme( ) ;
+			
+			if ( readme.startsWith( "http" )) {
+
+				readMeMarkDown = restTemplate.getForObject( readme, String.class ) ;
+			
+			} else {
+				
+				readMeMarkDown = readme ;
+				
+			}
+
+		} catch ( Exception e ) {
+
+			logger.warn( "Failed to get readme: {}", CSAP.buildCsapStack( e ) ) ;
+
+		}
+		
+		
+		readMeReport.put( DockerJson.response_html.json( ), convertMarkdownToHtml( readMeMarkDown )) ;
+		
+		return readMeReport ;
 	}
 
 	public final static String REALTIME_REPORT_URL = "/kubernetes/realtime" ;
@@ -1304,7 +1463,7 @@ public class ApplicationBrowser {
 		} else {
 
 			// handle multiple urls
-			launchReport.put( "location", location.split( "," )[0] ) ;
+			launchReport.put( "location", location.split( "," )[ 0 ] ) ;
 
 		}
 
@@ -1415,6 +1574,8 @@ public class ApplicationBrowser {
 			servicesReport.put( "scmFolder", firstInstance.getScmBuildLocation( ) ) ;
 			servicesReport.put( "scmBranch", firstInstance.getDefaultBranch( ) ) ;
 			servicesReport.put( "kubernetes", firstInstance.is_cluster_kubernetes( ) ) ;
+			servicesReport.put( "helm", firstInstance.isHelmConfigured( ) ) ;
+			servicesReport.put( "readme", firstInstance.isReadmeConfigured( ) ) ;
 			servicesReport.put( "javaCollection", firstInstance.isJavaCollectionEnabled( ) ) ;
 			servicesReport.set( "performanceConfiguration", firstInstance.getPerformanceConfiguration( ) ) ;
 			servicesReport.set( "javaLabels", JmxCommonEnum.graphLabels( ) ) ;
@@ -1758,8 +1919,19 @@ public class ApplicationBrowser {
 		statusReport.put( "kubernetes-master", requestedProject.getKubernetesMasterHost( application
 				.getCsapHostEnvironmentName( ) ) ) ;
 
-		statusReport.put( "kubernetes-service", requestedProject.getKubernetesServiceName( application
-				.getCsapHostEnvironmentName( ) ) ) ;
+		statusReport.put( "kubernetes-service",
+				requestedProject.getKubernetesServiceName(
+						application.getCsapHostEnvironmentName( ) ) ) ;
+
+		var containerService = "docker" ;
+
+		if ( application.findFirstServiceInstanceInLifecycle( "podman-system-service" ) != null ) {
+
+			containerService = "podman-system-service" ;
+
+		}
+
+		statusReport.put( "container-service", containerService ) ;
 
 		return statusReport ;
 
@@ -2028,8 +2200,8 @@ public class ApplicationBrowser {
 
 						if ( dateTime.length == 2 ) {
 
-							date = dateTime[0] ;
-							time = dateTime[1] ;
+							date = dateTime[ 0 ] ;
+							time = dateTime[ 1 ] ;
 
 							if ( date.equals( today ) ) {
 

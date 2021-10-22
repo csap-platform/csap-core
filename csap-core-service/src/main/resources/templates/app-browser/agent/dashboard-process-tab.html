@@ -73,6 +73,15 @@
 					checked="checked" />
 
 			</label>
+			<label class=csap title="When selected - process info will be wrapped">
+				wrap:
+				<input
+					id=wrap-process-table
+					type="checkbox"
+					name="filter"
+					value="filter" />
+
+			</label>
 			<label class=flex-right-info
 				title="Note: Some processes use significant amounts of shared memory, and may be double counted. Oracle has been excluded.">
 				Memory(RSS):
@@ -146,10 +155,10 @@
 							style="">...</th>
 						<!-- updated by js -->
 						<th
-							class="csap-only"
+							class="csap-only sorter-csap-sort-value"
 							title="15 second sample">Disk Reads</th>
 						<th
-							class="csap-only"
+							class="csap-only sorter-csap-sort-value"
 							title="15 second sample">Disk Writes</th>
 					</tr>
 				</thead>

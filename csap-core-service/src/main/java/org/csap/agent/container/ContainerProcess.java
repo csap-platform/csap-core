@@ -79,7 +79,7 @@ public class ContainerProcess {
 	public String toString ( ) {
 
 		return "ContainerProcess [pid=" + pid + ", matchName=" + matchName + ", containerName=" + containerName
-				+ ", podName=" + podName + "]" ;
+				+ ", podName=" + podName + ", namespace=" + podNamespace + "]" ;
 
 	}
 

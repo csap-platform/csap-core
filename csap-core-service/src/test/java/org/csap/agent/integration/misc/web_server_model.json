@@ -178,7 +178,7 @@
       },
       "factory" : {
         "type" : "singleVmPartition",
-        "hosts" : [ "factoryHost-dev01", "factoryHost-dev-002" ],
+        "hosts" : [ "factoryhost-dev01", "factoryhost-dev-002" ],
         "template-references" : [ "httpd", "Cssp3ReferenceMq", "simple-hyphen-service", "ServiceWithCustomRouting" ]
       },
       "settings" : {

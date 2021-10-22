@@ -36,7 +36,7 @@ import org.apache.commons.lang3.StringUtils ;
 import org.apache.hc.core5.util.Timeout ;
 import org.csap.agent.CsapThinTests ;
 import org.csap.agent.DockerSettings ;
-import org.csap.agent.container.DockerIntegration ;
+import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.container.WrapperApacheDockerHttpClientImpl ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
@@ -156,11 +156,11 @@ public class DockerApiTests extends CsapThinTests {
 				.withDockerHost( docker.getUrl( ) )
 				.build( ) ;
 
-		logger.warn( CsapApplication.header( "CUSTOM docker client: {}, type:{}, poolsize: {} timeout: {} seconds" ),
-				dockerConfiguration.getDockerHost( ),
-				"ApacheDockerHttpClient",
-				dockerPoolSize,
-				TimeUnit.MILLISECONDS.toSeconds( MAX_WAIT_TIME_MS ) ) ;
+		logger.warn( CSAP.buildDescription( "CUSTOM docker client",
+				"host", dockerConfiguration.getDockerHost( ),
+				"type", "WrapperApacheDockerHttpClientImpl",
+				"poolsize", dockerPoolSize,
+				"timeout", TimeUnit.MILLISECONDS.toSeconds( MAX_WAIT_TIME_MS ) + " seconds" ) ) ;
 
 //		DockerHttpClient httpClient = new ApacheDockerHttpClient.Builder( )
 //				.dockerHost( dockerConfiguration.getDockerHost( ) )
@@ -216,7 +216,7 @@ public class DockerApiTests extends CsapThinTests {
 			info = junit_docker_client.infoCmd( ).exec( ) ;
 			logger.info( "info {}: {}",
 					desc,
-					CSAP.jsonPrint( getJsonMapper( ).convertValue( info, ObjectNode.class ) ) ) ;
+					CSAP.jsonPrint( CSAP.buildGenericObjectReport( info ) ) ) ;
 
 		} catch ( Exception e ) {
 
@@ -803,66 +803,51 @@ public class DockerApiTests extends CsapThinTests {
 	public void verify_images_list ( )
 		throws Exception {
 
-		logger.info( CsapApplication.testHeader( "Listing images" ) ) ;
-		List<Image> images = junit_docker_client.listImagesCmd( ).withShowAll( true ).exec( ) ;
+		logger.info( CsapApplication.testHeader( ) ) ;
 
-		images.forEach( image -> {
+		var images = junit_docker_client.listImagesCmd( ).withShowAll( true ).exec( ) ;
 
-			logger.info( "container id: {}, \t string: {} , \t\t {}",
-					image.getId( ), image.toString( ) ) ;
-
-			ObjectNode imageJson = getJsonMapper( ).convertValue( image, ObjectNode.class ) ;
-
-			logger.info( "Json: \n {}", pp( imageJson ) ) ;
-
-			InspectImageResponse imageResponse = junit_docker_client.inspectImageCmd( image.getId( ) ).exec( ) ;
-
-			ObjectNode inspectJson = getJsonMapper( ).convertValue( imageResponse, ObjectNode.class ) ;
-
-			logger.info( "inspectJson: \n {}", pp( inspectJson ) ) ;
-
-		} ) ;
-
-		logger.info( "Total number of images: {}", images.size( ) ) ;
-
-	}
-
-	@Test
-	public void verify_image_list ( )
-		throws Exception {
-
-		logger.info( "Listing images." ) ;
-		List<Image> images = junit_docker_client.listImagesCmd( ).exec( ) ;
-
-		List<List<String>> imageTags = images
-				.stream( )
+		var labelReport = images.stream( )
 				.map( image -> {
 
-					List<String> result = new ArrayList<>( ) ;
-					String[] tags = image.getRepoTags( ) ;
+					logger.debug( "container id: {}, \t labels: {}",
+							image.getId( ), image.getLabels( ) ) ;
 
-					if ( tags != null ) {
+					ObjectNode imageJson = getJsonMapper( ).convertValue( image, ObjectNode.class ) ;
 
-						result.addAll( Arrays.asList( tags ) ) ;
+					logger.debug( "Json: \n {}", pp( imageJson ) ) ;
 
-					} else {
+					InspectImageResponse imageResponse = junit_docker_client.inspectImageCmd( image.getId( ) ).exec( ) ;
 
-						result.add( "NO_TAGS_FOR_" + image.getId( ) ) ;
+					ObjectNode inspectJson = getJsonMapper( ).convertValue( imageResponse, ObjectNode.class ) ;
+
+					logger.debug( "inspectJson: \n {}", pp( inspectJson ) ) ;
+
+					var desc = image.getId( ) ;
+
+					if ( image.getRepoTags( ) != null ) {
+
+						desc = Arrays.asList( image.getRepoTags( ) ).toString( ) ;
 
 					}
 
-					return result ;
+					if ( image.getRepoTags( ) != null ) {
+
+						desc = Arrays.asList( image.getRepoTags( ) ).toString( ) ;
+
+					} else {
+
+						desc = "no-tags-found" ;
+
+					}
+
+					return CSAP.padNoLine( desc ) + image.getId( ) ;
 
 				} )
-				.collect( Collectors.toList( ) ) ;
+				.sorted( )
+				.collect( Collectors.joining( "\n" ) ) ;
 
-		logger.info( "Images: {}", imageTags ) ;
-
-		// images.forEach( image -> {
-		//
-		// logger.info( "container id: {}, \t tags: {} , \t\t {}",
-		// image.getId(), image.getRepoTags() );
-		// } );
+		logger.info( "Total number of images: {}, {}", images.size( ), labelReport ) ;
 
 	}
 
@@ -941,7 +926,7 @@ public class DockerApiTests extends CsapThinTests {
 								Arrays.asList(
 										image.getRepoTags( ) )
 										.contains(
-												DockerIntegration.simpleImageName( imageName ) ) ;
+												ContainerIntegration.simpleImageName( imageName ) ) ;
 
 					}
 
@@ -998,7 +983,7 @@ public class DockerApiTests extends CsapThinTests {
 		imageList = listImages( ) ;
 		assertThat( imageList )
 				.as( imageName + "is present" )
-				.contains( DockerIntegration.simpleImageName( imageName ) ) ;
+				.contains( ContainerIntegration.simpleImageName( imageName ) ) ;
 
 	}
 
@@ -1378,7 +1363,7 @@ public class DockerApiTests extends CsapThinTests {
 		// String imageName = "nginx:latest" ;
 		String imageName = "nginx:1.16.1" ;
 		loadImageIfNeeded( imageName ) ;
-		String containerName = "/junit-nginx-"
+		String containerName = "junit-nginx-"
 				+ LocalDateTime.now( ).format( DateTimeFormatter.ofPattern( "MMM.d-HH.mm.ss" ) ) ;
 
 		List<String> entryParameters = Arrays.asList( "nginx", "-g", "daemon off;" ) ;
@@ -1893,11 +1878,16 @@ public class DockerApiTests extends CsapThinTests {
 	public void verify_containers_list ( )
 		throws Exception {
 
-		List<Container> containers = junit_docker_client.listContainersCmd( ).withShowAll( true ).exec( ) ;
+		logger.info( CsapApplication.testHeader( ) ) ;
 
-		assertThat( containers.size( ) )
-				.as( "FOund at least one container" )
-				.isGreaterThan( 0 ) ;
+		var containers = junit_docker_client
+				.listContainersCmd( )
+				.withShowAll( true )
+				.exec( ) ;
+
+//		assertThat( containers.size( ) )
+//				.as( "FOund at least one container" )
+//				.isGreaterThan( 0 ) ;
 
 		containers.forEach( container -> {
 
@@ -1915,6 +1905,8 @@ public class DockerApiTests extends CsapThinTests {
 	@Test
 	public void verify_containers_created_date ( )
 		throws Exception {
+
+		logger.info( CsapApplication.testHeader( ) ) ;
 
 		Optional<Container> matchContainer = findContainerByName( "/peter" ) ;
 
@@ -1935,6 +1927,8 @@ public class DockerApiTests extends CsapThinTests {
 	@Test
 	public void verify_containers_info ( )
 		throws Exception {
+
+		logger.info( CsapApplication.testHeader( ) ) ;
 
 		String imageName = BUSY_BOX ;
 		loadImageIfNeeded( imageName ) ;

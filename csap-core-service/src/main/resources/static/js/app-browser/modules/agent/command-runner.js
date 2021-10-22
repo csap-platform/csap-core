@@ -24,6 +24,7 @@ define( [ "browser/utils", "ace/ace", "agent/command-template", "agent/command-h
     const RAW_OUTPUT = "raw" ;
     const $outputSelector = $( "#results-select", $commandOutputHeader ) ;
     const $scrollCheckbox = $( "#scroll-command-results", $commandOutputHeader ) ;
+    const $resultEditorFoldCheckbox = $( "#fold-command-results", $commandOutputHeader ) ;
     const $wrapCheckbox = $( "#wrap-command-results", $commandOutputHeader ) ;
 
     const $commandTimeout = $( "#command-timeout", $configurationPanel ) ;
@@ -35,6 +36,7 @@ define( [ "browser/utils", "ace/ace", "agent/command-template", "agent/command-h
 
     const $aceSettings = $( "#command-header #ace-editor-settings", $scriptsPanel ) ;
     const $aceFoldCheckbox = $( "#ace-fold-checkbox", $aceSettings, $scriptsPanel ) ;
+
 
     let _command_editor ;
 
@@ -166,6 +168,7 @@ define( [ "browser/utils", "ace/ace", "agent/command-template", "agent/command-h
 
         //$aceFoldCheckbox.prop( "checked", true ) ;
         $aceFoldCheckbox.off().change( updateCodeFolding ) ;
+
 
 
         $templateFilter = $( "#command-table-filter input" ) ;
@@ -368,7 +371,9 @@ define( [ "browser/utils", "ace/ace", "agent/command-template", "agent/command-h
                 'hosts': targetHosts
             },
             beforeSend: function () {
-                formBefore(  )
+                formBefore(  ) ;
+                $resultEditorFoldCheckbox.prop("checked", false) ;
+                $resultEditorFoldCheckbox.parent().css( "opacity", 0.2 ) ;
             },
             uploadProgress: function ( event, position, total, percentComplete ) {
                 console.log( `uploadProgress`, event, position, total, percentComplete )
@@ -383,6 +388,7 @@ define( [ "browser/utils", "ace/ace", "agent/command-template", "agent/command-h
                             + $xmlHttpRequest.statusText + ": Verify your account is a member of the admin group." ) ;
                 }
                 formComplete( $xmlHttpRequest.responseJSON )
+                $resultEditorFoldCheckbox.parent().css( "opacity", 1.0 ) ;
             }
         } ;
 
@@ -551,6 +557,25 @@ define( [ "browser/utils", "ace/ace", "agent/command-template", "agent/command-h
 
             console.log( `wrapping output` ) ;
             _resultsAceViewer.getSession().setUseWrapMode( $wrapCheckbox.is( ":checked" ) ) ;
+
+        } ) ;
+        
+        
+        $resultEditorFoldCheckbox.off().change( function () {
+            console.log( "toggling code folds in result editor" ) ;
+
+            if ( $resultEditorFoldCheckbox.is( ':checked' ) ) {
+//                _resultsAceViewer.getSession().setMode( "ace/mode/yaml" ) ;
+//                setTimeout( function() {
+                    _resultsAceViewer.getSession().foldAll( 1 ) ;
+//                }, 200)
+            } else {
+                _resultsAceViewer.getSession().unfold( ) ;
+//                setTimeout( function() {
+//                    _resultsAceViewer.getSession().setMode( "ace/mode/sh" ) ;
+//                }, 200)
+                
+            }
 
         } ) ;
 
@@ -746,7 +771,7 @@ define( [ "browser/utils", "ace/ace", "agent/command-template", "agent/command-h
             $( "#scriptText" ).val( _command_editor.getValue() ) ;
             console.log( "content updated" ) ;
         } ) ;
-        
+
 //          _command_editor.on("linkClick", function( e ) {
 //            alert( "got here") ;
 //            console.log("", e) ;
@@ -756,7 +781,7 @@ define( [ "browser/utils", "ace/ace", "agent/command-template", "agent/command-h
 
 
         _resultsAceViewer = aceEditor.edit( $resultsAceViewer.attr( "id" ) ) ;
-        _resultsAceViewer.setOptions( utils.getAceDefaults( "ace/mode/sh", true ) ) ;
+        _resultsAceViewer.setOptions( utils.getAceDefaults( "ace/mode/yaml", true ) ) ;
         _resultsAceViewer.setTheme( "ace/theme/tomorrow_night" ) ;
 
     }

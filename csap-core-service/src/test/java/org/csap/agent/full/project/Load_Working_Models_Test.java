@@ -657,7 +657,7 @@ class Load_Working_Models_Test {
 						.hasSize(
 								4 )
 						.contains(
-								"mainHostA",
+								"main-host-a",
 								"localhost",
 								"middlewareA2Host-dev98",
 								"SampleHostB-dev99" ) ;
@@ -968,7 +968,7 @@ class Load_Working_Models_Test {
 						"csap-dev02",
 						"csapdb-dev01",
 						"localhost",
-						"peterDummyVmA",
+						"dummy-vm-a",
 						"xcssp-qa01",
 						"xcssp-qa02",
 						"xfactory-qa01" ) ;

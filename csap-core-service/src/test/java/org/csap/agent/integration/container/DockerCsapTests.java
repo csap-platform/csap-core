@@ -15,8 +15,8 @@ import org.apache.hc.core5.util.Timeout ;
 import org.csap.agent.CsapThinTests ;
 import org.csap.agent.DockerConfiguration ;
 import org.csap.agent.DockerSettings ;
+import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.container.ContainerProcess ;
-import org.csap.agent.container.DockerIntegration ;
 import org.csap.agent.container.DockerJson ;
 import org.csap.agent.container.WrapperApacheDockerHttpClientImpl ;
 import org.csap.agent.container.kubernetes.KubernetesJson ;
@@ -46,7 +46,7 @@ import com.github.dockerjava.core.DockerClientBuilder ;
 @DisplayName ( "Docker Api: org.csap tests" )
 class DockerCsapTests extends CsapThinTests {
 
-	DockerIntegration csapDocker ;
+	ContainerIntegration csapDocker ;
 
 	DockerSettings docker ; // injected via: application-localhost.yml
 
@@ -126,7 +126,7 @@ class DockerCsapTests extends CsapThinTests {
 		dockerConfig.setDocker( docker ) ;
 		dockerConfig.setCsapApp( getApplication( ) ) ;
 		dockerConfig.setTestClient( dockerClient ) ;
-		csapDocker = new DockerIntegration( dockerConfig, getJsonMapper( ) ) ;
+		csapDocker = new ContainerIntegration( dockerConfig, getJsonMapper( ) ) ;
 		Assumptions.assumeTrue( csapDocker.buildSummary( ).path( KubernetesJson.heartbeat.json( ) ).asBoolean( ) ) ;
 
 	}
@@ -193,7 +193,7 @@ class DockerCsapTests extends CsapThinTests {
 
 		logger.info( CsapApplication.testHeader( ) ) ;
 
-		ArrayNode containerListing = csapDocker.containers( false ) ;
+		ArrayNode containerListing = csapDocker.containerListing( false ) ;
 
 		logger.info( "containerListing - count: '{}' \n {}",
 				containerListing.size( ),
@@ -220,7 +220,7 @@ class DockerCsapTests extends CsapThinTests {
 
 		// CSAP.setLogToDebug( DockerIntegration.class.getName() ) ;
 		ObjectNode pullResults = csapDocker.imagePull( testImageName, null, 60, 3 ) ;
-		CSAP.setLogToInfo( DockerIntegration.class.getName( ) ) ;
+		CSAP.setLogToInfo( ContainerIntegration.class.getName( ) ) ;
 
 		logger.info( "pullResults: {}", CSAP.jsonPrint( pullResults ) ) ;
 
@@ -243,7 +243,7 @@ class DockerCsapTests extends CsapThinTests {
 
 		// CSAP.setLogToDebug( DockerIntegration.class.getName() ) ;
 		ObjectNode pullResults = csapDocker.imagePull( testImageName, null, 60, 5 ) ;
-		CSAP.setLogToInfo( DockerIntegration.class.getName( ) ) ;
+		CSAP.setLogToInfo( ContainerIntegration.class.getName( ) ) ;
 
 		logger.info( "pullResults: \n {}", CSAP.jsonPrint( pullResults ) ) ;
 
@@ -275,7 +275,7 @@ class DockerCsapTests extends CsapThinTests {
 
 		// CSAP.setLogToDebug( DockerIntegration.class.getName() ) ;
 		ObjectNode pullResults = csapDocker.imagePull( testImageName, null, 5, 2 ) ;
-		CSAP.setLogToInfo( DockerIntegration.class.getName( ) ) ;
+		CSAP.setLogToInfo( ContainerIntegration.class.getName( ) ) ;
 
 		logger.info( "pullResults: \n {}", CSAP.jsonPrint( pullResults ) ) ;
 
@@ -348,7 +348,7 @@ class DockerCsapTests extends CsapThinTests {
 					return imageJson.get(
 							DockerJson.list_label.json( ) ).asText( )
 							// ignore leading source which may be ommitted
-							.contains( DockerIntegration.simpleImageName( BUSY_BOX ) ) ;
+							.contains( ContainerIntegration.simpleImageName( BUSY_BOX ) ) ;
 
 				} )
 				.findFirst( ) ;
@@ -364,9 +364,9 @@ class DockerCsapTests extends CsapThinTests {
 
 		String testImageName = "hello-world" ;
 
-		CSAP.setLogToDebug( DockerIntegration.class.getName( ) ) ;
+		CSAP.setLogToDebug( ContainerIntegration.class.getName( ) ) ;
 		ObjectNode pullResults = csapDocker.imagePull( testImageName, null, 60, 3 ) ;
-		CSAP.setLogToInfo( DockerIntegration.class.getName( ) ) ;
+		CSAP.setLogToInfo( ContainerIntegration.class.getName( ) ) ;
 
 		logger.info( "Image pulled: {}", CSAP.jsonPrint( pullResults ) ) ;
 		assertThat( pullResults.path( DockerJson.error.json( ) ).asBoolean( ) ).as( "no errors during pull" )
@@ -435,7 +435,7 @@ class DockerCsapTests extends CsapThinTests {
 		Optional<Container> container = csapDocker.findContainerUsingLabel( searchLabel, kubernetes_service ) ;
 		Assumptions.assumeTrue( container.isPresent( ) ) ;
 
-		ObjectNode tailResults = csapDocker.containerTail( null, container.get( ).getNames( )[0], 10, 1 ) ;
+		ObjectNode tailResults = csapDocker.containerTail( null, container.get( ).getNames( )[ 0 ], 10, 1 ) ;
 
 		logger.info( "tailResults: \n {}", CSAP.jsonPrint( tailResults ) ) ;
 
@@ -452,7 +452,7 @@ class DockerCsapTests extends CsapThinTests {
 		// ,\"TZ=US/Eastern\" will be added by start
 		String environmentVariables = "[\"testVar=testVal\"]" ;
 
-		csapDocker.imagePull( DockerIntegration.DOCKER_DEFAULT_IMAGE, null, 60, 3 ) ;
+		csapDocker.imagePull( ContainerIntegration.DOCKER_DEFAULT_IMAGE, null, 60, 3 ) ;
 
 		ServiceInstance service = new ServiceInstance( ) ;
 
@@ -554,7 +554,7 @@ class DockerCsapTests extends CsapThinTests {
 
 		assertThat( volCreateResponse.get( DockerJson.response_info.json( ) ).asText( ) )
 				.as( "Volume skipped" )
-				.isEqualTo( DockerIntegration.SKIPPING_VOLUME_CREATE ) ;
+				.isEqualTo( ContainerIntegration.SKIPPING_VOLUME_CREATE ) ;
 
 		ObjectNode volDeleteResponse = csapDocker.volumeDelete( VOLUME_TEST ) ;
 		logger.info( "volDeleteResponse: \n {}", CSAP.jsonPrint( volDeleteResponse ) ) ;
@@ -604,7 +604,7 @@ class DockerCsapTests extends CsapThinTests {
 		logger.info( "diskCreateResponse: \n {}", CSAP.jsonPrint( network_created_response ) ) ;
 		assertThat( networkCreateSkippedResponse.get( DockerJson.response_info.json( ) ).asText( ) )
 				.as( "network skipped" )
-				.isEqualTo( DockerIntegration.SKIPPING_NETWORK_CREATE ) ;
+				.isEqualTo( ContainerIntegration.SKIPPING_NETWORK_CREATE ) ;
 
 		// CSAP.jsonStream( dockerHelper.networkList() )
 		// .filter( network -> network.path( DockerJson.list_label.json()
@@ -634,7 +634,7 @@ class DockerCsapTests extends CsapThinTests {
 
 		logger.info( "loaded template: \n {}", CSAP.jsonPrint( dockerDefinitionWithCreates ) ) ;
 
-		csapDocker.imagePull( DockerIntegration.DOCKER_DEFAULT_IMAGE, null, 60, 3 ) ;
+		csapDocker.imagePull( ContainerIntegration.DOCKER_DEFAULT_IMAGE, null, 60, 3 ) ;
 
 		ServiceInstance service = new ServiceInstance( ) ;
 

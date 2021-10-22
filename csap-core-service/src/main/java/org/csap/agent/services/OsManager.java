@@ -44,8 +44,8 @@ import javax.servlet.http.HttpServletResponse ;
 import org.apache.commons.lang3.StringUtils ;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory ;
 import org.csap.agent.CsapCore ;
+import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.container.ContainerProcess ;
-import org.csap.agent.container.DockerIntegration ;
 import org.csap.agent.container.DockerJson ;
 import org.csap.agent.container.kubernetes.KubernetesIntegration ;
 import org.csap.agent.integrations.CsapEvents ;
@@ -53,8 +53,8 @@ import org.csap.agent.linux.InfrastructureRunner ;
 import org.csap.agent.linux.LogRollerRunnable ;
 import org.csap.agent.linux.OsCommandRunner ;
 import org.csap.agent.linux.OutputFileMgr ;
+import org.csap.agent.linux.ResourceCollector ;
 import org.csap.agent.linux.ServiceJobRunner ;
-import org.csap.agent.linux.ServiceResourceRunnable ;
 import org.csap.agent.linux.TopRunnable ;
 import org.csap.agent.linux.TransferManager ;
 import org.csap.agent.linux.ZipUtility ;
@@ -92,12 +92,16 @@ import io.micrometer.core.annotation.Timed ;
 @EnableConfigurationProperties ( OsCommands.class )
 public class OsManager {
 
+	public static final String CRIO_DELIMETER = "crio---" ;
+
 	private OsCommands osCommands ;
 
 	public static final String IO_UTIL_IN_PERCENT = "ioUtilInPercent" ;
 	public static final String SWAP = "swap" ;
 	public static final String RAM = "ram" ;
 	public static final String BUFFER = "buffer" ;
+
+	public static final String COLLECT_OS = "collect-os." ;
 
 	final Logger logger = LoggerFactory.getLogger( this.getClass( ) ) ;
 
@@ -267,7 +271,7 @@ public class OsManager {
 			int lsofInterval = csapApp.rootProjectEnvSettings( )
 					.getLsofIntervalMins( ) ;
 
-			serviceResourceRunnable = new ServiceResourceRunnable( csapApp, osCommandRunner ) ;
+			serviceResourceRunnable = new ResourceCollector( csapApp, osCommandRunner ) ;
 
 			intenseOsCommandExecutor.scheduleWithFixedDelay(
 					serviceResourceRunnable,
@@ -457,15 +461,16 @@ public class OsManager {
 		return jsonMapper.convertValue( processMapper.getLatestDiscoveredProcesses( ), ArrayNode.class ) ;
 
 	}
-	
-	public boolean isProcessRunning( String namePattern ) {
-		
+
+	public boolean isProcessRunning ( String namePattern ) {
+
 		var optionalMatch = processMapper.getLatestDiscoveredProcesses( ).stream( )
-			.map( OsProcess::getParameters )
-			.filter( params -> params.matches( namePattern ) )
-			.findFirst( );
-		
-		return optionalMatch.isPresent( );
+				.map( OsProcess::getParameters )
+				.filter( params -> params.matches( namePattern ) )
+				.findFirst( ) ;
+
+		return optionalMatch.isPresent( ) ;
+
 	}
 
 	/**
@@ -586,7 +591,7 @@ public class OsManager {
 
 			}
 
-			csapApp.metrics( ).stopTimer( timer, "collect-os.cpu-metrics" ) ;
+			csapApp.metrics( ).stopTimer( timer, COLLECT_OS + "cpu-metrics" ) ;
 
 		}
 
@@ -620,22 +625,22 @@ public class OsManager {
 
 		for ( int i = 0; i < mpLines.length; i++ ) {
 
-			String curline = mpLines[i].trim( ) ;
+			String curline = mpLines[ i ].trim( ) ;
 			String[] cols = curline.split( " " ) ;
 
-			if ( cols.length < 11 || cols[1].equalsIgnoreCase( "cpu" )
-					|| cols[0].startsWith( "_" ) ) {
+			if ( cols.length < 11 || cols[ 1 ].equalsIgnoreCase( "cpu" )
+					|| cols[ 0 ].startsWith( "_" ) ) {
 
 				logger.debug( "Skipping line: {}", curline ) ;
 				continue ;
 
 			}
 
-			String name = cols[1] ;
+			String name = cols[ 1 ] ;
 
 			ObjectNode cpuNode = mpNode.putObject( name ) ;
 
-			cpuNode.put( "time", cols[0] + cols[1] ) ;
+			cpuNode.put( "time", cols[ 0 ] + cols[ 1 ] ) ;
 
 			if ( ! name.equals( "all" ) ) {
 
@@ -644,15 +649,15 @@ public class OsManager {
 			}
 
 			cpuNode.put( "cpu", name ) ;
-			cpuNode.put( "puser", cols[2] ) ;
-			cpuNode.put( "pnice", cols[3] ) ;
-			cpuNode.put( "psys", cols[4] ) ;
-			cpuNode.put( "pio", cols[5] ) ;
-			cpuNode.put( "pirq", cols[6] ) ;
-			cpuNode.put( "psoft", cols[7] ) ;
-			cpuNode.put( "psteal", cols[8] ) ;
-			cpuNode.put( "pidle", cols[9] ) ;
-			cpuNode.put( "intr", cols[10] ) ;
+			cpuNode.put( "puser", cols[ 2 ] ) ;
+			cpuNode.put( "pnice", cols[ 3 ] ) ;
+			cpuNode.put( "psys", cols[ 4 ] ) ;
+			cpuNode.put( "pio", cols[ 5 ] ) ;
+			cpuNode.put( "pirq", cols[ 6 ] ) ;
+			cpuNode.put( "psoft", cols[ 7 ] ) ;
+			cpuNode.put( "psteal", cols[ 8 ] ) ;
+			cpuNode.put( "pidle", cols[ 9 ] ) ;
+			cpuNode.put( "intr", cols[ 10 ] ) ;
 
 		}
 
@@ -660,7 +665,7 @@ public class OsManager {
 
 	}
 
-	private ServiceResourceRunnable serviceResourceRunnable = null ;
+	private ResourceCollector serviceResourceRunnable = null ;
 
 	private void updateCachesWithTestData ( ) {
 
@@ -743,10 +748,10 @@ public class OsManager {
 
 			for ( int i = 0; i < roLines.length; i++ ) {
 
-				if ( roLines[i].trim( ).length( ) > 0
-						&& ! roLines[i].contains( OsCommandRunner.HEADER_TOKEN ) ) {
+				if ( roLines[ i ].trim( ).length( ) > 0
+						&& ! roLines[ i ].contains( OsCommandRunner.HEADER_TOKEN ) ) {
 
-					readOnlyResults.add( roLines[i].trim( ) ) ;
+					readOnlyResults.add( roLines[ i ].trim( ) ) ;
 
 				}
 
@@ -816,7 +821,7 @@ public class OsManager {
 
 			for ( int i = 0; i < whoLines.length; i++ ) {
 
-				String curline = whoLines[i].trim( ) ;
+				String curline = whoLines[ i ].trim( ) ;
 
 				String[] cols = curline.split( " " ) ;
 
@@ -906,20 +911,20 @@ public class OsManager {
 					networkIO.put( RECEIVE_MB,
 							twoDecimals.format(
 									networkIO.path( RECEIVE_MB ).asDouble( 0 )
-											+ Double.parseDouble( interfaceColumns[1] ) / CSAP.MB_FROM_BYTES ) ) ;
+											+ Double.parseDouble( interfaceColumns[ 1 ] ) / CSAP.MB_FROM_BYTES ) ) ;
 
 					networkIO.put( "readErrors",
 							networkIO.path( "readErrors" ).asInt( 0 )
-									+ Integer.parseInt( interfaceColumns[3] ) ) ;
+									+ Integer.parseInt( interfaceColumns[ 3 ] ) ) ;
 
 					networkIO.put( TRANSMIT_MB,
 							twoDecimals.format(
 									networkIO.path( TRANSMIT_MB ).asDouble( 0 )
-											+ Double.parseDouble( interfaceColumns[9] ) / CSAP.MB_FROM_BYTES ) ) ;
+											+ Double.parseDouble( interfaceColumns[ 9 ] ) / CSAP.MB_FROM_BYTES ) ) ;
 
 					networkIO.put( "transmitErrors",
 							networkIO.path( "transmitErrors" ).asInt( 0 )
-									+ Integer.parseInt( interfaceColumns[11] ) ) ;
+									+ Integer.parseInt( interfaceColumns[ 11 ] ) ) ;
 
 				} else {
 
@@ -1012,13 +1017,13 @@ public class OsManager {
 					.filter( columns -> columns.length <= 5 )
 					.forEach( columns -> {
 
-						switch ( columns[0] ) {
+						switch ( columns[ 0 ] ) {
 
 						case "Name:":
 							if ( columns.length == 2 ) {
 
-								nodeReports.put( "nodeName", columns[1] ) ;
-								nodeReports.putObject( columns[1] ) ;
+								nodeReports.put( "nodeName", columns[ 1 ] ) ;
+								nodeReports.putObject( columns[ 1 ] ) ;
 
 							}
 							break ;
@@ -1032,7 +1037,7 @@ public class OsManager {
 
 							if ( nodeReport.isObject( ) ) {
 
-								var sectionName = columns[0].split( ":" )[0] ;
+								var sectionName = columns[ 0 ].split( ":" )[ 0 ] ;
 								nodeReports.put( "sectionName", sectionName ) ;
 								var node = (ObjectNode) nodeReport ;
 								node.putObject( sectionName ) ;
@@ -1061,19 +1066,19 @@ public class OsManager {
 									if ( sectionReport.isObject( ) ) {
 
 										var section = (ObjectNode) sectionReport ;
-										var metricName = columns[0].split( ":" )[0] ;
+										var metricName = columns[ 0 ].split( ":" )[ 0 ] ;
 
 										if ( columns.length == 2 ) {
 
-											section.put( metricName, columns[1] ) ;
+											section.put( metricName, columns[ 1 ] ) ;
 
 										} else {
 
 											var metricReport = section.putObject( metricName ) ;
-											metricReport.put( "request", columns[1] ) ;
-											metricReport.put( "requestPercent", stripParens( columns[2] ) ) ;
-											metricReport.put( "limit", columns[3] ) ;
-											metricReport.put( "limitPercent", stripParens( columns[4] ) ) ;
+											metricReport.put( "request", columns[ 1 ] ) ;
+											metricReport.put( "requestPercent", stripParens( columns[ 2 ] ) ) ;
+											metricReport.put( "limit", columns[ 3 ] ) ;
+											metricReport.put( "limitPercent", stripParens( columns[ 4 ] ) ) ;
 
 										}
 
@@ -1179,14 +1184,14 @@ public class OsManager {
 
 			if ( cols.length == 16 ) {
 
-				updatedHostSummary.put( "openFiles", cols[1] ) ;
-				updatedHostSummary.put( "totalThreads", cols[3] ) ;
-				updatedHostSummary.put( "csapThreads", cols[5] ) ;
-				updatedHostSummary.put( "totalFileDescriptors", cols[7] ) ;
-				updatedHostSummary.put( "csapFileDescriptors", cols[9] ) ;
-				updatedHostSummary.put( "networkConns", cols[11] ) ;
-				updatedHostSummary.put( "networkWait", cols[13] ) ;
-				updatedHostSummary.put( "networkTimeWait", StringUtils.strip( cols[15], "\n" ) ) ;
+				updatedHostSummary.put( "openFiles", cols[ 1 ] ) ;
+				updatedHostSummary.put( "totalThreads", cols[ 3 ] ) ;
+				updatedHostSummary.put( "csapThreads", cols[ 5 ] ) ;
+				updatedHostSummary.put( "totalFileDescriptors", cols[ 7 ] ) ;
+				updatedHostSummary.put( "csapFileDescriptors", cols[ 9 ] ) ;
+				updatedHostSummary.put( "networkConns", cols[ 11 ] ) ;
+				updatedHostSummary.put( "networkWait", cols[ 13 ] ) ;
+				updatedHostSummary.put( "networkTimeWait", StringUtils.strip( cols[ 15 ], "\n" ) ) ;
 
 			} else {
 
@@ -1300,17 +1305,6 @@ public class OsManager {
 
 			networkDevices = mergedLines ;
 
-//			networkDevices = Arrays.stream( serviceLines )
-//					.filter( StringUtils::isNotEmpty )
-//					.filter( line -> {
-//						if ( line.charAt( 0 ) != ' ') {
-//							return true;
-//						}
-//						return false;
-//					})
-//					.map( line -> line.replaceAll("<", "").replaceAll(">", "") )
-//					.collect( Collectors.toList( ) ) ;
-
 			setCachedNetworkInterfaceCount( networkDevices.size( ) ) ;
 
 		} catch ( IOException e ) {
@@ -1320,7 +1314,7 @@ public class OsManager {
 
 		}
 
-		csapApp.metrics( ).stopTimer( timer, "collect-os.linux-devices-ip" ) ;
+		csapApp.metrics( ).stopTimer( timer, COLLECT_OS + "linux-devices-ip" ) ;
 
 		return networkDevices ;
 
@@ -1367,7 +1361,7 @@ public class OsManager {
 
 					if ( ! hostIP.equals( name ) ) {
 
-						name = hostSplit( name )[0] ;
+						name = hostSplit( name )[ 0 ] ;
 
 					} else {
 
@@ -1423,13 +1417,13 @@ public class OsManager {
 
 			if ( tokens.length == 2 ) {
 
-				resolvedHost = ipToHostName( tokens[0] ) + ":" + tokens[1] ;
+				resolvedHost = ipToHostName( tokens[ 0 ] ) + ":" + tokens[ 1 ] ;
 
 			}
 
 			if ( tokens.length == 5 ) {
 
-				resolvedHost = ipToHostName( tokens[3] ) + ":" + tokens[4] ;
+				resolvedHost = ipToHostName( tokens[ 3 ] ) + ":" + tokens[ 4 ] ;
 
 			}
 
@@ -1466,7 +1460,7 @@ public class OsManager {
 
 						if ( columns.length == 6 ) {
 
-							var portId = columns[3] ;
+							var portId = columns[ 3 ] ;
 
 							try {
 
@@ -1474,7 +1468,7 @@ public class OsManager {
 
 								if ( labels.length > 1 ) {
 
-									portId = labels[labels.length - 1] ;
+									portId = labels[ labels.length - 1 ] ;
 
 								}
 
@@ -1484,14 +1478,14 @@ public class OsManager {
 
 							}
 
-							var peer = columns[4] ;
+							var peer = columns[ 4 ] ;
 
-							var processName = columns[5] ;
+							var processName = columns[ 5 ] ;
 							var users = processName.split( "\"", 3 ) ;
 
 							if ( users.length == 3 ) {
 
-								processName = users[1] ;
+								processName = users[ 1 ] ;
 
 							}
 
@@ -1541,16 +1535,16 @@ public class OsManager {
 
 							}
 
-							var details = columns[5] ;
+							var details = columns[ 5 ] ;
 							var pid = findFirstPidInSSDetails( details ) ;
 							portDetails.put( "csapNoSort", true ) ;
 							portDetails.put( "port", portId ) ;
 							portDetails.put( "pid", pid ) ;
 							portDetails.put( "processName", processName ) ;
-							portDetails.put( "state", columns[0] ) ;
-							portDetails.put( "recv-q", columns[1] ) ;
-							portDetails.put( "send-q", columns[2] ) ;
-							portDetails.put( "local", resolveSocketHost( columns[3] ) ) ;
+							portDetails.put( "state", columns[ 0 ] ) ;
+							portDetails.put( "recv-q", columns[ 1 ] ) ;
+							portDetails.put( "send-q", columns[ 2 ] ) ;
+							portDetails.put( "local", resolveSocketHost( columns[ 3 ] ) ) ;
 							portDetails.put( "peer", resolveSocketHost( peer ) ) ;
 							portDetails.put( "details", details ) ;
 
@@ -1566,7 +1560,7 @@ public class OsManager {
 
 		}
 
-		csapApp.metrics( ).stopTimer( timer, "collect-os.socket-connections" ) ;
+		csapApp.metrics( ).stopTimer( timer, COLLECT_OS + "socket-connections" ) ;
 
 		return portReport ;
 
@@ -1615,7 +1609,7 @@ public class OsManager {
 
 						if ( columns.length == 6 ) {
 
-							var portId = columns[3] ;
+							var portId = columns[ 3 ] ;
 
 							try {
 
@@ -1623,7 +1617,7 @@ public class OsManager {
 
 								if ( labels.length > 1 ) {
 
-									portId = labels[labels.length - 1] ;
+									portId = labels[ labels.length - 1 ] ;
 
 								}
 
@@ -1663,17 +1657,17 @@ public class OsManager {
 
 							}
 
-							var details = columns[5] ;
+							var details = columns[ 5 ] ;
 							var pid = findFirstPidInSSDetails( details ) ;
 
 							portDetails.put( "csapNoSort", true ) ;
 							portDetails.put( "port", portId ) ;
 							portDetails.put( "pid", pid ) ;
-							portDetails.put( "state", columns[0] ) ;
-							portDetails.put( "recv-q", columns[1] ) ;
-							portDetails.put( "send-q", columns[2] ) ;
-							portDetails.put( "local", columns[3] ) ;
-							portDetails.put( "peer", columns[4] ) ;
+							portDetails.put( "state", columns[ 0 ] ) ;
+							portDetails.put( "recv-q", columns[ 1 ] ) ;
+							portDetails.put( "send-q", columns[ 2 ] ) ;
+							portDetails.put( "local", columns[ 3 ] ) ;
+							portDetails.put( "peer", columns[ 4 ] ) ;
 							portDetails.put( "details", details ) ;
 
 						}
@@ -1688,7 +1682,7 @@ public class OsManager {
 
 		}
 
-		csapApp.metrics( ).stopTimer( timer, "collect-os.socket-listeners" ) ;
+		csapApp.metrics( ).stopTimer( timer, COLLECT_OS + "socket-listeners" ) ;
 
 		return portReport ;
 
@@ -1727,7 +1721,7 @@ public class OsManager {
 
 		}
 
-		csapApp.metrics( ).stopTimer( timer, "collect-os.linux-packages" ) ;
+		csapApp.metrics( ).stopTimer( timer, COLLECT_OS + "linux-packages" ) ;
 
 		return linuxRpms ;
 
@@ -1828,7 +1822,7 @@ public class OsManager {
 
 		}
 
-		csapApp.metrics( ).stopTimer( timer, "collect-os.linux-services" ) ;
+		csapApp.metrics( ).stopTimer( timer, COLLECT_OS + "linux-services" ) ;
 
 		return linuxSystemdServices ;
 
@@ -1995,6 +1989,333 @@ public class OsManager {
 
 	}
 
+	private volatile CsapSimpleCache crioPsCache = null ;
+
+	public ObjectNode getCachedCrioPs ( ) {
+
+		logger.debug( "Entered " ) ;
+
+		if ( crioPsCache == null ) {
+
+			crioPsCache = CsapSimpleCache.builder(
+					2,
+					TimeUnit.SECONDS,
+					OsManager.class,
+					"Crio Ps" ) ;
+			crioPsCache.expireNow( ) ;
+
+		}
+
+		// Use cache
+		if ( ! crioPsCache.isExpired( ) ) {
+
+			logger.debug( "\n\n***** ReUsing  crioPsCache   *******\n\n" ) ;
+
+			return (ObjectNode) crioPsCache.getCachedObject( ) ;
+
+		}
+
+		// Lets refresh cache
+		logger.debug( "\n\n***** Refreshing crioPsCache   *******\n\n" ) ;
+
+		try {
+
+			// run as root to pick up docker and kubelet filesystems
+			var criPsOutput = osCommandRunner.runUsingRootUser( "crio-ps", osCommands.getCriPs( ) ) ;
+
+			logger.debug( "criPsOutput: {}", criPsOutput ) ;
+
+			criPsOutput = csapApp.check_for_stub( criPsOutput, "crio/crictl-ps.json" ) ;
+
+			crioPsCache.reset( jsonMapper.readTree( criPsOutput ) ) ;
+
+		} catch ( Exception e ) {
+
+			logger.error( "Failed to write output: {}", CSAP.buildCsapStack( e ) ) ;
+
+		}
+
+		return (ObjectNode) crioPsCache.getCachedObject( ) ;
+
+	}
+
+	private volatile CsapSimpleCache crioPidCache = null ;
+
+	public ObjectNode getCachedCrioPidReport ( ) {
+
+		logger.debug( "Entered " ) ;
+
+		if ( crioPidCache == null ) {
+
+			crioPidCache = CsapSimpleCache.builder(
+					2,
+					TimeUnit.SECONDS,
+					OsManager.class,
+					"crio-pid-report" ) ;
+			crioPidCache.expireNow( ) ;
+
+		}
+
+		// Use cache
+		if ( ! crioPidCache.isExpired( ) ) {
+
+			logger.debug( "\n\n***** ReUsing  crioPidCache   *******\n\n" ) ;
+
+			return (ObjectNode) crioPidCache.getCachedObject( ) ;
+
+		}
+
+		// Lets refresh cache
+		logger.debug( "\n\n***** Refreshing crioPidCache   *******\n\n" ) ;
+
+		try {
+
+			var pidReport = jsonMapper.createObjectNode( ) ;
+			var usedNames = new ArrayList<String>( ) ;
+
+			// run as root to pick up docker and kubelet filesystems
+			var criPidOutput = osCommandRunner.runUsingRootUser( "crio-ps", osCommands.getCriPidReport( ) ) ;
+
+			criPidOutput = csapApp.check_for_stub( criPidOutput, "crio/crio-pids.txt" ) ;
+			logger.debug( "criPidOutput: {}", criPidOutput ) ;
+
+			var outputLines = OsCommandRunner.trimHeader( criPidOutput ).split( LINE_SEPARATOR ) ;
+
+			Arrays.stream( outputLines )
+					.filter( StringUtils::isNotEmpty )
+					.filter( line -> ! line.startsWith( "#" ) )
+					.map( String::trim )
+					.map( line -> line.split( "," ) )
+
+					.filter( csvArray -> csvArray.length == 3 )
+					.forEach( csvArray -> {
+
+						var labelsRaw = csvArray[ 0 ] ;
+						var labelsSpaceSeparated = labelsRaw.substring( 4, labelsRaw.length( ) - 1 ) ;
+
+						var labelEntries = OsCommandRunner.trimHeader( labelsSpaceSeparated ).split( " " ) ;
+						var labelReport = Arrays.stream( labelEntries )
+								.filter( StringUtils::isNotEmpty )
+								.map( line -> line.split( ":" ) )
+								.filter( labelVal -> labelVal.length == 2 )
+								.collect( Collectors.toMap(
+										labelVal -> labelVal[ 0 ],
+										labelVal -> labelVal[ 1 ] ) ) ;
+
+						if ( labelReport.containsKey( "io.kubernetes.pod.name" ) ) {
+//
+
+//							var containerLabel = labelReport.get( "io.kubernetes.pod.name" )
+//									+ ","
+//									+ labelReport.get( "io.kubernetes.container.name" ) ;
+
+							var containerLabel = CRIO_DELIMETER + labelReport.get( "io.kubernetes.pod.namespace" )
+									+ "---" + labelReport.get( "io.kubernetes.pod.name" )
+									+ "---" + labelReport.get( "io.kubernetes.container.name" ) ;
+
+//							if ( usedNames.contains( containerLabel ) ) {
+//
+//								containerLabel += "---" + labelReport.get( "io.kubernetes.container.name" ) ;
+//
+//							}
+
+							usedNames.add( containerLabel ) ;
+
+							var item = pidReport.putObject( containerLabel ) ;
+							item.put( "name", containerLabel ) ;
+							item.put( "pid", csvArray[ 1 ] ) ;
+							item.put( "id", csvArray[ 2 ] ) ;
+
+							labelReport.entrySet( ).stream( ).forEach( entry -> {
+
+								item.put( entry.getKey( ), entry.getValue( ) ) ;
+
+							} ) ;
+
+						}
+
+					} ) ;
+
+			logger.debug( "pidReport: {}", pidReport ) ;
+			crioPidCache.reset( pidReport ) ;
+
+		} catch ( Exception e ) {
+
+			logger.error( "Failed to write output: {}", CSAP.buildCsapStack( e ) ) ;
+
+		}
+
+		return (ObjectNode) crioPidCache.getCachedObject( ) ;
+
+	}
+
+	public String buildCrioFileListing ( String containerId , String path ) {
+
+		logger.debug( "Entered " ) ;
+		var listing = "" ;
+
+		try {
+
+			var script = List.of( "#!/bin/bash", "crictl exec " + containerId + " ls -l " + path ) ;
+
+			logger.debug( "script: {}", script ) ;
+
+			// run as root to pick up docker and kubelet filesystems
+			var criInspectOutput = osCommandRunner.runUsingRootUser(
+					"crio-inspect",
+					script ) ;
+
+			listing = csapApp.check_for_stub( criInspectOutput, "crio/crictl-ls.txt" ) ;
+
+		} catch ( Exception e ) {
+
+			logger.error( "Failed to get listing: {}", CSAP.buildCsapStack( e ) ) ;
+			;
+
+		}
+
+		return listing ;
+
+	}
+
+	public String getCrioFileContents ( String containerId , String path , long maxEditSize ) {
+
+		logger.debug( "Entered " ) ;
+		var listing = "" ;
+
+		try {
+
+			var script = List.of( "#!/bin/bash", "crictl exec " + containerId + " tail -c " + Long.toString(
+					maxEditSize ) + " " + path ) ;
+
+			logger.debug( "script: {}", script ) ;
+
+			// run as root to pick up docker and kubelet filesystems
+			var criInspectOutput = osCommandRunner.runUsingRootUser(
+					"crio-inspect",
+					script ) ;
+
+			listing = csapApp.check_for_stub( criInspectOutput, "crio/crictl-inspect-calico.json" ) ;
+
+		} catch ( Exception e ) {
+
+			logger.error( "Failed to get listing: {}", CSAP.buildCsapStack( e ) ) ;
+			;
+
+		}
+
+		return listing ;
+
+	}
+
+//	public ObjectNode writeFileToContainer (
+//											String contents ,
+//											String containerName ,
+//											String pathToFile ,
+//											long maxEditSize ,
+//											int chunkSize ) {
+//
+//	ObjectNode resultReport = jsonMapper.createObjectNode( ) ;
+//
+//	logger.info( "Container: {}, path: {}, maxEditSize: {}", containerName, pathToFile, maxEditSize ) ;
+//	Optional<Container> matchContainer = findContainerByName( containerName ) ;
+//
+//	if ( matchContainer.isPresent( ) ) {
+//
+//		try {
+//
+//			var requestedFilePath = Paths.get( pathToFile ) ;
+//			var requestedFileParent = requestedFilePath.getParent( ).toString( ) ;
+//
+//			if ( File.separatorChar == '\\' ) {
+//
+//				logger.warn( "Windows Conversion: {}", requestedFileParent ) ;
+//				requestedFileParent = FilenameUtils.separatorsToUnix( requestedFilePath.getParent( ).toString( ) ) ;
+//
+//			}
+//
+//			//
+//			// Create a tar file
+//			//
+//			var tarFile = new File( Application.getInstance( ).getScriptDir( ), containerName + ".tar" ) ;
+//			var sourceFolder = new File( Application.getInstance( ).getScriptDir( ), containerName ) ;
+//			FileUtils.deleteQuietly( sourceFolder ) ;
+//			sourceFolder.mkdirs( ) ;
+//
+//			var tempFileToTarAndTransfer = new File( sourceFolder, requestedFilePath.getFileName( ).toString( ) ) ;
+//			FileUtils.write( tempFileToTarAndTransfer, contents ) ;
+//
+//			logger.debug( "Creating: {} for tar: {}", tempFileToTarAndTransfer, tarFile ) ;
+//
+//			try ( TarArchiveOutputStream tarOuputStream = getTarArchiveOutputStream( tarFile ) ) {
+//
+//				addToArchiveCompression( tarOuputStream, tempFileToTarAndTransfer, "." ) ;
+//
+//			}
+//
+//			//
+//			// transfer to docker host
+//			//
+//			try ( var tarInputStream = //
+//					new FileInputStream( tarFile ) ) {
+//
+//				dockerClient.copyArchiveToContainerCmd( matchContainer.get( ).getId( ) )
+////					.withHostResource( sourceFile.getAbsolutePath( ) )
+//						.withTarInputStream( tarInputStream )
+//						.withRemotePath( requestedFileParent )
+//						.exec( ) ;
+//
+//			}
+//
+//			resultReport.put( "success", "Updated container: " + containerName + " path: " + pathToFile ) ;
+//
+//		} catch ( Exception e ) {
+//
+//			logger.warn( "Failed writing file: {}", CSAP.buildCsapStack( e ) ) ;
+//			resultReport.put( "error", "Failed writing to container: " + e.getLocalizedMessage( ) ) ;
+//
+//		}
+//
+//	} else {
+//
+//		resultReport.put( "error", "Failed to locate container: " + containerName ) ;
+//
+//	}
+//
+//	return resultReport ;
+//
+//}
+
+	public ObjectNode getCrioInspect ( String id ) {
+
+		logger.debug( "Entered " ) ;
+
+		var inspectReport = jsonMapper.createObjectNode( ) ;
+
+		try {
+
+			// run as root to pick up docker and kubelet filesystems
+			var criInspectOutput = osCommandRunner.runUsingRootUser( "crio-inspect", osCommands.getCriInspect(
+					id ) ) ;
+
+			// logger.info( "criPsOutput: {}", criInspectOutput ) ;
+
+			criInspectOutput = csapApp.check_for_stub( criInspectOutput, "crio/crictl-inspect-calico.json" ) ;
+
+			inspectReport = (ObjectNode) jsonMapper.readTree( criInspectOutput ) ;
+
+		} catch ( Exception e ) {
+
+			logger.error( "Failed to write output: {}", CSAP.buildCsapStack( e ) ) ;
+			inspectReport.put( "error", e.getMessage( ) ) ;
+			inspectReport.put( "reason", CSAP.buildCsapStack( e ) ) ;
+
+		}
+
+		return inspectReport ;
+
+	}
+
 	private volatile CsapSimpleCache diskStatisticsCache = null ;
 
 	public ObjectNode getCachedFileSystemInfo ( ) {
@@ -2041,25 +2362,25 @@ public class OsManager {
 
 			for ( int i = 0; i < dfLines.length; i++ ) {
 
-				String curline = dfLines[i].trim( ) ;
+				String curline = dfLines[ i ].trim( ) ;
 				String[] cols = curline.split( " ", 7 ) ;
 
-				if ( cols.length < 7 || ! cols[6].startsWith( "/" ) ) {
+				if ( cols.length < 7 || ! cols[ 6 ].startsWith( "/" ) ) {
 
 					logger.debug( "Skipping line: {}", curline ) ;
 					continue ;
 
 				}
 
-				ObjectNode fsNode = svcToStatMap.putObject( cols[6] ) ;
+				ObjectNode fsNode = svcToStatMap.putObject( cols[ 6 ] ) ;
 
-				fsNode.put( "dev", cols[0] ) ;
-				fsNode.put( "type", cols[1] ) ;
-				fsNode.put( "sized", cols[2] ) ;
-				fsNode.put( "used", cols[3] ) ;
-				fsNode.put( "avail", cols[4] ) ;
-				fsNode.put( "usedp", cols[5] ) ;
-				fsNode.put( "mount", cols[6] ) ;
+				fsNode.put( "dev", cols[ 0 ] ) ;
+				fsNode.put( "type", cols[ 1 ] ) ;
+				fsNode.put( "sized", cols[ 2 ] ) ;
+				fsNode.put( "used", cols[ 3 ] ) ;
+				fsNode.put( "avail", cols[ 4 ] ) ;
+				fsNode.put( "usedp", cols[ 5 ] ) ;
+				fsNode.put( "mount", cols[ 6 ] ) ;
 				lastCount++ ;
 
 			}
@@ -2638,8 +2959,8 @@ public class OsManager {
 
 					String id = realTimeMeterDefn.get( "id" ).asText( ) ;
 					String[] idComponents = id.split( Pattern.quote( "." ) ) ;
-					String category = idComponents[0] ;
-					String attribute = idComponents[1] ;
+					String category = idComponents[ 0 ] ;
+					String attribute = idComponents[ 1 ] ;
 					logger.debug( "collector: {}, attribute: {} ", category, attribute ) ;
 					// vm. process. jmxCommon. jmxCustom.Service.var
 					// process.topCpu_CsAgent
@@ -2679,7 +3000,7 @@ public class OsManager {
 
 					case osProcess:
 						String csapId[] = attribute.split( "_" ) ;
-						String osStat = csapId[0] ;
+						String osStat = csapId[ 0 ] ;
 
 						addOsProcessMeterReport( serviceName, osStat,
 								latestCollectionReport.path( category ), attribute, processMeterReport ) ;
@@ -2689,7 +3010,7 @@ public class OsManager {
 					case java:
 						// jmxCommon.sessionsActive_test-k8s-csap-reference
 						String javaId[] = attribute.split( "_" ) ;
-						String javaStat = javaId[0] ;
+						String javaStat = javaId[ 0 ] ;
 
 						buildJavaMeterReport( serviceName, javaStat, attribute,
 								latestCollectionReport.path( category ),
@@ -2699,7 +3020,7 @@ public class OsManager {
 
 					case application:
 
-						attribute = idComponents[2] ;
+						attribute = idComponents[ 2 ] ;
 						String qualifiedName = attribute ;
 
 						ServiceInstance service = csapApp.flexFindFirstInstanceCurrentHost( serviceName ) ;
@@ -3010,7 +3331,7 @@ public class OsManager {
 
 	private void collect_disk_and_linux_package ( ) {
 
-		var timer = csapApp.metrics( ).startTimer( ) ;
+		var diskAndPackageTimer = csapApp.metrics( ).startTimer( ) ;
 		// Updates service count
 		getLinuxServices( ) ;
 
@@ -3097,9 +3418,9 @@ public class OsManager {
 		// Collect docker container size
 		//
 
-		csapApp.metrics( ).stopTimer( diskTimer, "collect-os.service-folder-size" ) ;
+		csapApp.metrics( ).stopTimer( diskTimer, COLLECT_OS + "service-folder-size" ) ;
 
-		csapApp.metrics( ).stopTimer( timer, "csap.collect-os.disk-and-devices" ) ;
+		csapApp.metrics( ).stopTimer( diskAndPackageTimer, "csap." + COLLECT_OS + ".disk-and-devices" ) ;
 
 	}
 
@@ -3256,7 +3577,7 @@ public class OsManager {
 
 				try {
 
-					csapApp.metrics( ).record( "collect-os.process-status", ( ) -> {
+					csapApp.metrics( ).record( COLLECT_OS + "process-status", ( ) -> {
 
 						String ps_command_output = osCommandRunner.executeString( null, osCommands
 								.getProcessStatus( ) ) ;
@@ -3270,7 +3591,7 @@ public class OsManager {
 
 					}
 
-					csapApp.metrics( ).record( "collect-os.process-details-docker", ( ) -> {
+					csapApp.metrics( ).record( COLLECT_OS + "process-details-docker", ( ) -> {
 
 						buildDockerPidMapping( ) ;
 
@@ -3294,7 +3615,7 @@ public class OsManager {
 					// get podIps and Update pod Ips
 					if ( csapApp.isKubernetesInstalledAndActive( ) ) {
 
-						csapApp.metrics( ).record( "collect-os.process-map-pod-addresses", ( ) -> {
+						csapApp.metrics( ).record( COLLECT_OS + "process-map-pod-addresses", ( ) -> {
 
 							csapApp.getKubernetesIntegration( ).updatePodIps( csapApp ) ;
 
@@ -3319,7 +3640,7 @@ public class OsManager {
 
 				}
 
-				csapApp.metrics( ).stopTimer( allStepsTimer, "csap.collect-os.process-to-model" ) ;
+				csapApp.metrics( ).stopTimer( allStepsTimer, "csap." + COLLECT_OS + "process-to-model" ) ;
 
 			}
 
@@ -3378,7 +3699,7 @@ public class OsManager {
 
 			}
 
-			csapApp.metrics( ).stopTimer( timer, "collect-os.csap-fs" ) ;
+			csapApp.metrics( ).stopTimer( timer, COLLECT_OS + "csap-fs" ) ;
 			csapFsCache.reset( diskPercent ) ;
 
 		}
@@ -3448,7 +3769,7 @@ public class OsManager {
 
 		for ( int psIndex = 0; psIndex < psLines.length; psIndex++ ) {
 
-			String currLine = psLines[psIndex].trim( ) ;
+			String currLine = psLines[ psIndex ].trim( ) ;
 			String nameToken = "csapProcessId=" ;
 
 			int nameStart = currLine.indexOf( nameToken ) ;
@@ -3589,7 +3910,7 @@ public class OsManager {
 
 				}
 
-				csapApp.metrics( ).stopTimer( timer, "collect-os.device-read-write-rate" ) ;
+				csapApp.metrics( ).stopTimer( timer, COLLECT_OS + "device-read-write-rate" ) ;
 
 			}
 
@@ -3635,7 +3956,7 @@ public class OsManager {
 
 			for ( int i = 0; i < iostatLines.length; i++ ) {
 
-				String curline = CsapCore.singleSpace( iostatLines[i] ) ;
+				String curline = CsapCore.singleSpace( iostatLines[ i ] ) ;
 
 				logger.debug( "Processing line: {}", curline ) ;
 
@@ -3648,8 +3969,8 @@ public class OsManager {
 
 					if ( fields.length == 6 ) {
 
-						totalDiskReadMb += Integer.parseInt( fields[4] ) ;
-						totalDiskWriteMb += Integer.parseInt( fields[5] ) ;
+						totalDiskReadMb += Integer.parseInt( fields[ 4 ] ) ;
+						totalDiskWriteMb += Integer.parseInt( fields[ 5 ] ) ;
 
 					}
 
@@ -3769,7 +4090,7 @@ public class OsManager {
 
 				}
 
-				csapApp.metrics( ).stopTimer( timer, "collect-os.device-utilization-rate" ) ;
+				csapApp.metrics( ).stopTimer( timer, COLLECT_OS + "device-utilization-rate" ) ;
 
 			}
 
@@ -3813,7 +4134,7 @@ public class OsManager {
 
 			for ( int i = 0; i < iostatLines.length; i++ ) {
 
-				String singleSpacedLine = CsapCore.singleSpace( iostatLines[i] ) ;
+				String singleSpacedLine = CsapCore.singleSpace( iostatLines[ i ] ) ;
 
 				logger.debug( "Processing line: {}", singleSpacedLine ) ;
 
@@ -3828,12 +4149,12 @@ public class OsManager {
 					if ( fields.length == 2 ) {
 
 						// centos 7
-						String device = fields[0] ;
+						String device = fields[ 0 ] ;
 						int utilPercentage = -1 ;
 
 						try {
 
-							utilPercentage = Math.round( Float.parseFloat( fields[1] ) ) ;
+							utilPercentage = Math.round( Float.parseFloat( fields[ 1 ] ) ) ;
 
 						} catch ( Exception e ) {
 
@@ -4002,22 +4323,22 @@ public class OsManager {
 
 			for ( int i = 0; i < memLines.length; i++ ) {
 
-				if ( memLines[i].contains( "Mem:" ) ) {
+				if ( memLines[ i ].contains( "Mem:" ) ) {
 
 					memResults.put( RAM,
-							CsapCore.singleSpace( memLines[i] ).split( " " ) ) ;
+							CsapCore.singleSpace( memLines[ i ] ).split( " " ) ) ;
 
 					// default buffer to use RAM line. centos
-					memResults.put( BUFFER, CsapCore.singleSpace( memLines[i] ).split( " " ) ) ;
+					memResults.put( BUFFER, CsapCore.singleSpace( memLines[ i ] ).split( " " ) ) ;
 
-				} else if ( memLines[i].contains( "cache:" ) ) {
+				} else if ( memLines[ i ].contains( "cache:" ) ) {
 
-					memResults.put( BUFFER, CsapCore.singleSpace( memLines[i] )
+					memResults.put( BUFFER, CsapCore.singleSpace( memLines[ i ] )
 							.split( " " ) ) ;
 
-				} else if ( memLines[i].contains( "Swap:" ) ) {
+				} else if ( memLines[ i ].contains( "Swap:" ) ) {
 
-					memResults.put( SWAP, CsapCore.singleSpace( memLines[i] )
+					memResults.put( SWAP, CsapCore.singleSpace( memLines[ i ] )
 							.split( " " ) ) ;
 
 				}
@@ -4048,14 +4369,14 @@ public class OsManager {
 					// it
 					String[] columns = CsapCore.singleSpace( line ).split( " " ) ;
 
-					if ( columns.length == 5 && columns[0].startsWith( "/" ) ) {
+					if ( columns.length == 5 && columns[ 0 ].startsWith( "/" ) ) {
 
 						swapPer = "" ;
 
 						try {
 
-							float j = Float.parseFloat( columns[3] ) ;
-							float k = Float.parseFloat( columns[2] ) ;
+							float j = Float.parseFloat( columns[ 3 ] ) ;
+							float k = Float.parseFloat( columns[ 2 ] ) ;
 							swapPer = Integer.valueOf( Math.round( j / k * 100 ) ).toString( ) ;
 
 						} catch ( Exception e ) {
@@ -4063,11 +4384,11 @@ public class OsManager {
 							// ignore
 						}
 
-						swapList.add( columns[0] ) ;
-						swapList.add( columns[1] ) ;
+						swapList.add( columns[ 0 ] ) ;
+						swapList.add( columns[ 1 ] ) ;
 						swapList.add( swapPer ) ;
-						swapList.add( columns[3] + " / " + columns[2] ) ;
-						swapList.add( columns[4] ) ;
+						swapList.add( columns[ 3 ] + " / " + columns[ 2 ] ) ;
+						swapList.add( columns[ 4 ] ) ;
 						memResults.put( "swapon" + i++,
 								swapList.toArray( new String[swapList.size( )] ) ) ;
 
@@ -4518,28 +4839,67 @@ public class OsManager {
 
 	}
 
-	public String calico ( String parameters ) {
+	public String cli ( String parameters ) {
+
+		var outputDelimeter = "__output__delimiter__" + System.currentTimeMillis( ) ;
 
 		var script = List.of(
 				"#!/bin/bash",
 				sourceCommonFunctions( ),
-				"calico " + parameters,
+				"echo " + outputDelimeter,
+				parameters,
 				"" ) ;
 
 		String scriptOutput = "Failed to run" ;
 
 		try {
 
-			scriptOutput = OsCommandRunner.trimHeader( osCommandRunner.runUsingDefaultUser( "calicoctl", script ) ) ;
+			scriptOutput = osCommandRunner.runUsingDefaultUser( "cli_runner", script, null, null, false ) ;
 
-			// scriptOutput = csapApp.check_for_stub( scriptOutput,
-			// "linux/systemctl-status.txt" ) ;
+			logger.debug( "scriptOutput: {}", scriptOutput ) ;
+
+			var stubResultFile = "helm/show-values.txt" ;
+
+			if ( parameters.contains( "calico" ) ) {
+
+				stubResultFile = "linux/calico-endpoints.txt" ;
+
+			} else if ( parameters.contains( "top" ) ) {
+
+				stubResultFile = "linux/ps-top-results.txt" ;
+
+			} else if ( parameters.contains( "releases" ) ) {
+
+				stubResultFile = "helm/releases.txt" ;
+
+			} else if ( parameters.contains( "show readme" ) ) {
+
+				stubResultFile = "helm/show-readme.txt" ;
+
+			}
+
+			scriptOutput = csapApp.check_for_stub( scriptOutput, stubResultFile ) ;
+
+			// trim header
+			var deleteStart = scriptOutput.indexOf( outputDelimeter ) ;
+
+			if ( deleteStart > 10 ) {
+
+				deleteStart += outputDelimeter.length( ) + 1 ;
+
+				if ( deleteStart < scriptOutput.length( ) - 1 ) {
+
+					scriptOutput = scriptOutput.substring( deleteStart ) ;
+
+				}
+
+			}
 
 			logger.debug( "output from: {}  , \n{}", script, scriptOutput ) ;
 
 		} catch ( IOException e ) {
 
-			logger.info( "Failed to run docker nsenter: {} , \n reason: {}", script,
+			logger.info( "Failed to run script: {} , \n reason: {}", script,
 					CSAP.buildCsapStack( e ) ) ;
 			scriptOutput += ", reason: " + e.getMessage( ) + " type: " +
 					e.getClass( ).getName( ) ;
@@ -4677,7 +5037,7 @@ public class OsManager {
 					Arrays.asList( lines ) ) ;
 
 			results.put( DockerJson.response_plain_text.json( ), scriptOutput ) ;
-			logger.debug( "output from: {}  , \n{}", lines[1], scriptOutput ) ;
+			logger.debug( "output from: {}  , \n{}", lines[ 1 ], scriptOutput ) ;
 
 		} catch ( IOException e ) {
 
@@ -4726,7 +5086,7 @@ public class OsManager {
 
 								if ( cols.length == 2 ) {
 
-									return Integer.parseInt( cols[1] ) ;
+									return Integer.parseInt( cols[ 1 ] ) ;
 
 								}
 
@@ -4842,25 +5202,59 @@ public class OsManager {
 
 		ObjectNode results = jsonMapper.createObjectNode( ) ;
 
-		String dockerWorking = csapApp.findFirstServiceInstanceInLifecycle( "docker" )
-				.getWorkingDirectory( )
-				.getAbsolutePath( ) ;
+		var containerService = csapApp.findFirstServiceInstanceInLifecycle( "docker" ) ;
 
-		int numSeconds = days * ( 24 * 60 * 60 ) + minutes * ( 60 ) ;
+		if ( csapApp.isCrioInstalledAndActive( ) ) {
 
-		String[] lines = {
-				"#!/bin/bash",
-				"echo Cleaning: " + days + " days and " + minutes + " minutes : " + numSeconds + " seconds",
-				"dockerDir=" + dockerWorking,
-				"export PID_DIR=$dockerDir/scripts",
-				"export STATE_DIR=$dockerDir/docker-gc-state",
-				"export GRACE_PERIOD_SECONDS=" + numSeconds,
-				"$dockerDir/scripts/docker-gc.sh"
-		} ;
+			containerService = csapApp.findFirstServiceInstanceInLifecycle( "crio" ) ;
+
+		}
+
+		if ( containerService == null ) {
+
+			results.put( "error", true ) ;
+			results.put( "reason", "no container service available (docker|crio)" ) ;
+			return results ;
+
+		}
+
+		var cleanScript = List.of( "echo no container available" ) ;
+
+		if ( csapApp.isCrioInstalledAndActive( ) ) {
+
+			var crioWorking = containerService
+					.getWorkingDirectory( )
+					.getAbsolutePath( ) ;
+
+			cleanScript = List.of(
+					"#!/bin/bash",
+					sourceCommonFunctions( ),
+					crioWorking + "/scripts/crio-gc.sh" ) ;
+
+		} else {
+
+			var dockerWorking = containerService
+					.getWorkingDirectory( )
+					.getAbsolutePath( ) ;
+
+			int numSeconds = days * ( 24 * 60 * 60 ) + minutes * ( 60 ) ;
+
+			cleanScript = List.of(
+					"#!/bin/bash",
+					sourceCommonFunctions( ),
+					"print_section Cleaning: " + days + " days and " + minutes + " minutes : " + numSeconds
+							+ " seconds",
+					"dockerDir=" + dockerWorking,
+					"export PID_DIR=$dockerDir/scripts",
+					"export STATE_DIR=$dockerDir/docker-gc-state",
+					"export GRACE_PERIOD_SECONDS=" + numSeconds,
+					"$dockerDir/scripts/docker-gc.sh" ) ;
+
+		}
 
 		try {
 
-			String cleanOutput = osCommandRunner.runUsingDefaultUser( "docker-image-clean", Arrays.asList( lines ) ) ;
+			String cleanOutput = osCommandRunner.runUsingDefaultUser( "docker-image-clean", cleanScript ) ;
 			// cleanOutput = csapApp.check_for_stub( ioOutput,
 			// "linux/proc-net-dev.txt" );
 
@@ -4868,7 +5262,7 @@ public class OsManager {
 
 		} catch ( IOException e ) {
 
-			logger.info( "Failed to run docker nsenter: {} , \n reason: {}", lines,
+			logger.info( "Failed to run docker nsenter: {} , \n reason: {}", cleanScript,
 					CSAP.buildCsapStack( e ) ) ;
 
 			results.put( "error", true ) ;
@@ -4885,7 +5279,7 @@ public class OsManager {
 
 		ObjectNode results = jsonMapper.createObjectNode( ) ;
 
-		String[] lines = {
+		var killScript = List.of(
 				"#!/bin/bash",
 				sourceCommonFunctions( ),
 				"print_with_date killing pid: " + pid,
@@ -4893,12 +5287,11 @@ public class OsManager {
 				"print_with_head \"pre-kill listing: $listing \"",
 				"kill " + signal + " " + pid,
 				"listing=$(ps -ef | grep " + pid + ")",
-				"print_with_head \"post-kill listing (should be empty): \n'$listing' \"",
-		} ;
+				"print_with_head \"post-kill listing (should be empty): \n'$listing' \"" ) ;
 
 		try {
 
-			String cleanOutput = osCommandRunner.runUsingRootUser( "docker-image-clean", Arrays.asList( lines ) ) ;
+			String cleanOutput = osCommandRunner.runUsingRootUser( "docker-image-clean", killScript ) ;
 			// cleanOutput = csapApp.check_for_stub( ioOutput,
 			// "linux/proc-net-dev.txt" );
 
@@ -4906,7 +5299,7 @@ public class OsManager {
 
 		} catch ( IOException e ) {
 
-			logger.info( "Failed to run docker nsenter: {} , \n reason: {}", lines,
+			logger.info( "Failed to run docker nsenter: {} , \n reason: {}", killScript,
 					CSAP.buildCsapStack( e ) ) ;
 
 			results.put( "error", true ) ;
@@ -4949,6 +5342,106 @@ public class OsManager {
 
 	}
 
+	public ObjectNode kubernetesShell (
+										String operation ,
+										File commandScript ,
+										DockerJson responseType ) {
+
+		var results = jsonMapper.createObjectNode( ) ;
+
+		var runCommands = List.of(
+				"#!/bin/bash",
+				sourceCommonFunctions( ),
+				"chmod 755 " + commandScript.getAbsolutePath( ),
+				commandScript.getAbsolutePath( ) + " " + operation ) ;
+
+		var commandResults = "failed to run" ;
+
+		try {
+
+			commandResults = OsCommandRunner.trimHeader(
+					kuberernetesRunner.runUsingDefaultUser( "kubernetes-shell", runCommands ) ) ;
+
+		} catch ( Exception e ) {
+
+			commandResults += CSAP.buildCsapStack( e ) ;
+
+		}
+
+		results.put( responseType.json( ), commandResults ) ;
+
+		return results ;
+
+	}
+
+	private File helmCliFile = null ;
+
+	private static final String HELM_COMMAND = "helm" ;
+
+	public JsonNode helmCli ( String command ) {
+
+		ObjectNode results = jsonMapper.createObjectNode( ) ;
+
+		if ( helmCliFile == null ) {
+
+			helmCliFile = new File( csapApp.getCsapInstallFolder( ), "/bin/" + HELM_COMMAND ) ;
+
+		}
+
+		if ( ! helmCliFile.canExecute( ) ) {
+
+			results.put( "error", "helm not found in expected location: " + helmCliFile.getAbsolutePath( ) ) ;
+			return results ;
+
+		}
+
+		var parmList = List.of( "bash", "-c", HELM_COMMAND + " " + command ) ;
+		results.put( "command", parmList.toString( ) ) ;
+
+		var commandResults = OsCommandRunner.trimHeader(
+				kuberernetesRunner.executeString( parmList, csapApp.getCsapSavedFolder( ) ) ) ;
+
+		if ( csapApp.isDesktopHost( ) ) {
+
+			if ( command.contains( "repo list" ) ) {
+
+				commandResults = csapApp.check_for_stub( commandResults, "helm/repos.json" ) ;
+
+			} else if ( command.contains( "search" ) ) {
+
+				commandResults = csapApp.check_for_stub( commandResults, "helm/repo-search.json" ) ;
+
+			} else if ( command.contains( "list" ) ) {
+
+				commandResults = csapApp.check_for_stub( commandResults, "helm/releases.json" ) ;
+
+			} else {
+
+				commandResults = csapApp.check_for_stub( commandResults, "helm/status.json" ) ;
+
+			}
+
+		}
+
+		results.put( "output", commandResults ) ;
+
+		try {
+
+			var commandReport = jsonMapper.readTree( commandResults ) ;
+			results.set( "result", commandReport ) ;
+
+		} catch ( Exception e ) {
+
+			var err = CSAP.buildCsapStack( e ) ;
+			logger.warn( err ) ;
+			results.put( "error", err ) ;
+
+		}
+
+		return results ;
+
+	}
+
 	public ObjectNode kubernetesCli (
 										String command ,
 										DockerJson responseType ) {
@@ -4986,7 +5479,7 @@ public class OsManager {
 
 		ObjectNode results = jsonMapper.createObjectNode( ) ;
 
-		List<String> parmList = List.of( "bash", "-c", DockerIntegration.CLI_COMMAND + " " + command ) ;
+		List<String> parmList = List.of( "bash", "-c", ContainerIntegration.CLI_COMMAND + " " + command ) ;
 
 		results.put(
 				responseType.json( ),
@@ -5015,7 +5508,7 @@ public class OsManager {
 
 	}
 
-	public ServiceResourceRunnable getServiceResourceRunnable ( ) {
+	public ResourceCollector getServiceResourceRunnable ( ) {
 
 		return serviceResourceRunnable ;
 

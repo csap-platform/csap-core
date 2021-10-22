@@ -10,7 +10,7 @@ import java.util.Optional ;
 import java.util.stream.Collectors ;
 
 import org.apache.commons.lang3.StringUtils ;
-import org.csap.agent.container.DockerIntegration ;
+import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.container.DockerJson ;
 import org.csap.agent.container.kubernetes.KubernetesIntegration.Propogation_Policy ;
 import org.csap.agent.model.ServiceInstance ;
@@ -97,7 +97,7 @@ public class SpecBuilder {
 
 		ObjectNode result ;
 
-		String deploymentName = DockerIntegration.getNetworkSafeContainerName(
+		String deploymentName = ContainerIntegration.getNetworkSafeContainerName(
 				serviceInstance.getDockerContainerPath( ).substring( 1 ) ) ;
 
 		try {
@@ -132,12 +132,12 @@ public class SpecBuilder {
 			// DockerJson.containerName.json() ).asText( "$instance" ) ;
 			String kubernetesDeployName = service.getDockerContainerName( ) ;
 
-			kubernetesDeployName = DockerIntegration.getNetworkSafeContainerName(
+			kubernetesDeployName = ContainerIntegration.getNetworkSafeContainerName(
 					service.resolveRuntimeVariables( kubernetesDeployName ) ) ;
 
 			String imageName = deploySettings
 					.path( DockerJson.imageName.json( ) )
-					.asText( DockerIntegration.DOCKER_DEFAULT_IMAGE ) ;
+					.asText( ContainerIntegration.DOCKER_DEFAULT_IMAGE ) ;
 
 			// String namespace = deploySettings.at( KubernetesJson.namespace.spath()
 			// ).asText( "default" ) ;
@@ -493,7 +493,7 @@ public class SpecBuilder {
 
 			if ( ingressVariable.isPresent( ) ) {
 
-				ingressHost = ingressVariable.get( )[1] ;
+				ingressHost = ingressVariable.get( )[ 1 ] ;
 
 			}
 
@@ -539,7 +539,7 @@ public class SpecBuilder {
 				.map( JsonNode::asText )
 				.map( nameVal -> nameVal.split( "=", 2 ) )
 				.filter( nameValArray -> nameValArray.length == 2 )
-				.filter( nameValArray -> nameValArray[0].equals( KubernetesIntegration.CSAP_DEF_INGRESS_HOST ) )
+				.filter( nameValArray -> nameValArray[ 0 ].equals( KubernetesIntegration.CSAP_DEF_INGRESS_HOST ) )
 				.findFirst( ) ;
 		return ingressVariable ;
 
@@ -1203,8 +1203,8 @@ public class SpecBuilder {
 				.map( kubVariable -> {
 
 					V1EnvVar addr = new V1EnvVar( ) ;
-					addr.name( kubVariable[0] ) ;
-					addr.value( kubVariable[1] ) ;
+					addr.name( kubVariable[ 0 ] ) ;
+					addr.value( kubVariable[ 1 ] ) ;
 					return addr ;
 
 				} )

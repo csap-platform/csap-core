@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat ;
 import java.io.File ;
 import java.util.Arrays ;
 import java.util.List ;
-import java.util.Map ;
 import java.util.stream.Collectors ;
 
 import org.csap.agent.Agent_context_loaded ;
@@ -30,7 +29,7 @@ public class Host_Alert_Processing extends CsapThinTests {
 
 	String TEST_SERVICE_NAME = "CsapTestDocker" ;
 	String TEST_SERVICE_PORT = TEST_SERVICE_NAME + "_8261" ;
-	String TEST_HOST_IN_DEFINTION = "csapTest-six" ;
+	String TEST_HOST_IN_DEFINTION = "csap-test-6" ;
 
 	HealthManager healthManager ;
 
@@ -129,7 +128,6 @@ public class Host_Alert_Processing extends CsapThinTests {
 		assertThat( hsqlLimits.get( OsProcessEnum.RSS_MEMORY ) )
 				.as( "cluster definition default" )
 				.isEqualTo( "1" ) ;
-		
 
 		//
 		// nginx - defaults from environment settings
@@ -140,11 +138,11 @@ public class Host_Alert_Processing extends CsapThinTests {
 		var nginxLimitDefinitions = ServiceAlertsEnum.limitDefinitionsForService(
 				nginxService,
 				getApplication( ).rootProjectEnvSettings( ) ) ;
-		
+
 		assertThat( nginxLimitDefinitions.get( OsProcessEnum.THREAD_COUNT ) )
 				.isEqualTo( "121" ) ;
 
-		var nginxMemoryValue = ServiceAlertsEnum.getEffectiveLimit( 
+		var nginxMemoryValue = ServiceAlertsEnum.getEffectiveLimit(
 				nginxService, getActiveProjectSettings( ),
 				ServiceAlertsEnum.memory ) ;
 
@@ -153,11 +151,9 @@ public class Host_Alert_Processing extends CsapThinTests {
 		assertThat( nginxMemoryValue )
 				.isEqualTo( 500 ) ;
 
-
 		assertThat( nginxLimitDefinitions.get( OsProcessEnum.RSS_MEMORY ) )
 				.isEqualTo( "500" ) ;
-		
-		
+
 		//
 		// csap-agent service overrides
 		//
@@ -167,7 +163,6 @@ public class Host_Alert_Processing extends CsapThinTests {
 		var agentLimitDefinitions = ServiceAlertsEnum.limitDefinitionsForService(
 				agentService,
 				getApplication( ).rootProjectEnvSettings( ) ) ;
-		
 
 		assertThat( agentLimitDefinitions.get( OsProcessEnum.THREAD_COUNT ) )
 				.isEqualTo( "333" ) ;
@@ -179,9 +174,6 @@ public class Host_Alert_Processing extends CsapThinTests {
 
 		assertThat( agentMemoryMax )
 				.isEqualTo( 888 ) ;
-		
-		
-
 
 		//
 		// docker traffic memory in bytes
@@ -192,21 +184,23 @@ public class Host_Alert_Processing extends CsapThinTests {
 		var dockerTrafficLimitDefinitions = ServiceAlertsEnum.limitDefinitionsForService(
 				dockerTrafficService,
 				getApplication( ).rootProjectEnvSettings( ) ) ;
-		
 
 		assertThat( dockerTrafficLimitDefinitions.get( OsProcessEnum.THREAD_COUNT ) )
 				.isEqualTo( "121" ) ;
 
-		var dockerTrafficMemoryMax = ServiceAlertsEnum.getEffectiveLimit( dockerTrafficService, getActiveProjectSettings( ),
+		var dockerTrafficMemoryMax = ServiceAlertsEnum.getEffectiveLimit( dockerTrafficService,
+				getActiveProjectSettings( ),
 				ServiceAlertsEnum.memory ) ;
 
-		logger.info( "dockerTrafficMemoryValue: {}  dockerTrafficLimitDefinitions: {}", dockerTrafficMemoryMax, dockerTrafficLimitDefinitions ) ;
+		logger.info( "dockerTrafficMemoryValue: {}  dockerTrafficLimitDefinitions: {}", dockerTrafficMemoryMax,
+				dockerTrafficLimitDefinitions ) ;
 
-		var dockerTrafficDiskMax = ServiceAlertsEnum.getEffectiveLimit( dockerTrafficService, getActiveProjectSettings( ),
+		var dockerTrafficDiskMax = ServiceAlertsEnum.getEffectiveLimit( dockerTrafficService,
+				getActiveProjectSettings( ),
 				ServiceAlertsEnum.diskSpace ) ;
 
-		logger.info( "dockerTrafficDiskMax: {}  dockerTrafficLimitDefinitions: {}", dockerTrafficDiskMax, dockerTrafficLimitDefinitions ) ;
-		
+		logger.info( "dockerTrafficDiskMax: {}  dockerTrafficLimitDefinitions: {}", dockerTrafficDiskMax,
+				dockerTrafficLimitDefinitions ) ;
 
 		assertThat( dockerTrafficDiskMax )
 				.isEqualTo( 2000l ) ;
@@ -220,18 +214,15 @@ public class Host_Alert_Processing extends CsapThinTests {
 		var ctdLimitDefinitions = ServiceAlertsEnum.limitDefinitionsForService(
 				ctdService,
 				getApplication( ).rootProjectEnvSettings( ) ) ;
-		
 
 		assertThat( ctdLimitDefinitions.get( OsProcessEnum.THREAD_COUNT ) )
 				.isEqualTo( "200" ) ;
 
 		var ctdDiskValue = ServiceAlertsEnum.getEffectiveLimit( ctdService, getActiveProjectSettings( ),
 				ServiceAlertsEnum.diskSpace ) ;
-		
 
 		assertThat( ctdDiskValue )
 				.isEqualTo( 1024l ) ;
-
 
 		logger.info( "ctdDiskValue: {}  ctdLimitDefinitions: {}", ctdDiskValue, ctdLimitDefinitions ) ;
 
@@ -319,12 +310,12 @@ public class Host_Alert_Processing extends CsapThinTests {
 
 		assertThat( errorArray )
 				.as( "disk space" )
-				.contains( "csapTest-six: csap-test-docker-traffic: Disk Space: 97.66 gb, Alert threshold: 1.95 gb" ) ;
+				.contains( "csap-test-6: csap-test-docker-traffic: Disk Space: 97.66 gb, Alert threshold: 1.95 gb" ) ;
 
 		assertThat( errorArray )
 				.as( "abort message" )
 				.doesNotContain(
-						"csapTest-six: csap-test-docker-traffic: no active OS process found, and no user stop was issued. Probable crash or runaway resource kill: review logs." ) ;
+						"csap-test-6: csap-test-docker-traffic: no active OS process found, and no user stop was issued. Probable crash or runaway resource kill: review logs." ) ;
 
 	}
 
@@ -360,12 +351,12 @@ public class Host_Alert_Processing extends CsapThinTests {
 
 		assertThat( errorArray )
 				.as( "disk space" )
-				.contains( "csapTest-six: TestService: Disk Space: 97.66 gb, Alert threshold: 100.0 mb" ) ;
+				.contains( "csap-test-6: TestService: Disk Space: 97.66 gb, Alert threshold: 100.0 mb" ) ;
 
 		assertThat( errorArray )
 				.as( "abort message" )
 				.contains(
-						"csapTest-six: TestService: no active OS process found, and no user stop was issued. Probable crash or runaway resource kill: review logs." ) ;
+						"csap-test-6: TestService: no active OS process found, and no user stop was issued. Probable crash or runaway resource kill: review logs." ) ;
 
 	}
 
@@ -408,20 +399,20 @@ public class Host_Alert_Processing extends CsapThinTests {
 		// assertThat( alerts.get( HealthManager.HEALTH_SUMMARY ).toString() )
 		// .as( "Application Heartbeat failure" )
 		// .contains(
-		// "csapTest-six: CsAgent: failure: (1 of 1) , view: service live:
-		// http://csapTest-six.yourorg.org:8011/CsAgent/csap/health" ) ;
+		// "csap-test-6: CsAgent: failure: (1 of 1) , view: service live:
+		// http://csap-test-6.yourorg.org:8011/CsAgent/csap/health" ) ;
 
 		assertThat( errorArray )
 				.as( "service: CsapTestDocker disk alert" )
-				.contains( "csapTest-six: CsapTestDocker: Disk Space: 2.73 gb, Alert threshold: 1024.0 mb" ) ;
+				.contains( "csap-test-6: CsapTestDocker: Disk Space: 2.73 gb, Alert threshold: 1024.0 mb" ) ;
 
 		assertThat( errorArray )
-				.as( "host: csapTest-six disk alert" )
-				.contains( "csapTest-six:  Disk usage on /junit is: 91%, max: 85%" ) ;
+				.as( "host: csap-test-6 disk alert" )
+				.contains( "csap-test-6:  Disk usage on /junit is: 91%, max: 85%" ) ;
 
 		assertThat( errorArray )
-				.as( "host: csapTest-six ignored disk alert" )
-				.doesNotContain( "csapTest-six:  Disk usage on /ignored-junit is: 92%, max: 85%" ) ;
+				.as( "host: csap-test-6 ignored disk alert" )
+				.doesNotContain( "csap-test-6:  Disk usage on /ignored-junit is: 92%, max: 85%" ) ;
 
 	}
 
@@ -457,15 +448,15 @@ public class Host_Alert_Processing extends CsapThinTests {
 
 		assertThat( errorArray )
 				.as( "service: CsapTestDocker disk alert" )
-				.contains( "csapTest-six: CsapTestDocker: Disk Space: 2.73 gb, Alert threshold: 1024.0 mb" ) ;
+				.contains( "csap-test-6: CsapTestDocker: Disk Space: 2.73 gb, Alert threshold: 1024.0 mb" ) ;
 
 		assertThat( errorArray )
-				.as( "host: csapTest-six disk alert" )
-				.contains( "csapTest-six:  Disk usage on /junit is: 91%, max: 85%" ) ;
+				.as( "host: csap-test-6 disk alert" )
+				.contains( "csap-test-6:  Disk usage on /junit is: 91%, max: 85%" ) ;
 
 		assertThat( errorArray )
-				.as( "host: csapTest-six ignored disk alert" )
-				.doesNotContain( "csapTest-six:  Disk usage on /ignored-junit is: 92%, max: 85%" ) ;
+				.as( "host: csap-test-6 ignored disk alert" )
+				.doesNotContain( "csap-test-6:  Disk usage on /ignored-junit is: 92%, max: 85%" ) ;
 
 	}
 
@@ -490,8 +481,8 @@ public class Host_Alert_Processing extends CsapThinTests {
 
 		assertThat( alerts.path( HealthManager.HEALTH_SUMMARY ).toString( ) )
 				.as( "ActiveMq thread error" )
-				.contains( "csapTest-six: ActiveMq: OS Threads: 69, Alert threshold: 61",
-						"csapTest-six: csap-agent: Memory (RSS): 912.0 mb, Alert threshold: 444.0 mb" ) ;
+				.contains( "csap-test-6: ActiveMq: OS Threads: 69, Alert threshold: 61",
+						"csap-test-6: csap-agent: Memory (RSS): 912.0 mb, Alert threshold: 444.0 mb" ) ;
 
 	}
 

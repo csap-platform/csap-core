@@ -410,7 +410,7 @@ public class ContainerApi {
 	public void issueAudit ( String user , String commandDesc , String yaml ) {
 
 		var summary = buildSummary( yaml ) ;
-		var kind = summary.split( "," )[0] ;
+		var kind = summary.split( "," )[ 0 ] ;
 
 		try {
 

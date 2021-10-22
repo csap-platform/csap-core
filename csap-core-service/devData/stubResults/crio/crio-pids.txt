@@ -1,0 +1,42 @@
+
+# containerIds=$(crictl ps --quiet);
+# for containerId in $containerIds; do 
+#   pid=$(crictl inspect --output go-template --template '{{.status.metadata.name}},{{.info.pid}}' $containerId ) ;
+#   pid=$(crictl inspect --output go-template --template '{{.status.labels}},{{.info.pid}}' $containerId ) ;
+# 	echo "$pid,$containerId"
+# done
+
+
+map[io.kubernetes.container.name:kube-rbac-proxy io.kubernetes.pod.name:node-exporter-pxqvh io.kubernetes.pod.namespace:csap-monitoring io.kubernetes.pod.uid:6f54c19c-389b-4dd8-bc2c-c52d2ee9a6b9],3671443,3dcd5895ae48f4484cd36a145245157bfe03b441454c8594b59614cac5e98220
+map[io.kubernetes.container.name:node-exporter io.kubernetes.pod.name:node-exporter-pxqvh io.kubernetes.pod.namespace:csap-monitoring io.kubernetes.pod.uid:6f54c19c-389b-4dd8-bc2c-c52d2ee9a6b9],3670269,dff63fdea9d4c4ced59fd81722d16d833edac684007ec9bc638cc8c9ac8f929c
+map[io.kubernetes.container.name:fluentd-container io.kubernetes.pod.name:fluentd-gq6tt io.kubernetes.pod.namespace:csap-logging io.kubernetes.pod.uid:b44b5512-078f-45e7-90df-9ef74e294148],3389664,57ef6cea4bfe9a0475add40a2f7895a361127b0a287c829d43fee37bb8eda925
+map[io.kubernetes.container.name:elastic-search-container io.kubernetes.pod.name:elastic-search-cluster-2 io.kubernetes.pod.namespace:csap-logging io.kubernetes.pod.uid:7785a804-612b-4fca-9564-dad5c910086f],3380193,b8bd76fa6bde6b76c6d11baf62e65aa0c46c3b35ca90454c0f6c520fe0ddac5e
+map[io.kubernetes.container.name:kubernetes-dashboard io.kubernetes.pod.name:kubernetes-dashboard-67484c44f6-mqprv io.kubernetes.pod.namespace:kubernetes-dashboard io.kubernetes.pod.uid:478430f1-f126-44be-aa0c-03eff3025b3b],2421084,d98e6ad2e2ccdd61e1aa1719934838d7f400cc8f38e4076d99c71fd0a2e708ab
+map[io.kubernetes.container.name:dashboard-metrics-scraper io.kubernetes.pod.name:dashboard-metrics-scraper-856586f554-xd6k4 io.kubernetes.pod.namespace:kubernetes-dashboard io.kubernetes.pod.uid:398a842f-c653-4d97-96ca-f27e2817cbb5],2418884,2cb1a0af92a4c790fdd2bd566ce9bd9bdf364f03f0ec3edbb8ee3e89c6cc79b5
+map[io.kubernetes.container.name:nginx-ingress-controller io.kubernetes.pod.name:nginx-ingress-controller-qc9xd io.kubernetes.pod.namespace:ingress-nginx io.kubernetes.pod.uid:73cbd65d-34b9-4765-a45e-73ef7d581bca],2340956,0ed1897cdb16b0e5a692baa37bc67b6544647c1fb4e41ce260db6b774e7d6681
+map[io.kubernetes.container.name:calico-node io.kubernetes.pod.name:calico-node-bz5rj io.kubernetes.pod.namespace:kube-system io.kubernetes.pod.uid:2768cdf4-d58f-4cec-9f7a-40054526e0f3],2250509,f2c71824f667a37bfeb38a4c6688bdcf6f15e9734b040a72eb8ef5348efc5ce7
+map[io.kubernetes.container.name:calico-kube-controllers io.kubernetes.pod.name:calico-kube-controllers-67bb5696f5-jnx5b io.kubernetes.pod.namespace:kube-system io.kubernetes.pod.uid:0a2dc8c8-43bb-40af-9064-a7c144456ffd],2249895,0badc7f3e3520ece9e04bbae2aa7841194315f00811d4751b8f52685f1748485
+map[io.kubernetes.container.name:kube-proxy io.kubernetes.pod.name:kube-proxy-wcw48 io.kubernetes.pod.namespace:kube-system io.kubernetes.pod.uid:8906a728-f7b9-4a3f-8c35-e9f3339ba5e7],2248360,5eb7edf078bc77918799aeb920b376119e47854b4b4de03cc0835eaad9b40cb6
+map[io.kubernetes.container.name:kube-apiserver io.kubernetes.pod.name:kube-apiserver-scs-dev01 io.kubernetes.pod.namespace:kube-system io.kubernetes.pod.uid:b1592e0f06bd29d28361818146f0d69e],2247045,febd8fc9363819f28ce7e190ebb4a38d0fcf95f916f41c5ec31c06b5ee7a83ae
+map[io.kubernetes.container.name:etcd io.kubernetes.pod.name:etcd-scs-dev01 io.kubernetes.pod.namespace:kube-system io.kubernetes.pod.uid:a2660bac295e7a5ca82949aa6131566c],2247026,c4bbff9f10c467f3453df2dbe8f814ab7868e2d3114ea2a913a4a82b63305df7
+map[io.kubernetes.container.name:kube-controller-manager io.kubernetes.pod.name:kube-controller-manager-scs-dev01 io.kubernetes.pod.namespace:kube-system io.kubernetes.pod.uid:288991c9192b667fcbdc987b254d17dd],2247036,d181ead51cfa5c92f9c4687de641a797d611c2996106cbfc7f5d6c203fc4fd96
+map[io.kubernetes.container.name:kube-scheduler io.kubernetes.pod.name:kube-scheduler-scs-dev01 io.kubernetes.pod.namespace:kube-system io.kubernetes.pod.uid:082fe3d050a240e3f06811e3cb2cfa0c],2247012,9c62412c8fe32fff04fb8f35d3a9282d69cabc38f772a512e51ae2fb6dade28e
+
+
+
+
+# kube-rbac-proxy,3671443,3dcd5895ae48f4484cd36a145245157bfe03b441454c8594b59614cac5e98220
+# node-exporter,3670269,dff63fdea9d4c4ced59fd81722d16d833edac684007ec9bc638cc8c9ac8f929c
+# fluentd-container,3389664,57ef6cea4bfe9a0475add40a2f7895a361127b0a287c829d43fee37bb8eda925
+# elastic-search-container,3380193,b8bd76fa6bde6b76c6d11baf62e65aa0c46c3b35ca90454c0f6c520fe0ddac5e
+# kubernetes-dashboard,2421084,d98e6ad2e2ccdd61e1aa1719934838d7f400cc8f38e4076d99c71fd0a2e708ab
+# dashboard-metrics-scraper,2418884,2cb1a0af92a4c790fdd2bd566ce9bd9bdf364f03f0ec3edbb8ee3e89c6cc79b5
+# nginx-ingress-controller,2340956,0ed1897cdb16b0e5a692baa37bc67b6544647c1fb4e41ce260db6b774e7d6681
+# calico-node,2250509,f2c71824f667a37bfeb38a4c6688bdcf6f15e9734b040a72eb8ef5348efc5ce7
+# calico-kube-controllers,2249895,0badc7f3e3520ece9e04bbae2aa7841194315f00811d4751b8f52685f1748485
+# kube-proxy,2248360,5eb7edf078bc77918799aeb920b376119e47854b4b4de03cc0835eaad9b40cb6
+# kube-apiserver,2247045,febd8fc9363819f28ce7e190ebb4a38d0fcf95f916f41c5ec31c06b5ee7a83ae
+# etcd,2247026,c4bbff9f10c467f3453df2dbe8f814ab7868e2d3114ea2a913a4a82b63305df7
+# kube-controller-manager,2247036,d181ead51cfa5c92f9c4687de641a797d611c2996106cbfc7f5d6c203fc4fd96
+# kube-scheduler,2247012,9c62412c8fe32fff04fb8f35d3a9282d69cabc38f772a512e51ae2fb6dade28e
+

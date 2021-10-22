@@ -1,0 +1,602 @@
+[
+	{
+		"name":"bitnami/bitnami-common",
+		"version":"0.0.9",
+		"app_version":"0.0.9",
+		"description":"DEPRECATED Chart with custom templates used in Bitnami charts."
+	},
+	{
+		"name":"bitnami/airflow",
+		"version":"11.0.7",
+		"app_version":"2.1.4",
+		"description":"Apache Airflow is a platform to programmatically author, schedule and monitor workflows."
+	},
+	{
+		"name":"bitnami/apache",
+		"version":"8.8.0",
+		"app_version":"2.4.49",
+		"description":"Chart for Apache HTTP Server"
+	},
+	{
+		"name":"bitnami/argo-cd",
+		"version":"2.0.2",
+		"app_version":"2.1.3",
+		"description":"Declarative, GitOps continuous delivery tool for Kubernetes."
+	},
+	{
+		"name":"bitnami/aspnet-core",
+		"version":"1.3.17",
+		"app_version":"3.1.19",
+		"description":"ASP.NET Core is an open-source framework created by Microsoft for building cloud-enabled, modern applications."
+	},
+	{
+		"name":"bitnami/cassandra",
+		"version":"8.0.4",
+		"app_version":"4.0.1",
+		"description":"Apache Cassandra is a free and open-source distributed database management system designed to handle large amounts of data across many commodity servers, providing high availability with no single point of failure. Cassandra offers robust support for clusters spanning multiple datacenters, with asynchronous masterless replication allowing low latency operations for all clients."
+	},
+	{
+		"name":"bitnami/cert-manager",
+		"version":"0.1.20",
+		"app_version":"1.5.3",
+		"description":"Cert Manager is a Kubernetes add-on to automate the management and issuance of TLS certificates from various issuing sources."
+	},
+	{
+		"name":"bitnami/common",
+		"version":"1.10.0",
+		"app_version":"1.10.0",
+		"description":"A Library Helm Chart for grouping common logic between bitnami charts. This chart is not deployable by itself."
+	},
+	{
+		"name":"bitnami/concourse",
+		"version":"0.1.6",
+		"app_version":"7.5.0",
+		"description":"Concourse is a pipeline-based continuous thing-doer."
+	},
+	{
+		"name":"bitnami/consul",
+		"version":"9.3.7",
+		"app_version":"1.10.3",
+		"description":"Highly available and distributed service discovery and key-value store designed with support for the modern data center to make distributed systems and configuration easy."
+	},
+	{
+		"name":"bitnami/contour",
+		"version":"5.5.3",
+		"app_version":"1.18.1",
+		"description":"Contour Ingress controller for Kubernetes"
+	},
+	{
+		"name":"bitnami/dataplatform-bp1",
+		"version":"8.0.1",
+		"app_version":"0.0.11",
+		"description":"OCTO Data platform Kafka-Spark-Solr Helm Chart"
+	},
+	{
+		"name":"bitnami/dataplatform-bp2",
+		"version":"8.0.3",
+		"app_version":"0.0.10",
+		"description":"OCTO Data platform Kafka-Spark-Elasticsearch Helm Chart"
+	},
+	{
+		"name":"bitnami/discourse",
+		"version":"5.0.1",
+		"app_version":"2.7.8",
+		"description":"A Helm chart for deploying Discourse to Kubernetes"
+	},
+	{
+		"name":"bitnami/dokuwiki",
+		"version":"11.2.6",
+		"app_version":"20200729.0.0",
+		"description":"DokuWiki is a standards-compliant, simple to use wiki optimized for creating documentation. It is targeted at developer teams, workgroups, and small companies. All data is stored in plain text files, so no database is required."
+	},
+	{
+		"name":"bitnami/drupal",
+		"version":"10.3.1",
+		"app_version":"9.2.6",
+		"description":"One of the most versatile open source content management systems."
+	},
+	{
+		"name":"bitnami/ejbca",
+		"version":"3.0.0",
+		"app_version":"7.4.3-2",
+		"description":"Enterprise class PKI Certificate Authority built on JEE technology."
+	},
+	{
+		"name":"bitnami/elasticsearch",
+		"version":"17.0.3",
+		"app_version":"7.14.1",
+		"description":"A highly scalable open-source full-text search and analytics engine"
+	},
+	{
+		"name":"bitnami/etcd",
+		"version":"6.8.4",
+		"app_version":"3.5.0",
+		"description":"etcd is a distributed key value store that provides a reliable way to store data across a cluster of machines"
+	},
+	{
+		"name":"bitnami/external-dns",
+		"version":"5.4.8",
+		"app_version":"0.9.0",
+		"description":"ExternalDNS is a Kubernetes addon that configures public DNS servers with information about exposed Kubernetes services to make them discoverable."
+	},
+	{
+		"name":"bitnami/fluentd",
+		"version":"4.2.1",
+		"app_version":"1.14.1",
+		"description":"Fluentd is an open source data collector for unified logging layer"
+	},
+	{
+		"name":"bitnami/ghost",
+		"version":"14.0.20",
+		"app_version":"4.16.0",
+		"description":"A simple, powerful publishing platform that allows you to share your stories with the world"
+	},
+	{
+		"name":"bitnami/grafana",
+		"version":"6.2.0",
+		"app_version":"8.1.5",
+		"description":"Grafana is an open source, feature rich metrics dashboard and graph editor for Graphite, Elasticsearch, OpenTSDB, Prometheus and InfluxDB&trade;."
+	},
+	{
+		"name":"bitnami/grafana-operator",
+		"version":"1.1.4",
+		"app_version":"3.10.3",
+		"description":"Kubernetes Operator based on the Operator SDK for creating and managing Grafana instances and dashboards."
+	},
+	{
+		"name":"bitnami/grafana-tempo",
+		"version":"0.2.6",
+		"app_version":"1.1.0",
+		"description":"Grafana Tempo is an open source, easy-to-use and high-scale distributed tracing backend."
+	},
+	{
+		"name":"bitnami/haproxy",
+		"version":"0.2.9",
+		"app_version":"2.4.4",
+		"description":"HAProxy is a TCP proxy and a HTTP reverse proxy. It supports SSL termination and offloading, TCP and HTTP normalization, traffic regulation, caching and protection against DDoS attacks."
+	},
+	{
+		"name":"bitnami/harbor",
+		"version":"11.0.3",
+		"app_version":"2.3.3",
+		"description":"Harbor is an an open source trusted cloud native registry project that stores, signs, and scans content"
+	},
+	{
+		"name":"bitnami/influxdb",
+		"version":"2.3.10",
+		"app_version":"2.0.8",
+		"description":"InfluxDB&trade; is an open source time-series database designed to handle large write and read loads in real-time."
+	},
+	{
+		"name":"bitnami/jasperreports",
+		"version":"11.0.5",
+		"app_version":"7.8.0",
+		"description":"The JasperReports server can be used as a stand-alone or embedded reporting and BI server that offers web-based reporting, analytic tools and visualization, and a dashboard feature for compiling multiple custom views"
+	},
+	{
+		"name":"bitnami/jenkins",
+		"version":"8.0.12",
+		"app_version":"2.303.1",
+		"description":"The leading open source automation server"
+	},
+	{
+		"name":"bitnami/joomla",
+		"version":"10.1.21",
+		"app_version":"3.10.2",
+		"description":"PHP content management system (CMS) for publishing web content"
+	},
+	{
+		"name":"bitnami/jupyterhub",
+		"version":"0.1.19",
+		"app_version":"1.4.2",
+		"description":"JupyterHub brings the power of notebooks to groups of users. It gives users access to computational environments and resources without burdening the users with installation and maintenance tasks"
+	},
+	{
+		"name":"bitnami/kafka",
+		"version":"14.2.0",
+		"app_version":"2.8.1",
+		"description":"Apache Kafka is a distributed streaming platform."
+	},
+	{
+		"name":"bitnami/keycloak",
+		"version":"5.1.0",
+		"app_version":"15.0.2",
+		"description":"Keycloak is a high performance Java-based identity and access management solution. It lets developers add an authentication layer to their applications with minimum effort."
+	},
+	{
+		"name":"bitnami/kiam",
+		"version":"0.3.14",
+		"app_version":"3.6.0",
+		"description":"kiam is a proxy that captures AWS Metadata API requests. It allows AWS IAM roles to be set for Kubernetes workloads."
+	},
+	{
+		"name":"bitnami/kibana",
+		"version":"9.0.4",
+		"app_version":"7.14.2",
+		"description":"Kibana is an open source, browser based analytics and search dashboard for Elasticsearch."
+	},
+	{
+		"name":"bitnami/kong",
+		"version":"4.1.2",
+		"app_version":"2.6.0",
+		"description":"Kong is a scalable, open source API layer (aka API gateway or API middleware) that runs in front of any RESTful API. Extra functionalities beyond the core platform are extended through plugins. Kong is built on top of reliable technologies like NGINX and provides an easy-to-use RESTful API to operate and configure the system."
+	},
+	{
+		"name":"bitnami/kube-prometheus",
+		"version":"6.1.10",
+		"app_version":"0.51.1",
+		"description":"kube-prometheus collects Kubernetes manifests to provide easy to operate end-to-end Kubernetes cluster monitoring with Prometheus using the Prometheus Operator."
+	},
+	{
+		"name":"bitnami/kube-state-metrics",
+		"version":"2.1.10",
+		"app_version":"2.2.1",
+		"description":"kube-state-metrics is a simple service that listens to the Kubernetes API server and generates metrics about the state of the objects."
+	},
+	{
+		"name":"bitnami/kubeapps",
+		"version":"7.5.2",
+		"app_version":"2.4.0",
+		"description":"Kubeapps is a dashboard for your Kubernetes cluster that makes it easy to deploy and manage applications in your cluster using Helm"
+	},
+	{
+		"name":"bitnami/kubernetes-event-exporter",
+		"version":"1.1.15",
+		"app_version":"0.10.0",
+		"description":"This tool allows exporting the often missed Kubernetes events to various outputs so that they can be used for observability or alerting purposes."
+	},
+	{
+		"name":"bitnami/kubewatch",
+		"version":"3.2.16",
+		"app_version":"0.1.0",
+		"description":"Kubewatch is a Kubernetes watcher that currently publishes notification to Slack."
+	},
+	{
+		"name":"bitnami/logstash",
+		"version":"3.6.7",
+		"app_version":"7.15.0",
+		"description":"Logstash is an open source, server-side data processing pipeline that ingests data from a multitude of sources simultaneously, transforms it, and then sends it to your favorite \"stash\"."
+	},
+	{
+		"name":"bitnami/magento",
+		"version":"19.0.1",
+		"app_version":"2.4.3",
+		"description":"A feature-rich flexible e-commerce solution. It includes transaction options, multi-store functionality, loyalty programs, product categorization and shopper filtering, promotion rules, and more."
+	},
+	{
+		"name":"bitnami/mariadb",
+		"version":"9.6.0",
+		"app_version":"10.5.12",
+		"description":"Fast, reliable, scalable, and easy to use open-source relational database system. MariaDB Server is intended for mission-critical, heavy-load production systems as well as for embedding into mass-deployed software. Highly available MariaDB cluster."
+	},
+	{
+		"name":"bitnami/mariadb-cluster",
+		"version":"1.0.2",
+		"app_version":"10.2.14",
+		"description":"DEPRECATED Chart to create a Highly available MariaDB cluster"
+	},
+	{
+		"name":"bitnami/mariadb-galera",
+		"version":"5.14.0",
+		"app_version":"10.5.12",
+		"description":"MariaDB Galera is a multi-master database cluster solution for synchronous replication and high availability."
+	},
+	{
+		"name":"bitnami/mean",
+		"version":"6.1.2",
+		"app_version":"4.6.2",
+		"description":"DEPRECATED MEAN is a free and open-source JavaScript software stack for building dynamic web sites and web applications. The MEAN stack is MongoDB, Express.js, Angular, and Node.js. Because all components of the MEAN stack support programs written in JavaScript, MEAN applications can be written in one language for both server-side and client-side execution environments."
+	},
+	{
+		"name":"bitnami/mediawiki",
+		"version":"12.3.11",
+		"app_version":"1.36.1",
+		"description":"Extremely powerful, scalable software and a feature-rich wiki implementation that uses PHP to process and display data stored in a database."
+	},
+	{
+		"name":"bitnami/memcached",
+		"version":"5.15.3",
+		"app_version":"1.6.12",
+		"description":"Chart for Memcached"
+	},
+	{
+		"name":"bitnami/metallb",
+		"version":"2.5.5",
+		"app_version":"0.10.2",
+		"description":"The Metal LB for Kubernetes"
+	},
+	{
+		"name":"bitnami/metrics-server",
+		"version":"5.10.4",
+		"app_version":"0.5.1",
+		"description":"Metrics Server is a cluster-wide aggregator of resource usage data. Metrics Server collects metrics from the Summary API, exposed by Kubelet on each node."
+	},
+	{
+		"name":"bitnami/minio",
+		"version":"8.1.5",
+		"app_version":"2021.9.24",
+		"description":"Bitnami Object Storage based on MinIO&reg; is an object storage server, compatible with Amazon S3 cloud storage service, mainly used for storing unstructured data (such as photos, videos, log files, etc.)"
+	},
+	{
+		"name":"bitnami/mongodb",
+		"version":"10.26.4",
+		"app_version":"4.4.9",
+		"description":"NoSQL document-oriented database that stores JSON-like documents with dynamic schemas, simplifying the integration of data in content-driven applications."
+	},
+	{
+		"name":"bitnami/mongodb-sharded",
+		"version":"3.9.7",
+		"app_version":"4.4.9",
+		"description":"NoSQL document-oriented database that stores JSON-like documents with dynamic schemas, simplifying the integration of data in content-driven applications. Sharded topology."
+	},
+	{
+		"name":"bitnami/moodle",
+		"version":"11.0.26",
+		"app_version":"3.11.3",
+		"description":"Moodle&trade; is a learning platform designed to provide educators, administrators and learners with a single robust, secure and integrated system to create personalised learning environments"
+	},
+	{
+		"name":"bitnami/mxnet",
+		"version":"2.3.16",
+		"app_version":"1.8.0",
+		"description":"A flexible and efficient library for deep learning"
+	},
+	{
+		"name":"bitnami/mysql",
+		"version":"8.8.8",
+		"app_version":"8.0.26",
+		"description":"Chart to create a Highly available MySQL cluster"
+	},
+	{
+		"name":"bitnami/nats",
+		"version":"6.4.8",
+		"app_version":"2.6.1",
+		"description":"An open-source, cloud-native messaging system"
+	},
+	{
+		"name":"bitnami/nginx",
+		"version":"9.5.4",
+		"app_version":"1.21.3",
+		"description":"Chart for the nginx server"
+	},
+	{
+		"name":"bitnami/nginx-ingress-controller",
+		"version":"7.6.21",
+		"app_version":"0.48.1",
+		"description":"Chart for the nginx Ingress controller"
+	},
+	{
+		"name":"bitnami/node",
+		"version":"15.2.27",
+		"app_version":"14.18.0",
+		"description":"Event-driven I/O server-side JavaScript environment based on V8"
+	},
+	{
+		"name":"bitnami/node-exporter",
+		"version":"2.3.9",
+		"app_version":"1.2.2",
+		"description":"Prometheus exporter for hardware and OS metrics exposed by UNIX kernels, with pluggable metric collectors."
+	},
+	{
+		"name":"bitnami/oauth2-proxy",
+		"version":"1.0.1",
+		"app_version":"7.1.3",
+		"description":"A reverse proxy and static file server that provides authentication using different providers"
+	},
+	{
+		"name":"bitnami/odoo",
+		"version":"19.0.9",
+		"app_version":"14.0.20210910",
+		"description":"A suite of web based open source business apps."
+	},
+	{
+		"name":"bitnami/opencart",
+		"version":"10.0.23",
+		"app_version":"3.0.3-8",
+		"description":"A free and open source e-commerce platform for online merchants. It provides a professional and reliable foundation for a successful online store."
+	},
+	{
+		"name":"bitnami/orangehrm",
+		"version":"10.1.20",
+		"app_version":"4.8.0-0",
+		"description":"OrangeHRM is a free HR management system that offers a wealth of modules to suit the needs of your business."
+	},
+	{
+		"name":"bitnami/osclass",
+		"version":"11.0.13",
+		"app_version":"4.4.0",
+		"description":"Osclass is a php script that allows you to quickly create and manage your own free classifieds site."
+	},
+	{
+		"name":"bitnami/owncloud",
+		"version":"10.2.24",
+		"app_version":"10.8.0",
+		"description":"A file sharing server that puts the control and security of your own data back into your hands."
+	},
+	{
+		"name":"bitnami/parse",
+		"version":"15.0.9",
+		"app_version":"4.10.4",
+		"description":"Parse is a platform that enables users to add a scalable and powerful backend to launch a full-featured app for iOS, Android, JavaScript, Windows, Unity, and more."
+	},
+	{
+		"name":"bitnami/phabricator",
+		"version":"11.0.30",
+		"app_version":"2021.26.0",
+		"description":"DEPRECATED Collection of open source web applications that help software companies build better software."
+	},
+	{
+		"name":"bitnami/phpbb",
+		"version":"10.1.20",
+		"app_version":"3.3.4",
+		"description":"Community forum that supports the notion of users and groups, file attachments, full-text search, notifications and more."
+	},
+	{
+		"name":"bitnami/phpmyadmin",
+		"version":"8.2.13",
+		"app_version":"5.1.1",
+		"description":"phpMyAdmin is an mysql administration frontend"
+	},
+	{
+		"name":"bitnami/postgresql",
+		"version":"10.12.0",
+		"app_version":"11.13.0",
+		"description":"Chart for PostgreSQL, an object-relational database management system (ORDBMS) with an emphasis on extensibility and on standards-compliance."
+	},
+	{
+		"name":"bitnami/postgresql-ha",
+		"version":"7.9.6",
+		"app_version":"11.13.0",
+		"description":"Chart for PostgreSQL with HA architecture (using Replication Manager (repmgr) and Pgpool)."
+	},
+	{
+		"name":"bitnami/prestashop",
+		"version":"13.1.25",
+		"app_version":"1.7.7-8",
+		"description":"A popular open source ecommerce solution. Professional tools are easily accessible to increase online sales including instant guest checkout, abandoned cart reminders and automated Email marketing."
+	},
+	{
+		"name":"bitnami/prometheus-operator",
+		"version":"0.31.1",
+		"app_version":"0.41.0",
+		"description":"DEPRECATED The Prometheus Operator for Kubernetes provides easy monitoring definitions for Kubernetes services and deployment and management of Prometheus instances."
+	},
+	{
+		"name":"bitnami/pytorch",
+		"version":"2.3.14",
+		"app_version":"1.9.0",
+		"description":"Deep learning platform that accelerates the transition from research prototyping to production deployment"
+	},
+	{
+		"name":"bitnami/rabbitmq",
+		"version":"8.22.4",
+		"app_version":"3.9.7",
+		"description":"Open source message broker software that implements the Advanced Message Queuing Protocol (AMQP)"
+	},
+	{
+		"name":"bitnami/rabbitmq-cluster-operator",
+		"version":"0.1.5",
+		"app_version":"1.9.0",
+		"description":"The RabbitMQ Cluster Kubernetes Operator automates provisioning, management, and operations of RabbitMQ clusters running on Kubernetes."
+	},
+	{
+		"name":"bitnami/redis",
+		"version":"15.4.0",
+		"app_version":"6.2.5",
+		"description":"Open source, advanced key-value store. It is often referred to as a data structure server since keys can contain strings, hashes, lists, sets and sorted sets."
+	},
+	{
+		"name":"bitnami/redis-cluster",
+		"version":"6.3.8",
+		"app_version":"6.2.5",
+		"description":"Open source, advanced key-value store. It is often referred to as a data structure server since keys can contain strings, hashes, lists, sets and sorted sets."
+	},
+	{
+		"name":"bitnami/redmine",
+		"version":"17.0.9",
+		"app_version":"4.2.2",
+		"description":"A flexible project management web application."
+	},
+	{
+		"name":"bitnami/solr",
+		"version":"2.0.6",
+		"app_version":"8.9.0",
+		"description":"Apache Solr is an open source enterprise search platform"
+	},
+	{
+		"name":"bitnami/spark",
+		"version":"5.7.3",
+		"app_version":"3.1.2",
+		"description":"Spark is a fast and general-purpose cluster computing system."
+	},
+	{
+		"name":"bitnami/spring-cloud-dataflow",
+		"version":"4.1.0",
+		"app_version":"2.8.2",
+		"description":"Spring Cloud Data Flow is a microservices-based toolkit for building streaming and batch data processing pipelines in Cloud Foundry and Kubernetes."
+	},
+	{
+		"name":"bitnami/sugarcrm",
+		"version":"1.0.6",
+		"app_version":"6.5.26",
+		"description":"DEPRECATED SugarCRM enables businesses to create extraordinary customer relationships with the most innovative and affordable CRM solution in the market."
+	},
+	{
+		"name":"bitnami/suitecrm",
+		"version":"9.3.22",
+		"app_version":"7.11.22",
+		"description":"SuiteCRM is a completely open source enterprise-grade Customer Relationship Management (CRM) application. SuiteCRM is a software fork of the popular customer relationship management (CRM) system SugarCRM."
+	},
+	{
+		"name":"bitnami/tensorflow-inception",
+		"version":"3.3.2",
+		"app_version":"1.13.0",
+		"description":"DEPRECATED Open-source software library for serving machine learning models"
+	},
+	{
+		"name":"bitnami/tensorflow-resnet",
+		"version":"3.2.15",
+		"app_version":"2.6.0",
+		"description":"Open-source software library serving the ResNet machine learning model."
+	},
+	{
+		"name":"bitnami/testlink",
+		"version":"9.2.21",
+		"app_version":"1.9.20",
+		"description":"Web-based test management system that facilitates software quality assurance."
+	},
+	{
+		"name":"bitnami/thanos",
+		"version":"6.0.4",
+		"app_version":"0.23.0",
+		"description":"Thanos is a highly available metrics system that can be added on top of existing Prometheus deployments, providing a global query view across all Prometheus installations."
+	},
+	{
+		"name":"bitnami/tomcat",
+		"version":"9.4.0",
+		"app_version":"10.0.11",
+		"description":"Chart for Apache Tomcat"
+	},
+	{
+		"name":"bitnami/wavefront",
+		"version":"3.1.12",
+		"app_version":"1.7.1",
+		"description":"Chart for Wavefront Collector for Kubernetes"
+	},
+	{
+		"name":"bitnami/wavefront-adapter-for-istio",
+		"version":"1.0.8",
+		"app_version":"0.1.5",
+		"description":"Wavefront Adapter for Istio is a lightweight Istio adapter that exposes Istio metrics to Wavefront. It supports Istio v1.4+ and Kubernetes v1.15+."
+	},
+	{
+		"name":"bitnami/wavefront-hpa-adapter",
+		"version":"0.1.5",
+		"app_version":"0.9.8",
+		"description":"Wavefront HPA Adapter for Kubernetes is a Kubernetes Horizontal Pod Autoscaler adapter. It enables Kubernetes workloads to be scaled based on Wavefront metrics."
+	},
+	{
+		"name":"bitnami/wavefront-prometheus-storage-adapter",
+		"version":"1.0.8",
+		"app_version":"1.0.3",
+		"description":"Wavefront Storage Adapter is a Prometheus integration to transfer metrics from Prometheus to Wavefront. It lets you save Prometheus data in Wavefront without changing your existing Prometheus setup."
+	},
+	{
+		"name":"bitnami/wildfly",
+		"version":"11.1.2",
+		"app_version":"24.0.1",
+		"description":"Chart for Wildfly"
+	},
+	{
+		"name":"bitnami/wordpress",
+		"version":"12.1.16",
+		"app_version":"5.8.1",
+		"description":"Web publishing platform for building blogs and websites."
+	},
+	{
+		"name":"bitnami/zookeeper",
+		"version":"7.4.5",
+		"app_version":"3.7.0",
+		"description":"A centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services for distributed applications."
+	}
+]

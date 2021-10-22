@@ -9,6 +9,7 @@ import java.io.StringWriter ;
 import java.lang.reflect.Method ;
 import java.net.InetAddress ;
 import java.net.URI ;
+import java.net.URISyntaxException ;
 import java.net.URL ;
 import java.net.URLClassLoader ;
 import java.net.UnknownHostException ;
@@ -60,7 +61,8 @@ import org.csap.agent.CsapCoreService ;
 import org.csap.agent.CsapTemplate ;
 import org.csap.agent.KubernetesConfiguration ;
 import org.csap.agent.KubernetesSettings ;
-import org.csap.agent.container.DockerIntegration ;
+import org.csap.agent.container.ContainerIntegration ;
+import org.csap.agent.container.kubernetes.CrioIntegraton ;
 import org.csap.agent.container.kubernetes.KubernetesIntegration ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.integrations.HttpdIntegration ;
@@ -149,6 +151,8 @@ public class Application {
 	HealthManager healthManager = null ;
 	MetricManager metricManager = null ;
 
+	CrioIntegraton crioIntegraton = null ;
+
 	CsapSecuritySettings securitySettings ;
 	CsapMicroMeter.Utilities metricUtilities ;
 	StandardPBEStringEncryptor encryptor ;
@@ -197,6 +201,8 @@ public class Application {
 
 		scoreReport = new ScoreReport( this, jacksonMapper ) ;
 
+		crioIntegraton = new CrioIntegraton( jacksonMapper, this ) ;
+
 		logger.info(
 				CSAP.buildDescription(
 						"StartUp Environment Variables",
@@ -206,6 +212,7 @@ public class Application {
 						"hostFqdn", getHostFqdn( ),
 						"csapName", System.getenv( "csapName" ),
 						"csapHttpPort", System.getProperty( "csapHttpPort" ),
+						"isCrioInstalledAndActive", isCrioInstalledAndActive( ),
 						"csapLife", System.getProperty( "csapLife" ) ) ) ;
 
 		csapInstallFolder = new File( csapCoreService.getInstallationFolder( ) ) ;
@@ -243,7 +250,7 @@ public class Application {
 	private KubernetesIntegration kubernetesIntegration = null ;
 
 	@Autowired ( required = false )
-	DockerIntegration dockerIntegration = null ;
+	ContainerIntegration dockerIntegration = null ;
 
 	@Inject
 	private OsManager osManager ;
@@ -275,6 +282,8 @@ public class Application {
 		theApp.projectLoader = new ProjectLoader( theApp ) ;
 		theApp.healthManager = new HealthManager( theApp, theApp.jacksonMapper ) ;
 		theApp.metricManager = new MetricManager( theApp, theApp.jacksonMapper ) ;
+		theApp.crioIntegraton = new CrioIntegraton( theApp.jacksonMapper, theApp ) ;
+
 		theApp.restTemplateFactory = new CsapRestTemplateFactory( null, null ) ;
 
 //		theApp.getCsapCoreService( ). ;
@@ -355,7 +364,7 @@ public class Application {
 				csapInstallFolder + "/" + CsapApplication.DEFINITION_FOLDER_NAME + "/"
 						+ CSAP_DEFAULT_DEFINITION_NAME ) ;
 
-		if ( isDesktopProfileActive( ) || isJunit( ) ) {
+		if ( isDesktopProfileActiveOrSpringNull( ) || isJunit( ) ) {
 
 			setDeveloperMode( true ) ;
 
@@ -668,7 +677,7 @@ public class Application {
 
 		}
 
-		return host.split( Pattern.quote( "." ) )[0] ;
+		return host.split( Pattern.quote( "." ) )[ 0 ] ;
 
 	}
 
@@ -1354,7 +1363,7 @@ public class Application {
 		if ( ! host.equals( hostShortName( host ) ) ) {
 
 			logger.debug( "Using qualified host: {}", host ) ;
-			appUrl = "http://" + host + ":" + appUrl.split( ":" )[2] ;
+			appUrl = "http://" + host + ":" + appUrl.split( ":" )[ 2 ] ;
 
 		}
 
@@ -1434,7 +1443,7 @@ public class Application {
 			if ( ! host.equals( hostShortName( host ) ) ) {
 
 				logger.debug( "Using qualified host: {}", host ) ;
-				url = "http://" + host + ":" + url.split( ":" )[2] ;
+				url = "http://" + host + ":" + url.split( ":" )[ 2 ] ;
 
 			}
 
@@ -1542,7 +1551,7 @@ public class Application {
 
 	}
 
-	public boolean isDesktopProfileActive ( ) {
+	public boolean isDesktopProfileActiveOrSpringNull ( ) {
 
 		if ( springEnvironment == null ) {
 
@@ -1939,7 +1948,9 @@ public class Application {
 
 		if ( warnIndex >= 0 ) {
 
-			logger.warn( "Found warnings: {}", lastParseResults.substring( warnIndex ) ) ;
+			logger.warn( CsapApplication.highlightHeader( "Found application definition warnings" ) ) ;
+			logger.warn( "\n\n {} \n\n", lastParseResults.substring( warnIndex ) ) ;
+
 			return false ;
 
 		}
@@ -2084,10 +2095,14 @@ public class Application {
 
 		} catch ( JsonParseException jp ) {
 
+			var stackSummary = CSAP.buildCsapStack( jp ) ;
+			outputManager.print( "Failed parsing json" ) ;
+			outputManager.print( stackSummary ) ;
+
 			parsingReport.put( "success", false ) ;
 			// Parsing exceptions come in here
 			// logger.error("Failed to parse config", jp);
-			ObjectNode errorItem = parseErrors.addObject( ) ;
+			var errorItem = parseErrors.addObject( ) ;
 			errorItem.put( "type", "json" ) ;
 			errorItem.put( "message", jp.getLocalizedMessage( ) ) ;
 			errorItem.put( "line", jp
@@ -2100,15 +2115,24 @@ public class Application {
 					.getLocation( )
 					.getCharOffset( ) ) ;
 
-		} catch ( IOException e ) {
+		} catch ( Exception e ) {
 
 			parsingReport.put( "success", false ) ;
 
 			// Parsing exceptions come in here
-			logger.error( "Failed to parse config", e ) ;
-			ObjectNode errorItem = parseErrors.addObject( ) ;
+			var stackSummary = CSAP.buildCsapStack( e ) ;
+			outputManager.print( "Failed processing definition" ) ;
+			outputManager.print( stackSummary ) ;
+			logger.error( "Failed to parse config: {}", stackSummary ) ;
+			var errorItem = parseErrors.addObject( ) ;
 			errorItem.put( "type", "semantic" ) ;
-			errorItem.put( "message", e.getLocalizedMessage( ) ) ;
+			errorItem.put( "message", stackSummary ) ;
+
+			if ( e.getMessage( ).contains( ProjectLoader.UNABLE_TO_ACTIVATE_ENV ) ) {
+
+				errorItem.put( "message", e.getMessage( ) ) ;
+
+			}
 
 			// outputManager.print(Application.CONFIG_PARSE_ERROR
 			// + "Failed to do parse config:\n" +
@@ -2303,7 +2327,7 @@ public class Application {
 
 					if ( filesInFolder.length == 1 ) {
 
-						version.append( filesInFolder[0].getName( ) ) ;
+						version.append( filesInFolder[ 0 ].getName( ) ) ;
 
 					} else {
 
@@ -2404,7 +2428,7 @@ public class Application {
 
 			if ( imageName.length >= 1 ) {
 
-				dockerVersion = imageName[1] ;
+				dockerVersion = imageName[ 1 ] ;
 
 			} else {
 
@@ -2434,7 +2458,8 @@ public class Application {
 						"bash", "-c",
 						instance.getDockerVersionCommand( ) ) ;
 
-				if ( versionOutput.length( ) > 0 ) {
+				if ( StringUtils.isNotEmpty( versionOutput )
+						&& ! versionOutput.equals( ContainerIntegration.CRIO_COMMAND_NOT_IMPLMENTED ) ) {
 
 					String customVersion = versionOutput.trim( ) ;
 
@@ -2745,9 +2770,9 @@ public class Application {
 
 		} catch ( Exception e ) {
 
-			logger.error( CsapApplication.header( "Failed to load definition: \n\t {}\n Reason: {}" ),
-					applicationDefinition( ).getAbsolutePath( ),
-					CSAP.buildCsapStack( e ) ) ;
+			logger.error( CSAP.buildDescription( "Failed to load definition",
+					"path", applicationDefinition( ).getAbsolutePath( ),
+					"error", CSAP.buildCsapStack( e ) ) ) ;
 
 			csapEventClient.publishEvent( CsapCore.AGENT_NAME,
 					" parsing: " + applicationDefinition( ).getAbsolutePath( ), "Parse Failure", e ) ;
@@ -3969,6 +3994,39 @@ public class Application {
 
 	}
 
+	public boolean isCrioInstalledAndActive ( ) {
+
+		if ( isJunit( )
+				|| ( isDesktopHost( )
+						&& getDockerIntegration( ).getSettings( ).getUrl( ).contains( "podman" ) ) ) {
+
+			return true ;
+
+		}
+
+		return is_service_running( "crio" ) ;
+
+	}
+
+	public String getDockerHost ( ) throws URISyntaxException {
+
+		var dockerUrl = getDockerIntegration( ).getSettings( ).getUrl( ) ;
+		var uri = new URI( dockerUrl ) ;
+		var dockerHost = uri.getHost( ) ;
+		return dockerHost ;
+
+	}
+
+	public CrioIntegraton crio ( ) {
+
+		return crioIntegraton ;
+
+	}
+
+	private File crioConf = new File( "/etc/crio/crio.conf" ) ;
+
+	private File podManStorage = new File( "/var/lib/containers" ) ;
+
 	private File dockerSocket = new File( "/var/run/docker.sock" ) ;
 
 	public boolean isDockerInstalledAndActive ( ) {
@@ -3981,7 +4039,8 @@ public class Application {
 
 		}
 
-		if ( is_service_running( "docker" ) ) {
+		if ( is_service_running( "docker" )
+				|| is_service_running( "podman-system-service" ) ) {
 
 			return true ;
 
@@ -4037,7 +4096,14 @@ public class Application {
 
 		if ( isAgentProfile( ) ) {
 
-			if ( kubernetesIntegration == null || ! isDockerInstalledAndActive( ) ) {
+			if ( kubernetesIntegration == null ) {
+
+				return false ;
+
+			} else if ( crioConf.exists( ) ) {
+
+				// no op
+			} else if ( ! isDockerInstalledAndActive( ) ) {
 
 				return false ;
 
@@ -4303,7 +4369,7 @@ public class Application {
 	public int getMaxDeploySecondsForService ( String serviceNamePort ) {
 
 		// in case port is added
-		String serviceName = serviceNamePort.split( "_" )[0] ;
+		String serviceName = serviceNamePort.split( "_" )[ 0 ] ;
 
 		OptionalInt largestTimeout = getAllPackages( ).getServiceInstances( serviceName )
 				.mapToInt( ServiceInstance::getDeployTimeOutSeconds )
@@ -4336,8 +4402,8 @@ public class Application {
 
 		}
 
-		String svcName = serviceDescription[0] ;
-		String port = serviceDescription[1] ;
+		String svcName = serviceDescription[ 0 ] ;
+		String port = serviceDescription[ 1 ] ;
 		ArrayList<ServiceInstance> instanceList = getRootProject( )
 				.getAllPackagesModel( )
 				.getServiceToAllInstancesMap( )
@@ -4380,8 +4446,8 @@ public class Application {
 
 		}
 
-		String svcName = svc[0] ;
-		String port = svc[1] ;
+		String svcName = svc[ 0 ] ;
+		String port = svc[ 1 ] ;
 		ArrayList<ServiceInstance> instanceList = getProject( releasePackage )
 				.getServiceToAllInstancesMap( )
 				.get(
@@ -4476,7 +4542,7 @@ public class Application {
 
 		String[] serviceDescription = serviceName.split( "_", 2 ) ;
 
-		String svcName = serviceDescription[0] ;
+		String svcName = serviceDescription[ 0 ] ;
 		// String port = serviceDescription[1] ;
 		var instanceList = targetModel
 				.getServicesListOnHost( hostname ) ;
@@ -5185,10 +5251,10 @@ public class Application {
 			// (double-quote, backslash etc)
 			int[] esc = CharacterEscapes.standardAsciiEscapesForJSON( ) ;
 			// and force escaping of a few others:
-			esc['<'] = CharacterEscapes.ESCAPE_STANDARD ;
-			esc['>'] = CharacterEscapes.ESCAPE_STANDARD ;
-			esc['&'] = CharacterEscapes.ESCAPE_STANDARD ;
-			esc['\''] = CharacterEscapes.ESCAPE_STANDARD ;
+			esc[ '<' ] = CharacterEscapes.ESCAPE_STANDARD ;
+			esc[ '>' ] = CharacterEscapes.ESCAPE_STANDARD ;
+			esc[ '&' ] = CharacterEscapes.ESCAPE_STANDARD ;
+			esc[ '\'' ] = CharacterEscapes.ESCAPE_STANDARD ;
 			asciiEscapes = esc ;
 
 		}
@@ -5694,14 +5760,14 @@ public class Application {
 
 	}
 
-	public DockerIntegration getDockerIntegration ( ) {
+	public ContainerIntegration getDockerIntegration ( ) {
 
 		return dockerIntegration ;
 
 	}
 
 	public void setDockerIntegration (
-										DockerIntegration dockerHelper ) {
+										ContainerIntegration dockerHelper ) {
 
 		this.dockerIntegration = dockerHelper ;
 

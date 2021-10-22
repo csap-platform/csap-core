@@ -8,7 +8,6 @@ import java.time.format.DateTimeFormatter ;
 import java.util.Collections ;
 import java.util.Date ;
 import java.util.HashMap ;
-import java.util.LinkedHashMap ;
 import java.util.Map ;
 import java.util.Random ;
 import java.util.TreeMap ;
@@ -29,7 +28,6 @@ import org.csap.agent.container.kubernetes.KubernetesJson ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.linux.OsCommandRunner ;
 import org.csap.agent.model.Application ;
-import org.csap.agent.model.ContainerState ;
 import org.csap.agent.model.EnvironmentSettings ;
 import org.csap.agent.model.ProcessRuntime ;
 import org.csap.agent.model.Project ;
@@ -516,6 +514,8 @@ public class CorePortals {
 
 		String results = "" ;
 
+		var debugDetails = "" ;
+
 		try {
 
 			var nonK8Service = application.findServiceByNameOnCurrentHost( serviceid ) ;
@@ -533,24 +533,29 @@ public class CorePortals {
 			} else {
 
 				logger.debug( "serviceid: {}", serviceid ) ;
-				int podDelim = serviceid.lastIndexOf( "-" ) ;
-				String serviceName = serviceid.substring( 0, podDelim ) ;
-				String podIndex = serviceid.substring( podDelim + 1 ) ;
+				var podDelim = serviceid.lastIndexOf( "-" ) ;
+				var serviceName = serviceid.substring( 0, podDelim ) ;
+				var podIndex = serviceid.substring( podDelim + 1 ) ;
 
 				logger.debug( "serviceid: {} serviceName: {} podIndex: {}", serviceid, serviceName, podIndex ) ;
 
-				ServiceInstance service = application.findServiceByNameOnCurrentHost( serviceName ) ;
-				ContainerState container = service.getContainerStatusList( ).get( Integer.parseInt( podIndex ) - 1 ) ;
+				var service = application.findServiceByNameOnCurrentHost( serviceName ) ;
 
-				configuredUrl = service.getHttpCollectionSettings( ).path( "javaCollectionUrl" ).asText( ) ;
+				var containerStatusReport = service.getContainerStatusList( ).get( Integer.parseInt( podIndex ) - 1 ) ;
+
+//				configuredUrl = service.getHttpCollectionSettings( ).path( "javaCollectionUrl" ).asText( "java-collection-url-not-found" ) ;
+				configuredUrl = service.getHttpCollectionSettings( ).path( "httpCollectionUrl" ).asText(
+						"http-collection-not-found" ) ;
+
 				configuredUrl = service.resolveRuntimeVariables( configuredUrl ) ;
+
 				configuredUrl = configuredUrl.replaceAll(
 						Matcher.quoteReplacement( CsapCore.K8_POD_IP ),
-						container.getPodIp( ) ) ;
+						containerStatusReport.getPodIp( ) ) ;
 
 			}
 
-			String collectionUrl = configuredUrl ;
+			var collectionUrl = configuredUrl ;
 
 			if ( collectionUrl.contains( "?" ) ) {
 
@@ -586,6 +591,8 @@ public class CorePortals {
 
 			} else {
 
+				debugDetails = "configuredUrl: " + configuredUrl + " collectionUrl: " + collectionUrl ;
+
 				collectionResponse = podProxyRestTemplate.getForEntity( collectionUrl, String.class ) ;
 
 			}
@@ -601,7 +608,7 @@ public class CorePortals {
 			collection.put( "details", reason ) ;
 			results = collection.toString( ) ;
 
-			logger.warn( "Failed proxy request: {}", reason ) ;
+			logger.warn( "{} Failed proxy request: {}  {}", serviceid, debugDetails, reason ) ;
 
 		}
 
@@ -630,7 +637,7 @@ public class CorePortals {
 		if ( debug ) {
 
 			response.setStatus( 200 ) ;
-			response.getWriter( ).println( "debug mode"  ) ;
+			response.getWriter( ).println( "debug mode" ) ;
 
 		} else {
 
@@ -696,16 +703,18 @@ public class CorePortals {
 
 		logger.info( "Path location: '{}'", location ) ;
 		response.setHeader( "Location", location ) ;
+
 		if ( debug ) {
 
 			response.setStatus( 200 ) ;
-			response.getWriter( ).println( "debug mode"  ) ;
+			response.getWriter( ).println( "debug mode" ) ;
 
 		} else {
 
 			response.setStatus( 302 ) ;
 
 		}
+
 		response.getWriter( ).println( "ingress lookup, location: " + location ) ;
 
 	}

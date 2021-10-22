@@ -930,7 +930,7 @@ public abstract class ServiceBase {
 		try {
 
 			String[] mavenArray = mavenId.split( ":" ) ;
-			version = mavenArray[2] ;
+			version = mavenArray[ 2 ] ;
 
 		} catch ( Exception e ) {
 
@@ -1229,7 +1229,7 @@ public abstract class ServiceBase {
 
 		if ( hname.length == 2 ) {
 
-			suffix = hname[1] ;
+			suffix = hname[ 1 ] ;
 
 		}
 

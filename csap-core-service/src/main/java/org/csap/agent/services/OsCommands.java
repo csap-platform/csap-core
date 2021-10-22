@@ -22,6 +22,10 @@ public class OsCommands {
 	private List<String> systemDiskWithRateOnly = NOT_INITIALIZED ;
 	private List<String> systemDiskWithUtilization = NOT_INITIALIZED ;
 
+	private List<String> criPs = NOT_INITIALIZED ;
+	private List<String> criPidReport = NOT_INITIALIZED ;
+	private List<String> criInspect = NOT_INITIALIZED ;
+
 	private List<String> diskUsageSystem = NOT_INITIALIZED ;
 	private List<String> diskUsageAbout = NOT_INITIALIZED ;
 	private List<String> diskUsageCsap = NOT_INITIALIZED ;
@@ -624,6 +628,45 @@ public class OsCommands {
 	public void setServiceJobsDiskClean ( String serviceJobsDiskClean ) {
 
 		this.serviceJobsDiskClean = toList( serviceJobsDiskClean ) ;
+
+	}
+
+	public List<String> getCriPs ( ) {
+
+		return criPs ;
+
+	}
+
+	public void setCriPs ( String crictlPs ) {
+
+		this.criPs = toList( crictlPs ) ;
+
+	}
+
+	public List<String> getCriInspect ( String id ) {
+
+		return criInspect
+				.stream( )
+				.map( line -> line.replaceAll( Matcher.quoteReplacement( "$id" ), id ) )
+				.collect( Collectors.toList( ) ) ;
+
+	}
+
+	public void setCriInspect ( String crictlInspect ) {
+
+		this.criInspect = toList( crictlInspect ) ;
+
+	}
+
+	public List<String> getCriPidReport ( ) {
+
+		return criPidReport ;
+
+	}
+
+	public void setCriPidReport ( String criPidReport ) {
+
+		this.criPidReport = toList( criPidReport ) ;
 
 	}
 

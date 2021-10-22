@@ -5,7 +5,7 @@ import java.util.Optional ;
 import javax.inject.Inject ;
 import javax.servlet.http.HttpServletResponse ;
 
-import org.csap.agent.container.DockerIntegration ;
+import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.container.DockerJson ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.model.Application ;
@@ -35,8 +35,8 @@ import com.github.dockerjava.api.model.Container ;
 import com.github.dockerjava.api.model.Info ;
 
 @RestController
-@RequestMapping ( DockerExplorer.EXPLORER_URL + "/docker" )
-public class DockerExplorer {
+@RequestMapping ( ContainerExplorer.EXPLORER_URL + "/docker" )
+public class ContainerExplorer {
 
 	final Logger logger = LoggerFactory.getLogger( this.getClass( ) ) ;
 	ObjectMapper jacksonMapper = new ObjectMapper( ) ;
@@ -44,7 +44,7 @@ public class DockerExplorer {
 	public final static String EXPLORER_URL = "/explorer" ;
 
 	@Inject
-	public DockerExplorer (
+	public ContainerExplorer (
 			Application csapApp,
 			OsManager osManager,
 			CsapEvents csapEventClient ) {
@@ -68,7 +68,7 @@ public class DockerExplorer {
 	DockerClient dockerClient ;
 
 	@Autowired ( required = false )
-	DockerIntegration dockerIntegration ;
+	ContainerIntegration dockerIntegration ;
 
 	@GetMapping ( "/configuration" )
 	public JsonNode dockerConfiguration ( ) {
@@ -205,10 +205,13 @@ public class DockerExplorer {
 	public ArrayNode containersListing ( boolean showFilteredItems )
 		throws Exception {
 
-		if ( ! csapApp.isDockerInstalledAndActive( ) )
+		if ( ! csapApp.isDockerInstalledAndActive( ) ) {
+
 			return build_not_configured_listing( ) ;
 
-		return dockerIntegration.containers( showFilteredItems ) ;
+		}
+
+		return dockerIntegration.containerListing( showFilteredItems ) ;
 
 	}
 

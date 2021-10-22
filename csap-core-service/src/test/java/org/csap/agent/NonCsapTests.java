@@ -2,10 +2,8 @@ package org.csap.agent ;
 
 import static org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder ;
 
-import java.io.BufferedReader ;
 import java.io.File ;
 import java.io.IOException ;
-import java.io.InputStreamReader ;
 import java.io.OutputStream ;
 import java.lang.management.ManagementFactory ;
 import java.lang.management.MemoryMXBean ;
@@ -58,8 +56,6 @@ import org.junit.jupiter.api.Disabled ;
 import org.junit.jupiter.api.Test ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
-import org.springframework.core.io.ByteArrayResource ;
-import org.springframework.core.io.ClassPathResource ;
 import org.springframework.core.io.DefaultResourceLoader ;
 import org.springframework.http.HttpEntity ;
 import org.springframework.http.HttpHeaders ;
@@ -130,12 +126,11 @@ public class NonCsapTests {
 
 		logger.info( CsapApplication.testHeader( ) ) ;
 
-		//var cp = new ClassPathResource("/info.png" ) ;
-		var resourceLoader = new DefaultResourceLoader();
-		var cp = resourceLoader.getResource("/info.png" ) ;
+		// var cp = new ClassPathResource("/info.png" ) ;
+		var resourceLoader = new DefaultResourceLoader( ) ;
+		var cp = resourceLoader.getResource( "/info.png" ) ;
 
 		var src = cp.getInputStream( ) ;
-		
 
 //		try ( var reader = new BufferedReader(
 //				new InputStreamReader( resource ) ) ) {
@@ -149,10 +144,9 @@ public class NonCsapTests {
 //
 //		}
 
-		
-		//InputStream src = c.getResourceAsStream(res);
-	    Files.copy(src, Paths.get("/dev/peter.png"), StandardCopyOption.REPLACE_EXISTING);
-	    
+		// InputStream src = c.getResourceAsStream(res);
+		Files.copy( src, Paths.get( "/dev/peter.png" ), StandardCopyOption.REPLACE_EXISTING ) ;
+
 		// logger.info( "MissingNode.getInstance int value: {}", misValue );
 
 	}
@@ -1069,7 +1063,7 @@ public class NonCsapTests {
 
 		if ( users.length == 3 ) {
 
-			descLine = users[1] ;
+			descLine = users[ 1 ] ;
 
 		}
 
@@ -1130,7 +1124,7 @@ public class NonCsapTests {
 			// (double-quote, backslash etc)
 			int[] esc = CharacterEscapes.standardAsciiEscapesForJSON( ) ;
 			// esc['/'] = CharacterEscapes.ESCAPE_STANDARD ;
-			esc['/'] = CharacterEscapes.ESCAPE_CUSTOM ;
+			esc[ '/' ] = CharacterEscapes.ESCAPE_CUSTOM ;
 			asciiEscapes = esc ;
 
 		}

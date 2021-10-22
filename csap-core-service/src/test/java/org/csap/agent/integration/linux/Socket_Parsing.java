@@ -15,7 +15,7 @@ import org.csap.agent.Agent_context_loaded ;
 import org.csap.agent.CsapCore ;
 import org.csap.agent.CsapThinTests ;
 import org.csap.agent.linux.OsCommandRunner ;
-import org.csap.agent.linux.ServiceResourceRunnable ;
+import org.csap.agent.linux.ResourceCollector ;
 import org.csap.agent.model.ServiceInstance ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test ;
 
 public class Socket_Parsing extends CsapThinTests {
 
-	ServiceResourceRunnable osCollector ;
+	ResourceCollector osCollector ;
 
 	@BeforeAll
 	public void beforeAll ( )
@@ -51,7 +51,7 @@ public class Socket_Parsing extends CsapThinTests {
 		// csapApplication.setAutoReload( false ) ;
 		//
 		// csapApplication.initialize() ;
-		osCollector = new ServiceResourceRunnable( getApplication( ), new OsCommandRunner( 2, 2, "dummy" ) ) ;
+		osCollector = new ResourceCollector( getApplication( ), new OsCommandRunner( 2, 2, "dummy" ) ) ;
 
 		assertThat( getApplication( ).loadDefinitionForJunits( false, Agent_context_loaded.SIMPLE_TEST_DEFINITION ) )
 				.as( "No Errors or warnings" )
@@ -72,7 +72,7 @@ public class Socket_Parsing extends CsapThinTests {
 
 		agentInstance.getDefaultContainer( ).setPid( Arrays.asList( "13303" ) ) ;
 
-		osCollector.testSocketParsing( agentInstance, true ) ;
+		osCollector.testSocketParsing( agentInstance ) ;
 		// errer
 		assertThat( agentInstance.getDefaultContainer( ).getSocketCount( ) )
 				.as( "socket count" )
@@ -100,9 +100,9 @@ public class Socket_Parsing extends CsapThinTests {
 				.as( "server override" )
 				.isTrue( ) ;
 
-		CSAP.setLogToDebug( ServiceResourceRunnable.class.getName( ) ) ;
-		osCollector.testSocketParsing( ingressService, false ) ;
-		CSAP.setLogToInfo( ServiceResourceRunnable.class.getName( ) ) ;
+		CSAP.setLogToDebug( ResourceCollector.class.getName( ) ) ;
+		osCollector.testSocketParsing( ingressService ) ;
+		CSAP.setLogToInfo( ResourceCollector.class.getName( ) ) ;
 
 		assertThat( ingressService.getDefaultContainer( ).getSocketCount( ) )
 				.as( "socket count" )
@@ -121,9 +121,9 @@ public class Socket_Parsing extends CsapThinTests {
 				.isTrue( ) ;
 
 		agentInstance.getDefaultContainer( ).setPid( Arrays.asList( "10941" ) ) ;
-		CSAP.setLogToDebug( ServiceResourceRunnable.class.getName( ) ) ;
-		osCollector.testSocketParsing( agentInstance, false ) ;
-		CSAP.setLogToInfo( ServiceResourceRunnable.class.getName( ) ) ;
+		CSAP.setLogToDebug( ResourceCollector.class.getName( ) ) ;
+		osCollector.testSocketParsing( agentInstance ) ;
+		CSAP.setLogToInfo( ResourceCollector.class.getName( ) ) ;
 
 		assertThat( agentInstance.getDefaultContainer( ).getSocketCount( ) )
 				.as( "socket count" )

@@ -4,6 +4,8 @@ public enum DockerJson {
 
 	containerName("containerName"), imageName("image"),
 
+	helmChartName("helm-chart-name"), helmChartVersion("helm-chart-version"), helmChartRepo("helm-chart-repo"),
+
 	socketNamespace("socketNamespace"),
 
 	// processMatching
@@ -43,6 +45,7 @@ public enum DockerJson {
 	// response messages
 	response_plain_text("plainText"),
 	response_yaml("response-yaml"),
+	response_html("response-html"),
 	response_json("response-json"),
 	response_shell("response-sh"),
 	response_start_results("startResults"),

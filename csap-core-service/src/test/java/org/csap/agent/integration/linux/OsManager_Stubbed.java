@@ -17,8 +17,8 @@ import javax.inject.Inject ;
 import org.apache.commons.lang3.StringUtils ;
 import org.csap.agent.CsapCore ;
 import org.csap.agent.CsapThinTests ;
+import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.container.ContainerProcess ;
-import org.csap.agent.container.DockerIntegration ;
 import org.csap.agent.container.DockerJson ;
 import org.csap.agent.model.ClusterType ;
 import org.csap.agent.model.ContainerState ;
@@ -517,7 +517,7 @@ class OsManager_Stubbed extends CsapThinTests {
 
 			logger.info( "{}  using pattern: {}, processMatchResults: {}",
 					k8TestService.getName( ),
-					DockerIntegration.getProcessMatch( k8TestService ),
+					ContainerIntegration.getProcessMatch( k8TestService ),
 					processMatchResults ) ;
 
 			assertThat( k8TestService.getContainerStatusList( ).size( ) )

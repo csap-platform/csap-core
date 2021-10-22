@@ -485,7 +485,7 @@ public class HostRequests {
 				hosts,
 				scriptName, outputFm ) ;
 
-		if ( csapApp.isDesktopProfileActive( ) ) {
+		if ( csapApp.isDesktopProfileActiveOrSpringNull( ) ) {
 
 			TimeUnit.SECONDS.sleep( 5 ) ;
 
@@ -1128,7 +1128,7 @@ public class HostRequests {
 
 				for ( int i = 0; i < jsonLines.length; i++ ) {
 
-					response.getWriter( ).print( jsonLines[i] ) ;
+					response.getWriter( ).print( jsonLines[ i ] ) ;
 
 					if ( i != jsonLines.length - 1 ) {
 
@@ -1483,7 +1483,7 @@ public class HostRequests {
 
 		// We do not got remote if we are getting historical, or if local
 		if ( csapApp.isAdminProfile( )
-				&& ! ( Application.isRunningOnDesktop( ) && hostNameArray[0].equals( "localhost" ) ) ) {
+				&& ! ( Application.isRunningOnDesktop( ) && hostNameArray[ 0 ].equals( "localhost" ) ) ) {
 
 			logger.warn( "DEPRECATED - use analytics API" ) ;
 			ObjectNode err = jacksonMapper.createObjectNode( ) ;

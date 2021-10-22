@@ -1361,6 +1361,7 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], fu
         treeRenderNode( fileManager, fancyTreeNode ) {
 
             let userData = fancyTreeNode.node.data ;
+            let treeTitle = fancyTreeNode.node.title ;
             //console.log( "treeRenderNode() ", userData );
 
 
@@ -1375,34 +1376,34 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], fu
             let jsonRegEx = new RegExp( "(.*json)$|(.*yml)$|(.*yaml)$" ) ;
             let mlRegEx = new RegExp( "(.*ml)$" ) ;
 
-            if ( bootRegEx.test( fancyTreeNode.node.title ) ) {
+            if ( bootRegEx.test( treeTitle ) ) {
                 fancyTreeNode.node.extraClasses = "boot" ;
-            } else if ( logRegEx.test( fancyTreeNode.node.title ) ) {
+            } else if ( logRegEx.test( treeTitle ) ) {
                 fancyTreeNode.node.extraClasses = "logs" ;
-            } else if ( propertyRegEx.test( fancyTreeNode.node.title ) ) {
+            } else if ( propertyRegEx.test( treeTitle ) ) {
                 fancyTreeNode.node.extraClasses = "properties" ;
-            } else if ( shellRegEx.test( fancyTreeNode.node.title ) ) {
+            } else if ( shellRegEx.test( treeTitle ) ) {
                 fancyTreeNode.node.extraClasses = "shell" ;
-            } else if ( compressedRegEx.test( fancyTreeNode.node.title ) ) {
+            } else if ( compressedRegEx.test( treeTitle ) ) {
                 fancyTreeNode.node.extraClasses = "compressed" ;
-            } else if ( javaRegEx.test( fancyTreeNode.node.title ) ) {
+            } else if ( javaRegEx.test( treeTitle ) ) {
                 fancyTreeNode.node.extraClasses = "java" ;
-            } else if ( jsonRegEx.test( fancyTreeNode.node.title ) ) {
+            } else if ( jsonRegEx.test( treeTitle ) ) {
                 fancyTreeNode.node.extraClasses = "json" ;
-            } else if ( mlRegEx.test( fancyTreeNode.node.title ) ) {
+            } else if ( mlRegEx.test( treeTitle ) ) {
                 fancyTreeNode.node.extraClasses = "ml" ;
-            } else if ( fancyTreeNode.node.title == "-" ) {
+            } else if ( treeTitle == "-" ) {
                 fancyTreeNode.node.extraClasses = "logs" ;
             }
 
             if ( userData.meta != undefined
-                    && fancyTreeNode.node.title.indexOf( "meta" ) == -1 ) {
+                    && treeTitle.indexOf( "meta" ) == -1 ) {
                 let metaArray = userData.meta
                         .split( "," ) ;
 
                 jQuery( '<span/>', {
                     class: "metaTitle",
-                    text: fancyTreeNode.node.title
+                    text: treeTitle
                 } ).appendTo( $description ) ;
 
                 let $extra = jQuery( '<span/>', {
@@ -1426,7 +1427,75 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], fu
                 fancyTreeNode.node.setTitle( $description.html() ) ;
                 fileManager.registerNodeActions( fileManager ) ;
 
+            } else if ( treeTitle.startsWith( `crio---`) ) {
+                //
+                //  crio container listings
+                //
+                
+                console.debug( `crioContainer found` ) ;
+                
+                let titleSections =  treeTitle.split("---") ;
+                
+                if ( titleSections.length == 4 ) {
+                
+                    jQuery( '<span/>', {
+                        class: "pod-title-sections",
+                        title: "namespace",
+                        html: titleSections[ 1 ].padEnd(25) 
+                    } ).appendTo( $description ) ;
+                
+                    jQuery( '<span/>', {
+                        class: "pod-title-container",
+                        title: "container name",
+                        html: "&nbsp;"  + titleSections[ 3 ].padEnd(30) 
+                    } ).appendTo( $description ) ;
+                
+                    jQuery( '<span/>', {
+                        class: "pod-title-sections",
+                        title: "pod name",
+                        html: "&nbsp;" +  titleSections[ 2 ]
+                    } ).appendTo( $description ) ;
+                }
+                
+                fancyTreeNode.node.setTitle( $description.html() ) ; ;
+                
+            } else if ( treeTitle.startsWith( `k8s_`) ) {
+                //
+                //  crio container listings
+                //
+                
+                let titleSections =  treeTitle.split("_") ;
+                
+                if ( titleSections.length == 6 ) {
+                
+                    jQuery( '<span/>', {
+                        class: "pod-title-sections",
+                        title: "namespace",
+                        html: titleSections[ 3 ] 
+                    } ).appendTo( $description ) ;
+                
+                    jQuery( '<span/>', {
+                        class: "pod-title-container",
+                        title: "container name",
+                        html: "&nbsp;"  + titleSections[ 1 ]
+                    } ).appendTo( $description ) ;
+                
+                    jQuery( '<span/>', {
+                        class: "pod-title-sections",
+                        title: "pod name",
+                        html: "&nbsp;" +  titleSections[ 2 ]
+                    } ).appendTo( $description ) ;
+                    
+                    if ( titleSections[ 1 ] == `POD`) {
+                        console.log(`hiding pod`) ;
+                        $(fancyTreeNode.node.span).closest('li').css("display", "none");
+                    }
+                }
+                
+                fancyTreeNode.node.setTitle( $description.html() ) ; ;
+                
             }
+            
 
 
         }
@@ -1735,25 +1804,25 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], fu
             let dockerDisk = this.getTipPath( "dockerDisk" ) ;
             if ( dockerDisk !== "" ) {
 
-                let description = "docker exec ls ..." ;
+                let description = "browse/edit files in running containers" ;
                 let isFolder = true ;
                 if ( dockerDisk === "_error_" ) {
                     description = "not accessible" ;
                     isFolder = false ;
                 }
                 defaultTree.push( {
-                    "title": this.buildTitleHtml( "docker containers", description ),
+                    "title": this.buildTitleHtml( "containers - running", description ),
                     "name": "docker",
                     "location": "__docker__",
                     "folder": isFolder,
                     "lazy": isFolder,
-                    "extraClasses": "ft_docker",
+                    "extraClasses": "ft_containers",
                     "tooltip": dockerDisk + "/containers"
                 } ) ;
 
 
                 defaultTree.push( {
-                    "title": this.buildTitleHtml( "docker filesystem", dockerDisk ),
+                    "title": this.buildTitleHtml( "containers - storage", dockerDisk ),
                     "name": "dockerlib",
                     "location": "__root__" + dockerDisk,
                     "folder": true,
@@ -1762,6 +1831,18 @@ define( [ "browser/utils", "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], fu
                     "extraClasses": "root"
                 } ) ;
 
+            }
+            
+            let containersDisk = this.getTipPath( "containersDisk" ) ;
+            if ( containersDisk !== ""  ) {
+                defaultTree.push( {
+                    "title": this.buildTitleHtml( "containers - filesystem", containersDisk ),
+                    "name": "systemd",
+                    "location": "__root__" + containersDisk,
+                    "folder": true,
+                    "lazy": true,
+                    "extraClasses": "root"
+                } ) ;
             }
 
             if ( this.getTipPath( "kubernetesDisk" ) ) {

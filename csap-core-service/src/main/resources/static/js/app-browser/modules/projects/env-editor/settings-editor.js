@@ -34,6 +34,12 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
                 "group": "ldap-user-group"
             }
         },
+        
+        "csap-collection": {
+            kubernetes: [ "some-container-name1", "another-container-name" ],
+            
+            "kubernetes-namespaces": [ "default", "kube-system" ]
+        },
 
         "metricsPublication": [
             {
@@ -221,15 +227,15 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
 
     function registerUiComponents() {
 
-        console.log( "registerUiComponents(): registering tab events" ) ;
+        console.log( "registering tab events" ) ;
 
         $( _editPanel ).tabs( {
 
             beforeActivate: function ( event, ui ) {
 
                 if ( ui.oldTab.text().indexOf( "Editor" ) != -1 ) {
-                    // refresh ui with edit changes.
-                    console.log( "registerUiComponents():  parsing serviceJson" ) ;
+                    
+                    console.log( "\n\n SPEC EDITOR: was last tab; reloading current definition" ) ;
                     _settingsJson = JSON.parse( $( _definitionTextAreaId ).val() ) ;
                     getSettingsDefinitionSuccess( _settingsJson ) ;
                 }
@@ -237,7 +243,8 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
             },
 
             activate: function ( event, ui ) {
-                console.log( "registerUiComponents(): activating: " + ui.newTab.text() ) ;
+                
+                console.log( `\n\n activating tab: ${ ui.newTab.text() } ` ) ;;
 
                 _isJsonEditorActive = false ;
                 if ( ui.newTab.text().indexOf( "Editor" ) != -1 ) {
@@ -248,9 +255,9 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
                     populateRealTimeTable() ;
                 } else if ( ui.newTab.text().indexOf( "Trends" ) != -1 ) {
                     populateTrendingTable() ;
-                } else {
-                    refresh_layout() ;
                 }
+                
+                refresh_layout() ;
 
             }
         } ) ;
@@ -282,7 +289,7 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
             }
             //activateTab( "landing" ) ;
             console.log( "settings_loaded_defer: updating post run actions" ) ;
-            foldConfigMaps( 500 )
+            //foldConfigMaps( 500 )
 
         } ) ;
 
@@ -352,7 +359,7 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
             _performanceLabels = settingsConfig.performanceLabels ;
 
             settings_loaded_defer.resolve() ;
-            foldConfigMaps() ;
+            //foldConfigMaps() ;
 
         } ).fail( function ( jqXHR, textStatus, errorThrown ) {
 

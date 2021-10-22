@@ -1,7 +1,6 @@
 define( [ ], function () {
 
     console.log( "Module loaded" ) ;
-
     let hackLengthForTesting = -1 ;
 
     return {
@@ -11,7 +10,7 @@ define( [ ], function () {
         }
     }
 
-    function processValidationResults( parsedJson ) {
+    function processValidationResults( validationReport ) {
 
         // Clear previous errors from text area
         $( ".errorIcon" ).removeClass( "errorIcon" ) ;
@@ -24,20 +23,20 @@ define( [ ], function () {
         let resultsText = "Parsing Successful" ;
 
 
-        if ( !parsedJson.success ) {
+        if ( !validationReport.success ) {
             resultsClass = "status-red" ;
             resultsText = "Parsing Failed" ;
         }
 
         jQuery( '<span/>', {
-			class: resultsClass,
+            class: resultsClass,
             text: resultsText
         } ).css( "height", "1.2em" ).appendTo( resultsContainer ) ;
 
 
         resultsContainer.append( "<br>" ) ;
 
-        if ( parsedJson.errors && parsedJson.errors.length > 0 ) {
+        if ( validationReport.errors && validationReport.errors.length > 0 ) {
 
             let errorsObj = jQuery( '<div/>', {
                 class: "warning"
@@ -47,13 +46,13 @@ define( [ ], function () {
             let listJQ = jQuery( '<ol/>', {
                 class: "error"
             } ) ;
-            for ( let i = 0 ; i < parsedJson.errors.length ; i++ ) {
+            for ( let i = 0 ; i < validationReport.errors.length ; i++ ) {
 
                 // 2 scenarios: a parsing error with a line number, and a semantic
                 // error with just contents
                 $( ".textWarning" ).html( "Found some Errors<br> Run validator to view" ).show() ;
-                let error = parsedJson.errors[i] ;
-                let errorMessage = parsedJson.errors[i] ;
+                let error = validationReport.errors[i] ;
+                let errorMessage = validationReport.errors[i] ;
                 if ( error.line ) {
                     console.log( "Found error: " + error.line ) ;
                     errorMessage = '<span style="font-weight: bold"> Line: ' + error.line + "</span> Message: <br>"
@@ -80,25 +79,46 @@ define( [ ], function () {
             listJQ.appendTo( errorsObj ) ;
             errorsObj.appendTo( resultsContainer ) ;
         } else {
-            if ( parsedJson.warnings && parsedJson.warnings.length > 0 ) {
+            
+            if ( validationReport.warnings && validationReport.warnings.length > 0 ) {
 
-                let errorsObj = jQuery( '<div/>', {
-                    class: "warning"
-                } ).text( "Warnings: " ) ;
-                let listJQ = jQuery( '<ol/>', {
-                    class: "error"
+                let $warnings = jQuery( '<div/>', {
+                    class: "warning",
+                    text: "Warnings"
                 } ) ;
-                for ( let i = 0 ; i < parsedJson.warnings.length ; i++ ) {
+
+                let $warningsList = jQuery( '<ol/>', { class: "csap-list" } ) ;
+
+                for ( let warning of  validationReport.warnings ) {
                     $( ".textWarning" ).html( "Found some Warnings<br> Run validator to view" ).show() ;
-                    let noteItem = parsedJson.warnings[i] ;
+                    let noteItem = warning ;
                     noteItem = noteItem.replace( "__WARN:", "" ) ;
                     jQuery( '<li/>', {
-                        class: "error"
-                    } ).html( noteItem ).appendTo( listJQ ) ;
+                        html: noteItem
+                    } ).appendTo( $warningsList ) ;
                 }
-                listJQ.appendTo( errorsObj ) ;
-                errorsObj.appendTo( resultsContainer ) ;
+                $warningsList.appendTo( $warnings ) ;
+                $warnings.appendTo( resultsContainer ) ;
             }
+//            if ( validationReport.warnings && validationReport.warnings.length > 0 ) {
+//
+//                let errorsObj = jQuery( '<div/>', {
+//                    class: "warning"
+//                } ).text( "Warnings: " ) ;
+//                let listJQ = jQuery( '<ol/>', {
+//                    class: "error"
+//                } ) ;
+//                for ( let i = 0 ; i < validationReport.warnings.length ; i++ ) {
+//                    $( ".textWarning" ).html( "Found some Warnings<br> Run validator to view" ).show() ;
+//                    let noteItem = validationReport.warnings[i] ;
+//                    noteItem = noteItem.replace( "__WARN:", "" ) ;
+//                    jQuery( '<li/>', {
+//                        class: "error"
+//                    } ).html( noteItem ).appendTo( listJQ ) ;
+//                }
+//                listJQ.appendTo( errorsObj ) ;
+//                errorsObj.appendTo( resultsContainer ) ;
+//            }
         }
 
         resultsContainer.append( "<br>" ) ;

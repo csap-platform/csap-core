@@ -244,6 +244,16 @@ body.stand-alone .csap-file-monitor header>div:first-child {
     min-width: 10em;
 }
 
+.csap-file-browser .pod-title-sections {
+    display: inline-block;
+    min-width: 10em;
+}
+.csap-file-browser .pod-title-container {
+    display: inline-block;
+    min-width: 20em;
+    font-weight: bold;
+}
+
 #monitorDiv {
     height: 300px;
     overflow-y: auto;

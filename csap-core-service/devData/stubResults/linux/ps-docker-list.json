@@ -8,8 +8,18 @@
 		"podNamespace": null,
 		"dummy": "please-ignore",
 		"inDefinition": false
-	},
-	{
+	}, {
+	  "pid" : "999999",
+	  "matchName" : "nginx",
+	  "nameSpaceMatched" :
+			true,
+	  "containerName" : "crio---helm-demos---helm-nginx-simple-76bdfc587-gjltf---nginx",
+	  "podName" : "helm-nginx-simple-76bdfc587-gjltf",
+	  "podIp" : null,
+	  "podNamespace" :
+			"helm-demos",
+	  "inDefinition" : true
+	}, {
 	  "pid" : "25545",
 	  "matchName" : "fluentd-container",
 	  "containerName" : "/k8s_fluentd-container_fluentd-qnxkk_csap-logging_d0e4353c-c2d6-43a6-8404-ca2110aa77ff_0",

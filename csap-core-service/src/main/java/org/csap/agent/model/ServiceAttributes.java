@@ -29,6 +29,7 @@ public enum ServiceAttributes {
 	// Core OS
 	//
 	startOrder("autoStart"), folderToMonitor("disk"),
+	readme("read-me"), // critical ordering
 	parameters("parameters"), // critical ordering
 	environmentVariables("environmentVariables"),
 	environmentOverload("environment-overload"),
@@ -118,7 +119,9 @@ public enum ServiceAttributes {
 				ServiceAttributes.startOrder.json( ),
 				ServiceAttributes.port.json( ),
 				ServiceAttributes.description.json( ),
+				ServiceAttributes.readme.json( ),
 				ServiceAttributes.documentation.json( ),
+				ServiceAttributes.serviceUrl.json( ),
 				ServiceAttributes.applicationFolder.json( ),
 				ServiceAttributes.propertyFolder.json( ),
 				ServiceAttributes.processFilter.json( ),
@@ -139,11 +142,9 @@ public enum ServiceAttributes {
 				ServiceAttributes.logFilter.json( ),
 				ServiceAttributes.logJournalServices.json( ),
 				ServiceAttributes.logFilter.json( ),
-				ServiceAttributes.scheduledJobs.json( ),
 				ServiceAttributes.runUsingDocker.json( ),
 				ServiceAttributes.dockerSettings.json( ),
-				ServiceAttributes.dockerSettings.json( ),
-				ServiceAttributes.dockerSettings.json( ),
+				ServiceAttributes.scheduledJobs.json( ),
 				ServiceAttributes.performanceApplication.json( ) ) ;
 
 	}

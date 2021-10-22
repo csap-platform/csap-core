@@ -12,6 +12,83 @@
 
 	<div id="agent-tab-explorer">
 		<header class=related>
+		
+			<span>
+				<select id=cli-runner
+					th:attr="data-targeturl=@{/explorer/os/cli}"
+					data-parameters="command=some command" >
+				
+					<option value="run cli..." selected="selected">run cli...</runner>
+					
+					
+					<optgroup id=cli-runner-previous label="previous" style="display: none">
+					
+					</optgroup>
+				
+					<optgroup label="helm">
+						<option value="helm help">help</option>
+						<option value="helm repo list">repositories: list</option>
+						<option value="helm repo add bitnami https://charts.bitnami.com/bitnami">repositories: install</option>
+						<option value="helm list --all-namespaces">releases: list</option>
+						<option value="helm list --all-namespaces --output=yaml">releases: list (yaml)</option>
+						<option value="helm install --create-namespace --namespace demo-namespace  demo-release bitnami/nginx --version 9.5.4">releases: install</option>
+						<option value="helm status --namespace demo-namespace  demo-release">releases: status</option>
+						<option value="helm uninstall --namespace demo-namespace  demo-release">releases: uninstall</option>
+						<option value="helm show values bitnami/nginx">chart: show values</option>
+					</optgroup>
+				
+					<optgroup label="kubectl">
+						<option value="kubectl help">help</option>
+						<option value="kubectl get pods --all-namespaces">pod: list</option>
+						<option value="kubectl get pods --all-namespaces  --output yaml">pod: list (yaml)</option>
+						<option value="kubectl --namespace=kube-system rollout restart deployment coredns">pod rolled restart</option>
+						<option value="kubectl --namespace=csap-test rollout restart deployment">namespace rolled restart</option>
+					</optgroup>
+				
+					<optgroup label="docker" th:unless="${crio}">
+						<option value="docker help">help</option>
+						<option value="docker ps --all">list: containers</option>
+						<option value="docker ps --all  --format='{{json .}}'">list: containers (json)</option>
+						<option value="docker run --detach --name verify-nginx --publish 6080:80 nginx:latest">run: nginx </option>
+						<option value="docker rm --force verify-nginx">delete: nginx </option>
+					</optgroup>
+				
+					<optgroup label="podman" th:if="${crio}">
+						<option value="root_command podman help">help</option>
+						<option value="root_command podman images">list: images</option>
+						<option value="root_command podman ps --all --external">list: containers </option>
+						<option value="root_command podman run --detach --name verify-nginx --publish 6080:80 nginx:latest">run: nginx </option>
+						<option value="root_command podman rm --force verify-nginx">delete: nginx </option>
+						
+					</optgroup>
+				
+					<optgroup label="crictl" th:if="${crio}">
+						<option value="root_command crictl help">help</option>
+						<option value="root_command crictl ps --all ">list: containers</option>
+						<option value="root_command crictl ps --all --output=yaml">list: containers (yaml)</option>
+						<option value="root_command crictl images ">list: images</option>
+					</optgroup>
+				
+					<optgroup label="calicoctl">
+						<option value="calicoctl --help">help</option>
+						<option value="calicoctl">summary</option>
+						<option value="calicoctl node status">node status</option>
+						<option value="calicoctl get workloadendpoints --all-namespaces">endpoints</option>
+					</optgroup>
+				
+					<optgroup label="linux">
+						<option value="ps -ef">ps -ef</option>
+						<option value="curl --silent http://localhost:8011/api/agent/runtime">curl --silent http://localhost:8011/api/agent/runtime | jq .</option>
+						<option value="systemctl status">systemctl status</option>
+					</optgroup>
+					
+				<select>
+				<button
+							class="csap-icon csap-search"
+							title="use combo select"></button>
+			</span>
+			
+			</select>
 			<a
 				th:href="${ healthUrl} "
 				class="csap-link-icon launch-window"
@@ -38,13 +115,6 @@
 				class="csap-link-icon csap-play commandRunner"
 				th:attr="data-targeturl=@{/os/kernel/limits}"
 				href="#systemLimits"> system limits </a>
-			<a
-				title="calicoctl command runner: used to troubleshoot kuberntes network"
-				target="#"
-				class="csap-link-icon csap-play commandRunner"
-				th:attr="data-targeturl=@{/explorer/os/calico}"
-				data-parameters="calicoctl command=eg. node status. leave blank for default commands and help"
-				href="#calico-command-editor"> calicoctl </a>
 
 
 			<div id=tree-controls>
@@ -460,9 +530,19 @@
 					</label>
 						
 					<label
+						class=csap
+						title="set format to yaml, and toggle top level code fold">
+						<input
+							id=fold-command-results
+							type="checkbox"/>
+						Fold
+					</label>
+						
+					<label
 						class=csap>
 						<input
 							id=wrap-command-results
+							title="wrap command output to the next visible line avoiding horizontal scrolling"
 							type="checkbox" />
 						Wrap
 					</label>

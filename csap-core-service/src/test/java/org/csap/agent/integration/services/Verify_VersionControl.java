@@ -712,7 +712,7 @@ class Verify_VersionControl extends CsapThinNoProfile {
 			if ( delFolder.exists( ) ) {
 
 				// delete 1st file found
-				File delFile = new File( delFolder, delFolder.list( )[0] ) ;
+				File delFile = new File( delFolder, delFolder.list( )[ 0 ] ) ;
 				FileUtils.deleteQuietly( delFile ) ;
 
 				// filesToDelete.add( delFile ) ;

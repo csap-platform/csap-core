@@ -194,7 +194,8 @@ public class ProjectMigrator {
 		OsCommandRunner runner = new OsCommandRunner( 10, 1, "application-migration" ) ;
 
 		var script = List.of(
-				"find $CSAP_FOLDER/definition -name \"csap-service.json\" -type f  -exec bash -c 'sed --in-place \"s|monitors|alerts|g\"  {}'  \\;" ) ;
+				"find $CSAP_FOLDER/definition -name \"" + ProjectLoader.CSAP_SERVICE_FILE
+						+ "\" -type f  -exec bash -c 'sed --in-place \"s|monitors|alerts|g\"  {}'  \\;" ) ;
 
 		try {
 

@@ -19,6 +19,7 @@ import org.csap.agent.CsapTemplate ;
 import org.csap.agent.linux.HostInfo ;
 import org.csap.agent.ui.editor.ServiceResources ;
 import org.csap.helpers.CSAP ;
+import org.csap.helpers.CsapApplication ;
 import org.csap.security.CsapUser ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
@@ -88,7 +89,7 @@ public class Project {
 
 	boolean isRootPackage = false ;
 
-	private ObjectMapper jacksonMapper = new ObjectMapper( ) ;
+	private ObjectMapper jsonMapper = new ObjectMapper( ) ;
 
 	private TreeMap<String, ArrayList<String>> envToServiceMap = new TreeMap<String, ArrayList<String>>( ) ;
 
@@ -127,7 +128,7 @@ public class Project {
 	public Project ( ObjectNode projectDefinition ) {
 
 		this.sourceDefinition = projectDefinition ;
-		infrastructure = jacksonMapper.createObjectNode( ) ;
+		infrastructure = jsonMapper.createObjectNode( ) ;
 
 	}
 
@@ -135,7 +136,7 @@ public class Project {
 
 		this.sourceDefinition = jsonModelDefinition ;
 		this.setProjectNameToProject( rootProject.getProjectNameToProject( ) ) ;
-		infrastructure = jacksonMapper.createObjectNode( ) ;
+		infrastructure = jsonMapper.createObjectNode( ) ;
 
 	}
 
@@ -144,7 +145,7 @@ public class Project {
 
 		logger.debug( "locating definition for {}", serviceName ) ;
 
-		var extendedService = jacksonMapper.createObjectNode( ) ;
+		var extendedService = jsonMapper.createObjectNode( ) ;
 
 		JsonNode serviceDefinition = getSourceDefinition( ).path( ProjectLoader.SERVICE_TEMPLATES ).path(
 				serviceName ) ;
@@ -240,18 +241,23 @@ public class Project {
 		if ( serviceDefinition.isMissingNode( ) && ! isRootPackage ) {
 
 			if ( numMissingMessages++ < 5 ) {
+
 				logger.warn( "Service {} not found in {}"
 						+ CSAP.padLine( "searching" ) + "root package, recommended to add: {}",
 						serviceName,
 						getSourceFileName( ),
 						DEFINITION_COPY ) ;
+
 			} else {
+
 				logger.debug( "Service {} not found in {}"
 						+ CSAP.padLine( "searching" ) + "root package, recommended to add: {}",
 						serviceName,
 						getSourceFileName( ),
 						DEFINITION_COPY ) ;
+
 			}
+
 			definitionSource = DEFINITION_COPY ;
 			// definitionSource = DEFINITION_COPY + "_" +
 			// getRootPackage().getReleasePackageName() ;
@@ -271,7 +277,7 @@ public class Project {
 		return extendedService ;
 
 	}
-	
+
 	int numMissingMessages = 0 ;
 
 	public String find_service_template_path ( String serviceName ) {
@@ -304,7 +310,7 @@ public class Project {
 			if ( sourceDefinition.isObject( ) ) {
 
 				// creating a cloned instance, for both ordering of attributes, and insertion
-				var serviceClone = jacksonMapper.createObjectNode( ) ;
+				var serviceClone = jsonMapper.createObjectNode( ) ;
 				serviceClone.put( DEFINITION_SOURCE, extendedDefinition.path( DEFINITION_SOURCE ).asText( ) ) ;
 
 				if ( extendedDefinition.has( DEFINITION_COPY ) ) {
@@ -348,7 +354,7 @@ public class Project {
 				if ( ! serviceClone.has( ServiceAttributes.description.json( ) ) ) {
 
 					serviceClone.put( ServiceAttributes.description.json( ),
-							CsapUser.currentUsersID( ) + " added, and needs to update this description" ) ;
+							"added by " + CsapUser.currentUsersID( ) ) ;
 
 				}
 
@@ -627,7 +633,9 @@ public class Project {
 
 	public List<String> getHostsCurrentLc ( ) {
 
-		return lifeCycleToHostMap.get( getRootPackage( ).getHostEnvironmentName( ) ) ;
+		var currentHosts = lifeCycleToHostMap.get( getRootPackage( ).getHostEnvironmentName( ) ) ;
+
+		return currentHosts ;
 
 	}
 
@@ -717,9 +725,9 @@ public class Project {
 
 	public ObjectNode getInstanceCountInCurrentLC ( ) {
 
-		ObjectNode resultNode = jacksonMapper.createObjectNode( ) ;
+		ObjectNode resultNode = jsonMapper.createObjectNode( ) ;
 
-		ArrayNode instanceCount = jacksonMapper.createArrayNode( ) ;
+		ArrayNode instanceCount = jsonMapper.createArrayNode( ) ;
 
 		serviceNameToLifeInstancesMap
 				.entrySet( )
@@ -727,7 +735,7 @@ public class Project {
 				.map( serviceListEntry -> {
 
 					String service = serviceListEntry.getKey( ) ;
-					ObjectNode serviceNode = jacksonMapper.createObjectNode( ) ;
+					ObjectNode serviceNode = jsonMapper.createObjectNode( ) ;
 					serviceNode.put( "serviceName", service ) ;
 					serviceNode.put( "count", serviceListEntry.getValue( ).size( ) ) ;
 
@@ -830,7 +838,7 @@ public class Project {
 
 	public ObjectNode getSource ( ) {
 
-		ObjectNode editInProgressReport = jacksonMapper.createObjectNode( ) ;
+		ObjectNode editInProgressReport = jsonMapper.createObjectNode( ) ;
 		editInProgressReport.put( "user", editUserid ) ;
 		File definitionSource = new File( Application.getInstance( ).getRootProjectDefinitionUrl( ) ) ;
 		editInProgressReport.put( "name", definitionSource.getName( ) ) ;
@@ -856,7 +864,7 @@ public class Project {
 
 	public ObjectNode editSource ( String userid , JsonNode definition ) {
 
-		var changeReport = jacksonMapper.createObjectNode( ) ;
+		var changeReport = jsonMapper.createObjectNode( ) ;
 
 		logger.debug( "updated source: {}", userid ) ;
 
@@ -1230,7 +1238,13 @@ public class Project {
 
 			try {
 
-				serviceDefinition = jacksonMapper.readTree( commonDefinition ) ;
+				var processMessages = jsonMapper.createObjectNode( ) ;
+				serviceDefinition = Application.getInstance( ).getProjectLoader( )
+						.getProjectOperators( )
+						.loadYaml( commonDefinition, processMessages )
+						.get( 0 ) ;
+
+				// serviceDefinition = jacksonMapper.readTree( commonDefinition ) ;
 
 			} catch ( Exception e ) {
 
@@ -1550,7 +1564,7 @@ public class Project {
 
 	public ObjectNode buildLbReport ( ) {
 
-		var report = jacksonMapper.createObjectNode( ) ;
+		var report = jsonMapper.createObjectNode( ) ;
 		var envNameToSettings = getEnvironmentNameToSettings( ) ;
 
 		for ( String environmentName : envNameToSettings.keySet( ) ) {

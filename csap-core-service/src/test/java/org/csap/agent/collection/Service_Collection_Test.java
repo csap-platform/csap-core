@@ -155,6 +155,9 @@ public class Service_Collection_Test extends CsapThinTests {
 					.as( "threadCount_CsAgent" )
 					.isGreaterThan( 90 ) ;
 
+//			assertThat( os_collection.at( "/data/fileCount_" + CsapCore.AGENT_NAME + "/0" ).asInt( ) )
+//					.isGreaterThan( 99999 ) ;
+
 			assertThat( os_collection.at( "/data/threadCount_" + targetService.getName( ) + "/0" ).asInt( ) )
 					.as( "/data/threadCount_" + testService + "/0" )
 					.isGreaterThan( 10 ) ;
@@ -253,7 +256,7 @@ public class Service_Collection_Test extends CsapThinTests {
 
 			var javaReportData = javaGraphReportWithCustomAdded.path( "data" ) ;
 
-			var applicationGraphReport = javaGraphReportWithCustomAdded.path( "custom" + services[0] ) ;
+			var applicationGraphReport = javaGraphReportWithCustomAdded.path( "custom" + services[ 0 ] ) ;
 			var applicationData = applicationGraphReport.path( "data" ) ;
 			;
 
@@ -286,7 +289,7 @@ public class Service_Collection_Test extends CsapThinTests {
 			} ;
 			ObjectNode javaAndApplicationReport = performJavaCommonAndCustomCollection( services, testDbHost ) ;
 
-			var applicationGraphReport = (ObjectNode) javaAndApplicationReport.get( "custom" + services[0] ) ;
+			var applicationGraphReport = (ObjectNode) javaAndApplicationReport.get( "custom" + services[ 0 ] ) ;
 
 			logger.info( "collected: \n {}", CsapCore.jsonPrint( getJsonMapper( ), javaAndApplicationReport ) ) ;
 

@@ -114,7 +114,7 @@
       },
       "csspLocal" : {
         "type" : "multiVmPartition",
-        "hosts" : [ "localhost", "peterDummyVmA" ],
+        "hosts" : [ "localhost", "dummy-vm-a" ],
         "template-references" : [ "SampleDataLoader", "sampleOsWrapper", "vmmemctl", "activemq", "AuditService", "Factory2Sample", "CsspSample", "csap-admin", "springmvc-showcase" ]
       },
       "cssp" : {

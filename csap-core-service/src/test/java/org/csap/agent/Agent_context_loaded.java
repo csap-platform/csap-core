@@ -9,7 +9,7 @@ import javax.cache.Cache ;
 import javax.cache.CacheManager ;
 import javax.inject.Inject ;
 
-import org.csap.agent.container.DockerIntegration ;
+import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.ui.windows.CorePortals ;
 import org.csap.helpers.CSAP ;
@@ -88,7 +88,7 @@ public class Agent_context_loaded {
 	@Test
 	void verify_ehcache ( ) {
 
-		Cache<String, String> pidCache = cacheManager.getCache( DockerIntegration.PID_CACHE, String.class,
+		Cache<String, String> pidCache = cacheManager.getCache( ContainerIntegration.PID_CACHE, String.class,
 				String.class ) ;
 
 		pidCache.put( "hi", "there" ) ;

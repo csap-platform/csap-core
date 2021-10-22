@@ -194,7 +194,11 @@ define( [ "editor/json-forms" ], function ( jsonForms ) {
                         //console.log( ` missing sortvalue: ${valueToSort} in ${ $(table).attr("id")  }`);
                         valueToSort = "" ;
                     }
-                    //console.log( ` valueToSort: ${valueToSort}` ) ;
+                    
+//                    if ( $cell.closest( `table`).attr(`id`) === `processTable`) {
+//                        
+//                        console.log( ` valueToSort: ${valueToSort}` ) ;
+//                    }
                     // format your data for normalization
                     return valueToSort ;
                 },
@@ -246,7 +250,9 @@ define( [ "editor/json-forms" ], function ( jsonForms ) {
             }
             let $cell = jQuery( '<td/>', {
                 class: "numeric",
-                text: displayValue
+//                "data-sortvalue": memoryInBytes,
+                text: displayValue 
+//                text:  memoryInBytes
             } ) ;
 
             if ( displayValue !== "" ) {

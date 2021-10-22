@@ -42,7 +42,6 @@ import org.csap.alerts.AlertFields ;
 import org.csap.alerts.AlertInstance ;
 import org.csap.alerts.AlertInstance.AlertItem ;
 import org.csap.helpers.CSAP ;
-import org.csap.helpers.CsapApplication ;
 import org.csap.helpers.CsapSimpleCache ;
 import org.csap.integations.CsapMicroMeter ;
 import org.slf4j.Logger ;
@@ -559,10 +558,9 @@ public class HostStatusManager {
 
 	}
 
-	public ArrayNode hostsBacklog ( List<String> hosts, String apiPath ) {
+	public ArrayNode hostsBacklog ( List<String> hosts , String apiPath ) {
 
 		ArrayNode backlog = jsonMapper.createArrayNode( ) ;
-		
 
 		hosts.stream( )
 				.forEach( host -> {
@@ -580,7 +578,7 @@ public class HostStatusManager {
 
 					hostBacklog.put( "total-backlog", totalBacklog ) ;
 //					hostBacklog.put( "host-details", csapApp.getAgentUrl( host, "/api/agent/service/jobs" ) ) ;
-					
+
 					hostBacklog.put( "host-details", apiPath + csapApp.hostShortName( host ) ) ;
 
 				} ) ;
@@ -618,8 +616,8 @@ public class HostStatusManager {
 			var meterReport = (ObjectNode) meterReportDefinition ;
 			String id = meterReport.path( "id" ).asText( ) ;
 			String[] idParts = id.split( Pattern.quote( "." ) ) ;
-			String collector = idParts[0] ;
-			String attribute = idParts[1] ;
+			String collector = idParts[ 0 ] ;
+			String attribute = idParts[ 1 ] ;
 			double hostTotal = 0 ;
 			meterReport.put( MetricCategory.hostCount.json( ), 0 ) ;
 
@@ -652,8 +650,8 @@ public class HostStatusManager {
 				} else {
 
 					// jmx custom / application metrics have nested data.
-					String serviceName = idParts[1] ;
-					final String serviceAttribute = idParts[2] ;
+					String serviceName = idParts[ 1 ] ;
+					final String serviceAttribute = idParts[ 2 ] ;
 
 					var appHosts = new ArrayList<>( environmentHosts ) ;
 

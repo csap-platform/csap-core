@@ -13,8 +13,13 @@ const hostExplorerImports = [
 define( hostExplorerImports, function ( utils, createContainerDialog, explorerOps, hostOps, jsonForms, aceEditor, jsYaml ) {
 
 
+    console.log( "Module loaded 99" ) ;
+
     const $agentExplorerTab = utils.findContent( "#agent-tab-explorer" ) ;
     const $explorerTree = $( "#dockerTree", $agentExplorerTab ) ;
+    const $explorerHeader = $( "header.related", $agentExplorerTab ) ;
+    const $cliRunner = $( "select#cli-runner", $explorerHeader ) ;
+    
     let _explorerTree ; // fancy tree object
     let _explorerTreeScollPosition ;
 
@@ -29,15 +34,13 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
     let $treeFilter = null ;
 
     let $packageInfo = $( "#node-info-panel" ) ;
-    ;
+
 
     let $lastNodeTextContainer = null ;
 
     let _lastOpenedFolder ;
 
     const $templateRepo = $( "#kubernetes-dashboard-templates" ) ;
-
-    console.log( "Module loaded" ) ;
 
     let _initComplete = false ;
 
@@ -77,6 +80,32 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
         console.log( "Initializing tree" ) ;
 
         utils.registerForNavChanges( navigationListener ) ;
+        
+        
+
+        $cliRunner.change( function () {
+            
+            console.log( `cli-header` ) ;
+            hostOps.commandRunner( $( this ) ) ;
+
+            let firstOption = $cliRunner.children(":first").attr( "value")  ;
+            setTimeout( function() {
+                
+                $cliRunner.val(  firstOption ) ;
+                $("input.cliRunner-combobox-input", $cliRunner.parent() ).val(  firstOption ) ;
+            }, 500)
+             
+            return false ;
+        } )
+        
+        $( "button.csap-search", $explorerHeader ).click( function () {
+            
+            $(this).css(`opacity`, "0") ;
+            buildCommandCombo() ;
+            $("input.cliRunner-combobox-input", $cliRunner.parent() ).click( function() {
+                $(this).val(``) ;
+            }) ;
+        } ) ;
 
 
         $lastNodeTextContainer = $( "#last-selected-text" ) ;
@@ -86,9 +115,9 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
         } ) ;
 
 
-        createContainerDialog.initialize( function() {
+        createContainerDialog.initialize( function () {
             explorerOps.refreshFolder( hostOps.categories().dockerImages ) ;
-        }) ;
+        } ) ;
 
         $filterControls = $( "#filterControls" ) ;
         $treeFilter = $( "#tree-display-filter" ) ;
@@ -98,6 +127,167 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
 
         $( "#close-all-explorer-tree" ).click( treeCloseAllOpen ) ;
 
+    }
+    
+    
+    function buildCommandCombo() {
+
+        $.widget( "custom.cliComboBox", {
+            _create: function () {
+                this.wrapper = $( "<span>" )
+                        .addClass( "custom-combobox" )
+                        .insertAfter( this.element ) ;
+
+                this.element.hide() ;
+                this._createAutocomplete() ;
+                this._createShowAllButton() ;
+            },
+
+            _createAutocomplete: function () {
+
+
+                console.log( `build _createAutocomplete` ) ;
+
+                let selected = this.element.children( ":selected" ),
+                        value = selected.val() ? selected.text() : "" ;
+
+                this.input = $( "<input>" )
+                        .appendTo( this.wrapper )
+                        .val( value )
+                        .attr( "title", "" )
+                        .addClass( "cliRunner-combobox-input ui-widget ui-widget-content ui-state-default ui-corner-left" )
+                        .autocomplete( {
+                            delay: 0,
+                            minLength: 0,
+                            source: $.proxy( this, "_source" )
+                        } )
+                        .tooltip( {
+                            classes: {
+                                "ui-tooltip": "ui-state-highlight"
+                            }
+                        } ) ;
+
+                this._on( this.input, {
+                    autocompleteselect: function ( event, ui ) {
+                        ui.item.option.selected = true ;
+                        this._trigger( "select", event, {
+                            item: ui.item.option
+                        } ) ;
+                    },
+
+                    autocompletechange: "_removeIfInvalid"
+                } ) ;
+            },
+
+            _createShowAllButton: function () {
+                let input = this.input,
+                        wasOpen = false ;
+
+                $( "<a>" )
+                        .attr( "tabIndex", -1 )
+                        .attr( "title", "Show All Items" )
+                        .tooltip()
+                        .appendTo( this.wrapper )
+                        .button( {
+                            icons: {
+                                primary: "ui-icon-triangle-1-s"
+                            },
+                            text: false
+                        } )
+
+                        .removeClass( "ui-corner-all" )
+
+                        .addClass( "custom-combobox-toggle ui-corner-right" )
+
+                        .on( "mousedown", function () {
+                            wasOpen = input.autocomplete( "widget" ).is( ":visible" ) ;
+                        } )
+
+                        .on( "click", function () {
+                            input.trigger( "focus" ) ;
+
+                            // Close if already visible
+                            if ( wasOpen ) {
+                                return ;
+                            }
+
+                            console.log( `invoking autocomplete` ) ;
+
+                            // Pass empty string as value to search for, displaying all results
+                            input.autocomplete( "search", "" ) ;
+                        } ) ;
+            },
+
+            _source: function ( request, response ) {
+
+                console.log( `build source2` ) ;
+
+                let matcher = new RegExp( $.ui.autocomplete.escapeRegex( request.term ), "i" ) ;
+//                response( this.element.children( "option" ).map( function () {
+                response( $( "option", $cliRunner ).map( function () {
+                    let optionText = $( this ).text() ;
+                    let optionValue = $( this ).attr("value") ;
+                    
+//                    console.log( `build source: ${text}`) ;
+                    if ( this.value && ( !request.term || matcher.test( optionValue ) ) ) {
+                        return {
+                            label: optionValue,
+                            value: optionValue,
+                            option: this
+                        } ;
+                    }
+                } ) ) ;
+            },
+
+            _removeIfInvalid: function ( event, ui ) {
+
+                // Selected an item, nothing to do
+                if ( ui.item ) {
+                    return ;
+                }
+
+                // Search for a match (case-insensitive)
+                let value = this.input.val(),
+                        valueLowerCase = value.toLowerCase(),
+                        valid = false ;
+                this.element.children( "option" ).each( function () {
+                    if ( $( this ).text().toLowerCase() === valueLowerCase ) {
+                        this.selected = valid = true ;
+                        return false ;
+                    }
+                } ) ;
+
+                // Found a match, nothing to do
+                if ( valid ) {
+                    return ;
+                }
+
+                // Remove invalid value
+                this.input
+                        .val( "" )
+                        .attr( "title", value + " didn't match any item" )
+                        .tooltip( "open" ) ;
+                this.element.val( "" ) ;
+                this._delay( function () {
+                    this.input.tooltip( "close" ).attr( "title", "" ) ;
+                }, 2500 ) ;
+                this.input.autocomplete( "instance" ).term = "" ;
+            },
+
+            _destroy: function () {
+                this.wrapper.remove() ;
+                this.element.show() ;
+            }
+        } ) ;
+
+        console.log( `Building combo box for ${ $( "option", $cliRunner ).length } items` ) ;
+        $cliRunner.cliComboBox( {
+            select: function ( event, ui ) {
+                $cliRunner.trigger( "change" ) ;
+            }
+        } ) ;
+
+        $( "input.cliRunner-combobox-input", $explorerHeader ).val( $( "option:selected", $cliRunner ).attr("value") ) ;
     }
 
     function navigationListener( lastNavigationClickedLabel ) {
@@ -750,7 +940,7 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
         } ) ;
 
         children.push( {
-            "title": "Docker",
+            "title": "Host Containers",
             "folder": true,
             "expanded": true,
             "children": children_root_load_docker()
@@ -825,6 +1015,14 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
         } ) ;
 
         children.push( {
+            "title": title_with_comment( "CRI-O Containers", "loading", "loadDynamically" ),
+            "type": hostOps.categories().crioContainers,
+            "path": "/",
+            "folder": true,
+            "lazy": true
+        } ) ;
+
+        children.push( {
             "title": "Will Be Replaced by buildRootImageTitle",
             "type": hostOps.categories().dockerImages,
             "path": "/",
@@ -874,6 +1072,49 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
             "lazy": true
         } ) ;
 
+
+        children.push( {
+            "title": title_with_comment( "Network: Services & Ingresses", "", "k8ServiceTree", "k8-loading csap-loading" ),
+            "type": hostOps.categories().kubernetesServices,
+            "path": "/",
+            "folder": true,
+            "lazy": true
+        } ) ;
+
+        children.push( {
+            "title": title_with_comment( "helm", "", "helmTree" ),
+            "type": hostOps.categories().kubernetesHelm,
+            "path": "/",
+            "folder": true,
+            "lazy": true
+        } ) ;
+
+        children.push( {
+            "title": title_with_comment( "Deployments", "", "k8DeployTree", "k8-loading csap-loading" ),
+            "type": hostOps.categories().kubernetesDeployments,
+            "path": "/",
+            "folder": true,
+            "lazy": true
+        } ) ;
+
+
+        children.push( {
+            "title": title_with_comment( "Stateful Sets", "", "k8StatefulSetTree", "k8-loading csap-loading" ),
+            "type": hostOps.categories().kubernetesStatefulSets,
+            "path": "/",
+            "folder": true,
+            "lazy": true
+        } ) ;
+
+
+        children.push( {
+            "title": title_with_comment( "Daemon Sets", "", "k8DaemonSetTree", "k8-loading csap-loading" ),
+            "type": hostOps.categories().kubernetesDaemonSets,
+            "path": "/",
+            "folder": true,
+            "lazy": true
+        } ) ;
+
         children.push( {
             "title": title_with_comment( "ConfigMaps", "", "k8ConfigMapTree", "k8-loading csap-loading" ),
             "type": hostOps.categories().kubernetesConfigMaps,
@@ -887,15 +1128,6 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
         children.push( {
             "title": title_with_comment( "Batch: Jobs & CronJobs", "", "k8JobTree", "k8-loading csap-loading" ),
             "type": hostOps.categories().kubernetesJobs,
-            "path": "/",
-            "folder": true,
-            "lazy": true
-        } ) ;
-
-
-        children.push( {
-            "title": title_with_comment( "Network: Services & Ingresses", "", "k8ServiceTree", "k8-loading csap-loading" ),
-            "type": hostOps.categories().kubernetesServices,
             "path": "/",
             "folder": true,
             "lazy": true
@@ -919,8 +1151,8 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
         } ) ;
 
         children.push( {
-            "title": title_with_comment( "Deployments", "", "k8DeployTree", "k8-loading csap-loading" ),
-            "type": hostOps.categories().kubernetesDeployments,
+            "title": title_with_comment( "Replica Sets", "", "k8ReplicaSetTree", "k8-loading csap-loading" ),
+            "type": hostOps.categories().kubernetesReplicaSets,
             "path": "/",
             "folder": true,
             "lazy": true
@@ -929,32 +1161,6 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
         children.push( {
             "title": title_with_comment( "Endpoints", "", "k8EndpointTree", "k8-loading csap-loading" ),
             "type": hostOps.categories().kubernetesEndpoints,
-            "path": "/",
-            "folder": true,
-            "lazy": true
-        } ) ;
-
-        children.push( {
-            "title": title_with_comment( "Replica Sets", "", "k8ReplicaSetTree", "k8-loading csap-loading" ),
-            "type": hostOps.categories().kubernetesReplicaSets,
-            "path": "/",
-            "folder": true,
-            "lazy": true
-        } ) ;
-
-
-        children.push( {
-            "title": title_with_comment( "Stateful Sets", "", "k8StatefulSetTree", "k8-loading csap-loading" ),
-            "type": hostOps.categories().kubernetesStatefulSets,
-            "path": "/",
-            "folder": true,
-            "lazy": true
-        } ) ;
-
-
-        children.push( {
-            "title": title_with_comment( "Daemon Sets", "", "k8DaemonSetTree", "k8-loading csap-loading" ),
-            "type": hostOps.categories().kubernetesDaemonSets,
             "path": "/",
             "folder": true,
             "lazy": true
@@ -1078,26 +1284,28 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
 
             console.debug( "window.location.hostname ", window.location.hostname ) ;
 
-            // default to url shown
-            let portUrl = "http://" + window.location.hostname + ":" + portSetting.PublicPort ;
 
-            // desktop settings
-            if ( portUrl.contains( "localhost" ) ) {
-                portUrl = dockerUrl.substring( 0, dockerUrl.length - 4 ) + portSetting.PublicPort ;
-                if ( portUrl.startsWith( "tcp" ) ) {
-                    portUrl = "http" + portUrl.substring( 3 ) ;
-                }
 
-                console.info( "localhost workaround - using docker Url", portUrl ) ;
-            }
-
-            if ( !portIp ) {
+            if ( !$.isNumeric( portSetting.PublicPort ) ) {
                 jQuery( '<span/>', {
                     text: "not-assigned"
                 } )
                         .css( "font-style", "italic" )
                         .appendTo( $publicCol ) ;
             } else {
+                // default to url shown
+                let portUrl = "http://" + window.location.hostname + ":" + portSetting.PublicPort ;
+
+                // desktop settings
+                if ( portUrl.contains( "localhost" ) ) {
+                    portUrl = dockerUrl.substring( 0, dockerUrl.length - 4 ) + portSetting.PublicPort ;
+                    if ( portUrl.startsWith( "tcp" ) ) {
+                        portUrl = "http" + portUrl.substring( 3 ) ;
+                    }
+
+                    console.info( "localhost workaround - using docker Url", portUrl ) ;
+                }
+
                 jQuery( '<a/>', {
                     href: portUrl,
                     class: "csap-link-icon launch-window",
@@ -1161,6 +1369,9 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
 
         if ( parentFancyTreeNode.type == hostOps.categories().dockerContainers ) {
             children_using_parent_dockerContainer( nodeData.containerName, attributesKeys, treeArray ) ;
+
+        } else if ( parentFancyTreeNode.type == hostOps.categories().crioContainers ) {
+            children_using_parent_crioContainer( attributes, treeArray ) ;
 
         } else if ( parentFancyTreeNode.type == hostOps.categories().kubernetesPods ) {
             children_using_parent_k8_pod( attributes, treeArray ) ;
@@ -1421,6 +1632,33 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
         }
     }
 
+    function children_using_parent_crioContainer( attributes, treeArray ) {
+//        attributesKeys = moveElementInArray( attributesKeys, "Status", 0 )
+//        attributesKeys = moveElementInArray( attributesKeys, "Create Date", 0 )
+//        attributesKeys = moveElementInArray( attributesKeys, "Created", 0 )
+
+        // add a runtime folder for dynamically pulling attributes
+        let customLabel = "container runtime settings" ;
+        let customValue = "" ;
+
+        let containerId = attributes.id ;
+
+        treeArray.push( {
+            "title": customLabel,
+            "folder": true,
+            "lazy": true,
+            "extraClasses": "ft-docker-runtime",
+            // data fields for rendering
+            "customLabel": customLabel,
+            "customValue": customValue,
+
+            "filterValue": customLabel + "," + customValue,
+
+            // "type": explorerOps.containerCommandPath() + "info?name=" + containerName
+            "type": explorerOps.crioContainerCommandPath() + "info?id=" + containerId
+        } ) ;
+    }
+
     function children_using_parent_dockerContainer( containerName, attributesKeys, treeArray ) {
         attributesKeys = moveElementInArray( attributesKeys, "Status", 0 )
         attributesKeys = moveElementInArray( attributesKeys, "Create Date", 0 )
@@ -1447,7 +1685,8 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
 
     function children_using_object( nodeType, event, rawObject ) {
 
-        console.log( "children_using_object() ", nodeType, "rawObject", rawObject ) ;
+        console.log( `building tree using object attributes for node:  ${ nodeType} ` ) ;
+        console.debug( "rawObject", rawObject ) ;
 
         let treeArray = new Array() ;
 
@@ -1471,6 +1710,11 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
         for ( let key of keys ) {
 
             if ( key == "csapNoSort" ) {
+                continue ;
+            }
+
+            if ( key === "manifest"
+                    && nodeType === hostOps.categories().kubernetesHelm ) {
                 continue ;
             }
 
@@ -1509,6 +1753,15 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
                 isFolder = true ;
                 attributes = value ;
                 value = "" ;
+
+            } else if ( isObject( value )
+                    && nodeType === hostOps.categories().kubernetesHelm
+                    && value.description
+                    && value.name ) {
+
+                label = title_with_comment( value.name, value.description ) ;
+                isFolder = true ;
+                attributes = value ;
 
             } else if ( key == "DriverStatus" && isArray( value ) ) {
 
@@ -1787,6 +2040,14 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
 
             } else if ( nodeType == hostOps.categories().kubernetesDeployments ) {
                 k8Deployname = folderItem.label ;
+
+            } else if ( nodeType == hostOps.categories().crioContainers ) {
+
+                extraClasses = "ft-docker-stopped" ;
+
+                if ( folderItem.attributes.state && folderItem.attributes.state.includes( "RUNNING" ) ) {
+                    extraClasses = "ft-docker-running" ;
+                }
 
             } else if ( nodeType == hostOps.categories().dockerContainers ) {
                 extraClasses = "ft-docker-stopped" ;
@@ -2158,6 +2419,12 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
 
         } else if ( nodeType == hostOps.categories().dockerVolumes && configuration.path == "/" ) {
             fancyTreeNode.setTitle( title_for_items_with_shell( "Volumes", "Run Docker volume commands", "docker-volume" ).html() )
+
+        } else if ( nodeType == hostOps.categories().crioContainers && configuration.path == "/" ) {
+            fancyTreeNode.setTitle( title_for_items_with_shell( "CRI-O Containers", "Run crictl and podman commands", "cri-commands" ).html() )
+
+        } else if ( nodeType == hostOps.categories().kubernetesHelm && configuration.path == "/" ) {
+            fancyTreeNode.setTitle( title_for_items_with_shell( "Helm", "Run helm commands", "helm-commands" ).html() )
         }
 
 
@@ -2414,7 +2681,7 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
         let $cleanButton = jQuery( '<button/>', {
             id: "image-clean-button",
             class: "csap-button-icon tree",
-            title: "Run docker image cleanup ..."
+            title: "Run container image cleanup ..."
         } )
 
         $cleanButton.appendTo( $comment ) ;
@@ -2606,7 +2873,7 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
         let restartCount = 0 ;
 
         let containerStatusReports = jsonForms.getValue( "attributes.status.containerStatuses", configuration ) ;
-        if ( isArray( containersArray ) ) {
+        if ( containerStatusReports && isArray( containersArray ) ) {
             for ( let statusReport of containerStatusReports ) {
                 if ( statusReport.restartCount ) {
                     restartCount += statusReport.restartCount ;

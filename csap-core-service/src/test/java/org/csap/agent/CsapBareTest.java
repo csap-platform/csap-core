@@ -3,7 +3,6 @@ package org.csap.agent ;
 import static org.assertj.core.api.Assertions.assertThat ;
 import static org.mockito.Mockito.doReturn ;
 import static org.mockito.Mockito.mock ;
-import static org.mockito.Mockito.when ;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user ;
 
 import java.lang.annotation.ElementType ;
@@ -83,17 +82,21 @@ public abstract class CsapBareTest {
 	Application application ;
 	ObjectMapper jsonMapper ;
 
+	public CsapBareTest ( ) {
+
+		jsonMapper = new ObjectMapper( ) ;
+
+		ProjectLoader.addCsapJsonConfiguration( jsonMapper ) ;
+		jsonMapper.configure( SerializationFeature.FAIL_ON_EMPTY_BEANS, false ) ;
+
+	}
+
 	@BeforeAll
 	void thinBeforeAll ( )
 		throws Exception {
 
 		Application.DESKTOP_CLUSTER_HOST = "localhost" ;
 		logger.info( CsapApplication.testHeader( "initializing {}" ), this.getClass( ).getSimpleName( ) ) ;
-
-		jsonMapper = new ObjectMapper( ) ;
-
-		ProjectLoader.addCsapJsonConfiguration( jsonMapper ) ;
-		jsonMapper.configure( SerializationFeature.FAIL_ON_EMPTY_BEANS, false ) ;
 
 		Application.setDeveloperMode( true ) ;
 

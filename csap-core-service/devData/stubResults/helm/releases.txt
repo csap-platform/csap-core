@@ -1,0 +1,5 @@
+ 10/13/2021 13:08:27  csap@scs-dev01.***REMOVED***  Running: cli_runner-1634144907189.sh
+
+NAME             	NAMESPACE 	REVISION	UPDATED                                	STATUS  	CHART      	APP VERSION
+helm-nginx-full  	helm-demos	1       	2021-10-12 13:27:41.628343325 -0400 EDT	deployed	nginx-9.5.4	1.21.3     
+helm-nginx-simple	helm-demos	1       	2021-10-12 13:27:55.822946876 -0400 EDT	deployed	nginx-9.5.4	1.21.3   

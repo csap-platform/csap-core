@@ -20,6 +20,7 @@ import org.springframework.ui.ModelMap ;
 import org.springframework.web.bind.annotation.DeleteMapping ;
 import org.springframework.web.bind.annotation.GetMapping ;
 import org.springframework.web.bind.annotation.PathVariable ;
+import org.springframework.web.bind.annotation.PostMapping ;
 import org.springframework.web.bind.annotation.RequestMapping ;
 import org.springframework.web.bind.annotation.RequestParam ;
 import org.springframework.web.bind.annotation.RestController ;
@@ -79,23 +80,23 @@ public class OsExplorer {
 					String[] interfaceFields = interfaceLine.split( " ", 3 ) ;
 					ObjectNode item = networkListing.addObject( ) ;
 					var state = "" ;
-					var stateSplit = interfaceFields[2].split( "state", 2 ) ;
+					var stateSplit = interfaceFields[ 2 ].split( "state", 2 ) ;
 
 					if ( stateSplit.length == 2 ) {
 
-						state = stateSplit[1].trim( ).split( " ", 2 )[0] ;
+						state = stateSplit[ 1 ].trim( ).split( " ", 2 )[ 0 ] ;
 
 					}
 
-					var inetSplit = interfaceFields[2].split( "inet", 2 ) ;
+					var inetSplit = interfaceFields[ 2 ].split( "inet", 2 ) ;
 
 					if ( inetSplit.length == 2 ) {
 
-						state = inetSplit[1].trim( ).split( " ", 2 )[0] + ":" + state ;
+						state = inetSplit[ 1 ].trim( ).split( " ", 2 )[ 0 ] + ":" + state ;
 
 					}
 
-					var index = interfaceFields[0] ;
+					var index = interfaceFields[ 0 ] ;
 
 					if ( index.length( ) == 2 ) {
 
@@ -103,8 +104,8 @@ public class OsExplorer {
 
 					}
 
-					item.put( "label", index + " " + interfaceFields[1] + " (" + state + ")" ) ;
-					item.put( "description", interfaceFields[2] ) ;
+					item.put( "label", index + " " + interfaceFields[ 1 ] + " (" + state + ")" ) ;
+					item.put( "description", interfaceFields[ 2 ] ) ;
 					item.put( "folder", false ) ;
 					item.put( "lazy", false ) ;
 
@@ -128,16 +129,18 @@ public class OsExplorer {
 
 	}
 
-	@GetMapping ( "/calico" )
-	public ObjectNode calico ( String parameters , HttpSession session ) {
+	@PostMapping ( "/cli" )
+	public ObjectNode cli ( String parameters , HttpSession session ) {
 
 		var report = jacksonMapper.createObjectNode( ) ;
 
 		if ( StringUtils.isEmpty( parameters ) ) {
 
-			parameters = "" ;
+			parameters = "print_section 'no command specified'" ;
 
 		}
+
+		parameters = parameters.replaceAll( "calicoctl", "calico" ) ;
 
 		String commandOutput ;
 
@@ -148,11 +151,12 @@ public class OsExplorer {
 
 		} else {
 
-			commandOutput = osManager.calico( parameters ) ;
+			issueAudit( "running cli: " + parameters, null ) ;
+			commandOutput = osManager.cli( parameters ) ;
 
 		}
 
-		report.put( DockerJson.response_plain_text.json( ), commandOutput ) ;
+		report.put( DockerJson.response_yaml.json( ), commandOutput ) ;
 		return report ;
 
 	}
@@ -219,7 +223,7 @@ public class OsExplorer {
 
 					if ( users.length == 3 ) {
 
-						processInfo = users[1] ;
+						processInfo = users[ 1 ] ;
 
 					}
 
@@ -352,10 +356,10 @@ public class OsExplorer {
 						.replaceAll( REPLACE_SPACES, " " )
 						.split( " " ) ;
 
-				switch ( words[0] ) {
+				switch ( words[ 0 ] ) {
 
 				case "URL":
-					url = words[2] ;
+					url = words[ 2 ] ;
 					break ;
 
 				case "Description":
@@ -470,7 +474,7 @@ public class OsExplorer {
 
 			if ( params.length >= 0 ) {
 
-				processCommandPath = params[0] ;
+				processCommandPath = params[ 0 ] ;
 
 				if ( processCommandPath.startsWith( "[kworker" ) ) {
 

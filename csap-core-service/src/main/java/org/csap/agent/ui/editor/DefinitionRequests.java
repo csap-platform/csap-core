@@ -181,7 +181,7 @@ public class DefinitionRequests {
 
 		boolean isYaml = false ;
 
-		if ( lines[0].contains( "yaml" ) ) {
+		if ( lines[ 0 ].contains( "yaml" ) ) {
 
 			isYaml = true ;
 
@@ -202,7 +202,7 @@ public class DefinitionRequests {
 
 		for ( int i = 0; i < lines.length; i++ ) {
 
-			String currentLine = lines[i] ;
+			String currentLine = lines[ i ] ;
 
 			logger.info( "line index {} to be transformed: {}", i, currentLine ) ;
 
@@ -870,13 +870,14 @@ public class DefinitionRequests {
 			results.put( "lifeToEdit", environmentName ) ;
 			logger.debug( "updateNode: \n{}", updatedClusterDefinition.toString( ) ) ;
 
-			ObjectNode validationResults = csapApp.checkDefinitionForParsingIssues(
-					testProjectSource.toString( ),
-					currentProject.getName( ) ) ;
+			var validationReport = csapApp
+					.checkDefinitionForParsingIssues(
+							testProjectSource.toString( ),
+							currentProject.getName( ) ) ;
 
-			results.set( "validationResults", validationResults ) ;
+			results.set( "validationResults", validationReport ) ;
 
-			boolean validatePassed = ( (ArrayNode) validationResults.get( Application.VALIDATION_ERRORS ) )
+			boolean validatePassed = ( (ArrayNode) validationReport.get( Application.VALIDATION_ERRORS ) )
 					.size( ) == 0 ;
 
 			if ( isUpdate != null && validatePassed ) {
@@ -984,7 +985,7 @@ public class DefinitionRequests {
 
 						String id = realTimeDef.get( "id" ).asText( ) ;
 						String[] ids = id.split( "\\." ) ;
-						String[] attributes = ids[1].split( "_" ) ;
+						String[] attributes = ids[ 1 ].split( "_" ) ;
 
 						if ( attributes.length == 3 ) {
 
@@ -1330,7 +1331,7 @@ public class DefinitionRequests {
 
 		if ( serviceName.contains( "_" ) ) {
 
-			serviceName = serviceName.split( "_" )[0] ;
+			serviceName = serviceName.split( "_" )[ 0 ] ;
 
 		}
 
@@ -1410,7 +1411,7 @@ public class DefinitionRequests {
 
 		if ( serviceName.contains( "_" ) ) {
 
-			serviceName = serviceName.split( "_" )[0] ;
+			serviceName = serviceName.split( "_" )[ 0 ] ;
 
 		}
 
@@ -1594,10 +1595,12 @@ public class DefinitionRequests {
 				updatedServiceDefinition.remove( Project.DEFINITION_COPY ) ;
 
 				if ( ! serviceDefinitions.has( serviceName ) ) {
-					
-					updateResultNode.put( "message", "service was not found in existing definitions, adding as a new template"  ) ;
-					
-					logger.info( "service '{}' was not found in existing definitions, adding as a new template", serviceName );
+
+					updateResultNode.put( "message",
+							"service was not found in existing definitions, adding as a new template" ) ;
+
+					logger.info( "service '{}' was not found in existing definitions, adding as a new template",
+							serviceName ) ;
 
 				}
 
@@ -1796,7 +1799,9 @@ public class DefinitionRequests {
 
 		logger.info( " releasePackage: {} ", csapProjectName ) ;
 
-		return csapApp.checkDefinitionForParsingIssues( updatedConfig, csapProjectName ) ;
+		var results = csapApp.checkDefinitionForParsingIssues( updatedConfig, csapProjectName ) ;
+
+		return results ;
 
 	}
 
@@ -2606,20 +2611,22 @@ public class DefinitionRequests {
 
 			}
 
-		} catch ( Exception e1 ) {
+		} catch ( Exception exception ) {
+			
+			var errorDetails = CSAP.buildCsapStack( exception ) ;
 
-			logger.error( "Definition reload failed: {}", CSAP.buildCsapStack( e1 ) ) ;
-			// List<String> parmList = new ArrayList<String>();
-			// Collections.addAll( parmList, "bash", "-c",
-			// "diff " + csapApp.getDefinitionFile().getAbsolutePath()
-			// + " " + jsConfigFile.getAbsolutePath() );
-			// results.append( sourceControlManager.executeShell( parmList,
-			// outputMgr.getBufferedWriter() ) );
+			logger.error( "Definition reload failed: {}", errorDetails  ) ;
 
-			outputMgr.print( CsapCore.CONFIG_PARSE_ERROR +
-					" Failed to load updated definition: " + CSAP.buildCsapStack( e1 ) ) ;
+			outputMgr.print( CsapApplication.highlightHeader( CsapCore.CONFIG_PARSE_ERROR + " Failed to load application definition" )  ) ;
+			
+			if ( exception.getMessage( ).contains( ProjectLoader.UNABLE_TO_ACTIVATE_ENV ) ) {
+				errorDetails = "\n\n reason: "  + exception.getMessage( ) + "\n\n"  ;
+			} 
+			
+			outputMgr.print( errorDetails  ) ;
+			
 			// Application.getCustomStackTrace(e1)
-			outputMgr.print( "===== ACTION Required: Fix the error, reload config" ) ;
+			outputMgr.print( "\n\n ACTION Required: Fix the error, and try again" ) ;
 
 		}
 
@@ -2712,7 +2719,7 @@ public class DefinitionRequests {
 
 		logger.info( "Parsing file success: \n" + resultBuf ) ;
 
-		outputMgr.print( CsapApplication.header( "Activating Application Definition" ) ) ;
+		outputMgr.print( CsapApplication.highlightHeader( "Activating Application Definition" ) ) ;
 		outputMgr.print( CSAP.padLine( "Updating" ) + csapApp.applicationDefinition( ).getAbsolutePath( ) ) ;
 
 //		outputMgr.print( "\n\n =============  Parsing file success,  Overwriting: "
@@ -2814,9 +2821,11 @@ public class DefinitionRequests {
 					+ csapApp.getCsapHostName( ) ) ;
 
 		}
+		
 
-		commandResultsBuf
-				.append( "\n\n ============       definitions updated, reloads will occur within 60 seconds \n\n" ) ;
+		var loadedMessage = CsapApplication.highlightHeader( "definitions updated, reloads will occur within 60 seconds" ) ;
+
+		commandResultsBuf.append( loadedMessage  ) ;
 
 		// Scince not all output is logged to console, we dump to logs
 		// if (logger.isDebugEnabled())
@@ -2827,8 +2836,7 @@ public class DefinitionRequests {
 				"Definition reloaded",
 				commandResultsBuf.toString( ) ) ;
 
-		outputMgr
-				.print( "\n\n ============       definitions updated, reloads will occur within 60 seconds \n\n" ) ;
+		outputMgr.print( loadedMessage ) ;
 
 		if ( resultBuf.indexOf( CsapCore.CONFIG_PARSE_WARN ) != -1 ) {
 

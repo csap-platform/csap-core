@@ -126,7 +126,7 @@ public class ServiceResources {
 		if ( ! CsapApplication.isCsapFolderSet( ) ) {
 
 			// JUNIT testing
-			if ( ( ! junitMode ) && Application.getInstance( ).isDesktopProfileActive( ) ) {
+			if ( ( ! junitMode ) && Application.getInstance( ).isDesktopProfileActiveOrSpringNull( ) ) {
 
 				if ( ! isPrintedOnce ) {
 

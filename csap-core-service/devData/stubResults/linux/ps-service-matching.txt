@@ -12,6 +12,10 @@
  3.7 104440 1816476 48 root      1021   0     1 /usr/bin/dockerd
 
 
+#
+# crio
+#
+ 0.5 164384 2664788 25 root     2231145   0       1 /usr/bin/crio
 
 
 #
@@ -130,7 +134,7 @@
  0.0 13152  56352    1 root     11690   0 11673 /usr/bin/python /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf 
  
  #
- #
+ # fluentd
  #
  
  94.0 257132 671672  31 root     25638   0 25560 /usr/local/bin/ruby -Eascii-8bit:ascii-8bit /fluentd/vendor/bundle/ruby/2.6.0/bin/fluentd -c /fluentd/etc/fluent.conf -p /fluentd/plugins --gemfile /fluentd/Gemfile -r /fluentd/vendor/bundle/ruby/2.6.0/gems/fluent-plugin-elasticsearch-5.0.3/lib/fluent/plugin/elasticsearch_simple_sniffer.rb --under-supervisor
@@ -138,6 +142,10 @@
  0.0 75300 159508    6 root     25560   0 25545 ruby /fluentd/vendor/bundle/ruby/2.6.0/bin/fluentd -c /fluentd/etc/fluent.conf -p /fluentd/plugins --gemfile /fluentd/Gemfile -r /fluentd/vendor/bundle/ruby/2.6.0/gems/fluent-plugin-elasticsearch-5.0.3/lib/fluent/plugin/elasticsearch_simple_sniffer.rb
  0.0   708   8288    1 root     25545   0 25523 tini -- /fluentd/entrypoint.sh
  
+ #
+ # helm-nginx-simple
+ #
+ 0.0  6660  15200    1 csap      999999   0  911005 nginx: master process /opt/bitnami/nginx/sbin/nginx -c /opt/bitnami/nginx/conf/nginx.conf -g daemon off;
  
  #
  # most recent minus the above

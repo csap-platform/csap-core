@@ -173,7 +173,7 @@ csap:
           id: csap.os-commands
           collect-time: 2
           collect-units: MINUTES
-          occurences-max: 200
+          occurences-max: 400
           max-time: 25
           max-units: SECONDS
           

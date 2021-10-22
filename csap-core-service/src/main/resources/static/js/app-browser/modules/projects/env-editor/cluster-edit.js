@@ -17,6 +17,7 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
     const _dialogId = "clusterEditorDialog" ;
 
     let _refreshLifecycleFunction = null ;
+    
     let _defaultCluster = {
         "type": "simple",
         "template-references": [ ],
@@ -66,13 +67,20 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
     }
 
 
-    function refresh_layout() {
-        utils.loading("updating") ;
-        setTimeout( function() {
+    function refresh_layout( $source ) {
+        utils.loading( "updating..." ) ;
+
+        if ( $source ) {
+            console.log( `updated ${ $source.attr( "id" ) }, reloading form fields` ) ;
             jsonForms.loadValues( _clusterEditorSelector, _settingsJson ) ;
+
+        }
+
+        setTimeout( function () {
+            console.log( `refresh_layout`, _settingsJson ) ;
             jsonForms.resizeVisibleEditors( _definitionSelector, _dialogSelector, _clusterEditorSelector ) ;
             utils.loadingComplete() ;
-        }, 500)
+        }, 100 )
     }
 
 
@@ -81,30 +89,38 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
         console.log( `registerUiComponents() building ${_clusterEditorSelector}` )
 
         $clusterEditor = $( _clusterEditorSelector ) ;
-        
+
         $dialogHeader = $( "#dialogOpsContainer", $clusterEditor.parent() ) ;
 
 
         $clusterEditor.tabs( {
+            
+            
             beforeActivate: function ( event, ui ) {
 
                 if ( ui.oldTab.text().indexOf( "Editor" ) != -1 ) {
-                    // refresh ui with edit changes.
-                    console.log( "registerUiComponents():  parsing serviceJson" ) ;
-                    _settingsJson = JSON.parse( $( _definitionSelector ).val() ) ;
+                    
+                    console.log( "\n\n SPEC EDITOR: was last tab; reloading current definition" ) ;
+                    
+                    // _settingsJson = JSON.parse( $( _definitionSelector ).val() ) ;
+                    const currentDefinition = jsonForms.getJsonText( $( _definitionSelector ) ) ;
+                    _serviceJson = JSON.parse( currentDefinition ) ;
                     getClusterDefnSuccess( _settingsJson ) ;
                 }
 
             },
+            
+            
             activate: function ( event, ui ) {
-                console.log( "registerUiComponents(): activating: " + ui.newTab.text() ) ;
+                console.log( `\n\n activating tab: ${ ui.newTab.text() } ` ) ;
 
                 _isJsonEditorActive = false ;
+                
+                
                 if ( ui.newTab.text().indexOf( "Editor" ) != -1 ) {
-                    activateJsonEditor()
+                    activateJsonEditor() ;
                 }
 
-                //jsonForms.resizeVisibleEditors( _definitionTextAreaId, _container, _editPanel ) ;
                 refresh_layout() ;
 
             }
@@ -122,33 +138,41 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
         } ) ;
 
 
-        let osServiceSelected = function () {
+        let serviceTemplateSelectedFunction = function () {
+
             let serviceName = $( this ).val() ;
             console.log( "adding service: " + serviceName ) ;
-            if ( !_settingsJson["template-references"] )
-                _settingsJson["template-references"] = new Array() ;
 
-            if ( $.inArray( serviceName, _settingsJson["template-references"] ) != -1 ) {
+            let $serviceText = $( "#osClusterText", $clusterEditor ) ;
+            let servicePath = $serviceText.data( "path" ) ;
+
+            if ( !_settingsJson[ servicePath ] ) {
+                _settingsJson[ servicePath ] = new Array() ;
+            }
+
+            if ( $.inArray( serviceName, _settingsJson[ servicePath ] ) != -1 ) {
                 alertify.alert( "Service is already in the cluster: " + serviceName ) ;
                 return ;
             }
 
-            _settingsJson["template-references"].push( serviceName ) ;
+            _settingsJson[ servicePath ].push( serviceName ) ;
             if ( serviceName != "default" ) {
                 $( this ).val( "default" ) ;
             }
 
-            refresh_layout() ;
+            refresh_layout( $serviceText ) ;
         }
 
         $( ".osAddSelect", $clusterEditor ).sortSelect() ;
-        $( ".osAddSelect", $clusterEditor ).change( osServiceSelected ) ;
-        
-        $("#show-cluster-attributes", $clusterEditor).click( function() {
-            console.log(`toggling display of base-cluster`) ;
-            $(".base-cluster", $clusterEditor).toggle() ;
-        })
+        $( ".osAddSelect", $clusterEditor ).change( serviceTemplateSelectedFunction ) ;
 
+        $( "#show-cluster-attributes", $clusterEditor ).click( function () {
+            console.log( `toggling display of base-cluster` ) ;
+            $( ".base-cluster", $clusterEditor ).toggle() ;
+        } )
+
+
+        let $hostText = $( "#hostText", $clusterEditor ) ;
         $( ".addHostButton", $clusterEditor ).click( function () {
 
             let message = 'Enter the host name: ' ;
@@ -160,7 +184,7 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
             alertify.prompt( "New Host", message, "newHostName",
                     function ( evt, newHostName ) {
 
-                        let hostPath = $( "#hostText" ).data( "path" ) ;
+                        let hostPath = $hostText.data( "path" ) ;
                         console.log( 'newHostName: ' + newHostName + " updating path: " + hostPath ) ;
 
                         let currentHosts = jsonForms.getValue( hostPath, _settingsJson ) ;
@@ -172,7 +196,7 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
 
                         currentHosts.push( newHostName ) ;
 
-                        refresh_layout() ;
+                        refresh_layout( $hostText ) ;
 
                     },
                     function () {
@@ -183,7 +207,8 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
 
         let newHostSelected = function () {
             let newHostName = $( this ).val() ;
-            let hostPath = $( "#hostText" ).data( "path" ) ;
+
+            let hostPath = $hostText.data( "path" ) ;
             console.log( 'newHostName: ' + newHostName + " updating path: " + hostPath ) ;
 
             let currentHosts = jsonForms.getValue( hostPath, _settingsJson ) ;
@@ -199,7 +224,7 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
                 $( this ).val( "default" ) ;
             }
 
-            refresh_layout() ;
+            refresh_layout( $hostText ) ;
         }
         $( ".hostAddSelect", $clusterEditor ).sortSelect() ;
         $( ".hostAddSelect", $clusterEditor ).change( newHostSelected ) ;
@@ -214,6 +239,8 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
 
 
     function activateJsonEditor() {
+
+        console.log( `\n\n updating json text area` ) ;
         _isJsonEditorActive = true ;
         $( _definitionSelector ).val( JSON.stringify( _settingsJson, null, "\t" ) ) ;
 
@@ -287,13 +314,14 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
         _settingsJson = clusterDefJson ;
 
         $( _definitionSelector ).val( JSON.stringify( clusterDefJson, null, "\t" ) ) ;
+        jsonForms.loadValues( _clusterEditorSelector, _settingsJson ) ;
 
         // new cluster format 
         let clusterType = clusterDefJson.type ;
 
         if ( !clusterType ) {
             // alertify.csapInfo( `Cluster type not found in current environment; modify using base environment` ) ;
-            $(".base-cluster", $clusterEditor).toggle() ;
+            $( ".base-cluster", $clusterEditor ).toggle() ;
         } else {
             if ( clusterType == "kubernetes-provider" ) {
                 $( ".cluster-k8-details", $clusterEditor ).hide() ;
@@ -316,7 +344,7 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
         $( ".clusterTypeSelect", $clusterEditor ).val( clusterType ) ;
         $( ".clusterTypeSelect", $clusterEditor ).data( "last", clusterType ) ;
 
-        if ( _isJsonEditorActive ) {
+        if ( $( "#jsonEditor", $clusterEditor ).is( ":visible" ) ) {
             activateJsonEditor() ;
         }
 

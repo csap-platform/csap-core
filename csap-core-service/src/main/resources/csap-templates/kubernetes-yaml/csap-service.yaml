@@ -1,0 +1,9 @@
+
+
+about-csap-service.yaml: \
+  Any field in service definition can be selectively overridden
+  Copy desired item(s) from the specification tab
+  Alternately - the csap-auto-play can be used selectively to customize environments
+  
+  
+  
