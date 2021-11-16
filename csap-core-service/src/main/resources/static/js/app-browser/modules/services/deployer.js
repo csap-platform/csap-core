@@ -469,17 +469,18 @@ define( [ "browser/utils", "ace/ace", ], function ( utils, aceEditor ) {
                 }
 
                 $( "#docker-params-definition" ).text( params ) ;
-                resize_alertify_element( $( "#docker-params-definition" ), 200 ) ;
-
+                resize_alertify_element( $( "#docker-params-definition" ), 900 ) ;
 
                 setTimeout( function () {
+                    
                     _dockerStartParamsEditor = aceEditor.edit( "docker-params-definition" ) ;
-                    //editor.setTheme("ace/theme/twilight");
-                    //editor.session.setMode("ace/mode/yaml");
-
                     _dockerStartParamsEditor.setOptions( utils.getAceDefaults( "ace/mode/json" ) ) ;
+
                 }, 200 ) ;
 
+            } else {
+                // refresh latest
+                _dockerStartParamsEditor.setValue( JSON.stringify( latest_instanceReport.dockerSettings, "\n", "\t" ) ) ;
             }
 
         } else {
@@ -532,7 +533,11 @@ define( [ "browser/utils", "ace/ace", ], function ( utils, aceEditor ) {
     }
 
     function resize_alertify_element( $element, additionalHeight, alertifyExtra = 300 ) {
-        let alertifyHeight = Math.round( $( ".alertify" ).parent().outerHeight( true ) - alertifyExtra ) ;
+        
+        let $alertifyDialog = $element.closest( ".alertify" ).parent() ;
+        //let $alertifyDialog = $( ".alertify" ).parent() ; 
+        
+        let alertifyHeight = Math.round( $alertifyDialog.outerHeight( true ) - alertifyExtra ) ;
         let targetHeight = alertifyHeight ;
         let currentHeight = $element[0].scrollHeight + additionalHeight ;
 
@@ -541,7 +546,7 @@ define( [ "browser/utils", "ace/ace", ], function ( utils, aceEditor ) {
         }
         $element.height( targetHeight ) ;
         //$element.height( Math.round( $( ".alertify" ).parent().outerHeight( true ) - 400 ) ) ;
-        $element.width( Math.round( $( ".alertify" ).parent().outerWidth( true ) - 200 ) ) ;
+        $element.width( Math.round( $alertifyDialog.outerWidth( true ) - 200 ) ) ;
     }
 
     function buildAlertifyOptions( title ) {

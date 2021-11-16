@@ -21,7 +21,6 @@ firstPid=${pidsSpaceSeparated%% *}
 
 
 
-
 print_section "Process Reports"
 
 
@@ -111,7 +110,7 @@ for pid in $pidsSpaceSeparated ; do
 	
 	socketListenOutput="$( run_using_root nsenter --net --target $pid  ss --listen $ssParameters )" ;
 	
-	socketCommand=$(echo -e "$socketListenOutput" | head -1) ;
+	socketCommand="nsenter --net --target $pid  ss --listen $ssParameters" ;
 	
 	socketListenCount=$(echo -e "$socketListenOutput" |  sed '3d' | wc -l) ;
 	print_two_columns "sockets listen" "$socketListenCount" ;
@@ -120,14 +119,14 @@ for pid in $pidsSpaceSeparated ; do
 		
 		print_command \
 			"$socketCommand" \
-			"$( echo -e "$socketListenOutput" | sed '1d' | column --table)"
+			"$( echo -e "$socketListenOutput" | sed '3d' | column --table)"
 			
 	fi ;
 	
 	
 	socketConnectionOutput="$( run_using_root nsenter --net --target $pid  ss  $ssParameters )" ;
 	
-	socketCommand=$(echo $socketConnectionOutput | head -1) ;
+	socketCommand="nsenter --net --target $pid  ss  $ssParameters" ;
 	
 	socketConnectionCount=$(echo "$socketConnectionOutput" |  sed '3d' | wc -l) ;
 	print_two_columns "socket connections" "$socketConnectionCount" ;
@@ -136,7 +135,7 @@ for pid in $pidsSpaceSeparated ; do
 		
 		print_command \
 			"$socketCommand" \
-			"$( echo -e "$socketConnectionOutput" |  sed '1d' | column --table)"
+			"$( echo -e "$socketConnectionOutput" |  sed '3d' | column --table)"
 			
 	fi ;
 	

@@ -138,6 +138,12 @@ div.cluster-items>div {
 	align-items: center;
 }
 
+#editLifeTable span.csap-icon {
+	padding-left: 20px;
+	cursor: default ;
+	background-size: 14px 14px;
+}
+
 #editLifeTable tr.low td {
 	background-color: #EDEDED;
 }

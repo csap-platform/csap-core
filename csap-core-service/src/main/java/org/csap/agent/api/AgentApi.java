@@ -350,7 +350,7 @@ public class AgentApi {
 		throws Exception {
 
 		ObjectNode dockerReport = jacksonMapper.createObjectNode( ) ;
-		JsonNode dockerSummary = csapApp.getDockerIntegration( ).buildSummary( ) ;
+		JsonNode dockerSummary = csapApp.getDockerIntegration( ).getCachedSummaryReport( ) ;
 		dockerReport.set( "report", dockerSummary ) ;
 
 		ObjectNode timers = dockerReport.putObject( "timers" ) ;

@@ -137,7 +137,7 @@
 				"max_diskUtil": "300m",
 				"max_socketCount": "5"
 			},
-			"logDirectory": "/var/logs",
+			"logDirectory": "/var/log/calico/cni/",
 			"logRegEx": ".*\\.log",
 			"logJournalServices": "kubelet,docker",
 			"runUsingDocker": "true",
@@ -162,7 +162,7 @@
 				"max_diskUtil": "300m",
 				"max_socketCount": "10"
 			},
-			"logDirectory": "/var/logs",
+			"logDirectory": "/var/log/calico/cni/",
 			"logRegEx": ".*\\.log",
 			"logJournalServices": "kubelet,docker",
 			"runUsingDocker": "true",
@@ -188,7 +188,7 @@
 				"max_diskUtil": "300m",
 				"max_socketCount": "5"
 			},
-			"logDirectory": "/var/logs",
+			"logDirectory": "/var/log",
 			"logRegEx": ".*\\.log",
 			"logJournalServices": "kubelet,docker",
 			"runUsingDocker": "true",
@@ -575,7 +575,7 @@
 			"alerts": {
 				"max_diskUtil": "20g"
 			},
-			"logDirectory": "/var/logs",
+			"logDirectory": "/var/log",
 			"logRegEx": ".*\\.log",
 			"url": "https://linux.die.net/man/1/mpstat",
 			"scmVersion": "os"
@@ -1256,7 +1256,7 @@
 		},
 		"events-mongo": {
 			"server": "docker",
-			"autoStart": 90,
+			"autoStart": 70,
 			"read-me": "https://raw.githubusercontent.com/csap-platform/csap-event-services/master/README.md",
 			"appDirectory": "/$$mongo-storage",
 			"propDirectory": "/$$service-resources",
@@ -1523,7 +1523,7 @@
 		},
 		"events-service": {
 			"server": "SpringBoot",
-			"autoStart": 99,
+			"autoStart": 71,
 			"port": 7021,
 			"description": "Csap Analytics project provides historical data and adoption analytics",
 			"read-me": "https://raw.githubusercontent.com/csap-platform/csap-event-services/master/README.md",
@@ -1943,7 +1943,7 @@
 				"max_diskUtil": "20g",
 				"max_socketCount": "5"
 			},
-			"logDirectory": "/var/logs",
+			"logDirectory": "/var/log",
 			"logRegEx": ".*\\.log",
 			"logJournalServices": "kublet,docker",
 			"runUsingDocker": "true",
@@ -2211,6 +2211,18 @@
 						"frequency": "onDemand",
 						"script": "run_using_root systemctl start kubelet"
 					},
+					
+					{
+						"description": "add nfs mount",
+						"frequency": "event-post-start",
+						"frequency-old": "event-pre-deploy",
+						"script": "nfs_add_mount $$nfs-server:$$nfs-path $$nfs-mount $$nfs-options"
+					},
+					{
+						"description": "remove nfs mount",
+						"frequency": "onDemand",
+						"script": "nfs_remove_mount $$nfs-mount;"
+					},
 					{
 						"description": "purge ALL journal files",
 						"frequency": "onDemand",
@@ -2219,7 +2231,7 @@
 					{
 						"description": "remove ALL journal files",
 						"frequency": "onDemand",
-						"script": "run_using_root rm --recursive --force /run/log/journal/*"
+						"script": "run_using_root rm --recursive --force /run/log/journal/* /var/log/journal/*"
 					},
 					{
 						"description": "perform a master backup",

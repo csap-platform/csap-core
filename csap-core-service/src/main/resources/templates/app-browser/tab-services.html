@@ -525,9 +525,15 @@
 	<div
 		id="services-tab-helm-readme"
 		class="helm-container csap-scrollable">
-		<div class="options">
-
-			Readme Viewer
+		<div class="options" >
+		
+			<label>Readme Viewer</label>
+			
+			<label class=flex-right-info>
+				<span>Source:</span>
+				<span id=readme-source>helm</span>
+			<label>
+			
 		</div>
 		<div id=helm-readme-viewer>
 		loading
@@ -597,6 +603,16 @@
 					class="last-refreshed flex-right-info"
 					title="status refreshed every 30 seconds. Click on navigation for immediate refresh">---</span>
 
+			</div>
+			
+			<div id=service-instance-alerts class="code warning" 
+				title="service alerts found" >
+				<label class=csap><span>Service Alerts:</span></label>
+				<label class=csap>
+					<input type="checkbox" checked="checked"/>
+					<span>Details</span>
+				</label> 
+				<ol class=csap-list></ol>
 			</div>
 
 			<div

@@ -13,6 +13,7 @@ import java.util.Map ;
 import java.util.Optional ;
 import java.util.Set ;
 import java.util.TreeMap ;
+import java.util.regex.Matcher ;
 import java.util.stream.Collectors ;
 import java.util.stream.Stream ;
 
@@ -68,6 +69,58 @@ public class HealthManager {
 	public HealthForAgent agent ( ) {
 
 		return healthForAgent ;
+
+	}
+	
+
+
+	public ArrayNode buildServiceAlertReport ( String project , String filter ) {
+
+		if ( project == null ) {
+
+			project = application.getActiveProjectName( ) ;
+
+		}
+		// ArrayList<String> lifeCycleHostList = csapApp
+		// .getLifeCycleToHostMap().get(clusterFilter);
+
+		var requestedPackage = application.getProject( project ) ;
+
+		var includeKubernetesCheck = false ;
+
+		if ( application.isAdminProfile( ) ) {
+
+			includeKubernetesCheck = true ; // detects k8s crashed processes
+
+		}
+
+
+		var serviceReport = jsonMapper.createArrayNode( ) ;
+		var healthReport = build_health_report(
+				ServiceAlertsEnum.ALERT_LEVEL, includeKubernetesCheck,
+				requestedPackage ) ;
+
+		JsonNode detailByHost = healthReport.path( HealthManager.HEALTH_DETAILS ) ;
+
+		CSAP.asStream( detailByHost.fieldNames( ) ).forEach( hostName -> {
+
+			CSAP.jsonStream( detailByHost.path( hostName ) )
+					.filter( JsonNode::isObject )
+					.map( alert -> (ObjectNode) alert )
+					.filter( alert -> alert.has( "source" ) )
+					.filter( alert -> alert.path( "source" ).asText( "-" ).matches( Matcher.quoteReplacement(
+							filter ) ) )
+					.filter( alert -> alert.path( "category" ).asText( "none" ).startsWith( "os-process" ) )
+					.forEach( alert -> {
+
+						alert.put( "host", hostName ) ;
+						serviceReport.add( alert ) ;
+
+					} ) ;
+
+		} ) ;
+
+		return serviceReport ;
 
 	}
 
@@ -1422,7 +1475,7 @@ public class HealthManager {
 
 			if ( application.isDockerInstalledAndActive( ) ) {
 
-				var dockerSummaryReport = application.getDockerIntegration( ).buildSummary( ) ;
+				var dockerSummaryReport = application.getDockerIntegration( ).getCachedSummaryReport( ) ;
 				var dockerInstance = application.findServiceByNameOnCurrentHost( "docker" ) ;
 
 				if ( dockerInstance != null ) {

@@ -39,8 +39,8 @@ import org.apache.commons.io.FilenameUtils ;
 import org.apache.commons.io.IOUtils ;
 import org.apache.commons.lang3.StringUtils ;
 import org.csap.agent.CsapCore ;
-import org.csap.agent.DockerConfiguration ;
-import org.csap.agent.DockerSettings ;
+import org.csap.agent.ContainerConfiguration ;
+import org.csap.agent.ContainerSettings ;
 import org.csap.agent.container.kubernetes.KubernetesJson ;
 import org.csap.agent.linux.OsCommandRunner ;
 import org.csap.agent.linux.OutputFileMgr ;
@@ -48,9 +48,12 @@ import org.csap.agent.model.Application ;
 import org.csap.agent.model.ProjectLoader ;
 import org.csap.agent.model.ServiceInstance ;
 import org.csap.agent.services.OsCommands ;
+import org.csap.agent.services.OsManager ;
+import org.csap.agent.services.OsProcessMapper ;
 import org.csap.agent.services.ServiceOsManager ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
+import org.csap.helpers.CsapSimpleCache ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
 import org.springframework.ui.ModelMap ;
@@ -102,13 +105,14 @@ public class ContainerIntegration {
 
 	public static final String CRIO_COMMAND_NOT_IMPLMENTED = "crio-command-not-implmented" ;
 
-	private static final String CSAP_DOCKER_METER = "csap.container.docker-" ;
+	private static final String API_METER = "container.api-" ;
+	private static final String CSAP_CONTAINER_METER = "csap.container.api-" ;
 
 	private final static String DOCKER_VOLUMES_SCRIPT = "bin/collect-docker-volumes.sh" ;
 
-	public static final String DEPLOY_TIMER = CSAP_DOCKER_METER + "deploy" ;
+	public static final String DEPLOY_TIMER = CSAP_CONTAINER_METER + "deploy" ;
 
-	public static final String SUMMARY_TIMER = CSAP_DOCKER_METER + "summary" ;
+	public static final String SUMMARY_TIMER = CSAP_CONTAINER_METER + "summary" ;
 
 	public static final String IO_KUBERNETES_CONTAINER_NAME = "io.kubernetes.container.name" ;
 
@@ -140,14 +144,16 @@ public class ContainerIntegration {
 
 	private static long MAX_PROGRESS = 1024 * 500 ;
 
-	private DockerConfiguration dockerConfig ;
+	private ContainerConfiguration dockerConfig ;
 	private ObjectMapper jsonMapper ;
-	private DockerClient dockerClient ;
-	private DockerSettings settings ;
+
+	volatile DockerClient dockerClient ;
+
+	private ContainerSettings settings ;
 	private OsCommands osCommands ;
 
 	public ContainerIntegration (
-			DockerConfiguration dockerConfig,
+			ContainerConfiguration dockerConfig,
 			ObjectMapper notUsedMapper ) {
 
 		this.dockerConfig = dockerConfig ;
@@ -606,7 +612,7 @@ public class ContainerIntegration {
 
 			String reason = CSAP.buildCsapStack( e ) ;
 			logger.warn( "Failed finding container: {}", reason ) ;
-			check_docker_fatal_error( reason ) ;
+			// check_docker_fatal_error( reason ) ;
 			matchContainer = Optional.empty( ) ;
 
 		}
@@ -617,37 +623,100 @@ public class ContainerIntegration {
 
 	String dockerDisabledMessage = "Docker Runtime Exception: docker integration is being disabled. Verify docker settings and restart agent" ;
 
-	public void check_docker_fatal_error ( String reason ) {
-		// linux: java.lang.UnsatisfiedLinkError
-		// windows: junixsocket
+//	public void check_docker_fatal_error ( String reason ) {
+//		// linux: java.lang.UnsatisfiedLinkError
+//		// windows: junixsocket
+//
+//		if ( reason.contains( "UnsatisfiedLinkError" ) || reason.contains( "junixsocket" ) ) {
+//
+//			try {
+//				// Docker api has buggy runtime handling that leaks connections.
+//				// this should occure very rarely - so rather then attempting to
+//				// handle -disable for investigation
+//
+//				logger.warn( "{} \n {} {} {}",
+//						CsapApplication.LINE,
+//						dockerDisabledMessage,
+//						CsapApplication.LINE,
+//						reason ) ;
+//
+//				dockerClient.close( ) ;
+//				dockerClient = null ;
+//
+//			} catch ( Exception e1 ) {
+//
+//				logger.warn( "Failed close command: {}", reason = CSAP.buildCsapStack( e1 ) ) ;
+//
+//			}
+//
+//		}
+//
+//	}
 
-		if ( reason.contains( "UnsatisfiedLinkError" ) || reason.contains( "junixsocket" ) ) {
+	private volatile CsapSimpleCache containerSummaryCache = null ;
 
-			try {
-				// Docker api has buggy runtime handling that leaks connections.
-				// this should occure very rarely - so rather then attempting to
-				// handle -disable for investigation
+	//
+	// Summary report called multiple times - from os processCollector, UI, etc
+	//
+	synchronized public ObjectNode getCachedSummaryReport ( ) {
 
-				logger.warn( "{} \n {} {} {}",
-						CsapApplication.LINE,
-						dockerDisabledMessage,
-						CsapApplication.LINE,
-						reason ) ;
+		logger.debug( "Entered " ) ;
 
-				dockerClient.close( ) ;
-				dockerClient = null ;
+		if ( containerSummaryCache == null ) {
 
-			} catch ( Exception e1 ) {
-
-				logger.warn( "Failed close command: {}", reason = CSAP.buildCsapStack( e1 ) ) ;
-
-			}
+			containerSummaryCache = CsapSimpleCache.builder(
+					3,
+					TimeUnit.SECONDS,
+					OsManager.class,
+					"container-summary-report" ) ;
+			containerSummaryCache.expireNow( ) ;
 
 		}
 
+		// Use cache
+		if ( ! containerSummaryCache.isExpired( ) ) {
+
+			logger.debug( "\n\n***** ReUsing  crioPsCache   *******\n\n" ) ;
+
+			return (ObjectNode) containerSummaryCache.getCachedObject( ) ;
+
+		}
+
+		// Lets refresh cache
+		logger.debug( "\n\n***** Refreshing crioPsCache   *******\n\n" ) ;
+
+		try {
+
+			var summaryReport = buildSummaryReport( false ) ;
+			containerSummaryCache.reset( summaryReport ) ;
+
+			// podman has frequent errors so retry once
+			if ( summaryReport.has( DockerJson.error.json( ) ) ) {
+
+				summaryReport = buildSummaryReport( true ) ;
+				containerSummaryCache.reset( summaryReport ) ;
+
+				if ( summaryReport.has( DockerJson.error.json( ) ) ) {
+
+					logger.warn( CsapApplication.highlightHeader( "recovery attempt failed" ) ) ;
+
+					containerSummaryCache.expireNow( ) ;
+
+				}
+
+			}
+
+		} catch ( Exception e ) {
+
+			logger.error( "Failed to write output: {}", CSAP.buildCsapStack( e ) ) ;
+
+		}
+
+		return (ObjectNode) containerSummaryCache.getCachedObject( ) ;
+
 	}
 
-	public ObjectNode buildSummary ( ) {
+	ObjectNode buildSummaryReport ( boolean isRetry ) {
 
 		Timer.Sample summaryTimer = dockerConfig.getCsapApp( ).metrics( ).startTimer( ) ;
 
@@ -659,12 +728,17 @@ public class ContainerIntegration {
 		try {
 
 			// logger.debug( "Issueing dockerClient command" ) ;
-			Info info = dockerClient.infoCmd( ).exec( ) ;
+
+			// trying to ping first
+//			logger.info( "Issueing ping2" ) ;
+//			dockerClient.pingCmd( ).exec( ) ;
+
+			var containerInfo = dockerClient.infoCmd( ).exec( ) ;
 			// logger.debug( "Completed dockerClient command" ) ;
 
-			summary.put( "imageCount", info.getImages( ) ) ;
-			summary.put( "containerCount", info.getContainers( ) ) ;
-			summary.put( "containerRunning", info.getContainersRunning( ) ) ;
+			summary.put( "imageCount", containerInfo.getImages( ) ) ;
+			summary.put( "containerCount", containerInfo.getContainers( ) ) ;
+			summary.put( "containerRunning", containerInfo.getContainersRunning( ) ) ;
 
 			//
 			var crioContainers = 0 ;
@@ -677,9 +751,9 @@ public class ContainerIntegration {
 
 			summary.put( "crioContainerCount", crioContainers ) ;
 
-			summary.put( "version", info.getServerVersion( ) ) ;
+			summary.put( "version", containerInfo.getServerVersion( ) ) ;
 
-			summary.put( "rootDirectory", info.getDockerRootDir( ) ) ;
+			summary.put( "rootDirectory", containerInfo.getDockerRootDir( ) ) ;
 
 			summary.put( KubernetesJson.heartbeat.json( ), true ) ;
 
@@ -713,8 +787,20 @@ public class ContainerIntegration {
 
 		} catch ( Exception e ) {
 
-			summary.set( "error", buildErrorResponse( "Build docker summary", e ) ) ;
-			logger.info( "Docker connection Error: {}", CSAP.buildCsapStack( e ) ) ;
+			if ( isRetry ) {
+
+				logger.warn( "ContainerApi connection Error: {}", CSAP.buildCsapStack( e ) ) ;
+				summary.set( DockerJson.error.json( ), buildErrorResponse( "Build docker summary", e ) ) ;
+
+			} else {
+
+				summary.put( DockerJson.error.json( ), "Found Error:" + e.getMessage( ) ) ;
+				logger.warn( "ContainerApi connection Error: {}", e.getMessage( ) ) ;
+				logger.debug( "Full stack: {}", CSAP.buildCsapStack( e ) ) ;
+
+			}
+
+			pingContainerApi( ) ;
 
 		}
 
@@ -736,8 +822,8 @@ public class ContainerIntegration {
 
 		var allTimer = getDockerConfig( ).getCsapApp( ).metrics( ).startTimer( ) ;
 
-		List<ContainerProcess> containerProcesses = new ArrayList<>( ) ;
-		StringBuilder pidScanInfo = new StringBuilder( ) ;
+		var containerProcesses = new ArrayList<ContainerProcess>( ) ;
+		var pidScanInfo = new StringBuilder( ) ;
 
 		//
 		// docker and podman container collection
@@ -749,7 +835,29 @@ public class ContainerIntegration {
 
 		} catch ( Exception e ) {
 
-			logger.warn( "Failed connecting to container: {}", CSAP.buildCsapStack( e ) ) ;
+			logger.warn( "Failed connecting to container (will retry): '{}' {}",
+					pidScanInfo, e.getMessage( ) ) ;
+
+			logger.debug( "Failed connecting to container (will retry): '{}' {}",
+					pidScanInfo, CSAP.buildCsapStack( e ) ) ;
+
+			pingContainerApi( ) ;
+
+			// podman fails: so retry
+			try {
+
+				containerProcesses.addAll( buildContainerProcesses( pidScanInfo ) ) ;
+
+			} catch ( Exception e1 ) {
+
+				pingContainerApi( ) ;
+
+				logger.warn( "{}: '{}' {}",
+						CsapApplication.highlightHeader( "recovery attempt failed" ),
+						pidScanInfo,
+						CSAP.buildCsapStack( e ) ) ;
+
+			}
 
 			// names.add( "** Unable-to-get-listing" );
 		}
@@ -790,12 +898,41 @@ public class ContainerIntegration {
 
 	}
 
+	private void pingContainerApi ( ) {
+
+		Application.getInstance( ).metrics( ).record( API_METER + "ping", ( ) -> {
+
+
+				//
+				try {
+
+					dockerClient.versionCmd( ).exec( ) ;
+					logger.info( "Api ping succeeded" ) ;
+					// infoCmd versionCmd pingCmd
+//				logger.info( "{} \n {}",
+//						CsapApplication.highlightHeader( "crio connection recovery attempt version command" ),
+//						CSAP.jsonPrint( CSAP.buildGenericObjectReport( dockerClient.versionCmd( ).exec( ) ) ) ) ;
+
+				} catch ( Exception e1 ) {
+
+					logger.warn( "docker ping failed: {}", CSAP.buildCsapStack( e1 ) ) ;
+
+				}
+
+
+		} ) ;
+
+	}
+
 	private List<ContainerProcess> buildContainerProcesses ( StringBuilder pidScanInfo ) {
 
-		List<ContainerProcess> containerProcesses ;
-		List<Container> containers = dockerClient.listContainersCmd( ).withShowAll( false ).exec( ) ;
+		// trying to ping first
+//		logger.info( "Issueing ping1" ) ;
+//		dockerClient.pingCmd( ).exec( ) ;
 
-		containerProcesses = containers.stream( )
+		var containers = dockerClient.listContainersCmd( ).withShowAll( false ).exec( ) ;
+
+		var containerProcesses = containers.stream( )
 				.map( container -> {
 
 					if ( isKubernetesPodWrapper( container ) || ( container.getNames( ) == null ) || ( container
@@ -1026,8 +1163,8 @@ public class ContainerIntegration {
 				}
 
 				names.add( name ) ;
-				
-				//logger.info( "labels: {}, names: {}",  container.getLabels( ) ,  name )  ;
+
+				// logger.info( "labels: {}, names: {}", container.getLabels( ) , name ) ;
 
 			} ) ;
 
@@ -3585,7 +3722,7 @@ public class ContainerIntegration {
 
 		String reason = CSAP.buildCsapStack( failureExeption ) ;
 
-		check_docker_fatal_error( reason ) ;
+		// check_docker_fatal_error( reason ) ;
 
 		ObjectNode result = jsonMapper.createObjectNode( ) ;
 
@@ -3964,13 +4101,13 @@ public class ContainerIntegration {
 
 	}
 
-	public DockerSettings getSettings ( ) {
+	public ContainerSettings getSettings ( ) {
 
 		return settings ;
 
 	}
 
-	public void setSettings ( DockerSettings settings ) {
+	public void setSettings ( ContainerSettings settings ) {
 
 		this.settings = settings ;
 
@@ -3982,7 +4119,7 @@ public class ContainerIntegration {
 
 	}
 
-	public DockerConfiguration getDockerConfig ( ) {
+	public ContainerConfiguration getDockerConfig ( ) {
 
 		return dockerConfig ;
 

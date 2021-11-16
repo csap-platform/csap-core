@@ -475,7 +475,7 @@ public class CsapCoreService implements WebMvcConfigurer {
 	public RestTemplate getAdminConnection ( CsapRestTemplateFactory factory ) {
 
 		// 1 1 for testing, 20, 20
-		return factory.buildDefaultTemplate( "csap-admin", isDisableSslValidation( ), 10, 10, 2, 4, 300 ) ;
+		return factory.buildDefaultTemplate( "csap-admin-peer-connections", isDisableSslValidation( ), 10, 10, 2, 4, 300 ) ;
 
 	}
 
@@ -526,7 +526,7 @@ public class CsapCoreService implements WebMvcConfigurer {
 	@Bean ( name = "csapEventsService" )
 	public RestTemplate csapEventsService ( CsapRestTemplateFactory factory ) {
 
-		RestTemplate restTemplate = factory.buildDefaultTemplate( "csapEvents", false, 10, 10, 5, 5, 300 ) ;
+		RestTemplate restTemplate = factory.buildDefaultTemplate( "csap-events-connections", false, 10, 10, 5, 5, 300 ) ;
 
 		restTemplate.getMessageConverters( ).clear( ) ;
 		restTemplate.getMessageConverters( ).add( new FormHttpMessageConverter( ) ) ;

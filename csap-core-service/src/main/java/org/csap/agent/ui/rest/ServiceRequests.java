@@ -2013,51 +2013,7 @@ public class ServiceRequests {
 									String project ,
 									String filter ) {
 
-		if ( project == null ) {
-
-			project = csapApp.getActiveProjectName( ) ;
-
-		}
-		// ArrayList<String> lifeCycleHostList = csapApp
-		// .getLifeCycleToHostMap().get(clusterFilter);
-
-		Project requestedPackage = csapApp.getProject( project ) ;
-
-		ArrayNode serviceReport = jacksonMapper.createArrayNode( ) ;
-
-		var includeKubernetesCheck = false ;
-
-		if ( csapApp.isAdminProfile( ) ) {
-
-			includeKubernetesCheck = true ; // detects k8s crashed processes
-
-		}
-
-		var healthReport = csapApp.healthManager( ).build_health_report(
-				ServiceAlertsEnum.ALERT_LEVEL, includeKubernetesCheck,
-				requestedPackage ) ;
-
-		JsonNode detailByHost = healthReport.path( HealthManager.HEALTH_DETAILS ) ;
-
-		CSAP.asStream( detailByHost.fieldNames( ) ).forEach( hostName -> {
-
-			CSAP.jsonStream( detailByHost.path( hostName ) )
-					.filter( JsonNode::isObject )
-					.map( alert -> (ObjectNode) alert )
-					.filter( alert -> alert.has( "source" ) )
-					.filter( alert -> alert.path( "source" ).asText( "-" ).matches( Matcher.quoteReplacement(
-							filter ) ) )
-					.filter( alert -> alert.path( "category" ).asText( "none" ).startsWith( "os-process" ) )
-					.forEach( alert -> {
-
-						alert.put( "host", hostName ) ;
-						serviceReport.add( alert ) ;
-
-					} ) ;
-
-		} ) ;
-
-		return serviceReport ;
+		return csapApp.healthManager( ).buildServiceAlertReport( project, filter ) ;
 
 	}
 

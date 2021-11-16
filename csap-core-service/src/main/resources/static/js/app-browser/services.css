@@ -36,6 +36,24 @@
 	align-items: end ;
 }
 
+
+#services-tab-content #service-instance-alerts {
+	display: none;
+	padding-left: 0;
+	max-height: 10em;
+	overflow: auto;
+	white-space: normal;
+}
+
+#services-tab-content #service-instance-alerts label.csap {
+	margin-left: 1em;
+	margin-right: 5em;
+}
+
+#services-tab-content #service-instance-alerts ol.csap-list {
+	white-space: pre-wrap;
+}
+
 #services-tab-content table td {
 	vertical-align: top;
 }
@@ -1056,6 +1074,10 @@ div#services-tab-content #services-tab-kpods div#pods-summary {
 	border-radius: var(--border-radius-small);
 	padding: var(--small-padding);
 	
+}
+
+#services-tab-content #readme-source a.csap-link{
+	max-width: 10em;
 }
 
 #services-tab-content #helm-readme-viewer a.csap-link {

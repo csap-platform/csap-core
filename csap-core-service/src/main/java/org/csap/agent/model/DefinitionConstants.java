@@ -10,7 +10,7 @@ public enum DefinitionConstants {
 	pathToTemplate("path-to-template"),
 
 	// cluster constants
-	clusterType("type"), clusterNotes("notes"), clusterTemplate("template");
+	clusterType("type"), clusterNotes("notes"), enabled("enabled");
 
 	private String description ;
 

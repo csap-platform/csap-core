@@ -1551,6 +1551,7 @@ public class ServiceBaseParser extends ServiceBase {
 
 		case environmentVariables:
 		case environmentOverload:
+		case readme:
 		case description:
 		case deploymentNotes:
 		case documentation:

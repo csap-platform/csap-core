@@ -67,12 +67,12 @@ delay_with_message 5 "csap login test credentials: admin/admin; LDAP test creden
 #
 
 cred="xxx"
-tag="xxx"
+tag="noTag"
 
 
 print_section "publishing images tagged: '$tag'"
 
-if [ "$cred" == "xxx" ] || [ "$tag" == "xxx" ] ; then
+if [ "$cred" == "xxx" ]  ; then
 	print_error "password and tag must be set"
 	exit 99 ;
 fi ;
@@ -81,23 +81,72 @@ docker login --username=csapplatform --password=$cred
 exit_on_failure "$?" "Failed login"
 
 
-print_section "pushing: csapplatform/installer:latest"
+function publish() {
 
-docker push csapplatform/installer:latest
-docker tag  csapplatform/installer:latest csapplatform/installer:$tag
-docker push csapplatform/installer:$tag
+	local name=$1 ;
+
+	local cloneLabel=${2:-none} ;
+	
+	local latest="csapplatform/$name:latest" ;
+	
+	local tagged="csapplatform/$name:$tag" ;
+
+	print_section "pushing: $latest" ;
+	
+	docker push $latest
+	
+	if [ "$tag" != "noTag" ] ; then
+		
+		print_section "adding tag and pushing: $tagged" ;
+	
+		docker tag  $latest $tagged ;
+		
+		docker push  $tagged ;
+		
+	fi ;
+	
+	if [ "$cloneLabel" != "none" ] ; then
+	
+		local clone="csapplatform/$name-$cloneLabel:latest" ;
+	
+		docker tag $latest $clone ;
+		
+		docker push  $clone ;
+	
+	fi
+
+}
 
 
-print_section "pushing: csapplatform/demo:latest"
 
-docker push csapplatform/demo:latest
-docker tag csapplatform/demo:latest csapplatform/demo:$tag
-docker push csapplatform/demo:$tag
+publish csap-java ;
+
+publish test-app ;
+
+publish activemq ;
+
+publish installer ;
+
+publish demo snapshot ;
 
 
-print_section "pushing: csapplatform/demo-snapshot:latest"
-docker tag csapplatform/demo:latest csapplatform/demo-snapshot:latest
-docker push csapplatform/demo-snapshot:latest
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -3,7 +3,7 @@
 
 
 # clear the journal
-# \rm --recursive --force /run/log/journal/*
+# \rm --recursive --force /run/log/journal/* /var/log/journal/*
 
 service='_serviceName_' ;
 

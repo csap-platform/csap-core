@@ -950,7 +950,7 @@ public class ProjectLoader {
 			logger.trace( "{} environment: {} cluster: {} \n  cluster definition: {}",
 					project.getName( ), environmentName, clusterName, mergedCluster ) ;
 
-			if ( rawCluster.path( DefinitionConstants.clusterTemplate.key( ) ).asBoolean( false ) ) {
+			if ( ! rawCluster.path( DefinitionConstants.enabled.key( ) ).asBoolean( true ) ) {
 
 				continue ;
 
@@ -1003,9 +1003,11 @@ public class ProjectLoader {
 						clusterServices.add( getNsMonitorName( namespace ) ) ;
 
 					} ) ;
+			
+			logger.info( "Generating namespace monitor cluster: {} {}", NAMESPACE_MONITORS, CSAP.jsonPrint( clusterDefinition ) );
 
 			load_cluster(
-					"namespace-monitors",
+					NAMESPACE_MONITORS,
 					clusterDefinition,
 					project,
 					environmentName,
@@ -1059,11 +1061,11 @@ public class ProjectLoader {
 
 		if ( namespacesModified ) {
 
-			logger.info( CSAP.buildDescription( "Namespace hashes: reloads when current == last and not != loaded",
+			logger.info( CSAP.buildDescription( "Kubernetes Namespaces Changed",
+					"namespacesModified", namespacesModified,
 					"current", currentNamespaceHash,
 					"last", lastNamespaceHash,
 					"loaded", loadedNamespaceHash,
-					"namespacesModified", namespacesModified,
 					"discoveredNamespaces", discoveredNamespaces ) ) ;
 
 		}
@@ -2650,7 +2652,7 @@ public class ProjectLoader {
 				DockerJson.locator.json( ) ) ;
 		locator.put( DockerJson.podNamespace.json( ), serviceName ) ;
 
-		logger.info( "{} - {} created: {}", namespaceHyphenServiceName, serviceName, CSAP.jsonPrint(
+		logger.debug( "{} - {} created: {}", namespaceHyphenServiceName, serviceName, CSAP.jsonPrint(
 				namespaceMonitor ) ) ;
 
 		return namespaceMonitor ;

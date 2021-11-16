@@ -4,7 +4,7 @@ import org.csap.helpers.CSAP ;
 import org.springframework.boot.context.properties.ConfigurationProperties ;
 
 @ConfigurationProperties ( CsapCoreService.CONFIGURATION_PREFIX + ".docker" )
-public class DockerSettings {
+public class ContainerSettings {
 	private String url ;
 
 	private boolean enabled = false ;

@@ -901,8 +901,8 @@ public class ProjectOperators {
 				.forEach( update -> {
 
 					var insertValue = update.path( VALUE ) ;
-
 					var insertPath = update.path( PATH ).asText( ) ;
+					
 					var insertTarget = projectDefinition.at( insertPath ) ;
 
 					var fullPath = new File( insertPath ) ;
@@ -915,19 +915,17 @@ public class ProjectOperators {
 
 					} else if ( insertTarget.isObject( ) && insertValue.isObject( ) ) {
 
-						// add to existing map
-						insertResults.add( insertPath ) ;
+						insertResults.add( insertPath + ": added to existing map" ) ;
 						( (ObjectNode) insertTarget ).setAll( (ObjectNode) insertValue ) ;
 
 					} else if ( insertTarget.isArray( ) && insertValue.isTextual( ) ) {
 
-						// add to existing map
-						// insertResults.add( insertPath ) ;
+						insertResults.add( insertPath + ": added to existing array"  ) ;
 						( (ArrayNode) insertTarget ).add( insertValue ) ;
 
 					} else {
 
-						insertResults.add( parentPath ) ;
+						insertResults.add( parentPath + ": added to parent " + fullPath.getName( ) ) ;
 						( (ObjectNode) parentTarget ).set( fullPath.getName( ), insertValue ) ;
 
 					}

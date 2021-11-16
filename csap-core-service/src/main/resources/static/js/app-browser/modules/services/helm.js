@@ -5,6 +5,7 @@ define( [ "services/instances", "browser/utils", "ace/ace", "ace/ext-modelist" ]
 
     const $readmePanel = utils.findContent( "#services-tab-helm-readme" ) ;
     const $helmReadmeEditor = $( "#helm-readme-viewer", $readmePanel ) ;
+    const $readmeSource = $( "#readme-source", $readmePanel ) ;
 
     const $valuesPanel = utils.findContent( "#services-tab-helm-values" ) ;
     const $helmValuesEditor = $( "#helm-values-editor", $valuesPanel ) ;
@@ -82,7 +83,7 @@ define( [ "services/instances", "browser/utils", "ace/ace", "ace/ext-modelist" ]
     function loadAttributeDetails( menuPath ) {
 
         let $contentLoaded = new $.Deferred() ;
-        utils.loading( `Loading ${ menuPath }` ) ;
+        utils.loading( `Loading` ) ;
         let selectedService = instances.getSelectedService() ;
 
 
@@ -115,13 +116,13 @@ define( [ "services/instances", "browser/utils", "ace/ace", "ace/ext-modelist" ]
 
         $.getJSON( helmUrl, parameters )
 
-                .done( function ( eventDetails ) {
+                .done( function ( itemReport ) {
                     // console.log( ` content: `, lifeDialogHtml ) ;
 
                     utils.loadingComplete() ;
                     //alertify.csapInfo( eventDetails["response-yaml"]  ) ;
                     //addPodDetails( podDetails, $container ) ;
-                    updateEditor( eventDetails, menuPath ) ;
+                    updateEditor( itemReport, menuPath ) ;
 
                 } )
 
@@ -141,12 +142,34 @@ define( [ "services/instances", "browser/utils", "ace/ace", "ace/ext-modelist" ]
 
     }
 
-    function updateEditor( content, menuPath ) {
+    function updateEditor( itemReport, menuPath ) {
 
         if ( menuPath === "helm-values" ) {
-            _helmValuesEditor.getSession().setValue( content["response-yaml"] ) ;
+            _helmValuesEditor.getSession().setValue( itemReport["response-yaml"] ) ;
         } else {
-            $helmReadmeEditor.html( content["response-html"] ) ;
+            
+            console.log( `itemReport: `, itemReport) ;
+            $helmReadmeEditor.html( itemReport["response-html"] ) ;
+
+            if ( itemReport.source ) {
+                $readmeSource.empty() ;
+                let label = itemReport.source ;
+                if ( label.length > 20 ) {
+                    label = label.substring(0,20) + "..." ;
+                }
+                if ( itemReport.source.startsWith( "http" ) ) {
+                    jQuery( '<a/>', {
+                        href: itemReport.source,
+                        title: itemReport.source,
+                        target: "_blank", 
+                        text: label,
+                        class: "csap-link-icon csap-window"
+                    } ).appendTo( $readmeSource ) ;
+                } else {
+                    $readmeSource.text( itemReport.source ) ;
+                }
+            }
+
         }
 
 

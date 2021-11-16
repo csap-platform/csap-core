@@ -948,7 +948,7 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
 
 
         children.push( {
-            "title": "Linux",
+            "title": title_with_comment( "OS", "", "linuxDefTree" ),
             "folder": true,
             "expanded": true,
             "children": children_root_load_linux()
@@ -1298,7 +1298,7 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
 
                 // desktop settings
                 if ( portUrl.contains( "localhost" ) ) {
-                    portUrl = dockerUrl.substring( 0, dockerUrl.length - 4 ) + portSetting.PublicPort ;
+                    portUrl = containerUrl.substring( 0, containerUrl.length - 4 ) + portSetting.PublicPort ;
                     if ( portUrl.startsWith( "tcp" ) ) {
                         portUrl = "http" + portUrl.substring( 3 ) ;
                     }

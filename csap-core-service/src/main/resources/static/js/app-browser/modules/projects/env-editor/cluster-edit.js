@@ -17,7 +17,7 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
     const _dialogId = "clusterEditorDialog" ;
 
     let _refreshLifecycleFunction = null ;
-    
+
     let _defaultCluster = {
         "type": "simple",
         "template-references": [ ],
@@ -94,14 +94,13 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
 
 
         $clusterEditor.tabs( {
-            
-            
+
             beforeActivate: function ( event, ui ) {
 
                 if ( ui.oldTab.text().indexOf( "Editor" ) != -1 ) {
-                    
+
                     console.log( "\n\n SPEC EDITOR: was last tab; reloading current definition" ) ;
-                    
+
                     // _settingsJson = JSON.parse( $( _definitionSelector ).val() ) ;
                     const currentDefinition = jsonForms.getJsonText( $( _definitionSelector ) ) ;
                     _serviceJson = JSON.parse( currentDefinition ) ;
@@ -109,14 +108,13 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
                 }
 
             },
-            
-            
+
             activate: function ( event, ui ) {
                 console.log( `\n\n activating tab: ${ ui.newTab.text() } ` ) ;
 
                 _isJsonEditorActive = false ;
-                
-                
+
+
                 if ( ui.newTab.text().indexOf( "Editor" ) != -1 ) {
                     activateJsonEditor() ;
                 }
@@ -168,7 +166,9 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
 
         $( "#show-cluster-attributes", $clusterEditor ).click( function () {
             console.log( `toggling display of base-cluster` ) ;
-            $( ".base-cluster", $clusterEditor ).toggle() ;
+            $( ".base-cluster", $clusterEditor ).show() ;
+            $( ".base-cluster-no-type", $clusterEditor ).hide() ;
+
         } )
 
 
@@ -320,9 +320,14 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
         let clusterType = clusterDefJson.type ;
 
         if ( !clusterType ) {
-            // alertify.csapInfo( `Cluster type not found in current environment; modify using base environment` ) ;
-            $( ".base-cluster", $clusterEditor ).toggle() ;
+
+            $( ".base-cluster", $clusterEditor ).hide() ;
+            $( ".base-cluster-no-type", $clusterEditor ).show() ;
+
         } else {
+
+            $( ".base-cluster", $clusterEditor ).show() ;
+            $( ".base-cluster-no-type", $clusterEditor ).hide() ;
             if ( clusterType == "kubernetes-provider" ) {
                 $( ".cluster-k8-details", $clusterEditor ).hide() ;
                 $( ".cluster-host-textarea", $clusterEditor ).parent().parent().show() ;
@@ -524,10 +529,6 @@ define( [ "browser/utils", "editor/validation-handler", "editor/json-forms" ], f
 
 
 } ) ;
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 
 

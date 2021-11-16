@@ -2746,8 +2746,8 @@ public class Application {
 
 		try {
 
-			StringBuilder resultsBuf = projectLoader.process( false, applicationDefinition( ) ) ;
-			logger.debug( "Parse results: {} ", resultsBuf.toString( ) ) ;
+			var definitionParsingResults = projectLoader.process( false, applicationDefinition( ) ) ;
+			logger.debug( "Parse results: {} ", definitionParsingResults.toString( ) ) ;
 
 			configureApiSecurity( ) ;
 
@@ -2828,6 +2828,7 @@ public class Application {
 	private int hostRefreshIntervalSeconds = 60 ;
 	private int agentConnectinReadTimeoutSeconds = 60 ;
 	private int previousHostCount = 0 ;
+	private int previousHostTimeoutSeconds = 0 ;
 
 	public void refreshAgentHttpConnections ( ) {
 
@@ -2845,12 +2846,26 @@ public class Application {
 					csapCoreService.getSslCertificatePass( ) ) ;
 
 		}
+		
+		var latestTimeoutSeconds = rootProjectEnvSettings( ).getAdminToAgentTimeoutSeconds( ) ;
+		
+		var needToReloadAgentConnections = latestHostCount != previousHostCount 
+				|| previousHostTimeoutSeconds !=  latestTimeoutSeconds;
+		
+		logger.info( CSAP.buildDescription( "Agent Connection Pool",
+				"needToReloadAgentConnections", needToReloadAgentConnections, 
+				"latestHostCount", latestHostCount,
+				"previousHostCount", previousHostCount,
+				"latestTimeoutSeconds", latestTimeoutSeconds, 
+				"previousHostTimeoutSeconds", previousHostTimeoutSeconds
+				) );
 
-		if ( latestHostCount > previousHostCount ) {
+		if ( needToReloadAgentConnections ) {
 
 			// if number of hosts increase - then increase the pool
 			restTemplateFactory.closeAllAndReset( ) ;
 			previousHostCount = latestHostCount ;
+			previousHostTimeoutSeconds = latestTimeoutSeconds ;
 
 		} else {
 
@@ -2870,10 +2885,10 @@ public class Application {
 		if ( getCsapCoreService( ) != null ) {
 
 			agentRestTemplate = restTemplateFactory.buildDefaultTemplate(
-					"AgentHttpConnections",
+					"csap-agent-http-connections",
 					getCsapCoreService( ).isDisableSslValidation( ),
 					5, latestHostCount * 2 + 10,
-					rootProjectEnvSettings( ).getAdminToAgentTimeoutSeconds( ),
+					latestTimeoutSeconds,
 					getAgentConnectinReadTimeoutSeconds( ),
 					getHostRefreshIntervalSeconds( ) + 30 ) ;
 
@@ -4010,8 +4025,8 @@ public class Application {
 
 	public String getDockerHost ( ) throws URISyntaxException {
 
-		var dockerUrl = getDockerIntegration( ).getSettings( ).getUrl( ) ;
-		var uri = new URI( dockerUrl ) ;
+		var containerUrl = getDockerIntegration( ).getSettings( ).getUrl( ) ;
+		var uri = new URI( containerUrl ) ;
 		var dockerHost = uri.getHost( ) ;
 		return dockerHost ;
 

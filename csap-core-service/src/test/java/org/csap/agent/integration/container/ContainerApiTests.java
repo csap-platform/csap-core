@@ -12,6 +12,7 @@ import java.io.Writer ;
 import java.nio.charset.StandardCharsets ;
 import java.nio.file.Files ;
 import java.nio.file.StandardCopyOption ;
+import java.time.Duration ;
 import java.time.Instant ;
 import java.time.LocalDateTime ;
 import java.time.ZoneId ;
@@ -33,11 +34,9 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream ;
 import org.apache.commons.io.IOUtils ;
 import org.apache.commons.io.LineIterator ;
 import org.apache.commons.lang3.StringUtils ;
-import org.apache.hc.core5.util.Timeout ;
 import org.csap.agent.CsapThinTests ;
-import org.csap.agent.DockerSettings ;
+import org.csap.agent.ContainerSettings ;
 import org.csap.agent.container.ContainerIntegration ;
-import org.csap.agent.container.WrapperApacheDockerHttpClientImpl ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
 import org.junit.jupiter.api.Assumptions ;
@@ -88,6 +87,7 @@ import com.github.dockerjava.api.model.Volumes ;
 import com.github.dockerjava.core.DefaultDockerClientConfig ;
 import com.github.dockerjava.core.DockerClientBuilder ;
 import com.github.dockerjava.core.DockerClientConfig ;
+import com.github.dockerjava.httpclient5.ApacheDockerHttpClient ;
 
 /**
  * Ensure docker is started, with port open
@@ -96,10 +96,10 @@ import com.github.dockerjava.core.DockerClientConfig ;
 @Tag ( "containers" )
 @ConfigurationProperties ( prefix = "test.junit" )
 @DisplayName ( "Docker Api: github.dockerjava tests" )
-public class DockerApiTests extends CsapThinTests {
+public class ContainerApiTests extends CsapThinTests {
 
 	// auto configured application-localhost.yml
-	public DockerSettings docker ;
+	public ContainerSettings docker ;
 
 	static DockerClient junit_docker_client = null ;
 	static boolean workingDockerConnection = false ;
@@ -168,12 +168,21 @@ public class DockerApiTests extends CsapThinTests {
 //				.sslConfig( dockerConfiguration.getSSLConfig( ) )
 //				.build( ) ;
 
-		WrapperApacheDockerHttpClientImpl csapApacheClient = new WrapperApacheDockerHttpClientImpl(
-				dockerConfiguration.getDockerHost( ),
-				dockerConfiguration.getSSLConfig( ),
-				5,
-				Timeout.ofSeconds( 10 ),
-				Timeout.ofSeconds( 10 ) ) ;
+//		WrapperApacheDockerHttpClientImpl csapApacheClient = new WrapperApacheDockerHttpClientImpl(
+//				dockerConfiguration.getDockerHost( ),
+//				dockerConfiguration.getSSLConfig( ),
+//				5,
+//				Timeout.ofSeconds( 10 ),
+//				Timeout.ofSeconds( 10 ) ) ;
+		
+		var csapApacheClient = new ApacheDockerHttpClient.Builder( )
+				.dockerHost( dockerConfiguration.getDockerHost( ) )
+				.sslConfig( dockerConfiguration.getSSLConfig( ) )
+				.maxConnections( 100 )
+				.connectionTimeout( Duration.ofSeconds( docker.getConnectionTimeoutSeconds( ) ) )
+				.responseTimeout( Duration.ofSeconds( docker.getReadTimeoutSeconds( ) ) )
+				.build( ) ;
+
 
 		DockerClient localClient = null ;
 
@@ -406,7 +415,7 @@ public class DockerApiTests extends CsapThinTests {
 	}
 
 	final public static String TEST_CONTAINER_NAME = "/csap-java-simple" ;
-	final public static String BUSY_BOX = DockerCsapTests.BUSY_BOX ;
+	final public static String BUSY_BOX = ContainerCsapTests.BUSY_BOX ;
 
 	@Test
 	public void verify_sleep_in_container ( ) throws Exception {
@@ -2099,13 +2108,13 @@ public class DockerApiTests extends CsapThinTests {
 
 	}
 
-	public DockerSettings getDocker ( ) {
+	public ContainerSettings getDocker ( ) {
 
 		return docker ;
 
 	}
 
-	public void setDocker ( DockerSettings docker ) {
+	public void setDocker ( ContainerSettings docker ) {
 
 		this.docker = docker ;
 

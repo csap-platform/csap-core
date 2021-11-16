@@ -635,6 +635,10 @@ define( explorerSources, function ( utils, podLogs, explorerProgress, hostOperat
         return $description.html() ;
     }
 
+    function setComment( id, comment ) {
+        $( `#${ id }`, $dockerTree ).html( comment ) ;
+    }
+
     function buildTreeSummary( loadResponse ) {
 
         let htmlSpacer = '<span style="padding-left: 3em"></span>' ;
@@ -648,36 +652,38 @@ define( explorerSources, function ( utils, podLogs, explorerProgress, hostOperat
 
 
 
-        $( "#memoryTree" ).html(
+        let memoryComment =
                 spanForValue( loadResponse.memory.total, 99 )
                 + ", free: " + spanForValue( loadResponse.memory.free, 99 )
-                + htmlSpacer + 'swap: ' + loadResponse.memory.swapTotal + " swap free: " + loadResponse.memory.swapFree ) ;
+                + htmlSpacer + 'swap: ' + loadResponse.memory.swapTotal + " swap free: " + loadResponse.memory.swapFree ;
 
-        $( "#processTree" ).html( spanForValue( loadResponse.processCount, 500 ) + " active processes" ) ;
-        $( "#csapServiceTree" ).html( spanForValue( loadResponse.csapCount, 100 ) + " Services" ) ;
-        $( "#linuxTree" ).html( spanForValue( loadResponse.linuxServiceCount, 50 ) + " Services" ) ;
-        $( "#network-routesTree" ).html( spanForValue( loadResponse.linuxInterfaceCount, 50 ) + " interfaces" ) ;
-        $( "#packageTree" ).html( spanForValue( loadResponse.linuxPackageCount, 600 ) + " Packages" ) ;
-        $( "#diskTree" ).html( spanForValue( loadResponse.diskCount, 200 ) + " partitions mounted" ) ;
+        setComment( "memoryTree", memoryComment ) ;
+        setComment( "processTree", spanForValue( loadResponse.processCount, 500 ) + " active processes" ) ;
+        setComment( "csapServiceTree", spanForValue( loadResponse.csapCount, 100 ) + " Services" ) ;
+        setComment( "linuxTree", spanForValue( loadResponse.linuxServiceCount, 50 ) + " Services" ) ;
+        setComment( "network-routesTree", spanForValue( loadResponse.linuxInterfaceCount, 50 ) + " interfaces" ) ;
+        setComment( "packageTree", spanForValue( loadResponse.linuxPackageCount, 600 ) + " Packages" ) ;
+        setComment( "diskTree", spanForValue( loadResponse.diskCount, 200 ) + " partitions mounted" ) ;
+        setComment( "linuxDefTree", loadResponse.osVersion ) ;
 
         if ( loadResponse.docker ) {
 
-            let dockerConnection = "" ;
-            if ( !dockerUrl.contains( "docker.sock" ) ) {
-                dockerConnection = " (" + dockerUrl + ")" ;
-            }
-            $( "#configTree" ).html(
+            let containerComment =
                     "version: " + spanForValue( loadResponse.docker.version, "zz" )
                     + ", storage: " + spanForValue( loadResponse.docker.dockerStorage + "Gb", "zz" )
-                    + dockerConnection ) ;
-            $( "#containerTree" ).html( spanForValue( loadResponse.docker.containerCount, 100 ) + " total, " + loadResponse.docker.containerRunning + " running" ) ;
-            $( "#cri-commandsTree" ).html( spanForValue( loadResponse.docker.crioContainerCount, 100 ) + " containers" ) ;
-            $( "#imageTree" ).html( spanForValue( loadResponse.docker.imageCount, 100 ) + " Images" ) ;
-            $( "#docker-volumeTree" ).html( spanForValue( loadResponse.docker.volumeCount, 100 ) + " Volumes" ) ;
-            $( "#docker-networkTree" ).html( spanForValue( loadResponse.docker.networkCount, 10 ) + " Networks" ) ;
+                    + ` ( ${ containerUrl } ) ` ;
+
+            setComment( "configTree", containerComment ) ;
+            setComment( "containerTree", spanForValue( loadResponse.docker.containerCount, 100 )
+                    + " total, " + loadResponse.docker.containerRunning + " running" ) ;
+            setComment( "cri-commandsTree", spanForValue( loadResponse.docker.crioContainerCount, 100 ) + " containers" ) ;
+            setComment( "imageTree", spanForValue( loadResponse.docker.imageCount, 100 ) + " Images" ) ;
+            setComment( "docker-volumeTree", spanForValue( loadResponse.docker.volumeCount, 100 ) + " Volumes" ) ;
+            setComment( "docker-networkTree", spanForValue( loadResponse.docker.networkCount, 10 ) + " Networks" ) ;
+
 
         } else {
-            $( "#configTree" ).html( "Not Available" ) ;
+            setComment( "configTree", "Not Available" ) ;
             disable_folder( hostOperations.categories().dockerConfig ) ;
             remove_folder( hostOperations.categories().dockerContainers ) ;
             remove_folder( hostOperations.categories().dockerImages ) ;
@@ -742,9 +748,7 @@ define( explorerSources, function ( utils, podLogs, explorerProgress, hostOperat
             if ( loadResponse.kubernetes.podReport.restarts > 0 ) {
                 podSummary += ",  Restarts: " + spanForValue( loadResponse.kubernetes.podReport.restarts, 0 ) ;
             }
-            $( "#k8PodTree", $dockerTree ).html( podSummary ) ;
-
-
+            setComment( "k8PodTree", podSummary ) ;
 
             $( "#k8EventTree", $dockerTree )
                     .css( "background-color", "white" ) ;
@@ -768,28 +772,30 @@ define( explorerSources, function ( utils, podLogs, explorerProgress, hostOperat
             let eventContent = spanForValue( loadResponse.kubernetes.eventCount, eventWarningLimit ) + " Events" + changeMessage ;
 
 //            eventContent += 
-            $( "#k8EventTree", $dockerTree ).html( eventContent ) ;
+            setComment( "k8EventTree", eventContent ) ;
             _last_event_count = loadResponse.kubernetes.eventCount ;
 
 
 
             let routeCount = spanForValue( loadResponse.kubernetes.serviceCount, 100 ) + " Services, "
                     + spanForValue( loadResponse.kubernetes.ingressCount, 50 ) + " Ingresse(s)" ;
-            $( "#k8ServiceTree", $dockerTree ).html( routeCount ) ;
+            
+            setComment( "k8ServiceTree", routeCount ) ;
 
             let jobCount = spanForValue( loadResponse.kubernetes.cronJobCount, 10 ) + " CronJob(s), "
                     + spanForValue( loadResponse.kubernetes.jobCount, 50 ) + " job(s)" ;
-            $( "#k8JobTree", $dockerTree ).html( jobCount ) ;
+            
+            setComment( "k8JobTree", jobCount ) ;
 
-            $( "#helm-commandsTree" ).html( spanForValue( loadResponse.kubernetes.helmReleaseCount, 100 ) + " releases" ) ;
-            $( "#k8ConfigMapTree", $dockerTree ).html( spanForValue( loadResponse.kubernetes.configMapCount, 100 ) + " ConfigMaps" ) ;
-            $( "#k8DeployTree", $dockerTree ).html( spanForValue( loadResponse.kubernetes.deploymentCount, 100 ) + " Deployments" ) ;
-            $( "#k8EndpointTree", $dockerTree ).html( spanForValue( loadResponse.kubernetes.endpointCount, 100 ) + " Endpoints" ) ;
-            $( "#k8ReplicaSetTree", $dockerTree ).html( spanForValue( loadResponse.kubernetes.replicaSetCount, 100 ) + " Replica Sets" ) ;
-            $( "#k8StatefulSetTree", $dockerTree ).html( spanForValue( loadResponse.kubernetes.statefulSetCount, 100 ) + " Stateful Sets" ) ;
-            $( "#k8DaemonSetTree", $dockerTree ).html( spanForValue( loadResponse.kubernetes.daemonSetCount, 100 ) + " Daemon Sets" ) ;
-            $( "#k8VolumeClaimTree", $dockerTree ).html( spanForValue( loadResponse.kubernetes.volumeClaimCount, 100 ) + " Volume Claims" ) ;
 
+            setComment( "helm-commandsTree", spanForValue( loadResponse.kubernetes.helmReleaseCount, 100 ) + " releases" ) ;
+            setComment( "k8ConfigMapTree", spanForValue( loadResponse.kubernetes.configMapCount, 100 ) + " ConfigMaps"  ) ;
+            setComment( "k8DeployTree", spanForValue( loadResponse.kubernetes.deploymentCount, 100 ) + " Deployments" ) ;
+            setComment( "k8EndpointTree", spanForValue( loadResponse.kubernetes.endpointCount, 100 ) + " Endpoints"  ) ;
+            setComment( "k8ReplicaSetTree", spanForValue( loadResponse.kubernetes.replicaSetCount, 100 ) + " Replica Sets" ) ;
+            setComment( "k8StatefulSetTree", spanForValue( loadResponse.kubernetes.statefulSetCount, 100 ) + " Stateful Sets" ) ;
+            setComment( "k8DaemonSetTree", spanForValue( loadResponse.kubernetes.daemonSetCount, 100 ) + " Daemon Sets"  ) ; 
+            setComment( "k8VolumeClaimTree", spanForValue( loadResponse.kubernetes.volumeClaimCount, 100 ) + " Volume Claims" ) ;
 
         } else {
 
@@ -801,8 +807,7 @@ define( explorerSources, function ( utils, podLogs, explorerProgress, hostOperat
             if ( reason ) {
                 message = `${ message }: <span class="status-red">${ reason }</span>`
             }
-
-            $( "#k8ConfigurationTree", $dockerTree ).html( message ) ;
+            setComment( "k8ConfigurationTree", message ) ;
             disable_folder( hostOperations.categories().kubernetesConfig ) ;
             remove_folder( hostOperations.categories().kubernetesEvents ) ;
             remove_folder( hostOperations.categories().kubernetesConfigMaps ) ;

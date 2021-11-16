@@ -17,6 +17,7 @@ define( [ "services/kubernetes", "services/deployer", "browser/utils" ], functio
 
     const $options = $( ".options", $instancePanel ) ;
     const $serviceDescription = $( "#service-description", $options ) ;
+    const $alertPanel = $( "#service-instance-alerts", $options ) ;
     const $lastRefreshed = $( ".last-refreshed", $options ) ;
     const $nameLabel = $( ".service-name", $options ) ;
     const $instancesPanel = $( "#instance-details", $instancePanel ) ;
@@ -294,7 +295,7 @@ define( [ "services/kubernetes", "services/deployer", "browser/utils" ], functio
             if ( name !== UNREGISTERED_SERVICE ) {
                 // page reloads may not include this
                 if ( descriptionOrCluster ) {
-                    
+
                     _lastCluster = utils.getActiveEnvironment() + ":" + descriptionOrCluster ;
 
                 }
@@ -577,11 +578,13 @@ define( [ "services/kubernetes", "services/deployer", "browser/utils" ], functio
         if ( instanceReport.helm ) {
             $helmMenuItems.css( "display", "flex" ) ;
         }
-        if ( instanceReport.readme || instanceReport.helm  ) {
+        if ( instanceReport.readme || instanceReport.helm ) {
             $readmeMenuItems.css( "display", "flex" ) ;
         }
-        
-        
+
+        buildAlerts( instanceReport.alertReport ) ;
+
+
         $( "#instance-count" ).text( `${ sortedInstances.length } ${ desc }` ) ;
 
         $( "tr", $detailsBody ).addClass( "purge" ) ;
@@ -755,6 +758,55 @@ define( [ "services/kubernetes", "services/deployer", "browser/utils" ], functio
             }
         }, utils.getRefreshInterval() ) ;
 
+
+    }
+
+    function buildAlerts( alertItems ) {
+
+        if ( Array.isArray( alertItems ) && alertItems.length > 0 ) {
+            $alertPanel.show() ;
+            let $list = $( "ol", $alertPanel ) ;
+            
+            $( "input", $alertPanel ).off().change( function() {
+                $list.toggle() ;
+            })
+            
+            $list.empty() ;
+            for ( let alert of alertItems ) {
+
+                
+                let hostInfo = alert.host ;
+                if ( alert.podIp ) {
+                    hostInfo += ` pod: '${ alert.podIp }'` ;
+                } else {
+                    hostInfo += ` pid: '${ alert.pids[0] }'` ;
+                }
+                
+                
+                let notes = `${ hostInfo }         ${ alert.category }           ${ alert.type } <br>` ;
+
+                if ( alert.id ) {
+                    notes += ` id: '${ alert.id }'` ;
+                }
+
+                if ( alert.description ) {
+                    notes += ` description: '${ alert.description }'` ;
+                }
+
+                if ( alert.current ) {
+                    notes += ` current: '${ alert.current }'` ;
+                }
+                if ( alert.max ) {
+                    notes += ` max: '${ alert.max }'` ;
+                }
+
+                jQuery( '<li>', {
+                    html: notes
+                } ).appendTo( $list ) ;
+            }
+        } else {
+            $alertPanel.hide() ;
+        }
 
     }
 
@@ -1327,7 +1379,7 @@ define( [ "services/kubernetes", "services/deployer", "browser/utils" ], functio
 
             let serviceName = $rows.data( "service" ) ;
 
-            if ( ( report === "graphJava" 
+            if ( ( report === "graphJava"
                     || report === "graphOsProcess" )
                     && isKubernetes ) {
                 serviceName += podSuffix ;

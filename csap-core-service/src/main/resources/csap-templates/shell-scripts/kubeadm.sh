@@ -36,7 +36,7 @@ function cleanUp() {
 	
 	print_command \
 		"removing journals" \
-		"$(rm --recursive --force /run/log/journal/*)"
+		"$(rm --recursive --force /run/log/journal/* /var/log/journal/*)"
 	
 	
 	print_separator "perform_kubeadm_reset() cleaning up previous installs"
@@ -48,7 +48,7 @@ function cleanUp() {
 	print_separator "legacy cleanup"; 
 	rm  --verbose  --recursive --force $HOME/.kube/config
 	rm  --verbose  --recursive --force /etc/cni/net.d
-	rm  --verbose  --recursive --force /run/log/journal/*
+	rm  --verbose  --recursive --force /run/log/journal/* /var/log/journal/*
 	
 	# kubeadm not cleaning this up
 	systemctl stop  kubepods-besteffort.slice

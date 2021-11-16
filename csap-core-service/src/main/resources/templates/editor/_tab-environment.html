@@ -239,11 +239,21 @@
 					th:each="cluster : ${ clusterNames  }"
 					th:class="${ clusterDisplayMap.get(cluster) }"
 					th:title="${ clusterNotesMap.get(cluster) }">
-					<td><a
+					
+					
+					<td>
+					
+						<a
 						class="csap-link editClusterButton"
 						th:href="${'#' + jvm }"> [[ ${ cluster } ]] </a> <br />
 
-						<div class="heading">[[ ${clusterDescriptionMap.get(cluster) } ]]</div></td>
+						<div class=heading>[[ ${clusterDescriptionMap.get(cluster) } ]]</div>
+						
+						<div th:if="${ clusterDisplayMap.get(cluster).equals( 'low' ) } "
+							class=heading>
+							<span class="csap-icon csap-info">cluster disabled</span> 
+						</div>
+					</td>
 
 					<td>
 						<div

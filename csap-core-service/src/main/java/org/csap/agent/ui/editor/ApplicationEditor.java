@@ -466,7 +466,7 @@ public class ApplicationEditor {
 
 					;
 
-					if ( clusterDefinition.path( DefinitionConstants.clusterTemplate.key( ) ).asBoolean( false ) ) {
+					if ( ! clusterDefinition.path( DefinitionConstants.enabled.key( ) ).asBoolean( true ) ) {
 
 						clusterDisplayMap.put( clusterName, "low" ) ;
 

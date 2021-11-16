@@ -135,7 +135,8 @@ define( [ "browser/utils", "editor/json-forms" ], function ( utils, jsonForms ) 
             }
 
             // Add rows for environments
-            let envSettings = serviceJson["environment-overload"] ;
+//            let envSettings = serviceJson["environment-overload"] ;
+            let envSettings = jsonForms.getValue( "environment-overload", serviceJson ) ;
             for ( let envName in  envSettings ) {
 
                 //console.log( `${serviceName} settings: `, envName) ;

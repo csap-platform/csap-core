@@ -315,7 +315,7 @@ public class OsManager {
 
 		if ( csapApp.isDockerInstalledAndActive( ) ) {
 
-			csapApp.getDockerIntegration( ).buildSummary( ) ;
+			csapApp.getDockerIntegration( ).getCachedSummaryReport( ) ;
 
 		}
 
@@ -2074,10 +2074,11 @@ public class OsManager {
 			var usedNames = new ArrayList<String>( ) ;
 
 			// run as root to pick up docker and kubelet filesystems
-			var criPidOutput = osCommandRunner.runUsingRootUser( "crio-ps", osCommands.getCriPidReport( ) ) ;
+			var criPidOutput = osCommandRunner.runUsingRootUser( "crio-pid-report", osCommands.getCriPidReport( ) ) ;
 
 			criPidOutput = csapApp.check_for_stub( criPidOutput, "crio/crio-pids.txt" ) ;
 			logger.debug( "criPidOutput: {}", criPidOutput ) ;
+			
 
 			var outputLines = OsCommandRunner.trimHeader( criPidOutput ).split( LINE_SEPARATOR ) ;
 
@@ -2138,6 +2139,8 @@ public class OsManager {
 
 			logger.debug( "pidReport: {}", pidReport ) ;
 			crioPidCache.reset( pidReport ) ;
+			
+
 
 		} catch ( Exception e ) {
 

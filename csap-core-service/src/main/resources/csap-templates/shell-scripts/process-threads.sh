@@ -36,7 +36,7 @@ else
 
 
 	print_command \
-		"ps threads" \
+		"ps threads $(ps -Lf -p $pidsCommaSeparated | wc -l) total" \
 		"$(ps -Lf -p $pidsCommaSeparated)"
 
 	print_command \

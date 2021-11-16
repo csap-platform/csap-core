@@ -59,6 +59,7 @@
 						<option value="root_command podman ps --all --external">list: containers </option>
 						<option value="root_command podman run --detach --name verify-nginx --publish 6080:80 nginx:latest">run: nginx </option>
 						<option value="root_command podman rm --force verify-nginx">delete: nginx </option>
+						<option value="root_command podman system reset --force">system reset</option>
 						
 					</optgroup>
 				
@@ -77,6 +78,7 @@
 					</optgroup>
 				
 					<optgroup label="linux">
+						<option value="run_using_root rm --recursive --force /run/log/journal/* /var/log/journal/*">run_using_root rm --recursive --force /run/log/journal/* /var/log/journal/*</option>
 						<option value="ps -ef">ps -ef</option>
 						<option value="curl --silent http://localhost:8011/api/agent/runtime">curl --silent http://localhost:8011/api/agent/runtime | jq .</option>
 						<option value="systemctl status">systemctl status</option>

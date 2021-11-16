@@ -21,23 +21,24 @@ function configure() {
 	isCleanJournal=true ;				# cleaning up system logs makes troubleshooting much easier
 	remoteUser="root" ;
 	
-	#
-	# install using the csap-host.zip used to install current host
-	#
-	csapZipUrl="http://${csapFqdn:-$(hostname --long)}:${agentPort:-8011}/api/agent/installer"
-	
-	installerFile="disabled" ;         # sample function: kubernetes_autoplay_singlenode
-	
-	
 	# -skipOs : bypass repo checks, kernel parameters, and security limits
-	# -ignorePreflight : bypass setup tests
+	# -ignorePreflight : bypass configuration validation
 	# -uninstall: remove csap
 	extraOptions="" ;
 	
 	
 	#
-	# alternatly - use a artifactory instance available
+	# optional:  customize an existing (or default) csap application definitions.
 	#
+	installerFile="disabled" ;
+	# generate_autoplay_template "My App Name" "$hostsToInstall" "includeTemplates"
+	
+	
+	
+	#
+	# install media: using the csap-host.zip used to install current host, alternately use maven repo
+	#
+	csapZipUrl="http://${csapFqdn:-$(hostname --long)}:${agentPort:-8011}/api/agent/installer"
 	# csapZipUrl="http://***REMOVED***.***REMOVED***:8081/artifactory/csap-snapshots/org/csap/csap-host/2-SNAPSHOT/csap-host-2-SNAPSHOT.zip"
 	# csapZipUrl="http://***REMOVED***.***REMOVED***:8081/artifactory/csap-release/org/csap/csap-host/21.10/csap-host-21.10.zip"
 	
@@ -45,33 +46,63 @@ function configure() {
 }
 
 #
-#  Usually just edit the file. This is for demo only
+#  Note:
+#		- autoplay files can be edited directly, but can also be templated as shown here
+#		- refer to https://github.com/csap-platform/csap-core/wiki/Csap-Autoplay
 #
-function kubernetes_autoplay_singlenode() {
+function generate_autoplay_template() {
+
+	local appName=${1} ;
+	local hostsToInstall=${2} ;
+	local includeTemplates=${3:-doNotInclude} ;
+	
+	local sourceTemplate="$CSAP_FOLDER/auto-plays/all-in-one-auto-play.yaml" ;
+	
+	local managerHost=$(echo $hostsToInstall | awk '{print $1}') ; 
+	local workerHosts=$(echo $hostsToInstall | cut -d ' ' -f 2-) ;
 	
 	
 	local numHosts=$(echo "$hostsToInstall" | wc -w) ;
 	if (( $numHosts > 1 )) ; then
-		print_error "Aborting: this demo is for a single host. Configure a differnent autoplay file" ;
-		exit 99;
+		sourceTemplate="$CSAP_FOLDER/auto-plays/demo-auto-play.yaml" ;
 	fi ;
 	
 	
- 	installerFile="$CSAP_FOLDER/auto-plays/demo.yaml" 
 	
-	print_section "kubernetes_autoplay_singlenode creating: $installerFile" ;
+	local NOW=$(date +'%h-%d-%I-%M-%S') ; 
+ 	installerFile="$CSAP_FOLDER/auto-plays/generated/demo-$NOW.yaml" 
+ 	mkdir --parents $CSAP_FOLDER/auto-plays/generated
+	
+	print_section "Building: $installerFile" ;
+	print_two_columns "managerHost" "$managerHost"
+	print_two_columns "workerHosts" "$workerHosts"
+	print_two_columns "sourceTemplate" "$sourceTemplate"
 	
 	# data center in a box: dcib-auto-play.yaml
-	cp --force --verbose $CSAP_FOLDER/auto-plays/all-in-one-auto-play.yaml $installerFile
+	cp --force --verbose $sourceTemplate $installerFile
  	
-	replace_all_in_file "xxxHost" "$hostsToInstall" $installerFile
+	replace_all_in_file '$appName' "$appName" $installerFile
+	replace_all_in_file '$appId' $(to_lower_hyphen $appName) $installerFile
+	replace_all_in_file '$apiToken' $(to_lower_hyphen $appName) $installerFile
 	
-	myDomain=$(expr "$(hostname --long)" : '[^.][^.]*\.\(.*\)')
-	replace_all_in_file "yyyDomain" "$myDomain" $installerFile
+	
+	replace_all_in_file '$managerHost' "$managerHost" $installerFile
+	replace_all_in_file '$workerHosts' "$(comma_separate $workerHosts)" $installerFile
+	
+	local myDomain=$(expr "$(hostname --long)" : '[^.][^.]*\.\(.*\)')
+	replace_all_in_file '$hostDomain' "$myDomain" $installerFile
+	
+	if [ $includeTemplates == "includeTemplates" ] ; then
+	
+		replace_all_in_file 'storage-settings-nfs' "storage-settings" $installerFile ;
+		replace_all_in_file 'enabled: false' "enabled: true" $installerFile ;
+		
+	fi
 	
 	print_command "$installerFile" "$(cat $installerFile)" ;
 	
 }
+
 
 function verify_host_access() {
 
@@ -183,7 +214,7 @@ function remote_installer () {
 	
 	local cleanJournalCommand="echo skipping journal cleanup" ;
 	if $isCleanJournal ; then
-		cleanJournalCommand="journalctl --flush; journalctl --rotate; journalctl --vacuum-time=1s;" ;
+		cleanJournalCommand='journalctl --flush; journalctl --rotate; journalctl --vacuum-time=1s;rm --recursive --force /var/log/journal/*' ;
 	fi ;
 	
 	
@@ -211,7 +242,32 @@ function remote_installer () {
 		installerOsCommands="echo assuming wget and unzip installed" ;
 	fi ;
 	
-	installCommands=(
+	local sampleNfsCleanup=(
+     'echo $(hostname --long) ;'
+     "ps -ef | grep mount"
+     "pkill -9 mount"
+     "ps -ef | grep mount"
+     "sed -i '\|/mnt/nfsshare|d' /etc/fstab"
+   		)
+   	
+	
+	#
+	#  shutdown of kubernetes on all hosts FIRST ensures consistent resource state
+	#  - definitely required if a csap docker nfs server is being used
+	#
+	if $isKillContainers ; then
+	
+		# reset run on all hosts in parallel
+		run_remote $remoteUser $hostsRootPassword "$hostsToInstall" \
+			'source installer/csap-environment.sh ; nfs_remove_mount /mnt/nfsshare ; perform_kubeadm_reset &> csap-clean.txt &'
+		
+		# wait on each host in turn to complete
+		run_remote $remoteUser $hostsRootPassword "$hostsToInstall" \
+			'source installer/csap-environment.sh ; wait_for_terminated kubelet 30'
+	
+	fi
+	
+	local installCommands=(
 	     'echo $(hostname --long) ;'
 	     "$cleanJournalCommand"
 	     'rm --recursive --force --verbose csap*.zip* *linux.zip installer'

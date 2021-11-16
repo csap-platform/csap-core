@@ -3,6 +3,7 @@ package org.csap.agent.integration.container ;
 import static org.assertj.core.api.Assertions.assertThat ;
 
 import java.io.File ;
+import java.time.Duration ;
 import java.util.Arrays ;
 import java.util.List ;
 import java.util.Optional ;
@@ -11,14 +12,12 @@ import java.util.concurrent.TimeUnit ;
 import java.util.concurrent.atomic.AtomicInteger ;
 import java.util.stream.Collectors ;
 
-import org.apache.hc.core5.util.Timeout ;
 import org.csap.agent.CsapThinTests ;
-import org.csap.agent.DockerConfiguration ;
-import org.csap.agent.DockerSettings ;
+import org.csap.agent.ContainerConfiguration ;
+import org.csap.agent.ContainerSettings ;
 import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.container.ContainerProcess ;
 import org.csap.agent.container.DockerJson ;
-import org.csap.agent.container.WrapperApacheDockerHttpClientImpl ;
 import org.csap.agent.container.kubernetes.KubernetesJson ;
 import org.csap.agent.model.ServiceAttributes ;
 import org.csap.agent.model.ServiceInstance ;
@@ -40,15 +39,16 @@ import com.fasterxml.jackson.databind.node.ObjectNode ;
 import com.github.dockerjava.api.model.Container ;
 import com.github.dockerjava.core.DefaultDockerClientConfig ;
 import com.github.dockerjava.core.DockerClientBuilder ;
+import com.github.dockerjava.httpclient5.ApacheDockerHttpClient ;
 
 @Tag ( "containers" )
 @ConfigurationProperties ( prefix = "test.junit" )
 @DisplayName ( "Docker Api: org.csap tests" )
-class DockerCsapTests extends CsapThinTests {
+class ContainerCsapTests extends CsapThinTests {
 
 	ContainerIntegration csapDocker ;
 
-	DockerSettings docker ; // injected via: application-localhost.yml
+	ContainerSettings docker ; // injected via: application-localhost.yml
 
 	@Autowired
 	ApplicationContext springContext ;
@@ -82,22 +82,35 @@ class DockerCsapTests extends CsapThinTests {
 				.withDockerHost( getDocker( ).getUrl( ) )
 				.build( ) ;
 
-		//
-		// Latest Docker Client uses apache client, but without timeouts. Class is
-		// wrapped to expose
-		//
-
-		var csapApacheClient = new WrapperApacheDockerHttpClientImpl(
-				dockerConfiguration.getDockerHost( ),
-				dockerConfiguration.getSSLConfig( ),
-				10,
-				Timeout.ofSeconds( docker.getConnectionTimeoutSeconds( ) ),
-				Timeout.ofSeconds( docker.getReadTimeoutSeconds( ) ) ) ;
+		var csapApacheClient = new ApacheDockerHttpClient.Builder( )
+				.dockerHost( dockerConfiguration.getDockerHost( ) )
+				.sslConfig( dockerConfiguration.getSSLConfig( ) )
+				.maxConnections( 100 )
+				.connectionTimeout( Duration.ofSeconds( docker.getConnectionTimeoutSeconds( ) ) )
+				.responseTimeout( Duration.ofSeconds( docker.getReadTimeoutSeconds( ) ) )
+				.build( ) ;
 
 		var dockerClient = DockerClientBuilder
 				.getInstance( dockerConfiguration )
 				.withDockerHttpClient( csapApacheClient )
 				.build( ) ;
+
+		//
+		// Latest Docker Client uses apache client, but without timeouts. Class is
+		// wrapped to expose
+		//
+
+//		var csapApacheClient = new WrapperApacheDockerHttpClientImpl(
+//				dockerConfiguration.getDockerHost( ),
+//				dockerConfiguration.getSSLConfig( ),
+//				10,
+//				Timeout.ofSeconds( docker.getConnectionTimeoutSeconds( ) ),
+//				Timeout.ofSeconds( docker.getReadTimeoutSeconds( ) ) ) ;
+//
+//		var dockerClient = DockerClientBuilder
+//				.getInstance( dockerConfiguration )
+//				.withDockerHttpClient( csapApacheClient )
+//				.build( ) ;
 
 //		DockerCmdExecFactory dockerCmdExecFactory = new JerseyDockerCmdExecFactory( )
 //				.withReadTimeout( docker.getReadTimeoutSeconds( ) * 1000 )
@@ -122,12 +135,12 @@ class DockerCsapTests extends CsapThinTests {
 
 		// csapDocker = new DockerIntegration( docker, dockerClient, getJsonMapper(),
 		// null ) ;
-		DockerConfiguration dockerConfig = new DockerConfiguration( ) ;
+		ContainerConfiguration dockerConfig = new ContainerConfiguration( ) ;
 		dockerConfig.setDocker( docker ) ;
 		dockerConfig.setCsapApp( getApplication( ) ) ;
 		dockerConfig.setTestClient( dockerClient ) ;
 		csapDocker = new ContainerIntegration( dockerConfig, getJsonMapper( ) ) ;
-		Assumptions.assumeTrue( csapDocker.buildSummary( ).path( KubernetesJson.heartbeat.json( ) ).asBoolean( ) ) ;
+		Assumptions.assumeTrue( csapDocker.getCachedSummaryReport( ).path( KubernetesJson.heartbeat.json( ) ).asBoolean( ) ) ;
 
 	}
 
@@ -156,7 +169,7 @@ class DockerCsapTests extends CsapThinTests {
 
 		logger.info( CsapApplication.testHeader( ) ) ;
 
-		ObjectNode dockerSummery = csapDocker.buildSummary( ) ;
+		ObjectNode dockerSummery = csapDocker.getCachedSummaryReport( ) ;
 
 		logger.info( "dockerSummery:  \n {}",
 				CSAP.jsonPrint( dockerSummery ) ) ;
@@ -769,13 +782,13 @@ class DockerCsapTests extends CsapThinTests {
 
 	}
 
-	public DockerSettings getDocker ( ) {
+	public ContainerSettings getDocker ( ) {
 
 		return docker ;
 
 	}
 
-	public void setDocker ( DockerSettings docker ) {
+	public void setDocker ( ContainerSettings docker ) {
 
 		this.docker = docker ;
 

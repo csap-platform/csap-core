@@ -576,7 +576,7 @@ public class HostPortal {
 
 		if ( csapApp.isDockerInstalledAndActive( ) ) {
 
-			modelMap.addAttribute( "dockerUrl", csapApp.getDockerIntegration( ).getSettings( ).getUrl( ) ) ;
+			modelMap.addAttribute( "containerUrl", csapApp.getDockerIntegration( ).getSettings( ).getUrl( ) ) ;
 			modelMap.addAttribute( "dockerRepository", csapApp.getDockerIntegration( ).getSettings( )
 					.getTemplateRepository( ) ) ;
 			modelMap.addAttribute( "referenceImages", csapApp.getDockerUiDefaultImages( ) ) ;

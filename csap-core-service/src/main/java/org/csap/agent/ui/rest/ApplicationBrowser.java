@@ -75,7 +75,6 @@ import org.springframework.web.bind.annotation.PostMapping ;
 import org.springframework.web.bind.annotation.RequestMapping ;
 import org.springframework.web.bind.annotation.RequestParam ;
 import org.springframework.web.bind.annotation.RestController ;
-import org.springframework.web.client.RestClientException ;
 import org.springframework.web.client.RestTemplate ;
 import org.springframework.web.servlet.ModelAndView ;
 
@@ -400,7 +399,7 @@ public class ApplicationBrowser {
 
 		if ( application.isDockerInstalledAndActive( ) ) {
 
-			modelMap.addAttribute( "dockerUrl", application.getDockerIntegration( ).getSettings( ).getUrl( ) ) ;
+			modelMap.addAttribute( "containerUrl", application.getDockerIntegration( ).getSettings( ).getUrl( ) ) ;
 			modelMap.addAttribute( "dockerRepository", application.getDockerIntegration( ).getSettings( )
 					.getTemplateRepository( ) ) ;
 			modelMap.addAttribute( "referenceImages", application.getDockerUiDefaultImages( ) ) ;
@@ -748,6 +747,7 @@ public class ApplicationBrowser {
 			cliResults = convertMarkdownToHtml( cliResults ) ;
 
 			infoReport.put( DockerJson.response_html.json( ), cliResults ) ;
+			infoReport.put( "source", "helm show readme" ) ;
 
 		} else {
 
@@ -772,27 +772,31 @@ public class ApplicationBrowser {
 		return cliResults ;
 
 	}
-	
+
 	@GetMapping ( "/readme" )
-	public JsonNode readme ( String name  ) {
+	public JsonNode readme ( String name ) {
 
 		var readMeReport = jsonMapper.createObjectNode( ) ;
-		
+
 		var readMeMarkDown = "#Failed to retrieve report " ;
+
+		var readMeSource = "Application Definition" ;
+
 		try {
 
 			var restTemplate = new RestTemplate( ) ;
 
 			var readme = application.findFirstServiceInstanceInLifecycle( name ).getReadme( ) ;
-			
-			if ( readme.startsWith( "http" )) {
+
+			if ( readme.startsWith( "http" ) ) {
 
 				readMeMarkDown = restTemplate.getForObject( readme, String.class ) ;
-			
+				readMeSource = readme ;
+
 			} else {
-				
+
 				readMeMarkDown = readme ;
-				
+
 			}
 
 		} catch ( Exception e ) {
@@ -800,11 +804,12 @@ public class ApplicationBrowser {
 			logger.warn( "Failed to get readme: {}", CSAP.buildCsapStack( e ) ) ;
 
 		}
-		
-		
-		readMeReport.put( DockerJson.response_html.json( ), convertMarkdownToHtml( readMeMarkDown )) ;
-		
+
+		readMeReport.put( DockerJson.response_html.json( ), convertMarkdownToHtml( readMeMarkDown ) ) ;
+		readMeReport.put( "source", readMeSource ) ;
+
 		return readMeReport ;
+
 	}
 
 	public final static String REALTIME_REPORT_URL = "/kubernetes/realtime" ;
@@ -1577,6 +1582,10 @@ public class ApplicationBrowser {
 			servicesReport.put( "helm", firstInstance.isHelmConfigured( ) ) ;
 			servicesReport.put( "readme", firstInstance.isReadmeConfigured( ) ) ;
 			servicesReport.put( "javaCollection", firstInstance.isJavaCollectionEnabled( ) ) ;
+
+			var alertReport = application.healthManager( ).buildServiceAlertReport( csapProject, name ) ;
+			servicesReport.set( "alertReport", alertReport ) ;
+
 			servicesReport.set( "performanceConfiguration", firstInstance.getPerformanceConfiguration( ) ) ;
 			servicesReport.set( "javaLabels", JmxCommonEnum.graphLabels( ) ) ;
 			servicesReport.set( "jobs", firstInstance.getJobsDefinition( ) ) ;
@@ -1589,12 +1598,13 @@ public class ApplicationBrowser {
 
 			try {
 
-				count = fileCount( ServiceResources.serviceResourceFolder( firstInstance.getName( ) ).getAbsoluteFile( )
-						.toPath( ) ) ;
+				count = fileCount( ServiceResources.serviceResourceFolder(
+						firstInstance.getName( ) ).getAbsoluteFile( ) ) ;
 
 			} catch ( Exception e ) {
 
-				// TODO: handle exception
+				logger.warn( "Failed to count files: {}", CSAP.buildCsapStack( e ) ) ;
+
 			}
 
 			servicesReport.put( "resourceCount", count ) ;
@@ -1623,10 +1633,15 @@ public class ApplicationBrowser {
 
 	}
 
-	public long fileCount ( Path dir )
-		throws Exception {
+	long fileCount ( File folderToCount ) throws Exception {
 
-		return Files.walk( dir )
+		if ( ! folderToCount.exists( ) ) {
+
+			return 0 ;
+
+		}
+
+		return Files.walk( folderToCount.toPath( ) )
 				.parallel( )
 				.filter( p -> ! p.toFile( ).isDirectory( ) )
 				.count( ) ;

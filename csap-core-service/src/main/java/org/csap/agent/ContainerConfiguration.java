@@ -1,11 +1,11 @@
 package org.csap.agent ;
 
+import java.time.Duration ;
+
 import javax.cache.CacheManager ;
 import javax.inject.Inject ;
 
-import org.apache.hc.core5.util.Timeout ;
 import org.csap.agent.container.ContainerIntegration ;
-import org.csap.agent.container.WrapperApacheDockerHttpClientImpl ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.services.OsCommands ;
 import org.csap.helpers.CSAP ;
@@ -23,17 +23,18 @@ import com.github.dockerjava.api.DockerClient ;
 import com.github.dockerjava.core.DefaultDockerClientConfig ;
 import com.github.dockerjava.core.DockerClientBuilder ;
 import com.github.dockerjava.core.DockerClientConfig ;
+import com.github.dockerjava.httpclient5.ApacheDockerHttpClient ;
 
 @Configuration
 @ConditionalOnProperty ( "csap-core.docker.enabled" )
 @Profile ( "agent" )
-@EnableConfigurationProperties ( DockerSettings.class )
-public class DockerConfiguration {
+@EnableConfigurationProperties ( ContainerSettings.class )
+public class ContainerConfiguration {
 
 	final Logger logger = LoggerFactory.getLogger( getClass( ) ) ;
 
 	@Inject
-	private DockerSettings docker ; // binds to yml property
+	private ContainerSettings docker ; // binds to yml property
 
 	@Autowired ( required = false )
 	private CacheManager cacheManager = null ;
@@ -78,18 +79,26 @@ public class DockerConfiguration {
 			// wrapped to expose
 			//
 
-			var dockerUrl = docker.getUrl( ) ;
+			var containerUrl = docker.getUrl( ) ;
 
 			DockerClientConfig dockerConfiguration = DefaultDockerClientConfig.createDefaultConfigBuilder( )
-					.withDockerHost( dockerUrl )
+					.withDockerHost( containerUrl )
 					.build( ) ;
 
-			WrapperApacheDockerHttpClientImpl csapApacheClient = new WrapperApacheDockerHttpClientImpl(
-					dockerConfiguration.getDockerHost( ),
-					dockerConfiguration.getSSLConfig( ),
-					10,
-					Timeout.ofSeconds( docker.getConnectionTimeoutSeconds( ) ),
-					Timeout.ofSeconds( docker.getReadTimeoutSeconds( ) ) ) ;
+			var csapApacheClient = new ApacheDockerHttpClient.Builder( )
+					.dockerHost( dockerConfiguration.getDockerHost( ) )
+					.sslConfig( dockerConfiguration.getSSLConfig( ) )
+					.maxConnections( 100 )
+					.connectionTimeout( Duration.ofSeconds( docker.getConnectionTimeoutSeconds( ) ) )
+					.responseTimeout( Duration.ofSeconds( docker.getReadTimeoutSeconds( ) ) )
+					.build( ) ;
+
+//			WrapperApacheDockerHttpClientImpl csapApacheClient = new WrapperApacheDockerHttpClientImpl(
+//					dockerConfiguration.getDockerHost( ),
+//					dockerConfiguration.getSSLConfig( ),
+//					10,
+//					Timeout.ofSeconds( docker.getConnectionTimeoutSeconds( ) ),
+//					Timeout.ofSeconds( docker.getReadTimeoutSeconds( ) ) ) ;
 
 			client = DockerClientBuilder
 					.getInstance( dockerConfiguration )
@@ -146,13 +155,13 @@ public class DockerConfiguration {
 
 	}
 
-	public DockerSettings getDocker ( ) {
+	public ContainerSettings getDocker ( ) {
 
 		return docker ;
 
 	}
 
-	public void setDocker ( DockerSettings docker ) {
+	public void setDocker ( ContainerSettings docker ) {
 
 		this.docker = docker ;
 

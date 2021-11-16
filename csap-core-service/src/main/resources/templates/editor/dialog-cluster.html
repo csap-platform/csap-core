@@ -243,7 +243,7 @@
 
 				<div  class=csap-green>
 				
-					<div class=base-cluster style="display: none">
+					<div class=base-cluster-no-type style="display: none">
 					
 						<div class="heading">
 							The selected environment does not have the cluster type specified - likely because it is derived from settings in a base
@@ -269,15 +269,20 @@
 	
 						<label class=csap-form-inline
 							title="Disabling the cluster allows it to be used as either a template, or for troubleshooting">
-							<span>Disabled:</span>
+							<span>Enabled:</span>
+							<input
+								class=""
+								placeholder="true"
+								data-path="enabled" />
 	
+							<!--
 							<select
 								id="cluster-is-template"
 								data-path="template"
 								style="margin-right: 2px">
 								<option selected="selected">false</option>
 								<option>true</option>
-							</select>
+							</select> -->
 						</label>
 	
 	

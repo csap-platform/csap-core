@@ -1099,10 +1099,10 @@ public class EnvironmentSettings {
 
 			if ( agentSettings.has( "adminToAgentTimeoutInMs" ) ) {
 
-				adminToAgentTimeout = agentSettings
+				adminToAgentTimeoutMs = agentSettings
 						.path( "adminToAgentTimeoutInMs" ).asInt( ) ;
 
-				if ( adminToAgentTimeout <= 1000 ) {
+				if ( adminToAgentTimeoutMs <= 1000 ) {
 
 					throw new IOException(
 							"Invalid agent timeout, must be at least 1000: " + agentSettings.path(
@@ -1356,7 +1356,7 @@ public class EnvironmentSettings {
 
 	}
 
-	private int adminToAgentTimeout = 5000 ;
+	private int adminToAgentTimeoutMs = 5000 ;
 
 	// DEFAULT: 24 hour upload intervals
 	// - this heavily reduces number of documents aggregated when performing
@@ -2039,13 +2039,13 @@ public class EnvironmentSettings {
 
 	public int getAdminToAgentTimeoutMs ( ) {
 
-		return adminToAgentTimeout ;
+		return adminToAgentTimeoutMs ;
 
 	}
 
 	public int getAdminToAgentTimeoutSeconds ( ) {
 
-		return adminToAgentTimeout / 1000 ;
+		return adminToAgentTimeoutMs / 1000 ;
 
 	}
 
@@ -2346,7 +2346,7 @@ public class EnvironmentSettings {
 
 	public void setAdminToAgentTimeout ( int adminToAgentTimeout ) {
 
-		this.adminToAgentTimeout = adminToAgentTimeout ;
+		this.adminToAgentTimeoutMs = adminToAgentTimeout ;
 
 	}
 
@@ -2964,7 +2964,7 @@ public class EnvironmentSettings {
 				+ ", helpMenuUrlMap="
 				+ helpMenuUrlMap + ", loadBalanceVmFilter=" + loadBalanceVmFilter + ", uploadIntervalsInHoursJson="
 				+ uploadIntervalsInHoursJson + ", infraTests=" + infraTests + ", gitSslVerificationDisabledUrls="
-				+ gitSslVerificationDisabledUrls + ", adminToAgentTimeout=" + adminToAgentTimeout + ", secureUrl="
+				+ gitSslVerificationDisabledUrls + ", adminToAgentTimeout=" + adminToAgentTimeoutMs + ", secureUrl="
 				+ secureUrl
 				+ ", browseDisks=" + browseDisks + ", applicationDisks=" + applicationDisks + ", inMemoryCacheSize="
 				+ inMemoryCacheSize

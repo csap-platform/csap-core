@@ -326,7 +326,7 @@ public class FileRequests {
 
 			try {
 
-				var dockerRoot = dockerIntegration.buildSummary( ).path( "rootDirectory" ).asText( "_error_" ) ;
+				var dockerRoot = dockerIntegration.getCachedSummaryReport( ).path( "rootDirectory" ).asText( "_error_" ) ;
 				diskPathsForTips.put( "dockerDisk", dockerRoot ) ;
 
 				if ( isDockerFolder( fromFolder ) ) {
@@ -759,7 +759,7 @@ public class FileRequests {
 
 		logger.info( CSAP.buildDescription(
 				"File Monitor launched",
-				"serviceName:", serviceName,
+				"serviceName", serviceName,
 				"fileName", fileName,
 				"podName", podName,
 				"containerIdOrPodLabel", containerIdOrPodLabel ) ) ;

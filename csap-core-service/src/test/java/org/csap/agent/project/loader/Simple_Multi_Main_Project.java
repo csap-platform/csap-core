@@ -446,10 +446,10 @@ public class Simple_Multi_Main_Project extends CsapBareTest {
 		assertThat( modifyResults.at( "/operations/2/inserts/autoplay-errors" ).size( ) ).isEqualTo( 1 ) ;
 
 		assertThat( modifyResults.at( "/operations/2/inserts/processed/0" ).asText( ) )
-				.isEqualTo( myNewEnv + "settings/configuration-maps" ) ;
+				.isEqualTo( myNewEnv + "settings/configuration-maps: added to parent generated-map" ) ;
 
 		assertThat( modifyResults.at( "/operations/2/inserts/processed/1" ).asText( ) )
-				.isEqualTo( myNewEnv + "settings/configuration-maps/global" ) ;
+				.isEqualTo( myNewEnv + "settings/configuration-maps/global: added to existing map" ) ;
 
 		assertThat( generatedProject.at( newGlobalConfig + "/STAGING" ).asText( ) )
 				.isEqualTo( "$$csap-base" ) ;
