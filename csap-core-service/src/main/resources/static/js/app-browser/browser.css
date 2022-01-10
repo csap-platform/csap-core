@@ -110,6 +110,8 @@ header #environment-name select {
 	font-size: 9pt;
 	top: 2px;
 	padding: 0;
+	background-color: var(--theme-bg) ;
+	color: var(--theme-color);
 }
 
 header label .csap-lock {
@@ -121,7 +123,8 @@ header label .csap-lock {
 header #portal-help  {
 	font-size: 8pt;
 	text-align: center;
-	min-width: 6em;
+	padding-right: 20px;
+	background-position: top 5px right 1px;
 }
 
 
@@ -135,11 +138,11 @@ header #portal-help  {
 }
 
 header #portal-help select  {
-	width: 4.5em;
 	margin-left: 4px;
 	font-size: 9pt;
 	top: 2px;
 	padding: 0;
+	width: 15em;
 }
 
 #portal-help-select-menu li.hidden, header #portal-help select option.hidden{
@@ -154,16 +157,24 @@ header #portal-help select  {
  }
 
 header #environment-name select .env-spacer {
-	background-color: white ;
-	font-size: 5px;
+	
 }
 
 header #environment-name select .env-spacer-label {
-	background-color: #90bff0 ;
+	background-color: var(--nav-active-background);
+	color: var(--nav-theme-color);
 }
 
 header #environment-name select .env-spacer-label option {
-	background-color: white ;
+	background-color: var(--nav-active-background);
+}
+
+header #environment-name select .env-discovered {
+	font-style: italic;
+}
+
+header #environment-name select .env-discovered option {
+	font-style: normal;	
 }
 
 header #application-name {
@@ -472,6 +483,9 @@ article.content div.options label {
 	left: 0.5em;
 }
 
+.theme-dark #performance-tab-kubernetes-rt #summary-column-header, .theme-dark #performance-tab-kubernetes-rt #detail-column-header  {
+	color: white;
+}
 
 
 #performance-tab-kubernetes-rt table td:first-child, 
@@ -615,15 +629,21 @@ article.content div.options label {
 	justify-content: space-between;
 	white-space: nowrap;
 	font-family: arial, helvetica, sans-serif;
+	overflow: hidden;
 }
 
-#performance-tab-content .jqplot-title span {
+#performance-tab-content .jqplot-title span.show-slide {
 	text-align: left;
+	padding-left: 20px;
+	height: 16px;
+	width: 16px;
+	background-repeat: no-repeat;
 }
 
-#performance-tab-content .jqplot-title span:hover{
+#performance-tab-content .jqplot-title span.show-slide:hover {
 	cursor: pointer;
 	color: red;
+	background-image: url('../../images/16x16/search-hover.svg');
 }
 
 
@@ -869,6 +889,11 @@ article.content a.host-infra:hover, article.content a.host-files:hover, article.
 	grid-template-columns: auto 10em;
 	overflow: visible;
 }
+
+#performance-tab-content .the-plot .loading-message {
+	border: none; 
+}
+
 
 .flex-centered {
 	display: flex;

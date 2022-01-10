@@ -1,10 +1,10 @@
 define( [ "model", "windowEvents", "./dataService", "./utils", "./tableUtils", "./summaryTab", "./table_OS", "./table_JMX", ], function ( model, windowEvents, dataService, utils, tableUtils, summaryTab, osTable, jmxTable ) {
 
     console.log( "Module loaded: reports/table" ) ;
-    var csapUser = new CsapUser() ;
-    var metricParamDoneOnce = false ;
+    let csapUser = new CsapUser() ;
+    let metricParamDoneOnce = false ;
 
-    var resizeDelayForRenderingRaceCondition = 500 ;
+    let resizeDelayForRenderingRaceCondition = 500 ;
 
     return {
         //
@@ -18,9 +18,9 @@ define( [ "model", "windowEvents", "./dataService", "./utils", "./tableUtils", "
 
         console.log( `buildTable() - reportId: ${reportId}, tableId: ${tableId} ` ) ;
 
-        var bodyId = tableId + " tbody" ;
+        let bodyId = tableId + " tbody" ;
         $( "#emailText" ).text( "" ) ;
-        var numSamples = 0 ;
+        let numSamples = 0 ;
         let reportRows = responseJson.data ;
 
         if ( !reportRows || ( reportRows.length == 0 ) ) {
@@ -28,9 +28,9 @@ define( [ "model", "windowEvents", "./dataService", "./utils", "./tableUtils", "
                     "<a class='simple' href='https://github.com/csap-platform/csap-core/wiki#updateRefCustom+Metrics'>Reference Guide</a><br><br>" ) ;
         }
 
-        var coresActive = 0 ;
+        let coresActive = 0 ;
         numRows = 0 ;
-        var coresTotal = 0 ;
+        let coresTotal = 0 ;
         let isBuildSelectOptions = true ;
         for ( let reportRow of reportRows ) {
 
@@ -39,14 +39,14 @@ define( [ "model", "windowEvents", "./dataService", "./utils", "./tableUtils", "
                 isBuildSelectOptions = false ;
             }
 
-            var tableRow = jQuery( '<tr/>', { } ) ;
+            let tableRow = jQuery( '<tr/>', { } ) ;
             if ( reportId == "userid" ) {
 
                 buildUseridRow( responseJson, tableRow, reportRow ) ;
 
             } else if ( reportId == METRICS_OS_PROCESS ) {
 
-                var serviceName = reportRow.serviceName
+                let serviceName = reportRow.serviceName
                 if ( !model.isServiceInSelectedCluster( serviceName ) )
                     continue ;
 
@@ -70,12 +70,12 @@ define( [ "model", "windowEvents", "./dataService", "./utils", "./tableUtils", "
 
             } else if ( reportId == METRICS_HOST ) {
 
-                var rowHost = reportRow.hostName
+                let rowHost = reportRow.hostName
                 if ( !model.isHostInSelectedCluster( rowHost ) )
                     continue ;
 
-                var totalCpu = ( reportRow.totalUsrCpu + reportRow.totalSysCpu ) / reportRow.numberOfSamples ;
-                var coresUsed = totalCpu * reportRow.cpuCountAvg / 100 ;
+                let totalCpu = ( reportRow.totalUsrCpu + reportRow.totalSysCpu ) / reportRow.numberOfSamples ;
+                let coresUsed = totalCpu * reportRow.cpuCountAvg / 100 ;
                 coresActive += coresUsed ;
                 coresTotal += reportRow.cpuCountAvg ;
                 // console.log(" totalCpu " + totalCpu + "  coresUsed: " + coresUsed ) ;
@@ -92,8 +92,8 @@ define( [ "model", "windowEvents", "./dataService", "./utils", "./tableUtils", "
             if ( reportId == "userid" ) {
                 numSamples += 1 ;
             } else {
-                var metaFields = [ "project", "serviceName", "appId", "lifecycle", "numberOfSamples", ] ;
-                var reportArray = Object.keys( reportRow ) ;
+                let metaFields = [ "project", "serviceName", "appId", "lifecycle", "numberOfSamples", ] ;
+                let reportArray = Object.keys( reportRow ) ;
                 numSamples += reportRow.numberOfSamples * ( reportArray.length - metaFields.length ) ;
             }
 
@@ -111,7 +111,7 @@ define( [ "model", "windowEvents", "./dataService", "./utils", "./tableUtils", "
         utils.updateSampleCountDisplayed( numSamples ) ;
 
         if ( $( "#isAllProjects" ).is( ':checked' ) ) {
-            $( " .projectColumn" ).css("display", "table-cell") ;
+            $( " .projectColumn" ).css( "display", "table-cell" ) ;
         } else {
             $( " .projectColumn" ).hide() ;
         }
@@ -123,18 +123,18 @@ define( [ "model", "windowEvents", "./dataService", "./utils", "./tableUtils", "
         //console.warn( `refreshing: ${tableId}` ) ;
 
         $( ".columnSelector" ).hide() ;
-        var filterdId = reportId.replace( /\//g, "" ) ;
+        let filterdId = reportId.replace( /\//g, "" ) ;
         console.log( "filterdId: " + filterdId ) ;
         $( "#" + filterdId + "ColumnSelector" ).show() ;
 
         if ( reportId == "userid" ) {
-            var delay = 500 ;
+            let delay = 500 ;
             csapUser.onHover( $( "#useridTable tbody tr td:nth-child(1)" ), delay ) ;
         }
         $( "#reportsSection" ).show() ;
 
         if ( dataService.isCompareSelected() ) {
-            var message = "Number of Matches: " + $( ".diffHigh" ).length ;
+            let message = "Number of Matches: " + $( ".diffHigh" ).length ;
             message += '<span style="font-size: 0.8em; padding-left: 3em">Minimum Value Filter: <label>'
                     + $( "#compareMinimum" ).val() ;
             message += "</label> Hide non matches: <label>"
@@ -144,7 +144,7 @@ define( [ "model", "windowEvents", "./dataService", "./utils", "./tableUtils", "
             message += "Max Days: <label>" + dataService.getLastReportResults().numDaysAvailable
                     + "</label></span>"
 
-            var msgDiv = jQuery( '<div/>', {
+            let msgDiv = jQuery( '<div/>', {
                 class: "settings compMessage",
                 id: "compareCurrent",
                 html: message
@@ -174,11 +174,15 @@ define( [ "model", "windowEvents", "./dataService", "./utils", "./tableUtils", "
         }
 
         if ( dataService.getLastReportResults() != null ) {
-            console.log( "_lastReportResults.numDaysAvailable: "
-                    + dataService.getLastReportResults().numDaysAvailable ) ;
+            
+            let daysCollected = dataService.getLastReportResults().numDaysAvailable ;
+            console.log( `dataService.getLastReportResults daysCollected: ${ daysCollected}` ) ;
+            
             $( "#reportStartInput, #compareStartInput" ).datepicker( "option", {
-                minDate: 0 - dataService.getLastReportResults().numDaysAvailable
+                minDate: 0 - daysCollected
             } ) ;
+        } else {
+            console.log(`last report is null - skipping datepicker`) ;
         }
 
         // induced by tablesorter?
@@ -219,7 +223,7 @@ define( [ "model", "windowEvents", "./dataService", "./utils", "./tableUtils", "
         // visVal = "cpuCountAvg";
 
         $( "#visualizeSelect" ).empty() ;
-        var optionItem = jQuery( '<option/>', {
+        let optionItem = jQuery( '<option/>', {
             value: "table",
             "data-sorttext": "___",
             text: " Summary Table "
@@ -233,12 +237,12 @@ define( [ "model", "windowEvents", "./dataService", "./utils", "./tableUtils", "
             if ( !$.isNumeric( reportRow[columnName] ) )
                 continue ;
 
-            var label = model.getServiceLabels( reportRow.serviceName, columnName ) ;
+            let label = model.getServiceLabels( reportRow.serviceName, columnName ) ;
 
 
             //console.log("desc: ", desc);
 
-            var optionItem = jQuery( '<option/>', {
+            let optionItem = jQuery( '<option/>', {
                 value: columnName,
                 "data-sorttext": label,
                 text: label
@@ -248,7 +252,7 @@ define( [ "model", "windowEvents", "./dataService", "./utils", "./tableUtils", "
 
             //console.log("peter item: ", item) ;
             if ( columnName == "totalUsrCpu" ) {
-                var optionItem = jQuery( '<option/>', {
+                let optionItem = jQuery( '<option/>', {
                     value: columnName + ",totalSysCpu",
                     "data-sorttext": "CPU: mpstat usr + sys",
                     text: "CPU: mpstat usr + sys"
@@ -287,7 +291,7 @@ define( [ "model", "windowEvents", "./dataService", "./utils", "./tableUtils", "
         tableUtils.addCell( tableRow, hostReport, "totalLoad", 1, 1, "",
                 hostReport.cpuCountAvg / 2 ) ;
 
-        var alertSuffix = "%" ;
+        let alertSuffix = "%" ;
         if ( $( "#isUseTotal" ).is( ':checked' ) )
             alertSuffix = "" ;
 
@@ -321,7 +325,7 @@ define( [ "model", "windowEvents", "./dataService", "./utils", "./tableUtils", "
             rowJson.uiUser = "null" ;
         }
 
-        var theUser = rowJson.uiUser.toLowerCase() ;
+        let theUser = rowJson.uiUser.toLowerCase() ;
         if ( theUser.contains( "system" ) || theUser.contains( ".gen" ) || theUser.contains( "agentuser" ) || theUser.contains( "null" ) || theUser.contains( "csagent" ) ) {
             console.log( "skipping ", theUser ) ;
             return ;
@@ -329,19 +333,19 @@ define( [ "model", "windowEvents", "./dataService", "./utils", "./tableUtils", "
 
         $( "#emailText" ).append( rowJson.uiUser + "@yourcompany.com;" ) ;
 
-        var col1 = jQuery( '<td/>', {
+        let col1 = jQuery( '<td/>', {
             class: "col1 userids",
             text: rowJson.uiUser
         } ) ;
         // col1.html(userLink) ;
 
-        var eventLink = jQuery( '<a/>', {
+        let eventLink = jQuery( '<a/>', {
             class: "simple",
             target: "_blank",
             href: utils.getUserUrl( "userid=" + rowJson.uiUser ),
             text: rowJson.totActivity
         } ) ;
-        var col2 = jQuery( '<td/>', {
+        let col2 = jQuery( '<td/>', {
             class: "numeric"
         } ) ;
         col2.html( eventLink ) ;

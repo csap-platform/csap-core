@@ -26,13 +26,16 @@
 				<optgroup
 					id="definition-group"
 					class="env-spacer-label"
-					label="Environments: Definition">
+					label="Current Application">
 				</optgroup>
+				
 				<optgroup
 					id="discovery-group"
-					class="env-spacer-label"
-					label="Environments: Discovered">
+					class=""
+					label="Discovered Application(s)">
 				</optgroup>
+				
+				
 			</select>
 		</label>
 
@@ -510,7 +513,7 @@
 							data-path="summary">Summary</span>
 						<span
 							class=level2
-							data-path="kubernetes">Kubernetes</span>
+							data-path="kubernetes">Container</span>
 						<span
 							class=" level2"
 							data-path="cpu">CPU</span>
@@ -557,8 +560,8 @@
 								th:value="${name}"
 								th:text="${name}">replaced by template</option>
 							<option
-								th:value="${T(org.csap.agent.model.Application).ALL_PACKAGES}"
-								th:selected="${ T(org.csap.agent.model.Application).ALL_PACKAGES == selectedRelease }">All Projects</option>
+								th:value="${ viewConstants.get('ALL_PACKAGES') }"
+								th:selected="${ viewConstants.get('ALL_PACKAGES') == selectedRelease }">All Projects</option>
 						</select>
 					</label>
 

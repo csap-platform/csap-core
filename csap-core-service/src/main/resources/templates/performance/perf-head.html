@@ -10,7 +10,7 @@
 
 <title th:inline="text">Performance-[[ ${ csapApp.getName() } ]]</title>
 
-<link rel="icon" type="image/png" href="../images/csap-icon.png">
+<link rel="icon" type="image/png" th:href="@{/images/csap-icon.png}">
 
 <script th:replace="~{ csap/fragments/csap-common-includes :: pageContent }"></script>
 

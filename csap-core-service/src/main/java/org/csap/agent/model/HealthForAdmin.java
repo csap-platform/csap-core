@@ -41,6 +41,7 @@ public class HealthForAdmin {
 									ObjectNode active_services_all_hosts ,
 									TreeMap<String, Integer> serviceTotalCountMap ,
 									TreeMap<String, String> serviceTypeMap ,
+									TreeMap<String, String> serviceRuntimeMap ,
 									ObjectNode hostMapNode )
 
 		throws IOException ,
@@ -66,7 +67,7 @@ public class HealthForAdmin {
 		// First build totals map
 		int totalServiceCount = service_summary_for_admin_build_totals(
 				csapProject, clusterFilter, active_services_all_hosts,
-				serviceTotalCountMap, serviceTypeMap ) ;
+				serviceTotalCountMap, serviceTypeMap, serviceRuntimeMap ) ;
 
 		StringBuilder clusterSynchronizationMessages = new StringBuilder( ) ;
 
@@ -87,7 +88,7 @@ public class HealthForAdmin {
 			if ( agent_status != null ) {
 
 				find_unregistered_containers( agent_status, active_services_all_hosts, serviceTotalCountMap,
-						serviceTypeMap ) ;
+						serviceTypeMap, serviceRuntimeMap ) ;
 
 				lastOpMills = find_host_summary( agent_status, lastOpMills, host, service_summary, hostStatusNode ) ;
 
@@ -261,7 +262,8 @@ public class HealthForAdmin {
 												ObjectNode agent_status ,
 												ObjectNode active_services_all_hosts ,
 												TreeMap<String, Integer> serviceTotalCountMap ,
-												TreeMap<String, String> serviceTypeMap ) {
+												TreeMap<String, String> serviceTypeMap,
+												TreeMap<String, String> serviceRuntimeMap  ) {
 		// logger.debug( "{} json: {}", host, agent_status ) ;
 
 		JsonNode unregisteredContainers = agent_status.path( HostKeys.unregisteredServices.jsonId ) ;
@@ -270,6 +272,7 @@ public class HealthForAdmin {
 
 			if ( ! serviceTotalCountMap.containsKey( ProcessRuntime.unregistered.getId( ) ) ) {
 
+				serviceTypeMap.put( ProcessRuntime.unregistered.getId( ), ProcessRuntime.unregistered.getId( ) ) ;
 				serviceTypeMap.put( ProcessRuntime.unregistered.getId( ), ProcessRuntime.unregistered.getId( ) ) ;
 				serviceTotalCountMap.put( ProcessRuntime.unregistered.getId( ), unregisteredContainers.size( ) ) ;
 				active_services_all_hosts.put( ProcessRuntime.unregistered.getId( ), unregisteredContainers.size( ) ) ;
@@ -298,7 +301,8 @@ public class HealthForAdmin {
 															String clusterFilter ,
 															ObjectNode activeServices ,
 															TreeMap<String, Integer> serviceTotalCountMap ,
-															TreeMap<String, String> serviceTypeMap ) {
+															TreeMap<String, String> serviceTypeMap ,
+															TreeMap<String, String> serviceRuntimeMap ) {
 
 		AtomicInteger totalServices = new AtomicInteger( 0 ) ;
 
@@ -318,6 +322,8 @@ public class HealthForAdmin {
 						firstServiceInstance = serviceName_instances.get( serviceName ).get( 0 ) ;
 
 						serviceTypeMap.put( serviceName, firstServiceInstance.getServerUiIconType( ) ) ;
+
+						serviceRuntimeMap.put( serviceName, firstServiceInstance.getUiRuntime( )) ;
 
 					}
 

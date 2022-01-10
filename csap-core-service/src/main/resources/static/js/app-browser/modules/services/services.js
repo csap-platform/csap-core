@@ -28,6 +28,7 @@ define( serviceSources, function ( utils, instances, batch, backlog, resourceBro
     const UNREGISTERED_SERVICE = "unregistered" ;
 
     let $serviceIncludeFilter = $( "#service-filter", $statusTab ) ;
+    let lastFilter ;
 
 
     let $serviceClearFilter = $( "#clear-filter", $statusTab ) ;
@@ -117,7 +118,7 @@ define( serviceSources, function ( utils, instances, batch, backlog, resourceBro
         let $menuLoaded ;
 
         let operation = navigationOperations[ menuPath ] ;
-        
+
         if ( operation ) {
             $menuLoaded = operation( $menuContent, forceHostRefresh, menuPath ) ;
         } else {
@@ -244,21 +245,67 @@ define( serviceSources, function ( utils, instances, batch, backlog, resourceBro
         let $servicePanels = $( 'div.summary', $summaryPanel ) ;
 
         let  includeFilter = $serviceIncludeFilter.val() ;
+        lastFilter = includeFilter ;
 
         console.log( ` includeFilter: ${includeFilter}` ) ;
 
+        $serviceIncludeFilter.removeClass("modified") ;
 
         if ( includeFilter.length > 0 ) {
+            
+            $serviceIncludeFilter.addClass("modified") ;
+
             $serviceClearFilter.show() ;
             $servicePanels.hide() ;
-            let filterArray = includeFilter.split( "," ) ;
-            for ( let i = 0 ; i < filterArray.length ; i++ ) {
-                $( `>div:icontains("${ filterArray[i] }")`, $servicePanels ).parent().show() ;
+            let filters = includeFilter.split( "," ) ;
+
+            for ( let currentFilter of filters ) {
+
+                let filterWithTypes = includeFilter.split( ":" ) ;
+                if ( filterWithTypes.length == 2
+                        && filterWithTypes[0] == "runtime" ) {
+
+                    $( `div.summary[data-runtime*='${ filterWithTypes[1] }']`, $summaryPanel ).show() ;
+
+                } else if ( filterWithTypes.length == 2
+                        && filterWithTypes[0] == "name" ) {
+                    
+                    $( `div.summary[data-name*='${ filterWithTypes[1] }']`, $summaryPanel ).show() ;
+
+                } else if ( filterWithTypes.length == 2
+                        && filterWithTypes[0] == "kind" ) {
+                    
+                    $( `div.summary[data-kind*='${ filterWithTypes[1] }']`, $summaryPanel ).show() ;
+
+                }  else if ( currentFilter.startsWith(":err") ) {
+                    
+                    $( `button.status-warning`, $servicePanels ).parent().parent().parent().show() ;
+                    $( `span.status-warning`, $servicePanels ).parent().parent().parent().show() ;
+
+                } else {
+
+                    $( `>div:icontains("${ currentFilter }")`, $servicePanels ).parent().show() ;
+
+                    $( `div.summary[data-runtime*='${ currentFilter }']`, $summaryPanel ).show() ;
+                    
+                    $( `div.summary[data-kind*='${ currentFilter }']`, $summaryPanel ).show() ;
+                }
+
+                // if ( c)
             }
+
         } else {
             $servicePanels.show() ;
         }
 
+    }
+    
+    function getLowerCase( theString ) {
+        if ( theString ) {
+           return theString.toLowerCase() ;
+        }
+        
+        return "discovered" ;
     }
 
 
@@ -286,6 +333,12 @@ define( serviceSources, function ( utils, instances, batch, backlog, resourceBro
                 cluster: targetCluster
             } ) ;
             loadMessage = "Loading CSAP services" ;
+        } 
+        
+        if ( isClusterSelectionEmpty()
+                && targetCluster != ALL_SERVICES  ) {
+            $serviceIncludeFilter.val( "" ) ;
+            $serviceClearFilter.hide() ;
         }
 
         if ( isClusterSelectionEmpty() ) {
@@ -297,10 +350,12 @@ define( serviceSources, function ( utils, instances, batch, backlog, resourceBro
 //        let servicesUrl = SERVICE_URL + "/summary" ;
         let servicesUrl = APP_BROWSER_URL + "/service/summary" ;
 
-        console.log( `servicesUrl(): ${ servicesUrl }` ) ;
-        $serviceIncludeFilter.val( "" ) ;
-        $serviceClearFilter.hide() ;
-        // getActivityCount() ;
+        console.log( `99servicesUrl(): ${ servicesUrl }` ) ;
+        // $serviceIncludeFilter.val( "" ) ;
+        // $serviceClearFilter.hide() ;
+        // 
+        // 
+// getActivityCount() ;
 
         if ( !autoRefresh ) {
             utils.loading( loadMessage ) ;
@@ -529,7 +584,6 @@ define( serviceSources, function ( utils, instances, batch, backlog, resourceBro
         $summaryPanel.append( $latest.html() ) ;
         reDraw() ;
 
-//        registerServiceAlerts( $( "button.service-alert-show", $statusContent ) ) ;
 
         $( ".summary", $summaryPanel ).click( function () {
             let name = $( this ).data( "name" ) ;
@@ -541,7 +595,6 @@ define( serviceSources, function ( utils, instances, batch, backlog, resourceBro
             }
         } ) ;
 
-        utils.flash( $( "button.service-alert-show", $statusContent ) ) ;
 
     }
 
@@ -557,6 +610,7 @@ define( serviceSources, function ( utils, instances, batch, backlog, resourceBro
         let servicesActive = servicesReport.servicesActive ;
         let servicesTotal = servicesReport.servicesTotal ;
         let servicesType = servicesReport.servicesType ;
+        let servicesRuntime = servicesReport.servicesRuntime ;
         let serviceErrors = servicesReport.errorsByService ;
         let startOrder = servicesReport.startOrder ;
         let clusters = servicesReport.clusters ;
@@ -616,11 +670,14 @@ define( serviceSources, function ( utils, instances, batch, backlog, resourceBro
                 longestNameSize = serviceName.length ;
             }
 
-
+            let runtimeFilter = getLowerCase( servicesRuntime[serviceName] );
+            let kindFilter = getLowerCase( servicesType[serviceName] ) ;
 
             let $summary = jQuery( '<div/>', {
                 class: "summary",
                 "data-name": serviceName,
+                "data-runtime": runtimeFilter,
+                "data-kind": kindFilter,
                 title: serviceName
             } ) ;
             $latest.append( $summary ) ;
@@ -629,6 +686,7 @@ define( serviceSources, function ( utils, instances, batch, backlog, resourceBro
             $summary.append( $imageDiv ) ;
 
             let imagePath = `${ IMAGES_URL }/${ getServiceImage( servicesType[serviceName] ) }` ;
+
             jQuery( '<img/>', { src: imagePath } ).appendTo( $imageDiv ) ;
 
 
@@ -735,8 +793,6 @@ define( serviceSources, function ( utils, instances, batch, backlog, resourceBro
             let name = $( this ).data( "name" ) ;
             instances.selectService( name, clusterSelected() ) ;
         } ) ;
-
-        utils.flash( $( "button.service-alert-show", $statusContent ) ) ;
 
 
     }
@@ -988,6 +1044,8 @@ define( serviceSources, function ( utils, instances, batch, backlog, resourceBro
 
 jQuery.expr[':'].icontains = function ( a, i, m ) {
     let contents = jQuery( a ).text().toUpperCase() ;
+    
+    //console.log(`contents of filter`, contents) ;
     let expression = m[3].toUpperCase() ;
 
     //console.log(`contents: ${contents}, expression: ${expression} `) ;

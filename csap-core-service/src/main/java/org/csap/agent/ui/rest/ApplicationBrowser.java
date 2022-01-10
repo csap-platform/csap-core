@@ -4,7 +4,6 @@ import java.io.File ;
 import java.net.URLDecoder ;
 import java.net.URLEncoder ;
 import java.nio.file.Files ;
-import java.nio.file.Path ;
 import java.time.LocalDate ;
 import java.time.LocalDateTime ;
 import java.time.format.DateTimeFormatter ;
@@ -234,9 +233,12 @@ public class ApplicationBrowser {
 
 			deployedArtifact = "csap" ;
 
-			// if ( Application.isRunningOnDesktop() ) {
-			// deployedArtifact = "desktop" ;
-			// }
+			if ( Application.isRunningOnDesktop( ) ) {
+
+				// deployedArtifact = "desktop-9901" ;
+
+			}
+
 		}
 
 		mav.getModelMap( ).addAttribute( "deployedArtifact", deployedArtifact ) ;
@@ -323,6 +325,8 @@ public class ApplicationBrowser {
 
 		corePortals.addSecurityAttributes( modelMap, session ) ;
 
+		corePortals.setViewConstants( modelMap ) ;
+
 		if ( title == null ) {
 
 			title = application.getName( ) ;
@@ -336,10 +340,6 @@ public class ApplicationBrowser {
 		}
 
 		modelMap.addAttribute( "pageTitle", title ) ;
-		modelMap.addAttribute( "csapApp", application ) ;
-
-		modelMap.addAttribute( "csapHostEnvironmentName", application.getCsapHostEnvironmentName( ) ) ;
-		modelMap.addAttribute( "csapHostName", application.getCsapHostName( ) ) ;
 
 		modelMap.addAttribute( "toolsMap", csapInformation.buildToolsMap( ) ) ;
 		modelMap.addAttribute( "helpMap", application.getHelpMenuMap( ) ) ;
@@ -374,16 +374,9 @@ public class ApplicationBrowser {
 
 		}
 
-		modelMap.addAttribute( "csapHostAgentPattern", application.getAgentHostUrlPattern( false ) ) ;
-
 		modelMap.addAttribute( "environmentSettings", application.environmentSettings( ) ) ;
 		modelMap.addAttribute( "HISTORY_URL", application.environmentSettings( ).getHistoryUiUrl( ) ) ;
 		modelMap.addAttribute( "METRICS_URL", application.rootProjectEnvSettings( ).getEventMetricsUrl( ) ) ;
-
-		modelMap.addAttribute( "collectionHost", CsapApplication.COLLECTION_HOST ) ;
-		modelMap.addAttribute( "collectionOsProcess", CsapApplication.COLLECTION_OS_PROCESS ) ;
-		modelMap.addAttribute( "collectionJava", CsapApplication.COLLECTION_JAVA ) ;
-		modelMap.addAttribute( "collectionApplication", CsapApplication.COLLECTION_APPLICATION ) ;
 
 		// editor
 		modelMap.addAttribute( "applicationBranch", application.getSourceBranch( ) ) ;
@@ -411,11 +404,11 @@ public class ApplicationBrowser {
 			ServiceInstance kubernetesInstance = application.kubeletInstance( ) ;
 
 			var urls = kubernetesInstance.getUrl( ).split( "," ) ;
-			var apiUrl = urls[ 0 ] ;
+			var apiUrl = urls[0] ;
 
 			if ( urls.length >= 2 ) {
 
-				apiUrl = urls[ 1 ] ;
+				apiUrl = urls[1] ;
 
 			}
 
@@ -607,8 +600,8 @@ public class ApplicationBrowser {
 
 								if ( desc.length == 2 ) {
 
-									template.put( "command", desc[ 0 ].trim( ) ) ;
-									template.put( "description", desc[ 1 ].trim( ) ) ;
+									template.put( "command", desc[0].trim( ) ) ;
+									template.put( "description", desc[1].trim( ) ) ;
 
 								}
 
@@ -1468,7 +1461,7 @@ public class ApplicationBrowser {
 		} else {
 
 			// handle multiple urls
-			launchReport.put( "location", location.split( "," )[ 0 ] ) ;
+			launchReport.put( "location", location.split( "," )[0] ) ;
 
 		}
 
@@ -1755,6 +1748,7 @@ public class ApplicationBrowser {
 		var activeServicesReport = servicesReport.putObject( "servicesActive" ) ;
 		var serviceTotalCountMap = new TreeMap<String, Integer>( ) ;
 		var serviceTypeMap = new TreeMap<String, String>( ) ;
+		var serviceRuntimeMap = new TreeMap<String, String>( ) ;
 
 		if ( application.isAgentProfile( ) ) {
 
@@ -1764,7 +1758,9 @@ public class ApplicationBrowser {
 
 			application.healthManager( ).agent( ).service_summary(
 					servicesReport, blocking, legacyFilter, activeServicesReport,
-					serviceTotalCountMap, serviceTypeMap, hostMapNode ) ;
+					serviceTotalCountMap,
+					serviceTypeMap, serviceRuntimeMap,
+					hostMapNode ) ;
 
 			servicesReport.set( "users",
 					application.getActiveUsers( ).updateUserAccessAndReturnAllActive(
@@ -1779,7 +1775,8 @@ public class ApplicationBrowser {
 					servicesReport, blocking,
 					csapProject, legacyFilter,
 					environmentHosts, activeServicesReport, serviceTotalCountMap,
-					serviceTypeMap, null ) ;
+					serviceTypeMap, serviceRuntimeMap,
+					null ) ;
 
 			application.getActiveUsers( ).updateUserAccessAndReturnAllActive(
 					securitySettings.getRoles( ).getUserIdFromContext( ),
@@ -1789,6 +1786,7 @@ public class ApplicationBrowser {
 
 		servicesReport.set( "servicesTotal", jsonMapper.valueToTree( serviceTotalCountMap ) ) ;
 		servicesReport.set( "servicesType", jsonMapper.valueToTree( serviceTypeMap ) ) ;
+		servicesReport.set( "servicesRuntime", jsonMapper.valueToTree( serviceRuntimeMap ) ) ;
 
 		var serviceStartOrder = jsonMapper.createObjectNode( ) ;
 		serviceTotalCountMap.keySet( ).stream( )
@@ -1943,6 +1941,13 @@ public class ApplicationBrowser {
 		if ( application.findFirstServiceInstanceInLifecycle( "podman-system-service" ) != null ) {
 
 			containerService = "podman-system-service" ;
+
+		}
+
+		if ( application.findFirstServiceInstanceInLifecycle( containerService ) == null
+				&& application.findFirstServiceInstanceInLifecycle( "docker-monitor" ) != null ) {
+
+			containerService = "docker-monitor" ;
 
 		}
 
@@ -2215,8 +2220,8 @@ public class ApplicationBrowser {
 
 						if ( dateTime.length == 2 ) {
 
-							date = dateTime[ 0 ] ;
-							time = dateTime[ 1 ] ;
+							date = dateTime[0] ;
+							time = dateTime[1] ;
 
 							if ( date.equals( today ) ) {
 

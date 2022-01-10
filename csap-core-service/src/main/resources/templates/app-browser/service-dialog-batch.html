@@ -34,7 +34,7 @@
 <script th:inline="javascript">
 
 var contextUrl = [[@{ ${"/"} }]] ;
-var baseUrl = [[@{ ${ T( org.csap.agent.CsapCoreService ).SERVICE_URL}}]] ;
+var baseUrl = [[@{ ${ viewConstants.get("SERVICE_URL") }}]];
 
 
 $(document).ready(function () {
@@ -80,14 +80,17 @@ $(document).ready(function () {
 	<select
 		class="releasePackage"
 		style="width: 14em">
+		
 		<option
 			th:each="name : ${packageNames}"
 			th:selected="${name == selectedRelease }"
 			th:value="${name}"
 			th:text="${name}">updated_by_thymeleaf</option>
+			
 		<option
-			th:value="${T(org.csap.agent.model.Application).ALL_PACKAGES}"
-			th:selected="${ T(org.csap.agent.model.Application).ALL_PACKAGES == selectedRelease }">All Projects</option>
+			th:value="${ viewConstants.get('ALL_PACKAGES') }"
+			th:selected="${ viewConstants.get('ALL_PACKAGES') == selectedRelease }">All Projects</option>
+			
 	</select>
 
 	<div
@@ -159,7 +162,8 @@ $(document).ready(function () {
 				<label
 					class="csap configLabels"
 					th:each="serviceEntry: ${ serviceNames }"
-					th:if="${ !serviceEntry.key.equals(T(org.csap.agent.CsapCore).AGENT_NAME) && !serviceEntry.key.equals(T(org.csap.agent.CsapCore).ADMIN_NAME)  }">
+					th:if="${ !serviceEntry.key.equals( viewConstants.get('AGENT_NAME') ) && !serviceEntry.key.equals( viewConstants.get('ADMIN_NAME') )   }">
+					
 					<input
 						th:class="${ 'custom serviceCheckbox ' + serviceEntry.value  }"
 						type="checkbox"

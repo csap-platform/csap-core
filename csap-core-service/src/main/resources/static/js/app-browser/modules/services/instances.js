@@ -6,6 +6,7 @@ define( [ "services/kubernetes", "services/deployer", "browser/utils" ], functio
 
 
     const UNREGISTERED_SERVICE = "unregistered" ;
+    const ALL_SERVICES = "All Services" ;
 
     const $servicesContent = utils.findContent( "#services-tab-content" ) ;
 
@@ -274,7 +275,7 @@ define( [ "services/kubernetes", "services/deployer", "browser/utils" ], functio
 
     function selectService( name, descriptionOrCluster ) {
 
-        console.log( `selectService: ${ name }, ${descriptionOrCluster}` ) ;
+        console.log( `selectService: ${ name }, descriptionOrCluster: ${descriptionOrCluster}` ) ;
         if ( name ) {
 
             $clusterFilter.parent().hide() ;
@@ -294,7 +295,8 @@ define( [ "services/kubernetes", "services/deployer", "browser/utils" ], functio
             _lastCluster = "all" ;
             if ( name !== UNREGISTERED_SERVICE ) {
                 // page reloads may not include this
-                if ( descriptionOrCluster ) {
+                if ( descriptionOrCluster 
+                        && descriptionOrCluster !== ALL_SERVICES) {
 
                     _lastCluster = utils.getActiveEnvironment() + ":" + descriptionOrCluster ;
 

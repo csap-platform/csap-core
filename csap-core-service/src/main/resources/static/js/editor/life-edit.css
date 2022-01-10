@@ -108,6 +108,15 @@ div.cluster-items>div {
 #env-controls a {
 	vertical-align: text-top;
 }
+
+
+#env-controls #lifeEdit-button {
+	font-style: italic ;
+	width: auto;
+	min-width: 10em;
+	max-width: 20em;
+}
+
 #env-controls button.csap-button-icon {
 	margin-left: 1em;
 }

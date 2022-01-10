@@ -66,23 +66,24 @@ csap-core:
     
   help-urls: 
     release-notes: https://github.com/csap-platform/csap-core/wiki/Release-Notes
+    installation: https://github.com/csap-platform/csap-core/wiki/Install-Notes
     reference-guide: https://github.com/csap-platform/csap-core/wiki
     training: https://github.com/csap-platform/csap-core/wiki/Training
-    service-template-help: https://github.com/csap-platform/csap-core/wiki/Service-Definition
+    service-templates: https://github.com/csap-platform/csap-core/wiki/Service-Definition
     service-variables: https://github.com/csap-platform/csap-core/wiki/Service-Definition#runtime-variables
     service-jobs: https://github.com/csap-platform/csap-core/wiki/Service-Definition#service-jobs
-    process-match-help: https://github.com/csap-platform/csap-core/wiki/Application-Model#os-process-mapping
-    cluster-help: https://github.com/csap-platform/csap-core/wiki/Application-Model
-    environment-help: https://github.com/csap-platform/csap-core/wiki/Environment-Definition
-    configuration-map-help: https://github.com/csap-platform/csap-core/wiki/Environment-Definition#configuration-maps
-    editor-help:  https://github.com/csap-platform/csap-core/wiki/Application-Portal#application-editor
-    health-help: https://github.com/csap-platform/csap-core/wiki/Application-Health
-    performance-help: https://github.com/csap-platform/csap-core/wiki/Performance
-    package-help: https://github.com/csap-platform/csap-core/wiki/Application-Packages
-    service-live-help: https://github.com/csap-platform/csap-core/wiki/CsapMicroMeter
+    service-live: https://github.com/csap-platform/csap-core/wiki/CsapMicroMeter
+    os-process-mapping: https://github.com/csap-platform/csap-core/wiki/Application-Model#os-process-mapping
+    service-clusters: https://github.com/csap-platform/csap-core/wiki/Application-Model
+    service-environments: https://github.com/csap-platform/csap-core/wiki/Environment-Definition
+    configuration-maps: https://github.com/csap-platform/csap-core/wiki/Environment-Definition#configuration-maps
+    application-definition:  https://github.com/csap-platform/csap-core/wiki/Application-Definition
+    application-editor:  https://github.com/csap-platform/csap-core/wiki/Application-Portal#application-editor
+    application-health: https://github.com/csap-platform/csap-core/wiki/Application-Health
+    application-performance: https://github.com/csap-platform/csap-core/wiki/Performance
+    application-projects: https://github.com/csap-platform/csap-core/wiki/Application-Packages
     autoplay-help: https://github.com/csap-platform/csap-core/wiki/Csap-Autoplay
     command-runner: https://github.com/csap-platform/csap-core/wiki/Host-Portal#command-runner
-    ssl-configuration: https://github.com/csap-platform/csap-core/wiki/SSL-Configuration
     
   
     

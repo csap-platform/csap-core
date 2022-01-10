@@ -119,9 +119,11 @@ define( [ "projects/file-browser", "browser/utils" ], function ( fileBrowser, ut
             return $helpItem.appendTo( ul ) ;
         }
 
+		let selMenuWidth = $helpSelect.width + 100 ;
         $helpSelect.selectmenu( {
-            width: "5.4em",
-            position: { my: "right+35 top+12", at: "bottom right" },
+            //width: "5.4em", autowidth based on detected version
+            // position: { my: "right+35 top+12", at: "bottom right" },
+            position: { my: "right top", at: "right bottom", of: '#portal-help' },
             change: helpSelected
         } ).data( "ui-selectmenu" )._renderItem = myRenderer ;
 
@@ -294,9 +296,9 @@ define( [ "projects/file-browser", "browser/utils" ], function ( fileBrowser, ut
                     let addDiscovered = appId === utils.getAppId()
                             || appId === testAppId
                             || showAll ;
-                    let discoveryGroupLabel = "Discovered" ;
+                    let discoveryGroupLabel = "Discovered:" ;
                     if ( showAll ) {
-                        discoveryGroupLabel = `id: ${ appId }` ;
+                        discoveryGroupLabel = `${ appId }:` ;
                     }
                     let $discoveryGroup ;
                     if ( addDiscovered ) {
@@ -304,7 +306,7 @@ define( [ "projects/file-browser", "browser/utils" ], function ( fileBrowser, ut
                         if ( showAll ) {
                             jQuery( '<optgroup/>', {
                                 class: "env-discovered env-spacer",
-                                label: ""
+                                label: "-------------------------------"
                             } ).appendTo( $environmentSelect ) ;
 
                             $discoveryGroup = jQuery( '<optgroup/>', {

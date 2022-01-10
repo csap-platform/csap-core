@@ -34,6 +34,7 @@ public class HealthForAgent {
 									ObjectNode activeServiceReport ,
 									TreeMap<String, Integer> serviceTotalCountMap ,
 									TreeMap<String, String> serviceTypeMap ,
+									TreeMap<String, String> serviceRuntimeMap ,
 									ObjectNode hostMapNode )
 		throws IOException ,
 		JsonParseException ,
@@ -61,6 +62,7 @@ public class HealthForAgent {
 
 			serviceTotalCountMap.put( ProcessRuntime.unregistered.getId( ), unregisteredContainers.size( ) ) ;
 			serviceTypeMap.put( ProcessRuntime.unregistered.getId( ), ProcessRuntime.unregistered.getId( ) ) ;
+			serviceRuntimeMap.put( ProcessRuntime.unregistered.getId( ), ProcessRuntime.os.getId( ) ) ;
 			activeServiceReport.put( ProcessRuntime.unregistered.getId( ), unregisteredContainers.size( ) ) ;
 
 		}
@@ -101,6 +103,9 @@ public class HealthForAgent {
 					} else {
 
 						serviceTypeMap.put( serviceName, serviceInstance.getServerUiIconType( ) ) ;
+
+						serviceRuntimeMap.put( serviceName, serviceInstance.getUiRuntime( )) ;
+						
 						activeServiceReport.put( serviceName, 0 ) ;
 
 					}

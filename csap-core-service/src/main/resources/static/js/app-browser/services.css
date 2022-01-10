@@ -355,6 +355,18 @@ article.content #services-tab-instances .options {
 	font-style: italic;
 	font-weight: bold;
 	align-items: center;
+	position: relative ;
+}
+
+#services-tab-content .summary .status button.service-alert-show {
+	position: absolute;
+	right: 1px;
+	bottom: 1px;
+	background-color: var(--nav-hover-background);
+}
+
+#services-tab-content .summary .status button.service-alert-show:hover {
+	background-color: var(--panel-header-bg);
 }
 
 #services-tab-content .summary .status>span {

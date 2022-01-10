@@ -1003,8 +1003,9 @@ public class ProjectLoader {
 						clusterServices.add( getNsMonitorName( namespace ) ) ;
 
 					} ) ;
-			
-			logger.info( "Generating namespace monitor cluster: {} {}", NAMESPACE_MONITORS, CSAP.jsonPrint( clusterDefinition ) );
+
+			logger.info( "Generating namespace monitor cluster: {} {}", NAMESPACE_MONITORS, CSAP.jsonPrint(
+					clusterDefinition ) ) ;
 
 			load_cluster(
 					NAMESPACE_MONITORS,
@@ -2024,12 +2025,10 @@ public class ProjectLoader {
 			}
 
 		}
-		/**
-		 *
-		 * Adds the common settings with optional overrides
-		 *
-		 */
 
+		//
+		// parse the definition included in the project file
+		//
 		serviceInstance.parseDefinition( csapProject.getSourceFileName( ), serviceDefinition, serviceParseResults ) ;
 
 		if ( serviceInstance.getContext( ).length( ) == 0 ) {
@@ -2060,7 +2059,9 @@ public class ProjectLoader {
 		//
 		// customize with either environment attributes, or load from disk
 		//
-		update_service_with_lifecycle_settings( serviceInstance, serviceDefinition, fullEnvironmentName, csapProject,
+		merge_service_overrides(
+				serviceInstance, serviceDefinition,
+				fullEnvironmentName, csapProject,
 				serviceParseResults ) ;
 
 		// Update Globals
@@ -2216,21 +2217,21 @@ public class ProjectLoader {
 
 	}
 
-	private void update_service_with_lifecycle_settings (
-															ServiceInstance serviceInstance ,
-															JsonNode serviceDefinition ,
-															String platformLifeCycle ,
-															Project csapPackage ,
-															StringBuilder resultsBuf ) {
+	private void merge_service_overrides (
+											ServiceInstance serviceInstance ,
+											JsonNode serviceDefinition ,
+											String environmentName ,
+											Project csapProject ,
+											StringBuilder results ) {
 
 		var serviceLifecycleSettings = serviceDefinition
 				.path( ServiceAttributes.environmentOverload.json( ) )
-				.path( platformLifeCycle ) ;
+				.path( environmentName ) ;
 
 		if ( serviceLifecycleSettings.isObject( ) ) {
 
 			serviceInstance.parseDefinition(
-					csapPackage.getSourceFileName( ),
+					csapProject.getSourceFileName( ),
 					serviceLifecycleSettings,
 					null ) ;
 
@@ -2241,70 +2242,72 @@ public class ProjectLoader {
 		//
 		var resourceFolder = ServiceResources.serviceResourceFolder( serviceInstance.getName( ) ) ;
 		var commonDefinition = new File( resourceFolder, "/common/" + CSAP_SERVICE_FILE ) ;
+		load_service_override_file( commonDefinition, serviceInstance, csapProject, results ) ;
 
-		checkForLegacyServiceMigration( commonDefinition ) ;
+		//
+		// check for file in base definitions
+		//
 
-		if ( commonDefinition.isFile( ) ) {
+		var imports = csapProject.getImports( environmentName ) ;
 
-			logger.debug( "loading {}: {}", CSAP_SERVICE_FILE, commonDefinition.getAbsolutePath( ) ) ;
+		if ( imports.isArray( ) ) {
 
-			try {
+			CSAP.jsonStream( imports )
+					.map( JsonNode::asText )
+					.forEach( importEnvName -> {
 
-//				var serviceDefinitionOverride = jsonMapper.readTree( commonDefinition ) ;
-				var processMessages = jsonMapper.createObjectNode( ) ;
-				var serviceDefinitionOverride = getProjectOperators( )
-						.loadYaml( commonDefinition, processMessages )
-						.get( 0 ) ;
+						var importEnvOverrideFile = new File( resourceFolder, "/" + importEnvName + "/"
+								+ CSAP_SERVICE_FILE ) ;
 
-				logger.debug( "serviceDefinitionOverride: {}", CSAP.jsonPrint( serviceDefinitionOverride ) ) ;
+						load_service_override_file( importEnvOverrideFile, serviceInstance, csapProject, results ) ;
 
-				serviceInstance.parseDefinition(
-						csapPackage.getSourceFileName( ),
-						serviceDefinitionOverride,
-						null ) ;
-
-			} catch ( Exception e ) {
-
-				var message = CSAP.buildDescription( "Failed parsing service definition",
-						"file", commonDefinition.getAbsolutePath( ),
-						"reason", CSAP.buildCsapStack( e ) ) ;
-				resultsBuf.append( message ) ;
-				logger.warn( message ) ;
-
-			}
+					} ) ;
 
 		}
 
-		var lifeDefinition = new File( resourceFolder, "/" + platformLifeCycle + "/" + CSAP_SERVICE_FILE ) ;
+		var currentEnvOverrideFile = new File( resourceFolder, "/" + environmentName + "/" + CSAP_SERVICE_FILE ) ;
+		load_service_override_file( currentEnvOverrideFile, serviceInstance, csapProject, results ) ;
 
-		checkForLegacyServiceMigration( lifeDefinition ) ;
+	}
 
-		if ( lifeDefinition.isFile( ) ) {
+	private void load_service_override_file (
+												File csapServiceDefinitionFile ,
+												ServiceInstance serviceInstance ,
+												Project csapProject ,
+												StringBuilder results ) {
 
-			logger.debug( "loading lifeDefinition: {}", lifeDefinition.getAbsolutePath( ) ) ;
+		checkForLegacyServiceMigration( csapServiceDefinitionFile ) ;
 
-			try {
+		if ( ! csapServiceDefinitionFile.isFile( ) ) {
+
+			logger.trace( "override file not found, ignoring: {}", csapServiceDefinitionFile.getAbsolutePath( ) ) ;
+
+			return ;
+
+		}
+
+		logger.debug( "loading currentEnvOverrideFile: {}", csapServiceDefinitionFile.getAbsolutePath( ) ) ;
+
+		try {
 
 //				var serviceDefinitionOverride = jsonMapper.readTree( lifeDefinition ) ;
-				var processMessages = jsonMapper.createObjectNode( ) ;
-				var serviceDefinitionOverride = getProjectOperators( )
-						.loadYaml( lifeDefinition, processMessages )
-						.get( 0 ) ;
-				logger.debug( "serviceDefinitionOverride: {}", CSAP.jsonPrint( serviceDefinitionOverride ) ) ;
+			var processMessages = jsonMapper.createObjectNode( ) ;
+			var serviceDefinitionOverride = getProjectOperators( )
+					.loadYaml( csapServiceDefinitionFile, processMessages )
+					.get( 0 ) ;
+			logger.debug( "serviceDefinitionOverride: {}", CSAP.jsonPrint( serviceDefinitionOverride ) ) ;
 
-				serviceInstance.parseDefinition(
-						csapPackage.getSourceFileName( ),
-						serviceDefinitionOverride,
-						null ) ;
+			serviceInstance.parseDefinition(
+					csapProject.getSourceFileName( ),
+					serviceDefinitionOverride,
+					null ) ;
 
-			} catch ( Exception e ) {
+		} catch ( Exception e ) {
 
-				var message = "Failed parsing default defintion, instead an empty default will be used." + CSAP
-						.buildCsapStack( e ) ;
-				resultsBuf.append( message ) ;
-				logger.warn( message ) ;
-
-			}
+			var message = "Failed parsing default defintion, instead an empty default will be used." + CSAP
+					.buildCsapStack( e ) ;
+			results.append( message ) ;
+			logger.warn( message ) ;
 
 		}
 
@@ -2962,7 +2965,7 @@ public class ProjectLoader {
 												String hostName ,
 												String apiServiceName ,
 												ClusterType clusterType ,
-												JsonNode osDefinition ,
+												JsonNode serviceDefinition ,
 												StringBuilder resultsBuf ,
 												Project testProject ,
 												String fullEnvironmentName ,
@@ -2980,27 +2983,26 @@ public class ProjectLoader {
 		serviceInstance.setContext( apiServiceName ) ;
 		serviceInstance.setPlatformVersion( platformLifeCycle ) ;
 
-		if ( osDefinition.has( "user" ) ) {
+		if ( serviceDefinition.has( "user" ) ) {
 
-			serviceInstance.setUser( osDefinition.path( "user" ).asText( ).trim( ) ) ;
+			serviceInstance.setUser( serviceDefinition.path( "user" ).asText( ).trim( ) ) ;
 
 		}
 
-		if ( osDefinition.has( "scmVersion" ) ) {
+		if ( serviceDefinition.has( "scmVersion" ) ) {
 
-			serviceInstance.setScmVersion( osDefinition.path( "scmVersion" ).asText( ).trim( ) ) ;
+			serviceInstance.setScmVersion( serviceDefinition.path( "scmVersion" ).asText( ).trim( ) ) ;
 
 		}
 
 		serviceInstance.setLifecycle( fullEnvironmentName ) ;
-		/**
-		 *
-		 * Adds the common settings with optional overrides
-		 *
-		 */
-		serviceInstance.parseDefinition( testProject.getSourceFileName( ), osDefinition, resultsBuf ) ;
 
-		update_service_with_lifecycle_settings( serviceInstance, osDefinition, platformLifeCycle, testProject,
+		//
+		// load the service using the contents of the project.json file
+		//
+		serviceInstance.parseDefinition( testProject.getSourceFileName( ), serviceDefinition, resultsBuf ) ;
+
+		merge_service_overrides( serviceInstance, serviceDefinition, platformLifeCycle, testProject,
 				resultsBuf ) ;
 
 		return serviceInstance ;

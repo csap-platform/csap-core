@@ -29,10 +29,14 @@
 
 			<span class="flex-right-info">
 				<label class=csap>
-					Filter:
 					<input
 						id="service-filter"
-						placeholder="service name">
+						title="enter name, runtime, or kind. To narrow scope, use: &#10;
+':err' : shows errors &#10;
+'name:VALUE' where VALUE is: service name &#10;
+'runtime:VALUE' where VALUE is:&#10;springboot, docker, tomcat, os, csap-api &#10;
+'kind:VALUE' where VALUE is: &#10;package, database, messaging, monitor, runtime, springboot, kubernetes &#10;"
+						placeholder="filter">
 					<a
 						title="click to remove filter"
 						id="clear-filter"

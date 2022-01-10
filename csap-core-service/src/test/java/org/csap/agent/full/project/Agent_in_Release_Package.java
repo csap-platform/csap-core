@@ -287,7 +287,7 @@ public class Agent_in_Release_Package {
 		assertThat(
 				csapApp.getRootProject( ).getLifecycleToClusterMap( ) )
 						.as( "Lifecycles to group in root model" )
-						.hasSize( 2 )
+						.hasSize( 3 )
 						.containsKey( "dev" ) ;
 
 		assertThat(
@@ -301,7 +301,7 @@ public class Agent_in_Release_Package {
 								"FactorySample",
 								"ServletSample",
 								"httpd",
-								"springmvc-showcase" ) ;
+								"demo-import-overrides" ) ;
 
 		assertThat( csapApp.getProject( Application.ALL_PACKAGES )
 				.getHostsForEnvironment( csapApp.getCsapHostEnvironmentName( ) ) )

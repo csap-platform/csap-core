@@ -275,9 +275,9 @@ define( [ "browser/utils", "file/log-formatters", "ace/ace", "ace/ext-modelist",
             _autoSelectViewFormat = !utils.isLogAutoFormatDisabled() ;
 
 
-            if ( $( this ).val().indexOf( ".gz" ) != -1 || $( this ).val().indexOf( ".zip" ) != -1 ) {
+            if ( isCompressedFile( $fileSelection.val() ) ) {
                 let inputMap = {
-                    fromFolder: $( this ).val(),
+                    fromFolder: $fileSelection.val(),
                     hostName: hostName
                 } ;
 
@@ -288,14 +288,16 @@ define( [ "browser/utils", "file/log-formatters", "ace/ace", "ace/ext-modelist",
                     lastIndex = downloadName.indexOf( "\\" ) ;
                 if ( lastIndex != -1 )
                     downloadName = downloadName.substring( lastIndex + 1 ) ;
-                console.log( "downloadName " + downloadName ) ;
-                postAndRemove( "_blank", "downloadFile/" + downloadName, inputMap ) ;
+                let downloadUrl = utils.agentUrl( hostName,
+                        `/file/downloadFile/${ downloadName }` ) ;
+                console.log( `downloading file:  ${ downloadName } from ${ downloadUrl } ` ) ;
+                postAndRemove( "_blank", downloadUrl, inputMap ) ;
                 return ;
             }
 
             lastSelectedFile = $fileSelection.val() ;
             reloadViewer() ;
-            return false ; // prevents link
+            return ; // prevents link
         } ) ;
 
         $( "input.pod-previous", $options ).change( function () {
@@ -445,8 +447,8 @@ define( [ "browser/utils", "file/log-formatters", "ace/ace", "ace/ext-modelist",
 
             let userTheme = $editorTheme.val() ;
 
-            if ( $formatSelection.val( ) == "text" 
-                    && ! isCsapDeployFileSelected() ) {
+            if ( $formatSelection.val( ) == "text"
+                    && !isCsapDeployFileSelected() ) {
                 userTheme = utils.getAceDefaults( "ace/mode/yaml", true ).theme ;
             }
 
@@ -494,6 +496,11 @@ define( [ "browser/utils", "file/log-formatters", "ace/ace", "ace/ext-modelist",
 //            //latest_changes_request();
 //            reloadViewer() ;
 //        }, 100 ) ;
+    }
+
+    function isCompressedFile( fileName ) {
+        return  fileName.indexOf( ".gz" ) != -1
+                || fileName.indexOf( ".zip" ) != -1
     }
 
     function buildFileCombo() {
@@ -792,6 +799,11 @@ define( [ "browser/utils", "file/log-formatters", "ace/ace", "ace/ext-modelist",
         //$('#serviceOps').css("display", "inline-block") ;
 
         let selectedItem = $fileSelection.val() ;
+
+        if ( isCompressedFile( $fileSelection.val() ) ) {
+            console.log( `Skipping tail - file selected is compressed file` ) ;
+            return ;
+        }
 
 
         let desktopTesting = utils.getParameterByName( "desktop" ).length > 0 ;

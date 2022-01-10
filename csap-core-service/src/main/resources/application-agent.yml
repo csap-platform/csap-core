@@ -54,8 +54,8 @@ csap-core:
       
       ingresses: /apis/networking.k8s.io/v1/namespaces/{0}/ingresses/{1}
       
-      cronjobs: /apis/batch/v1beta1/namespaces/{0}/cronjobs/{1}
-      jobs: /apis/batch/v1beta1/namespaces/{0}/jobs/{1}
+      cronjobs: /apis/batch/v1/namespaces/{0}/cronjobs/{1}
+      jobs: /apis/batch/v1/namespaces/{0}/jobs/{1}
       
       #
       # /apis/rbac.authorization.k8s.io

@@ -765,7 +765,7 @@ define( [ "services/kubernetes", "performance/summary-trends", "performance/even
                 containerServiceName,
                 "numberOfSamples" ) ;
                 
-        if ( containerServiceName != "docker" ) {
+        if ( !containerServiceName.includes( "docker" )  ) {
 
             summaryTrends.showTrend( $( "#crio-containers", $dockerTrends ),
                     "CRIO Containers",
@@ -1132,6 +1132,7 @@ define( [ "services/kubernetes", "performance/summary-trends", "performance/even
 
         if ( filterSpaceSeparated.length > 0 ) {
 
+            $kubeRtPodFilter.addClass("modified") ;
 
             $kubeRtClearPodFilter.css( "visibility", "visible" ) ;
             $rows.hide() ;
@@ -1139,6 +1140,7 @@ define( [ "services/kubernetes", "performance/summary-trends", "performance/even
                 $( 'td:contains("' + filter + '")', $rows ).parent().show() ;
             }
         } else {
+            $kubeRtPodFilter.removeClass("modified") ;
             $rows.show() ;
             $kubeRtClearPodFilter.css( "visibility", "hidden" ) ;
         }

@@ -25,9 +25,10 @@
 	                    <th style="width: 12em">Service  </th>
 	
 	                    <th style="width: 3em"
-	                        th:each="alert : ${ T(org.csap.agent.model.ServiceAlertsEnum).values() }"> 
+	                        th:each="alert : ${ csapAlerts }"> 
 	
-	                        [[ ${  T(org.csap.helpers.CSAP).camelToSnake( alert ) } ]] 
+	                        [[ ${  csapHelper.camelToSnake( alert ) } ]]
+	                        
 	                    </th>
 	
 	                </tr>

@@ -39,6 +39,7 @@ define( [ "ace/ace", "ace/ext-modelist", "jsYaml/js-yaml" ], function ( aceEdito
 
     let commentBlocks = [
         "alerts", "environmentVariables", "docker", "scheduledJobs", "performance", "files",
+        "environment-overload",	"source", "maven",
         "hosts", "template-references", "masters", "monitors",
         "configuration-maps", "vsphere"
     ] ;

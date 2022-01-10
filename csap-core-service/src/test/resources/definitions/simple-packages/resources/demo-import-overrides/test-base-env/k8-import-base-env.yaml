@@ -1,0 +1,20 @@
+
+#
+#  note a valid spec - testing overides only
+#
+kind: import-over-base-env
+
+apiVersion: apps/v1
+
+metadata:
+  name: $$service-name
+  namespace: $$service-namespace
+  labels:
+    run: $$service-name-id
+    
+spec:
+  selector:
+    matchLabels:
+      run: $$service-name-id
+      
+  replicas: $$service-replica-count

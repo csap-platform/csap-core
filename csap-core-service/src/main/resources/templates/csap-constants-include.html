@@ -14,8 +14,8 @@
 const CSAP_USER = [[ ${ csapUser } ]]; 
 const CSAP_SCM_USER = [[ ${ scmUser } ]]; 
 
-const AGENT_ID = [[ ${ T( org.csap.agent.CsapCore ).AGENT_ID } ]]; 
-const AGENT_NAME = [[ ${ T( org.csap.agent.CsapCore ).AGENT_NAME } ]]; 
+const AGENT_ID =  [[@{ ${ viewConstants.get("AGENT_ID") }}]];   
+const AGENT_NAME = [[@{ ${ viewConstants.get("AGENT_NAME") }}]]; 
 const AGENT_ENDPOINT = [[ ${ @application.getAgentEndpoint() } ]]; 
 const AGENT_URL_PATTERN = [[ ${ csapHostAgentPattern } ]]; 
 
@@ -55,11 +55,16 @@ const APP_ID = [[ ${ applicationId } ]] ;
 
 const HOST_ENVIRONMENT_NAME = [[ ${ csapHostEnvironmentName } ]];
 const LIFECYCLE = [[${lifecycle}]];
-const SERVICE_URL = [[@{ ${ T( org.csap.agent.CsapCoreService ).SERVICE_URL}}]];
+
+const SERVICE_URL = [[@{ ${ viewConstants.get("SERVICE_URL") }}]];
+
 const ACTIVITY_URL = SERVICE_URL + "/activityCount";
 
-const EDIT_URL = [[@{ ${ T( org.csap.agent.CsapCoreService ).EDIT_URL}}]] ;
-const SERVICE_DEF_URL = [[@{ ${ T( org.csap.agent.CsapCoreService ).DEFINITION_URL}}]] + '/service';
+const EDIT_URL = [[@{ ${ viewConstants.get("EDIT_URL") }}]]; 
+const SERVICE_DEF_URL = [[@{ ${ viewConstants.get("DEFINITION_URL") }}]] + '/service';
+const fileManagerUrl = [[@{ ${ viewConstants.get("FILE_MANAGER_URL") }}]];  
+
+
 const HISTORY_URL = [[ ${ HISTORY_URL } ]];
 const METRICS_URL = [[ ${ METRICS_URL } ]];
 const TREND_URL = SERVICE_URL + "/trend"; 
@@ -81,7 +86,6 @@ const explorerUrl = [[ @{ ${explorerUrl} }  ]];
 const vsphereEnabled = [[ ${vsphereEnabled }  ]];
 const containerUrl = [[ @{ ${ containerUrl} }  ]];
 const kubernetesApiUrl = [[ ${ kubernetesApiUrl }  ]];
-const fileManagerUrl = [[@{ ${ T( org.csap.agent.CsapCoreService ).FILE_MANAGER_URL}}]];
 
 //
 // legacy edit urls
@@ -90,7 +94,8 @@ const fileManagerUrl = [[@{ ${ T( org.csap.agent.CsapCoreService ).FILE_MANAGER_
 const reportUrl = SERVICE_URL + "/report";
 const trendUrl = SERVICE_URL + "/trend"; 
 
-var baseUrl = [[@{ ${ T( org.csap.agent.CsapCoreService ).BASE_URL}}]] ;
+
+var baseUrl = [[ @{ ${ viewConstants.get("BASE_URL") }} ]]; 
 
 const analyticsUrl = [[${analyticsUrl}]] ;
 const lifeEditUrl = EDIT_URL + '/lifecycle' ;
@@ -98,12 +103,12 @@ var serviceEditUrl = EDIT_URL + '/serviceDialog' ;
 const settingsEditUrl = EDIT_URL + '/settingsDialog' ;
 const clusterEditUrl = EDIT_URL + '/clusterDialog' ;
 
-var lifeUpdateUrl = [[@{ ${ T( org.csap.agent.CsapCoreService ).DEFINITION_URL}}]] + '/lifecycle' ;
-var settingsDefUrl = [[@{ ${ T( org.csap.agent.CsapCoreService ).DEFINITION_URL}}]] + '/settings' ;
-var clusterDefUrl = [[@{ ${ T( org.csap.agent.CsapCoreService ).DEFINITION_URL}}]] + '/cluster' ;
+var lifeUpdateUrl = [[@{ ${ viewConstants.get("DEFINITION_URL") }}]] + '/lifecycle' ;
+var settingsDefUrl = [[@{ ${ viewConstants.get("DEFINITION_URL") }}]] + '/settings' ;
+var clusterDefUrl = [[@{ ${ viewConstants.get("DEFINITION_URL") }}]] + '/cluster' ;
 
 
-var commandScreen = [[ @{ ${T( org.csap.agent.ui.windows.HostPortal ).COMMAND_SCREEN_URL } }]];
+var commandScreen = [[@{ ${ viewConstants.get("COMMAND_SCREEN_URL") }}]] ;
 
 </script>
 </head>

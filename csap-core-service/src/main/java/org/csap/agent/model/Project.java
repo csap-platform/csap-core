@@ -836,6 +836,20 @@ public class Project {
 
 	}
 
+	public JsonNode getImports ( String environmentName ) {
+
+		var envPath = "/" + ProjectLoader.ENVIRONMENTS + "/" + environmentName ;
+		var envSettingsPath = envPath + "/" + ProjectLoader.SETTINGS ;
+		var importEnvPath = envSettingsPath + "/" + ProjectLoader.ENVIRONMENT_IMPORTS ;
+
+		var imports = getSourceDefinition( ).at( importEnvPath ) ;
+
+		logger.trace( "path '{}; : {}", importEnvPath, imports ) ;
+		
+		return imports ;
+
+	}
+
 	public ObjectNode getSource ( ) {
 
 		ObjectNode editInProgressReport = jsonMapper.createObjectNode( ) ;

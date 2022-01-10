@@ -221,7 +221,7 @@
 				<td>
 					<a
 						class="csap-link"
-						th:href="@{/find-service/CSAP Platform/admin}">find-service</a>
+						th:href="@{/find-service/CSAP Platform/csap-verify-service}">find-service</a>
 				</td>
 				<td>Web App</td>
 				<td>service-portal, deployment, analytics, etc.</td>
@@ -239,17 +239,6 @@
 				</td>
 				<td>Web App</td>
 				<td>Show aggregate service health report across all hosts</td>
-			</tr>
-
-
-			<tr>
-				<td>
-					<a
-						class="csap-link"
-						th:href="@{/clusterDialog}"> clusterDialog </a>
-				</td>
-				<td>Web App</td>
-				<td>Browse hosts by cluster, and run scripts, browse the Files, launch host dashboard</td>
 			</tr>
 
 			<tr>
@@ -438,8 +427,8 @@
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=${T(org.csap.agent.CsapCore).AGENT_NAME},hostName='*') }">
-						[[ ${T(org.csap.agent.CsapCore).AGENT_NAME} ]] </a>
+						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=${viewConstants.get('AGENT_NAME')},hostName='*') }">
+						[[ ${viewConstants.get('AGENT_NAME')} ]] </a>
 
 
 
@@ -667,12 +656,12 @@
 				<td>
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap)}">DesktopCsap</a>
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap)}">SensusCsap</a>
 
 					<div class="code">reports</div>
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report=tableHost)}">Host</a>
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report=tableHost)}">Host</a>
 					<a
 						class="csap-link"
 						th:href="@{/os/performance(source=dev,life=dev,appId=netMetAppId,project='NetMet Services',report=tableHost)}">netMetAppId Host</a>
@@ -680,26 +669,26 @@
 
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report=tableUser)}">User</a>
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report=tableUser)}">User</a>
 
 
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report=os-process)}">osProcess</a>
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report=os-process)}">Service(os resource	)</a>
 
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report='os-process/detail',service=csap-agent)}">csap-agent
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report='os-process/detail',service=csap-agent)}">csap-agent
 						osProcess</a>
 
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report='java/detail',service=csap-agent)}">csap-agent
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report='java/detail',service=csap-agent)}">csap-agent
 						java</a>
 
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report='application/detail',service=csap-agent)}">csap-agent
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report='application/detail',service=csap-agent)}">csap-agent
 						application</a>
 						
 						
@@ -707,35 +696,35 @@
 					<div class="code">graphs</div>
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report='graphHost',service=csap-agent,host=localhost)}">localhost
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report='graphHost',service=csap-agent,host=localhost)}">localhost
 						host</a>
 
 
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report='graphOsProcess',service=csap-agent,host=localhost)}">
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report='graphOsProcess',service=csap-agent,host=localhost)}">
 						
 						osprocess csap-agent</a>
 
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report='graphJava',service=csap-agent,host=localhost)}">localhost
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report='graphJava',service=csap-agent,host=localhost)}">localhost
 						java csap-agent</a>
 
 
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report='graphJava',appGraph=appGraph,service=csap-agent,host=localhost)}">localhost
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report='graphJava',appGraph=appGraph,service=csap-agent,host=localhost)}">localhost
 						application csap-agent</a>
 						
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report='graphJava',appGraph=appGraph,service=csap-agent,host='csap-dev01,csap-dev02')}">
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report='graphJava',appGraph=appGraph,service=csap-agent,host='csap-dev01,csap-dev02')}">
 						application csap-agent dev1/2</a>
 						
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(source=dev,life=dev,appId=DesktopCsap,project='CSAP Platform',report='graphJava',appGraph=appGraph,service=test-k8s-csap-reference,host='csap-dev04,csap-dev05')}">
+						th:href="@{/os/performance(source=dev,life=dev,appId=SensusCsap,project='CSAP Platform',report='graphJava',appGraph=appGraph,service=test-k8s-csap-reference,host='csap-dev04,csap-dev05')}">
 						application test-k8s-csap-reference dev4/5</a>
 
 
@@ -844,7 +833,7 @@
 				<td>
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(source=dev,life=dev,host='csap-dev01',report=graphJmx,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap,appGraph=appGraph)}">
+						th:href="@{/os/performance(source=dev,life=dev,host='csap-dev01',report=graphJmx,project='CSAP Platform',service=${viewConstants.get('AGENT_NAME')},appId=SensusCsap,appGraph=appGraph)}">
 						csap agent Application: csap-dev01 </a>
 
 
@@ -902,7 +891,7 @@
 
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(life=dev,host='csap-dev01,csap-dev02',report=graphOsProcess,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap)}">
+						th:href="@{/os/performance(life=dev,host='csap-dev01,csap-dev02',report=graphOsProcess,project='CSAP Platform',service=${viewConstants.get('AGENT_NAME')},appId=SensusCsap)}">
 						csap agent OS</a>
 
 					<a
@@ -947,30 +936,30 @@
 				<td>
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(life=dev,host='csap-dev01',report=graphHost,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap,appGraph=appGraph)}">
+						th:href="@{/os/performance(life=dev,host='csap-dev01',report=graphHost,project='CSAP Platform',service=${viewConstants.get('AGENT_NAME')},appId=SensusCsap,appGraph=appGraph)}">
 						csap-dev01 host</a>
 
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(life=dev,host='csap-dev01',report=graphJmx,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap,appGraph=appGraph)}">
+						th:href="@{/os/performance(life=dev,host='csap-dev01',report=graphJmx,project='CSAP Platform',service=${viewConstants.get('AGENT_NAME')},appId=SensusCsap,appGraph=appGraph)}">
 						csap agent_APP</a>
 
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(life=dev,host='csap-dev01',report=graphJmx,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap)}">
+						th:href="@{/os/performance(life=dev,host='csap-dev01',report=graphJmx,project='CSAP Platform',service=${viewConstants.get('AGENT_NAME')},appId=SensusCsap)}">
 						csap agent_JMX</a>
 
 
 
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(life=dev,host='csap-dev01,csap-dev02,csap-dev03,csap-dev04',report=graphJmx,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap)}">
+						th:href="@{/os/performance(life=dev,host='csap-dev01,csap-dev02,csap-dev03,csap-dev04',report=graphJmx,project='CSAP Platform',service=${viewConstants.get('AGENT_NAME')},appId=SensusCsap)}">
 						csap agent_JMX_2hosts</a>
 
 
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(life=dev,host='csap-dev01,csap-dev02,csap-dev03,csap-dev04',report=graphJmx,appGraph=appGraph,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap)}">
+						th:href="@{/os/performance(life=dev,host='csap-dev01,csap-dev02,csap-dev03,csap-dev04',report=graphJmx,appGraph=appGraph,project='CSAP Platform',service=${viewConstants.get('AGENT_NAME')},appId=SensusCsap)}">
 						csap agent App 2 hosts</a>
 
 				</td>
@@ -988,18 +977,18 @@
 
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(source=dev,appId=SensusCsap,life=dev,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},report=graphOsProcess,host='csap-dev01,csap-dev02,csap-dev03,csap-dev04')}">
+						th:href="@{/os/performance(source=dev,appId=SensusCsap,life=dev,project='CSAP Platform',service=${viewConstants.get('AGENT_NAME')},report=graphOsProcess,host='csap-dev01,csap-dev02,csap-dev03,csap-dev04')}">
 						csap agent OS </a>
 
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(source=dev,appId=SensusCsap,life=dev,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},report=graphJmx,host='csap-dev01,csap-dev02,csap-dev03,csap-dev04')}">
+						th:href="@{/os/performance(source=dev,appId=SensusCsap,life=dev,project='CSAP Platform',service=${viewConstants.get('AGENT_NAME')},report=graphJmx,host='csap-dev01,csap-dev02,csap-dev03,csap-dev04')}">
 						csap agent JMX </a>
 
 
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(source=dev,appId=SensusCsap,life=dev,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},report=graphJmx,appGraph=appGraph,host='csap-dev01,csap-dev02,csap-dev03,csap-dev04')}">
+						th:href="@{/os/performance(source=dev,appId=SensusCsap,life=dev,project='CSAP Platform',service=${viewConstants.get('AGENT_NAME')},report=graphJmx,appGraph=appGraph,host='csap-dev01,csap-dev02,csap-dev03,csap-dev04')}">
 						csap agent APP </a>
 
 					<a
@@ -1040,19 +1029,19 @@
 				<td>
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(life=dev,report='service/detail',project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap)}">
+						th:href="@{/os/performance(life=dev,report='service/detail',project='CSAP Platform',service=${viewConstants.get('AGENT_NAME')},appId=SensusCsap)}">
 						Analytics: Csagent OS</a>
 
 
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(life=dev,report='jmx/detail',project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap)}">
+						th:href="@{/os/performance(life=dev,report='jmx/detail',project='CSAP Platform',service=${viewConstants.get('AGENT_NAME')},appId=SensusCsap)}">
 						Analytics: Csagent JMX</a>
 
 
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(life=dev,report='jmxCustom/detail',project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap)}">
+						th:href="@{/os/performance(life=dev,report='jmxCustom/detail',project='CSAP Platform',service=${viewConstants.get('AGENT_NAME')},appId=SensusCsap)}">
 						Analytics: Csagent Application</a>
 
 				</td>
@@ -1086,11 +1075,11 @@
 					csaptools:
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(test=dev,host='v01app-dev010',report=graphJmx,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap,appGraph=appGraph)}">
+						th:href="@{/os/performance(test=dev,host='v01app-dev010',report=graphJmx,project='CSAP Platform',service=${viewConstants.get('AGENT_NAME')},appId=SensusCsap,appGraph=appGraph)}">
 						csap agent_APP</a>
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(test=dev,host='v01app-dev010',report=graphJmx,project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap)}">
+						th:href="@{/os/performance(test=dev,host='v01app-dev010',report=graphJmx,project='CSAP Platform',service=${viewConstants.get('AGENT_NAME')},appId=SensusCsap)}">
 						csap agent_JMX</a>
 				</td>
 
@@ -1103,11 +1092,11 @@
 					csaptools:
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(test=dev,report='service/detail',project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap)}">
+						th:href="@{/os/performance(test=dev,report='service/detail',project='CSAP Platform',service=${viewConstants.get('AGENT_NAME')},appId=SensusCsap)}">
 						csap agent_OS</a>
 					<a
 						class="csap-link"
-						th:href="@{/os/performance(test=dev,report='jmxCustom/detail',project='CSAP Platform',service=${T(org.csap.agent.CsapCore).AGENT_NAME},appId=SensusCsap)}">
+						th:href="@{/os/performance(test=dev,report='jmxCustom/detail',project='CSAP Platform',service=${viewConstants.get('AGENT_NAME')},appId=SensusCsap)}">
 						csap agent_APP</a>
 				</td>
 
@@ -1178,24 +1167,24 @@
 
 					<a
 						class="csap-link"
-						th:href="@{/os/os-process(hosts=${host},service=${T(org.csap.agent.CsapCore).AGENT_NAME})}">csap agent all</a>
+						th:href="@{/os/os-process(hosts=${host},service=${viewConstants.get('AGENT_NAME')})}">csap agent all</a>
 
 
 					<a
 						class="csap-link"
-						th:href="@{/os/os-process(hosts=${host},graph='rssMemory',service=${T(org.csap.agent.CsapCore).AGENT_NAME})}">csap
+						th:href="@{/os/os-process(hosts=${host},graph='rssMemory',service=${viewConstants.get('AGENT_NAME')})}">csap
 						agent rss</a>
 
 
 					<a
 						class="csap-link"
-						th:href="@{/os/os-process(hosts=${host},graph='topCpu',service=${T(org.csap.agent.CsapCore).AGENT_NAME})}">csap
+						th:href="@{/os/os-process(hosts=${host},graph='topCpu',service=${viewConstants.get('AGENT_NAME')})}">csap
 						agent topCpu</a>
 
 
 					<a
 						class="csap-link"
-						th:href="@{/os/os-process(hosts=${host},graph='diskWriteKb',service=${T(org.csap.agent.CsapCore).AGENT_NAME})}">csap
+						th:href="@{/os/os-process(hosts=${host},graph='diskWriteKb',service=${viewConstants.get('AGENT_NAME')})}">csap
 						agent diskWriteKb</a>
 
 
@@ -1224,7 +1213,7 @@
 
 					<a
 						class="csap-link"
-						th:href="@{/os/java(hosts=${host},service=${T(org.csap.agent.CsapCore).AGENT_NAME})}">java graphs: csap agent</a>
+						th:href="@{/os/java(hosts=${host},service=${viewConstants.get('AGENT_NAME')})}">java graphs: csap agent</a>
 
 
 					<a
@@ -1248,14 +1237,14 @@
 				<td>
 					<a
 						class="csap-link"
-						th:href="@{/os/metricsData(metricChoice=application,hostName=localhost,serviceName=${T(org.csap.agent.CsapCore).AGENT_NAME})}">
+						th:href="@{/os/metricsData(metricChoice=application,hostName=localhost,serviceName=${viewConstants.get('AGENT_NAME')})}">
 						csap agent Custom Data</a>
 
 
 
 					<a
 						class="csap-link"
-						th:href="@{/os/application(hosts=${host},service=${T(org.csap.agent.CsapCore).AGENT_NAME})}">csap agent Graphs</a>
+						th:href="@{/os/application(hosts=${host},service=${viewConstants.get('AGENT_NAME')})}">csap agent Graphs</a>
 
 
 
@@ -1310,12 +1299,12 @@
 
 					<a
 						class="csap-link"
-						th:href="@{/file/FileMonitor(serviceName=${T(org.csap.agent.CsapCore).AGENT_NAME},isLogFile=true,hostName=localhost)}">
+						th:href="@{/file/FileMonitor(serviceName=${viewConstants.get('AGENT_NAME')},isLogFile=true,hostName=localhost)}">
 						File Monitor - csap agent </a>
 
 					<a
 						class="csap-link"
-						th:href="@{/file/FileMonitor(serviceName=${T(org.csap.agent.CsapCore).AGENT_NAME},isLogFile=true,hostName=localhost,corsHost=csap-dev01.***REMOVED***)}">
+						th:href="@{/file/FileMonitor(serviceName=${viewConstants.get('AGENT_NAME')},isLogFile=true,hostName=localhost,corsHost=csap-dev01.***REMOVED***)}">
 						File Monitor - CORS </a>
 
 				</td>
@@ -1327,7 +1316,7 @@
 				<td>
 					<a
 						class="csap-link"
-						th:href="@{/file/FileManager(serviceName=${T(org.csap.agent.CsapCore).AGENT_NAME},fromFolder=.)}"> File Manager
+						th:href="@{/file/FileManager(serviceName=${viewConstants.get('AGENT_NAME')},fromFolder=.)}"> File Manager
 						- csap agent </a>
 
 

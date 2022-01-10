@@ -7,6 +7,7 @@ import java.net.URI ;
 import java.util.stream.Collectors ;
 
 import org.csap.agent.CsapBareTest ;
+import org.csap.agent.CsapCore ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.DefinitionConstants ;
 import org.csap.agent.model.Project ;
@@ -17,7 +18,7 @@ import org.csap.helpers.CsapApplication ;
 import org.junit.jupiter.api.BeforeAll ;
 import org.junit.jupiter.api.Test ;
 
-class Model_Templates extends CsapBareTest {
+class Service_Templates extends CsapBareTest {
 
 	String definitionPath = "/definitions/simple-packages/main-project.json" ;
 	File csapApplicationDefinition = new File( getClass( ).getResource( definitionPath ).getPath( ) ) ;
@@ -126,7 +127,10 @@ class Model_Templates extends CsapBareTest {
 
 		var verifyService = getApplication( ).findFirstServiceInstanceInLifecycle( "csap-verify-service" ) ;
 		logger.info( "serviceFromExternalDef: {}", verifyService ) ;
+
 		assertThat( verifyService ).isNotNull( ) ;
+
+		assertThat( verifyService.getRawAutoStart( ) ).isEqualTo( 9999 ) ;
 
 		// ensure release package has all names
 		assertThat( getApplication( ).getActiveProject( ).getAllPackagesModel( ).getServiceNamesInLifecycle( ) )
@@ -134,9 +138,125 @@ class Model_Templates extends CsapBareTest {
 
 		var definition = getApplication( ).getRootProject( ).findAndCloneServiceDefinition( verifyService.getName( ) ) ;
 
-		logger.info( "definition: {}", CSAP.jsonPrint( definition ) ) ;
+		logger.debug( "definition: {}", CSAP.jsonPrint( definition ) ) ;
 
 		assertThat( definition.path( ServiceAttributes.port.json( ) ).asInt( ) ).isEqualTo( 7011 ) ;
+
+	}
+
+	@Test
+	void verify_import_overrides ( ) {
+
+		logger.info( CsapApplication.testHeader( ) ) ;
+
+		var demoWithOverridesService = getApplication( )
+				.findFirstServiceInstanceInLifecycle( "demo-import-overrides" ) ;
+
+		logger.info( "demoWithOverridesService: {}", demoWithOverridesService ) ;
+
+		assertThat( demoWithOverridesService ).isNotNull( ) ;
+
+		assertThat( demoWithOverridesService.getParameters( ) ).isEqualTo( "base params" ) ;
+
+		assertThat( demoWithOverridesService.getRawAutoStart( ) ).isEqualTo( 9001 ) ;
+
+		assertThat( demoWithOverridesService.getPort( ) ).isEqualTo( "8001" ) ;
+
+		assertThat( demoWithOverridesService.getDescription( ) ).isEqualTo( "dev description" ) ;
+
+		assertThat( demoWithOverridesService.getDeploymentNotes( ) ).isEqualTo( "test-base-env notes" ) ;
+		
+
+
+		assertThat( demoWithOverridesService.getKubernetesReplicaCount( ).asInt( ) ).isEqualTo( 9 ) ;
+
+		// ensure release package has all names
+		assertThat( getApplication( ).getActiveProject( ).getAllPackagesModel( ).getServiceNamesInLifecycle( ) )
+				.contains( demoWithOverridesService.getName( ) ) ;
+		
+		//
+		//  verify kubernetes yaml specs
+		//
+		var specUriStream = getServiceOsManager( ).buildSpecificationFileArray(
+				demoWithOverridesService,
+				demoWithOverridesService.getKubernetesDeploymentSpecifications( ) ) ;
+
+		var specPathList = specUriStream.collect( Collectors.toList( ) ) ;
+		logger.info( "specFiles: {}", specPathList ) ;
+
+		assertThat( specPathList.size( ) ).isEqualTo( 3 ) ;
+		assertThat( specPathList.toString( ) )
+				.doesNotContain( CsapCore.SEARCH_RESOURCES )
+				.contains( "definitions/simple-packages/resources/demo-import-overrides/common/k8-import-sample.yaml" )
+				.contains( "definitions/simple-packages/resources/demo-import-overrides/dev/k8-import-over.yaml" ) 
+				.contains( "definitions/simple-packages/resources/demo-import-overrides/test-base-env/k8-import-base-env.yaml" ) ;
+
+		var sampleDeployYamlFileNames = specPathList.stream( )
+				.map( specUri -> new File( specUri ) )
+				.collect( Collectors.toList( ) ) ;
+		
+		var notOverridenDeploySpec = sampleDeployYamlFileNames.get( 0 ) ;
+
+		// getServiceOsManager().buildYamlTemplate( simpleService, sourceFile ) ;
+		var sampleDeployFileContents = Application.readFile( notOverridenDeploySpec ) ;
+		logger.info( "Original yaml: {} ", sampleDeployFileContents ) ;
+
+		assertThat( sampleDeployFileContents ).contains( "$$service-name" ) ;
+		
+		var deploymentFile = getServiceOsManager( )
+				.buildDeplomentFile( demoWithOverridesService, notOverridenDeploySpec, getJsonMapper( ).createObjectNode( ) ) ;
+
+		var yaml_with_vars_updated = Application.readFile( deploymentFile ) ;
+
+		logger.info( "deploymentFile: {} yaml_with_vars_updated: {} ", deploymentFile, yaml_with_vars_updated ) ;
+
+		assertThat( yaml_with_vars_updated )
+				.doesNotContain( CsapCore.CSAP_VARIABLE_PREFIX )
+				.doesNotContain( "$$service-name" )
+				.doesNotContain( "$$service-namespace" )
+				.contains( "demo-import-overrides-id" ) ;
+
+		//
+		//  OverRidden current environment
+		//
+		var devDeploySpec = sampleDeployYamlFileNames.get( 1 ) ;
+		
+		var devDeploymentFile = getServiceOsManager( )
+				.buildDeplomentFile( demoWithOverridesService, devDeploySpec, getJsonMapper( ).createObjectNode( ) ) ;
+
+		yaml_with_vars_updated = Application.readFile( devDeploymentFile ) ;
+
+		logger.info( "devDeploySpec:{} yaml_with_vars_updated: {} ", devDeploySpec, yaml_with_vars_updated ) ;
+
+		assertThat( yaml_with_vars_updated )
+				.doesNotContain( CsapCore.CSAP_VARIABLE_PREFIX )
+				.doesNotContain( "$$service-name" )
+				.doesNotContain( "$$service-namespace" )
+				.doesNotContain( "import-over-base" )
+				.contains( "import-over-dev" ) ;
+		
+
+
+		//
+		//  OverRidden - imports from base
+		//
+		var baseDeploySpec = sampleDeployYamlFileNames.get( 2 ) ;
+		
+		var baseDeploymentFile = getServiceOsManager( )
+				.buildDeplomentFile( demoWithOverridesService, baseDeploySpec, getJsonMapper( ).createObjectNode( ) ) ;
+
+		yaml_with_vars_updated = Application.readFile( baseDeploymentFile ) ;
+
+		logger.info( "baseDeploymentFile:{} yaml_with_vars_updated: {} ", baseDeploymentFile, yaml_with_vars_updated ) ;
+
+		assertThat( yaml_with_vars_updated )
+				.doesNotContain( CsapCore.CSAP_VARIABLE_PREFIX )
+				.doesNotContain( "$$service-name" )
+				.doesNotContain( "$$service-namespace" )
+				.doesNotContain( "import-should-not-be-used" )
+				.contains( "import-over-base-env" ) ;
+
+
 
 	}
 

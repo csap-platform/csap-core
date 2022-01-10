@@ -1455,35 +1455,35 @@ public class KubernetesIntegration {
 		if ( decodedResourcePath.startsWith( KubernetesExplorer.CSAP_PATH ) ) {
 
 			// namespace = "--namespace=" + resourceLinkPaths[5] ;
-			type = resourceLinkPaths[ 2 ] ;
+			type = resourceLinkPaths[2] ;
 
 			if ( resourceLinkPaths.length > 3 ) {
 
-				namespace = "--namespace=" + resourceLinkPaths[ 3 ] ;
+				namespace = "--namespace=" + resourceLinkPaths[3] ;
 
 			}
 
 		} else if ( resourceLinkPaths.length == 8 ) {
 
-			namespace = "--namespace=" + resourceLinkPaths[ 5 ] ;
-			type = resourceLinkPaths[ 6 ] ;
-			source = resourceLinkPaths[ 7 ] ;
+			namespace = "--namespace=" + resourceLinkPaths[5] ;
+			type = resourceLinkPaths[6] ;
+			source = resourceLinkPaths[7] ;
 
 		} else if ( resourceLinkPaths.length == 7 ) {
 
-			namespace = "--namespace=" + resourceLinkPaths[ 4 ] ;
-			type = resourceLinkPaths[ 5 ] ;
-			source = resourceLinkPaths[ 6 ] ;
+			namespace = "--namespace=" + resourceLinkPaths[4] ;
+			type = resourceLinkPaths[5] ;
+			source = resourceLinkPaths[6] ;
 
 		} else if ( resourceLinkPaths.length == 6 ) {
 
-			type = resourceLinkPaths[ 4 ] ;
-			source = resourceLinkPaths[ 5 ] ;
+			type = resourceLinkPaths[4] ;
+			source = resourceLinkPaths[5] ;
 
 		} else if ( resourceLinkPaths.length == 5 ) {
 
-			type = resourceLinkPaths[ 3 ] ;
-			source = resourceLinkPaths[ 4 ] ;
+			type = resourceLinkPaths[3] ;
+			source = resourceLinkPaths[4] ;
 
 		}
 
@@ -1495,12 +1495,12 @@ public class KubernetesIntegration {
 //		if ( resourceLinkPaths.length == 8
 //				&& ! resourceLinkPaths[1].equals( "v1" ) ) {
 		if ( resourceLinkPaths.length > 5
-				&& resourceLinkPaths[ 2 ].equals( "metrics.k8s.io" ) ) {
+				&& resourceLinkPaths[2].equals( "metrics.k8s.io" ) ) {
 
 			// /apis/metrics.k8s.io/v1beta1/namespaces/csap-monitoring/pods/alertmanager-main-0
 			// becomes: pods.v1beta1.metrics.k8s.io
 
-			type += "." + resourceLinkPaths[ 3 ] + "." + resourceLinkPaths[ 2 ] ;
+			type += "." + resourceLinkPaths[3] + "." + resourceLinkPaths[2] ;
 
 		}
 
@@ -1728,7 +1728,7 @@ public class KubernetesIntegration {
 
 							logger.debug( "event: \n {}", CSAP.jsonPrint( eventItemReport ) ) ;
 
-							String simpleHost = hostSplit( event.getSource( ).getHost( ) )[ 0 ] ;
+							String simpleHost = hostSplit( event.getSource( ).getHost( ) )[0] ;
 							attributes.put( "simpleHost", simpleHost ) ;
 							attributes.put( "simpleName", mapEventName( event ) ) ;
 
@@ -1932,7 +1932,7 @@ public class KubernetesIntegration {
 
 		try {
 
-			mappedName = name.split( Pattern.quote( "." ) )[ 0 ] ;
+			mappedName = name.split( Pattern.quote( "." ) )[0] ;
 			var involveType = event.getInvolvedObject( ).getKind( ) ;
 
 			var samplePodSuffix = "-68c79575cc-95bwz" ;
@@ -2771,7 +2771,7 @@ public class KubernetesIntegration {
 
 	}
 
-	public String ingressUrl ( Application csapApp , String path , String ingressHost ) {
+	public String ingressUrl ( Application csapApp , String path , String ingressHost, boolean ssl ) {
 
 		if ( StringUtils.isEmpty( ingressHost ) ) {
 
@@ -2779,7 +2779,9 @@ public class KubernetesIntegration {
 
 		}
 
-		return nodePortUrl( csapApp, INGRESS_NGINX_SERVICE, ingressHost, path, false ) ;
+//		return nodePortUrl( csapApp, INGRESS_NGINX_SERVICE, ingressHost, path, false ) ;
+		// enable launch to ssl service
+		return nodePortUrl( csapApp, INGRESS_NGINX_SERVICE, ingressHost, path, ssl ) ;
 
 	}
 
@@ -2792,11 +2794,19 @@ public class KubernetesIntegration {
 
 		var hostPort = hostAndMaybePort.split( ":", 2 ) ;
 
-		String location = csapApp.getAgentUrl( hostPort[ 0 ], path ) ;
+		//
+		// convenience - swap in the ingress host using the agentUrl
+		// note - ssl has to be handled....
+		//
+		var location = csapApp.getAgentUrl( hostPort[0], path ) ;
 
 		var serviceNodePort = nodePort( serviceName ) ;
 		var serviceNodePortFull = ":" + serviceNodePort ;
 
+		//
+		//  node port will be 0 if service does not exist
+		// 	eg. typically ingress deployment uses host networking (80 or 443)
+		//
 		if ( serviceNodePort == 0 ) {
 
 			serviceNodePortFull = "" ;
@@ -2806,18 +2816,19 @@ public class KubernetesIntegration {
 		if ( hostPort.length == 2 ) {
 
 			// ingress is on a host network
-			serviceNodePortFull = ":" + hostPort[ 1 ] ;
+			serviceNodePortFull = ":" + hostPort[1] ;
 
 		}
 
 		//
-		// replace agent http and https endpoints
-		//
+		// replace agent http and https context with that from ingresshost
+		//  eg. :8011/path becomes :ingressport/path
 		var finalLocation = location.replaceAll(
 				Matcher.quoteReplacement( csapApp.getAgentEndpoint( ) ),
 				serviceNodePortFull ) ;
 
-		finalLocation = location.replaceAll(
+		// finalLocation = location.replaceAll(
+		finalLocation = finalLocation.replaceAll(
 				Matcher.quoteReplacement( csapApp.getAgentSslPortAndContext( ) ),
 				serviceNodePortFull ) ;
 

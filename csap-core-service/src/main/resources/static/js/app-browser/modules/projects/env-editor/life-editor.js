@@ -110,7 +110,6 @@ define( requireJsDefinitionFiles, function ( utils, serviceEdit, settingsEdit, c
         utils.loadingComplete() ;
 
         $( ".lifeSelection" ).selectmenu( {
-            width: "10em",
             change: function () {
                 console.log( "showLifeEditor editing env: " + $( this ).val() ) ;
                 loadEnvironmentTemplate( $( this ).val(), utils.getActiveProject() ) ;

@@ -3359,10 +3359,15 @@ public class ServiceOsManager {
 		if ( specificationCsapPaths.isArray( ) ) {
 
 			return CSAP.jsonStream( specificationCsapPaths )
+
 					.map( JsonNode::asText )
+
 					.filter( StringUtils::isNotEmpty )
-					.map( specificationCsapPath -> csapApp.resolveDefinitionVariables( specificationCsapPath,
+
+					.map( specificationCsapPath -> csapApp.resolveDefinitionVariables(
+							specificationCsapPath,
 							serviceInstance ) )
+
 					.map( specificationCsapPath -> {
 
 						var resolvedResourcePath = new File( specificationCsapPath ).toURI( ) ;
@@ -3375,8 +3380,10 @@ public class ServiceOsManager {
 
 								// Always use current application resource if it exists
 								var definitionPath = "" ;
-								var applicationResourceURI = performSearchForResources( serviceName,
-										specificationCsapPath, definitionPath ) ;
+								var applicationResourceURI = performSearchForResources(
+										serviceName,
+										specificationCsapPath,
+										definitionPath ) ;
 								var applicationResourceSpec = new File( applicationResourceURI ) ;
 
 								logger.debug( "applicationResourceSpec: {}", applicationResourceSpec ) ;
@@ -3449,16 +3456,73 @@ public class ServiceOsManager {
 
 		}
 
-		// check for lifecycle
-		var lifecycleSpec = specificationPath.replaceAll(
+		//
+		// check for base environments
+		//
+
+		var imports = csapApp.getRootProject( ).getImports( csapApp.getCsapHostEnvironmentName( ) ) ;
+
+		if ( imports.isArray( ) ) {
+
+			var baseEnvMatches = CSAP.jsonStream( imports )
+					.map( JsonNode::asText )
+					.map( importEnvName -> {
+
+						var baseEnvSpec = specificationPath.replaceAll(
+								Pattern.quote( CsapCore.SEARCH_RESOURCES ),
+								resourceFolderUri + importEnvName + "/" ) ;
+
+						return baseEnvSpec ;
+
+					} )
+					.filter( baseEnvSpec -> {
+
+						try {
+
+							var baseEnvFile = new File( new URI( baseEnvSpec ) ) ;
+							logger.debug( "lifecycleSpec: {} lifecycleFile: {}", baseEnvSpec, baseEnvFile
+									.getAbsolutePath( ) ) ;
+
+							if ( baseEnvFile.exists( ) ) {
+
+								return true ;
+
+							}
+
+						} catch ( Exception e ) {
+
+							logger.info( "Failed to process path: {}", baseEnvSpec ) ;
+
+						}
+
+						return false ;
+
+					} )
+					.collect( Collectors.toList( ) ) ;
+
+			if ( baseEnvMatches.size( ) > 0 ) {
+
+				specificationLocationOnDisk = baseEnvMatches.get( baseEnvMatches.size( ) - 1 ) ;
+				logger.debug( CSAP.buildDescription( "base env matches found",
+						"baseEnvMatches", baseEnvMatches,
+						"specificationLocationOnDisk", specificationLocationOnDisk ) ) ;
+
+			}
+
+		}
+
+		//
+		// check for current environment
+		//
+		var environmentSpec = specificationPath.replaceAll(
 				Pattern.quote( CsapCore.SEARCH_RESOURCES ),
 				resourceFolderUri + csapApp.getCsapHostEnvironmentName( ) + "/" ) ;
-		var lifecycleFile = new File( new URI( lifecycleSpec ) ) ;
-		logger.debug( "lifecycleSpec: {} lifecycleFile: {}", lifecycleSpec, lifecycleFile.getAbsolutePath( ) ) ;
+		var environmentFile = new File( new URI( environmentSpec ) ) ;
+		logger.debug( "lifecycleSpec: {} lifecycleFile: {}", environmentSpec, environmentFile.getAbsolutePath( ) ) ;
 
-		if ( lifecycleFile.exists( ) ) {
+		if ( environmentFile.exists( ) ) {
 
-			specificationLocationOnDisk = lifecycleSpec ;
+			specificationLocationOnDisk = environmentSpec ;
 
 		}
 

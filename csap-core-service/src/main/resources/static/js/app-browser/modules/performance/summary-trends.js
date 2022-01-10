@@ -135,7 +135,10 @@ define( [ "browser/utils" ], function ( utils ) {
     }
 
 
-    function runSummaryForReport( $container, theTitle, byHost, graphsPerScreen, report, numberOfDays, metricId, serviceName, divideBy ) {
+    function runSummaryForReport(
+            $container, theTitle, byHost,
+            graphsPerScreen, report, numberOfDays,
+            metricId, serviceName, divideBy ) {
 
 
         let retryFunction = function () {
@@ -182,11 +185,12 @@ define( [ "browser/utils" ], function ( utils ) {
         let $trendSlide = $( ".trend-slide", $container.parent() ) ;
         if ( ( $slideShow.length > 0 )
                 && $slideShow.is( ":checked" ) ) {
+
             let trendWidth = Math.round( $performanceTab.outerWidth( true ) / 5 ) + 10 ;
             let originalWidth = trendWidth ;
-//            if ( trendWidth < 200 ) {
-//                trendWidth = 200 ;
-//            }
+            //            if ( trendWidth < 200 ) {
+            //                trendWidth = 200 ;
+            //            }
             trendHeight = Math.round( trendWidth / 2 ) ;
             $container.css( "display", "inline-block" ) ;
             $container.css( "width", trendWidth + "px" ) ;
@@ -196,7 +200,18 @@ define( [ "browser/utils" ], function ( utils ) {
             let slideHeight = Math.round( $( window ).outerHeight() / 2 ) ;
             $trendSlide.css( "height", slideHeight ) ;
             $trendSlide.show() ;
-            $trendSlide.empty() ;
+
+            // only clear when SELECTED slide is being redisplayed
+            let pageKey = $container.parent().parent().attr( "id" ) ;
+            let resetSlideView = slideIndex[ pageKey ] == plotId ;
+            if ( resetSlideView ) {
+                $trendSlide.empty() ;
+
+                $trendSlide.append( jQuery( '<div/>', {
+                    class: "loadingPanel loading-message",
+                    text: `Building: ${ theTitle }`
+                } ) )
+            }
         } else {
             $trendSlide.hide() ;
             $container.css( "display", "" ) ;
@@ -287,7 +302,10 @@ define( [ "browser/utils" ], function ( utils ) {
                 reportParameters )
 
                 .done( function ( reportResponse ) {
-                    buildSummaryReportTrend( byHost, retryFunction, theTitle, attemptKey, metricId, plotId, report, serviceName, reportResponse ) ;
+                    buildSummaryReportTrend(
+                            byHost, retryFunction, theTitle,
+                            attemptKey, metricId, plotId,
+                            report, serviceName, reportResponse ) ;
 
                 } )
 
@@ -301,7 +319,10 @@ define( [ "browser/utils" ], function ( utils ) {
     }
 
 
-    function    buildSummaryReportTrend( byHost, retryFunction, theTitle, attemptKey, selectedColumn, containerId, report, serviceName, reportData ) {
+    function    buildSummaryReportTrend(
+            byHost, retryFunction, theTitle,
+            attemptKey, selectedColumn, containerId,
+            report, serviceName, reportData ) {
 
         console.log( `buildSummaryReportTrend() : ${theTitle}` ) ;
 
@@ -409,7 +430,7 @@ define( [ "browser/utils" ], function ( utils ) {
         $jqPlotTitle.off().click( function () {
 
             slideIndex[ pageKey ] = $( this ).parent().attr( "id" ) ;
-            console.log( `slideIndex: `, slideIndex ) ;
+            console.log( `selected slide: ${pageKey}: ${ slideIndex[ pageKey ] } `, slideIndex ) ;
             $slideShow
                     .prop( "checked", true )
                     .trigger( "change" ) ;
@@ -429,6 +450,7 @@ define( [ "browser/utils" ], function ( utils ) {
             console.log( `Checking ${ containerId }`, slideIndex ) ;
             if ( slideIndex[ pageKey ] == containerId ) {
                 console.log( `slideId: ${plotSlideId}` ) ;
+                $trendSlide.empty() ;
                 let $slidePlot = jQuery( '<div/>', { id: plotSlideId } ) ;
                 $slidePlot.appendTo( $trendSlide ) ;
 
@@ -448,6 +470,23 @@ define( [ "browser/utils" ], function ( utils ) {
                         .appendTo( $trendSlide ) ;
 
                 registerTrendEvents( byHost, graphLabels, $trendSlide, report, selectedColumn, serviceName ) ;
+
+
+                let $plotButtons = $( ".jqplot-title span.show-slide", $trendSlide ) ;
+                let $closeButton = jQuery( '<button/>', {
+                    class: "csap-icon csap-remove",
+                    title: "Close slide show mode"
+                } )
+                        .css( "margin-left", "4px" ) ;
+                $plotButtons.append( $closeButton ) ;
+
+                $closeButton.off().click( function () {
+                    $slideShow
+                            .prop( "checked", false )
+                            .trigger( "change" ) ;
+                } ) ;
+
+                $( ".jqplot-title span.show-slide", $trendSlide ).removeClass( "show-slide" ) ;
             }
         } else {
             registerTrendEvents( byHost, graphLabels, $plotParent, report, selectedColumn, serviceName ) ;
@@ -562,7 +601,7 @@ define( [ "browser/utils" ], function ( utils ) {
             $plotParent.css( "display", "grid" ) ;
         }
 
-        theTitle = `<span>${ theTitle }</span>` ;
+        theTitle = `<span class="show-slide" title="${theTitle}">${ theTitle }</span>` ;
         let plotSettings = {
             title: theTitle,
             seriesColors: CSAP_THEME_COLORS,
@@ -635,14 +674,16 @@ define( [ "browser/utils" ], function ( utils ) {
             //console.log( "rebinding events - because cursor zooms will loose them" );
             let $jqPlotTitle = $( ".jqplot-title", $trendContainer ) ;
 
-            $( "button.csap-button-icon", $jqPlotTitle ).remove() ;
+            let $buttonContainer = jQuery( '<span/>', { class: "b-container" } ) ;
+            $jqPlotTitle.append( $buttonContainer ) ;
+
+            //$( "button.csap-button-icon", $jqPlotTitle ).remove() ;
 
             let $viewButton = jQuery( '<button/>', {
-                class: "csap-button-icon launch-window",
+                class: "csap-icon csap-graph",
                 title: "Open in Analytics Portal" } ) ;
+            $buttonContainer.append( $viewButton ) ;
 
-
-            $jqPlotTitle.append( $viewButton ) ;
             $viewButton.off().click( function () {
                 let urlAction = `${ ANALYTICS_URL }&project=${ utils.getActiveProject() }&appId=${ utils.getAppId() }&` ;
 

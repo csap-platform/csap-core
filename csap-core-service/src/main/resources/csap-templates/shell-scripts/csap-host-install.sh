@@ -40,7 +40,7 @@ function configure() {
 	#
 	csapZipUrl="http://${csapFqdn:-$(hostname --long)}:${agentPort:-8011}/api/agent/installer"
 	# csapZipUrl="http://***REMOVED***.***REMOVED***:8081/artifactory/csap-snapshots/org/csap/csap-host/2-SNAPSHOT/csap-host-2-SNAPSHOT.zip"
-	# csapZipUrl="http://***REMOVED***.***REMOVED***:8081/artifactory/csap-release/org/csap/csap-host/21.10/csap-host-21.10.zip"
+	# csapZipUrl="http://***REMOVED***.***REMOVED***:8081/artifactory/csap-release/org/csap/csap-host/21.11/csap-host-21.11.zip"
 	
 
 }
@@ -89,7 +89,13 @@ function generate_autoplay_template() {
 	replace_all_in_file '$managerHost' "$managerHost" $installerFile
 	replace_all_in_file '$workerHosts' "$(comma_separate $workerHosts)" $installerFile
 	
-	local myDomain=$(expr "$(hostname --long)" : '[^.][^.]*\.\(.*\)')
+	local csapFqdn="$(hostname --long)";
+	if [ -n "$dockerHostFqdn" ] && [ "$dockerHostFqdn" != "container" ] ; then 
+		print_line "dockerHostFqdn is set '$dockerHostFqdn', it will be used instead of hostname: '$csapFqdn' " ;
+		csapFqdn="$dockerHostFqdn" ;
+	fi;
+	
+	local myDomain=$(expr "$csapFqdn" : '[^.][^.]*\.\(.*\)')
 	replace_all_in_file '$hostDomain' "$myDomain" $installerFile
 	
 	if [ $includeTemplates == "includeTemplates" ] ; then
@@ -259,7 +265,7 @@ function remote_installer () {
 	
 		# reset run on all hosts in parallel
 		run_remote $remoteUser $hostsRootPassword "$hostsToInstall" \
-			'source installer/csap-environment.sh ; nfs_remove_mount /mnt/nfsshare ; perform_kubeadm_reset &> csap-clean.txt &'
+			'source installer/csap-environment.sh ;  perform_kubeadm_reset &> csap-clean.txt &'
 		
 		# wait on each host in turn to complete
 		run_remote $remoteUser $hostsRootPassword "$hostsToInstall" \

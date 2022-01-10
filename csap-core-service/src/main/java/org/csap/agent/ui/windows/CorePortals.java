@@ -31,6 +31,7 @@ import org.csap.agent.model.Application ;
 import org.csap.agent.model.EnvironmentSettings ;
 import org.csap.agent.model.ProcessRuntime ;
 import org.csap.agent.model.Project ;
+import org.csap.agent.model.ServiceAlertsEnum ;
 import org.csap.agent.model.ServiceInstance ;
 import org.csap.agent.services.OsManager ;
 import org.csap.agent.services.ServiceOsManager ;
@@ -292,6 +293,12 @@ public class CorePortals {
 		if ( logger.isDebugEnabled( ) ) {
 
 			logger.debug( " Entered" ) ;
+
+		}
+
+		if ( StringUtils.isEmpty( projectName ) ) {
+
+			projectName = application.getActiveProjectName( ) ;
 
 		}
 
@@ -655,6 +662,7 @@ public class CorePortals {
 	@GetMapping ( "/location/ingress" )
 	public void ingressRedirect (
 									@RequestParam String path ,
+									@RequestParam ( defaultValue = "false" ) boolean ssl ,
 									String serviceName ,
 									boolean debug ,
 									HttpServletResponse response )
@@ -699,7 +707,7 @@ public class CorePortals {
 
 		}
 
-		String location = application.getKubernetesIntegration( ).ingressUrl( application, path, ingressHost ) ;
+		String location = application.getKubernetesIntegration( ).ingressUrl( application, path, ingressHost, ssl ) ;
 
 		logger.info( "Path location: '{}'", location ) ;
 		response.setHeader( "Location", location ) ;
@@ -740,21 +748,20 @@ public class CorePortals {
 											@PathVariable String releasePackage ) {
 
 		ModelAndView mav = new ModelAndView( ) ;
-		mav.setView( new RedirectView( CsapCoreService.ADMIN_URL, true, false, true ) ) ;
+
+		var targetView = CsapCoreService.ADMIN_URL ;
+
+		if ( application.isAgentProfile( ) ) {
+
+			targetView = CsapCoreService.BASE_URL ;
+
+		}
+		
+		var redirectUrl = targetView +   "app-browser#services-tab,instances," + serviceName ;
+
+		mav.setView( new RedirectView( redirectUrl, true, false, true ) ) ;
 
 		logger.info( "Redirecting based on package {}  and service {}", releasePackage, serviceName ) ;
-
-		mav.getModel( ).put( CsapCore.PROJECT_PARAMETER, releasePackage ) ;
-
-		// use the first instance to determine the default admin service
-		ServiceInstance instance = application
-				.serviceInstancesByName( releasePackage, serviceName )
-				.stream( )
-				.findFirst( )
-				.get( ) ;
-
-		mav.getModel( ).put( CsapCore.SERVICE_PORT_PARAM, instance.getServiceName_Port( ) ) ;
-		mav.getModel( ).put( CsapCore.HOST_PARAM, instance.getHostName( ) ) ;
 
 		return mav ;
 
@@ -813,12 +820,30 @@ public class CorePortals {
 
 	}
 
-	public void setCommonAttributes ( ModelMap modelMap , HttpSession session ) {
+	public void setViewConstants ( ModelMap modelMap ) {
+
+		modelMap.addAttribute( "csapApp", application ) ;
+
+		modelMap.addAttribute( "csapHostAgentPattern", application.getAgentHostUrlPattern( false ) ) ;
+		modelMap.addAttribute( "csapHostName", application.getCsapHostName( ) ) ;
+		modelMap.addAttribute( "csapHostEnvironmentName", application.getCsapHostEnvironmentName( ) ) ;
 
 		modelMap.addAttribute( "collectionHost", CsapApplication.COLLECTION_HOST ) ;
 		modelMap.addAttribute( "collectionOsProcess", CsapApplication.COLLECTION_OS_PROCESS ) ;
 		modelMap.addAttribute( "collectionJava", CsapApplication.COLLECTION_JAVA ) ;
 		modelMap.addAttribute( "collectionApplication", CsapApplication.COLLECTION_APPLICATION ) ;
+
+		modelMap.addAttribute( "viewConstants", CsapCoreService.viewConstants ) ;
+
+		modelMap.addAttribute( "csapHelper", CSAP.class ) ;
+
+		modelMap.addAttribute( "csapAlerts", ServiceAlertsEnum.values( ) ) ;
+
+	}
+
+	public void setCommonAttributes ( ModelMap modelMap , HttpSession session ) {
+
+		setViewConstants( modelMap ) ;
 
 		if ( session != null ) {
 
@@ -862,13 +887,11 @@ public class CorePortals {
 
 		}
 
-		modelMap.addAttribute( "csapApp", application ) ;
 		modelMap.addAttribute( "applicationBranch", application.getSourceBranch( ) ) ;
 
 		modelMap.addAttribute( "agentHostUrlPattern", application.getAgentHostUrlPattern( false ) ) ;
 
 		modelMap.addAttribute( "host", application.getCsapHostName( ) ) ;
-		modelMap.addAttribute( "csapHostName", application.getCsapHostName( ) ) ;
 		modelMap.addAttribute( "javaServers", ProcessRuntime.javaServers( ) ) ;
 
 		try {
@@ -887,8 +910,6 @@ public class CorePortals {
 		modelMap.addAttribute( "environmentSettings", rootEnvSettings ) ;
 
 		modelMap.addAttribute( "lifecycle", application.getCsapHostEnvironmentName( ) ) ;
-		modelMap.addAttribute( "csapHostEnvironmentName", application.getCsapHostEnvironmentName( ) ) ;
-		modelMap.addAttribute( "csapHostAgentPattern", application.getAgentHostUrlPattern( false ) ) ;
 
 		modelMap.addAttribute( "name", application.getName( ) ) ;
 		modelMap.addAttribute( "packageNames", application.getPackageNames( ) ) ;

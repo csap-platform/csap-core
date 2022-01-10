@@ -1154,7 +1154,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			String url = kubernetes.ingressUrl( Application.testBuilder( ), "/demo", null ) ;
+			String url = kubernetes.ingressUrl( Application.testBuilder( ), "/demo", null, false ) ;
 
 			assertThat( url ).endsWith( "/demo" ) ;
 

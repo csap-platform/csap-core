@@ -1,7 +1,7 @@
 require.config( {
     paths: {
-        jsYaml: baseUrl + "webjars/js-yaml/3.14.0/dist",
-        ace: baseUrl + "webjars/ace-builds/1.4.11/src",
+        jsYaml: BASE_URL + "webjars/js-yaml/3.14.0/dist",
+        ace: BASE_URL + "webjars/ace-builds/1.4.11/src",
         browser: "../../app-browser/modules",
         projects: "../../app-browser/modules/projects",
         editor: "../../editor/modules"

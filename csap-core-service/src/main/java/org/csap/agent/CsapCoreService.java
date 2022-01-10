@@ -11,6 +11,7 @@ import org.aspectj.lang.annotation.Around ;
 import org.aspectj.lang.annotation.Aspect ;
 import org.aspectj.lang.annotation.Pointcut ;
 import org.csap.CsapBootApplication ;
+import org.csap.agent.model.Application ;
 import org.csap.agent.ui.explorer.CrioExplorer ;
 import org.csap.agent.ui.explorer.KubernetesExplorer ;
 import org.csap.agent.ui.explorer.OsExplorer ;
@@ -19,6 +20,7 @@ import org.csap.agent.ui.rest.FileRequests ;
 import org.csap.agent.ui.rest.HostRequests ;
 import org.csap.agent.ui.rest.ServiceRequests ;
 import org.csap.agent.ui.rest.TrendCache ;
+import org.csap.agent.ui.windows.HostPortal ;
 import org.csap.alerts.AlertSettings ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
@@ -157,6 +159,20 @@ public class CsapCoreService implements WebMvcConfigurer {
 	public final static String API_APPLICATION_URL = API_URL + "/application" ;
 	public final static String JSP_VIEW = "/view/" ;
 
+	public final static Map<String, String> viewConstants = Map.of(
+			//
+			"ALL_PACKAGES", Application.ALL_PACKAGES,
+			"ADMIN_NAME", CsapCore.ADMIN_NAME,
+			"AGENT_NAME", CsapCore.AGENT_NAME,
+			"AGENT_ID", CsapCore.AGENT_ID,
+			"SERVICE_URL", SERVICE_URL,
+			"COMMAND_SCREEN_URL", HostPortal.COMMAND_SCREEN_URL,
+			"DEFINITION_URL", DEFINITION_URL,
+			"FILE_MANAGER_URL", FILE_MANAGER_URL,
+			"EDIT_URL", EDIT_URL
+	//
+	) ;
+
 	public static void main ( String[] args ) {
 
 		// CSAP sets up shared profiles
@@ -213,7 +229,7 @@ public class CsapCoreService implements WebMvcConfigurer {
 
 				if ( params.length == 2 ) {
 
-					key = params[ 1 ].toString( ) + TrendCache.buildReportHash( params[ 0 ].toString( ) ) ;
+					key = params[1].toString( ) + TrendCache.buildReportHash( params[0].toString( ) ) ;
 
 				} else {
 
@@ -475,7 +491,8 @@ public class CsapCoreService implements WebMvcConfigurer {
 	public RestTemplate getAdminConnection ( CsapRestTemplateFactory factory ) {
 
 		// 1 1 for testing, 20, 20
-		return factory.buildDefaultTemplate( "csap-admin-peer-connections", isDisableSslValidation( ), 10, 10, 2, 4, 300 ) ;
+		return factory.buildDefaultTemplate( "csap-admin-peer-connections", isDisableSslValidation( ), 10, 10, 2, 4,
+				300 ) ;
 
 	}
 
@@ -526,7 +543,8 @@ public class CsapCoreService implements WebMvcConfigurer {
 	@Bean ( name = "csapEventsService" )
 	public RestTemplate csapEventsService ( CsapRestTemplateFactory factory ) {
 
-		RestTemplate restTemplate = factory.buildDefaultTemplate( "csap-events-connections", false, 10, 10, 5, 5, 300 ) ;
+		RestTemplate restTemplate = factory.buildDefaultTemplate( "csap-events-connections", false, 10, 10, 5, 5,
+				300 ) ;
 
 		restTemplate.getMessageConverters( ).clear( ) ;
 		restTemplate.getMessageConverters( ).add( new FormHttpMessageConverter( ) ) ;

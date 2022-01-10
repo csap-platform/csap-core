@@ -1341,7 +1341,7 @@ define( [ "editor/json-forms" ], function ( jsonForms ) {
 
 
             if ( includeFilter.length > 0 ) {
-                $filterInput.css( "background-color", "yellow" ) ;
+                $filterInput.addClass("modified") ;
                 $clearButton.show() ;
                 $tableRows.hide() ;
                 let filterEntries = includeFilter.split( "," ) ;
@@ -1357,7 +1357,7 @@ define( [ "editor/json-forms" ], function ( jsonForms ) {
 
             } else {
                 $tableRows.show() ;
-                $filterInput.css( "background-color", "" ) ;
+                $filterInput.removeClass("modified") ;
                 $clearButton.hide() ;
             }
 

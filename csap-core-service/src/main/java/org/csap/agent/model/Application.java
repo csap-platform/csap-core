@@ -454,7 +454,9 @@ public class Application {
 					"mode", mode,
 					"working folder - agent", processWorkingDirectory,
 					"working folder - platform", csapWorkingFolder,
-					"agent endpoint", getAgentUrl( "some-host", "/some-command" ),
+					"agent endpoint", getAgentEndpoint( ),
+					"agent url", getAgentUrl( "some-host", "/some-command" ),
+					
 					CsapApplication.CSAP_INSTALL_VARIABLE, csapInstallFolder,
 					"csapFqdn", System.getenv( "csapFqdn" ),
 					"Definition", rootDefinitionFile,

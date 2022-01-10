@@ -14,17 +14,14 @@
 				"application": {
 					"name": "update-your-application-name",
 					"sub-projects": [],
-					"definition-repo-url": "https://moc-bb.***REMOVED***/bitbucket/update-with-your-repo",
+					"definition-repo-url": "https://github.com/xxx/xxx-definition.git",
 					"definition-repo-branch": "master",
-					"maven-url": "http://***REMOVED***.***REMOVED***:8081/artifactory/csap-release",
-					"help-menu-items": {
-						"User Guide": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP",
-						"Release Notes": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211856/Release+Notes",
-						"Quick Install": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/395282580/CSAP+Quick+Install",
-						"Health Status": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211861/CSAP+Health",
-						"Application Editor": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211875/CSAP+Application+Editor",
-						"FAQ": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/347177032/CSAP+FAQ"
-					}
+					"maven-url": "http://repo.spring.io/libs-release",
+			        "help-menu": {
+			      		"Local Login": "http://csap-dev01.***REMOVED***:8011/login?local=true",
+			       	    "Container Architecture": "https://www.tutorialworks.com/difference-docker-containerd-runc-crio-oci/",
+			    		"Rocky Linux": "https://rockylinux.org/"
+			        }
 				},
 				"operatorNotifications": [
 					"csapsupport@yourcompany.com"

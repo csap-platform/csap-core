@@ -930,7 +930,7 @@ public abstract class ServiceBase {
 		try {
 
 			String[] mavenArray = mavenId.split( ":" ) ;
-			version = mavenArray[ 2 ] ;
+			version = mavenArray[2] ;
 
 		} catch ( Exception e ) {
 
@@ -1154,6 +1154,14 @@ public abstract class ServiceBase {
 
 	}
 
+	public String getUiRuntime ( ) {
+
+		var runtime = getProcessRuntime( ).getId( ) ;
+
+		return runtime ;
+
+	}
+
 	// legacy - keep it until junits and js updated
 	@JsonProperty ( "serviceName" )
 	public String getName ( ) {
@@ -1229,7 +1237,7 @@ public abstract class ServiceBase {
 
 		if ( hname.length == 2 ) {
 
-			suffix = hname[ 1 ] ;
+			suffix = hname[1] ;
 
 		}
 
