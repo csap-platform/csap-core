@@ -1092,12 +1092,16 @@ div#services-tab-content #services-tab-kpods div#pods-summary {
 	max-width: 10em;
 }
 
-#services-tab-content #helm-readme-viewer a.csap-link {
+#services-tab-content #helm-readme-viewer a {
 	color: cornflowerblue ;
+	font-weight: bold;
+	text-decoration: none;
+	white-space: nowrap;
 }
-#services-tab-content #helm-readme-viewer a.csap-link:hover {
+#services-tab-content #helm-readme-viewer a:hover {
 	color: red ;
 }
+
 
 
 #services-tab-content .describe-container div.options {

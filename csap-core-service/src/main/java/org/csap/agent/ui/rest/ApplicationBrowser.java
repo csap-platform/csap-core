@@ -737,7 +737,7 @@ public class ApplicationBrowser {
 
 		if ( command.equals( "helm-readme" ) ) {
 
-			cliResults = convertMarkdownToHtml( cliResults ) ;
+			cliResults = convertMarkdownToHtml( cliResults, "helm" ) ;
 
 			infoReport.put( DockerJson.response_html.json( ), cliResults ) ;
 			infoReport.put( "source", "helm show readme" ) ;
@@ -752,16 +752,27 @@ public class ApplicationBrowser {
 
 	}
 
-	private String convertMarkdownToHtml ( String cliResults ) {
+	private String convertMarkdownToHtml ( String cliResults , String readMeSource ) {
 
 		var extensions = Arrays.asList( TablesExtension.create( ) ) ;
 		var parser = Parser.builder( ).extensions( extensions ).build( ) ;
 		var document = parser.parse( cliResults ) ;
 		var renderer = HtmlRenderer.builder( ).extensions( extensions ).build( ) ;
+		
 		cliResults = renderer.render( document ) ;
 
-		cliResults = cliResults.replaceAll( "a href", "a class=csap-link target=_blank href" ) ;
+		cliResults = cliResults.replaceAll( "a href", "a target=_blank href" ) ;
 		cliResults = cliResults.replaceAll( "<table>", "<table class=csap>" ) ;
+
+		if ( StringUtils.isNotEmpty( readMeSource )
+				&& readMeSource.startsWith( "http" )
+				&& readMeSource.endsWith( "/README.md" ) ) {
+
+			var urlPrefix = readMeSource.substring( 0, readMeSource.lastIndexOf( "/" ) ) ;
+			cliResults = cliResults.replaceAll( "\"ghubdocs/", "\"" + urlPrefix + "/ghubdocs/" ) ;
+
+		}
+
 		return cliResults ;
 
 	}
@@ -798,7 +809,7 @@ public class ApplicationBrowser {
 
 		}
 
-		readMeReport.put( DockerJson.response_html.json( ), convertMarkdownToHtml( readMeMarkDown ) ) ;
+		readMeReport.put( DockerJson.response_html.json( ), convertMarkdownToHtml( readMeMarkDown, readMeSource ) ) ;
 		readMeReport.put( "source", readMeSource ) ;
 
 		return readMeReport ;
