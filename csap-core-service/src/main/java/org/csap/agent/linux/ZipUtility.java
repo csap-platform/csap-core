@@ -45,7 +45,7 @@ public class ZipUtility {
 		} else {
 
 			files = new File[1] ;
-			files[ 0 ] = target ;
+			files[0] = target ;
 			targetInZip = target.getParentFile( ) ;
 
 		}
@@ -55,14 +55,14 @@ public class ZipUtility {
 
 		for ( int i = 0, n = files.length; i < n; i++ ) {
 
-			if ( files[ i ].isDirectory( ) ) {
+			if ( files[i].isDirectory( ) ) {
 
-				zip( files[ i ], targetInZip, zos ) ;
+				zip( files[i], targetInZip, zos ) ;
 
 			} else {
 
-				FileInputStream in = new FileInputStream( files[ i ] ) ;
-				ZipEntry entry = new ZipEntry( files[ i ].getPath( ).substring(
+				FileInputStream in = new FileInputStream( files[i] ) ;
+				ZipEntry entry = new ZipEntry( files[i].getPath( ).substring(
 						targetInZip.getPath( ).length( ) + 1 ) ) ;
 				zos.putNextEntry( entry ) ;
 

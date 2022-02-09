@@ -6,11 +6,10 @@ import java.util.Map ;
 import javax.inject.Inject ;
 
 import org.apache.commons.lang3.StringUtils ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.container.DockerJson ;
-import org.csap.agent.integrations.CsapEvents ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.integrations.Vsphere ;
-import org.csap.agent.model.Application ;
 import org.csap.helpers.CSAP ;
 import org.csap.security.config.CsapSecuritySettings ;
 import org.slf4j.Logger ;
@@ -34,8 +33,7 @@ public class VsphereExplorer {
 	final Logger logger = LoggerFactory.getLogger( this.getClass( ) ) ;
 
 	private static final String VIRTUAL_MACHINE_TOKEN = " (VirtualMachine)" ;
-	private Application csapApp ;
-	private CsapEvents csapEvents ;
+	private CsapApis csapApis ;
 	private ObjectMapper jsonMapper ;
 	private Vsphere vsphere ;
 
@@ -45,13 +43,13 @@ public class VsphereExplorer {
 	@Inject
 	public VsphereExplorer (
 			Vsphere vsphere,
-			Application csapApp,
-			CsapEvents csapEventClient,
+			CsapApis csapApis,
 			ObjectMapper jsonMapper ) {
 
 		this.vsphere = vsphere ;
-		this.csapApp = csapApp ;
-		this.csapEvents = csapEventClient ;
+
+		this.csapApis = csapApis ;
+
 		this.jsonMapper = jsonMapper ;
 
 	}
@@ -63,8 +61,11 @@ public class VsphereExplorer {
 	@GetMapping
 	public JsonNode vsphere_listing ( ) {
 
-		if ( ! csapApp.rootProjectEnvSettings( ).isVsphereConfigured( ) )
+		if ( ! csapApis.application( ).rootProjectEnvSettings( ).isVsphereConfigured( ) ) {
+
 			return build_not_configured_listing( ) ;
+
+		}
 
 		ArrayNode dataStoreListing = jsonMapper.createArrayNode( ) ;
 
@@ -79,7 +80,7 @@ public class VsphereExplorer {
 
 					// triggers cache invalidation
 					var attributes = item.putObject( "attributes" ) ;
-					attributes.put( DockerJson.list_folderUrl.json( ), "vsphere/" + categoryEntry.getKey( ) ) ;
+					attributes.put( C7.list_folderUrl.val( ), "vsphere/" + categoryEntry.getKey( ) ) ;
 
 				} ) ;
 
@@ -90,7 +91,7 @@ public class VsphereExplorer {
 	@GetMapping ( "/datastores" )
 	public JsonNode datastores_listing ( @RequestParam ( defaultValue = "false" ) boolean configurationFilter ) {
 
-		if ( ! csapApp.rootProjectEnvSettings( ).isVsphereConfigured( ) )
+		if ( ! csapApis.application( ).rootProjectEnvSettings( ).isVsphereConfigured( ) )
 			return build_not_configured_listing( ) ;
 
 		ArrayNode dataStoreListing = jsonMapper.createArrayNode( ) ;
@@ -100,7 +101,7 @@ public class VsphereExplorer {
 		if ( datastores.size( ) == 0 ) {
 
 			ObjectNode msg = dataStoreListing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No vsphere datastores found" ) ;
+			msg.put( C7.error.val( ), "No vsphere datastores found" ) ;
 
 		} else {
 
@@ -117,7 +118,7 @@ public class VsphereExplorer {
 						item.put( "lazy", true ) ;
 
 						var attributes = item.putObject( "attributes" ) ;
-						attributes.put( DockerJson.list_folderUrl.json( ), "vsphere/datastore" ) ;
+						attributes.put( C7.list_folderUrl.val( ), "vsphere/datastore" ) ;
 
 						var navPath = datastore.path( "path" ).asText( "-" ) ;
 						attributes.put( "path", navPath ) ;
@@ -138,7 +139,7 @@ public class VsphereExplorer {
 		if ( datastore == null ) {
 
 			ObjectNode msg = jsonMapper.createObjectNode( ) ;
-			msg.put( DockerJson.error.json( ), "Not found: " + path ) ;
+			msg.put( C7.error.val( ), "Not found: " + path ) ;
 
 		}
 
@@ -151,12 +152,12 @@ public class VsphereExplorer {
 
 		var paths = path.split( ":", 2 ) ;
 
-		var datastoreName = paths[ 0 ] ;
+		var datastoreName = paths[0] ;
 		var datastorePath = "" ;
 
 		if ( paths.length == 2 ) {
 
-			datastorePath = paths[ 1 ] ;
+			datastorePath = paths[1] ;
 
 		}
 
@@ -166,7 +167,7 @@ public class VsphereExplorer {
 		if ( datastore_files.size( ) == 0 ) {
 
 			ObjectNode msg = datastoreListing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "Empty folder" ) ;
+			msg.put( C7.error.val( ), "Empty folder" ) ;
 
 		} else {
 
@@ -187,14 +188,14 @@ public class VsphereExplorer {
 							var attributes = item.putObject( "attributes" ) ;
 
 							var sourceUri = "vsphere/datastore/files" ;
-							attributes.put( DockerJson.list_folderUrl.json( ), sourceUri ) ;
+							attributes.put( C7.list_folderUrl.val( ), sourceUri ) ;
 							attributes.put( "path", path + itemPath + "/" ) ;
 
 						} else {
 
 							( (ObjectNode) datastoreFile ).put( "isFile", true ) ;
 
-							var size = CsapCore.getDiskWithUnit( datastoreFile.path( "FileSize" ).asLong( ) ) ;
+							var size = CsapConstants.getDiskWithUnit( datastoreFile.path( "FileSize" ).asLong( ) ) ;
 							item.put( "label", itemPath + ", Size: " + size ) ;
 							item.put( "description", "" ) ;
 							item.put( "folder", true ) ;
@@ -215,9 +216,9 @@ public class VsphereExplorer {
 
 		ArrayNode listing = jsonMapper.createArrayNode( ) ;
 		ObjectNode item = listing.addObject( ) ;
-		item.put( DockerJson.list_label.json( ), DockerJson.error.json( ) + "Vsphere integration is not enabled" ) ;
+		item.put( C7.list_label.val( ), C7.error.val( ) + "Vsphere integration is not enabled" ) ;
 		item.put( "folder", false ) ;
-		item.put( DockerJson.error.json( ), "Vsphere integration is not enabled" ) ;
+		item.put( C7.error.val( ), "Vsphere integration is not enabled" ) ;
 		return listing ;
 
 	}
@@ -253,12 +254,12 @@ public class VsphereExplorer {
 									@RequestParam ( defaultValue = "false" ) boolean configurationFilter ,
 									@RequestParam ( defaultValue = "" ) String path ) {
 
-		if ( ! csapApp.environmentSettings( ).isVsphereConfigured( ) )
+		if ( ! csapApis.application( ).environmentSettings( ).isVsphereConfigured( ) )
 			return build_not_configured_listing( ) ;
 
 		// do a find using either specified path or defaults
-		var vsphereConfiguration = csapApp.environmentSettings( ).getVsphereConfiguration( ) ;
-		var environmentVariables = csapApp.environmentSettings( ).getVsphereEnv( ) ;
+		var vsphereConfiguration = csapApis.application( ).environmentSettings( ).getVsphereConfiguration( ) ;
+		var environmentVariables = csapApis.application( ).environmentSettings( ).getVsphereEnv( ) ;
 		var findExpression = vsphereConfiguration.at( "/filters/vm-path" ) ;
 
 		var baseVmPath = "/" + environmentVariables.get( "GOVC_DATACENTER" ) + "/vm" ;
@@ -299,7 +300,7 @@ public class VsphereExplorer {
 		if ( vmFolders.size( ) == 0 ) {
 
 			ObjectNode msg = vmListing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No vsphere vms found" ) ;
+			msg.put( C7.error.val( ), "No vsphere vms found" ) ;
 
 		} else {
 
@@ -329,7 +330,7 @@ public class VsphereExplorer {
 						item.put( "lazy", true ) ;
 
 						var attributes = item.putObject( "attributes" ) ;
-						attributes.put( DockerJson.list_folderUrl.json( ), sourceUri ) ;
+						attributes.put( C7.list_folderUrl.val( ), sourceUri ) ;
 						attributes.put( "path", listingPath ) ;
 
 					} ) ;
@@ -349,7 +350,7 @@ public class VsphereExplorer {
 		if ( vms.size( ) == 0 ) {
 
 			ObjectNode msg = vmListing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No vsphere vms found" ) ;
+			msg.put( C7.error.val( ), "No vsphere vms found" ) ;
 
 		} else {
 
@@ -366,7 +367,7 @@ public class VsphereExplorer {
 						item.put( "lazy", true ) ;
 
 						var attributes = item.putObject( "attributes" ) ;
-						attributes.put( DockerJson.list_folderUrl.json( ), "vsphere/vm" ) ;
+						attributes.put( C7.list_folderUrl.val( ), "vsphere/vm" ) ;
 						attributes.put( "path", vmPath.asText( ) ) ;
 
 					} ) ;
@@ -385,7 +386,7 @@ public class VsphereExplorer {
 		if ( vm == null ) {
 
 			ObjectNode msg = jsonMapper.createObjectNode( ) ;
-			msg.put( DockerJson.error.json( ), "Not found: " + path ) ;
+			msg.put( C7.error.val( ), "Not found: " + path ) ;
 
 		}
 
@@ -395,7 +396,7 @@ public class VsphereExplorer {
 
 	private void issueAudit ( String commandDesc , String details ) {
 
-		csapEvents.publishUserEvent( "vsphere",
+		csapApis.events( ).publishUserEvent( "vsphere",
 				securitySettings.getRoles( ).getUserIdFromContext( ),
 				commandDesc, details ) ;
 

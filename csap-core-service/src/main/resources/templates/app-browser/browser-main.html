@@ -77,7 +77,7 @@
 				<!-- csap help defaults-->	
 				<optgroup label="CSAP Help">
 					<option
-						th:each="helpItem : ${@csapCoreService.getHelpUrls().entrySet()}"
+						th:each="helpItem : ${@applicationConfiguration.getHelpUrls().entrySet()}"
 						th:value="${helpItem.value}"
 						th:text="${helpItem.key}">updated-by-eval</option>
 				</optgroup>
@@ -90,7 +90,7 @@
 			target="_blank"
 			title="Learn more about CSAP"
 			class="csap-link-icon csap-help flex-right-info"
-			th:href="${@csapCoreService.getHelpUrl('reference-guide') }">
+			th:href="${@applicationConfiguration.getHelpUrl('reference-guide') }">
 			[[ ${ deployedArtifact } ]]
 		</a> -->
 

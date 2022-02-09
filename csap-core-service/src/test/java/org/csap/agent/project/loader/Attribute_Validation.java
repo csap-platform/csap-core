@@ -2,6 +2,7 @@ package org.csap.agent.project.loader ;
 
 import static org.assertj.core.api.Assertions.assertThat ;
 
+import org.csap.agent.container.C7 ;
 import org.csap.agent.model.ProcessRuntime ;
 import org.csap.helpers.CsapApplication ;
 import org.junit.jupiter.api.Test ;
@@ -33,7 +34,7 @@ public class Attribute_Validation {
 				.as( "cpu loops" )
 				.isFalse( ) ;
 
-		isJavaServer = ProcessRuntime.isJavaServer( "docker" ) ;
+		isJavaServer = ProcessRuntime.isJavaServer( C7.definitionSettings.val( ) ) ;
 
 		logger.info( "isJavaServer: {}", isJavaServer ) ;
 

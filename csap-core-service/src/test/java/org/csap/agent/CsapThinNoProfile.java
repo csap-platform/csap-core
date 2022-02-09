@@ -8,10 +8,10 @@ import javax.inject.Inject ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.EnvironmentSettings ;
 import org.csap.agent.services.OsCommands ;
-import org.csap.agent.services.OsManager ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor ;
+import org.junit.jupiter.api.AfterAll ;
 import org.junit.jupiter.api.BeforeAll ;
 import org.junit.jupiter.api.TestInstance ;
 import org.slf4j.Logger ;
@@ -42,8 +42,6 @@ public abstract class CsapThinNoProfile extends CsapBareTest {
 
 	public Logger logger = LoggerFactory.getLogger( getClass( ) ) ;
 
-	OsManager osManager ;
-
 	@Inject
 	OsCommands osCommands ;
 
@@ -70,24 +68,20 @@ public abstract class CsapThinNoProfile extends CsapBareTest {
 		getApplication( ).initialize( ) ;
 		getApplication( ).setAutoReload( false ) ;
 
-		// osManager = new OsManager( null, osCommands ) ;
-		// OsManager().setOsCommands( osCommands ) ;
-		// application = new Application( osManager ) ;
-		// application.setJvmInManagerMode( false ) ;
-		// application.setAutoReload( false ) ;
-		// application.initialize() ;
-		//
-		// osManager.setTestApp( application ) ;
-		// application.setAutoReload( false ) ;
-		// getApplication().setEventClient( new CsapEvents() ) ;
-		// getApplication().setCsapCoreService( new CsapCoreService() ) ;
-
-		//
-
 		encryptor = new StandardPBEStringEncryptor( ) ;
 		encryptor.setPassword( "junittest" ) ;
 
 		assertThat( getJsonMapper( ).createObjectNode( ).isObject( ) ).isTrue( ) ;
+
+	}
+
+	@AfterAll
+	void afterAll ( )
+		throws Exception {
+
+		logger.info( CsapApplication.testHeader( "Cleaning up thin tests" ) ) ;
+
+		getApplication( ).metricManager( ).shutdown( ) ;
 
 	}
 

@@ -9,8 +9,8 @@ import org.apache.logging.log4j.LogManager ;
 import org.apache.logging.log4j.Logger ;
 import org.apache.logging.log4j.spi.AbstractLogger ;
 import org.apache.logging.log4j.spi.ExtendedLoggerWrapper ;
-import org.csap.agent.CsapCoreService ;
-import org.csap.integations.CsapMicroMeter ;
+import org.csap.agent.ApplicationConfiguration ;
+import org.csap.integations.micrometer.CsapMicroMeter ;
 import org.slf4j.LoggerFactory ;
 
 /**
@@ -60,7 +60,7 @@ public final class CsapEventsUnwind extends ExtendedLoggerWrapper {
 			if ( stackDesc.contains( "org.csap" )
 					&& ! stackDesc.contains( CsapEvents.class.getSimpleName( ) )
 					&& ! stackDesc.contains( CsapMicroMeter.class.getSimpleName( ) )
-					&& ! stackDesc.contains( CsapCoreService.class.getSimpleName( ) ) ) {
+					&& ! stackDesc.contains( ApplicationConfiguration.class.getSimpleName( ) ) ) {
 
 				try {
 

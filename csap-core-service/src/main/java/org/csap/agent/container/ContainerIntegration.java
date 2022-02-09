@@ -38,18 +38,14 @@ import org.apache.commons.io.FileUtils ;
 import org.apache.commons.io.FilenameUtils ;
 import org.apache.commons.io.IOUtils ;
 import org.apache.commons.lang3.StringUtils ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.ContainerConfiguration ;
-import org.csap.agent.ContainerSettings ;
-import org.csap.agent.container.kubernetes.KubernetesJson ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.container.kubernetes.K8 ;
 import org.csap.agent.linux.OsCommandRunner ;
 import org.csap.agent.linux.OutputFileMgr ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.ProjectLoader ;
 import org.csap.agent.model.ServiceInstance ;
 import org.csap.agent.services.OsCommands ;
-import org.csap.agent.services.OsManager ;
-import org.csap.agent.services.OsProcessMapper ;
 import org.csap.agent.services.ServiceOsManager ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
@@ -88,7 +84,6 @@ import com.github.dockerjava.api.model.ExposedPort ;
 import com.github.dockerjava.api.model.Frame ;
 import com.github.dockerjava.api.model.HostConfig ;
 import com.github.dockerjava.api.model.Image ;
-import com.github.dockerjava.api.model.Info ;
 import com.github.dockerjava.api.model.LogConfig ;
 import com.github.dockerjava.api.model.LogConfig.LoggingType ;
 import com.github.dockerjava.api.model.Network ;
@@ -144,7 +139,7 @@ public class ContainerIntegration {
 
 	private static long MAX_PROGRESS = 1024 * 500 ;
 
-	private ContainerConfiguration dockerConfig ;
+	private ContainerConfiguration configuration ;
 	private ObjectMapper jsonMapper ;
 
 	volatile DockerClient dockerClient ;
@@ -153,11 +148,11 @@ public class ContainerIntegration {
 	private OsCommands osCommands ;
 
 	public ContainerIntegration (
-			ContainerConfiguration dockerConfig,
+			ContainerConfiguration configuration,
 			ObjectMapper notUsedMapper ) {
 
-		this.dockerConfig = dockerConfig ;
-		this.settings = dockerConfig.getDocker( ) ;
+		this.configuration = configuration ;
+		this.settings = configuration.getSettings( ) ;
 		// this.jsonMapper = jsonMapper ;
 
 		this.jsonMapper = new ObjectMapper( ) ;
@@ -165,8 +160,8 @@ public class ContainerIntegration {
 		// docker 3.2.x marching of image listing requires
 		jsonMapper.configure( SerializationFeature.FAIL_ON_EMPTY_BEANS, false ) ;
 
-		this.dockerClient = dockerConfig.dockerClient( ) ;
-		this.osCommands = dockerConfig.getOsCommands( ) ;
+		this.dockerClient = configuration.dockerClient( ) ;
+		this.osCommands = configuration.getOsCommands( ) ;
 
 	}
 
@@ -298,7 +293,7 @@ public class ContainerIntegration {
 
 			} else {
 
-				result.put( DockerJson.error.json( ), "Failed to locate image with name: " + name ) ;
+				result.put( C7.error.val( ), "Failed to locate image with name: " + name ) ;
 
 			}
 
@@ -414,7 +409,8 @@ public class ContainerIntegration {
 
 	private static String generatedKubernetesContainerName ( ServiceInstance service ) {
 
-		return getNetworkSafeContainerName( service.getDockerContainerName( ) + DockerJson.k8ContainerSuffix.json( ) ) ;
+		return getNetworkSafeContainerName( service.getDockerContainerName( ) + C7.k8ContainerSuffix
+				.val( ) ) ;
 
 	}
 
@@ -428,21 +424,21 @@ public class ContainerIntegration {
 
 		if ( service.isRunUsingDocker( ) || service.is_cluster_kubernetes( ) ) {
 
-			JsonNode locator = service.getDockerSettings( ).path( DockerJson.locator.json( ) ) ;
+			JsonNode locator = service.getDockerSettings( ).path( C7.locator.val( ) ) ;
 
 			if ( locator.isContainerNode( ) ) {
 
 				// String labelType = locator.path( "type" ).asText(
 				// IO_KUBERNETES_CONTAINER_NAME ) ;
 				String labelType = IO_KUBERNETES_CONTAINER_NAME ;
-				String labelValue = Application.getInstance( ).resolveDefinitionVariables(
+				String labelValue = configuration.csapApis( ).application( ).resolveDefinitionVariables(
 						locator.path( "value" ).asText( "missingLocatorValue" ), service ) ;
 
 				Optional<Container> container = findContainerUsingLabel( labelType, labelValue ) ;
 
 				if ( container.isPresent( ) ) {
 
-					dockerContainerName = container.get( ).getNames( )[ 0 ] ;
+					dockerContainerName = container.get( ).getNames( )[0] ;
 
 				}
 
@@ -455,7 +451,7 @@ public class ContainerIntegration {
 
 				if ( container.isPresent( ) ) {
 
-					dockerContainerName = container.get( ).getNames( )[ 0 ] ;
+					dockerContainerName = container.get( ).getNames( )[0] ;
 
 				}
 
@@ -501,7 +497,7 @@ public class ContainerIntegration {
 					.findFirst( )
 					.map( container -> {
 
-						return container.getNames( )[ 0 ] ;
+						return container.getNames( )[0] ;
 
 					} )
 					.orElseGet( ( ) -> {
@@ -658,7 +654,8 @@ public class ContainerIntegration {
 	//
 	// Summary report called multiple times - from os processCollector, UI, etc
 	//
-	synchronized public ObjectNode getCachedSummaryReport ( ) {
+	// Synchronized can lead to deadlock
+	public ObjectNode getCachedSummaryReport ( ) {
 
 		logger.debug( "Entered " ) ;
 
@@ -667,7 +664,7 @@ public class ContainerIntegration {
 			containerSummaryCache = CsapSimpleCache.builder(
 					3,
 					TimeUnit.SECONDS,
-					OsManager.class,
+					ContainerIntegration.class,
 					"container-summary-report" ) ;
 			containerSummaryCache.expireNow( ) ;
 
@@ -691,12 +688,12 @@ public class ContainerIntegration {
 			containerSummaryCache.reset( summaryReport ) ;
 
 			// podman has frequent errors so retry once
-			if ( summaryReport.has( DockerJson.error.json( ) ) ) {
+			if ( summaryReport.has( C7.error.val( ) ) ) {
 
 				summaryReport = buildSummaryReport( true ) ;
 				containerSummaryCache.reset( summaryReport ) ;
 
-				if ( summaryReport.has( DockerJson.error.json( ) ) ) {
+				if ( summaryReport.has( C7.error.val( ) ) ) {
 
 					logger.warn( CsapApplication.highlightHeader( "recovery attempt failed" ) ) ;
 
@@ -718,11 +715,11 @@ public class ContainerIntegration {
 
 	ObjectNode buildSummaryReport ( boolean isRetry ) {
 
-		Timer.Sample summaryTimer = dockerConfig.getCsapApp( ).metrics( ).startTimer( ) ;
+		Timer.Sample summaryTimer = configuration.csapApis( ).metrics( ).startTimer( ) ;
 
 		ObjectNode summary = jsonMapper.createObjectNode( ) ;
 		summary.put( "version", "not installed" ) ;
-		summary.put( KubernetesJson.heartbeat.json( ), false ) ;
+		summary.put( K8.heartbeat.val( ), false ) ;
 
 		// summary.put( "rootDirectory", "/not/available" );
 		try {
@@ -743,9 +740,9 @@ public class ContainerIntegration {
 			//
 			var crioContainers = 0 ;
 
-			if ( Application.getInstance( ).isCrioInstalledAndActive( ) ) {
+			if ( configuration.csapApis( ).isCrioInstalledAndActive( ) ) {
 
-				crioContainers = Application.getInstance( ).crio( ).containerCount( ) ;
+				crioContainers = configuration.csapApis( ).crio( ).containerCount( ) ;
 
 			}
 
@@ -755,7 +752,7 @@ public class ContainerIntegration {
 
 			summary.put( "rootDirectory", containerInfo.getDockerRootDir( ) ) ;
 
-			summary.put( KubernetesJson.heartbeat.json( ), true ) ;
+			summary.put( K8.heartbeat.val( ), true ) ;
 
 			ListVolumesResponse volumeResponse = dockerClient.listVolumesCmd( ).exec( ) ;
 
@@ -771,7 +768,7 @@ public class ContainerIntegration {
 
 			int networkCount = 0 ;
 
-			if ( ! Application.getInstance( ).isCrioInstalledAndActive( ) ) {
+			if ( ! configuration.csapApis( ).isCrioInstalledAndActive( ) ) {
 
 				List<Network> networks = dockerClient.listNetworksCmd( ).exec( ) ;
 
@@ -790,11 +787,11 @@ public class ContainerIntegration {
 			if ( isRetry ) {
 
 				logger.warn( "ContainerApi connection Error: {}", CSAP.buildCsapStack( e ) ) ;
-				summary.set( DockerJson.error.json( ), buildErrorResponse( "Build docker summary", e ) ) ;
+				summary.set( C7.error.val( ), buildErrorResponse( "Build docker summary", e ) ) ;
 
 			} else {
 
-				summary.put( DockerJson.error.json( ), "Found Error:" + e.getMessage( ) ) ;
+				summary.put( C7.error.val( ), "Found Error:" + e.getMessage( ) ) ;
 				logger.warn( "ContainerApi connection Error: {}", e.getMessage( ) ) ;
 				logger.debug( "Full stack: {}", CSAP.buildCsapStack( e ) ) ;
 
@@ -804,7 +801,7 @@ public class ContainerIntegration {
 
 		}
 
-		dockerConfig.getCsapApp( ).metrics( ).stopTimer( summaryTimer, SUMMARY_TIMER ) ;
+		configuration.csapApis( ).metrics( ).stopTimer( summaryTimer, SUMMARY_TIMER ) ;
 		return summary ;
 
 	}
@@ -820,7 +817,7 @@ public class ContainerIntegration {
 
 	public List<ContainerProcess> build_process_info_for_containers ( ) {
 
-		var allTimer = getDockerConfig( ).getCsapApp( ).metrics( ).startTimer( ) ;
+		var allTimer = configuration.csapApis( ).metrics( ).startTimer( ) ;
 
 		var containerProcesses = new ArrayList<ContainerProcess>( ) ;
 		var pidScanInfo = new StringBuilder( ) ;
@@ -867,9 +864,9 @@ public class ContainerIntegration {
 		//
 		try {
 
-			if ( Application.getInstance( ).isCrioInstalledAndActive( ) ) {
+			if ( configuration.csapApis( ).isCrioInstalledAndActive( ) ) {
 
-				var crioProcesses = Application.getInstance( ).crio( ).buildContainerProcesses( ) ;
+				var crioProcesses = configuration.csapApis( ).crio( ).buildContainerProcesses( ) ;
 
 				logger.debug( "crioProcesses: {}", crioProcesses ) ;
 
@@ -892,7 +889,7 @@ public class ContainerIntegration {
 
 		}
 
-		getDockerConfig( ).getCsapApp( ).metrics( ).stopTimer( allTimer, "collect-container.pids" ) ;
+		configuration.csapApis( ).metrics( ).stopTimer( allTimer, "collect-container.pids" ) ;
 
 		return containerProcesses ;
 
@@ -900,25 +897,23 @@ public class ContainerIntegration {
 
 	private void pingContainerApi ( ) {
 
-		Application.getInstance( ).metrics( ).record( API_METER + "ping", ( ) -> {
+		configuration.csapApis( ).metrics( ).record( API_METER + "ping", ( ) -> {
 
+			//
+			try {
 
-				//
-				try {
-
-					dockerClient.versionCmd( ).exec( ) ;
-					logger.info( "Api ping succeeded" ) ;
-					// infoCmd versionCmd pingCmd
+				dockerClient.versionCmd( ).exec( ) ;
+				logger.info( "Api ping succeeded" ) ;
+				// infoCmd versionCmd pingCmd
 //				logger.info( "{} \n {}",
 //						CsapApplication.highlightHeader( "crio connection recovery attempt version command" ),
 //						CSAP.jsonPrint( CSAP.buildGenericObjectReport( dockerClient.versionCmd( ).exec( ) ) ) ) ;
 
-				} catch ( Exception e1 ) {
+			} catch ( Exception e1 ) {
 
-					logger.warn( "docker ping failed: {}", CSAP.buildCsapStack( e1 ) ) ;
+				logger.warn( "docker ping failed: {}", CSAP.buildCsapStack( e1 ) ) ;
 
-				}
-
+			}
 
 		} ) ;
 
@@ -954,7 +949,7 @@ public class ContainerIntegration {
 					ContainerProcess process = new ContainerProcess( ) ;
 					logger.debug( "container: \n {}", container.toString( ) ) ;
 
-					String name = container.getNames( )[ 0 ] ;
+					String name = container.getNames( )[0] ;
 
 					process.setContainerName( name ) ;
 					process.setMatchName( name ) ;
@@ -981,7 +976,7 @@ public class ContainerIntegration {
 
 					}
 
-					var podTimer = getDockerConfig( ).getCsapApp( ).metrics( ).startTimer( ) ;
+					var podTimer = configuration.csapApis( ).metrics( ).startTimer( ) ;
 
 					try {
 
@@ -1019,7 +1014,7 @@ public class ContainerIntegration {
 
 					}
 
-					getDockerConfig( ).getCsapApp( ).metrics( ).stopTimer( podTimer, "collect-container.pids."
+					configuration.csapApis( ).metrics( ).stopTimer( podTimer, "collect-container.pids."
 							+ process.getPodName( ) ) ;
 
 					return process ;
@@ -1036,7 +1031,7 @@ public class ContainerIntegration {
 
 	public String cachedPidForCoreDnsInspectParseException ( String containerName ) {
 
-		var cacheManager = dockerConfig.getCacheManager( ) ;
+		var cacheManager = configuration.getCacheManager( ) ;
 
 		if ( cacheManager == null ) {
 
@@ -1073,7 +1068,7 @@ public class ContainerIntegration {
 	public String containerPidWhenInspectErrorsOut ( String containerName ) {
 
 		List<String> commands = List.of(
-				"docker", "inspect", "-f", "{{.State.Pid}}",
+				C7.dockerService.val( ), "inspect", "-f", "{{.State.Pid}}",
 				containerName ) ;
 
 		String results = "" ;
@@ -1095,7 +1090,7 @@ public class ContainerIntegration {
 
 	public ObjectNode inspectByCli ( String containerName ) {
 
-		List<String> commands = List.of( "docker", "inspect",
+		List<String> commands = List.of( C7.dockerService.val( ), "inspect",
 				containerName ) ;
 
 		ObjectNode results = jsonMapper.createObjectNode( ) ;
@@ -1158,7 +1153,7 @@ public class ContainerIntegration {
 
 				if ( container.getNames( ).length == 1 ) {
 
-					name = container.getNames( )[ 0 ] ;
+					name = container.getNames( )[0] ;
 
 				}
 
@@ -1453,7 +1448,7 @@ public class ContainerIntegration {
 			// docker.startContainer( container.id());
 			if ( targetId == null ) {
 
-				result.put( DockerJson.response_info.json( ), "View logs: " + targetId ) ;
+				result.put( C7.response_info.val( ), "View logs: " + targetId ) ;
 				result.put( "plainText", "Unable to locate container - verify it is created and running" ) ;
 				logger.info( "Failed to find logs for: {} - name: {}", id, name ) ;
 				return result ;
@@ -1479,7 +1474,7 @@ public class ContainerIntegration {
 			logCommand.exec( loggingCallback ) ;
 			loggingCallback.awaitCompletion( 3, TimeUnit.SECONDS ) ;
 
-			result.put( DockerJson.response_info.json( ), "View logs: " + targetId ) ;
+			result.put( C7.response_info.val( ), "View logs: " + targetId ) ;
 			// String logOutput =loggingCallback.toString() ;
 
 			// // Docker returns new empty line
@@ -1737,8 +1732,9 @@ public class ContainerIntegration {
 				//
 				// Create a tar file
 				//
-				var tarFile = new File( Application.getInstance( ).getScriptDir( ), containerName + ".tar" ) ;
-				var sourceFolder = new File( Application.getInstance( ).getScriptDir( ), containerName ) ;
+				var tarFile = new File( configuration.csapApis( ).application( ).getScriptDir( ), containerName
+						+ ".tar" ) ;
+				var sourceFolder = new File( configuration.csapApis( ).application( ).getScriptDir( ), containerName ) ;
 				FileUtils.deleteQuietly( sourceFolder ) ;
 				sourceFolder.mkdirs( ) ;
 
@@ -1827,7 +1823,7 @@ public class ContainerIntegration {
 
 				if ( image.getRepoTags( ) != null && image.getRepoTags( ).length > 0 ) {
 
-					label = image.getRepoTags( )[ 0 ] ;
+					label = image.getRepoTags( )[0] ;
 
 					logger.debug( "tags: {}, length: {} ", image.getRepoTags( ), image.getRepoTags( ).length ) ;
 
@@ -1843,13 +1839,13 @@ public class ContainerIntegration {
 
 				}
 
-				item.put( DockerJson.list_label.json( ), label ) ;
+				item.put( C7.list_label.val( ), label ) ;
 
 				InspectImageResponse imageResponse = dockerClient.inspectImageCmd( image.getId( ) ).exec( ) ;
 
 				ObjectNode inspectJson = jsonMapper.convertValue( imageResponse, ObjectNode.class ) ;
 
-				item.set( DockerJson.list_attributes.json( ), inspectJson ) ;
+				item.set( C7.list_attributes.val( ), inspectJson ) ;
 				item.put( "folder", true ) ;
 				item.put( "lazy", true ) ;
 
@@ -1858,7 +1854,7 @@ public class ContainerIntegration {
 			if ( images.size( ) == 0 ) {
 
 				ObjectNode item = imageListing.addObject( ) ;
-				item.put( DockerJson.error.json( ), "No images defined" ) ;
+				item.put( C7.error.val( ), "No images defined" ) ;
 
 			}
 
@@ -1897,7 +1893,7 @@ public class ContainerIntegration {
 					// leave in place as anonymous
 					.exec( ) ;
 
-			result.put( DockerJson.response_info.json( ), "image has been removed: " + name ) ;
+			result.put( C7.response_info.val( ), "image has been removed: " + name ) ;
 			result.set( "listing", imageListNames( ) ) ;
 
 		} catch ( Exception e ) {
@@ -2058,11 +2054,11 @@ public class ContainerIntegration {
 	}
 
 	// synchronized - not need due to use of pull lactc
-	public ObjectNode imagePull (
-									String imageName ,
-									OutputFileMgr pullOutput ,
-									int maxSecondsToBlockOnPull ,
-									int maxAttempts ) {
+	synchronized public ObjectNode imagePull (
+												String imageName ,
+												OutputFileMgr pullOutput ,
+												int maxSecondsToBlockOnPull ,
+												int maxAttempts ) {
 
 		logger.info( "Pulling: {} , Waiting for: {} seconds, maxAttempts: {}",
 				imageName, maxSecondsToBlockOnPull, maxAttempts ) ;
@@ -2082,8 +2078,8 @@ public class ContainerIntegration {
 
 			if ( isPullInProgress( ) ) {
 
-				pullReporting.put( DockerJson.error.json( ), "Failed to pull: " + imageName ) ;
-				pullReporting.put( DockerJson.errorReason.json( ),
+				pullReporting.put( C7.error.val( ), "Failed to pull: " + imageName ) ;
+				pullReporting.put( C7.errorReason.val( ),
 						"Docker pull already in progress: " + getLastImage( )
 								+ " - wait a minute and try again later." ) ;
 
@@ -2119,14 +2115,14 @@ public class ContainerIntegration {
 
 				}
 
-				pullReporting.put( DockerJson.response_info.json( ), "pulling image: " + imageName + " ..." ) ;
-				pullReporting.put( DockerJson.pull_complete.json( ), isImagePullCompleted ) ;
+				pullReporting.put( C7.response_info.val( ), "pulling image: " + imageName + " ..." ) ;
+				pullReporting.put( C7.pull_complete.val( ), isImagePullCompleted ) ;
 				pullReporting.put( "monitorProgress", true ) ;
 
 				// error checking relies on callbacks to complete. Wait a few
 				// seconds for them to complete
 				pullLatch.await( 3, TimeUnit.SECONDS ) ;
-				pullReporting.put( DockerJson.error.json( ), isFoundPullError( ) ) ;
+				pullReporting.put( C7.error.val( ), isFoundPullError( ) ) ;
 
 			}
 
@@ -2215,7 +2211,7 @@ public class ContainerIntegration {
 	private List<String> jsonStringList ( String jsonInput )
 		throws Exception {
 
-		String hostname = Application.getInstance( ).getHostFqdn( ) ;
+		String hostname = configuration.csapApis( ).application( ).getHostFqdn( ) ;
 
 		if ( Application.isRunningOnDesktop( ) ) {
 
@@ -2226,7 +2222,7 @@ public class ContainerIntegration {
 
 		jsonInput = jsonInput.replaceAll( "_HOST_NAME_", hostname ) ;
 		JsonNode jsonArray = jsonMapper.readTree( jsonInput ) ;
-		List<String> trimmedList = CsapCore
+		List<String> trimmedList = CsapConstants
 				.jsonStream( jsonArray )
 				.map( JsonNode::asText )
 				.map( String::trim )
@@ -2269,10 +2265,11 @@ public class ContainerIntegration {
 			// ).asText( "$instance" ) ;
 			String containerName = serviceInstance.getDockerContainerName( ) ;
 			containerName = getNetworkSafeContainerName(
-					Application.getInstance( ).resolveDefinitionVariables( containerName, serviceInstance ) ) ;
+					configuration.csapApis( ).application( ).resolveDefinitionVariables( containerName,
+							serviceInstance ) ) ;
 
 			String imageName = dockerDetails
-					.path( DockerJson.imageName.json( ) )
+					.path( C7.imageName.val( ) )
 					.asText( DOCKER_DEFAULT_IMAGE ) ;
 
 			result = containerCreate(
@@ -2280,16 +2277,16 @@ public class ContainerIntegration {
 					true,
 					imageName,
 					containerName,
-					jsonAsString( dockerDetails.get( DockerJson.command.json( ) ), "[]" ),
-					jsonAsString( dockerDetails.get( DockerJson.entryPoint.json( ) ), "[]" ),
-					dockerDetails.path( DockerJson.workingDirectory.json( ) ).asText( "" ),
-					jsonAsString( dockerDetails.get( DockerJson.network.json( ) ), "" ),
-					dockerDetails.path( DockerJson.restartPolicy.json( ) ).asText( "unless-stopped" ),
-					dockerDetails.path( DockerJson.runUser.json( ) ).asText( "" ),
-					jsonAsString( dockerDetails.get( DockerJson.portMappings.json( ) ), "" ),
-					jsonAsString( dockerDetails.get( DockerJson.volumes.json( ) ), "" ),
-					jsonAsString( dockerDetails.get( DockerJson.environmentVariables.json( ) ), "" ),
-					jsonAsString( dockerDetails.get( DockerJson.limits.json( ) ), "" ) ) ;
+					jsonAsString( dockerDetails.get( C7.command.val( ) ), "[]" ),
+					jsonAsString( dockerDetails.get( C7.entryPoint.val( ) ), "[]" ),
+					dockerDetails.path( C7.workingDirectory.val( ) ).asText( "" ),
+					jsonAsString( dockerDetails.get( C7.network.val( ) ), "" ),
+					dockerDetails.path( C7.restartPolicy.val( ) ).asText( "unless-stopped" ),
+					dockerDetails.path( C7.runUser.val( ) ).asText( "" ),
+					jsonAsString( dockerDetails.get( C7.portMappings.val( ) ), "" ),
+					jsonAsString( dockerDetails.get( C7.volumes.val( ) ), "" ),
+					jsonAsString( dockerDetails.get( C7.environmentVariables.val( ) ), "" ),
+					jsonAsString( dockerDetails.get( C7.limits.val( ) ), "" ) ) ;
 
 		} catch ( Exception e ) {
 
@@ -2329,7 +2326,7 @@ public class ContainerIntegration {
 				network, restartPolicy, runUser,
 				ports, volumes, environmentVariables, limits ) ;
 
-		Timer.Sample deployTimer = dockerConfig.getCsapApp( ).metrics( ).startTimer( ) ;
+		Timer.Sample deployTimer = configuration.csapApis( ).metrics( ).startTimer( ) ;
 
 		if ( ! imageName.contains( ":" ) ) {
 
@@ -2370,7 +2367,8 @@ public class ContainerIntegration {
 
 				if ( serviceInstance != null ) {
 
-					workingDirectory = Application.getInstance( ).resolveDefinitionVariables( workingDirectory,
+					workingDirectory = configuration.csapApis( ).application( ).resolveDefinitionVariables(
+							workingDirectory,
 							serviceInstance ) ;
 
 				}
@@ -2387,7 +2385,7 @@ public class ContainerIntegration {
 						network,
 						hostSettings ) ;
 
-				result.set( DockerJson.response_network_create.json( ), networkResults ) ;
+				result.set( C7.response_network_create.val( ), networkResults ) ;
 				creationMessage.append( "\n\t networkResults: " + network.toString( ) ) ;
 
 			}
@@ -2467,7 +2465,7 @@ public class ContainerIntegration {
 						dockerCreateCommand ) ;
 
 				creationMessage.append( "\n\n\t volumeResults: " + volumeResults.toString( ) ) ;
-				result.set( DockerJson.response_volume_create.json( ), volumeResults ) ;
+				result.set( C7.response_volume_create.val( ), volumeResults ) ;
 
 			}
 
@@ -2498,7 +2496,7 @@ public class ContainerIntegration {
 			if ( start ) {
 
 				ObjectNode startResults = containerStart( containerInfo.getId( ), name ) ;
-				result.set( DockerJson.response_start_results.json( ), startResults ) ;
+				result.set( C7.response_start_results.val( ), startResults ) ;
 
 			}
 
@@ -2513,7 +2511,7 @@ public class ContainerIntegration {
 
 			if ( e.getClass( ).getSimpleName( ).toLowerCase( ).contains( "notmodified" ) ) {
 
-				result.put( DockerJson.response_info.json( ), "Container was already running: " + name ) ;
+				result.put( C7.response_info.val( ), "Container was already running: " + name ) ;
 
 			} else {
 
@@ -2523,7 +2521,7 @@ public class ContainerIntegration {
 
 		}
 
-		dockerConfig.getCsapApp( ).metrics( ).stopTimer( deployTimer, DEPLOY_TIMER ) ;
+		configuration.csapApis( ).metrics( ).stopTimer( deployTimer, DEPLOY_TIMER ) ;
 
 		return result ;
 
@@ -2564,7 +2562,7 @@ public class ContainerIntegration {
 
 				variablesUpdated = envList
 						.stream( )
-						.map( variable -> Application.getInstance( ).resolveDefinitionVariables( variable,
+						.map( variable -> configuration.csapApis( ).application( ).resolveDefinitionVariables( variable,
 								serviceInstance ) )
 						.filter( variable -> {
 
@@ -2668,7 +2666,7 @@ public class ContainerIntegration {
 
 		if ( limitsObject.has( "memoryInMb" ) ) {
 
-			hostSettings.withMemory( limitsObject.get( "memoryInMb" ).asLong( ) * CsapCore.MB_FROM_BYTES ) ;
+			hostSettings.withMemory( limitsObject.get( "memoryInMb" ).asLong( ) * CsapConstants.MB_FROM_BYTES ) ;
 
 		}
 
@@ -2782,41 +2780,43 @@ public class ContainerIntegration {
 		if ( jmxPort > 1000 ) {
 
 			ObjectNode portObject = portArray.addObject( ) ;
-			portObject.put( DockerJson.privatePort.json( ), jmxPort ) ;
-			portObject.put( DockerJson.publicPort.json( ), jmxPort ) ;
+			portObject.put( C7.privatePort.val( ), jmxPort ) ;
+			portObject.put( C7.publicPort.val( ), jmxPort ) ;
 
 		}
 
 		portArray.forEach( portItem -> {
 
-			int privatePortInt = portItem.path( DockerJson.privatePort.json( ) ).asInt( 0 ) ;
+			int privatePortInt = portItem.path( C7.privatePort.val( ) ).asInt( 0 ) ;
 
 			if ( privatePortInt != 0 ) {
 
-				String privatePortString = portItem.path( DockerJson.privatePort.json( ) ).asText( ) ;
+				String privatePortString = portItem.path( C7.privatePort.val( ) ).asText( ) ;
 
-				if ( serviceInstance != null && privatePortString.startsWith( CsapCore.CSAP_VARIABLE_PREFIX ) ) {
+				if ( serviceInstance != null && privatePortString.startsWith( CsapConstants.CSAP_VARIABLE_PREFIX ) ) {
 
-					privatePortString = Application.getInstance( ).resolveDefinitionVariables( privatePortString,
+					privatePortString = configuration.csapApis( ).application( ).resolveDefinitionVariables(
+							privatePortString,
 							serviceInstance ) ;
 					privatePortInt = Integer.parseInt( privatePortString ) ;
 
 				}
 
-				int publicPort = portItem.path( DockerJson.publicPort.json( ) ).asInt( ) ;
+				int publicPort = portItem.path( C7.publicPort.val( ) ).asInt( ) ;
 
-				String publicPortString = portItem.path( DockerJson.publicPort.json( ) ).asText( ) ;
+				String publicPortString = portItem.path( C7.publicPort.val( ) ).asText( ) ;
 
-				if ( serviceInstance != null && publicPortString.startsWith( CsapCore.CSAP_VARIABLE_PREFIX ) ) {
+				if ( serviceInstance != null && publicPortString.startsWith( CsapConstants.CSAP_VARIABLE_PREFIX ) ) {
 
-					publicPortString = Application.getInstance( ).resolveDefinitionVariables( publicPortString,
+					publicPortString = configuration.csapApis( ).application( ).resolveDefinitionVariables(
+							publicPortString,
 							serviceInstance ) ;
 					publicPort = Integer.parseInt( publicPortString ) ;
 
 				}
 
 				var exposedPort = ExposedPort.tcp( privatePortInt ) ;
-				var protocol = portItem.path( DockerJson.protocol.json( ) ).asText( "tcp" ) ;
+				var protocol = portItem.path( C7.protocol.val( ) ).asText( "tcp" ) ;
 
 				if ( protocol.equalsIgnoreCase( "udp" ) ) {
 
@@ -2833,7 +2833,7 @@ public class ContainerIntegration {
 			} else {
 
 				creationMessage.append(
-						"\n\n\t WARNING: invalid value for: " + portItem + " key " + DockerJson.privatePort.json( )
+						"\n\n\t WARNING: invalid value for: " + portItem + " key " + C7.privatePort.val( )
 								.toString( ) ) ;
 
 			}
@@ -2859,22 +2859,22 @@ public class ContainerIntegration {
 		ObjectNode result = jsonMapper.createObjectNode( ) ;
 		JsonNode networkDefinition = jsonMapper.readTree( network ) ;
 
-		if ( networkDefinition.has( DockerJson.network_name.json( ) ) ) {
+		if ( networkDefinition.has( C7.network_name.val( ) ) ) {
 
-			String networkMode = networkDefinition.get( DockerJson.network_name.json( ) ).asText( ) ;
+			String networkMode = networkDefinition.get( C7.network_name.val( ) ).asText( ) ;
 
 			hostConfig.withNetworkMode( networkMode ) ;
 
-			if ( networkDefinition.has( DockerJson.create_persistent.json( ) ) &&
-					networkDefinition.get( DockerJson.create_persistent.json( ) ).has( "enabled" ) &&
-					networkDefinition.get( DockerJson.create_persistent.json( ) ).get( "enabled" ).asBoolean( ) ) {
+			if ( networkDefinition.has( C7.create_persistent.val( ) ) &&
+					networkDefinition.get( C7.create_persistent.val( ) ).has( "enabled" ) &&
+					networkDefinition.get( C7.create_persistent.val( ) ).get( "enabled" ).asBoolean( ) ) {
 
 				result.set(
-						DockerJson.create_persistent.json( ),
+						C7.create_persistent.val( ),
 						networkCreate( networkMode,
 								networkDefinition
-										.get( DockerJson.create_persistent.json( ) )
-										.get( DockerJson.network_driver.json( ) ).asText( ),
+										.get( C7.create_persistent.val( ) )
+										.get( C7.network_driver.val( ) ).asText( ),
 								true ) ) ;
 
 			}
@@ -2898,20 +2898,21 @@ public class ContainerIntegration {
 
 		ArrayNode volumeArray = (ArrayNode) jsonMapper.readTree( volumes ) ;
 
-		ArrayNode createPersistentResults = result.putArray( DockerJson.create_persistent.json( ) ) ;
+		ArrayNode createPersistentResults = result.putArray( C7.create_persistent.val( ) ) ;
 
 		// support customizations for volumes using default settings
 		volumeArray.forEach( volumeDef -> {
 
-			String hostPath = volumeDef.path( DockerJson.volume_host_path.json( ) ).asText( "" ) ;
+			String hostPath = volumeDef.path( C7.volume_host_path.val( ) ).asText( "" ) ;
 
 			if ( serviceInstance != null ) {
 
-				hostPath = Application.getInstance( ).resolveDefinitionVariables( hostPath, serviceInstance ) ;
+				hostPath = configuration.csapApis( ).application( ).resolveDefinitionVariables( hostPath,
+						serviceInstance ) ;
 
 			}
 
-			String driver = volumeDef.at( "/" + DockerJson.create_persistent.json( ) + "/driver" ).asText(
+			String driver = volumeDef.at( "/" + C7.create_persistent.val( ) + "/driver" ).asText(
 					"no-driver-specified" ) ;
 
 			File hostVolume = new File( hostPath ) ;
@@ -2945,15 +2946,15 @@ public class ContainerIntegration {
 
 			} else {
 
-				if ( volumeDef.has( DockerJson.create_persistent.json( ) ) &&
-						volumeDef.get( DockerJson.create_persistent.json( ) ).has( "driver" ) ) {
+				if ( volumeDef.has( C7.create_persistent.val( ) ) &&
+						volumeDef.get( C7.create_persistent.val( ) ).has( "driver" ) ) {
 
 				}
 
-				if ( volumeDef.has( DockerJson.create_persistent.json( ) ) &&
-						volumeDef.get( DockerJson.create_persistent.json( ) ).has( "driver" ) &&
-						volumeDef.get( DockerJson.create_persistent.json( ) ).has( "enabled" ) &&
-						volumeDef.at( "/" + DockerJson.create_persistent.json( ) + "/enabled" ).asBoolean( ) ) {
+				if ( volumeDef.has( C7.create_persistent.val( ) ) &&
+						volumeDef.get( C7.create_persistent.val( ) ).has( "driver" ) &&
+						volumeDef.get( C7.create_persistent.val( ) ).has( "enabled" ) &&
+						volumeDef.at( "/" + C7.create_persistent.val( ) + "/enabled" ).asBoolean( ) ) {
 
 					if ( ! driver.equals( "host" ) ) {
 
@@ -2973,11 +2974,11 @@ public class ContainerIntegration {
 
 						} else if ( hostVolume.isDirectory( ) ) {
 
-							hostResult.put( DockerJson.response_info.json( ), SKIPPING_VOLUME_CREATE ) ;
+							hostResult.put( C7.response_info.val( ), SKIPPING_VOLUME_CREATE ) ;
 
 						} else {
 
-							hostResult.put( DockerJson.response_info.json( ), "Creating os volume" ) ;
+							hostResult.put( C7.response_info.val( ), "Creating os volume" ) ;
 							boolean isHostVolumeCreated = hostVolume.mkdirs( ) ;
 
 							if ( ! isHostVolumeCreated ) {
@@ -3039,7 +3040,8 @@ public class ContainerIntegration {
 				if ( serviceInstance != null ) {
 
 					// hostPath = serviceInstance.resolveRuntimeVariables( hostPath ) ;
-					containerMount = Application.getInstance( ).resolveDefinitionVariables( containerMount,
+					containerMount = configuration.csapApis( ).application( ).resolveDefinitionVariables(
+							containerMount,
 							serviceInstance ) ;
 
 				}
@@ -3068,7 +3070,7 @@ public class ContainerIntegration {
 
 		Optional<String> csapJavaParameter = commandOrEntryParameters
 				.stream( )
-				.filter( item -> item.contains( CsapCore.DOCKER_JAVA_PARAMETER ) )
+				.filter( item -> item.contains( CsapConstants.DOCKER_JAVA_PARAMETER ) )
 				.findFirst( ) ;
 
 		if ( csapJavaParameter.isPresent( ) ) {
@@ -3077,7 +3079,7 @@ public class ContainerIntegration {
 
 			String javaParam = csapJavaParameter.get( ).trim( ) ;
 
-			boolean isShellWrapper = ! javaParam.equals( CsapCore.DOCKER_JAVA_PARAMETER ) ;
+			boolean isShellWrapper = ! javaParam.equals( CsapConstants.DOCKER_JAVA_PARAMETER ) ;
 
 			if ( isShellWrapper ) {
 
@@ -3087,11 +3089,11 @@ public class ContainerIntegration {
 
 					// Add csapProcessId
 					dockerJavaParams += " -DcsapProcessId=" + serviceInstance.getName( ) + " " ;
-					dockerJavaParams += " " + CsapCore.JMX_PARAMETER + serviceInstance.getJmxPort( ) + " " ;
+					dockerJavaParams += " " + CsapConstants.JMX_PARAMETER + serviceInstance.getJmxPort( ) + " " ;
 
 				}
 
-				String updatedCommand = csapJavaParameter.get( ).replaceAll( CsapCore.DOCKER_JAVA_PARAMETER,
+				String updatedCommand = csapJavaParameter.get( ).replaceAll( CsapConstants.DOCKER_JAVA_PARAMETER,
 						dockerJavaParams ) ;
 				commandOrEntryParameters.set( javaCommandIndex, updatedCommand ) ;
 
@@ -3103,7 +3105,7 @@ public class ContainerIntegration {
 
 					// Add csapProcessId
 					commandOrEntryParameters.add( javaCommandIndex, " -DcsapProcessId=" + serviceInstance.getName( ) ) ;
-					commandOrEntryParameters.add( javaCommandIndex, CsapCore.JMX_PARAMETER + serviceInstance
+					commandOrEntryParameters.add( javaCommandIndex, CsapConstants.JMX_PARAMETER + serviceInstance
 							.getJmxPort( ) ) ;
 
 				}
@@ -3143,7 +3145,7 @@ public class ContainerIntegration {
 
 			javaDockerParameter = commandOrEntryOrEnvItems
 					.stream( )
-					.filter( item -> item.contains( CsapCore.DOCKER_JAVA_PARAMETER ) )
+					.filter( item -> item.contains( CsapConstants.DOCKER_JAVA_PARAMETER ) )
 					.findFirst( ) ;
 
 			if ( javaDockerParameter.isPresent( ) ) {
@@ -3164,7 +3166,7 @@ public class ContainerIntegration {
 
 				matchedFullParameter = javaDockerParameter.get( ) ;
 				// eg. JAVA_OPTS=-DcsapDockerJava
-				isDockerShellWrapper = ! matchedFullParameter.startsWith( CsapCore.DOCKER_JAVA_PARAMETER ) ;
+				isDockerShellWrapper = ! matchedFullParameter.startsWith( CsapConstants.DOCKER_JAVA_PARAMETER ) ;
 
 			}
 
@@ -3177,7 +3179,7 @@ public class ContainerIntegration {
 
 			Optional<String> jmxPortParamOptional = commandOrEntryOrEnvItems
 					.stream( )
-					.filter( item -> item.contains( CsapCore.JMX_PARAMETER ) )
+					.filter( item -> item.contains( CsapConstants.JMX_PARAMETER ) )
 					.findFirst( ) ;
 
 			if ( jmxPortParamOptional.isPresent( ) ) {
@@ -3186,10 +3188,10 @@ public class ContainerIntegration {
 
 					matchedFullParameter = jmxPortParamOptional.get( ) ;
 					String jmxPortParam = jmxPortParamOptional.get( ).trim( ) ;
-					isDockerShellWrapper = ! jmxPortParam.startsWith( CsapCore.JMX_PARAMETER ) ;
+					isDockerShellWrapper = ! jmxPortParam.startsWith( CsapConstants.JMX_PARAMETER ) ;
 
-					jmxPortParam = jmxPortParam.substring( jmxPortParam.indexOf( CsapCore.JMX_PARAMETER ) ) ;
-					String portString = jmxPortParam.substring( CsapCore.JMX_PARAMETER.length( ) ).trim( ) ;
+					jmxPortParam = jmxPortParam.substring( jmxPortParam.indexOf( CsapConstants.JMX_PARAMETER ) ) ;
+					String portString = jmxPortParam.substring( CsapConstants.JMX_PARAMETER.length( ) ).trim( ) ;
 
 					int spaceIndex = portString.indexOf( " " ) ;
 
@@ -3202,7 +3204,7 @@ public class ContainerIntegration {
 
 					if ( serviceInstance != null ) {
 
-						portString = Application.getInstance( ).resolveDefinitionVariables( portString,
+						portString = configuration.csapApis( ).application( ).resolveDefinitionVariables( portString,
 								serviceInstance ) ;
 
 					}
@@ -3226,7 +3228,8 @@ public class ContainerIntegration {
 
 			int commandEntryEnv_index = commandOrEntryOrEnvItems.indexOf( matchedFullParameter ) ;
 
-			JsonNode jmxParameterTemplate = Application.getInstance( ).getServiceTemplates( ).get( "javaJmx" ) ;
+			JsonNode jmxParameterTemplate = configuration.csapApis( ).application( ).getServiceTemplates( ).get(
+					"javaJmx" ) ;
 			ArrayList<String> jmxParams = jsonMapper.readValue(
 					jmxParameterTemplate.traverse( ),
 					new TypeReference<ArrayList<String>>( ) {
@@ -3238,7 +3241,8 @@ public class ContainerIntegration {
 
 			jmxParams
 					.stream( )
-					.map( jmxParam -> jmxParam.replaceAll( "_HOST_NAME_", Application.getInstance( ).getHostFqdn( ) ) )
+					.map( jmxParam -> jmxParam.replaceAll( "_HOST_NAME_", configuration.csapApis( ).application( )
+							.getHostFqdn( ) ) )
 					.map( jmxParam -> jmxParam.replaceAll( "_JMX_PORT_", portString ) )
 					.forEach( jmxParam -> {
 
@@ -3269,11 +3273,11 @@ public class ContainerIntegration {
 				}
 
 				StringBuilder updatedItem = new StringBuilder( matchedFullParameter ) ;
-				int insertPoint = updatedItem.indexOf( CsapCore.DOCKER_JAVA_PARAMETER ) ;
+				int insertPoint = updatedItem.indexOf( CsapConstants.DOCKER_JAVA_PARAMETER ) ;
 
 				if ( insertPoint == -1 ) {
 
-					insertPoint = updatedItem.indexOf( CsapCore.JMX_PARAMETER ) ;
+					insertPoint = updatedItem.indexOf( CsapConstants.JMX_PARAMETER ) ;
 
 				}
 
@@ -3290,7 +3294,7 @@ public class ContainerIntegration {
 			for ( int i = 0; i < commandOrEntryOrEnvItems.size( ); i++ ) {
 
 				commandOrEntryOrEnvItems.set( i,
-						Application.getInstance( ).resolveDefinitionVariables(
+						configuration.csapApis( ).application( ).resolveDefinitionVariables(
 								commandOrEntryOrEnvItems.get( i ), serviceInstance ) ) ;
 
 			}
@@ -3347,7 +3351,7 @@ public class ContainerIntegration {
 
 		String scriptOutput = "Failed to run" ;
 
-		var timer = getDockerConfig( ).getCsapApp( ).metrics( ).startTimer( ) ;
+		var timer = configuration.csapApis( ).metrics( ).startTimer( ) ;
 
 		try {
 
@@ -3363,7 +3367,7 @@ public class ContainerIntegration {
 
 		}
 
-		getDockerConfig( ).getCsapApp( ).metrics( ).stopTimer( timer, "collect-docker.socket-stat" ) ;
+		configuration.csapApis( ).metrics( ).stopTimer( timer, "collect-docker.socket-stat" ) ;
 		return scriptOutput ;
 
 	}
@@ -3413,7 +3417,7 @@ public class ContainerIntegration {
 
 				if ( container.getNames( ).length == 1 ) {
 
-					label = container.getNames( )[ 0 ] ;
+					label = container.getNames( )[0] ;
 
 				}
 
@@ -3434,7 +3438,7 @@ public class ContainerIntegration {
 
 							try {
 
-								disk = Long.parseLong( line.split( " " )[ 0 ] ) ;
+								disk = Long.parseLong( line.split( " " )[0] ) ;
 
 							} catch ( Exception e ) {
 
@@ -3462,7 +3466,7 @@ public class ContainerIntegration {
 			if ( containers.size( ) == 0 ) {
 
 				ObjectNode item = containerListing.addObject( ) ;
-				item.put( DockerJson.error.json( ), "No containers defined" ) ;
+				item.put( C7.error.val( ), "No containers defined" ) ;
 
 			}
 
@@ -3490,8 +3494,8 @@ public class ContainerIntegration {
 
 			if ( containerId == null ) {
 
-				result.put( DockerJson.error.json( ), "Failed removing: " + name ) ;
-				result.put( DockerJson.errorReason.json( ), "Unable to locate container id" ) ;
+				result.put( C7.error.val( ), "Failed removing: " + name ) ;
+				result.put( C7.errorReason.val( ), "Unable to locate container id" ) ;
 
 			} else {
 
@@ -3529,7 +3533,7 @@ public class ContainerIntegration {
 						.withForce( force )
 						.withRemoveVolumes( true )
 						.exec( ) ;
-				result.put( DockerJson.response_info.json( ), "removed container: " + containerId ) ;
+				result.put( C7.response_info.val( ), "removed container: " + containerId ) ;
 
 			}
 			// InspectContainerResponse info = getContainerStatus(
@@ -3561,14 +3565,14 @@ public class ContainerIntegration {
 			if ( targetId != null && ! targetId.isEmpty( ) ) {
 
 				dockerClient.startContainerCmd( targetId ).exec( ) ;
-				result.put( DockerJson.response_info.json( ), "Started container: " + name + " id:" + targetId ) ;
+				result.put( C7.response_info.val( ), "Started container: " + name + " id:" + targetId ) ;
 				InspectContainerResponse info = dockerClient.inspectContainerCmd( targetId ).exec( ) ;
 				;
 				result.set( "state", jsonMapper.convertValue( info.getState( ), ObjectNode.class ) ) ;
 
 			} else {
 
-				result.put( DockerJson.error.json( ), "Container not found: " + name ) ;
+				result.put( C7.error.val( ), "Container not found: " + name ) ;
 
 			}
 
@@ -3579,7 +3583,7 @@ public class ContainerIntegration {
 
 			if ( e.getClass( ).getSimpleName( ).toLowerCase( ).contains( "notmodified" ) ) {
 
-				result.put( DockerJson.response_info.json( ), "Container was already running: " + name ) ;
+				result.put( C7.response_info.val( ), "Container was already running: " + name ) ;
 
 			} else {
 
@@ -3666,13 +3670,13 @@ public class ContainerIntegration {
 
 				}
 
-				result.put( DockerJson.response_info.json( ), "Stopped container: " + name ) ;
+				result.put( C7.response_info.val( ), "Stopped container: " + name ) ;
 				InspectContainerResponse info = containerConfiguration( name ) ;
 				result.set( "state", jsonMapper.convertValue( info.getState( ), ObjectNode.class ) ) ;
 
 			} else {
 
-				result.put( DockerJson.error.json( ), "Container not found: " + name ) ;
+				result.put( C7.error.val( ), "Container not found: " + name ) ;
 
 			}
 
@@ -3680,7 +3684,7 @@ public class ContainerIntegration {
 
 			if ( e.getClass( ).getSimpleName( ).toLowerCase( ).contains( "notmodified" ) ) {
 
-				result.put( DockerJson.response_info.json( ), "Container was already stopped: " + name ) ;
+				result.put( C7.response_info.val( ), "Container was already stopped: " + name ) ;
 
 			} else {
 
@@ -3729,7 +3733,7 @@ public class ContainerIntegration {
 		logger.warn( "Failure: {} {}", description, reason ) ;
 		logger.debug( "detailed stack", failureExeption ) ;
 
-		result.put( DockerJson.error.json( ), description ) ;
+		result.put( C7.error.val( ), description ) ;
 
 		String uiMessage = failureExeption.getMessage( ) ;
 
@@ -3749,7 +3753,7 @@ public class ContainerIntegration {
 
 		}
 
-		result.put( DockerJson.errorReason.json( ), uiMessage + ". Reference: " + failureExeption.getClass( )
+		result.put( C7.errorReason.val( ), uiMessage + ". Reference: " + failureExeption.getClass( )
 				.getSimpleName( ) ) ;
 		return result ;
 
@@ -3763,7 +3767,7 @@ public class ContainerIntegration {
 
 		if ( ! driver.equals( "host" ) && ! driver.equals( "local" ) ) {
 
-			result.put( DockerJson.warning.json( ), "Experimental driver detected: " + driver ) ;
+			result.put( C7.warning.val( ), "Experimental driver detected: " + driver ) ;
 
 		}
 
@@ -3771,8 +3775,8 @@ public class ContainerIntegration {
 
 			if ( skipIfExists && volumeNames( ).contains( name ) ) {
 
-				result.put( DockerJson.response_info.json( ), SKIPPING_VOLUME_CREATE ) ;
-				result.set( DockerJson.response_volume_list.json( ), jsonMapper.convertValue( volumeNames( ),
+				result.put( C7.response_info.val( ), SKIPPING_VOLUME_CREATE ) ;
+				result.set( C7.response_volume_list.val( ), jsonMapper.convertValue( volumeNames( ),
 						ArrayNode.class ) ) ;
 				return result ;
 
@@ -3802,7 +3806,7 @@ public class ContainerIntegration {
 		ArrayNode listing = volumeList( ) ;
 
 		nameList = CSAP.jsonStream( listing )
-				.map( volume -> volume.get( DockerJson.list_label.json( ) ).asText( ) )
+				.map( volume -> volume.get( C7.list_label.val( ) ).asText( ) )
 				.collect( Collectors.toList( ) ) ;
 
 		return nameList ;
@@ -3820,14 +3824,14 @@ public class ContainerIntegration {
 					.exec( ) ;
 
 			result.set(
-					DockerJson.response_volume_list.json( ),
+					C7.response_volume_list.val( ),
 					jsonMapper.convertValue(
 							volumeNames( ),
 							ArrayNode.class ) ) ;
 
 		} catch ( NotFoundException e ) {
 
-			result.put( DockerJson.response_info.json( ), "Volume did not exist, command ignored" ) ;
+			result.put( C7.response_info.val( ), "Volume did not exist, command ignored" ) ;
 
 		} catch ( Exception e ) {
 
@@ -3864,12 +3868,12 @@ public class ContainerIntegration {
 					logger.debug( "volume: \n {}", volume.toString( ) ) ;
 
 					ObjectNode item = volumeListing.addObject( ) ;
-					item.put( DockerJson.list_label.json( ), volume.getName( ) ) ;
+					item.put( C7.list_label.val( ), volume.getName( ) ) ;
 
 					InspectVolumeResponse volumeInpect = dockerClient.inspectVolumeCmd( volume.getName( ) ).exec( ) ;
 					ObjectNode inspectJson = jsonMapper.convertValue( volumeInpect, ObjectNode.class ) ;
 
-					item.set( DockerJson.list_attributes.json( ), inspectJson ) ;
+					item.set( C7.list_attributes.val( ), inspectJson ) ;
 					item.put( "folder", true ) ;
 					item.put( "lazy", true ) ;
 
@@ -3904,7 +3908,7 @@ public class ContainerIntegration {
 				""
 		} ;
 
-		var timer = getDockerConfig( ).getCsapApp( ).metrics( ).startTimer( ) ;
+		var timer = configuration.csapApis( ).metrics( ).startTimer( ) ;
 
 		try {
 
@@ -3925,7 +3929,7 @@ public class ContainerIntegration {
 
 		}
 
-		getDockerConfig( ).getCsapApp( ).metrics( ).stopTimer( timer, "collect-docker.disk-usage" ) ;
+		configuration.csapApis( ).metrics( ).stopTimer( timer, "collect-docker.disk-usage" ) ;
 
 		return dockerDiskUsageCache ;
 
@@ -3940,9 +3944,9 @@ public class ContainerIntegration {
 
 			if ( skipIfExists && networkNames( ).contains( name ) ) {
 
-				result.put( DockerJson.response_info.json( ), SKIPPING_NETWORK_CREATE ) ;
+				result.put( C7.response_info.val( ), SKIPPING_NETWORK_CREATE ) ;
 
-				result.set( DockerJson.response_network_list.json( ),
+				result.set( C7.response_network_list.val( ),
 						jsonMapper.convertValue( networkNames( ), ArrayNode.class ) ) ;
 
 				return result ;
@@ -3977,7 +3981,7 @@ public class ContainerIntegration {
 
 			result = jsonMapper.createObjectNode( ) ;
 			result.set(
-					DockerJson.response_network_list.json( ),
+					C7.response_network_list.val( ),
 					jsonMapper.convertValue(
 							networkNames( ),
 							ArrayNode.class ) ) ;
@@ -3995,7 +3999,7 @@ public class ContainerIntegration {
 	public List<String> networkNames ( ) {
 
 		List<String> names = CSAP.jsonStream( networkList( ) )
-				.map( volume -> volume.get( DockerJson.list_label.json( ) ).asText( ) )
+				.map( volume -> volume.get( C7.list_label.val( ) ).asText( ) )
 				.collect( Collectors.toList( ) ) ;
 
 		return names ;
@@ -4019,7 +4023,7 @@ public class ContainerIntegration {
 				ObjectNode networkContainers = (ObjectNode) networkJson.get( "Containers" ) ;
 
 				ObjectNode item = networkListing.addObject( ) ;
-				item.put( DockerJson.list_label.json( ), network.getName( ) ) ;
+				item.put( C7.list_label.val( ), network.getName( ) ) ;
 
 				// replace ID with container name if it exists
 				if ( network.getContainers( ) != null ) {
@@ -4049,7 +4053,7 @@ public class ContainerIntegration {
 
 				}
 
-				item.set( DockerJson.list_attributes.json( ), networkJson ) ;
+				item.set( C7.list_attributes.val( ), networkJson ) ;
 				item.put( "folder", true ) ;
 				item.put( "lazy", true ) ;
 
@@ -4121,7 +4125,7 @@ public class ContainerIntegration {
 
 	public ContainerConfiguration getDockerConfig ( ) {
 
-		return dockerConfig ;
+		return configuration ;
 
 	}
 

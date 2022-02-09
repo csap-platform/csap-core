@@ -13,8 +13,7 @@ import java.util.stream.Collectors ;
 import java.util.stream.Stream ;
 
 import org.csap.CsapMonitor ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.integrations.NagiosIntegration ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.Project ;
@@ -48,7 +47,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode ;
 @RestController
 @CsapMonitor ( prefix = "api.model" )
 @RequestMapping ( {
-		CsapCoreService.API_MODEL_URL
+		CsapConstants.API_MODEL_URL
 } )
 @CsapDoc ( title = "/api/model/*: apis for querying CSAP definition (Application.json)" , type = CsapDoc.PUBLIC , notes = {
 		"CSAP Application Apis provide access to the application definition and instances",
@@ -603,7 +602,7 @@ public class ModelApi {
 	@CsapDoc ( notes = {
 			"Service Definitions on host that match name specified regular expression filters",
 	} , linkTests = {
-			CsapCore.AGENT_NAME,
+			CsapConstants.AGENT_NAME,
 			"List"
 	} , linkGetParams = {
 			"serviceName=CsAgent"
@@ -630,7 +629,7 @@ public class ModelApi {
 	@CsapDoc ( notes = {
 			"Service Definitions on host that match regular expression context specified regular expression filters"
 	} , linkTests = {
-			CsapCore.AGENT_NAME,
+			CsapConstants.AGENT_NAME,
 			"List"
 	} , linkGetParams = {
 			"contextName=CsAgent"
@@ -718,7 +717,7 @@ public class ModelApi {
 	}
 
 	@CsapDoc ( notes = "Service Definitions on all hosts that match name specified regular expression filters" , linkTests = {
-			CsapCore.AGENT_NAME,
+			CsapConstants.AGENT_NAME,
 			"List"
 	} , linkGetParams = {
 			"serviceName=CsAgent"
@@ -740,7 +739,7 @@ public class ModelApi {
 	}
 
 	@CsapDoc ( notes = "Service Definitions on all hosts that matches regular expression context specified regular expression filters" , linkTests = {
-			CsapCore.AGENT_NAME, "List"
+			CsapConstants.AGENT_NAME, "List"
 	} , linkGetParams = {
 			"serviceContext=CsAgent"
 	} )

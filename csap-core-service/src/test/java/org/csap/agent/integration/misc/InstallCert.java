@@ -73,10 +73,10 @@ public class InstallCert {
 
 		if ( ( args.length == 1 ) || ( args.length == 2 ) ) {
 
-			String[] c = args[ 0 ].split( ":" ) ;
-			host = c[ 0 ] ;
-			port = ( c.length == 1 ) ? 443 : Integer.parseInt( c[ 1 ] ) ;
-			String p = ( args.length == 1 ) ? "changeit" : args[ 1 ] ;
+			String[] c = args[0].split( ":" ) ;
+			host = c[0] ;
+			port = ( c.length == 1 ) ? 443 : Integer.parseInt( c[1] ) ;
+			String p = ( args.length == 1 ) ? "changeit" : args[1] ;
 			passphrase = p.toCharArray( ) ;
 
 		} else {
@@ -112,7 +112,7 @@ public class InstallCert {
 		SSLContext context = SSLContext.getInstance( "TLS" ) ;
 		TrustManagerFactory tmf = TrustManagerFactory.getInstance( TrustManagerFactory.getDefaultAlgorithm( ) ) ;
 		tmf.init( ks ) ;
-		X509TrustManager defaultTrustManager = (X509TrustManager) tmf.getTrustManagers( )[ 0 ] ;
+		X509TrustManager defaultTrustManager = (X509TrustManager) tmf.getTrustManagers( )[0] ;
 		SavingTrustManager tm = new SavingTrustManager( defaultTrustManager ) ;
 		context.init( null, new TrustManager[] {
 				tm
@@ -157,7 +157,7 @@ public class InstallCert {
 
 		for ( int i = 0; i < chain.length; i++ ) {
 
-			X509Certificate cert = chain[ i ] ;
+			X509Certificate cert = chain[i] ;
 			System.out.println( " " + ( i + 1 ) + " Subject " + cert.getSubjectDN( ) ) ;
 			System.out.println( "   Issuer  " + cert.getIssuerDN( ) ) ;
 			sha1.update( cert.getEncoded( ) ) ;
@@ -183,7 +183,7 @@ public class InstallCert {
 
 		}
 
-		X509Certificate cert = chain[ k ] ;
+		X509Certificate cert = chain[k] ;
 		String alias = host + "-" + ( k + 1 ) ;
 		ks.setCertificateEntry( alias, cert ) ;
 
@@ -208,8 +208,8 @@ public class InstallCert {
 		for ( int b : bytes ) {
 
 			b &= 0xff ;
-			sb.append( HEXDIGITS[ b >> 4 ] ) ;
-			sb.append( HEXDIGITS[ b & 15 ] ) ;
+			sb.append( HEXDIGITS[b >> 4] ) ;
+			sb.append( HEXDIGITS[b & 15] ) ;
 			sb.append( ' ' ) ;
 
 		}

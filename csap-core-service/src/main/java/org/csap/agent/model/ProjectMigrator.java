@@ -21,7 +21,8 @@ import java.util.regex.Matcher ;
 import java.util.stream.Collectors ;
 
 import org.apache.commons.io.FileUtils ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.integrations.Vsphere ;
 import org.csap.agent.linux.OsCommandRunner ;
 import org.csap.agent.stats.MetricCategory ;
@@ -63,13 +64,13 @@ public class ProjectMigrator {
 		if ( modelVersion < CURRENT_VERSION ) {
 
 			logger.warn( CsapApplication.header( "Strict: {} Project: {} version: {}, required is: {}" ),
-					Application.getInstance( ).getCsapCoreService( ).isDefinitionStrictMode( ),
+					CsapApis.getInstance( ).application( ).getCsapCoreService( ).isDefinitionStrictMode( ),
 					projectFile.getName( ),
 					modelVersion, CURRENT_VERSION ) ;
 
 		}
 
-		if ( ! Application.getInstance( ).getCsapCoreService( ).isDefinitionStrictMode( ) ) {
+		if ( ! CsapApis.getInstance( ).application( ).getCsapCoreService( ).isDefinitionStrictMode( ) ) {
 
 			if ( modelVersion == 1.0 ) {
 
@@ -407,11 +408,11 @@ public class ProjectMigrator {
 
 											if ( jvmName.equals( "CsAgent" ) ) {
 
-												jvmName = CsapCore.AGENT_NAME ;
+												jvmName = CsapConstants.AGENT_NAME ;
 
 											} else if ( jvmName.equals( "admin" ) ) {
 
-												jvmName = CsapCore.ADMIN_NAME ;
+												jvmName = CsapConstants.ADMIN_NAME ;
 
 											}
 
@@ -494,140 +495,140 @@ public class ProjectMigrator {
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$processing" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_WORKING ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_WORKING ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$staging" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_BASE ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_BASE ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$life" ),
-				Matcher.quoteReplacement( CsapCore.SERVICE_ENV ) ) ;
+				Matcher.quoteReplacement( CsapConstants.SERVICE_ENV ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$dashboard" ),
-				Matcher.quoteReplacement( CsapCore.K8_DASHBOARD ) ) ;
+				Matcher.quoteReplacement( CsapConstants.K8_DASHBOARD ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$nodePort" ),
-				Matcher.quoteReplacement( CsapCore.K8_NODE_PORT ) ) ;
+				Matcher.quoteReplacement( CsapConstants.K8_NODE_PORT ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$podIp" ),
-				Matcher.quoteReplacement( CsapCore.K8_POD_IP ) ) ;
+				Matcher.quoteReplacement( CsapConstants.K8_POD_IP ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$ingress" ),
-				Matcher.quoteReplacement( CsapCore.K8_INGRESS ) ) ;
+				Matcher.quoteReplacement( CsapConstants.K8_INGRESS ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$kubeletConfigFolder" ),
-				Matcher.quoteReplacement( CsapCore.K8_CONFIG ) ) ;
+				Matcher.quoteReplacement( CsapConstants.K8_CONFIG ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$csap_def_fqdn_host" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_FQDN_HOST ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_FQDN_HOST ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$csap_def_host" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_HOST ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_HOST ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$host" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_HOST ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_HOST ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$csap_def_namespace" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_NAMESPACE ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_NAMESPACE ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$csap_def_replica_count" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_REPLICA ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_REPLICA ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$csap_def_docker_image" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_IMAGE ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_IMAGE ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$csap_def_name" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_NAME ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_NAME ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$serviceName" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_NAME ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_NAME ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$csap_def_resource_folder" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_RESOURCE ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_RESOURCE ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$resources" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_RESOURCE ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_RESOURCE ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$workingFolder" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_WORKING ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_WORKING ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$logFolder" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_LOGS ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_LOGS ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$csap_def_parameters" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_PARAMETERS ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_PARAMETERS ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$parameters" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_PARAMETERS ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_PARAMETERS ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$csap_def_parameters" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_PARAMETERS ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_PARAMETERS ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$csap_def_instance" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_NAME ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_NAME ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$instance" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_NAME ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_NAME ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$port" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_PORT ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_PORT ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$csap_def_port" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_PORT ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_PORT ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$ajpPort" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_AJP_PORT ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_AJP_PORT ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$jmxPort" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_JMX_PORT ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_JMX_PORT ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$csap_def_replica_count" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_REPLICA ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_REPLICA ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$context" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_DEF_CONTEXT ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_DEF_CONTEXT ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$serviceRef:" ),
-				Matcher.quoteReplacement( CsapCore.SERVICE_HOSTS ) ) ;
+				Matcher.quoteReplacement( CsapConstants.SERVICE_HOSTS ) ) ;
 
 		// migrate legacy variable prefixes
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "$csap_def_" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_VARIABLE_PREFIX ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_VARIABLE_PREFIX ) ) ;
 
 		textDefinition = textDefinition.replaceAll(
 				Matcher.quoteReplacement( "csap_def_" ),
-				Matcher.quoteReplacement( CsapCore.CSAP_VARIABLE_PREFIX ) ) ;
+				Matcher.quoteReplacement( CsapConstants.CSAP_VARIABLE_PREFIX ) ) ;
 
 		return textDefinition ;
 
@@ -639,13 +640,13 @@ public class ProjectMigrator {
 		// migrate to new service names
 		if ( serviceTemplates.has( "CsAgent" ) ) {
 
-			serviceTemplates.set( CsapCore.AGENT_NAME, serviceTemplates.remove( "CsAgent" ) ) ;
+			serviceTemplates.set( CsapConstants.AGENT_NAME, serviceTemplates.remove( "CsAgent" ) ) ;
 
 		}
 
 		if ( serviceTemplates.has( "admin" ) ) {
 
-			serviceTemplates.set( CsapCore.ADMIN_NAME, serviceTemplates.remove( "admin" ) ) ;
+			serviceTemplates.set( CsapConstants.ADMIN_NAME, serviceTemplates.remove( "admin" ) ) ;
 
 		}
 
@@ -801,12 +802,14 @@ public class ProjectMigrator {
 
 							var newData = jsonMapper.createObjectNode( ) ;
 							settings.set( newKey, newData ) ;
-							newData.put( "user", legacySettings.path( "user" ).asText( CsapCore.EVENTS_DISABLED ) ) ;
+							newData.put( "user", legacySettings.path( "user" ).asText(
+									CsapConstants.EVENTS_DISABLED ) ) ;
 							newData.put( "credential", legacySettings.path( "pass" ).asText(
-									CsapCore.EVENTS_DISABLED ) ) ;
+									CsapConstants.EVENTS_DISABLED ) ) ;
 
-							var serviceUrl = CsapCore.EVENTS_DISABLED ;
-							var eventLegacy = legacySettings.path( "eventUrl" ).asText( CsapCore.EVENTS_DISABLED ) ;
+							var serviceUrl = CsapConstants.EVENTS_DISABLED ;
+							var eventLegacy = legacySettings.path( "eventUrl" ).asText(
+									CsapConstants.EVENTS_DISABLED ) ;
 
 							if ( eventLegacy.contains( "/api/event" ) ) {
 
@@ -904,11 +907,11 @@ public class ProjectMigrator {
 
 						if ( serviceName.equals( "CsAgent" ) ) {
 
-							trend.put( "serviceName", CsapCore.AGENT_NAME ) ;
+							trend.put( "serviceName", CsapConstants.AGENT_NAME ) ;
 
 						} else if ( serviceName.equals( "admin" ) ) {
 
-							trend.put( "serviceName", CsapCore.ADMIN_NAME ) ;
+							trend.put( "serviceName", CsapConstants.ADMIN_NAME ) ;
 
 						}
 
@@ -946,7 +949,7 @@ public class ProjectMigrator {
 								.replaceFirst( "process.", MetricCategory.osProcess.json( ) + "." )
 								.replaceFirst( "jmxCustom.", MetricCategory.application.json( ) + "." )
 								.replaceFirst( "jmxCommon.", MetricCategory.java.json( ) + "." )
-								.replaceFirst( "CsAgent", CsapCore.AGENT_NAME ) ;
+								.replaceFirst( "CsAgent", CsapConstants.AGENT_NAME ) ;
 
 						meter.put( "id", newId ) ;
 						var divideBy = meter.path( MetricCategory.divideBy.json( ) ).asText( "" ) ;

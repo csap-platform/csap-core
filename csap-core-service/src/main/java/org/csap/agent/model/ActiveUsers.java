@@ -8,8 +8,8 @@ import java.util.stream.Collectors ;
 
 import javax.inject.Inject ;
 
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.api.AgentApi ;
 import org.csap.agent.api.ApplicationApi ;
 import org.csap.agent.integrations.CsapEvents ;
@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory ;
 import org.springframework.beans.factory.annotation.Qualifier ;
 import org.springframework.cache.annotation.Cacheable ;
 import org.springframework.scheduling.annotation.Scheduled ;
-import org.springframework.stereotype.Service ;
 import org.springframework.web.client.RestTemplate ;
 
 import com.fasterxml.jackson.databind.JsonNode ;
@@ -31,22 +30,21 @@ import com.fasterxml.jackson.databind.ObjectMapper ;
 import com.fasterxml.jackson.databind.node.ArrayNode ;
 import com.fasterxml.jackson.databind.node.ObjectNode ;
 
-@Service
+//@Service
 public class ActiveUsers {
 
 	final Logger logger = LoggerFactory.getLogger( getClass( ) ) ;
 
-	public ActiveUsers ( CsapEvents csapEventClient, Application csapApp, CsapSecuritySettings securitySettings ) {
+	public ActiveUsers ( CsapApis csapApis, CsapSecuritySettings securitySettings ) {
 
-		this.csapEventClient = csapEventClient ;
-		this.csapApp = csapApp ;
+		this.csapApis = csapApis ;
+
 		this.securitySettings = securitySettings ;
 
 	}
 
 	private CsapSecuritySettings securitySettings ;
-	private CsapEvents csapEventClient ;
-	private Application csapApp ;
+	private CsapApis csapApis ;
 
 	private ObjectMapper jacksonMapper = new ObjectMapper( ) ;
 
@@ -114,7 +112,7 @@ public class ActiveUsers {
 			trailCache.setCachedObject( jacksonMapper.createObjectNode( ) ) ;
 			activeUsersMap.put( userid, trailCache ) ;
 
-			if ( logAccess && csapApp.isAdminProfile( ) ) {
+			if ( logAccess && csapApis.application( ).isAdminProfile( ) ) {
 
 				// agents on local host will get their access removed by admin.
 				// need to throttle.
@@ -139,14 +137,14 @@ public class ActiveUsers {
 
 		activeUsersMap.get( userid ).reset( ) ; // extend timer
 
-		logger.debug( "Reset user: {} in  Active Users: {}", userid, activeUsersMap.keySet( ) ) ;
+		logger.trace( "Reset user: {} in  Active Users: {}", userid, activeUsersMap.keySet( ) ) ;
 		return getActive( ) ;
 
 	}
 
 	public void logSessionStart ( String userid , String info ) {
 
-		csapEventClient.publishUserEvent( accessBegin( userid ), userid,
+		csapApis.events( ).publishUserEvent( accessBegin( userid ), userid,
 				"session start", info ) ;
 
 	}
@@ -197,20 +195,20 @@ public class ActiveUsers {
 		//
 		// pushed for ui queries
 		//
-		csapEventClient.publishUserEvent( CsapEvents.CSAP_ACCESS_CATEGORY + "/" + userid, userid,
+		csapApis.events( ).publishUserEvent( CsapEvents.CSAP_ACCESS_CATEGORY + "/" + userid, userid,
 				"user details", userReport ) ;
 
 	}
 
-	@Cacheable ( cacheNames = CsapCoreService.TIMEOUT_CACHE_60s , key = "{'all-admin-users'}" )
+	@Cacheable ( cacheNames = CsapConstants.TIMEOUT_CACHE_60s , key = "{'all-admin-users'}" )
 	synchronized public ArrayNode allAdminUsers ( ) {
 
 		ArrayNode users = jacksonMapper.createArrayNode( ) ;
 
 		// remove calls for other hosts
-		csapApp.getAllPackages( )
+		csapApis.application( ).getAllPackages( )
 				.getServiceInstances( "admin" )
-				.filter( instance -> ! instance.getHostName( ).equals( csapApp.getCsapHostName( ) ) )
+				.filter( instance -> ! instance.getHostName( ).equals( csapApis.application( ).getCsapHostName( ) ) )
 				.map( this::getUsersOnRemoteAdmins )
 				.forEach( users::addAll ) ;
 
@@ -235,7 +233,7 @@ public class ActiveUsers {
 
 	private ArrayNode getUsersOnRemoteAdmins ( ServiceInstance service ) {
 
-		String adminUrl = service.getUrl( ) + CsapCoreService.API_AGENT_URL + AgentApi.USERS_URL ;
+		String adminUrl = service.getUrl( ) + CsapConstants.API_AGENT_URL + AgentApi.USERS_URL ;
 
 		ArrayNode remoteUsers ;
 
@@ -268,7 +266,7 @@ public class ActiveUsers {
 
 	}
 
-	final long run_interval_ms = ACTIVE_USER_MINUTES / 6 * CsapCore.ONE_MINUTE_MS ;
+	final long run_interval_ms = ACTIVE_USER_MINUTES / 6 * CsapConstants.ONE_MINUTE_MS ;
 	// final long run_interval_ms = 5000 ;
 
 	@Scheduled ( initialDelay = run_interval_ms , fixedDelay = run_interval_ms )
@@ -310,7 +308,7 @@ public class ActiveUsers {
 
 	public void logSessionEnd ( String userid , String info ) {
 
-		csapEventClient.publishUserEvent( accessEnd( userid ), userid,
+		csapApis.events( ).publishUserEvent( accessEnd( userid ), userid,
 				"session end", info ) ;
 
 	}

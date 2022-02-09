@@ -11,7 +11,8 @@ import org.apache.http.client.CredentialsProvider ;
 import org.apache.http.client.HttpClient ;
 import org.apache.http.impl.client.BasicCredentialsProvider ;
 import org.apache.http.impl.client.HttpClients ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.ContainerState ;
 import org.csap.agent.model.ModelJson ;
@@ -19,7 +20,7 @@ import org.csap.agent.model.ServiceInstance ;
 import org.csap.agent.stats.ServiceCollector ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
-import org.csap.integations.CsapMicroMeter ;
+import org.csap.integations.micrometer.CsapMicroMeter ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
 import org.springframework.http.HttpStatus ;
@@ -41,23 +42,24 @@ public class HttpCollector {
 
 	ObjectMapper jacksonMapper = new ObjectMapper( ) ;
 
-	Application csapApplication ;
+	CsapApis csapApis ;
 	private ServiceCollector serviceCollector ;
 
 	private ObjectNode deltaLastCollected = jacksonMapper.createObjectNode( ) ;
 
-	public HttpCollector ( Application csapApp, ServiceCollector serviceCollector ) {
+	public HttpCollector ( CsapApis csapApis, ServiceCollector serviceCollector ) {
 
-		this.csapApplication = csapApp ;
+		this.csapApis = csapApis ;
+
 		this.serviceCollector = serviceCollector ;
 
 	}
 
 	public void collectServicesOnHost ( ) {
 
-		csapApplication
+		csapApis.application( )
 				.getActiveProject( )
-				.getServicesOnHost( csapApplication.getCsapHostName( ) )
+				.getServicesOnHost( csapApis.application( ).getCsapHostName( ) )
 				.filter( serviceInstance -> serviceInstance.isHttpCollectionEnabled( ) )
 				.forEach( this::executeHttpCollection ) ;
 
@@ -99,15 +101,15 @@ public class HttpCollector {
 					.forEach( serviceMeter -> applicationResults.addCustomResultLong( serviceMeter.getCollectionId( ),
 							0l ) ) ;
 
-			if ( ! container.isRunning( ) && ! csapApplication.isJunit( ) ) {
+			if ( ! container.isRunning( ) && ! csapApis.application( ).isJunit( ) ) {
 
 				logger.debug( "{} Skipping collections as service is down", serviceInstance.getName( ) ) ;
 				container.setHealthReportCollected( null ) ;
 
 			} else {
 
-				var allTimer = csapApplication.metrics( ).startTimer( ) ;
-				var containerTimer = csapApplication.metrics( ).startTimer( ) ;
+				var allTimer = csapApis.metrics( ).startTimer( ) ;
+				var containerTimer = csapApis.metrics( ).startTimer( ) ;
 				ObjectNode httpConfig = serviceInstance.getHttpCollectionSettings( ) ;
 
 				try {
@@ -198,8 +200,8 @@ public class HttpCollector {
 
 				} catch ( Exception e ) {
 
-					csapApplication.metrics( ).incrementCounter( "csap.collect-http.failures" ) ;
-					csapApplication.metrics( ).incrementCounter( "collect-http." + serviceInstance.getName( )
+					csapApis.metrics( ).incrementCounter( "csap.collect-http.failures" ) ;
+					csapApis.metrics( ).incrementCounter( "collect-http." + serviceInstance.getName( )
 							+ ".failures" ) ;
 					var message = "Collection failed for service '{}' \n configuration: {} \n\n reason: \"{}\";  ==> verify collection settings in definition" ;
 					logger.warn( message,
@@ -209,8 +211,8 @@ public class HttpCollector {
 
 				} finally {
 
-					csapApplication.metrics( ).stopTimer( containerTimer, "collect-http." + containerId ) ;
-					csapApplication.metrics( ).stopTimer( allTimer, "csap.collect-http" ) ;
+					csapApis.metrics( ).stopTimer( containerTimer, "collect-http." + containerId ) ;
+					csapApis.metrics( ).stopTimer( allTimer, "csap.collect-http" ) ;
 
 				}
 
@@ -261,7 +263,7 @@ public class HttpCollector {
 
 			if ( serviceInstance.getName( ).equals( "httpd" ) ) {
 
-				textResponse = csapApplication.check_for_stub( textResponse, "httpCollect/httpdCollect.txt" ) ;
+				textResponse = csapApis.application( ).check_for_stub( textResponse, "httpCollect/httpdCollect.txt" ) ;
 				;
 
 			}
@@ -388,7 +390,7 @@ public class HttpCollector {
 
 			collectedMetricAsLong = 0 ;
 
-			if ( csapApplication.isRunningOnDesktop( ) ) {
+			if ( csapApis.application( ).isRunningOnDesktop( ) ) {
 
 				last = 100 ;
 
@@ -415,20 +417,20 @@ public class HttpCollector {
 
 		var httpCollectionUrl = serviceInstance.resolveRuntimeVariables( httpCollectionUrlRequested ) ;
 
-		if ( serviceInstance.is_cluster_kubernetes( ) && httpCollectionUrl.contains( CsapCore.K8_POD_IP ) ) {
+		if ( serviceInstance.is_cluster_kubernetes( ) && httpCollectionUrl.contains( CsapConstants.K8_POD_IP ) ) {
 
 			httpCollectionUrl = httpCollectionUrl.replaceAll(
-					Matcher.quoteReplacement( CsapCore.K8_POD_IP ),
+					Matcher.quoteReplacement( CsapConstants.K8_POD_IP ),
 					container.getPodIp( ) ) ;
 
 		}
 
 		var desktopTest = false ;
 
-		if ( csapApplication.isDesktopProfileActiveOrSpringNull( )
+		if ( csapApis.application( ).isDesktopProfileActiveOrSpringNull( )
 				&& httpCollectionUrl.contains( "localhost" )
-				&& ( csapApplication.isJunit( )
-						|| ! serviceInstance.getName( ).equals( CsapCore.AGENT_NAME ) ) ) {
+				&& ( csapApis.application( ).isJunit( )
+						|| ! serviceInstance.getName( ).equals( CsapConstants.AGENT_NAME ) ) ) {
 
 			if ( printLocalWarning ) {
 
@@ -449,7 +451,7 @@ public class HttpCollector {
 					Matcher.quoteReplacement( "csap-dev01.***REMOVED***" ) ) ;
 
 			httpCollectionUrl = httpCollectionUrl.replaceAll(
-					Matcher.quoteReplacement( "localhost." + CsapCore.DEFAULT_DOMAIN ),
+					Matcher.quoteReplacement( "localhost." + CsapConstants.DEFAULT_DOMAIN ),
 					Matcher.quoteReplacement( "csap-dev01.***REMOVED***" ) ) ;
 
 			if ( httpCollectionUrl.contains( "server-status" ) ) {
@@ -463,25 +465,25 @@ public class HttpCollector {
 		JsonNode user = httpConfig.get( "user" ) ;
 		JsonNode pass = httpConfig.get( "pass" ) ;
 
-		if ( httpConfig.has( csapApplication.getCsapHostEnvironmentName( ) ) ) {
+		if ( httpConfig.has( csapApis.application( ).getCsapHostEnvironmentName( ) ) ) {
 
 			user = httpConfig
-					.get( csapApplication.getCsapHostEnvironmentName( ) )
+					.get( csapApis.application( ).getCsapHostEnvironmentName( ) )
 					.get( "user" ) ;
 			pass = httpConfig
-					.get( csapApplication.getCsapHostEnvironmentName( ) )
+					.get( csapApis.application( ).getCsapHostEnvironmentName( ) )
 					.get( "pass" ) ;
 
 		}
 
 		RestTemplate localRestTemplate ;
 
-		var currentHostUrl = csapApplication.getAgentUrl( "", "" ) ;
+		var currentHostUrl = csapApis.application( ).getAgentUrl( "", "" ) ;
 
 		if ( httpCollectionUrl.startsWith( currentHostUrl )
 				|| desktopTest ) {
 
-			localRestTemplate = csapApplication.getAgentPooledConnection( 10l,
+			localRestTemplate = csapApis.application( ).getAgentPooledConnection( 10l,
 					(int) serviceCollector.getMaxCollectionAllowedInMs( ) / 1000 ) ;
 
 		} else {
@@ -502,7 +504,7 @@ public class HttpCollector {
 			// .getFile() );
 
 			String target = httpCollectionUrl.substring( httpCollectionUrl.indexOf( ":" ) + 1 ) ;
-			String stubResults = csapApplication.check_for_stub( "", target ) ;
+			String stubResults = csapApis.application( ).check_for_stub( "", target ) ;
 
 			collectionResponse = new ResponseEntity<String>( stubResults,
 					HttpStatus.OK ) ;
@@ -674,13 +676,13 @@ public class HttpCollector {
 
 			if ( serviceMeter.getHttpAttribute( ).equals( "csapHostCpu" ) ) {
 
-				collectedValueAsDouble = csapApplication.metricManager( ).getLatestCpuUsage( ) ;
+				collectedValueAsDouble = csapApis.application( ).metricManager( ).getLatestCpuUsage( ) ;
 
 			} else if ( serviceMeter.getHttpAttribute( ).startsWith( CSAP_SERVICE_COUNT ) ) {
 
-				var containerNameToCount = serviceMeter.getHttpAttribute( ).split( ":", 2 )[ 1 ] ;
+				var containerNameToCount = serviceMeter.getHttpAttribute( ).split( ":", 2 )[1] ;
 
-				var dockerContainers = csapApplication.getOsManager( ).getDockerContainerProcesses( ) ;
+				var dockerContainers = csapApis.osManager( ).getDockerContainerProcesses( ) ;
 
 				if ( dockerContainers != null ) {
 
@@ -693,7 +695,7 @@ public class HttpCollector {
 
 				logger.debug( "containerNameToCount: {}, count: {}", containerNameToCount, collectedValueAsDouble ) ;
 
-				// var instance = csapApplication.findServiceByNameOnCurrentHost(
+				// var instance = csapApis.application().findServiceByNameOnCurrentHost(
 				// serviceNameToCount ) ;
 //				if ( instance != null ) {
 //					collectedValueAsDouble = instance.getContainerStatusList( ).size( ) ;
@@ -701,7 +703,7 @@ public class HttpCollector {
 
 			} else if ( serviceMeter.getHttpAttribute( ).equals( "csapHostLoad" ) ) {
 
-				collectedValueAsDouble = csapApplication.metricManager( ).getLatestCpuLoad( ) ;
+				collectedValueAsDouble = csapApis.application( ).metricManager( ).getLatestCpuLoad( ) ;
 
 			} else {
 
@@ -766,9 +768,9 @@ public class HttpCollector {
 
 		} catch ( Exception e ) {
 
-			csapApplication.metrics( ).incrementCounter( "csap.collect-http.failures" ) ;
-			csapApplication.metrics( ).incrementCounter( "collect-http.failures." + serviceName ) ;
-			csapApplication.metrics( ).incrementCounter( "collect-http.failures." + serviceName + "." + serviceMeter
+			csapApis.metrics( ).incrementCounter( "csap.collect-http.failures" ) ;
+			csapApis.metrics( ).incrementCounter( "collect-http.failures." + serviceName ) ;
+			csapApis.metrics( ).incrementCounter( "collect-http.failures." + serviceName + "." + serviceMeter
 					.getCollectionId( ) ) ;
 			logger.debug( "Skipping attribute: \"" + serviceMeter.getHttpAttribute( ) + "\" Due to exception: " + e
 					.getMessage( ) ) ;
@@ -824,7 +826,7 @@ public class HttpCollector {
 					new AuthScope( null, -1 ),
 					new UsernamePasswordCredentials(
 							user.asText( ),
-							csapApplication.decode( pass.asText( ), desc ) ) ) ;
+							csapApis.application( ).decode( pass.asText( ), desc ) ) ) ;
 
 			HttpClient httpClient = HttpClients
 					.custom( )

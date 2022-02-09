@@ -23,11 +23,12 @@ import java.util.stream.Stream ;
 import org.apache.commons.io.FileUtils ;
 import org.apache.commons.lang3.StringUtils ;
 import org.apache.commons.lang3.text.WordUtils ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapTemplate ;
-import org.csap.agent.container.DockerJson ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.CsapTemplates ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.container.kubernetes.KubernetesIntegration ;
-import org.csap.agent.container.kubernetes.KubernetesJson ;
+import org.csap.agent.container.kubernetes.K8 ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.linux.HostInfo ;
 import org.csap.agent.linux.ZipUtility ;
@@ -74,7 +75,7 @@ public class ProjectLoader {
 
 	private ObjectMapper jsonMapper = new ObjectMapper( ) ;
 
-	Application csapApplication = null ;
+	CsapApis csapApis ;
 
 	ProjectMigrator projectMigrator = null ;
 	ProjectOperators projectOperators = null ;
@@ -150,11 +151,11 @@ public class ProjectLoader {
 
 	}
 
-	public ProjectLoader ( Application app ) {
+	public ProjectLoader ( CsapApis csapApis ) {
 
-		this.csapApplication = app ;
+		this.csapApis = csapApis ;
 
-		projectMigrator = new ProjectMigrator( csapApplication.isJunit( ) ) ;
+		projectMigrator = new ProjectMigrator( csapApis.application( ).isJunit( ) ) ;
 		projectOperators = new ProjectOperators( jsonMapper ) ;
 
 	}
@@ -235,10 +236,10 @@ public class ProjectLoader {
 
 					} ) ;
 
-			if ( parsing_results.indexOf( CsapCore.CONFIG_PARSE_ERROR ) >= 0 ) {
+			if ( parsing_results.indexOf( CsapConstants.CONFIG_PARSE_ERROR ) >= 0 ) {
 
 				logger.error( "Found Errors in parsing: "
-						+ parsing_results.substring( parsing_results.indexOf( CsapCore.CONFIG_PARSE_ERROR ) ) ) ;
+						+ parsing_results.substring( parsing_results.indexOf( CsapConstants.CONFIG_PARSE_ERROR ) ) ) ;
 
 				return parsing_results ; // no point in continuing
 
@@ -265,19 +266,19 @@ public class ProjectLoader {
 
 			parsing_results.append( activateResults ) ;
 
-			if ( ! csapApplication.isJunit( )
-					&& ( csapApplication.isAdminProfile( )
-							|| csapApplication.isDesktopHost( )
-							|| csapApplication.getActiveProject( ).getAllPackagesModel( ).getHostsCurrentLc( )
+			if ( ! csapApis.application( ).isJunit( )
+					&& ( csapApis.application( ).isAdminProfile( )
+							|| csapApis.application( ).isDesktopHost( )
+							|| csapApis.application( ).getActiveProject( ).getAllPackagesModel( ).getHostsCurrentLc( )
 									.size( ) == 1 ) ) {
 
-				csapApplication.getEventClient( ).publishEvent( CsapEvents.CSAP_SYSTEM_CATEGORY + "/model/summary",
+				csapApis.events( ).publishEvent( CsapEvents.CSAP_SYSTEM_CATEGORY + "/model/summary",
 						"Cluster Summary", null,
-						csapApplication.buildSummaryReport( false ) ) ;
+						csapApis.application( ).buildSummaryReport( false ) ) ;
 
-				csapApplication.getEventClient( ).publishEvent( CsapEvents.CSAP_SYSTEM_CATEGORY + "/model/definition",
+				csapApis.events( ).publishEvent( CsapEvents.CSAP_SYSTEM_CATEGORY + "/model/definition",
 						"Cluster Defintion", null,
-						csapApplication.getDefinitionForAllPackages( ) ) ;
+						csapApis.application( ).getDefinitionForAllPackages( ) ) ;
 
 			}
 
@@ -316,7 +317,7 @@ public class ProjectLoader {
 			logger.debug( "Merging rootSettings: {} for environment: {}", rootProjectApplicationDefaults,
 					ENVIRONMENT_DEFAULTS ) ;
 			projectEnvSettings.loadSettings( fileName + " defaults", rootProjectApplicationDefaults, parsing_results,
-					csapApplication ) ;
+					csapApis.application( ) ) ;
 
 		}
 
@@ -344,7 +345,7 @@ public class ProjectLoader {
 									fileName + " import: " + importPath,
 									applicationDefinition.at( importPath ),
 									parsing_results,
-									csapApplication ) ;
+									csapApis.application( ) ) ;
 
 						} catch ( Exception e ) {
 
@@ -361,7 +362,7 @@ public class ProjectLoader {
 				fileName + " env: " + envPath,
 				applicationDefinition.at( envPath ),
 				parsing_results,
-				csapApplication ) ;
+				csapApis.application( ) ) ;
 		logger.debug( "environment: {} application  name: {} ", environmentName, projectEnvSettings
 				.getApplicationName( ) ) ;
 
@@ -376,7 +377,7 @@ public class ProjectLoader {
 
 		try {
 
-			var csapDefaults = mapper.readTree( CsapTemplate.default_service_definitions.getFile( ) ) ;
+			var csapDefaults = mapper.readTree( CsapTemplates.default_service_definitions.getFile( ) ) ;
 			theService.parseDefinition(
 					"test",
 					csapDefaults.path( SERVICE_TEMPLATES ).path( theService.getName( ) ),
@@ -412,10 +413,10 @@ public class ProjectLoader {
 			}
 
 			// load csap global templates
-			var csapDefaults = definition_file_reader( CsapTemplate.default_service_definitions.getFile( ), false ) ;
+			var csapDefaults = definition_file_reader( CsapTemplates.default_service_definitions.getFile( ), false ) ;
 
 			// load in source overrides for company specific settings
-			var sourceOverrides = csapApplication.getCsapCoreService( ).getSourceOverrides( ) ;
+			var sourceOverrides = csapApis.application( ).getCsapCoreService( ).getSourceOverrides( ) ;
 
 			if ( sourceOverrides != null ) {
 
@@ -464,108 +465,9 @@ public class ProjectLoader {
 							.sorted( Comparator.comparing( path -> path.getFileName( ).toString( ) ) )
 							.collect( Collectors.toList( ) ) ;
 
-					var templateListing = templates.stream( )
-							.map( Path::getFileName )
-							.map( Path::toString )
-							.collect( Collectors.joining( ", " ) ) ;
+					if ( templates.size( ) > 0 ) {
 
-					logger.info( "template zips '{}'", templateListing ) ;
-
-					FileUtils.deleteQuietly( templateWorkingFolder ) ;
-
-					templateWorkingFolder.mkdirs( ) ;
-
-					var unzipResults = templates.stream( )
-							.map( zipPath -> {
-
-								var results = "extracting \n\t source: '" + zipPath + "' \n\t destination: '"
-										+ templateWorkingFolder + "'" ;
-
-								try {
-
-									ZipUtility.unzip( zipPath.toFile( ), templateWorkingFolder ) ;
-									results += "\n\t result: success" ;
-
-								} catch ( IOException e ) {
-
-									logger.debug( "failed unzipping: {} {}", zipPath, CSAP.buildCsapStack( e ) ) ;
-									results += "\n\t failed reason: " + CSAP.buildCsapStack( e ) ;
-
-								}
-
-								return results ;
-
-							} )
-							.collect( Collectors.joining( "\n\t" ) ) ;
-
-					logger.info( "Template extraction results, {}", unzipResults ) ;
-
-					try (
-							Stream<Path> templatesExtractedPaths = Files.list( templateWorkingFolder.toPath( ) ) ) {
-
-						var templatesExtracted = templatesExtractedPaths
-								.filter( Files::isDirectory )
-								.filter( path -> {
-
-									var extractedDefinitionFile = csapApplication.findFirstProjectFile( path
-											.toFile( ) ) ;
-									return ( extractedDefinitionFile != null )
-											&& extractedDefinitionFile.isFile( ) ;
-
-								} )
-								.sorted( Comparator.comparing( path -> path.getFileName( ).toString( ) ) )
-								.collect( Collectors.toList( ) ) ;
-
-						var templateExtractedListingWithDefinition = templatesExtracted.stream( )
-								.map( Path::getFileName )
-								.map( Path::toString )
-								.collect( Collectors.joining( "\n\t" ) ) ;
-
-						logger.info( "templates with *-project.json: '{}'", templateExtractedListingWithDefinition ) ;
-
-						var templateLoadResults = templatesExtracted.stream( )
-								.map( extractedFolderName -> {
-
-									var results = "Loaded project.json in: " + extractedFolderName.getFileName( )
-											.toString( ) ;
-
-									var extractedDefinitionFile = csapApplication.findFirstProjectFile(
-											extractedFolderName.toFile( ) ) ;
-
-									try {
-
-										var packageTemplateDefinition = definition_file_reader( extractedDefinitionFile,
-												false ) ;
-
-										var packageName = packageTemplateDefinition.path( ProjectLoader.PROJECT ).path(
-												"name" )
-												.asText( "package-not-found" ) ;
-										results += "\t name: " + packageName ;
-
-										var packageTemplate = serviceTemplates.addObject( ) ;
-										packageTemplate.set( DefinitionConstants.definition.key( ),
-												packageTemplateDefinition ) ;
-										packageTemplate.put( DefinitionConstants.pathToTemplate.key( ),
-												DefinitionConstants.projectsFolderName.key( ) + "/extracted/"
-														+ extractedFolderName.getFileName( ).toString( ) ) ;
-
-									} catch ( Exception e ) {
-
-										results += "\n\t Failed loading template" + CSAP.buildCsapStack( e ) ;
-
-									}
-
-									return results ;
-
-								} )
-								.collect( Collectors.joining( "\n\t" ) ) ;
-
-						logger.info( "template package load results \n {}", templateLoadResults ) ;
-						parsingResults.append( "\n" + templateLoadResults + "\n" ) ;
-
-					} catch ( Exception e ) {
-
-						logger.info( "failed getting extracted listing: {}", CSAP.buildCsapStack( e ) ) ;
+						eolProcessTemplates( parsingResults, serviceTemplates, templateWorkingFolder, templates ) ;
 
 					}
 
@@ -587,6 +489,122 @@ public class ProjectLoader {
 		}
 
 		return serviceTemplates ;
+
+	}
+
+	private void eolProcessTemplates (
+										StringBuilder parsingResults ,
+										ArrayNode serviceTemplates ,
+										File templateWorkingFolder ,
+										List<Path> templates ) {
+
+		var templateListing = templates.stream( )
+				.map( Path::getFileName )
+				.map( Path::toString )
+				.collect( Collectors.joining( ", " ) ) ;
+
+		logger.info( "template zips '{}'", templateListing ) ;
+
+		FileUtils.deleteQuietly( templateWorkingFolder ) ;
+
+		templateWorkingFolder.mkdirs( ) ;
+
+		var unzipResults = templates.stream( )
+				.map( zipPath -> {
+
+					var results = "extracting \n\t source: '" + zipPath + "' \n\t destination: '"
+							+ templateWorkingFolder + "'" ;
+
+					try {
+
+						ZipUtility.unzip( zipPath.toFile( ), templateWorkingFolder ) ;
+						results += "\n\t result: success" ;
+
+					} catch ( IOException e ) {
+
+						logger.debug( "failed unzipping: {} {}", zipPath, CSAP.buildCsapStack( e ) ) ;
+						results += "\n\t failed reason: " + CSAP.buildCsapStack( e ) ;
+
+					}
+
+					return results ;
+
+				} )
+				.collect( Collectors.joining( "\n\t" ) ) ;
+
+		logger.info( "Template extraction results, {}", unzipResults ) ;
+
+		try (
+				Stream<Path> templatesExtractedPaths = Files.list( templateWorkingFolder.toPath( ) ) ) {
+
+			var templatesExtracted = templatesExtractedPaths
+					.filter( Files::isDirectory )
+					.filter( path -> {
+
+						var extractedDefinitionFile = csapApis.application( ).findFirstProjectFile( path
+								.toFile( ) ) ;
+						return ( extractedDefinitionFile != null )
+								&& extractedDefinitionFile.isFile( ) ;
+
+					} )
+					.sorted( Comparator.comparing( path -> path.getFileName( ).toString( ) ) )
+					.collect( Collectors.toList( ) ) ;
+
+			var templateExtractedListingWithDefinition = templatesExtracted.stream( )
+					.map( Path::getFileName )
+					.map( Path::toString )
+					.collect( Collectors.joining( "\n\t" ) ) ;
+
+			logger.info( "templates with *-project.json: '{}'",
+					templateExtractedListingWithDefinition ) ;
+
+			var templateLoadResults = templatesExtracted.stream( )
+					.map( extractedFolderName -> {
+
+						var results = "Loaded project.json in: " + extractedFolderName.getFileName( )
+								.toString( ) ;
+
+						var extractedDefinitionFile = csapApis.application( ).findFirstProjectFile(
+								extractedFolderName.toFile( ) ) ;
+
+						try {
+
+							var packageTemplateDefinition = definition_file_reader(
+									extractedDefinitionFile,
+									false ) ;
+
+							var packageName = packageTemplateDefinition.path( ProjectLoader.PROJECT )
+									.path(
+											"name" )
+									.asText( "package-not-found" ) ;
+							results += "\t name: " + packageName ;
+
+							var packageTemplate = serviceTemplates.addObject( ) ;
+							packageTemplate.set( DefinitionConstants.definition.key( ),
+									packageTemplateDefinition ) ;
+							packageTemplate.put( DefinitionConstants.pathToTemplate.key( ),
+									DefinitionConstants.projectsFolderName.key( ) + "/extracted/"
+											+ extractedFolderName.getFileName( ).toString( ) ) ;
+
+						} catch ( Exception e ) {
+
+							results += "\n\t Failed loading template" + CSAP.buildCsapStack( e ) ;
+
+						}
+
+						return results ;
+
+					} )
+					.collect( Collectors.joining( "\n\t" ) ) ;
+
+			logger.info( "template package load results \n {}", templateLoadResults ) ;
+			parsingResults.append( "\n" + templateLoadResults + "\n" ) ;
+
+		} catch ( Exception e ) {
+
+			logger.info( "failed getting extracted listing: {}", CSAP.buildCsapStack( e ) ) ;
+
+		}
 
 	}
 
@@ -688,12 +706,12 @@ public class ProjectLoader {
 
 				projectMigrator.migrateIfRequired( definitionFile, projectDefinition ) ;
 
-				var autoPlayFile = csapApplication.getAutoPlayFile( ) ;
+				var autoPlayFile = csapApis.application( ).getAutoPlayFile( ) ;
 				logger.debug( "Checking for {}", autoPlayFile.getAbsolutePath( ) ) ;
 
 				if ( autoPlayFile.exists( ) ) {
 
-					if ( csapApplication.isRunningOnDesktop( ) ) {
+					if ( csapApis.application( ).isRunningOnDesktop( ) ) {
 
 						logger.info( CsapApplication.testHeader( "Running on desktop - auto play found - exiting {}" ),
 								autoPlayFile.getAbsolutePath( ) ) ;
@@ -760,7 +778,7 @@ public class ProjectLoader {
 	private void setActiveRootProject ( Project projectToActivate ) {
 
 		activeRootProject = projectToActivate ;
-		_lastLifeCycleConfig = projectToActivate.getEnvironmentNameToSettings( ).get( csapApplication
+		_lastLifeCycleConfig = projectToActivate.getEnvironmentNameToSettings( ).get( csapApis.application( )
 				.getCsapHostEnvironmentName( ) ) ;
 		return ;
 
@@ -823,7 +841,8 @@ public class ProjectLoader {
 
 				// If we find the current host name in release, then we
 				// override
-				if ( subProject.getHostToServicesMap( ).keySet( ).contains( csapApplication.getCsapHostName( ) ) ) {
+				if ( subProject.getHostToServicesMap( ).keySet( ).contains( csapApis.application( )
+						.getCsapHostName( ) ) ) {
 
 					rootProject.setActiveModel( subProject ) ;
 
@@ -867,8 +886,8 @@ public class ProjectLoader {
 					+ releasePackageFile.getAbsolutePath( ) ) ;
 
 			parsingResults.append( "\n Creating using template:"
-					+ CsapTemplate.project_template.getFile( ).getAbsolutePath( ) + "\n" ) ;
-			FileUtils.copyFile( CsapTemplate.project_template.getFile( ), releasePackageFile ) ;
+					+ CsapTemplates.project_template.getFile( ).getAbsolutePath( ) + "\n" ) ;
+			FileUtils.copyFile( CsapTemplates.project_template.getFile( ), releasePackageFile ) ;
 
 		}
 
@@ -1077,9 +1096,9 @@ public class ProjectLoader {
 
 	public List<String> namespaceMonitors ( String projectName ) {
 
-		if ( csapApplication.getRootProject( ) != null ) {
+		if ( csapApis.application( ).getRootProject( ) != null ) {
 
-			var environmentNamespaces = csapApplication.environmentSettings( ).getMonitoredNamespaces( ) ;
+			var environmentNamespaces = csapApis.application( ).environmentSettings( ).getMonitoredNamespaces( ) ;
 
 			//
 			// Env settings can be used to either disable or hardcode a list of namespaces
@@ -1100,9 +1119,9 @@ public class ProjectLoader {
 
 		try {
 
-			if ( csapApplication.isAgentProfile( ) ) {
+			if ( csapApis.application( ).isAgentProfile( ) ) {
 
-				for ( var container : csapApplication.getOsManager( ).getDockerContainerProcesses( ) ) {
+				for ( var container : csapApis.osManager( ).getDockerContainerProcesses( ) ) {
 
 					if ( StringUtils.isNotEmpty( container.getPodNamespace( ) ) ) {
 
@@ -1116,9 +1135,9 @@ public class ProjectLoader {
 
 				// admin uses ALL namespaces in ALL hosts in order to aggregate results on UI
 
-				if ( csapApplication.getRootProject( ) != null ) {
+				if ( csapApis.application( ).getRootProject( ) != null ) {
 
-					var allHostReport = csapApplication.healthManager( ).build_host_report( projectName ) ;
+					var allHostReport = csapApis.application( ).healthManager( ).build_host_report( projectName ) ;
 
 					var namespaceNodes = allHostReport.findValues( "namespaces" ).stream( )
 							.collect( Collectors.toList( ) ) ;
@@ -1148,7 +1167,7 @@ public class ProjectLoader {
 
 		}
 
-		var nsList = List.of( "default", "kube-system" ) ;
+		var nsList = List.of( "default", K8.systemNamespace.val( ) ) ;
 
 		if ( discoveredNamespaces.size( ) > 0 ) {
 
@@ -1250,13 +1269,13 @@ public class ProjectLoader {
 			logger.warn(
 					"\n\n\n " + UNABLE_TO_ACTIVATE_ENV
 							+ " '{}', fqdn: '{}': ensure it is assigned to at least one cluster \n\n\n",
-					csapApplication.getCsapHostName( ), csapApplication.getHostFqdn( ) ) ;
+					csapApis.application( ).getCsapHostName( ), csapApis.application( ).getHostFqdn( ) ) ;
 
 			// Runtime.getRuntime( ).halt( 999 ) ;
 
 			throw new IOException(
 					UNABLE_TO_ACTIVATE_ENV + " '"
-							+ csapApplication.getCsapHostName( )
+							+ csapApis.application( ).getCsapHostName( )
 							+ "': ensure it is assigned to at least one cluster" ) ;
 
 		}
@@ -1265,7 +1284,7 @@ public class ProjectLoader {
 
 			if ( ! isValidHostName( host ) ) {
 
-				String message = CsapCore.CONFIG_PARSE_WARN
+				String message = CsapConstants.CONFIG_PARSE_WARN
 						+ "Host name validation failure: " + host + " (lowercase alphanumeric, simple host or fqdn)\n" ;
 				logger.warn( message ) ;
 				validationResults.append( message ) ;
@@ -1289,7 +1308,7 @@ public class ProjectLoader {
 
 				if ( serviceSummaries.contains( instance.toSummaryString( ) ) ) {
 
-					String message = CsapCore.CONFIG_PARSE_WARN
+					String message = CsapConstants.CONFIG_PARSE_WARN
 							+ "Host: " + host + " has multiple instances of service: "
 							+ instance.getName( )
 							+ ". It is recommended assign each service once (via cluster assignment) \n" ;
@@ -1311,7 +1330,7 @@ public class ProjectLoader {
 
 				if ( portToLifeAndService.containsKey( instance.getPort( ) ) ) {
 
-					String message = CsapCore.CONFIG_PARSE_WARN
+					String message = CsapConstants.CONFIG_PARSE_WARN
 							+ instance.getLifecycle( )
 							+ ":"
 							+ instance.getName( )
@@ -1346,7 +1365,7 @@ public class ProjectLoader {
 					if ( checkForDuplicateSuffix.indexOf( "," + hostSuffix + "," ) != -1 ) {
 
 						validationResults
-								.append( CsapCore.CONFIG_PARSE_ERROR
+								.append( CsapConstants.CONFIG_PARSE_ERROR
 										+ "Duplicate singleVmPartion host suffix found:"
 										+ host
 										+ " singleVmPartion host names must be in the form x-y where y is used for oracle instance name and modjk routing, and must be unique" ) ;
@@ -1380,11 +1399,11 @@ public class ProjectLoader {
 
 			if ( hostNameArray.length == 2 ) {
 
-				factorySuffix = hostNameArray[ 1 ] ;
+				factorySuffix = hostNameArray[1] ;
 
 			} else if ( hostNameArray.length == 3 ) {
 
-				factorySuffix = hostNameArray[ 1 ] + hostNameArray[ 2 ] ;
+				factorySuffix = hostNameArray[1] + hostNameArray[2] ;
 
 			}
 
@@ -1399,11 +1418,11 @@ public class ProjectLoader {
 
 	private StringBuilder activate ( Project rootProject ) {
 
-		csapApplication.setCsapHostEnvironmentName( rootProject.getHostEnvironmentName( ) ) ;
+		csapApis.application( ).setCsapHostEnvironmentName( rootProject.getHostEnvironmentName( ) ) ;
 
 		if ( rootProject.getReleaseModelCount( ) > 1 ) {
 
-			rootProject.buildAllProjectsModel( csapApplication.applicationDefinition( ) ) ;
+			rootProject.buildAllProjectsModel( csapApis.application( ).applicationDefinition( ) ) ;
 
 		}
 
@@ -1419,7 +1438,7 @@ public class ProjectLoader {
 		activateResults.append( modelActivationResults ) ;
 
 		// New definition means new processes need to be scanned.
-		if ( csapApplication.getOsManager( ) == null ) {
+		if ( csapApis.osManager( ) == null ) {
 
 			logger.warn( CsapApplication.testHeader(
 					"Application manager has a null OsManger - OK for testing only" ) ) ;
@@ -1427,7 +1446,7 @@ public class ProjectLoader {
 
 		}
 
-		csapApplication.activateProject( rootProject ) ;
+		csapApis.application( ).activateProject( rootProject ) ;
 
 		return activateResults ;
 
@@ -1449,9 +1468,10 @@ public class ProjectLoader {
 		modelActivationResults.append( CSAP.padLine( "Total Hosts" ) + rootProject.getAllPackagesModel( )
 				.getHostToServicesMap( ).size( ) ) ;
 
-		modelActivationResults.append( "\n" + CSAP.padLine( "Current Host" ) + csapApplication.getCsapHostName( ) ) ;
+		modelActivationResults.append( "\n" + CSAP.padLine( "Current Host" ) + csapApis.application( )
+				.getCsapHostName( ) ) ;
 
-		modelActivationResults.append( CSAP.padLine( "Old Environment" ) + csapApplication
+		modelActivationResults.append( CSAP.padLine( "Old Environment" ) + csapApis.application( )
 				.getCsapHostEnvironmentName( ) ) ;
 		modelActivationResults.append( CSAP.padLine( "New Environment" ) + rootProject.getHostEnvironmentName( ) ) ;
 
@@ -1464,7 +1484,7 @@ public class ProjectLoader {
 		modelActivationResults.append( CSAP.padLine( "Event url" ) + rootSettings.getEventUrl( ) ) ;
 
 		// modelActivationResults.append( "\n" +
-		// csapApplication.rootProjectEnvSettings().summarySettings() ) ;
+		// csapApis.application().rootProjectEnvSettings().summarySettings() ) ;
 
 		String allModelsDescription = rootProject
 				.getProjects( )
@@ -1487,7 +1507,7 @@ public class ProjectLoader {
 
 					}
 
-					modelInfo.append( "\n" + CSAP.padLine( "Project" ) + CsapCore.pad( packageTitle ) ) ;
+					modelInfo.append( "\n" + CSAP.padLine( "Project" ) + CsapConstants.pad( packageTitle ) ) ;
 					modelInfo.append( "   Services " + rootEnvName + ": " + numServices ) ;
 
 					var numHosts = -1 ;
@@ -1534,16 +1554,16 @@ public class ProjectLoader {
 		modelActivationResults.append( "\n\t" ) ;
 		modelActivationResults.append( WordUtils.wrap( lifecycleClusters, 100, "\n\t", false ) ) ;
 
-		if ( csapApplication.isAgentProfile( ) ) {
+		if ( csapApis.application( ).isAgentProfile( ) ) {
 
 			String servicesOnHost = rootProject
 					.getActiveModel( )
-					.getServicesOnHost( csapApplication.getCsapHostName( ) )
+					.getServicesOnHost( csapApis.application( ).getCsapHostName( ) )
 					.map( ServiceInstance::getName )
 					.map( name -> CSAP.pad( name ) )
 					.collect( Collectors.joining( ) ) ;
 
-			modelActivationResults.append( "\n" + CSAP.padLine( "Services assigned to " + csapApplication
+			modelActivationResults.append( "\n" + CSAP.padLine( "Services assigned to " + csapApis.application( )
 					.getCsapHostName( ) ) ) ;
 			modelActivationResults.append( "\n\t" ) ;
 			modelActivationResults.append( WordUtils.wrap( servicesOnHost, 100, "\n\t", false ) ) ;
@@ -1569,7 +1589,7 @@ public class ProjectLoader {
 
 			} else if ( name.contains( "." ) && ! location.contains( ",docker," ) ) {
 
-				resultsBuf.append( CsapCore.CONFIG_PARSE_WARN + " - \".\"  should not appear in: \"" + name
+				resultsBuf.append( CsapConstants.CONFIG_PARSE_WARN + " - \".\"  should not appear in: \"" + name
 						+ "\" in definition file: " + location + "\n" ) ;
 
 			}
@@ -1628,7 +1648,7 @@ public class ProjectLoader {
 
 			logger.warn( "{} Invalid Specification: {}, {}", projectFileName, environmentName + ":" + clusterName,
 					CSAP.jsonPrint( clusterDefinition ) ) ;
-			parsingMessages.append( "\n\t" + CsapCore.CONFIG_PARSE_WARN
+			parsingMessages.append( "\n\t" + CsapConstants.CONFIG_PARSE_WARN
 					+ projectFileName
 					+ " Invalid cluster definition " + environmentName + ":" + clusterName ) ;
 			return ;
@@ -1787,12 +1807,12 @@ public class ProjectLoader {
 						+ "Invalid format for " + ServiceAttributes.remoteCollections
 						+ " expected: " + serviceInstances.size( ) + " items, but found: "
 						+ remoteCollections.size( ) ;
-				ServiceBaseParser.updateServiceParseResults( parsingResults, CsapCore.CONFIG_PARSE_WARN, msg ) ;
+				ServiceBaseParser.updateServiceParseResults( parsingResults, CsapConstants.CONFIG_PARSE_WARN, msg ) ;
 
 			} else if ( ! remoteCollections.isArray( ) ) {
 
 				ServiceBaseParser.updateServiceParseResults(
-						parsingResults, CsapCore.CONFIG_PARSE_WARN,
+						parsingResults, CsapConstants.CONFIG_PARSE_WARN,
 						firstInstance.getErrorHeader( )
 								+ "Invalid format for " + ServiceAttributes.remoteCollections
 								+ " expected: array, found: " + remoteCollections.toString( ) ) ;
@@ -1879,7 +1899,7 @@ public class ProjectLoader {
 						} catch ( Exception e ) {
 
 							releaseLoadResults
-									.append( "\n" + CsapCore.CONFIG_PARSE_WARN + projectReleaseFile.getName( )
+									.append( "\n" + CsapConstants.CONFIG_PARSE_WARN + projectReleaseFile.getName( )
 											+ " failed to parse due to: "
 											+ e.getClass( ).getName( ) ) ;
 							logger.error( "Failed to parse: {}", projectReleaseFile.getAbsolutePath( ), e ) ;
@@ -1936,7 +1956,7 @@ public class ProjectLoader {
 
 							if ( artifactPieces < 2 || artifactPieces > 4 ) {
 
-								processResults.append( "\n\t" + CsapCore.CONFIG_PARSE_WARN
+								processResults.append( "\n\t" + CsapConstants.CONFIG_PARSE_WARN
 										+ projectReleaseFile.getName( )
 										+ " Invalid artifact format: " + newVersion ) ;
 
@@ -1960,7 +1980,7 @@ public class ProjectLoader {
 
 												} else {
 
-													processResults.append( "\n\t" + CsapCore.CONFIG_PARSE_WARN
+													processResults.append( "\n\t" + CsapConstants.CONFIG_PARSE_WARN
 															+ projectReleaseFile.getName( )
 															+ " service " + serviceInstance.getName( )
 															+ " has invalid artifact format: "
@@ -1978,7 +1998,7 @@ public class ProjectLoader {
 
 					} else {
 
-						processResults.append( "\n\t" + CsapCore.CONFIG_PARSE_WARN
+						processResults.append( "\n\t" + CsapConstants.CONFIG_PARSE_WARN
 								+ projectReleaseFile.getName( )
 								+ " Did not find: " + serviceName ) ;
 
@@ -2042,11 +2062,11 @@ public class ProjectLoader {
 
 		}
 
-		if ( serviceName.equals( CsapCore.AGENT_NAME ) ) {
+		if ( serviceName.equals( CsapConstants.AGENT_NAME ) ) {
 
 			// override with spring
-			serviceInstance.setPort( Integer.toString( csapApplication.getAgentPort( ) ) ) ;
-			var webContext = csapApplication.getAgentContextPath( ) ;
+			serviceInstance.setPort( Integer.toString( csapApis.application( ).getAgentPort( ) ) ) ;
+			var webContext = csapApis.application( ).getAgentContextPath( ) ;
 
 			if ( webContext.length( ) > 1 ) {
 
@@ -2091,7 +2111,7 @@ public class ProjectLoader {
 			serviceInstance.setContext( serviceInstance.getContext( ) + "-"
 					+ serviceInstance.getPlatformVersion( ) ) ;
 
-		} else if ( ! serviceName.contains( CsapCore.AGENT_NAME ) ) {
+		} else if ( ! serviceName.contains( CsapConstants.AGENT_NAME ) ) {
 			// Validate JVM name is unique when multiVM is in use on BOTH
 			// releasePackages
 
@@ -2115,7 +2135,7 @@ public class ProjectLoader {
 								if ( checkInstance.is_cluster_modjk( ) ) {
 
 									updateParseResults(
-											CsapCore.CONFIG_PARSE_ERROR, serviceParseResults,
+											CsapConstants.CONFIG_PARSE_ERROR, serviceParseResults,
 											serviceName, csapProject.getSourceFileName( ),
 											" service found in multiple release packages, it must be unique"
 													+ ".  Reference found in: " + model.getSourceFileName( )
@@ -2138,7 +2158,7 @@ public class ProjectLoader {
 
 		} else {
 
-			var url = csapApplication
+			var url = csapApis.application( )
 					.buildJavaLaunchUrl(
 							serviceInstance.getHostName( ),
 							serviceInstance.getPort( ), "/" + serviceInstance.getContext( ) ) ;
@@ -2154,7 +2174,7 @@ public class ProjectLoader {
 
 			if ( ! launchUrl.startsWith( "http" ) ) {
 
-				launchUrl = csapApplication.buildJavaLaunchUrl(
+				launchUrl = csapApis.application( ).buildJavaLaunchUrl(
 						serviceInstance.getHostName( ),
 						serviceInstance.getPort( ), "/" + launchUrl ) ;
 
@@ -2164,11 +2184,11 @@ public class ProjectLoader {
 
 		}
 
-		if ( serviceInstance.getName( ).equalsIgnoreCase( CsapCore.AGENT_NAME ) ) {
+		if ( serviceInstance.getName( ).equalsIgnoreCase( CsapConstants.AGENT_NAME ) ) {
 
 			csapProject.getLifeCycleToHostMap( ).get( fullEnvironmentName ).add( hostName ) ;
 
-			var restUrl = csapApplication.getAgentUrl( hostName, "/api/" ) ;
+			var restUrl = csapApis.application( ).getAgentUrl( hostName, "/api/" ) ;
 
 			// hostList.add(hostName);
 			csapProject
@@ -2355,18 +2375,18 @@ public class ProjectLoader {
 	private String resolveHostSpecification ( String hostPatternByComma ) {
 
 		String[] hostAndPatterns = hostPatternByComma.split( "," ) ;
-		String resolvedHost = hostAndPatterns[ 0 ] ;
+		String resolvedHost = hostAndPatterns[0] ;
 
 		resolvedHost = hostPatternByComma.replaceAll( Matcher.quoteReplacement( "csap_def_template_host" ),
-				csapApplication.getCsapHostName( ) ) ;
+				csapApis.application( ).getCsapHostName( ) ) ;
 
 		// support for optional specification: defaultHostName, pattern1, pattern2, ...
 		// if match set current hostname
 		for ( int i = 1; i < hostAndPatterns.length; i++ ) {
 
-			if ( csapApplication.getCsapHostName( ).matches( hostAndPatterns[ i ] ) ) {
+			if ( csapApis.application( ).getCsapHostName( ).matches( hostAndPatterns[i] ) ) {
 
-				resolvedHost = csapApplication.getCsapHostName( ) ;
+				resolvedHost = csapApis.application( ).getCsapHostName( ) ;
 
 			}
 
@@ -2417,7 +2437,7 @@ public class ProjectLoader {
 			// + ", cluster: " + platformSubLife ) ;
 
 			updateParseResults(
-					CsapCore.CONFIG_PARSE_WARN, resultsBuf,
+					CsapConstants.CONFIG_PARSE_WARN, resultsBuf,
 					serviceName, model.getSourceFileName( ),
 					ERROR_INVALID_CHARACTERS + " Reference found in lifecycle: " + platformLifeCycle
 							+ ", cluster: " + platformSubLife ) ;
@@ -2426,10 +2446,10 @@ public class ProjectLoader {
 
 		if ( serviceDefinition.isMissingNode( ) ) {
 
-			if ( serviceName.equals( CsapCore.AGENT_NAME ) ) {
+			if ( serviceName.equals( CsapConstants.AGENT_NAME ) ) {
 
 				buildServiceParseError( serviceName, model.getSourceFileName( ),
-						CsapCore.MISSING_SERVICE_MESSAGE + " Reference found in lifecycle: " + platformLifeCycle
+						CsapConstants.MISSING_SERVICE_MESSAGE + " Reference found in lifecycle: " + platformLifeCycle
 								+ ", cluster: " + platformSubLife ) ;
 
 			} else {
@@ -2438,9 +2458,9 @@ public class ProjectLoader {
 				// model.getReleasePackageFileName() );
 
 				updateParseResults(
-						CsapCore.CONFIG_PARSE_WARN, resultsBuf,
+						CsapConstants.CONFIG_PARSE_WARN, resultsBuf,
 						serviceName, model.getSourceFileName( ),
-						CsapCore.MISSING_SERVICE_MESSAGE + " Reference found in lifecycle: " + platformLifeCycle
+						CsapConstants.MISSING_SERVICE_MESSAGE + " Reference found in lifecycle: " + platformLifeCycle
 								+ ", cluster: " + platformSubLife ) ;
 
 				return false ;
@@ -2594,7 +2614,7 @@ public class ProjectLoader {
 				if ( hostNames == null ) {
 
 					updateParseResults(
-							CsapCore.CONFIG_PARSE_WARN, resultsBuf,
+							CsapConstants.CONFIG_PARSE_WARN, resultsBuf,
 							serviceName, project.getSourceFileName( ),
 							" Unable to locate kubernetes provider: '" + providerLookup
 									+ "', ensure definition reference exists." ) ;
@@ -2608,7 +2628,7 @@ public class ProjectLoader {
 //
 //				hostNames = new ArrayList<>( ) ;
 				updateParseResults(
-						CsapCore.CONFIG_PARSE_WARN, resultsBuf,
+						CsapConstants.CONFIG_PARSE_WARN, resultsBuf,
 						serviceName, project.getSourceFileName( ),
 						" Unable to determine hosts - verify  cluster definition." ) ;
 
@@ -2639,7 +2659,7 @@ public class ProjectLoader {
 
 	private ObjectNode buildNamespaceMonitor ( Project project , String namespaceHyphenServiceName ) {
 
-		var serviceName = namespaceHyphenServiceName.split( "-", 2 )[ 1 ] ;
+		var serviceName = namespaceHyphenServiceName.split( "-", 2 )[1] ;
 
 		var testForOverrideMonitor = project.findAndCloneServiceDefinition( namespaceHyphenServiceName ) ;
 
@@ -2652,8 +2672,8 @@ public class ProjectLoader {
 		var namespaceMonitor = (ObjectNode) testForOverrideMonitor ;
 
 		var locator = (ObjectNode) namespaceMonitor.path( ServiceAttributes.dockerSettings.json( ) ).path(
-				DockerJson.locator.json( ) ) ;
-		locator.put( DockerJson.podNamespace.json( ), serviceName ) ;
+				C7.locator.val( ) ) ;
+		locator.put( C7.podNamespace.val( ), serviceName ) ;
 
 		logger.debug( "{} - {} created: {}", namespaceHyphenServiceName, serviceName, CSAP.jsonPrint(
 				namespaceMonitor ) ) ;
@@ -2685,7 +2705,7 @@ public class ProjectLoader {
 
 		for ( var serviceHostName : hostNames ) {
 
-			if ( serviceName.equals( CsapCore.AGENT_NAME ) ) {
+			if ( serviceName.equals( CsapConstants.AGENT_NAME ) ) {
 
 				// Agent added at end of parsing, and assigned to every base os cluster
 				if ( serviceDefinition.isObject( ) ) {
@@ -2736,11 +2756,11 @@ public class ProjectLoader {
 
 			}
 
-			if ( serviceParseResults.indexOf( CsapCore.CONFIG_PARSE_ERROR ) > 0 ) {
+			if ( serviceParseResults.indexOf( CsapConstants.CONFIG_PARSE_ERROR ) > 0 ) {
 
 				logger.info( "{} Found errors during parsing, skipping: {}", serviceName, serviceParseResults ) ;
-				var serviceResults = serviceParseResults.toString( ).replaceAll( CsapCore.CONFIG_PARSE_ERROR,
-						CsapCore.CONFIG_PARSE_WARN ) ;
+				var serviceResults = serviceParseResults.toString( ).replaceAll( CsapConstants.CONFIG_PARSE_ERROR,
+						CsapConstants.CONFIG_PARSE_WARN ) ;
 				resultsBuf.append( serviceResults ) ;
 				break ;
 
@@ -2753,7 +2773,7 @@ public class ProjectLoader {
 
 				if ( portCheckList.contains( serviceHostName + servicePort ) ) {
 
-					updateParseResults( CsapCore.CONFIG_PARSE_WARN, resultsBuf,
+					updateParseResults( CsapConstants.CONFIG_PARSE_WARN, resultsBuf,
 							serviceName, project.getSourceFileName( ),
 							WARNING_DUPLICATE_HOST_PORT + " " + serviceHostName + ":" + servicePort
 									+ ".  Reference found in lifecycle: " + environmentName
@@ -2782,9 +2802,21 @@ public class ProjectLoader {
 
 				}
 
-				String k8Namespace = clusterDefinition.path(
-						KubernetesJson.clusterNamespace.json( ) )
+				var k8Namespace = clusterDefinition.path(
+						K8.clusterNamespace.val( ) )
 						.asText( "default" ).trim( ) ;
+
+				//
+				// support optional namespace overrides on a per service basis. eg. kubernetes dashboard
+				//
+				if ( serviceInstance.getDockerSettings( ) != null
+						&& serviceInstance.getDockerSettings( ).has( C7.kubernetesNamespace.val( ) ) ) {
+
+					k8Namespace = serviceInstance.getDockerSettings( ).path( C7.kubernetesNamespace.val( ) )
+							.asText( "default" ) ;
+
+				}
+
 				serviceInstance.setKubernetesNamespace( k8Namespace ) ;
 
 			}
@@ -2808,23 +2840,23 @@ public class ProjectLoader {
 												String serviceHostName ,
 												ServiceInstance serviceInstance ) {
 
-		if ( csapApplication.getKubernetesIntegration( ) != null
+		if ( csapApis.kubernetes( ) != null
 				&& serviceInstance.getName( ).matches( KubernetesIntegration.getServicePattern( ) )
-				&& ( csapApplication.getCsapHostName( ).equals( serviceHostName )
-						|| csapApplication.getCsapHostName( ).equals( csapApplication.hostShortName(
+				&& ( csapApis.application( ).getCsapHostName( ).equals( serviceHostName )
+						|| csapApis.application( ).getCsapHostName( ).equals( csapApis.application( ).hostShortName(
 								serviceHostName ) ) ) ) {
 
-			csapApplication.getKubernetesIntegration( ).setDiscoveredName( serviceInstance.getName( ) ) ;
+			csapApis.kubernetes( ).setDiscoveredName( serviceInstance.getName( ) ) ;
 
 		}
 
-		JsonNode masters = clusterDefinition.path( KubernetesJson.masters.json( ) ) ;
+		JsonNode masters = clusterDefinition.path( K8.masters.val( ) ) ;
 
 		if ( masters.isArray( ) ) {
 
 			serviceInstance.setKubernetesMasterHostNames( (ArrayNode) masters ) ;
 			serviceInstance
-					.setKubernetesMasterDns( clusterDefinition.path( KubernetesJson.masterDns.json( ) )
+					.setKubernetesMasterDns( clusterDefinition.path( K8.masterDns.val( ) )
 							.asText( "not-specified" ) ) ;
 			CSAP.jsonStream( masters )
 					.map( JsonNode::asText )
@@ -2890,19 +2922,19 @@ public class ProjectLoader {
 
 							serviceInstance.addMeter( podTotalCountName( containerName ),
 									"/report/metrics/containers/" + containerName + "/"
-											+ KubernetesJson.containerCount.json( ),
+											+ K8.containerCount.val( ),
 									podTotalCountTitle( containerName ) ) ;
 
 							serviceInstance.addMeter(
 									podCoreName( containerName ),
 									"/report/metrics/containers/" + containerName + "/"
-											+ KubernetesJson.cores.json( ),
+											+ K8.cores.val( ),
 									podCoreTotalTitle( containerName ) ) ;
 
 							serviceInstance.addMeter(
 									podMemoryName( containerName ),
 									"/report/metrics/containers/" + containerName + "/"
-											+ KubernetesJson.memoryInMb.json( ),
+											+ K8.memoryInMb.val( ),
 									podMemoryTotalTitle( containerName ) ) ;
 
 						} ) ;
@@ -3076,7 +3108,8 @@ public class ProjectLoader {
 		}
 
 		//
-		var agentDefinition = project.getSourceDefinition( ).path( SERVICE_TEMPLATES ).path( CsapCore.AGENT_NAME ) ;
+		var agentDefinition = project.getSourceDefinition( ).path( SERVICE_TEMPLATES ).path(
+				CsapConstants.AGENT_NAME ) ;
 
 		if ( agentDefinition.isObject( ) ) {
 
@@ -3100,7 +3133,7 @@ public class ProjectLoader {
 		}
 
 		JsonNode agentDefinition = project.load_service_definition(
-				CsapCore.AGENT_NAME ) ; // SERVICE_CATEGORY_JVMS
+				CsapConstants.AGENT_NAME ) ; // SERVICE_CATEGORY_JVMS
 
 		String assigned_cluster = //
 				agentDefinition
@@ -3113,15 +3146,15 @@ public class ProjectLoader {
 
 		ServiceInstance serviceInstance = load_java_service(
 				resultsBuf, project, environmentName,
-				CsapCore.AGENT_NAME, agentDefinition,
+				CsapConstants.AGENT_NAME, agentDefinition,
 				assigned_cluster,
-				host, Integer.toString( csapApplication.getAgentPort( ) ),
+				host, Integer.toString( csapApis.application( ).getAgentPort( ) ),
 				partitionTypeForFirstService ) ;
 
 		add_service_to_project( project, serviceInstance ) ;
 
-		var csapHostShortNameInfo = new HostInfo( csapApplication.getCsapHostName( ), "" ) ;
-		var csapFqdnInfo = new HostInfo( csapApplication.getDefinitionHostFqdn( ), "" ) ;
+		var csapHostShortNameInfo = new HostInfo( csapApis.application( ).getCsapHostName( ), "" ) ;
+		var csapFqdnInfo = new HostInfo( csapApis.application( ).getDefinitionHostFqdn( ), "" ) ;
 		var environmentHosts = project.getEnvironmentNameToHostInfo( ).get( environmentName ) ;
 
 		logger.debug( "csapHostShortNameInfo: {}, \n csapFqdnInfo: {} {}",
@@ -3139,7 +3172,7 @@ public class ProjectLoader {
 
 			if ( environmentHosts.contains( csapFqdnInfo ) ) {
 
-				csapApplication.setHostNameForDefinitionMapping( csapFqdnInfo.getName( ) ) ;
+				csapApis.application( ).setHostNameForDefinitionMapping( csapFqdnInfo.getName( ) ) ;
 
 			}
 
@@ -3168,7 +3201,7 @@ public class ProjectLoader {
 							.forEach( environmentAndClusterName -> {
 
 								String environmentName = environmentAndClusterName.split(
-										ENVIRONMENT_CLUSTER_DELIMITER )[ 0 ] ;
+										ENVIRONMENT_CLUSTER_DELIMITER )[0] ;
 								addCsapAgents( environmentName, environmentAndClusterName, parsingResults, project ) ;
 
 							} ) ;
@@ -3220,7 +3253,7 @@ public class ProjectLoader {
 
 		if ( hostDuplicateCheck.containsKey( adminHostName ) ) {
 
-			String message = CsapCore.CONFIG_PARSE_ERROR
+			String message = CsapConstants.CONFIG_PARSE_ERROR
 					+ " Host: "
 					+ adminHostName
 					+ " was found in multiple release packages: "
@@ -3269,10 +3302,10 @@ public class ProjectLoader {
 			// (double-quote, backslash etc)
 			int[] esc = CharacterEscapes.standardAsciiEscapesForJSON( ) ;
 			// and force escaping of a few others:
-			esc[ '<' ] = CharacterEscapes.ESCAPE_STANDARD ;
-			esc[ '>' ] = CharacterEscapes.ESCAPE_STANDARD ;
-			esc[ '&' ] = CharacterEscapes.ESCAPE_STANDARD ;
-			esc[ '\'' ] = CharacterEscapes.ESCAPE_STANDARD ;
+			esc['<'] = CharacterEscapes.ESCAPE_STANDARD ;
+			esc['>'] = CharacterEscapes.ESCAPE_STANDARD ;
+			esc['&'] = CharacterEscapes.ESCAPE_STANDARD ;
+			esc['\''] = CharacterEscapes.ESCAPE_STANDARD ;
 			asciiEscapes = esc ;
 
 		}

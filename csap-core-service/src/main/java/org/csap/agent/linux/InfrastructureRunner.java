@@ -9,6 +9,7 @@ import java.util.concurrent.ScheduledFuture ;
 import java.util.concurrent.TimeUnit ;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory ;
+import org.csap.agent.CsapApis ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.EnvironmentSettings ;
 import org.csap.alerts.AlertFields ;
@@ -35,11 +36,11 @@ public class InfrastructureRunner {
 	ScheduledExecutorService scheduledExecutorService = Executors
 			.newScheduledThreadPool( 1, schedFactory ) ;
 
-	Application csapApplication ;
+	CsapApis csapApis ;
 
-	public InfrastructureRunner ( Application csapApplication ) {
+	public InfrastructureRunner ( CsapApis csapApis ) {
 
-		this.csapApplication = csapApplication ;
+		this.csapApis = csapApis ;
 
 	}
 
@@ -53,7 +54,8 @@ public class InfrastructureRunner {
 
 		showDiskOutputOnce = true ;
 		showCpuOutputOnce = true ;
-		EnvironmentSettings.InfraTests infraTestSettings = csapApplication.rootProjectEnvSettings( ).getInfraTests( ) ;
+		EnvironmentSettings.InfraTests infraTestSettings = csapApis.application( ).rootProjectEnvSettings( )
+				.getInfraTests( ) ;
 
 		if ( diskTestJob != null ) {
 
@@ -109,11 +111,11 @@ public class InfrastructureRunner {
 
 		double collectionMs = 0.0 ;
 
-		var meter = csapApplication.metrics( ).find( INFRASTRUCTURE_TEST_DISK ) ;
+		var meter = csapApis.metrics( ).find( INFRASTRUCTURE_TEST_DISK ) ;
 
 		if ( meter != null ) {
 
-			var report = csapApplication.metrics( ).getMeterReport( ).buildMeterReport( meter, 0, false ) ;
+			var report = csapApis.metrics( ).getMeterReport( ).buildMeterReport( meter, 0, false ) ;
 			collectionMs = report.path( AlertFields.meanMs.json ).asLong( ) ;
 
 		}
@@ -126,14 +128,14 @@ public class InfrastructureRunner {
 
 	private void runDiskTest ( int diskInMb ) {
 
-		var timer = csapApplication.metrics( ).startTimer( ) ;
+		var timer = csapApis.metrics( ).startTimer( ) ;
 
 		try {
 
 			// String[] diskTestScript = buildDiskScript(
-			// csapApplication.getOsManager().getOsCommands(), diskInMb ) ;
+			// csapApis.application().getOsManager().getOsCommands(), diskInMb ) ;
 
-			List<String> diskTestScript = csapApplication.getOsManager( ).getOsCommands( )
+			List<String> diskTestScript = csapApis.osManager( ).getOsCommands( )
 					.getInfraTestDisk( Integer.toString( WRITE_BLOCK_SIZE_1MB ), Long.toString( diskInMb ) ) ;
 
 			String testResults = osCommandRunner.runUsingDefaultUser( "diskTest", diskTestScript ) ;
@@ -153,7 +155,7 @@ public class InfrastructureRunner {
 
 		}
 
-		csapApplication.metrics( ).stopTimer( timer, INFRASTRUCTURE_TEST_DISK ) ;
+		csapApis.metrics( ).stopTimer( timer, INFRASTRUCTURE_TEST_DISK ) ;
 
 	}
 
@@ -161,11 +163,11 @@ public class InfrastructureRunner {
 
 		double collectionMs = 0.0 ;
 
-		var meter = csapApplication.metrics( ).find( INFRASTRUCTURE_TEST_CPU ) ;
+		var meter = csapApis.metrics( ).find( INFRASTRUCTURE_TEST_CPU ) ;
 
 		if ( meter != null ) {
 
-			var report = csapApplication.metrics( ).getMeterReport( ).buildMeterReport( meter, 0, false ) ;
+			var report = csapApis.metrics( ).getMeterReport( ).buildMeterReport( meter, 0, false ) ;
 			collectionMs = report.path( AlertFields.meanMs.json ).asLong( ) ; // TimeUnit.NANOSECONDS.toMillis(
 																				// lastResult ) / 1000d ;
 
@@ -177,12 +179,12 @@ public class InfrastructureRunner {
 
 	private void runCpuTest ( int cpuLoopsMillions ) {
 
-		var timer = csapApplication.metrics( ).startTimer( ) ;
+		var timer = csapApis.metrics( ).startTimer( ) ;
 
 		try {
 
 			long numLoops = cpuLoopsMillions * 1000000 ;
-			List<String> cpuTestScript = csapApplication.getOsManager( ).getOsCommands( )
+			List<String> cpuTestScript = csapApis.osManager( ).getOsCommands( )
 					.getInfraTestCpu( Long.toString( numLoops ) ) ;
 
 			String testResults = osCommandRunner.runUsingDefaultUser( "cpuTest", cpuTestScript ) ;
@@ -202,7 +204,7 @@ public class InfrastructureRunner {
 
 		}
 
-		csapApplication.metrics( ).stopTimer( timer, INFRASTRUCTURE_TEST_CPU ) ;
+		csapApis.metrics( ).stopTimer( timer, INFRASTRUCTURE_TEST_CPU ) ;
 
 	}
 }

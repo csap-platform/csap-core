@@ -13,9 +13,9 @@ import javax.inject.Inject ;
 
 import org.apache.commons.io.FileUtils ;
 import org.csap.agent.Agent_context_loaded ;
+import org.csap.agent.CsapApis ;
 import org.csap.agent.CsapBareTest ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.api.AgentApi ;
 import org.csap.agent.linux.ZipUtility ;
 import org.csap.agent.model.Application ;
@@ -40,6 +40,7 @@ import com.fasterxml.jackson.databind.JsonNode ;
 import com.fasterxml.jackson.databind.ObjectMapper ;
 
 @Tag ( "full" )
+@Tag ( "my-state" )
 @CsapBareTest.Agent_Full
 class Host_Operations_Test {
 
@@ -58,6 +59,9 @@ class Host_Operations_Test {
 
 	@Inject
 	Application csapApp ;
+
+	@Inject
+	CsapApis csapApis ;
 
 	@BeforeAll
 	void beforeAll ( )
@@ -85,7 +89,7 @@ class Host_Operations_Test {
 		assertThat( csapApp.loadDefinitionForJunits( false, csapApplicationDefinition ) ).as( "No Errors or warnings" )
 				.isTrue( ) ;
 
-		csapApp.getOsManager( ).wait_for_initial_process_status_scan( 3 ) ;
+		csapApis.osManager( ).wait_for_initial_process_status_scan( 3 ) ;
 
 	}
 
@@ -101,7 +105,7 @@ class Host_Operations_Test {
 
 		// mock does much validation.....
 		ResultActions resultActions = mockMvc.perform(
-				get( CsapCoreService.OS_URL + "/processes/csap" )
+				get( CsapConstants.OS_URL + "/processes/csap" )
 						.accept( MediaType.APPLICATION_JSON ) ) ;
 
 		String responseText = resultActions
@@ -119,8 +123,9 @@ class Host_Operations_Test {
 		assertThat( responseJson.at( "/mp/all/intr" ).asDouble( ) )
 				.isEqualTo( 1005.50 ) ;
 
-		assertThat( responseJson.at( "/ps/" + CsapCore.AGENT_NAME + "/containers/0/currentProcessPriority" ).asInt( ) )
-				.isEqualTo( -12 ) ;
+		assertThat( responseJson.at( "/ps/" + CsapConstants.AGENT_NAME + "/containers/0/currentProcessPriority" )
+				.asInt( ) )
+						.isEqualTo( -12 ) ;
 
 	}
 
@@ -138,10 +143,10 @@ class Host_Operations_Test {
 
 		// path=.kube&token=584t76.b0b7c7r75rbc0ml0&service=kubelet_8014
 		ResultActions resultActions = mockMvc.perform(
-				get( CsapCoreService.OS_URL + HostRequests.FOLDER_ZIP_URL )
+				get( CsapConstants.OS_URL + HostRequests.FOLDER_ZIP_URL )
 						.param( "path", testPath )
 						.param( "token", "junit-desktop" )
-						.param( "service", CsapCore.AGENT_ID )
+						.param( "service", CsapConstants.AGENT_ID )
 						.accept( MediaType.APPLICATION_OCTET_STREAM ) ) ;
 
 		byte[] zipBytes = resultActions
@@ -180,7 +185,7 @@ class Host_Operations_Test {
 
 		// mock does much validation.....
 		ResultActions resultActions = mockMvc.perform(
-				get( CsapCoreService.API_AGENT_URL + AgentApi.RUNTIME_URL )
+				get( CsapConstants.API_AGENT_URL + AgentApi.RUNTIME_URL )
 						.param( "resetCache", "no" )
 						.accept( MediaType.APPLICATION_JSON ) ) ;
 

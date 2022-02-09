@@ -38,12 +38,13 @@ import javax.servlet.http.HttpSession ;
 import org.apache.commons.io.FileUtils ;
 import org.apache.commons.lang3.StringUtils ;
 import org.apache.commons.lang3.text.WordUtils ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.api.AgentApi ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.container.ContainerIntegration ;
-import org.csap.agent.container.DockerJson ;
 import org.csap.agent.container.kubernetes.KubernetesIntegration ;
-import org.csap.agent.container.kubernetes.KubernetesJson ;
+import org.csap.agent.container.kubernetes.K8 ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.integrations.HttpdIntegration ;
 import org.csap.agent.integrations.VersionControl ;
@@ -98,14 +99,9 @@ public class ServiceOsManager {
 
 	final Logger logger = LoggerFactory.getLogger( ServiceOsManager.class ) ;
 
-	@Inject // triggers cyclic injection if constructor injected
-	OsManager osManager ;
-
 	@Inject
 	private StandardPBEStringEncryptor encryptor ;
 
-	Application csapApp ;
-	CsapEvents csapEventClient ;
 	ObjectMapper jsonMapper ;
 	VersionControl sourceControlManager ;
 
@@ -113,33 +109,34 @@ public class ServiceOsManager {
 
 	ServiceDeployExecutor serviceDeployExecutor ;
 
+	CsapApis csapApis ;
+
 	@Autowired
-	public ServiceOsManager ( Application csapApp,
-			CsapEvents csapEventClient,
+	public ServiceOsManager (
+			CsapApis csapApis,
 			VersionControl sourceControlManager,
 			ObjectMapper jsonMapper ) {
 
-		this.csapEventClient = csapEventClient ;
 		this.jsonMapper = jsonMapper ;
-		this.csapApp = csapApp ;
+		this.csapApis = csapApis ;
 		this.sourceControlManager = sourceControlManager ;
 		serviceDeployExecutor = new ServiceDeployExecutor(
 				jsonMapper,
-				csapApp.getCsapWorkingSubFolder( "_pause-all-deployments" ),
+				csapApis.application( ).getCsapWorkingSubFolder( "_pause-all-deployments" ),
 				CSAP_AGENT_AUTO_START_COMPLETE ) ;
 
 	}
 
 	// test only
-	public ServiceOsManager ( Application csapApp ) {
+	public ServiceOsManager ( CsapApis csapApis ) {
 
-		this.csapApp = csapApp ;
-		this.csapEventClient = csapApp.getEventClient( ) ;
+		// this.csapApis.application() = csapApis.application() ;
 		this.jsonMapper = new ObjectMapper( ) ;
+		this.csapApis = csapApis ;
 
 		serviceDeployExecutor = new ServiceDeployExecutor(
 				jsonMapper,
-				csapApp.getCsapWorkingSubFolder( "_pause-all-deployments" ),
+				csapApis.application( ).getCsapWorkingSubFolder( "_pause-all-deployments" ),
 				CSAP_AGENT_AUTO_START_COMPLETE ) ;
 
 	}
@@ -160,7 +157,7 @@ public class ServiceOsManager {
 
 		ObjectNode status = jsonMapper.createObjectNode( ) ;
 
-		status.put( "host", csapApp.getCsapHostName( ) ) ;
+		status.put( "host", csapApis.application( ).getCsapHostName( ) ) ;
 
 		status.set( "queue", serviceDeployExecutor.cancelRemaining( ) ) ;
 
@@ -172,7 +169,7 @@ public class ServiceOsManager {
 
 		ObjectNode status = jsonMapper.createObjectNode( ) ;
 
-		status.put( "host", csapApp.getCsapHostName( ) ) ;
+		status.put( "host", csapApis.application( ).getCsapHostName( ) ) ;
 
 		if ( serviceDeployExecutor.isPaused( ) ) {
 
@@ -194,7 +191,7 @@ public class ServiceOsManager {
 
 		ObjectNode status = jsonMapper.createObjectNode( ) ;
 
-		status.put( "host", csapApp.getCsapHostName( ) ) ;
+		status.put( "host", csapApis.application( ).getCsapHostName( ) ) ;
 
 		status.put( "isPaused", serviceDeployExecutor.isPaused( ) ) ;
 
@@ -235,15 +232,15 @@ public class ServiceOsManager {
 	@EventListener ( {
 			ContextRefreshedEvent.class
 	} )
-	@Order ( CsapCore.CSAP_SERVICE_STATE_LOAD_ORDER )
+	@Order ( CsapConstants.CSAP_SERVICE_STATE_LOAD_ORDER )
 	public void on_start_up ( ) {
 		// public void onSpringContextRefreshedEvent(ContextRefreshedEvent
 		// event) {
 
-		if ( csapApp.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			logger.debug( "Skipping init scince we are in mgr mode" ) ;
-			csapApp.setBootstrapComplete( ) ;
+			csapApis.application( ).setBootstrapComplete( ) ;
 			return ;
 
 		}
@@ -255,7 +252,7 @@ public class ServiceOsManager {
 
 		}
 
-		File workingDir = csapApp.getCsapInstallFolder( ) ;
+		File workingDir = csapApis.application( ).getCsapInstallFolder( ) ;
 		File rebuildPath = new File( workingDir, "/bin/" + REBUILD_FILE ) ;
 
 		if ( ! rebuildPath.exists( ) ) {
@@ -267,7 +264,7 @@ public class ServiceOsManager {
 
 		isInit = true ;
 
-		if ( csapApp.isStatefulRestartNeeded( ) ) {
+		if ( csapApis.application( ).isStatefulRestartNeeded( ) ) {
 
 			logger.warn(
 					"Found -Dorg.csap.needStatefulRestart=yes, triggering a restart so that cluster params can be loaded" ) ;
@@ -277,7 +274,7 @@ public class ServiceOsManager {
 		} else {
 
 			// write the credential file out for cli access
-			File credFile = new File( csapApp.getAgentRunHome( ), ".csap-config" ) ;
+			File credFile = new File( csapApis.application( ).getAgentRunHome( ), ".csap-config" ) ;
 
 			if ( credFile.isFile( ) ) {
 
@@ -301,18 +298,18 @@ public class ServiceOsManager {
 
 			}
 
-			var autoStartDisableFile = csapApp.getAutoStartDisabledFile( ) ;
+			var autoStartDisableFile = csapApis.application( ).getAutoStartDisabledFile( ) ;
 
 			if ( autoStartDisableFile.exists( ) ) {
 
 				logger.warn( CsapApplication.header( "Auto starts disabled: remove '{}' to enable" ),
 						autoStartDisableFile.getAbsolutePath( ) ) ;
 
-				csapEventClient.publishEvent( CsapEvents.CSAP_SYSTEM_CATEGORY + "/agent-start-up",
+				csapApis.events( ).publishEvent( CsapEvents.CSAP_SYSTEM_CATEGORY + "/agent-start-up",
 						"WARNING: Auto start disabled", "Remove file to re-enable: " + autoStartDisableFile
 								.getAbsolutePath( ) ) ;
 
-				csapApp.setBootstrapComplete( ) ;
+				csapApis.application( ).setBootstrapComplete( ) ;
 
 			} else {
 
@@ -337,7 +334,7 @@ public class ServiceOsManager {
 
 		try {
 
-			results = run_service_script( Application.SYS_USER, KILL_FILE, CsapCore.AGENT_ID,
+			results = run_service_script( Application.SYS_USER, KILL_FILE, CsapConstants.AGENT_ID,
 					params, null, null ) ;
 			logger.warn( "Results from restart command: \n {}", results ) ;
 
@@ -361,7 +358,7 @@ public class ServiceOsManager {
 
 		int hostCount = 0 ;
 
-		for ( String host : csapApp.getActiveProject( ).getHostsCurrentLc( ) ) {
+		for ( String host : csapApis.application( ).getActiveProject( ).getHostsCurrentLc( ) ) {
 
 			initMessage.append( StringUtils.rightPad( host, 17 ) ) ;
 			initMessage.append( " " ) ;
@@ -377,14 +374,14 @@ public class ServiceOsManager {
 		initMessage.append( CSAP.padLine( "Services" ) ) ;
 
 		// refresh instances with updated service stats.
-		osManager.checkForProcessStatusUpdate( ) ;
+		csapApis.osManager( ).checkForProcessStatusUpdate( ) ;
 
 		// possibly kicked off on another thread; waiting is needed to determine
 		// container states
-		osManager.wait_for_initial_process_status_scan( 10 ) ;
+		csapApis.osManager( ).wait_for_initial_process_status_scan( 10 ) ;
 
 		isSkippingContainerAutostarts = false ;
-		String service_start_messages = csapApp
+		String service_start_messages = csapApis.application( )
 				.servicesOnHost( )
 				.sorted( comparing( ServiceInstance::startOrder ) )
 				.map( this::schedule_startup_deployment )
@@ -399,7 +396,7 @@ public class ServiceOsManager {
 
 		logger.warn( initMessage.toString( ) ) ;
 
-		csapEventClient.publishEvent( CsapEvents.CSAP_SYSTEM_CATEGORY + "/initializeServiceState",
+		csapApis.events( ).publishEvent( CsapEvents.CSAP_SYSTEM_CATEGORY + "/initializeServiceState",
 				"Service Synchronization", initMessage.toString( ) ) ;
 
 	}
@@ -412,7 +409,8 @@ public class ServiceOsManager {
 		StringBuilder initMessage = new StringBuilder( ) ;
 
 		// Never trigger restarts of CsAgent
-		if ( serviceInstance.getName( ).equals( CsapCore.AGENT_NAME ) || serviceInstance.is_os_process_monitor( ) ) {
+		if ( serviceInstance.getName( ).equals( CsapConstants.AGENT_NAME ) || serviceInstance
+				.is_os_process_monitor( ) ) {
 
 			return initMessage.toString( ) ;
 
@@ -427,7 +425,7 @@ public class ServiceOsManager {
 			// Scripts are meant to only be invoked 1 time. If someone
 			// cleans the folder - script will need to
 			// check fs if they cannot be run twice.
-			File scriptWorkingDirectory = new File( csapApp.getCsapWorkingFolder( ), serviceInstance
+			File scriptWorkingDirectory = new File( csapApis.application( ).getCsapWorkingFolder( ), serviceInstance
 					.getServiceName_Port( ) ) ;
 
 			logger.debug( "Checking: {}", scriptWorkingDirectory.getAbsolutePath( ) ) ;
@@ -450,7 +448,8 @@ public class ServiceOsManager {
 		if ( serviceInstance.is_cluster_kubernetes( ) ) {
 
 			if ( serviceInstance.isKubernetesMaster( )
-					&& serviceInstance.getKubernetesPrimaryMaster( ).contains( csapApp.getCsapHostName( ) ) ) {
+					&& serviceInstance.getKubernetesPrimaryMaster( ).contains( csapApis.application( )
+							.getCsapHostName( ) ) ) {
 
 				File deployFile = k8s_last_deploy_file( serviceInstance ) ;
 
@@ -470,7 +469,7 @@ public class ServiceOsManager {
 
 		}
 
-		File stopFile = csapApp.getCsapWorkingSubFolder( serviceInstance.getStoppedFileName( ) ) ;
+		File stopFile = csapApis.application( ).getCsapWorkingSubFolder( serviceInstance.getStoppedFileName( ) ) ;
 
 		serviceInstance.getWorkingDirectory( ) ;
 
@@ -496,7 +495,8 @@ public class ServiceOsManager {
 			serviceInstance.getDefaultContainer( ).setCpuAuto( ) ;
 
 			if ( getReImageFile( ).exists( ) && serviceInstance.is_csap_api_server( )
-					&& serviceInstance.getUser( ) != null && ! serviceInstance.getUser( ).equals( csapApp
+					&& serviceInstance.getUser( ) != null && ! serviceInstance.getUser( ).equals( csapApis
+							.application( )
 							.getAgentRunUser( ) ) ) {
 
 				serviceInstance.getDefaultContainer( ).setCpuClean( ) ;
@@ -508,7 +508,7 @@ public class ServiceOsManager {
 			rebuildVariables.add( "scmUserid", Application.SYS_USER ) ;
 			rebuildVariables.add( "scmPass", "dummyPass" ) ;
 			rebuildVariables.add( "scmBranch", "dummBranch" ) ;
-			rebuildVariables.add( CsapCore.SERVICE_PORT_PARAM, serviceInstance.getServiceName_Port( ) ) ;
+			rebuildVariables.add( CsapConstants.SERVICE_PORT_PARAM, serviceInstance.getServiceName_Port( ) ) ;
 			rebuildVariables.add( "mavenDeployArtifact", MAVEN_DEFAULT_BUILD
 					+ ":dummyStringToSkipSvn" ) ;
 			rebuildVariables.add( "scmCommand", null ) ;
@@ -523,7 +523,7 @@ public class ServiceOsManager {
 
 		} else {
 
-			if ( serviceInstance.getName( ).toLowerCase( ).equals( "docker" ) ) {
+			if ( serviceInstance.getName( ).toLowerCase( ).equals( C7.dockerService.val( ) ) ) {
 
 				isSkippingContainerAutostarts = true ;
 
@@ -577,7 +577,7 @@ public class ServiceOsManager {
 	private File k8s_last_deploy_file ( ServiceInstance instance ) {
 
 		// Used to ensure after restart - kubernetes services are not autodeployed
-		return new File( csapApp.getCsapWorkingFolder( ), "/"
+		return new File( csapApis.application( ).getCsapWorkingFolder( ), "/"
 				+ instance.getServiceName_Port( ) + "-k8-skip-auto" ) ;
 
 	}
@@ -590,12 +590,12 @@ public class ServiceOsManager {
 										HttpSession session ,
 										BufferedWriter outputWriter ) {
 
-		ServiceInstance serviceInstance = csapApp.getServiceInstanceCurrentHost( serviceName_port ) ;
+		ServiceInstance serviceInstance = csapApis.application( ).getServiceInstanceCurrentHost( serviceName_port ) ;
 
 		if ( serviceInstance == null ) {
 
 			return "Error: Instance: " + serviceName_port + " was not found on VM:"
-					+ csapApp.getCsapHostName( ) ;
+					+ csapApis.application( ).getCsapHostName( ) ;
 
 		}
 
@@ -659,10 +659,11 @@ public class ServiceOsManager {
 
 		Map<String, String> environmentVariables = new LinkedHashMap<>( ) ;
 
-		if ( serviceInstance.is_cluster_kubernetes( ) && csapApp.environmentSettings( ).isVsphereConfigured( ) ) {
+		if ( serviceInstance.is_cluster_kubernetes( ) && csapApis.application( ).environmentSettings( )
+				.isVsphereConfigured( ) ) {
 
-			var vsphereConfiguration = csapApp.environmentSettings( ).getVsphereConfiguration( ) ;
-			var vsphereVariables = csapApp.environmentSettings( ).getVsphereEnv( ) ;
+			var vsphereConfiguration = csapApis.application( ).environmentSettings( ).getVsphereConfiguration( ) ;
+			var vsphereVariables = csapApis.application( ).environmentSettings( ).getVsphereEnv( ) ;
 
 			logger.info( "Adding vsphere variables" ) ;
 			environmentVariables.putAll( vsphereVariables ) ;
@@ -694,7 +695,7 @@ public class ServiceOsManager {
 		}
 
 		String results = runShellCommand(
-				CsapCore.AGENT_NAME,
+				CsapConstants.AGENT_NAME,
 				ServiceOsManager.JOB_RUNNER,
 				serviceInstance,
 				jobParameters,
@@ -732,7 +733,7 @@ public class ServiceOsManager {
 
 		String result = "" ;
 
-		File workingDir = csapApp.getCsapInstallFolder( ) ;
+		File workingDir = csapApis.application( ).getCsapInstallFolder( ) ;
 		File scriptPath = new File( workingDir, "/bin/" + scriptName ) ;
 
 		// String userName = getUserIdFromContext();
@@ -751,7 +752,7 @@ public class ServiceOsManager {
 		synchronizeServiceState( scriptName, serviceInstance ) ;
 
 		// parameters.add( "-jmxAuth" ) ;
-		// parameters.add( csapApp.getJmxAuth() ) ;
+		// parameters.add( csapApis.application().getJmxAuth() ) ;
 
 		// parmList.add( "-loadBalanceUrl" );
 		// parmList.add( Application.getCurrentLifeCycleMetaData().getLbUrl() );
@@ -806,11 +807,11 @@ public class ServiceOsManager {
 		LinkedHashMap<String, String> serviceEnvironmentVariables = new LinkedHashMap<>( ) ;
 		serviceEnvironmentVariables.put( "csapParams", programParameters ) ;
 		// serviceEnvironmentVariables.put( "isJmxAuth", Boolean.toString(
-		// csapApp.getCsapCoreService().isJmxSecure() ).toLowerCase() ) ;
+		// csapApis.application().getCsapCoreService().isJmxSecure() ).toLowerCase() ) ;
 		// serviceEnvironmentVariables.put( "jmxUser",
-		// csapApp.getCsapCoreService().getJmxUser() ) ;
+		// csapApis.application().getCsapCoreService().getJmxUser() ) ;
 		// serviceEnvironmentVariables.put( "jmxPassword",
-		// csapApp.getCsapCoreService().getJmxPass() ) ;
+		// csapApis.application().getCsapCoreService().getJmxPass() ) ;
 
 		if ( environmentVariablesInput != null ) {
 
@@ -833,7 +834,7 @@ public class ServiceOsManager {
 
 			result = "Failed to find path: " + scriptPath + " for :\n" + parameters.toString( ) ;
 			logger.error( result ) ;
-			csapEventClient.publishEvent( CsapEvents.CSAP_USER_SERVICE_CATEGORY + "/" + serviceInstance.getName( ),
+			csapApis.events( ).publishEvent( CsapEvents.CSAP_USER_SERVICE_CATEGORY + "/" + serviceInstance.getName( ),
 					result, "No more\nDetails",
 					new NoSuchElementException( scriptPath.getAbsolutePath( ) ) ) ;
 			return result ;
@@ -847,7 +848,7 @@ public class ServiceOsManager {
 
 		}
 
-		var timer = csapApp.metrics( ).startTimer( ) ;
+		var timer = csapApis.metrics( ).startTimer( ) ;
 
 		try {
 
@@ -884,7 +885,7 @@ public class ServiceOsManager {
 
 			description.append( "\n" ) ;
 
-			csapEventClient.publishEvent(
+			csapApis.events( ).publishEvent(
 					CsapEvents.CSAP_SYSTEM_SERVICE_CATEGORY + "/" + serviceInstance.getName( ),
 					summary,
 					description.toString( ) ) ;
@@ -904,7 +905,7 @@ public class ServiceOsManager {
 
 		}
 
-		csapApp.metrics( ).stopTimer( timer, "agent.deploy." + serviceInstance.getName( ) ) ;
+		csapApis.metrics( ).stopTimer( timer, "agent.deploy." + serviceInstance.getName( ) ) ;
 
 		logger.debug( "{} results from {} are {}", serviceInstance.getName( ), scriptName, result ) ;
 
@@ -917,19 +918,20 @@ public class ServiceOsManager {
 
 		}
 
-		csapApp.setLastOp( System.currentTimeMillis( ) + "::" + userName + " invoked: " + scriptName + " on: "
+		csapApis.application( ).setLastOp( System.currentTimeMillis( ) + "::" + userName + " invoked: " + scriptName
+				+ " on: "
 				+ serviceInstance.getServiceName_Port( ) + " time: " + new Date( ) ) ;
 
-		if ( ! csapApp.isStatefulRestartNeeded( ) ) {
+		if ( ! csapApis.application( ).isStatefulRestartNeeded( ) ) {
 
 			// finally refresh processes and versions
 			serviceInstance.setFileSystemScanRequired( true ) ;
 
 			// check for application updates
-			csapApp.run_application_scan( ) ;
+			csapApis.application( ).run_application_scan( ) ;
 
 			// updated os caches
-			osManager.resetAllCaches( ) ;
+			csapApis.osManager( ).resetAllCaches( ) ;
 
 		}
 
@@ -998,7 +1000,7 @@ public class ServiceOsManager {
 		// Clustering infor
 		try {
 
-			Project activeModel = csapApp.getActiveProject( ) ;
+			Project activeModel = csapApis.application( ).getActiveProject( ) ;
 
 			List<String> serviceHostList = activeModel.findOtherHostsForService( serviceInstance.getName( ) ) ;
 			StringBuilder hostsForBash = new StringBuilder( ) ;
@@ -1086,11 +1088,12 @@ public class ServiceOsManager {
 		}
 
 		serviceEnvironmentVariables.put( "csapPids", serviceInstance.getDefaultContainer( ).getPidsAsString( ) ) ;
-		serviceEnvironmentVariables.put( CsapWebSettings.DEFAULT_AJP_VARIABLE_IN_YAML, csapApp.getTomcatAjpKey( ) ) ;
-		serviceEnvironmentVariables.put( "csapHost", csapApp.getCsapHostName( ) ) ;
+		serviceEnvironmentVariables.put( CsapWebSettings.DEFAULT_AJP_VARIABLE_IN_YAML, csapApis.application( )
+				.getTomcatAjpKey( ) ) ;
+		serviceEnvironmentVariables.put( "csapHost", csapApis.application( ).getCsapHostName( ) ) ;
 		serviceEnvironmentVariables.put( "csapWorkingDir", serviceInstance.getWorkingDirectory( ).getAbsolutePath( ) ) ;
 
-		var logDir = csapApp.getWorkingLogDir( serviceInstance.getServiceName_Port( ) ) ;
+		var logDir = csapApis.application( ).getWorkingLogDir( serviceInstance.getServiceName_Port( ) ) ;
 
 		if ( logDir != null ) {
 
@@ -1107,12 +1110,12 @@ public class ServiceOsManager {
 		serviceEnvironmentVariables.put( "csapJmxPort", serviceInstance.getJmxPort( ) ) ;
 		serviceEnvironmentVariables.put( "csapServiceLife", serviceInstance.getLifecycle( ) ) ;
 
-		var firstAdmin = csapApp.findFirstServiceInstanceInLifecycle( CsapCore.ADMIN_NAME ) ;
+		var firstAdmin = csapApis.application( ).findFirstServiceInstanceInLifecycle( CsapConstants.ADMIN_NAME ) ;
 
 		if ( firstAdmin != null ) {
 
 			var cliUrl = "http://"
-					+ csapApp.getHostUsingFqdn( firstAdmin.getHostName( ) )
+					+ csapApis.application( ).getHostUsingFqdn( firstAdmin.getHostName( ) )
 					+ ":" + firstAdmin.getPort( ) + "/"
 					+ firstAdmin.getContext( ) ;
 
@@ -1139,24 +1142,26 @@ public class ServiceOsManager {
 
 		// add infra settings
 
-		serviceEnvironmentVariables.put( "hostUrlPattern", csapApp.getAgentHostUrlPattern( true ) ) ;
+		serviceEnvironmentVariables.put( "hostUrlPattern", csapApis.application( ).getAgentHostUrlPattern( true ) ) ;
 
-		if ( csapApp.isCompanyVariableConfigured( "spring.mail.host" ) ) {
+		if ( csapApis.application( ).isCompanyVariableConfigured( "spring.mail.host" ) ) {
 
-			serviceEnvironmentVariables.put( "mailServer", csapApp.getCompanyConfiguration( "spring.mail.host", "" ) ) ;
+			serviceEnvironmentVariables.put( "mailServer", csapApis.application( ).getCompanyConfiguration(
+					"spring.mail.host", "" ) ) ;
 
 		}
 
-		if ( csapApp.isCompanyVariableConfigured( "spring.mail.port" ) ) {
+		if ( csapApis.application( ).isCompanyVariableConfigured( "spring.mail.port" ) ) {
 
-			serviceEnvironmentVariables.put( "mailPort", csapApp.getCompanyConfiguration( "spring.mail.port", "" ) ) ;
+			serviceEnvironmentVariables.put( "mailPort", csapApis.application( ).getCompanyConfiguration(
+					"spring.mail.port", "" ) ) ;
 
 		}
 
 		// add yaml replacements
 		var count = 1 ;
 
-		for ( var set : csapApp.environmentSettings( ).getKubernetesYamlReplacements( ).entrySet( ) ) {
+		for ( var set : csapApis.application( ).environmentSettings( ).getKubernetesYamlReplacements( ).entrySet( ) ) {
 
 			serviceEnvironmentVariables.put( "yamlCurrent" + count, set.getKey( ) ) ;
 			serviceEnvironmentVariables.put( "yamlNew" + count, set.getValue( ) ) ;
@@ -1187,7 +1192,7 @@ public class ServiceOsManager {
 
 						try {
 
-							String jobCommand = csapApp.resolveDefinitionVariables( job.getScript( ),
+							String jobCommand = csapApis.application( ).resolveDefinitionVariables( job.getScript( ),
 									serviceInstance ) ;
 							// String jobCommand = serviceInstance.resolveRuntimeVariables( job.getScript()
 							// ) ;
@@ -1259,8 +1264,9 @@ public class ServiceOsManager {
 
 				// Make sure everything is update to date - include checking the
 				// version in start file
-				csapApp.run_application_scan( ) ;
-				File stopFile = csapApp.getCsapWorkingSubFolder( serviceInstance.getStoppedFileName( ) ) ;
+				csapApis.application( ).run_application_scan( ) ;
+				File stopFile = csapApis.application( ).getCsapWorkingSubFolder( serviceInstance
+						.getStoppedFileName( ) ) ;
 
 				if ( ! stopFile.exists( ) ) {
 
@@ -1272,8 +1278,9 @@ public class ServiceOsManager {
 
 				// Make sure everything is update to date - include checking the
 				// version in start file
-				csapApp.run_application_scan( ) ;
-				File stopFile = csapApp.getCsapWorkingSubFolder( serviceInstance.getStoppedFileName( ) ) ;
+				csapApis.application( ).run_application_scan( ) ;
+				File stopFile = csapApis.application( ).getCsapWorkingSubFolder( serviceInstance
+						.getStoppedFileName( ) ) ;
 
 				if ( stopFile.exists( ) ) {
 
@@ -1312,10 +1319,10 @@ public class ServiceOsManager {
 		Set<String> variableNamesForLogging = new HashSet<>( ) ;
 
 		if ( serviceInstance.getName( ).matches( KubernetesIntegration.getServicePattern( ) )
-				&& csapApp.environmentSettings( ).isVsphereConfigured( ) ) {
+				&& csapApis.application( ).environmentSettings( ).isVsphereConfigured( ) ) {
 
-			var vsphereConfiguration = csapApp.environmentSettings( ).getVsphereConfiguration( ) ;
-			var vsphereVariables = csapApp.environmentSettings( ).getVsphereEnv( ) ;
+			var vsphereConfiguration = csapApis.application( ).environmentSettings( ).getVsphereConfiguration( ) ;
+			var vsphereVariables = csapApis.application( ).environmentSettings( ).getVsphereEnv( ) ;
 
 			variableNamesForLogging.addAll( vsphereVariables.keySet( ) ) ;
 			logger.debug( "Adding vsphere variables" ) ;
@@ -1353,7 +1360,8 @@ public class ServiceOsManager {
 						.getCluster( ) ) )
 				.forEach( configMap -> {
 
-					// csapApp.lifeCycleSettings().getConfigurationMap( configMapName )
+					// csapApis.application().lifeCycleSettings().getConfigurationMap( configMapName
+					// )
 					logger.debug( "configMap: {}", CSAP.jsonPrint( configMap ) ) ;
 
 					if ( configMap.isMissingNode( ) ) {
@@ -1434,21 +1442,23 @@ public class ServiceOsManager {
 		}
 
 		// Standard for metadata
-		environmentVariables.put( "csapPackage", csapApp.getActiveProjectName( ) ) ;
-		environmentVariables.put( "csapLife", csapApp.getCsapHostEnvironmentName( ) ) ;
-		environmentVariables.put( "csapLbUrl", csapApp.rootProjectEnvSettings( ).getLoadbalancerUrl( ) ) ;
+		environmentVariables.put( "csapPackage", csapApis.application( ).getActiveProjectName( ) ) ;
+		environmentVariables.put( "csapLife", csapApis.application( ).getCsapHostEnvironmentName( ) ) ;
+		environmentVariables.put( "csapLbUrl", csapApis.application( ).rootProjectEnvSettings( )
+				.getLoadbalancerUrl( ) ) ;
 
 		logger.debug( "environmentVariables: {}", environmentVariables ) ;
 
 		if ( isProcessUserVariables ) {
 
 			environmentVariables.entrySet( ).stream( )
-					.filter( variableEntry -> variableEntry.toString( ).contains( CsapCore.CSAP_VARIABLE_PREFIX ) )
+					.filter( variableEntry -> variableEntry.toString( ).contains( CsapConstants.CSAP_VARIABLE_PREFIX ) )
 					.forEach( variableEntry -> {
 
 //						variableEntry.setValue( resolveOnePassVariables( serviceInstance, variableEntry
 //								.getValue( ) ) ) ;
-						variableEntry.setValue( csapApp.resolveDefinitionVariables( variableEntry.getValue( ),
+						variableEntry.setValue( csapApis.application( ).resolveDefinitionVariables( variableEntry
+								.getValue( ),
 								serviceInstance ) ) ;
 
 					} ) ;
@@ -1461,12 +1471,13 @@ public class ServiceOsManager {
 
 	private JsonNode buildConfigMapWithClusterOverrides ( String configurationMapName , String clusterName ) {
 		// Global Variables - load from the master package only.
-		// JsonNode globalReferences = csapApp.lifeCycleSettings().getConfigurationMap(
+		// JsonNode globalReferences =
+		// csapApis.application().lifeCycleSettings().getConfigurationMap(
 		// "global" ) ;
 		// add_map_variables( serviceInstance, environmentVariables,
 		// variableNamesForLogging, globalReferences, outputWriter ) ;
 
-		JsonNode configMap = csapApp.environmentSettings( )
+		JsonNode configMap = csapApis.application( ).environmentSettings( )
 				.getConfigurationMap( configurationMapName ) ;
 
 		ObjectNode aggregateMap = jsonMapper.createObjectNode( ) ;
@@ -1479,7 +1490,7 @@ public class ServiceOsManager {
 
 		var clusterOverrideName = configurationMapName + "-" + clusterName ;
 
-		JsonNode configMapClusterOverride = csapApp.environmentSettings( )
+		JsonNode configMapClusterOverride = csapApis.application( ).environmentSettings( )
 				.getConfigurationMap( clusterOverrideName ) ;
 
 		if ( configMapClusterOverride.isObject( ) ) {
@@ -1494,8 +1505,9 @@ public class ServiceOsManager {
 			try {
 
 				aggregateMap = (ObjectNode) jsonMapper.readTree(
-						aggregateMap.toString( ).replaceAll( Matcher.quoteReplacement( CsapCore.CSAP_DEF_FQDN_HOST ),
-								csapApp.getHostFqdn( ) ) ) ;
+						aggregateMap.toString( ).replaceAll( Matcher.quoteReplacement(
+								CsapConstants.CSAP_DEF_FQDN_HOST ),
+								csapApis.application( ).getHostFqdn( ) ) ) ;
 
 				logger.debug( "clusterOverrideName: {}, aggregateMap: {}", clusterOverrideName, aggregateMap ) ;
 
@@ -1571,9 +1583,9 @@ public class ServiceOsManager {
 
 			// redis service integration
 
-			if ( resolvedValue.contains( CsapCore.SERVICE_HOSTS ) ) {
+			if ( resolvedValue.contains( CsapConstants.SERVICE_HOSTS ) ) {
 
-				String serviceHosts = resolvedValue.substring( CsapCore.SERVICE_HOSTS.length( ) ) ;
+				String serviceHosts = resolvedValue.substring( CsapConstants.SERVICE_HOSTS.length( ) ) ;
 				resolvedValue = getServiceReferenceHosts( serviceHosts ) ;
 
 			}
@@ -1581,7 +1593,7 @@ public class ServiceOsManager {
 			if ( resolvedValue.contains( PERFORMANCE_APPLICATION ) ) {
 
 				String searchKey = resolvedValue.substring( PERFORMANCE_APPLICATION.length( ) ) ;
-				resolvedValue = osManager.getLastCollected( serviceInstance, searchKey ) ;
+				resolvedValue = csapApis.osManager( ).getLastCollected( serviceInstance, searchKey ) ;
 
 				// serviceInstance.
 			}
@@ -1591,7 +1603,8 @@ public class ServiceOsManager {
 
 			if ( isDecodeNeeded ) {
 
-				resolvedValue = csapApp.decode( resolvedValue, "Environment Variable: " + resolvedName ) ;
+				resolvedValue = csapApis.application( ).decode( resolvedValue, "Environment Variable: "
+						+ resolvedName ) ;
 
 			} else if ( resolvedValue.startsWith( "$" ) ) {
 
@@ -1633,37 +1646,37 @@ public class ServiceOsManager {
 		//
 
 		fileContents = replaceDeployOverRides(
-				CsapCore.CSAP_DEF_IMAGE,
-				DockerJson.imageName.json( ),
+				CsapConstants.CSAP_DEF_IMAGE,
+				C7.imageName.val( ),
 				containerConfiguration, fileContents ) ;
 
 		fileContents = replaceDeployOverRides(
-				CsapCore.CSAP_DEF_HELM_CHART_NAME,
-				DockerJson.helmChartName.json( ),
+				CsapConstants.CSAP_DEF_HELM_CHART_NAME,
+				C7.helmChartName.val( ),
 				containerConfiguration, fileContents ) ;
 
 		fileContents = replaceDeployOverRides(
-				CsapCore.CSAP_DEF_HELM_CHART_VERSION,
-				DockerJson.helmChartVersion.json( ),
+				CsapConstants.CSAP_DEF_HELM_CHART_VERSION,
+				C7.helmChartVersion.val( ),
 				containerConfiguration, fileContents ) ;
 
 		fileContents = replaceDeployOverRides(
-				CsapCore.CSAP_DEF_HELM_CHART_REPO,
-				DockerJson.helmChartRepo.json( ),
+				CsapConstants.CSAP_DEF_HELM_CHART_REPO,
+				C7.helmChartRepo.val( ),
 				containerConfiguration, fileContents ) ;
 
 		fileContents = replaceDeployOverRides(
-				CsapCore.CSAP_DEF_REPLICA,
-				DockerJson.containerCount.json( ),
+				CsapConstants.CSAP_DEF_REPLICA,
+				C7.containerCount.val( ),
 				containerConfiguration, fileContents ) ;
 
 		//
 		// Second: replace any remaining variables
 		//
-		fileContents = csapApp.resolveDefinitionVariables( fileContents, serviceInstance ) ;
+		fileContents = csapApis.application( ).resolveDefinitionVariables( fileContents, serviceInstance ) ;
 
 		// resolve image names eg. image: csap/ to junit-test/
-		for ( var set : csapApp.environmentSettings( ).getKubernetesYamlReplacements( ).entrySet( ) ) {
+		for ( var set : csapApis.application( ).environmentSettings( ).getKubernetesYamlReplacements( ).entrySet( ) ) {
 
 			fileContents = fileContents.replaceAll(
 					Matcher.quoteReplacement( set.getKey( ) ),
@@ -1715,7 +1728,7 @@ public class ServiceOsManager {
 
 		var resolvedName = originalName ;
 
-		if ( resolvedName.startsWith( CsapCore.CSAP_VARIABLE_PREFIX ) && resolvedName.length( ) > 2 ) {
+		if ( resolvedName.startsWith( CsapConstants.CSAP_VARIABLE_PREFIX ) && resolvedName.length( ) > 2 ) {
 
 			resolvedName = resolvedName.substring( 2 ) ;
 			resolvedName = resolvedName.replaceAll(
@@ -1731,7 +1744,7 @@ public class ServiceOsManager {
 	private String getServiceReferenceHosts ( String serviceName ) {
 
 		StringBuffer serviceHosts = new StringBuffer( ) ;
-		csapApp
+		csapApis.application( )
 				.getRootProject( ).getAllPackagesModel( )
 				.getServiceInstances( serviceName )
 				.map( serviceInstance -> serviceInstance.getHostName( ) )
@@ -1771,7 +1784,7 @@ public class ServiceOsManager {
 		try {
 
 			OutputFileMgr outputFm = new OutputFileMgr(
-					csapApp.getCsapWorkingFolder( ), "/"
+					csapApis.application( ).getCsapWorkingFolder( ), "/"
 							+ serviceName + KILL_OP ) ;
 			outputFm.print( "\n Request(s) Queued:\n" + serviceDeployExecutor.pendingOperations( ) ) ;
 
@@ -1786,7 +1799,7 @@ public class ServiceOsManager {
 		// logger.info("Generating Event: " + CsapEventClient.CSAP_SVC_CATEGORY
 		// + "/" + serviceName);
 
-		csapEventClient.publishEvent( CsapEvents.CSAP_SYSTEM_SERVICE_CATEGORY + "/" + serviceName,
+		csapApis.events( ).publishEvent( CsapEvents.CSAP_SYSTEM_SERVICE_CATEGORY + "/" + serviceName,
 				"Kill request added to queue",
 				" Command: \n" + params ) ;
 
@@ -1806,7 +1819,7 @@ public class ServiceOsManager {
 
 		}
 
-		if ( serviceName.equals( CsapCore.AGENT_NAME ) ) {
+		if ( serviceName.equals( CsapConstants.AGENT_NAME ) ) {
 
 			isKillAgentQueued = true ;
 
@@ -1829,7 +1842,7 @@ public class ServiceOsManager {
 		try {
 
 			OutputFileMgr outputFm = new OutputFileMgr(
-					csapApp.getCsapWorkingFolder( ), "/"
+					csapApis.application( ).getCsapWorkingFolder( ), "/"
 							+ serviceName + STOP_OP ) ;
 			outputFm.print( "\n Request(s) Queued:\n" + serviceDeployExecutor.pendingOperations( ) ) ;
 
@@ -1844,7 +1857,7 @@ public class ServiceOsManager {
 		// logger.info("Generating Event: " + CsapEventClient.CSAP_SVC_CATEGORY
 		// + "/" + serviceName);
 
-		csapEventClient.publishEvent( CsapEvents.CSAP_SYSTEM_SERVICE_CATEGORY + "/" + serviceName,
+		csapApis.events( ).publishEvent( CsapEvents.CSAP_SYSTEM_SERVICE_CATEGORY + "/" + serviceName,
 				"Stop request added to queue",
 				" Command: \n" + params ) ;
 
@@ -1870,11 +1883,11 @@ public class ServiceOsManager {
 
 			OutputFileMgr outputFm = outputFmInBound ;
 
-			ServiceInstance serviceInstance = csapApp.getServiceInstanceCurrentHost( serviceNamePort ) ;
+			ServiceInstance serviceInstance = csapApis.application( ).getServiceInstanceCurrentHost( serviceNamePort ) ;
 
 			if ( outputFmInBound == null ) {
 
-				outputFm = new OutputFileMgr( csapApp.getCsapWorkingFolder( ),
+				outputFm = new OutputFileMgr( csapApis.application( ).getCsapWorkingFolder( ),
 						"/" + serviceInstance.getName( ) + KILL_OP ) ;
 
 			}
@@ -1895,14 +1908,14 @@ public class ServiceOsManager {
 					userid, serviceInstance.getName( ), params, outputFm.getOutputFile( ).getCanonicalPath( ) ) ;
 
 			// Before killing, lets publish alls stats so gaps do not appear
-			if ( serviceNamePort.startsWith( CsapCore.AGENT_NAME ) ) {
+			if ( serviceNamePort.startsWith( CsapConstants.AGENT_NAME ) ) {
 
 				try {
 
-					outputFm.printImmediate(
+					outputFm.printHeader(
 							"Shutting down agent collection threads and flushing events. This can take 30-60 seconds to complete...." ) ;
 					logger.warn( "Shutting down agent prior to issuing kill" ) ;
-					csapApp.shutdown( ) ;
+					csapApis.application( ).shutdown( ) ;
 
 				} catch ( Exception e ) {
 
@@ -1912,10 +1925,11 @@ public class ServiceOsManager {
 
 			}
 
-			osManager
+			csapApis.osManager( )
 					.getJobRunner( )
-					.runJobUsingEvent( serviceInstance, ServiceJobRunner.Event.preStop, outputFm
-							.getBufferedWriter( ) ) ;
+					.runJobUsingEvent( serviceInstance,
+							ServiceJobRunner.Event.preStop,
+							outputFm.getBufferedWriter( ) ) ;
 
 			if ( serviceInstance.is_docker_server( ) ) {
 
@@ -1948,7 +1962,7 @@ public class ServiceOsManager {
 
 			}
 
-			osManager
+			csapApis.osManager( )
 					.getJobRunner( )
 					.runJobUsingEvent( serviceInstance, ServiceJobRunner.Event.postStop, outputFm
 							.getBufferedWriter( ) ) ;
@@ -1984,7 +1998,7 @@ public class ServiceOsManager {
 		try {
 
 			outputFm = new OutputFileMgr(
-					csapApp.getCsapWorkingFolder( ), "/"
+					csapApis.application( ).getCsapWorkingFolder( ), "/"
 							+ svcName + ServiceOsManager.STOP_OP ) ;
 
 			// Runs a blocking request
@@ -2026,7 +2040,7 @@ public class ServiceOsManager {
 		try {
 
 			OutputFileMgr outputFm = new OutputFileMgr(
-					csapApp.getCsapWorkingFolder( ), "/"
+					csapApis.application( ).getCsapWorkingFolder( ), "/"
 							+ serviceName + START_OP ) ;
 			outputFm.print( "\n Request(s) Queued:\n" + serviceDeployExecutor.pendingOperations( ) ) ;
 
@@ -2044,7 +2058,7 @@ public class ServiceOsManager {
 				serviceName,
 				"start" ) ;
 
-		csapEventClient.publishEvent( CsapEvents.CSAP_SYSTEM_SERVICE_CATEGORY + "/" + serviceName,
+		csapApis.events( ).publishEvent( CsapEvents.CSAP_SYSTEM_SERVICE_CATEGORY + "/" + serviceName,
 				"Start request added to queue",
 				" Command: \n" + params ) ;
 
@@ -2059,11 +2073,11 @@ public class ServiceOsManager {
 									String commandArguments ,
 									String deployId ) {
 
-		if ( serviceNamePort.equals( CsapCore.AGENT_NAME ) ) {
+		if ( serviceNamePort.equals( CsapConstants.AGENT_NAME ) ) {
 
 			try {
 
-				csapApp.shutdown( ) ;
+				csapApis.application( ).shutdown( ) ;
 
 			} catch ( Exception e ) {
 
@@ -2071,7 +2085,7 @@ public class ServiceOsManager {
 
 			}
 
-		} else if ( csapApp.isShutdownInProgress( ) ) {
+		} else if ( csapApis.isShutdownInProgress( ) ) {
 
 			logger.info( "Deployment aborted due to shutdown in progress: {} ", serviceNamePort ) ;
 			return ;
@@ -2080,11 +2094,11 @@ public class ServiceOsManager {
 
 		OutputFileMgr outputFm = null ;
 
-		ServiceInstance serviceInstance = csapApp.getServiceInstanceCurrentHost( serviceNamePort ) ;
+		ServiceInstance serviceInstance = csapApis.application( ).getServiceInstanceCurrentHost( serviceNamePort ) ;
 
 		try {
 
-			outputFm = new OutputFileMgr( csapApp.getCsapWorkingFolder( ),
+			outputFm = new OutputFileMgr( csapApis.application( ).getCsapWorkingFolder( ),
 					"/" + serviceInstance.getName( ) + START_OP ) ;
 
 			logger.info(
@@ -2141,7 +2155,7 @@ public class ServiceOsManager {
 
 			if ( ! skipStart ) {
 
-				osManager
+				csapApis.osManager( )
 						.getJobRunner( )
 						.runJobUsingEvent( serviceInstance, ServiceJobRunner.Event.preStart, outputFm
 								.getBufferedWriter( ) ) ;
@@ -2174,7 +2188,7 @@ public class ServiceOsManager {
 
 				}
 
-				osManager
+				csapApis.osManager( )
 						.getJobRunner( )
 						.runJobUsingEvent( serviceInstance, ServiceJobRunner.Event.postStart, outputFm
 								.getBufferedWriter( ) ) ;
@@ -2229,7 +2243,7 @@ public class ServiceOsManager {
 
 	public File getReImageFile ( ) {
 
-		return new File( csapApp.getCsapInstallFolder( ), "reImageIndicator" ) ;
+		return new File( csapApis.application( ).getCsapInstallFolder( ), "reImageIndicator" ) ;
 
 	}
 
@@ -2250,7 +2264,7 @@ public class ServiceOsManager {
 			try {
 
 				OutputFileMgr outputFm = new OutputFileMgr(
-						csapApp.getCsapWorkingFolder( ), "/"
+						csapApis.application( ).getCsapWorkingFolder( ), "/"
 								+ instance.getName( ) + DEPLOY_OP ) ;
 				outputFm.print( "*** Scheduling Deployment" ) ;
 				outputFm.close( ) ;
@@ -2268,8 +2282,8 @@ public class ServiceOsManager {
 
 		if ( ! instance.getName( ).equals( CSAP_AGENT_AUTO_START_COMPLETE ) ) {
 
-			if ( csapApp.isDesktopHost( )
-					&& ! csapApp.isBootstrapComplete( ) ) {
+			if ( csapApis.application( ).isDesktopHost( )
+					&& ! csapApis.application( ).isBootstrapComplete( ) ) {
 
 				logger.warn( CsapApplication.testHeader( "{} Skipping deployment on desktop startup" ), instance
 						.getName( ) ) ;
@@ -2289,7 +2303,7 @@ public class ServiceOsManager {
 
 			}
 
-			csapEventClient.publishEvent( CsapEvents.CSAP_SYSTEM_SERVICE_CATEGORY + "/" + instance.getName( ),
+			csapApis.events( ).publishEvent( CsapEvents.CSAP_SYSTEM_SERVICE_CATEGORY + "/" + instance.getName( ),
 					"Deploy request added to queue",
 					"Timeout configured in cluster.js: "
 							+ instance.getDeployTimeOutSeconds( ) + ", Command: \n" + rebuildVariables ) ;
@@ -2314,7 +2328,7 @@ public class ServiceOsManager {
 									boolean isPerformStart ,
 									boolean isForceDeploy ) {
 
-		if ( csapApp.isShutdownInProgress( ) || csapApp.isJunit( ) ) {
+		if ( csapApis.isShutdownInProgress( ) || csapApis.application( ).isJunit( ) ) {
 
 			logger.info( "Deployment aborted due to shutdown in progress: {} ", instance ) ;
 			return ;
@@ -2329,17 +2343,19 @@ public class ServiceOsManager {
 			if ( instance.getName( ).equals( CSAP_AGENT_AUTO_START_COMPLETE ) ) {
 
 				// hook so UI can switch agent out of bootstrap status
-				csapApp.setBootstrapComplete( ) ;
+				csapApis.application( ).setBootstrapComplete( ) ;
 				getReImageFile( ).delete( ) ;
 
-				csapEventClient.publishEvent( CsapEvents.CSAP_SYSTEM_CATEGORY + "/agent-start-up",
+				csapApis.events( ).publishEvent( CsapEvents.CSAP_SYSTEM_CATEGORY + "/agent-start-up",
 						"All services synchronized", null,
-						csapApp.healthManager( ).statusForAdminOrAgent( ServiceAlertsEnum.ALERT_LEVEL, false ) ) ;
+						csapApis.application( ).healthManager( ).statusForAdminOrAgent( ServiceAlertsEnum.ALERT_LEVEL,
+								false ) ) ;
 
 				// tagged again - to appear in UI view
-				csapEventClient.publishEvent( CsapEvents.CSAP_USER_SERVICE_CATEGORY + "/" + CsapCore.AGENT_NAME,
+				csapApis.events( ).publishEvent( CsapEvents.CSAP_USER_SERVICE_CATEGORY + "/" + CsapConstants.AGENT_NAME,
 						"All services synchronized", null,
-						csapApp.healthManager( ).statusForAdminOrAgent( ServiceAlertsEnum.ALERT_LEVEL, false ) ) ;
+						csapApis.application( ).healthManager( ).statusForAdminOrAgent( ServiceAlertsEnum.ALERT_LEVEL,
+								false ) ) ;
 
 			} else {
 
@@ -2354,7 +2370,7 @@ public class ServiceOsManager {
 
 		} finally {
 
-			csapApp.run_application_scan( ) ;
+			csapApis.application( ).run_application_scan( ) ;
 
 		}
 
@@ -2380,22 +2396,23 @@ public class ServiceOsManager {
 				serviceInstance.getServiceName_Port( ),
 				filterField( deploymentVariables.toString( ), "scmPass" ) ) ;
 
-		if ( serviceInstance.getName( ).equals( "docker" ) ) {
+		if ( serviceInstance.getName( ).equals( C7.dockerService.val( ) )
+				|| serviceInstance.getName( ).equals( C7.podmanService.val( ) ) ) {
 
-			csapApp.setDockerDeployInProgress( true ) ;
+			csapApis.setContainerProviderDeployInProgress( true ) ;
 
 		}
 
-		csapApp.setAgentStatus( serviceInstance.getServiceName_Port( ) ) ;
+		csapApis.application( ).setAgentStatus( serviceInstance.getServiceName_Port( ) ) ;
 
 		// rebuildServer("CsAgentAutoDeploy", "dummyPass",
 		// "dummBranch", serviceName + "_" + servicePort,
 		// javaOpts, "", null, null, MAVEN_DEFAULT_BUILD
 		// + ":dummyStringToSkipSvn", null, null);
 		if ( getReImageFile( ).exists( ) && serviceInstance.is_csap_api_server( )
-				&& csapApp.isRunningAsRoot( ) ) {
+				&& csapApis.application( ).isRunningAsRoot( ) ) {
 
-			if ( serviceInstance.getUser( ) != null && ! serviceInstance.getUser( ).equals( csapApp
+			if ( serviceInstance.getUser( ) != null && ! serviceInstance.getUser( ).equals( csapApis.application( )
 					.getAgentRunUser( ) ) ) {
 
 				File propFile = new File( "/home/" + serviceInstance.getUser( ) ) ;
@@ -2407,14 +2424,14 @@ public class ServiceOsManager {
 						+ propFile.getAbsolutePath( ) + "/*" ) ;
 				// osCommandRunner.executeString(parmList);
 				osCommandRunner.executeString( parmList,
-						csapApp.getCsapInstallFolder( ), null, null, 600, 1, null ) ;
+						csapApis.application( ).getCsapInstallFolder( ), null, null, 600, 1, null ) ;
 				serviceInstance.getDefaultContainer( ).setCpuAuto( ) ;
 
 			}
 
 		}
 
-		File csapPackageFolder = csapApp.getCsapPackageFolder( ) ;
+		File csapPackageFolder = csapApis.application( ).getCsapPackageFolder( ) ;
 		File deployFile = new File( csapPackageFolder, serviceInstance.getDeployFileName( ) ) ;
 
 		// We always use existing artifact if it exists.
@@ -2436,7 +2453,7 @@ public class ServiceOsManager {
 			deploymentVariables.add( "hotDeploy", null ) ;
 
 			OutputFileMgr outputFm = new OutputFileMgr(
-					csapApp.getCsapWorkingFolder( ), "/"
+					csapApis.application( ).getCsapWorkingFolder( ), "/"
 							+ serviceInstance.getName( ) + DEPLOY_OP ) ;
 
 			// outputFm.printImmediate("Building: " +
@@ -2491,12 +2508,12 @@ public class ServiceOsManager {
 			// params.add("-hotDeploy");
 			// params.add("-skipDeployment");
 			OutputFileMgr outputFm = new OutputFileMgr(
-					csapApp.getCsapWorkingFolder( ), "/"
+					csapApis.application( ).getCsapWorkingFolder( ), "/"
 							+ serviceInstance.getName( ) + START_OP ) ;
 
 			try {
 
-				osManager
+				csapApis.osManager( )
 						.getJobRunner( )
 						.runJobUsingEvent( serviceInstance, ServiceJobRunner.Event.preStart, outputFm
 								.getBufferedWriter( ) ) ;
@@ -2525,7 +2542,7 @@ public class ServiceOsManager {
 
 				}
 
-				osManager
+				csapApis.osManager( )
 						.getJobRunner( )
 						.runJobUsingEvent( serviceInstance, ServiceJobRunner.Event.postStart, outputFm
 								.getBufferedWriter( ) ) ;
@@ -2538,9 +2555,10 @@ public class ServiceOsManager {
 
 		}
 
-		if ( serviceInstance.getName( ).equals( "docker" ) ) {
+		if ( serviceInstance.getName( ).equals( C7.dockerService.val( ) )
+				|| serviceInstance.getName( ).equals( C7.podmanService.val( ) ) ) {
 
-			csapApp.setDockerDeployInProgress( false ) ;
+			csapApis.setContainerProviderDeployInProgress( false ) ;
 			File updatedAgentGroup = new File( serviceInstance.getWorkingDirectory( ),
 					"restart-agent-for-docker-group" ) ;
 
@@ -2548,7 +2566,7 @@ public class ServiceOsManager {
 
 				logger.info( CsapApplication.header( "Restart trigger: {}" ), updatedAgentGroup.getAbsolutePath( ) ) ;
 				FileUtils.deleteQuietly( updatedAgentGroup ) ;
-				csapApp.shutdown( ) ;
+				csapApis.application( ).shutdown( ) ;
 				List<String> script = List.of( "systemctl restart csap" ) ;
 				osCommandRunner.runUsingRootUser( "docker-group-restart-trigger", script ) ;
 
@@ -2556,16 +2574,16 @@ public class ServiceOsManager {
 
 		}
 
-		osManager.resetAllCaches( ) ;
+		csapApis.osManager( ).resetAllCaches( ) ;
 
-		csapEventClient.publishEvent( CsapEvents.CSAP_SYSTEM_SERVICE_CATEGORY + "/" + serviceInstance.getName( ),
+		csapApis.events( ).publishEvent( CsapEvents.CSAP_SYSTEM_SERVICE_CATEGORY + "/" + serviceInstance.getName( ),
 				"Deployment Completed For Service " + serviceInstance.getServiceName_Port( ),
 				"" ) ;
 
 		serviceInstance.getDefaultContainer( ).setCpuReset( ) ;
 
 		// refresh status after deployment
-		if ( ! csapApp.isBootstrapComplete( )
+		if ( ! csapApis.application( ).isBootstrapComplete( )
 				&& serviceInstance.getName( ).matches( KubernetesIntegration.getServicePattern( ) ) ) {
 
 			logger.info( "Sleeping 10 seconds to let kubelet initialize" ) ;
@@ -2578,7 +2596,7 @@ public class ServiceOsManager {
 	private File getSyncLocation ( )
 		throws IOException {
 
-		return new File( csapApp.getCsapSavedFolder( ), PACKAGE_SYNC ).getCanonicalFile( ) ;
+		return new File( csapApis.application( ).getCsapSavedFolder( ), PACKAGE_SYNC ).getCanonicalFile( ) ;
 
 	}
 
@@ -2593,7 +2611,7 @@ public class ServiceOsManager {
 
 		if ( serviceInstance.is_cluster_kubernetes( ) ) {
 
-			boolean isCurrentlyRunning = csapApp.isKubernetesInstalledAndActive( ) && kubernetes.isPodRunning(
+			boolean isCurrentlyRunning = csapApis.isKubernetesInstalledAndActive( ) && kubernetes.isPodRunning(
 					serviceInstance ) ;
 
 			if ( isCurrentlyRunning
@@ -2622,7 +2640,7 @@ public class ServiceOsManager {
 			// Remove previous stopped file
 			synchronizeServiceState( START_FILE, serviceInstance ) ;
 
-			File versionFile = csapApp.getDeployVersionFile( serviceInstance ) ;
+			File versionFile = csapApis.application( ).getDeployVersionFile( serviceInstance ) ;
 
 			ObjectNode containerConfiguration = build_container_run_configuration( serviceInstance, outputFileMgr,
 					deployConfiguration ) ;
@@ -2654,8 +2672,8 @@ public class ServiceOsManager {
 				outputFileMgr.printHeader( "Generating kubernetes specifications for deployment" ) ;
 				ObjectNode results = kubernetes.specBuilder( ).deploy_csap_service( serviceInstance,
 						containerConfiguration ) ;
-				addResultsToOutput( outputFileMgr, results, results.path( DockerJson.response_start_results
-						.json( ) ) ) ;
+				addResultsToOutput( outputFileMgr, results, results.path( C7.response_start_results
+						.val( ) ) ) ;
 				outputFileMgr.printImmediate( BUILD_SUCCESS ) ;
 				return BUILD_SUCCESS ;
 
@@ -2686,13 +2704,13 @@ public class ServiceOsManager {
 		logger.info( "pull results: {}", results ) ;
 		outputFileMgr.printImmediate( CSAP.jsonPrint( results ) ) ;
 
-		boolean pullCompleted = results.path( DockerJson.pull_complete.json( ) ).asBoolean( ) ;
-		boolean pullErrors = results.path( DockerJson.error.json( ) ).asBoolean( ) ;
+		boolean pullCompleted = results.path( C7.pull_complete.val( ) ).asBoolean( ) ;
+		boolean pullErrors = results.path( C7.error.val( ) ).asBoolean( ) ;
 
 		if ( ( ! pullErrors ) &&
 				pullCompleted ) {
 
-			File versionFile = csapApp.getDeployVersionFile( serviceInstance ) ;
+			File versionFile = csapApis.application( ).getDeployVersionFile( serviceInstance ) ;
 			createVersionFile( versionFile, null, scmUserid, "Docker Pull" ) ;
 			return BUILD_SUCCESS ;
 
@@ -2721,6 +2739,16 @@ public class ServiceOsManager {
 														String scmUserid ,
 														boolean isCurrentlyRunning ) {
 
+		var workingFolder = serviceInstance.getWorkingDirectory( ) ;
+
+		if ( workingFolder.exists( ) ) {
+
+			outputFileMgr.printHeader( "Deleting previous deployment folder : "
+					+ workingFolder.getAbsolutePath( ) ) ;
+			FileUtils.deleteQuietly( workingFolder ) ;
+
+		}
+
 		var deploymentCommands = filesToDeploy
 				.map( filePath -> {
 
@@ -2732,8 +2760,8 @@ public class ServiceOsManager {
 
 						if ( ! sourceFile.exists( ) ) {
 
-							outputFileMgr.printHeader( "Error: unable to locate deployment file : " + sourceFile
-									.getAbsolutePath( ) ) ;
+							outputFileMgr.printHeader( "Error: unable to locate deployment file : "
+									+ sourceFile.getAbsolutePath( ) ) ;
 
 							command = "skipping " + sourceFile.getAbsolutePath( ) + " file not found" ;
 
@@ -2749,11 +2777,11 @@ public class ServiceOsManager {
 								outputFileMgr.printHeader( "invoking script with deploy " + deploymentFile
 										.getAbsolutePath( ) ) ;
 
-								var output = osManager.kubernetesShell(
+								var output = csapApis.osManager( ).kubernetesShell(
 										"deploy", deploymentFile,
-										DockerJson.response_shell ) ;
+										C7.response_shell ) ;
 
-								outputFileMgr.printHeader( output.path( DockerJson.response_shell.json( ) )
+								outputFileMgr.printHeader( output.path( C7.response_shell.val( ) )
 										.asText( ) ) ;
 
 							} else if ( sourceFile.getName( ).startsWith( "helm" ) ) {
@@ -2761,7 +2789,7 @@ public class ServiceOsManager {
 
 							} else {
 
-								var yamlFile = csapApp.createYamlFile(
+								var yamlFile = csapApis.application( ).createYamlFile(
 										"-deploy-" + sourceFile.getName( ) + "-",
 										Application.readFile( deploymentFile ),
 										serviceInstance.getName( ) ) ;
@@ -2779,8 +2807,9 @@ public class ServiceOsManager {
 								command = deployCommand + " -f " + yamlFile.getAbsolutePath( ) ;
 
 								outputFileMgr.printHeader( command ) ;
-								ObjectNode output = osManager.kubernetesCli( command, DockerJson.response_shell ) ;
-								outputFileMgr.printHeader( output.path( DockerJson.response_shell.json( ) )
+								ObjectNode output = csapApis.osManager( ).kubernetesCli( command,
+										C7.response_shell ) ;
+								outputFileMgr.printHeader( output.path( C7.response_shell.val( ) )
 										.asText( ) ) ;
 
 							}
@@ -2815,7 +2844,7 @@ public class ServiceOsManager {
 		logger.info( "Starting docker service: {}, type: {}, using: {} ",
 				serviceInstance.getServiceName_Port( ), serviceInstance.getRuntime( ), commandArguments ) ;
 
-		if ( ! csapApp.isDockerInstalledAndActive( ) ) {
+		if ( ! csapApis.isContainerProviderInstalledAndActive( ) ) {
 
 			outputFileMgr.printHeader( "WARNING: docker not enabled, skipping docker start" ) ;
 			logger.warn( "docker not enabled, skipping docker start" ) ;
@@ -2836,12 +2865,12 @@ public class ServiceOsManager {
 		// remove stopped state file
 		synchronizeServiceState( START_FILE, serviceInstance ) ;
 
-		if ( csapApp.isDockerInstalledAndActive( )
+		if ( csapApis.isContainerProviderInstalledAndActive( )
 				&& serviceInstance.isRunUsingDocker( ) ) {
 
 			// SpringBoot inside of docker
 
-			String targetImage = dockerRunConfiguration.path( DockerJson.imageName.json( ) ).asText( "" ) ;
+			String targetImage = dockerRunConfiguration.path( C7.imageName.val( ) ).asText( "" ) ;
 
 			if ( ! StringUtils.isEmpty( targetImage ) ) {
 
@@ -2867,11 +2896,11 @@ public class ServiceOsManager {
 
 		if ( ! serviceInstance.is_cluster_kubernetes( ) ) {
 
-			var dockerRunCommand = dockerRunConfiguration.path( DockerJson.run.json( ) ).asText( ) ;
+			var dockerRunCommand = dockerRunConfiguration.path( C7.run.val( ) ).asText( ) ;
 
 			if ( StringUtils.isNotEmpty( dockerRunCommand ) ) {
 
-				results = osManager.dockerCli( dockerRunCommand, DockerJson.response_shell ) ;
+				results = csapApis.osManager( ).dockerCli( dockerRunCommand, C7.response_shell ) ;
 
 			} else {
 
@@ -2886,14 +2915,14 @@ public class ServiceOsManager {
 			// results = kubernetes.deploy_csap_service( serviceInstance,
 			// dockerRunConfiguration ) ;
 			results = jsonMapper.createObjectNode( ) ;
-			ObjectNode startResults = results.putObject( DockerJson.response_start_results.json( ) ) ;
+			ObjectNode startResults = results.putObject( C7.response_start_results.val( ) ) ;
 			startResults.put( "summary", "Kubernetes Deployments are autostarted" ) ;
 
 		}
 
 		serviceInstance.setFileSystemScanRequired( true ) ;
 
-		addResultsToOutput( outputFileMgr, results, results.path( DockerJson.response_start_results.json( ) ) ) ;
+		addResultsToOutput( outputFileMgr, results, results.path( C7.response_start_results.val( ) ) ) ;
 
 	}
 
@@ -2935,32 +2964,32 @@ public class ServiceOsManager {
 
 		logger.debug( "Pre sub def: {}", CSAP.jsonPrint( runSettings ) ) ;
 		// update commands with command line overrides
-		JsonNode commandArray = runSettings.path( DockerJson.command.json( ) ) ;
+		JsonNode commandArray = runSettings.path( C7.command.val( ) ) ;
 		ArrayNode updatedCommands = buildRuntimeParameters( serviceInstance, deployConfiguration, commandArray ) ;
 
 		if ( updatedCommands.size( ) > 0 ) {
 
-			runSettings.set( DockerJson.command.json( ), updatedCommands ) ;
+			runSettings.set( C7.command.val( ), updatedCommands ) ;
 
 		}
 
 		// update entry with command line overrides
-		JsonNode entryArray = runSettings.path( DockerJson.entryPoint.json( ) ) ;
+		JsonNode entryArray = runSettings.path( C7.entryPoint.val( ) ) ;
 		ArrayNode updatedEntry = buildRuntimeParameters( serviceInstance, deployConfiguration, entryArray ) ;
 
 		if ( updatedEntry.size( ) > 0 ) {
 
-			runSettings.set( DockerJson.entryPoint.json( ), updatedEntry ) ;
+			runSettings.set( C7.entryPoint.val( ), updatedEntry ) ;
 
 		}
 
 		logger.debug( "Post sub def: {}", CSAP.jsonPrint( runSettings ) ) ;
 
-		ArrayNode runtimeEnvVars = (ArrayNode) runSettings.get( DockerJson.environmentVariables.json( ) ) ;
+		ArrayNode runtimeEnvVars = (ArrayNode) runSettings.get( C7.environmentVariables.val( ) ) ;
 
 		if ( runtimeEnvVars == null ) {
 
-			runtimeEnvVars = runSettings.putArray( DockerJson.environmentVariables.json( ) ) ;
+			runtimeEnvVars = runSettings.putArray( C7.environmentVariables.val( ) ) ;
 
 		}
 
@@ -2986,7 +3015,8 @@ public class ServiceOsManager {
 		try {
 
 			runSettings = (ObjectNode) jsonMapper.readTree(
-					csapApp.resolveDefinitionVariables( runSettings.toString( ), serviceInstance, true ) ) ;
+					csapApis.application( ).resolveDefinitionVariables( runSettings.toString( ), serviceInstance,
+							true ) ) ;
 
 		} catch ( Exception e ) {
 
@@ -3011,12 +3041,12 @@ public class ServiceOsManager {
 
 		if ( entryOrCommandItems != null ) {
 
-			CsapCore.jsonStream( entryOrCommandItems )
+			CsapConstants.jsonStream( entryOrCommandItems )
 					.map( JsonNode::asText )
 					.map( String::trim )
 					.forEach( command -> {
 
-						if ( command.equals( CsapCore.CSAP_DEF_PARAMETERS ) ) {
+						if ( command.equals( CsapConstants.CSAP_DEF_PARAMETERS ) ) {
 
 							// this is itemized parameters scenarios
 							String[] serviceParams = commandArguments.split( " " ) ;
@@ -3039,10 +3069,10 @@ public class ServiceOsManager {
 							String commandWithRunOptions = command ;
 
 							if ( StringUtils.isNotEmpty( commandArguments ) &&
-									command.contains( CsapCore.CSAP_DEF_PARAMETERS ) ) {
+									command.contains( CsapConstants.CSAP_DEF_PARAMETERS ) ) {
 
 								commandWithRunOptions = command.trim( ).replaceAll(
-										Matcher.quoteReplacement( CsapCore.CSAP_DEF_PARAMETERS ),
+										Matcher.quoteReplacement( CsapConstants.CSAP_DEF_PARAMETERS ),
 										Matcher.quoteReplacement( commandArguments ) ) ;
 
 							}
@@ -3157,11 +3187,11 @@ public class ServiceOsManager {
 
 		if ( params.contains( "cleanVolumes" ) && serviceInstance.getDockerSettings( ) != null ) {
 
-			JsonNode volumes = serviceInstance.getDockerSettings( ).path( DockerJson.volumes.json( ) ) ;
+			JsonNode volumes = serviceInstance.getDockerSettings( ).path( C7.volumes.val( ) ) ;
 
 			try {
 
-				volumes = jsonMapper.readTree( csapApp.resolveDefinitionVariables( volumes.toString( ),
+				volumes = jsonMapper.readTree( csapApis.application( ).resolveDefinitionVariables( volumes.toString( ),
 						serviceInstance ) ) ;
 
 			} catch ( Exception e ) {
@@ -3175,11 +3205,11 @@ public class ServiceOsManager {
 				volumes
 						.forEach( volumeDef -> {
 
-							if ( volumeDef.at( "/" + DockerJson.create_persistent.json( ) + "/enabled" ).asBoolean(
+							if ( volumeDef.at( "/" + C7.create_persistent.val( ) + "/enabled" ).asBoolean(
 									false ) ) {
 
-								String hostPath = volumeDef.path( DockerJson.volume_host_path.json( ) ).asText( "" ) ;
-								String driver = volumeDef.at( "/" + DockerJson.create_persistent.json( ) + "/driver" )
+								String hostPath = volumeDef.path( C7.volume_host_path.val( ) ).asText( "" ) ;
+								String driver = volumeDef.at( "/" + C7.create_persistent.val( ) + "/driver" )
 										.asText( "no-driver-specified" ) ;
 
 								if ( StringUtils.isNotEmpty( hostPath ) && ! driver.equals( "host" ) ) {
@@ -3191,9 +3221,11 @@ public class ServiceOsManager {
 
 								} else if ( StringUtils.isNotEmpty( hostPath )
 										&& ! hostPath.equals( "/" )
-										&& ! hostPath.equals( csapApp.getCsapInstallFolder( ).getAbsolutePath( ) )
-										&& ! hostPath.equals( csapApp.getCsapWorkingFolder( ).getAbsolutePath( ) )
-										&& ! hostPath.startsWith( csapApp.getCsapInstallFolder( )
+										&& ! hostPath.equals( csapApis.application( ).getCsapInstallFolder( )
+												.getAbsolutePath( ) )
+										&& ! hostPath.equals( csapApis.application( ).getCsapWorkingFolder( )
+												.getAbsolutePath( ) )
+										&& ! hostPath.startsWith( csapApis.application( ).getCsapInstallFolder( )
 												.getAbsolutePath( ) ) ) {
 
 									outputFileMgr.printHeader( "Removing docker host volume: " + hostPath ) ;
@@ -3301,22 +3333,27 @@ public class ServiceOsManager {
 
 							if ( sourceFile.getName( ).endsWith( ".sh" ) ) {
 
+								//
+								// any sh file - but specifically helm-deploy.sh
+								//
+
 								outputFileMgr.printHeader( "invoking script with remove " + deploymentFile
 										.getAbsolutePath( ) ) ;
 
-								var output = osManager.kubernetesShell(
+								var output = csapApis.osManager( ).kubernetesShell(
 										"remove", deploymentFile,
-										DockerJson.response_shell ) ;
+										C7.response_shell ) ;
 
-								outputFileMgr.printHeader( output.path( DockerJson.response_shell.json( ) )
+								outputFileMgr.printHeader( output.path( C7.response_shell.val( ) )
 										.asText( ) ) ;
 
 							} else if ( sourceFile.getName( ).startsWith( "helm" ) ) {
 								// just written out
+								// handles helm-values.yaml files
 
 							} else {
 
-								var preservedYamlFile = csapApp.createYamlFile(
+								var preservedYamlFile = csapApis.application( ).createYamlFile(
 										"-delete-" + sourceFile.getName( ) + "-",
 										Application.readFile( deploymentFile ),
 										serviceInstance.getName( ) ) ;
@@ -3328,8 +3365,9 @@ public class ServiceOsManager {
 								// }
 
 								outputFileMgr.printHeader( command ) ;
-								ObjectNode output = osManager.kubernetesCli( command, DockerJson.response_shell ) ;
-								outputFileMgr.printHeader( output.path( DockerJson.response_shell.json( ) )
+								ObjectNode output = csapApis.osManager( ).kubernetesCli( command,
+										C7.response_shell ) ;
+								outputFileMgr.printHeader( output.path( C7.response_shell.val( ) )
 										.asText( ) ) ;
 								results.put( filePath.toString( ), "completed" ) ;
 
@@ -3364,7 +3402,7 @@ public class ServiceOsManager {
 
 					.filter( StringUtils::isNotEmpty )
 
-					.map( specificationCsapPath -> csapApp.resolveDefinitionVariables(
+					.map( specificationCsapPath -> csapApis.application( ).resolveDefinitionVariables(
 							specificationCsapPath,
 							serviceInstance ) )
 
@@ -3374,7 +3412,7 @@ public class ServiceOsManager {
 
 						try {
 
-							if ( specificationCsapPath.contains( CsapCore.SEARCH_RESOURCES ) ) {
+							if ( specificationCsapPath.contains( CsapConstants.SEARCH_RESOURCES ) ) {
 
 								var serviceName = serviceInstance.getName( ) ;
 
@@ -3395,8 +3433,9 @@ public class ServiceOsManager {
 								} else {
 
 									// If not found in application definition - check in template folder
-									var templatePath = csapApp.getActiveProject( ).find_service_template_path(
-											serviceName ) ;
+									var templatePath = csapApis.application( ).getActiveProject( )
+											.find_service_template_path(
+													serviceName ) ;
 									definitionPath = "/" + templatePath ;
 									var templateResourceURI = performSearchForResources( serviceName,
 											specificationCsapPath, definitionPath ) ;
@@ -3438,12 +3477,12 @@ public class ServiceOsManager {
 
 		// default is root of resource folder
 		var specificationLocationOnDisk = specificationPath.replaceAll(
-				Pattern.quote( CsapCore.SEARCH_RESOURCES ),
+				Pattern.quote( CsapConstants.SEARCH_RESOURCES ),
 				resourceFolderUri ) ;
 
 		// check for common folder
 		var commonSpec = specificationPath.replaceAll(
-				Pattern.quote( CsapCore.SEARCH_RESOURCES ),
+				Pattern.quote( CsapConstants.SEARCH_RESOURCES ),
 				resourceFolderUri + "common" + "/" ) ;
 
 		var commonResourceSpec = new File( new URI( commonSpec ) ) ;
@@ -3460,7 +3499,8 @@ public class ServiceOsManager {
 		// check for base environments
 		//
 
-		var imports = csapApp.getRootProject( ).getImports( csapApp.getCsapHostEnvironmentName( ) ) ;
+		var imports = csapApis.application( ).getRootProject( ).getImports( csapApis.application( )
+				.getCsapHostEnvironmentName( ) ) ;
 
 		if ( imports.isArray( ) ) {
 
@@ -3469,7 +3509,7 @@ public class ServiceOsManager {
 					.map( importEnvName -> {
 
 						var baseEnvSpec = specificationPath.replaceAll(
-								Pattern.quote( CsapCore.SEARCH_RESOURCES ),
+								Pattern.quote( CsapConstants.SEARCH_RESOURCES ),
 								resourceFolderUri + importEnvName + "/" ) ;
 
 						return baseEnvSpec ;
@@ -3515,8 +3555,8 @@ public class ServiceOsManager {
 		// check for current environment
 		//
 		var environmentSpec = specificationPath.replaceAll(
-				Pattern.quote( CsapCore.SEARCH_RESOURCES ),
-				resourceFolderUri + csapApp.getCsapHostEnvironmentName( ) + "/" ) ;
+				Pattern.quote( CsapConstants.SEARCH_RESOURCES ),
+				resourceFolderUri + csapApis.application( ).getCsapHostEnvironmentName( ) + "/" ) ;
 		var environmentFile = new File( new URI( environmentSpec ) ) ;
 		logger.debug( "lifecycleSpec: {} lifecycleFile: {}", environmentSpec, environmentFile.getAbsolutePath( ) ) ;
 
@@ -3535,11 +3575,11 @@ public class ServiceOsManager {
 										ObjectNode results ,
 										JsonNode commandResults ) {
 
-		if ( commandResults.has( DockerJson.errorReason.json( ) ) ) {
+		if ( commandResults.has( C7.errorReason.val( ) ) ) {
 
-			outputFileMgr.print( DockerJson.error.json( ) + ":" + commandResults.get( DockerJson.error.json( ) )
+			outputFileMgr.print( C7.error.val( ) + ":" + commandResults.get( C7.error.val( ) )
 					.asText( ) ) ;
-			outputFileMgr.print( commandResults.get( DockerJson.errorReason.json( ) ).asText( ) ) ;
+			outputFileMgr.print( commandResults.get( C7.errorReason.val( ) ).asText( ) ) ;
 
 			if ( results != commandResults ) {
 
@@ -3623,7 +3663,7 @@ public class ServiceOsManager {
 
 		logger.info( CsapApplication.header( deployInfo.toString( ) ) ) ;
 
-		File svcDirOnHost = csapApp.getCsapInstallFolder( ) ;
+		File svcDirOnHost = csapApis.application( ).getCsapInstallFolder( ) ;
 		File workingDir = new File( svcDirOnHost.getAbsolutePath( ) ) ;
 
 		//
@@ -3631,15 +3671,15 @@ public class ServiceOsManager {
 		//
 		if ( serviceInstance.is_cluster_kubernetes( ) ) {
 
-			if ( ! csapApp.isKubernetesInstalledAndActive( ) ) {
+			if ( ! csapApis.isKubernetesInstalledAndActive( ) ) {
 
 				outputFileMgr.printHeader( "Error: Kubernetes is not running - Sleeping 10 seconds and trying again" ) ;
 
-				osManager.resetAllCaches( ) ;
+				csapApis.osManager( ).resetAllCaches( ) ;
 
 				TimeUnit.SECONDS.sleep( 10 ) ;
 
-				if ( ! csapApp.isKubernetesInstalledAndActive( ) ) {
+				if ( ! csapApis.isKubernetesInstalledAndActive( ) ) {
 
 					outputFileMgr.printHeader( "Error: Kubernetes is not running - Aborting deployment" ) ;
 					return false ;
@@ -3650,7 +3690,7 @@ public class ServiceOsManager {
 
 			JsonNode report = kubernetes.buildSummaryReport( "all" ) ;
 
-			if ( ! report.path( KubernetesJson.heartbeat.json( ) ).asBoolean( false ) ) {
+			if ( ! report.path( K8.heartbeat.val( ) ).asBoolean( false ) ) {
 
 				logger.info(
 						"Error: Unable to connect to kubernetes - Sleeping 10 seconds and trying again, full report: {}",
@@ -3661,7 +3701,7 @@ public class ServiceOsManager {
 				TimeUnit.SECONDS.sleep( 10 ) ;
 				report = kubernetes.buildSummaryReport( "all" ) ;
 
-				if ( ! report.path( KubernetesJson.heartbeat.json( ) ).asBoolean( false ) ) {
+				if ( ! report.path( K8.heartbeat.val( ) ).asBoolean( false ) ) {
 
 					logger.info( "Warning: no active pods in cluster, full report: {}", CSAP.jsonPrint( report ) ) ;
 					outputFileMgr.printHeader( "Error: Unable to connect to kubernetes - deployment aborted" ) ;
@@ -3686,7 +3726,7 @@ public class ServiceOsManager {
 
 			logger.debug( "scm: {}", serviceInstance.getScm( ) ) ;
 
-			if ( primaryHost == null || primaryHost.equals( ( csapApp.getCsapHostName( ) ) ) ) {
+			if ( primaryHost == null || primaryHost.equals( ( csapApis.application( ).getCsapHostName( ) ) ) ) {
 
 				isSourceCodeOk = checkoutFromSourceControl( serviceInstance, scmUserid, scmPass, scmBranch,
 						outputFileMgr, workingDir ) ;
@@ -3707,7 +3747,7 @@ public class ServiceOsManager {
 				serviceInstance, scmUserid, scmBranch,
 				deployConfiguration, scmCommand, hotDeploy ) ;
 
-		outputFileMgr.printHeader( "Deployment on host: " + csapApp.getCsapHostName( ) ) ;
+		outputFileMgr.printHeader( "Deployment on host: " + csapApis.application( ).getCsapHostName( ) ) ;
 
 		//
 
@@ -3722,7 +3762,7 @@ public class ServiceOsManager {
 			// synchronize state using file system. Corner cases can occur - but
 			// are highly unusual
 
-			if ( ! primaryHost.equals( ( csapApp.getCsapHostName( ) ) ) ) {
+			if ( ! primaryHost.equals( ( csapApis.application( ).getCsapHostName( ) ) ) ) {
 
 				// in case file has been left on FS by aborted requests
 				// It is possible that sync occurs quicker then requests - but
@@ -3756,7 +3796,7 @@ public class ServiceOsManager {
 
 		if ( isSourceCodeOk ) {
 
-			String results = osManager
+			String results = csapApis.osManager( )
 					.getJobRunner( )
 					.runJobUsingEvent( serviceInstance, ServiceJobRunner.Event.preDeploy, outputFileMgr
 							.getBufferedWriter( ) ) ;
@@ -3789,7 +3829,7 @@ public class ServiceOsManager {
 
 			}
 
-			osManager
+			csapApis.osManager( )
 					.getJobRunner( )
 					.runJobUsingEvent( serviceInstance, ServiceJobRunner.Event.postDeploy, outputFileMgr
 							.getBufferedWriter( ) ) ;
@@ -3799,7 +3839,7 @@ public class ServiceOsManager {
 			if ( serviceInstance.is_cluster_kubernetes( ) ) {
 
 				// k8s gets queued...so rescan all
-				csapApp.markServicesForFileSystemScan( true ) ;
+				csapApis.application( ).markServicesForFileSystemScan( true ) ;
 
 			} else {
 
@@ -3810,7 +3850,7 @@ public class ServiceOsManager {
 		}
 
 		if ( primaryHost != null &&
-				( ! primaryHost.equals( ( csapApp.getCsapHostName( ) ) ) ) ) {
+				( ! primaryHost.equals( ( csapApis.application( ).getCsapHostName( ) ) ) ) ) {
 
 			logger.info( "Completed deployment using sync from: {}", primaryHost ) ;
 			return isSourceCodeOk ;
@@ -3822,18 +3862,19 @@ public class ServiceOsManager {
 				! serviceInstance.is_docker_server( ) ) {
 
 			outputFileMgr.printHeader( "Desktop test" ) ;
-			outputFileMgr.printImmediate( csapApp.check_for_stub( "", "linux/buildResults.txt" ) ) ;
+			outputFileMgr.printImmediate( csapApis.application( ).check_for_stub( "", "linux/buildResults.txt" ) ) ;
 
 		}
 
 		boolean isBuildSuccessful = is_errors_in_output( buildResults ) ;
 
 		// Update build status file
-		List<String> lines = Arrays.asList( "source: " + csapApp.getCsapHostName( ) + " deploy passed" ) ;
+		List<String> lines = Arrays.asList( "source: " + csapApis.application( ).getCsapHostName( )
+				+ " deploy passed" ) ;
 
 		if ( ! isBuildSuccessful ) {
 
-			lines = Arrays.asList( "source: " + csapApp.getCsapHostName( ) + " deploy failed" ) ;
+			lines = Arrays.asList( "source: " + csapApis.application( ).getCsapHostName( ) + " deploy failed" ) ;
 
 		} else {
 
@@ -3975,13 +4016,14 @@ public class ServiceOsManager {
 					CSAP.buildCsapStack( e ) ) ;
 
 			outputFileMgr
-					.printImmediate( CsapCore.CONFIG_PARSE_ERROR
+					.printImmediate( CsapConstants.CONFIG_PARSE_ERROR
 							+ "GIT Failure: Verify password and target is correct, and that url exists\n"
 							+ instanceConfig.getScmLocation( ) + "\n Exception: " + e ) ;
 
 			if ( e.toString( ).indexOf( "is already a working copy for a different URL" ) != -1 ) {
 
-				File serviceBuildFolder = csapApp.getCsapBuildFolder( instanceConfig.getServiceName_Port( ) ) ;
+				File serviceBuildFolder = csapApis.application( ).getCsapBuildFolder( instanceConfig
+						.getServiceName_Port( ) ) ;
 				outputFileMgr
 						.printImmediate( "Blowing away previous build folder, try again:"
 								+ serviceBuildFolder ) ;
@@ -4022,7 +4064,7 @@ public class ServiceOsManager {
 		String[] hostsArray = targetScpHosts.trim( ).split( " " ) ;
 
 		List<String> hostList = new ArrayList<String>( Arrays.asList( hostsArray ) ) ;
-		hostList.remove( csapApp.getCsapHostName( ) ) ;
+		hostList.remove( csapApis.application( ).getCsapHostName( ) ) ;
 
 		if ( hostList.size( ) == 0 ) {
 
@@ -4037,7 +4079,7 @@ public class ServiceOsManager {
 		// for (String host : hostsArray) {
 
 		// // do not need current host
-		// if (host.equals(csapApp.getCsapHostName()))
+		// if (host.equals(csapApis.application().getCsapHostName()))
 		// continue;
 		// in a multi-service deploy, only push if host contains
 		// service
@@ -4048,14 +4090,14 @@ public class ServiceOsManager {
 
 		}
 
-		File deployFile = csapApp.getServiceDeployFile( serviceInstance ) ;
-		File deployVersionFile = csapApp.getDeployVersionFile( serviceInstance ) ;
+		File deployFile = csapApis.application( ).getServiceDeployFile( serviceInstance ) ;
+		File deployVersionFile = csapApis.application( ).getDeployVersionFile( serviceInstance ) ;
 
 		logger.debug( "Checking for deployment Files: {}", deployFile.getAbsolutePath( ) ) ;
 
 		if ( isBuildSuccessful ) {
 
-			TransferManager transferManager = new TransferManager( csapApp, 120, outputWriter ) ;
+			TransferManager transferManager = new TransferManager( csapApis, 120, outputWriter ) ;
 
 			if ( deployFile.exists( ) ) {
 
@@ -4071,14 +4113,14 @@ public class ServiceOsManager {
 			transferManager.httpCopyViaCsAgent( userid, deployVersionFile,
 					Application.CSAP_PACKAGES_TOKEN, hostList ) ;
 
-			File secondaryFolder = new File( csapApp.getCsapPackageFolder( ),
+			File secondaryFolder = new File( csapApis.application( ).getCsapPackageFolder( ),
 					serviceInstance.getName( ) + ".secondary" ) ;
 
 			if ( secondaryFolder.exists( ) && secondaryFolder.isDirectory( ) ) {
 
 				syncToOtherHosts( userid, hostList, secondaryFolder.getAbsolutePath( ),
 						Application.CSAP_PACKAGES_TOKEN + serviceInstance.getName( ) + ".secondary",
-						csapApp.getAgentRunUser( ),
+						csapApis.application( ).getAgentRunUser( ),
 						userid, outputWriter ) ;
 
 			}
@@ -4089,7 +4131,7 @@ public class ServiceOsManager {
 
 			logger.info( "Transfer results have been added $PROCESSING/{}.deploy.log", serviceInstance.getName( ) ) ;
 
-			if ( transResults.contains( CsapCore.CONFIG_PARSE_ERROR ) ) {
+			if ( transResults.contains( CsapConstants.CONFIG_PARSE_ERROR ) ) {
 
 				logger.warn( "Found 1 or more errors in transfer results" ) ;
 				outputWriter.write( CsapApplication.header( "Found Errors, review is required" ) ) ;
@@ -4099,7 +4141,7 @@ public class ServiceOsManager {
 
 		}
 
-		TransferManager deployCompleteManager = new TransferManager( csapApp, 30, null ) ;
+		TransferManager deployCompleteManager = new TransferManager( csapApis, 30, null ) ;
 		deployCompleteManager.httpCopyViaCsAgent( userid,
 				deployCompleteFile,
 				Application.CSAP_SAVED_TOKEN + PACKAGE_SYNC, hostList ) ;
@@ -4108,7 +4150,7 @@ public class ServiceOsManager {
 
 		logger.info( "Deployment sync completed", transferResults ) ;
 
-		if ( transferResults.contains( CsapCore.CONFIG_PARSE_ERROR ) ) {
+		if ( transferResults.contains( CsapConstants.CONFIG_PARSE_ERROR ) ) {
 
 			logger.warn( "Found 1 or more errors in transfer results" ) ;
 			outputWriter.write( "\n WARNING:  Found 1 or more errors in transfer results: " + hostList + " =====\n" ) ;
@@ -4133,11 +4175,11 @@ public class ServiceOsManager {
 		logger.debug( "auditUser: {}, locationToZip: {}, extractDir: {}, chownUserid: {}, hostList: {}",
 				auditUser, locationToZip, extractDir, chownUserid, hostList ) ;
 
-		if ( hostList != null && hostList.contains( csapApp.getCsapHostName( ) ) ) {
+		if ( hostList != null && hostList.contains( csapApis.application( ).getCsapHostName( ) ) ) {
 
-			logger.debug( "Removing : {}", csapApp.getCsapHostName( ) ) ;
+			logger.debug( "Removing : {}", csapApis.application( ).getCsapHostName( ) ) ;
 			// always remove current host
-			hostList.remove( csapApp.getCsapHostName( ) ) ;
+			hostList.remove( csapApis.application( ).getCsapHostName( ) ) ;
 
 		}
 
@@ -4147,12 +4189,12 @@ public class ServiceOsManager {
 
 		}
 
-		TransferManager transferManager = new TransferManager( csapApp, 120, outputWriter ) ;
+		TransferManager transferManager = new TransferManager( csapApis, 120, outputWriter ) ;
 
 		File zipLocation = new File( locationToZip ) ;
 
 		String result = "Specified Location does not exist: " + locationToZip + " on host: "
-				+ csapApp.getCsapHostName( ) ;
+				+ csapApis.application( ).getCsapHostName( ) ;
 
 		if ( zipLocation.exists( ) ) {
 
@@ -4172,7 +4214,7 @@ public class ServiceOsManager {
 
 	}
 
-	private static String CSAP_AGENT_AUTO_START_COMPLETE = CsapCore.AGENT_NAME + "-auto-start-complete" ;
+	private static String CSAP_AGENT_AUTO_START_COMPLETE = CsapConstants.AGENT_NAME + "-auto-start-complete" ;
 
 	// @Deprecated
 	// public ObjectNode remoteAdminUsingUserCredentials (
@@ -4246,7 +4288,7 @@ public class ServiceOsManager {
 
 		if ( hosts == null || hosts.size( ) == 0 ) {
 
-			httpRequestReport.put( CsapCore.CONFIG_PARSE_ERROR, "One or more hosts required" ) ;
+			httpRequestReport.put( CsapConstants.CONFIG_PARSE_ERROR, "One or more hosts required" ) ;
 			return httpRequestReport ;
 
 		}
@@ -4265,13 +4307,14 @@ public class ServiceOsManager {
 
 			}
 
-			if ( key.equals( CsapCore.SERVICE_NOPORT_PARAM ) ) {
+			if ( key.equals( CsapConstants.SERVICE_NOPORT_PARAM ) ) {
 
 				for ( var serviceName : urlVariables.get( key ) ) {
 
-					timeoutSecondsForAnonymousRequests = csapApp.getMaxDeploySecondsForService( serviceName ) ;
+					timeoutSecondsForAnonymousRequests = csapApis.application( ).getMaxDeploySecondsForService(
+							serviceName ) ;
 
-					int serviceMaxMs = csapApp.getMaxDeploySecondsForService( serviceName ) * 1000 ;
+					int serviceMaxMs = csapApis.application( ).getMaxDeploySecondsForService( serviceName ) * 1000 ;
 
 					if ( serviceMaxMs > maxTimeoutInMs ) {
 
@@ -4283,14 +4326,16 @@ public class ServiceOsManager {
 
 			}
 
-			if ( key.equals( CsapCore.SERVICE_PORT_PARAM ) ) {
+			if ( key.equals( CsapConstants.SERVICE_PORT_PARAM ) ) {
 
 				for ( var serviceName_port : urlVariables.get( key ) ) {
 
 					// Use the longest time configured
-					timeoutSecondsForAnonymousRequests = csapApp.getMaxDeploySecondsForService( serviceName_port ) ;
+					timeoutSecondsForAnonymousRequests = csapApis.application( ).getMaxDeploySecondsForService(
+							serviceName_port ) ;
 
-					int serviceMaxMs = csapApp.getMaxDeploySecondsForService( serviceName_port ) * 1000 ;
+					int serviceMaxMs = csapApis.application( ).getMaxDeploySecondsForService( serviceName_port )
+							* 1000 ;
 
 					if ( serviceMaxMs > maxTimeoutInMs ) {
 
@@ -4319,7 +4364,8 @@ public class ServiceOsManager {
 
 		}
 
-		var agentRestTemplate = csapApp.getAgentPooledConnection( 1, timeoutSecondsForAnonymousRequests ) ;
+		var agentRestTemplate = csapApis.application( ).getAgentPooledConnection( 1,
+				timeoutSecondsForAnonymousRequests ) ;
 		String connectionType = "pooled" ;
 
 		if ( ! ssoCookieStringForHeader.equals( STATELESS ) ) {
@@ -4329,7 +4375,7 @@ public class ServiceOsManager {
 			// timeout
 			//
 
-			agentRestTemplate = csapApp.getAgentPooledConnection( 1, maxTimeoutInMs ) ;
+			agentRestTemplate = csapApis.application( ).getAgentPooledConnection( 1, maxTimeoutInMs ) ;
 
 //			connectionType = "transient" ;
 //			
@@ -4363,7 +4409,7 @@ public class ServiceOsManager {
 
 		}
 
-		var allTimer = csapApp.metrics( ).startTimer( ) ;
+		var allTimer = csapApis.metrics( ).startTimer( ) ;
 
 		for ( String host : hosts ) {
 
@@ -4374,12 +4420,12 @@ public class ServiceOsManager {
 
 			}
 
-			String url = csapApp.getAgentUrl( host, commandUrl, true ) ;
-			var hostTimer = csapApp.metrics( ).startTimer( ) ;
+			String url = csapApis.application( ).getAgentUrl( host, commandUrl, true ) ;
+			var hostTimer = csapApis.metrics( ).startTimer( ) ;
 
 			try {
 
-				urlVariables.add( CsapCore.HOST_PARAM, host ) ;
+				urlVariables.add( CsapConstants.HOST_PARAM, host ) ;
 
 				logger.debug( "Executing remote {} command: {}, params: {} ", httpMethod, url, urlVariables ) ;
 
@@ -4407,7 +4453,7 @@ public class ServiceOsManager {
 
 				}
 
-				var timeNanos = csapApp.metrics( ).stopTimer( hostTimer,
+				var timeNanos = csapApis.metrics( ).stopTimer( hostTimer,
 						"admin.remote.http.command." + host ) ;
 				JsonNode remoteCommandResponse = null ;
 
@@ -4434,7 +4480,7 @@ public class ServiceOsManager {
 							TimeUnit.NANOSECONDS.toSeconds( timeNanos ), urlVariables,
 							response ) ;
 
-					httpRequestReport.put( host, CsapCore.CONFIG_PARSE_ERROR ) ;
+					httpRequestReport.put( host, CsapConstants.CONFIG_PARSE_ERROR ) ;
 					httpRequestReport.set( host + "_reason", jsonMapper.convertValue( response, ObjectNode.class ) ) ;
 
 				}
@@ -4452,7 +4498,7 @@ public class ServiceOsManager {
 
 				logger.info( "converters: {}", agentRestTemplate.getMessageConverters( ) ) ;
 
-				httpRequestReport.put( host, CsapCore.CONFIG_PARSE_ERROR + " Connection Failure"
+				httpRequestReport.put( host, CsapConstants.CONFIG_PARSE_ERROR + " Connection Failure"
 						+ "\n\n Resource: " + url + "\n\nMessage: "
 						+ e.getMessage( )
 						+ "\n\nIf caused by timeout, consider extending deploy timeout in the application definition" ) ;
@@ -4461,7 +4507,7 @@ public class ServiceOsManager {
 
 		}
 
-		var timeNanos = csapApp.metrics( ).stopTimer( allTimer, "admin.remote.http.command" ) ;
+		var timeNanos = csapApis.metrics( ).stopTimer( allTimer, "admin.remote.http.command" ) ;
 
 		if ( ! commandUrl.contains( ServiceRequests.DEPLOY_PROGRESS_URL )
 				&& ! commandUrl.contains( AgentApi.LOG_CHANGES )
@@ -4490,20 +4536,21 @@ public class ServiceOsManager {
 
 	private String extractSsoCookie ( HttpServletRequest request ) {
 
-		String ssoCookieStringForHeader = "csapApp.getSecuritySettings().getCookie().getName()" + "=NotUsed" ;
+		String ssoCookieStringForHeader = "csapApis.application().getSecuritySettings().getCookie().getName()"
+				+ "=NotUsed" ;
 
 		if ( csapOauthConfig != null ) {
 
-			ssoCookieStringForHeader = "csapApp.getSecuritySettings().getCookie().getName()" + "=oauth" ;
+			ssoCookieStringForHeader = "csapApis.application().getSecuritySettings().getCookie().getName()" + "=oauth" ;
 
-		} else if ( request != null && csapApp.getSecuritySettings( ) != null ) {
+		} else if ( request != null && csapApis.application( ).getSecuritySettings( ) != null ) {
 
 			try {
 
-				ssoCookieStringForHeader = csapApp.getSecuritySettings( ).getCookie( ).getName( ) + "="
+				ssoCookieStringForHeader = csapApis.application( ).getSecuritySettings( ).getCookie( ).getName( ) + "="
 						+ WebUtils.getCookie(
 								request,
-								csapApp.getSecuritySettings( )
+								csapApis.application( ).getSecuritySettings( )
 										.getCookie( )
 										.getName( ) )
 								.getValue( ) ;
@@ -4518,18 +4565,6 @@ public class ServiceOsManager {
 		}
 
 		return ssoCookieStringForHeader ;
-
-	}
-
-	public OsManager getOsManager ( ) {
-
-		return osManager ;
-
-	}
-
-	public void setOsManager ( OsManager osManager ) {
-
-		this.osManager = osManager ;
 
 	}
 

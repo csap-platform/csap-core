@@ -248,7 +248,7 @@
 					placeholder="defaults: docker: container pid, os: service name"
 					data-path="processFilter" />
 				<a
-					th:href="${@csapCoreService.getHelpUrl('os-process-mapping') }"
+					th:href="${@applicationConfiguration.getHelpUrl('os-process-mapping') }"
 					target="_blank"
 					class="csap-link-icon csap-help"></a>
 			</label>
@@ -353,7 +353,7 @@
 		<div class="heading">
 			Environment Variables / Configuration Maps
 			<a
-			th:href="${@csapCoreService.getHelpUrl('configuration-maps') }"
+			th:href="${@applicationConfiguration.getHelpUrl('configuration-maps') }"
 			target="_blank"
 			class="csap-link-icon csap-help"></a>
 			
@@ -376,7 +376,7 @@
 						target="_blank"
 						title="Definition variabls"
 						class="simple"
-						th:href="${@csapCoreService.getHelpUrl('service-variables') }">
+						th:href="${@applicationConfiguration.getHelpUrl('service-variables') }">
 						csap definition variables </a>
 				</li>
 

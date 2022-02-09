@@ -14,7 +14,8 @@ import java.util.List ;
 import java.util.Map ;
 import java.util.TreeMap ;
 
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.linux.OsCommandRunner ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.Project ;
@@ -67,11 +68,11 @@ public class HttpdIntegration {
 
 	OsCommandRunner osCommandRunner = new OsCommandRunner( 90, 3, "HttpdIntegration" ) ; // apachectl
 
-	Application csapApp = null ;
+	CsapApis csapApis ;
 
-	public HttpdIntegration ( Application csapApplication ) {
+	public HttpdIntegration ( CsapApis csapApis ) {
 
-		this.csapApp = csapApplication ;
+		this.csapApis = csapApis ;
 
 	}
 
@@ -79,10 +80,11 @@ public class HttpdIntegration {
 
 	public void updateConstants ( ) {
 
-		csap_web_folder = csapApp.getInstallationFolderAsString( ) + "/httpdConf/" ;
+		csap_web_folder = csapApis.application( ).getInstallationFolderAsString( ) + "/httpdConf/" ;
 		REWRITE_FILE = csap_web_folder + "csspRewrite.conf" ;
 		HTTP_WORKER_FILE = csap_web_folder + "worker.properties" ;
-		HTTP_WORKER_EXPORT_FILE = csapApp.getInstallationFolderAsString( ) + "/httpdConf/csspWorkerExport.properties" ;
+		HTTP_WORKER_EXPORT_FILE = csapApis.application( ).getInstallationFolderAsString( )
+				+ "/httpdConf/csspWorkerExport.properties" ;
 		HTTP_MODJK_FILE = csap_web_folder + "csspJkMount.conf" ;
 		EXPORT_TRIGGER_FILE = csap_web_folder + "exportTrigger.txt" ;
 		HTTP_MODJK_EXPORT_FILE = csap_web_folder + "csspJkMountExport.conf" ;
@@ -130,7 +132,7 @@ public class HttpdIntegration {
 
 	public String reload_csap_web_integration ( ) {
 
-		var hostInstances = csapApp.getServicesOnHost( ) ;
+		var hostInstances = csapApis.application( ).getServicesOnHost( ) ;
 
 		// Not efficient, but infrequent so iterate
 		ServiceInstance httpdInstance = null ;
@@ -157,7 +159,7 @@ public class HttpdIntegration {
 
 		logger.debug( "\n ============= Updating Loadbalanceing configs ========\n", csap_web_folder ) ;
 
-		// csapApp.getEventClient().generateEvent(
+		// csapApis.application().getEventClient().generateEvent(
 		// CsapEventClient.CSAP_SYSTEM_CATEGORY + "/httpd/update",
 		// Application.SYS_USER, "configuration files modified",
 		// "Httpd Updating: " + HTTP_MODJK_FILE + ", " + HTTP_WORKER_FILE );
@@ -168,11 +170,11 @@ public class HttpdIntegration {
 		// for (String host : getEnvHosts( Application.getEnv() )) {
 
 		StringBuffer jkMountBuffer = new StringBuffer( "\n\n# Mod_jk httpd.conf for lifecycle: "
-				+ csapApp.getCsapHostEnvironmentName( ) + "\n\n" ) ;
+				+ csapApis.application( ).getCsapHostEnvironmentName( ) + "\n\n" ) ;
 
 		StringBuffer jkMountExportBuffer = new StringBuffer(
 				"\n\n# Mod_jk Secure Exports (Usually for export to OAM Server): "
-						+ csapApp.getCsapHostEnvironmentName( ) + "\n\n" ) ;
+						+ csapApis.application( ).getCsapHostEnvironmentName( ) + "\n\n" ) ;
 
 		StringBuffer workerListBuffer = new StringBuffer( "\n\n# Mod_jk worker.properties:\n\n" ) ;
 		workerListBuffer
@@ -183,16 +185,16 @@ public class HttpdIntegration {
 		workerListExportBuffer
 				.append( "# ref. http://tomcat.apache.org/connectors-doc/generic_howto/loadbalancers.html\n\n" ) ;
 
-		if ( csapApp.serviceNameToAllInstances( ).keySet( ).size( ) == 0 ) {
+		if ( csapApis.application( ).serviceNameToAllInstances( ).keySet( ).size( ) == 0 ) {
 
 			// lets reload - only happens in eclipse
-			csapApp.run_application_scan( ) ;
+			csapApis.application( ).run_application_scan( ) ;
 
 		}
 
 		var progress = new StringBuilder( ) ;
 
-		var sslSettings = csapApp.getCsapCoreService( ).getCsapWebServer( ).getSettings( ).getSsl( ) ;
+		var sslSettings = csapApis.application( ).getCsapCoreService( ).getCsapWebServer( ).getSettings( ).getSsl( ) ;
 
 		if ( sslSettings.isEnabled( ) ) {
 
@@ -244,17 +246,18 @@ public class HttpdIntegration {
 				workerSettingsExportBuffer ) ;
 		generateRewriteFile( progress ) ;
 
-		if ( csapApp.rootProjectEnvSettings( ).isAutoRestartHttpdOnClusterReload( ) ) {
+		if ( csapApis.application( ).rootProjectEnvSettings( ).isAutoRestartHttpdOnClusterReload( ) ) {
 
-			if ( csapApp.is_service_running( httpdInstance.getName( ) ) ) {
+			if ( csapApis.application( ).is_service_running( httpdInstance.getName( ) ) ) {
 
 				logger.debug( "Doing a graceful restart on apache" ) ;
 				List<String> parmList ;
 				parmList = Arrays.asList( "bash", "-c", "apachectl graceful" ) ;
 
-				progress.append( osCommandRunner.executeString( parmList, csapApp.getCsapWorkingFolder( ) ) ) ;
+				progress.append( osCommandRunner.executeString( parmList, csapApis.application( )
+						.getCsapWorkingFolder( ) ) ) ;
 
-				csapApp.getEventClient( ).publishUserEvent( CsapEvents.CSAP_SYSTEM_CATEGORY + "/httpd/restart",
+				csapApis.events( ).publishUserEvent( CsapEvents.CSAP_SYSTEM_CATEGORY + "/httpd/restart",
 						Application.SYS_USER,
 						"Graceful restart triggered", progress.toString( ) ) ;
 
@@ -262,7 +265,7 @@ public class HttpdIntegration {
 
 				progress.append( "\n" + httpdInstance.getName( )
 						+ " is currently not running. Restart is not issued." ) ;
-				csapApp.getEventClient( )
+				csapApis.events( )
 						.publishUserEvent( CsapEvents.CSAP_SYSTEM_CATEGORY + "/httpd/restart",
 								Application.SYS_USER,
 								httpdInstance.getName( ) + " is currently not running",
@@ -274,7 +277,7 @@ public class HttpdIntegration {
 
 			progress
 					.append( "\n Auto restarts are disabled in lifecycle settings; manual restart is required to route to any new services" ) ;
-			csapApp.getEventClient( )
+			csapApis.events( )
 					.publishUserEvent( CsapEvents.CSAP_SYSTEM_CATEGORY + "/httpd/restart",
 							Application.SYS_USER,
 							"Auto restart disabled in definition",
@@ -322,7 +325,7 @@ public class HttpdIntegration {
 		int workerListSecureCount = 0 ;
 
 		// @formatter:off
-		csapApp.getRootProject( )
+		csapApis.application( ).getRootProject( )
 				.getProjects( )
 				.forEach( model -> {
 
@@ -388,7 +391,8 @@ public class HttpdIntegration {
 
 			StringBuffer tempWorkerSettingsBuffer = new StringBuffer( ) ;
 
-			if ( csapApp.rootProjectEnvSettings( ).isLoadBalanceVmFilter( svcInstance.getHostName( ) ) ) {
+			if ( csapApis.application( ).rootProjectEnvSettings( ).isLoadBalanceVmFilter( svcInstance
+					.getHostName( ) ) ) {
 
 				continue ;
 
@@ -406,7 +410,7 @@ public class HttpdIntegration {
 			}
 
 			// Need to ignore CsAgent on sandboxes in dev.
-			if ( serviceName.equalsIgnoreCase( CsapCore.AGENT_NAME ) ) {
+			if ( serviceName.equalsIgnoreCase( CsapConstants.AGENT_NAME ) ) {
 
 				// InstanceConfig testInstance =
 				// model.getHostToConfigMap()
@@ -452,7 +456,7 @@ public class HttpdIntegration {
 			// refer to CsapWebServer.DEFAULT_AJP_VARIABLE_IN_YAML, this is passed via
 			// ServiceOsManager
 			tempWorkerSettingsBuffer.append( instanceId
-					+ ".secret=" + csapApp.getTomcatAjpKey( ) + "\n" ) ;
+					+ ".secret=" + csapApis.application( ).getTomcatAjpKey( ) + "\n" ) ;
 
 			// adding in lifecycle to prevent cross-infra calls
 			tempWorkerSettingsBuffer.append( instanceId + ".lbfactor=1\n" ) ;
@@ -604,7 +608,7 @@ public class HttpdIntegration {
 
 	private boolean checkInstanceInCurrentLifecycle ( ServiceInstance svcInstance ) {
 
-		if ( svcInstance.getLifecycle( ).startsWith( csapApp.getCsapHostEnvironmentName( )
+		if ( svcInstance.getLifecycle( ).startsWith( csapApis.application( ).getCsapHostEnvironmentName( )
 				+ ProjectLoader.ENVIRONMENT_CLUSTER_DELIMITER ) ) {
 
 			return true ;
@@ -631,7 +635,7 @@ public class HttpdIntegration {
 														String filter ) {
 
 		//
-		csapApp.getRootProject( )
+		csapApis.application( ).getRootProject( )
 				.getProjects( )
 				.forEach(
 						model -> {
@@ -682,7 +686,7 @@ public class HttpdIntegration {
 					|| svcInstance.is_csap_api_server( )
 					|| svcInstance.is_docker_server( )
 					|| ( svcInstance.is_springboot_server( ) && ! svcInstance.isTomcatAjp( ) )
-					|| svcInstance.getName( ).startsWith( CsapCore.AGENT_NAME ) ) {
+					|| svcInstance.getName( ).startsWith( CsapConstants.AGENT_NAME ) ) {
 
 				continue ;
 
@@ -744,7 +748,7 @@ public class HttpdIntegration {
 			workerConfigBuffer.append( instanceId + ".port=" + ajpPort + "\n" ) ;
 			workerConfigBuffer.append( instanceId + ".host=" + host + "\n" ) ;
 			workerConfigBuffer.append( instanceId + ".type=ajp13\n" ) ;
-			workerConfigBuffer.append( instanceId + ".secret=" + csapApp.getTomcatAjpKey( )
+			workerConfigBuffer.append( instanceId + ".secret=" + csapApis.application( ).getTomcatAjpKey( )
 					+ "\n" ) ;
 			workerConfigBuffer.append( instanceId + ".lbfactor=1\n" ) ;
 			workerConfigBuffer.append( instanceId + ".socket_keepalive=True\n" ) ;
@@ -796,7 +800,7 @@ public class HttpdIntegration {
 																StringBuffer workerListBuffer ,
 																StringBuffer workerListSecureBuffer ) {
 
-		csapApp.getRootProject( )
+		csapApis.application( ).getRootProject( )
 				.getProjects( )
 				.forEach(
 						model -> {
@@ -883,7 +887,7 @@ public class HttpdIntegration {
 			}
 
 			// Need to ignore CsAgent on sandboxes in dev.
-			if ( serviceName.equalsIgnoreCase( CsapCore.AGENT_NAME ) ) {
+			if ( serviceName.equalsIgnoreCase( CsapConstants.AGENT_NAME ) ) {
 
 				// InstanceConfig testInstance =
 				// model.getHostToConfigMap()
@@ -920,7 +924,7 @@ public class HttpdIntegration {
 			tempWorkerSettingsBuffer.append( instanceId + ".host=" + host + "\n" ) ;
 			tempWorkerSettingsBuffer.append( instanceId + ".type=ajp13\n" ) ;
 			tempWorkerSettingsBuffer.append( instanceId + ".secret="
-					+ csapApp.getTomcatAjpKey( ) + "\n" ) ;
+					+ csapApis.application( ).getTomcatAjpKey( ) + "\n" ) ;
 
 			// adding in lifecycle to prevent cross-infra calls
 			tempWorkerSettingsBuffer.append( instanceId + ".lbfactor=1\n" ) ;
@@ -1083,14 +1087,14 @@ public class HttpdIntegration {
 		// [R]\n\n" );
 		mappingsBuffer.append( "RewriteRule ^/CsAgent/(.*)$ http://%{SERVER_NAME}/admin/$1 [R]\n\n" ) ;
 
-		TreeMap<String, List<ServiceInstance>> serviceToConfigs = csapApp.getRootProject( )
+		TreeMap<String, List<ServiceInstance>> serviceToConfigs = csapApis.application( ).getRootProject( )
 				.serviceInstancesInCurrentLifeByName( ) ;
 
 		for ( String svcName : serviceToConfigs.keySet( ) ) {
 
 			for ( int customerId = 0; customerId < 10; ) {
 
-				if ( svcName.equals( CsapCore.AGENT_NAME ) ) {
+				if ( svcName.equals( CsapConstants.AGENT_NAME ) ) {
 
 					break ;
 
@@ -1234,7 +1238,8 @@ public class HttpdIntegration {
 							+ " -out " + SSL_PEM__FILE
 							+ " -nodes -passin pass:" + sslSettings.getKeystorePassword( ) ) ;
 
-			progress.append( osCommandRunner.executeString( script, csapApp.getCsapWorkingFolder( ) ) ) ;
+			progress.append( osCommandRunner.executeString( script, csapApis.application( )
+					.getCsapWorkingFolder( ) ) ) ;
 
 		} catch ( Exception e ) {
 

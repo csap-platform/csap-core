@@ -15,11 +15,11 @@ import java.util.stream.Collectors ;
 import java.util.stream.Stream ;
 
 import org.apache.commons.lang3.StringUtils ;
-import org.csap.agent.CsapTemplate ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapTemplates ;
 import org.csap.agent.linux.HostInfo ;
 import org.csap.agent.ui.editor.ServiceResources ;
 import org.csap.helpers.CSAP ;
-import org.csap.helpers.CsapApplication ;
 import org.csap.security.CsapUser ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
@@ -328,7 +328,7 @@ public class Project {
 
 					if ( StringUtils.isEmpty( pathToTemplate ) ) {
 
-						pathToTemplate = CsapTemplate.default_service_definitions.getKey( ) ;
+						pathToTemplate = CsapTemplates.default_service_definitions.getKey( ) ;
 
 					}
 
@@ -396,12 +396,13 @@ public class Project {
 
 		logger.debug( "{} instances: {}", serviceName,
 				getServiceInstances( serviceName )
-						.filter( instance -> ! instance.getHostName( ).equals( Application.getInstance( )
+						.filter( instance -> ! instance.getHostName( ).equals( CsapApis.getInstance( ).application( )
 								.getCsapHostName( ) ) )
 						.collect( Collectors.toList( ) ).size( ) ) ;
 
 		return getServiceInstances( serviceName )
-				.filter( instance -> ! instance.getHostName( ).equals( Application.getInstance( ).getCsapHostName( ) ) )
+				.filter( instance -> ! instance.getHostName( ).equals( CsapApis.getInstance( ).application( )
+						.getCsapHostName( ) ) )
 				.map( ServiceInstance::getHostName )
 				.distinct( )
 				.collect( Collectors.toList( ) ) ;
@@ -475,12 +476,12 @@ public class Project {
 
 	public List<String> getClusterHosts ( String clusterName ) {
 
-		var hosts = getHostsForEnvironment( Application.getInstance( ).getCsapHostEnvironmentName( ) ) ;
+		var hosts = getHostsForEnvironment( CsapApis.getInstance( ).application( ).getCsapHostEnvironmentName( ) ) ;
 
 		if ( StringUtils.isNotEmpty( clusterName ) ) {
 
 			hosts = getLifeClusterToHostMap( )
-					.get( Application.getInstance( ).getCsapHostEnvironmentName( )
+					.get( CsapApis.getInstance( ).application( ).getCsapHostEnvironmentName( )
 							+ ProjectLoader.ENVIRONMENT_CLUSTER_DELIMITER + clusterName ) ;
 
 		}
@@ -845,7 +846,7 @@ public class Project {
 		var imports = getSourceDefinition( ).at( importEnvPath ) ;
 
 		logger.trace( "path '{}; : {}", importEnvPath, imports ) ;
-		
+
 		return imports ;
 
 	}
@@ -854,7 +855,7 @@ public class Project {
 
 		ObjectNode editInProgressReport = jsonMapper.createObjectNode( ) ;
 		editInProgressReport.put( "user", editUserid ) ;
-		File definitionSource = new File( Application.getInstance( ).getRootProjectDefinitionUrl( ) ) ;
+		File definitionSource = new File( CsapApis.getInstance( ).application( ).getRootProjectDefinitionUrl( ) ) ;
 		editInProgressReport.put( "name", definitionSource.getName( ) ) ;
 
 		editInProgressReport.set( "source", getSourceDefinition( ) ) ;
@@ -1120,12 +1121,13 @@ public class Project {
 
 		logger.debug( "{} instances: {}", serviceName,
 				getServiceInstances( serviceName )
-						.filter( instance -> ! instance.getHostName( ).equals( Application.getInstance( )
+						.filter( instance -> ! instance.getHostName( ).equals( CsapApis.getInstance( ).application( )
 								.getCsapHostName( ) ) )
 						.collect( Collectors.toList( ) ).size( ) ) ;
 
 		return getServiceInstances( serviceName )
-				.filter( instance -> ! instance.getHostName( ).equals( Application.getInstance( ).getCsapHostName( ) ) )
+				.filter( instance -> ! instance.getHostName( ).equals( CsapApis.getInstance( ).application( )
+						.getCsapHostName( ) ) )
 				.collect( Collectors.toList( ) ) ;
 
 	}
@@ -1253,7 +1255,7 @@ public class Project {
 			try {
 
 				var processMessages = jsonMapper.createObjectNode( ) ;
-				serviceDefinition = Application.getInstance( ).getProjectLoader( )
+				serviceDefinition = CsapApis.getInstance( ).application( ).getProjectLoader( )
 						.getProjectOperators( )
 						.loadYaml( commonDefinition, processMessages )
 						.get( 0 ) ;

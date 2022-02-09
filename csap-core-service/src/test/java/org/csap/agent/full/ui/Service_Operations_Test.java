@@ -10,9 +10,10 @@ import javax.inject.Inject ;
 
 import org.apache.commons.io.FileUtils ;
 import org.csap.agent.Agent_context_loaded ;
+import org.csap.agent.ApplicationConfiguration ;
+import org.csap.agent.CsapApis ;
 import org.csap.agent.CsapBareTest ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.integrations.VersionControl ;
 import org.csap.agent.linux.OutputFileMgr ;
 import org.csap.agent.model.Application ;
@@ -44,7 +45,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode ;
 
 @Tag ( "core" )
 
-@SpringBootTest ( classes = CsapCoreService.class )
+@SpringBootTest ( classes = ApplicationConfiguration.class )
 @ActiveProfiles ( {
 		CsapBareTest.PROFILE_JUNIT, "Service_Operations_Test"
 } )
@@ -61,6 +62,8 @@ public class Service_Operations_Test {
 
 	@Inject
 	Application csapApplication ;
+	@Inject
+	CsapApis csapApis ;
 
 	Logger logger = LoggerFactory.getLogger( getClass( ) ) ;
 
@@ -97,7 +100,7 @@ public class Service_Operations_Test {
 		logger.debug( "Deleting: {}", buildFolder.getAbsolutePath( ) ) ;
 		FileUtils.deleteQuietly( buildFolder ) ;
 
-		csapApp.getOsManager( ).wait_for_initial_process_status_scan( 5 ) ;
+		csapApis.osManager( ).wait_for_initial_process_status_scan( 5 ) ;
 
 	}
 
@@ -132,7 +135,7 @@ public class Service_Operations_Test {
 		logger.info( CsapApplication.TC_HEAD + message ) ;
 
 		// mock does much validation.....
-		ResultActions resultActions = mockMvc.perform( post( CsapCoreService.SERVICE_URL + "/activityCount" )
+		ResultActions resultActions = mockMvc.perform( post( CsapConstants.SERVICE_URL + "/activityCount" )
 				.accept( MediaType.APPLICATION_JSON ) ) ;
 
 		// But you could do full parsing of the Json result if needed
@@ -174,7 +177,7 @@ public class Service_Operations_Test {
 		message = "Hitting /report " ;
 		logger.info( CsapApplication.TC_HEAD + message ) ;
 
-		ResultActions resultActions = mockMvc.perform( post( CsapCoreService.SERVICE_URL + "/report" )
+		ResultActions resultActions = mockMvc.perform( post( CsapConstants.SERVICE_URL + "/report" )
 				.param( "appId", csapApp.getCompanyConfiguration( "test.variables.testAppId", "yourAppid" ) )
 				.param( "project", csapApp.getCompanyConfiguration( "test.variables.testProject", "CSAP Platform" ) )
 				.param( "report", "service" )
@@ -191,7 +194,7 @@ public class Service_Operations_Test {
 
 		ObjectNode responseJson = (ObjectNode) jacksonMapper.readTree( responseText ) ;
 
-		logger.info( "report: {}", CsapCore.jsonPrint( jacksonMapper, responseJson ) ) ;
+		logger.info( "report: {}", CsapConstants.jsonPrint( jacksonMapper, responseJson ) ) ;
 
 		assertThat( responseJson.at( "/numDaysAvailable" ).asInt( ) )
 				.as( "Number of days available" )
@@ -823,7 +826,7 @@ public class Service_Operations_Test {
 
 		// mock does much validation.....
 		ResultActions resultActions = mockMvc.perform(
-				post( CsapCoreService.SERVICE_URL + "/rebuildServer" )
+				post( CsapConstants.SERVICE_URL + "/rebuildServer" )
 						.param( "scmUserid", "testUser" )
 						.param( "scmPass", testPassword )
 						.param( "scmBranch", "false" )

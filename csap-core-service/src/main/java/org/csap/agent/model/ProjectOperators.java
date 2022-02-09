@@ -16,8 +16,8 @@ import java.util.stream.Collectors ;
 
 import org.apache.commons.io.FileUtils ;
 import org.apache.commons.lang3.StringUtils ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.container.kubernetes.KubernetesJson ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.container.kubernetes.K8 ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
 import org.slf4j.Logger ;
@@ -90,7 +90,7 @@ public class ProjectOperators {
 
 		}
 
-		var prefix = CsapCore.AUTO_PLAY_FILE.split( Pattern.quote( "." ) )[ 0 ] ;
+		var prefix = CsapConstants.AUTO_PLAY_FILE.split( Pattern.quote( "." ) )[0] ;
 		var newName = new File( autoplayFile.getParentFile( ), prefix + "-completed.yaml" ) ;
 		autoplayFile.renameTo( newName ) ;
 		results.put( "renamed", newName.getAbsolutePath( ) ) ;
@@ -729,11 +729,11 @@ public class ProjectOperators {
 					results.set( clusterName, clusterHosts ) ;
 					cluster.set( CLUSTER_HOSTS, clusterHosts ) ;
 
-					if ( cluster.has( KubernetesJson.masters.json( ) )
+					if ( cluster.has( K8.masters.val( ) )
 							&& kubernetesMasters.isArray( ) ) {
 
 						var mappedMasters = mapIndexedHosts( kubernetesMasters, baseOsHosts, clusterName ) ;
-						cluster.set( KubernetesJson.masters.json( ), mappedMasters ) ;
+						cluster.set( K8.masters.val( ), mappedMasters ) ;
 
 					}
 
@@ -902,7 +902,7 @@ public class ProjectOperators {
 
 					var insertValue = update.path( VALUE ) ;
 					var insertPath = update.path( PATH ).asText( ) ;
-					
+
 					var insertTarget = projectDefinition.at( insertPath ) ;
 
 					var fullPath = new File( insertPath ) ;
@@ -920,7 +920,7 @@ public class ProjectOperators {
 
 					} else if ( insertTarget.isArray( ) && insertValue.isTextual( ) ) {
 
-						insertResults.add( insertPath + ": added to existing array"  ) ;
+						insertResults.add( insertPath + ": added to existing array" ) ;
 						( (ArrayNode) insertTarget ).add( insertValue ) ;
 
 					} else {

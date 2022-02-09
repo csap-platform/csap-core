@@ -17,8 +17,9 @@ import java.util.regex.Matcher ;
 import java.util.stream.Collectors ;
 
 import org.apache.commons.lang3.text.WordUtils ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.integrations.VersionControl ;
 import org.csap.agent.integrations.Vsphere ;
@@ -89,9 +90,9 @@ public class EnvironmentSettings {
 	private String secondaryEventPass = "" ;
 	private boolean secondaryEventPublishEnabled = false ;
 
-	private String eventUser = CsapCore.EVENTS_DISABLED ;
-	private String eventCredential = CsapCore.EVENTS_DISABLED ;
-	private String eventServiceUrl = CsapCore.EVENTS_DISABLED ;
+	private String eventUser = CsapConstants.EVENTS_DISABLED ;
+	private String eventCredential = CsapConstants.EVENTS_DISABLED ;
+	private String eventServiceUrl = CsapConstants.EVENTS_DISABLED ;
 	private boolean eventPublishEnabled = false ;
 	private boolean csapMetricsUploadEnabled = false ;
 
@@ -263,7 +264,7 @@ public class EnvironmentSettings {
 		if ( ! environmentDefinition.isObject( ) ) {
 
 			resultsBuf.append(
-					CsapCore.CONFIG_PARSE_WARN + " lifecycle settings not found in definition: " + location ) ;
+					CsapConstants.CONFIG_PARSE_WARN + " lifecycle settings not found in definition: " + location ) ;
 			logger.warn( "lifecycle settings not found: {}. Default collection intervals are 30 seconds", location ) ;
 
 			return ;
@@ -666,7 +667,7 @@ public class EnvironmentSettings {
 
 		}
 
-		var dockerSettings = lifecycleDefinition.path( "docker" ) ;
+		var dockerSettings = lifecycleDefinition.path( C7.definitionSettings.val( ) ) ;
 		logger.debug( "dockerSettings: {}", dockerSettings ) ;
 
 		if ( dockerSettings.isObject( ) ) {
@@ -1050,7 +1051,7 @@ public class EnvironmentSettings {
 
 				try {
 
-					CsapCore.jsonStream( agentSettings.path( "gitSslVerificationDisabledUrls" ) )
+					CsapConstants.jsonStream( agentSettings.path( "gitSslVerificationDisabledUrls" ) )
 							.map( JsonNode::asText )
 							.forEach( gitSslVerificationDisabledUrls::add ) ;
 
@@ -1189,16 +1190,16 @@ public class EnvironmentSettings {
 
 			setEventUser(
 					resolveVariables( "user",
-							csapDataDefinition.path( "user" ).asText( CsapCore.EVENTS_DISABLED ) ) ) ;
+							csapDataDefinition.path( "user" ).asText( CsapConstants.EVENTS_DISABLED ) ) ) ;
 
 			setEventCredential(
 					resolveVariables( "credential",
-							csapDataDefinition.path( "credential" ).asText( CsapCore.EVENTS_DISABLED ) ) ) ;
+							csapDataDefinition.path( "credential" ).asText( CsapConstants.EVENTS_DISABLED ) ) ) ;
 
 			logger.debug( "service-url: {} ", csapDataDefinition.path( "service-url" ).asText( ) ) ;
 			setEventServiceUrl(
 					resolveVariables( "service-url",
-							csapDataDefinition.path( "service-url" ).asText( CsapCore.EVENTS_DISABLED ) ) ) ;
+							csapDataDefinition.path( "service-url" ).asText( CsapConstants.EVENTS_DISABLED ) ) ) ;
 
 			//
 			// These are defaulted, avoid setting unless testing
@@ -1509,12 +1510,13 @@ public class EnvironmentSettings {
 
 	private String buildFileManagerUrl ( JsonNode diskSpec ) {
 
-		String cluster = Application.getInstance( ).getCsapHostEnvironmentName( ) + "-" + diskSpec.path( "cluster" )
+		String cluster = CsapApis.getInstance( ).application( ).getCsapHostEnvironmentName( ) + "-" + diskSpec.path(
+				"cluster" )
 				.asText( ) ;
 		ArrayList<String> clusterHosts = csapApplication.getActiveProject( ).getAllPackagesModel( )
 				.getLifeClusterToHostMap( ).get( cluster ) ;
 
-		var browserHost = Application.getInstance( ).getCsapHostName( ) ;
+		var browserHost = CsapApis.getInstance( ).application( ).getCsapHostName( ) ;
 
 		logger.debug( "specified: {}, Keys: {}", cluster, csapApplication.getActiveProject( ).getAllPackagesModel( )
 				.getLifeClusterToHostMap( ).keySet( ) ) ;
@@ -1532,7 +1534,7 @@ public class EnvironmentSettings {
 		// FileRequests.BROWSER +
 		// diskSpec.path("name").asText(), false );
 		return csapApplication.getAgentUrl( browserHost,
-				CsapCoreService.FILE_MANAGER_URL + "?quickview=" + diskSpec.path( "name" ).asText( )
+				CsapConstants.FILE_MANAGER_URL + "?quickview=" + diskSpec.path( "name" ).asText( )
 						+ "&fromFolder=" + diskSpec.path( "path" ).asText( ),
 				false ) ;
 
@@ -2033,7 +2035,7 @@ public class EnvironmentSettings {
 		}
 
 		return input.trim( ).replaceAll( "\\$host",
-				Application.getInstance( ).getCsapHostName( ) ) ;
+				CsapApis.getInstance( ).application( ).getCsapHostName( ) ) ;
 
 	}
 
@@ -2083,7 +2085,7 @@ public class EnvironmentSettings {
 		if ( hostHealthUrl == null ) {
 
 			hostHealthUrl = buildApplicationUrl( getEventServiceUrl( ) + historyUiUrl, "/csap/reports/health" ) ;
-			hostHealthUrl += "&hostName=" + Application.getInstance( ).getCsapHostName( ) ;
+			hostHealthUrl += "&hostName=" + CsapApis.getInstance( ).application( ).getCsapHostName( ) ;
 
 		}
 
@@ -2098,7 +2100,7 @@ public class EnvironmentSettings {
 		if ( hostActivityUrl == null ) {
 
 			hostActivityUrl = buildApplicationUrl( getEventServiceUrl( ) + historyUiUrl, "/csap/*" ) ;
-			hostActivityUrl += "&hostName=" + Application.getInstance( ).getCsapHostName( ) ;
+			hostActivityUrl += "&hostName=" + CsapApis.getInstance( ).application( ).getCsapHostName( ) ;
 
 		}
 
@@ -2222,13 +2224,13 @@ public class EnvironmentSettings {
 
 		if ( url.contains( "{life}" ) ) {
 
-			urlVariables.put( "life", Application.getInstance( ).getCsapHostEnvironmentName( ) ) ;
+			urlVariables.put( "life", CsapApis.getInstance( ).application( ).getCsapHostEnvironmentName( ) ) ;
 
 		}
 
 		if ( url.contains( "{host}" ) ) {
 
-			urlVariables.put( "host", Application.getInstance( ).getCsapHostName( ) ) ;
+			urlVariables.put( "host", CsapApis.getInstance( ).application( ).getCsapHostName( ) ) ;
 
 		}
 
@@ -2327,8 +2329,8 @@ public class EnvironmentSettings {
 
 	public boolean isEventPublishEnabled ( ) {
 
-		if ( getEventDataUser( ).contains( CsapCore.EVENTS_DISABLED )
-				|| getEventDataPass( ).contains( CsapCore.EVENTS_DISABLED ) ) {
+		if ( getEventDataUser( ).contains( CsapConstants.EVENTS_DISABLED )
+				|| getEventDataPass( ).contains( CsapConstants.EVENTS_DISABLED ) ) {
 
 			return false ;
 
@@ -2406,7 +2408,7 @@ public class EnvironmentSettings {
 
 	public void setEventServiceUrl ( String eventServiceUrl ) {
 
-		if ( ! eventServiceUrl.equalsIgnoreCase( CsapCore.EVENTS_DISABLED ) ) {
+		if ( ! eventServiceUrl.equalsIgnoreCase( CsapConstants.EVENTS_DISABLED ) ) {
 
 			eventPublishEnabled = true ;
 

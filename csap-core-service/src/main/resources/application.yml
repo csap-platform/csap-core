@@ -10,7 +10,7 @@ spring:
 
   profiles:
  
-    active: admin,desktop,localhost
+    active: agent,desktop,localhost
     
     
   config:
@@ -18,3 +18,5 @@ spring:
       - boot-csap-defaults.yml
       - boot-app-defaults.yml
       - boot-os-commands.yml
+      
+      

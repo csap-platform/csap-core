@@ -10,8 +10,8 @@ import java.util.Optional ;
 import java.util.stream.Collectors ;
 
 import org.apache.commons.lang3.StringUtils ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.container.ContainerIntegration ;
-import org.csap.agent.container.DockerJson ;
 import org.csap.agent.container.kubernetes.KubernetesIntegration.Propogation_Policy ;
 import org.csap.agent.model.ServiceInstance ;
 import org.csap.helpers.CSAP ;
@@ -31,13 +31,7 @@ import io.kubernetes.client.custom.Quantity ;
 import io.kubernetes.client.openapi.ApiResponse ;
 import io.kubernetes.client.openapi.apis.AppsV1Api ;
 import io.kubernetes.client.openapi.apis.CoreV1Api ;
-import io.kubernetes.client.openapi.apis.NetworkingV1beta1Api ;
-import io.kubernetes.client.openapi.models.NetworkingV1beta1HTTPIngressPath ;
-import io.kubernetes.client.openapi.models.NetworkingV1beta1HTTPIngressRuleValue ;
-import io.kubernetes.client.openapi.models.NetworkingV1beta1Ingress ;
-import io.kubernetes.client.openapi.models.NetworkingV1beta1IngressBackend ;
-import io.kubernetes.client.openapi.models.NetworkingV1beta1IngressRule ;
-import io.kubernetes.client.openapi.models.NetworkingV1beta1IngressSpec ;
+import io.kubernetes.client.openapi.apis.NetworkingV1Api ;
 import io.kubernetes.client.openapi.models.V1Container ;
 import io.kubernetes.client.openapi.models.V1ContainerPort ;
 import io.kubernetes.client.openapi.models.V1DeleteOptions ;
@@ -46,7 +40,14 @@ import io.kubernetes.client.openapi.models.V1DeploymentSpec ;
 import io.kubernetes.client.openapi.models.V1EmptyDirVolumeSource ;
 import io.kubernetes.client.openapi.models.V1EnvVar ;
 import io.kubernetes.client.openapi.models.V1HTTPGetAction ;
+import io.kubernetes.client.openapi.models.V1HTTPIngressPath ;
+import io.kubernetes.client.openapi.models.V1HTTPIngressRuleValue ;
 import io.kubernetes.client.openapi.models.V1HostPathVolumeSource ;
+import io.kubernetes.client.openapi.models.V1Ingress ;
+import io.kubernetes.client.openapi.models.V1IngressBackend ;
+import io.kubernetes.client.openapi.models.V1IngressRule ;
+import io.kubernetes.client.openapi.models.V1IngressServiceBackend ;
+import io.kubernetes.client.openapi.models.V1IngressSpec ;
 import io.kubernetes.client.openapi.models.V1LabelSelector ;
 import io.kubernetes.client.openapi.models.V1Namespace ;
 import io.kubernetes.client.openapi.models.V1ObjectMeta ;
@@ -59,6 +60,7 @@ import io.kubernetes.client.openapi.models.V1PodTemplateSpec ;
 import io.kubernetes.client.openapi.models.V1Probe ;
 import io.kubernetes.client.openapi.models.V1ResourceRequirements ;
 import io.kubernetes.client.openapi.models.V1Service ;
+import io.kubernetes.client.openapi.models.V1ServiceBackendPort ;
 import io.kubernetes.client.openapi.models.V1ServicePort ;
 import io.kubernetes.client.openapi.models.V1ServiceSpec ;
 import io.kubernetes.client.openapi.models.V1Status ;
@@ -136,46 +138,47 @@ public class SpecBuilder {
 					service.resolveRuntimeVariables( kubernetesDeployName ) ) ;
 
 			String imageName = deploySettings
-					.path( DockerJson.imageName.json( ) )
+					.path( C7.imageName.val( ) )
 					.asText( ContainerIntegration.DOCKER_DEFAULT_IMAGE ) ;
 
 			// String namespace = deploySettings.at( KubernetesJson.namespace.spath()
 			// ).asText( "default" ) ;
 			String namespace = service.getKubernetesNamespace( ) ;
 
-			int replicaCount = deploySettings.at( KubernetesJson.replicaCount.spath( ) ).asInt( 1 ) ;
+			int replicaCount = deploySettings.at( K8.replicaCount.spath( ) ).asInt( 1 ) ;
 
-			String serviceType = deploySettings.at( KubernetesJson.serviceType.spath( ) )
-					.asText( KubernetesJson.None.json( ) ) ;
+			String serviceType = deploySettings.at( K8.serviceType.spath( ) )
+					.asText( K8.None.val( ) ) ;
 
 			// String portDefinition = deploySettings.path( DockerJson.portMappings.json()
 			// ).asText( "" );
-			String portDefinition = jsonAsString( service, deploySettings.get( DockerJson.portMappings.json( ) ), "" ) ;
-
-			String nodeSelectors = jsonAsString( service, deploySettings.at( KubernetesJson.nodeSelectors.spath( ) ),
-					"" ) ;
-			String podAnnotations = jsonAsString( service, deploySettings.at( KubernetesJson.podAnnotations.spath( ) ),
-					"" ) ;
-			String labelsByType = jsonAsString( service, deploySettings.at( KubernetesJson.labelsByType.spath( ) ),
-					"" ) ;
-			String readinessProbe = jsonAsString( service, deploySettings.at( KubernetesJson.readinessProbe.spath( ) ),
-					"" ) ;
-			String livenessProbe = jsonAsString( service, deploySettings.at( KubernetesJson.livenessProbe.spath( ) ),
+			String portDefinition = jsonAsString( service, deploySettings.get( C7.portMappings.val( ) ),
 					"" ) ;
 
-			String resources = jsonAsString( service, deploySettings.at( KubernetesJson.resources.spath( ) ), "" ) ;
+			String nodeSelectors = jsonAsString( service, deploySettings.at( K8.nodeSelectors.spath( ) ),
+					"" ) ;
+			String podAnnotations = jsonAsString( service, deploySettings.at( K8.podAnnotations.spath( ) ),
+					"" ) ;
+			String labelsByType = jsonAsString( service, deploySettings.at( K8.labelsByType.spath( ) ),
+					"" ) ;
+			String readinessProbe = jsonAsString( service, deploySettings.at( K8.readinessProbe.spath( ) ),
+					"" ) ;
+			String livenessProbe = jsonAsString( service, deploySettings.at( K8.livenessProbe.spath( ) ),
+					"" ) ;
 
-			String ingressPath = load( service, deploySettings, KubernetesJson.ingressPath.spath( ) ) ;
+			String resources = jsonAsString( service, deploySettings.at( K8.resources.spath( ) ), "" ) ;
 
-			String ingressPort = load( service, deploySettings, KubernetesJson.ingressPort.spath( ) ) ;
+			String ingressPath = load( service, deploySettings, K8.ingressPath.spath( ) ) ;
 
-			String ingressHost = deploySettings.at( KubernetesJson.ingressHost.spath( ) ).asText( "" ) ;
+			String ingressPort = load( service, deploySettings, K8.ingressPort.spath( ) ) ;
 
-			String ingressAnnotationsDef = jsonAsString( service, deploySettings.at( KubernetesJson.ingressAnnotations
+			String ingressHost = deploySettings.at( K8.ingressHost.spath( ) ).asText( "" ) ;
+
+			String ingressAnnotationsDef = jsonAsString( service, deploySettings.at( K8.ingressAnnotations
 					.spath( ) ), "" ) ;
 
-			String k8Command = jsonAsString( service, deploySettings.get( DockerJson.entryPoint.json( ) ), "[]" ) ;
-			String command = jsonAsString( service, deploySettings.get( DockerJson.command.json( ) ), "" ) ;
+			String k8Command = jsonAsString( service, deploySettings.get( C7.entryPoint.val( ) ), "[]" ) ;
+			String command = jsonAsString( service, deploySettings.get( C7.command.val( ) ), "" ) ;
 
 			if ( StringUtils.isNotEmpty( command ) ) {
 
@@ -190,24 +193,24 @@ public class SpecBuilder {
 
 			}
 
-			String arguments = jsonAsString( service, deploySettings.get( KubernetesJson.arguments.spath( ) ), "[]" ) ;
+			String arguments = jsonAsString( service, deploySettings.get( K8.arguments.spath( ) ), "[]" ) ;
 
-			String workingDirectory = load( service, deploySettings, DockerJson.workingDirectory.jpath( ) ) ;
+			String workingDirectory = load( service, deploySettings, C7.workingDirectory.jpath( ) ) ;
 
-			String network = deploySettings.path( DockerJson.network.json( ) ).asText( "" ) ;
+			String network = deploySettings.path( C7.network.val( ) ).asText( "" ) ;
 
-			String restartPolicy = deploySettings.path( DockerJson.restartPolicy.json( ) ).asText( "" ) ;
+			String restartPolicy = deploySettings.path( C7.restartPolicy.val( ) ).asText( "" ) ;
 
-			String runUser = deploySettings.path( DockerJson.runUser.json( ) ).asText( "" ) ;
+			String runUser = deploySettings.path( C7.runUser.val( ) ).asText( "" ) ;
 
-			String volumes = jsonAsString( service, deploySettings.get( DockerJson.volumes.json( ) ), "" ) ;
+			String volumes = jsonAsString( service, deploySettings.get( C7.volumes.val( ) ), "" ) ;
 
-			String environmentVariables = jsonAsString( service, deploySettings.get( DockerJson.environmentVariables
-					.json( ) ), "" ) ;
+			String environmentVariables = jsonAsString( service, deploySettings.get( C7.environmentVariables
+					.val( ) ), "" ) ;
 
-			String limits = jsonAsString( service, deploySettings.get( DockerJson.limits.json( ) ), "" ) ;
+			String limits = jsonAsString( service, deploySettings.get( C7.limits.val( ) ), "" ) ;
 
-			boolean addCsapTools = deploySettings.at( KubernetesJson.addCsapTools.spath( ) ).asBoolean( false ) ;
+			boolean addCsapTools = deploySettings.at( K8.addCsapTools.spath( ) ).asBoolean( false ) ;
 
 			result = deploymentCreate( kubernetesDeployName, namespace, imageName,
 					nodeSelectors, podAnnotations, labelsByType,
@@ -272,7 +275,7 @@ public class SpecBuilder {
 											String limits ,
 											boolean addCsapTools ) {
 
-		Timer.Sample deployTimer = kubernetes.getCsapApp( ).metrics( ).startTimer( ) ;
+		Timer.Sample deployTimer = kubernetes.metrics( ).startTimer( ) ;
 
 		StringBuilder builder = new StringBuilder( ) ;
 		builder.append( "@deploymentCreate: " ) ;
@@ -329,7 +332,7 @@ public class SpecBuilder {
 						envVars,
 						addCsapTools ) ;
 
-				if ( ! serviceType.equals( KubernetesJson.None.json( ) ) ) {
+				if ( ! serviceType.equals( K8.None.val( ) ) ) {
 
 					String serviceName = deploymentName + "-service" ;
 					result.set( "create-service",
@@ -343,7 +346,7 @@ public class SpecBuilder {
 									labelsByType ) ) ;
 
 					if ( StringUtils.isNotBlank( ingressPath ) &&
-							serviceType.equals( KubernetesJson.NODE_PORT.json( ) ) ) {
+							serviceType.equals( K8.NODE_PORT.val( ) ) ) {
 
 						String ingressName = deploymentName + "-ingress" ;
 						ObjectNode ingressResults = ingressCreate(
@@ -367,7 +370,7 @@ public class SpecBuilder {
 
 				} else {
 
-					result.put( "service-info", "skipped creation: specify service type: " + KubernetesJson
+					result.put( "service-info", "skipped creation: specify service type: " + K8
 							.k8TypeList( ) ) ;
 
 				}
@@ -380,7 +383,7 @@ public class SpecBuilder {
 
 		}
 
-		kubernetes.getCsapApp( ).metrics( ).stopTimer( deployTimer, DEPLOY_TIMER ) ;
+		kubernetes.metrics( ).stopTimer( deployTimer, DEPLOY_TIMER ) ;
 
 		return result ;
 
@@ -401,7 +404,7 @@ public class SpecBuilder {
 
 		logger.debug( "ingressName: {}  ingressAnnotationsDef: {}", ingressName, ingressAnnotationsDef ) ;
 
-		var ingressCreateRequest = new NetworkingV1beta1Ingress( ) ;
+		var ingressCreateRequest = new V1Ingress( ) ;
 
 		V1ObjectMeta ingressMetaData = buildMetaData( ingressName, namespace ) ;
 
@@ -434,11 +437,12 @@ public class SpecBuilder {
 
 		// deployMetaData.setLabels( deploymentSelector );
 
-		Map<String, String> annotations = new HashMap<>( ) ;
+		Map<String, String> annotations = new HashMap<String, String>( ) ;
 		annotations.put( "nginx.ingress.kubernetes.io/affinity", "cookie" ) ;
 		annotations.put( "nginx.ingress.kubernetes.io/use-regex", "true" ) ; // support host wild cards
 		annotations.put( "nginx.ingress.kubernetes.io/session-cookie-name", "k8_route" ) ;
 		annotations.put( "nginx.ingress.kubernetes.io/session-cookie-hash", "sha1" ) ;
+		annotations.put( "nginx.ingress.kubernetes.io/session-cookie-path", ingressPath ) ;
 
 		if ( StringUtils.isNotEmpty( ingressAnnotationsDef ) ) {
 
@@ -455,29 +459,35 @@ public class SpecBuilder {
 		ingressMetaData.setAnnotations( annotations ) ;
 		ingressCreateRequest.setMetadata( ingressMetaData ) ;
 
-		var ingressSpec = new NetworkingV1beta1IngressSpec( ) ;
+		var ingressSpec = new V1IngressSpec( ) ;
 		ingressCreateRequest.setSpec( ingressSpec ) ;
 
 		// List<ExtensionsV1beta1IngressRule> rules = new ArrayList<>() ;
 
-		var ingress_rule = new NetworkingV1beta1IngressRule( ) ;
+		var ingress_rule = new V1IngressRule( ) ;
 
-		var httpRouting = new NetworkingV1beta1HTTPIngressRuleValue( ) ;
+		var httpRouting = new V1HTTPIngressRuleValue( ) ;
 
 		// List<ExtensionsV1beta1HTTPIngressPath> ingressPaths = new ArrayList<>() ;
 
-		var backend = new NetworkingV1beta1IngressBackend( ) ;
-		backend.setServiceName( serviceName ) ;
+		var backend = new V1IngressBackend( ) ;
+		var beService = new V1IngressServiceBackend( ) ;
+		beService.setName( serviceName ) ;
 
 		if ( StringUtils.isEmpty( ingressPort ) ) {
 
 			ingressPort = "80" ;
 
 		}
+		
+		var sbePort = new  V1ServiceBackendPort( );
+		sbePort.setNumber( Integer.parseInt( ingressPort ) ) ;
+		beService.setPort( sbePort ) ;
+		
+		backend.setService( beService ) ;
+	
 
-		backend.setServicePort( new IntOrString( Integer.parseInt( ingressPort ) ) ) ;
-
-		var httpIngressPath = new NetworkingV1beta1HTTPIngressPath( ) ;
+		var httpIngressPath = new V1HTTPIngressPath( ) ;
 		httpIngressPath.backend( backend ) ;
 		httpIngressPath.setPath( ingressPath ) ;
 		// httpIngressPath.setPathType( "Prefix" );
@@ -493,7 +503,7 @@ public class SpecBuilder {
 
 			if ( ingressVariable.isPresent( ) ) {
 
-				ingressHost = ingressVariable.get( )[ 1 ] ;
+				ingressHost = ingressVariable.get( )[1] ;
 
 			}
 
@@ -510,17 +520,17 @@ public class SpecBuilder {
 
 		try {
 
-			var apiBetaExtensions = new NetworkingV1beta1Api( kubernetes.apiClient( ) ) ;
+			var networkApi = new NetworkingV1Api( kubernetes.apiClient( ) ) ;
 
 			String dryRun = null ;
 			String pretty = null ;
 			String fieldManager = null ;
 
-			var ingressResponse = apiBetaExtensions.createNamespacedIngress(
+			var ingressResponse = networkApi.createNamespacedIngress(
 					namespace, ingressCreateRequest,
 					pretty, dryRun, fieldManager ) ;
 
-			result = (ObjectNode) listingsBuilder.buildResultReport( ingressResponse ) ;
+			result = (ObjectNode) listingsBuilder.serializeToJson( ingressResponse ) ;
 			logger.info( "ingressResponse: {} ", result ) ;
 
 		} catch ( Exception e ) {
@@ -539,7 +549,7 @@ public class SpecBuilder {
 				.map( JsonNode::asText )
 				.map( nameVal -> nameVal.split( "=", 2 ) )
 				.filter( nameValArray -> nameValArray.length == 2 )
-				.filter( nameValArray -> nameValArray[ 0 ].equals( KubernetesIntegration.CSAP_DEF_INGRESS_HOST ) )
+				.filter( nameValArray -> nameValArray[0].equals( KubernetesIntegration.CSAP_DEF_INGRESS_HOST ) )
 				.findFirst( ) ;
 		return ingressVariable ;
 
@@ -694,7 +704,7 @@ public class SpecBuilder {
 		deploySpec.template( podTemplate ) ;
 
 		V1PodSpec podSpec = buildPodSpec( //
-				deploymentName + DockerJson.k8ContainerSuffix.json( ),
+				deploymentName + C7.k8ContainerSuffix.val( ),
 				imageName,
 				workingDir,
 				commands, arguments,
@@ -721,7 +731,7 @@ public class SpecBuilder {
 				deployBody,
 				pretty, dryRun, fieldManager ) ;
 
-		result.set( "create-deployment", (ObjectNode) listingsBuilder.buildResultReport( deployResult ) ) ;
+		result.set( "create-deployment", (ObjectNode) listingsBuilder.serializeToJson( deployResult ) ) ;
 		logger.info( "deployResult: {} ", CSAP.jsonPrint( result ) ) ;
 
 		return result ;
@@ -746,7 +756,7 @@ public class SpecBuilder {
 
 			V1Namespace nameSpaceResult = apiV1.createNamespace( body, pretty, dryRun, fieldManager ) ;
 
-			var nsResult = listingsBuilder.buildResultReport( nameSpaceResult ) ;
+			var nsResult = listingsBuilder.serializeToJson( nameSpaceResult ) ;
 
 			logger.info( "result: {} ", nsResult ) ;
 
@@ -901,9 +911,9 @@ public class SpecBuilder {
 
 			CSAP.jsonStream( volumesDefinition ).forEach( volumeDef -> {
 
-				JsonNode hostPath_definition = volumeDef.path( KubernetesJson.hostPath.json( ) ) ;
-				JsonNode emptyDir_definition = volumeDef.path( KubernetesJson.emptyDir.json( ) ) ;
-				JsonNode pvc_definition = volumeDef.path( KubernetesJson.persistentVolumeClaim.json( ) ) ;
+				JsonNode hostPath_definition = volumeDef.path( K8.hostPath.val( ) ) ;
+				JsonNode emptyDir_definition = volumeDef.path( K8.emptyDir.val( ) ) ;
+				JsonNode pvc_definition = volumeDef.path( K8.persistentVolumeClaim.val( ) ) ;
 
 				V1Volume volume = null ;
 
@@ -913,14 +923,14 @@ public class SpecBuilder {
 
 					V1HostPathVolumeSource source = new V1HostPathVolumeSource( ) ;
 					volume.setHostPath( source ) ;
-					source.setType( hostPath_definition.path( KubernetesJson.storageType.json( ) ).asText( ) ) ;
-					source.setPath( hostPath_definition.path( KubernetesJson.storagePath.json( ) ).asText( ) ) ;
+					source.setType( hostPath_definition.path( K8.storageType.val( ) ).asText( ) ) ;
+					source.setPath( hostPath_definition.path( K8.storagePath.val( ) ).asText( ) ) ;
 
 				} else if ( emptyDir_definition.isObject( ) ) {
 
 					volume = new V1Volume( ) ;
 					V1EmptyDirVolumeSource source = new V1EmptyDirVolumeSource( ) ;
-					var sizeLimit = emptyDir_definition.path( KubernetesJson.sizeLimit.json( ) ).asText( ) ;
+					var sizeLimit = emptyDir_definition.path( K8.sizeLimit.val( ) ).asText( ) ;
 					source.setSizeLimit( Quantity.fromString( sizeLimit ) ) ;
 					volume.setEmptyDir( source ) ;
 
@@ -930,12 +940,12 @@ public class SpecBuilder {
 
 					V1PersistentVolumeClaimVolumeSource persistentVolumeClaim = new V1PersistentVolumeClaimVolumeSource( ) ;
 					volume.setPersistentVolumeClaim( persistentVolumeClaim ) ;
-					persistentVolumeClaim.setClaimName( pvc_definition.path( KubernetesJson.claimName.json( ) )
+					persistentVolumeClaim.setClaimName( pvc_definition.path( K8.claimName.val( ) )
 							.asText( ) ) ;
-					persistentVolumeClaim.setReadOnly( volumeDef.path( KubernetesJson.storageName.json( ) ).asBoolean(
+					persistentVolumeClaim.setReadOnly( volumeDef.path( K8.storageName.val( ) ).asBoolean(
 							false ) ) ;
 
-					if ( pvc_definition.path( KubernetesJson.createIfNotPresent.json( ) ).asBoolean( false ) ) {
+					if ( pvc_definition.path( K8.createIfNotPresent.val( ) ).asBoolean( false ) ) {
 
 						result.set( "create-persistent-claim", createPersistVolumeClaim( pvc_definition, namespace ) ) ;
 
@@ -946,14 +956,14 @@ public class SpecBuilder {
 				if ( volume != null ) {
 
 					volumes.add( volume ) ;
-					volume.setName( volumeDef.path( KubernetesJson.storageName.json( ) ).asText( ) ) ;
+					volume.setName( volumeDef.path( K8.storageName.val( ) ).asText( ) ) ;
 
 					// add to container
 					V1VolumeMount hostMount = new V1VolumeMount( ) ;
 					volumeMounts.add( hostMount ) ;
-					hostMount.setMountPath( volumeDef.path( KubernetesJson.mountPath.json( ) ).asText( ) ) ;
-					hostMount.setName( volumeDef.path( KubernetesJson.storageName.json( ) ).asText( ) ) ;
-					hostMount.setReadOnly( volumeDef.path( KubernetesJson.storageName.json( ) ).asBoolean( false ) ) ;
+					hostMount.setMountPath( volumeDef.path( K8.mountPath.val( ) ).asText( ) ) ;
+					hostMount.setName( volumeDef.path( K8.storageName.val( ) ).asText( ) ) ;
+					hostMount.setReadOnly( volumeDef.path( K8.storageName.val( ) ).asBoolean( false ) ) ;
 
 				} else {
 
@@ -976,10 +986,10 @@ public class SpecBuilder {
 		V1ObjectMeta metadata = new V1ObjectMeta( ) ;
 		pvc.setMetadata( metadata ) ;
 
-		metadata.setName( pvcDefinition.path( KubernetesJson.claimName.json( ) ).asText( ) ) ;
+		metadata.setName( pvcDefinition.path( K8.claimName.val( ) ).asText( ) ) ;
 		Map<String, String> annotations = new HashMap<>( ) ;
 
-		var storageClass = pvcDefinition.path( KubernetesJson.storageClass.json( ) ) ;
+		var storageClass = pvcDefinition.path( K8.storageClass.val( ) ) ;
 
 		if ( storageClass.isValueNode( ) ) {
 
@@ -991,7 +1001,7 @@ public class SpecBuilder {
 
 		V1PersistentVolumeClaimSpec pvcSpec = new V1PersistentVolumeClaimSpec( ) ;
 
-		JsonNode modes = pvcDefinition.path( KubernetesJson.accessModes.json( ) ) ;
+		JsonNode modes = pvcDefinition.path( K8.accessModes.val( ) ) ;
 
 		if ( modes.isArray( ) ) {
 
@@ -1005,7 +1015,7 @@ public class SpecBuilder {
 
 		}
 
-		JsonNode storage = pvcDefinition.path( KubernetesJson.storage.json( ) ) ;
+		JsonNode storage = pvcDefinition.path( K8.storage.val( ) ) ;
 
 		if ( ! storage.isMissingNode( ) ) {
 
@@ -1018,7 +1028,7 @@ public class SpecBuilder {
 
 		}
 
-		var selectorLabels = pvcDefinition.path( KubernetesJson.selectorMatchLabels.json( ) ) ;
+		var selectorLabels = pvcDefinition.path( K8.selectorMatchLabels.val( ) ) ;
 
 		if ( selectorLabels.isObject( ) ) {
 
@@ -1058,7 +1068,7 @@ public class SpecBuilder {
 					pvc,
 					pretty, dryRun, fieldManager ) ;
 
-			pvcCreateResult = (ObjectNode) listingsBuilder.buildResultReport( volumeClaimResult ) ;
+			pvcCreateResult = (ObjectNode) listingsBuilder.serializeToJson( volumeClaimResult ) ;
 			logger.info( "volumeClaimCreateResult: {} ", pvcCreateResult ) ;
 
 		} catch ( Exception e ) {
@@ -1164,12 +1174,12 @@ public class SpecBuilder {
 
 					V1ContainerPort thePort = new V1ContainerPort( ) ;
 
-					thePort.containerPort( port.path( KubernetesJson.containerPort.json( ) ).asInt( ) ) ;
+					thePort.containerPort( port.path( K8.containerPort.val( ) ).asInt( ) ) ;
 
-					thePort.setName( port.path( KubernetesJson.portName.json( ) ).asText( "default-" + thePort
+					thePort.setName( port.path( K8.portName.val( ) ).asText( "default-" + thePort
 							.getContainerPort( ) ) ) ;
 
-					JsonNode hostPort = port.path( KubernetesJson.hostPort.json( ) ) ;
+					JsonNode hostPort = port.path( K8.hostPort.val( ) ) ;
 
 					if ( ! hostPort.isMissingNode( ) ) {
 
@@ -1177,7 +1187,7 @@ public class SpecBuilder {
 
 					}
 
-					JsonNode protocol = port.path( KubernetesJson.protocol.json( ) ) ;
+					JsonNode protocol = port.path( K8.protocol.val( ) ) ;
 
 					if ( ! protocol.isMissingNode( ) ) {
 
@@ -1203,8 +1213,8 @@ public class SpecBuilder {
 				.map( kubVariable -> {
 
 					V1EnvVar addr = new V1EnvVar( ) ;
-					addr.name( kubVariable[ 0 ] ) ;
-					addr.value( kubVariable[ 1 ] ) ;
+					addr.name( kubVariable[0] ) ;
+					addr.value( kubVariable[1] ) ;
 					return addr ;
 
 				} )
@@ -1248,7 +1258,7 @@ public class SpecBuilder {
 					deploymentName, namespace, pretty,
 					dryRun, gracePeriodSeconds, orphanDependents, propagationPolicy, deleteOptions ) ;
 
-			deleteSpecsResult.set( "delete-deployment", listingsBuilder.buildResultReport( deleteResult ) ) ;
+			deleteSpecsResult.set( "delete-deployment", listingsBuilder.serializeToJson( deleteResult ) ) ;
 
 			if ( deleteService ) {
 
@@ -1298,7 +1308,7 @@ public class SpecBuilder {
 					serviceName, namespace, pretty,
 					dryRun, gracePeriodSeconds, orphanDependents, propagationPolicy, body ) ;
 
-			result = (ObjectNode) listingsBuilder.buildResultReport( deleteResult ) ;
+			result = (ObjectNode) listingsBuilder.serializeToJson( deleteResult ) ;
 			logger.info( "result: {} ", result ) ;
 
 		} catch ( Exception e ) {
@@ -1382,10 +1392,10 @@ public class SpecBuilder {
 				.map( port -> {
 
 					V1ServicePort thePort = new V1ServicePort( ) ;
-					thePort.setPort( port.path( KubernetesJson.servicePort.json( ) ).asInt( ) ) ;
-					thePort.setName( port.path( KubernetesJson.portName.json( ) ).asText( "default-" + thePort
+					thePort.setPort( port.path( K8.servicePort.val( ) ).asInt( ) ) ;
+					thePort.setName( port.path( K8.portName.val( ) ).asText( "default-" + thePort
 							.getPort( ) ) ) ;
-					thePort.setTargetPort( new IntOrString( port.path( KubernetesJson.containerPort.json( ) )
+					thePort.setTargetPort( new IntOrString( port.path( K8.containerPort.val( ) )
 							.asInt( ) ) ) ;
 					return thePort ;
 
@@ -1406,7 +1416,7 @@ public class SpecBuilder {
 
 			V1Service exposedService = apiV1.createNamespacedService( namespace, serviceCreateRequest,
 					pretty, dryRun, fieldManager ) ;
-			result = (ObjectNode) listingsBuilder.buildResultReport( exposedService ) ;
+			result = (ObjectNode) listingsBuilder.serializeToJson( exposedService ) ;
 			logger.info( "result: {} ", result ) ;
 
 		} catch ( Exception e ) {
@@ -1430,18 +1440,18 @@ public class SpecBuilder {
 
 		try {
 
-			var apiBetaExtensions = new NetworkingV1beta1Api( kubernetes.apiClient( ) ) ;
+			var networkApi = new NetworkingV1Api( kubernetes.apiClient( ) ) ;
 
 			String pretty = "true" ;
 			String dryRun = null ;
 			Boolean orphanDependents = null ;
 			var propagationPolicy = Propogation_Policy.foreground.apiValue( ) ;
 
-			ApiResponse<V1Status> deleteResult = apiBetaExtensions.deleteNamespacedIngressWithHttpInfo(
+			ApiResponse<V1Status> deleteResult = networkApi.deleteNamespacedIngressWithHttpInfo(
 					ingressName, namespace, pretty, dryRun, gracePeriodSeconds, orphanDependents,
 					propagationPolicy, deleteOptions ) ;
 
-			result = (ObjectNode) listingsBuilder.buildResultReport( deleteResult ) ;
+			result = (ObjectNode) listingsBuilder.serializeToJson( deleteResult ) ;
 			logger.info( "result: {} ", result ) ;
 
 		} catch ( Exception e ) {
@@ -1474,7 +1484,7 @@ public class SpecBuilder {
 					serviceName, namespace, pretty,
 					dryRun, gracePeriodSeconds, orphanDependents, propagationPolicy, body ) ;
 
-			result = (ObjectNode) listingsBuilder.buildResultReport( deleteResult ) ;
+			result = (ObjectNode) listingsBuilder.serializeToJson( deleteResult ) ;
 			logger.info( "result: {} ", result ) ;
 
 		} catch ( Exception e ) {
@@ -1492,17 +1502,17 @@ public class SpecBuilder {
 
 		var deleteResults = jsonMapper.createObjectNode( ) ;
 		var namespace = service.getKubernetesNamespace( ) ;
-		var volumeDefinitionText = jsonAsString( service, service.getDockerSettings( ).get( DockerJson.volumes
-				.json( ) ), "" ) ;
+		var volumeDefinitionText = jsonAsString( service, service.getDockerSettings( ).get( C7.volumes
+				.val( ) ), "" ) ;
 		var volumesDefinition = jsonMapper.readTree( volumeDefinitionText ) ;
 
 		CSAP.jsonStream( volumesDefinition ).forEach( volumeDef -> {
 
-			JsonNode persistentVolume_definition = volumeDef.path( KubernetesJson.persistentVolumeClaim.json( ) ) ;
+			JsonNode persistentVolume_definition = volumeDef.path( K8.persistentVolumeClaim.val( ) ) ;
 
 			if ( persistentVolume_definition.isObject( ) ) {
 
-				String claimName = persistentVolume_definition.path( KubernetesJson.claimName.json( ) ).asText( ) ;
+				String claimName = persistentVolume_definition.path( K8.claimName.val( ) ).asText( ) ;
 				ObjectNode results = persistentVolumeClaimDelete( claimName, namespace ) ;
 				deleteResults.set( claimName, results ) ;
 
@@ -1534,7 +1544,7 @@ public class SpecBuilder {
 					claimName, namespace, pretty,
 					dryRun, gracePeriodSeconds, orphanDependents, propagationPolicy, body ) ;
 
-			result = (ObjectNode) listingsBuilder.buildResultReport( deleteResult ) ;
+			result = (ObjectNode) listingsBuilder.serializeToJson( deleteResult ) ;
 			logger.info( "result: {} ", result ) ;
 
 		} catch ( Exception e ) {

@@ -16,10 +16,10 @@ import java.util.stream.LongStream ;
 
 import javax.inject.Inject ;
 
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.model.Application ;
 import org.csap.helpers.CSAP ;
-import org.csap.integations.CsapMicroMeter ;
+import org.csap.integations.micrometer.CsapMeterUtilities ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
 import org.springframework.beans.factory.annotation.Autowired ;
@@ -53,7 +53,7 @@ public class TrendCache {
 	Application csapApp ;
 
 	@Autowired
-	CsapMicroMeter.Utilities microMeterHelper ;
+	CsapMeterUtilities microMeterHelper ;
 	@Inject
 	private CacheManager cacheManager ;
 
@@ -116,7 +116,7 @@ public class TrendCache {
 
 	}
 
-	private static final ClassPathResource trendStub = new ClassPathResource( CsapCore.EVENTS_STUB_FOLDER
+	private static final ClassPathResource trendStub = new ClassPathResource( CsapConstants.EVENTS_STUB_FOLDER
 			+ "trendingReport.json" ) ;
 
 	private ObjectNode loadStubDataAndUpdateDateRange ( )

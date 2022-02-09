@@ -15,11 +15,11 @@ import java.util.stream.Collectors ;
 import javax.inject.Inject ;
 
 import org.apache.commons.lang3.StringUtils ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.CsapThinTests ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.container.ContainerProcess ;
-import org.csap.agent.container.DockerJson ;
 import org.csap.agent.model.ClusterType ;
 import org.csap.agent.model.ContainerState ;
 import org.csap.agent.model.ProcessRuntime ;
@@ -67,7 +67,7 @@ class OsManager_Stubbed extends CsapThinTests {
 
 		logger.info( CsapApplication.testHeader( ) ) ;
 
-		processMapper = new OsProcessMapper( getApplication( ).getCsapWorkingFolder( ), getApplication( ).metrics( ) ) ;
+		processMapper = new OsProcessMapper( ) ;
 
 		getApplication( ).getProjectLoader( ).setAllowLegacyNames( true ) ;
 
@@ -78,7 +78,7 @@ class OsManager_Stubbed extends CsapThinTests {
 		diskCollectionResults.append( getApplication( ).check_for_stub( "", "linux/ps-service-disk.txt" ) ) ;
 		diskCollectionResults.append( getApplication( ).check_for_stub( "", "linux/ps-docker-volumes.txt" ) ) ;
 
-		getApplication( ).getOsManager( ).wait_for_initial_process_status_scan( 3 ) ;
+		getOsManager( ).wait_for_initial_process_status_scan( 3 ) ;
 
 		logger.info( CsapApplication.testHeader( "completed setup: stubbed results for diskCollect will be used" ) ) ;
 
@@ -98,62 +98,62 @@ class OsManager_Stubbed extends CsapThinTests {
 
 		logger.info( "All commands: {}", osCommands ) ;
 
-		assertThat( getApplication( ).getOsManager( ).getOsCommands( ).getSystemProcessMetrics( 10 ) )
+		assertThat( getOsManager( ).getOsCommands( ).getSystemProcessMetrics( 10 ) )
 				.contains( "top -b -d 10" ) ;
 
-		assertThat( getApplication( ).getOsManager( ).getOsCommands( ).getSystemDiskWithUtilization( ) )
+		assertThat( getOsManager( ).getOsCommands( ).getSystemDiskWithUtilization( ) )
 				.contains( "iostat -dx | awk '{ print $1 \" \" $NF}' | grep --invert-match 'util\\|Linux'" ) ;
 
-		assertThat( getApplication( ).getOsManager( ).getOsCommands( ).getSystemDiskWithRateOnly( ) )
+		assertThat( getOsManager( ).getOsCommands( ).getSystemDiskWithRateOnly( ) )
 				.contains( "iostat -dm" ) ;
 
-		logger.info( "network stats command: {}", getApplication( ).getOsManager( ).getOsCommands( )
+		logger.info( "network stats command: {}", getOsManager( ).getOsCommands( )
 				.getSystemNetworkStats( "eth0" ) ) ;
-		assertThat( getApplication( ).getOsManager( ).getOsCommands( ).getSystemNetworkStats( "eth0" ) )
+		assertThat( getOsManager( ).getOsCommands( ).getSystemNetworkStats( "eth0" ) )
 				.contains( "cat /proc/net/dev |  grep 'eth.*:' | sed 's/  */ /g'" ) ;
 
-		assertThat( getApplication( ).getOsManager( ).getOsCommands( ).getSystemNetworkDevices( ) )
+		assertThat( getOsManager( ).getOsCommands( ).getSystemNetworkDevices( ) )
 				.contains( "ip addr" ) ;
 
-		assertThat( getApplication( ).getOsManager( ).getOsCommands( ).getSystemPackages( ) )
+		assertThat( getOsManager( ).getOsCommands( ).getSystemPackages( ) )
 				.contains( "rpm -qa" ) ;
 
-		assertThat( getApplication( ).getOsManager( ).getOsCommands( ).getSystemPackageDetails( "testpackage" ) )
+		assertThat( getOsManager( ).getOsCommands( ).getSystemPackageDetails( "testpackage" ) )
 				.contains( "rpm -qi testpackage" ) ;
 
-		assertThat( getApplication( ).getOsManager( ).getOsCommands( ).getSystemServices( ) )
+		assertThat( getOsManager( ).getOsCommands( ).getSystemServices( ) )
 				.contains( "systemctl --no-pager list-unit-files --state=enabled | grep enabled | cut -f1 -d' '" ) ;
 
-		assertThat( getApplication( ).getOsManager( ).getOsCommands( ).getSystemServiceDetails( "testservice" ) )
+		assertThat( getOsManager( ).getOsCommands( ).getSystemServiceDetails( "testservice" ) )
 				.contains( "systemctl --no-pager status -l testservice" ) ;
 
-		assertThat( getApplication( ).getOsManager( ).getOsCommands( ).getServiceDiskUsage( "/home/t1 /home/t2" ) )
+		assertThat( getOsManager( ).getOsCommands( ).getServiceDiskUsage( "/home/t1 /home/t2" ) )
 				.contains(
 						"for servicePath in /home/t1 /home/t2; do" ) ;
 
-		assertThat( getApplication( ).getOsManager( ).getOsCommands( ).getServiceDiskUsageDf( ) )
+		assertThat( getOsManager( ).getOsCommands( ).getServiceDiskUsageDf( ) )
 				.contains(
 						"timeout 2s df --portability --block-size=M --print-type | sed 's/  */ /g' |  awk '{print $4 \"/\" $3 \" \" $7 \" \" $6 \" \" $1}'" ) ;
 
 		// infra
-		assertThat( getApplication( ).getOsManager( ).getOsCommands( ).getInfraTestCpu( "55000000" ) )
+		assertThat( getOsManager( ).getOsCommands( ).getInfraTestCpu( "55000000" ) )
 				.contains( "time $(i=55000000; while (( i > 0 )); do (( i=i-1 )); done)" ) ;
 
-		assertThat( getApplication( ).getOsManager( ).getOsCommands( ).getInfraTestDisk( "1024", "1000" ) )
+		assertThat( getOsManager( ).getOsCommands( ).getInfraTestDisk( "1024", "1000" ) )
 				.contains( "time dd oflag=nocache,sync if=/dev/zero of=csap_test_file bs=1024 count=1000" ) ;
 
 		// docker
 
-		assertThat( getApplication( ).getOsManager( ).getOsCommands( ).getDockerImageExport( "myDest", "nginx" ) )
+		assertThat( getOsManager( ).getOsCommands( ).getDockerImageExport( "myDest", "nginx" ) )
 				.contains( "docker save --output myDest nginx" ) ;
 
-		assertThat( getApplication( ).getOsManager( ).getOsCommands( ).getDockerImageLoad( "peter.tar" ) )
+		assertThat( getOsManager( ).getOsCommands( ).getDockerImageLoad( "peter.tar" ) )
 				.contains( "docker load --input peter.tar" ) ;
 
-		assertThat( getApplication( ).getOsManager( ).getOsCommands( ).getDockerSocketStats( "12345" ) )
+		assertThat( getOsManager( ).getOsCommands( ).getDockerSocketStats( "12345" ) )
 				.contains( "nsenter -t 12345 -n ss -pr" ) ;
 
-		var diskCleanLines = getApplication( ).getOsManager( ).getOsCommands( ).getServiceJobsDiskClean(
+		var diskCleanLines = getOsManager( ).getOsCommands( ).getServiceJobsDiskClean(
 				"/path/to/target", 2, 7, true,
 				false ) ;
 		logger.info( "diskCleanLines: {}", diskCleanLines.size( ) ) ;
@@ -173,13 +173,13 @@ class OsManager_Stubbed extends CsapThinTests {
 			logger.info( CsapApplication.testHeader( ) ) ;
 
 			// CSAP.setLogToDebug( OsManager.class.getName() );
-			ArrayNode socketConnections = getApplication( ).getOsManager( ).socketConnections( false ) ;
+			var socketConnections = getOsManager( ).socketConnections( false ) ;
 			// CSAP.setLogToInfo( OsManager.class.getName() );
-			logger.info( CSAP.jsonPrint( socketConnections.get( 0 ) ) ) ;
+			logger.info( CSAP.jsonPrint( socketConnections.path( 0 ) ) ) ;
 
-			ArrayNode socketSummaryConnections = getApplication( ).getOsManager( ).socketConnections( true ) ;
+			var socketSummaryConnections = getOsManager( ).socketConnections( true ) ;
 			// CSAP.setLogToInfo( OsManager.class.getName() );
-			logger.info( "socketSummaryConnections: {}", CSAP.jsonPrint( socketSummaryConnections ) ) ;
+			logger.info( "socketSummaryConnections: {}", CSAP.jsonPrint( socketSummaryConnections.path( 0 ) ) ) ;
 
 		}
 
@@ -188,13 +188,13 @@ class OsManager_Stubbed extends CsapThinTests {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			ArrayNode socketListeners = getApplication( ).getOsManager( ).socketListeners( false ) ;
+			ArrayNode socketListeners = getOsManager( ).socketListeners( false ) ;
 			// CSAP.setLogToInfo( OsManager.class.getName() );
 			logger.info( CSAP.jsonPrint( socketListeners.get( 0 ) ) ) ;
 
-			ArrayNode socketSummaryListeners = getApplication( ).getOsManager( ).socketListeners( true ) ;
+			ArrayNode socketSummaryListeners = getOsManager( ).socketListeners( true ) ;
 			// CSAP.setLogToInfo( OsManager.class.getName() );
-			logger.info( "socketListeners Summary: {}", CSAP.jsonPrint( socketSummaryListeners ) ) ;
+			logger.info( "socketListeners Summary: {}", CSAP.jsonPrint( socketSummaryListeners.path( 0 ) ) ) ;
 
 			// assertThat( portSummary.get( OsManager.RECEIVE_MB ).asDouble() )
 			// .as( OsManager.RECEIVE_MB )
@@ -208,7 +208,7 @@ class OsManager_Stubbed extends CsapThinTests {
 			logger.info( CsapApplication.testHeader( "verify_network_devices()" ) ) ;
 
 			// CSAP.setLogToDebug( OsManager.class.getName() );
-			ObjectNode hostResourceSummary = getApplication( ).getOsManager( ).networkReceiveAndTransmit( ) ;
+			ObjectNode hostResourceSummary = getOsManager( ).networkReceiveAndTransmit( ) ;
 			// CSAP.setLogToInfo( OsManager.class.getName() );
 			logger.info( CSAP.jsonPrint( hostResourceSummary ) ) ;
 
@@ -224,7 +224,7 @@ class OsManager_Stubbed extends CsapThinTests {
 			logger.info( CsapApplication.testHeader( ) ) ;
 
 			// CSAP.setLogToDebug( OsManager.class.getName() );
-			ObjectNode hostResourceSummary = getApplication( ).getOsManager( ).networkReceiveAndTransmit( ) ;
+			ObjectNode hostResourceSummary = getOsManager( ).networkReceiveAndTransmit( ) ;
 			// CSAP.setLogToInfo( OsManager.class.getName() );
 			logger.info( CSAP.jsonPrint( hostResourceSummary ) ) ;
 
@@ -239,7 +239,7 @@ class OsManager_Stubbed extends CsapThinTests {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			ObjectNode hostResourceSummary = getApplication( ).getOsManager( ).getHostResourceSummary( ) ;
+			ObjectNode hostResourceSummary = getOsManager( ).getHostResourceSummary( ) ;
 
 			logger.info( CSAP.jsonPrint( hostResourceSummary ) ) ;
 
@@ -258,7 +258,7 @@ class OsManager_Stubbed extends CsapThinTests {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			ObjectNode diskActivity = getApplication( ).getOsManager( ).disk_reads_and_writes( ) ;
+			ObjectNode diskActivity = getOsManager( ).disk_reads_and_writes( ) ;
 
 			logger.info( CSAP.jsonPrint( diskActivity ) ) ;
 
@@ -266,7 +266,7 @@ class OsManager_Stubbed extends CsapThinTests {
 					.as( "/totalInMB/reads" )
 					.isEqualTo( 22925 ) ;
 
-			assertThat( getApplication( ).getOsManager( ).diskReport( ).at( "/reads" ).asInt( ) )
+			assertThat( getOsManager( ).diskReport( ).at( "/reads" ).asInt( ) )
 					.as( "/reads" )
 					.isEqualTo( 22925 ) ;
 
@@ -277,7 +277,7 @@ class OsManager_Stubbed extends CsapThinTests {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			ObjectNode diskUtilization = getApplication( ).getOsManager( ).disk_io_utilization( ) ;
+			ObjectNode diskUtilization = getOsManager( ).disk_io_utilization( ) ;
 
 			logger.info( CSAP.jsonPrint( diskUtilization ) ) ;
 
@@ -296,7 +296,7 @@ class OsManager_Stubbed extends CsapThinTests {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			ObjectNode kubernetesJoin = getApplication( ).getOsManager( ).getCachedKubernetesJoin( ) ;
+			ObjectNode kubernetesJoin = getOsManager( ).getCachedKubernetesJoin( ) ;
 
 			logger.info( CSAP.jsonPrint( kubernetesJoin ) ) ;
 
@@ -311,7 +311,7 @@ class OsManager_Stubbed extends CsapThinTests {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			ObjectNode fileSystemInfo = getApplication( ).getOsManager( ).getCachedFileSystemInfo( ) ;
+			ObjectNode fileSystemInfo = getOsManager( ).getCachedFileSystemInfo( ) ;
 
 			logger.debug( "fileSystemInfo: {}", CSAP.jsonPrint( fileSystemInfo ) ) ;
 
@@ -323,7 +323,8 @@ class OsManager_Stubbed extends CsapThinTests {
 					.as( "/opt device sized attribute" )
 					.isEqualTo( "45G" ) ;
 
-			logger.info( "fileSystemInfo: {}", CSAP.jsonPrint( fileSystemInfo ) ) ;
+			logger.info( "fileSystemInfo: {}", CSAP.jsonPrint( fileSystemInfo.path(
+					"/var/lib/kubelet/plugins/kubernetes.io/vsphere-volume/mounts/[CSAP_DS1_NFS] peter" ) ) ) ;
 			assertThat(
 					fileSystemInfo.path(
 							"/var/lib/kubelet/plugins/kubernetes.io/vsphere-volume/mounts/[CSAP_DS1_NFS] peter" )
@@ -347,16 +348,16 @@ class OsManager_Stubbed extends CsapThinTests {
 			// Ensure all pids are loaded: above tcs alter
 			//
 			var servicesOnHost = getApplication( ).getServicesOnHost( ) ;
-			getApplication( ).getOsManager( ).buildDockerPidMapping( ) ;
+			getOsManager( ).buildDockerPidMapping( ) ;
 			processMapper.process_find_all_service_matches(
 					servicesOnHost,
 					getApplication( ).check_for_stub( "", "linux/ps-service-matching.txt" ),
 					diskCollectionResults.toString( ),
-					getApplication( ).getOsManager( ).getDockerContainerProcesses( ) ) ;
+					getOsManager( ).getDockerContainerProcesses( ) ) ;
 
 			ServiceInstance csapTestService = getApplication( ).getServiceInstanceCurrentHost( "k8s-csap-test_0" ) ;
 
-			JsonNode hostStatus = getApplication( ).getOsManager( ).getHostRuntime( ) ;
+			JsonNode hostStatus = getOsManager( ).getHostRuntime( ) ;
 			logger.debug( CSAP.jsonPrint( hostStatus ) ) ;
 
 			JsonNode k8_test_status = hostStatus.at( "/services/" + csapTestService.getServiceName_Port( ) ) ;
@@ -387,7 +388,7 @@ class OsManager_Stubbed extends CsapThinTests {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			ServiceInstance agentService = getApplication( ).getServiceInstanceCurrentHost( CsapCore.AGENT_ID ) ;
+			ServiceInstance agentService = getApplication( ).getServiceInstanceCurrentHost( CsapConstants.AGENT_ID ) ;
 
 			ObjectNode healthReportCollected = getJsonMapper( ).createObjectNode( ) ;
 			SimpleDateFormat timeDayFormat = new SimpleDateFormat( "HH:mm:ss , MMM d" ) ;
@@ -398,7 +399,7 @@ class OsManager_Stubbed extends CsapThinTests {
 					.as( "container count" )
 					.isEqualTo( 1 ) ;
 
-			JsonNode hostStatus = getApplication( ).getOsManager( ).getHostRuntime( ) ;
+			JsonNode hostStatus = getOsManager( ).getHostRuntime( ) ;
 			logger.debug( CSAP.jsonPrint( hostStatus ) ) ;
 
 			JsonNode agentStatus = hostStatus.at( HostKeys.servicesJsonPath( agentService.getServiceName_Port( ) ) ) ;
@@ -428,9 +429,9 @@ class OsManager_Stubbed extends CsapThinTests {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			JsonNode runtimeInformation = getApplication( ).getOsManager( ).getHostRuntime( ) ;
+			JsonNode runtimeInformation = getOsManager( ).getHostRuntime( ) ;
 
-			logger.info( CSAP.jsonPrint( runtimeInformation ) ) ;
+			logger.info( CSAP.jsonPrint( runtimeInformation.at( "/hostStats/cpuCount" ) ) ) ;
 
 			assertThat( runtimeInformation.at( "/hostStats/cpuCount" ).asText( ) )
 					.as( "cpuCount" )
@@ -453,12 +454,12 @@ class OsManager_Stubbed extends CsapThinTests {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			logger.info( "processes: {}", CSAP.jsonPrint( getApplication( ).getOsManager( ).processStatus( ) ) ) ;
+			logger.info( "processes: {}", CSAP.jsonPrint( getOsManager( ).processStatus( ).path( 0 ) ) ) ;
 
-			assertThat( getApplication( ).getOsManager( ).isProcessRunning( ".*wewenot.*" ) )
+			assertThat( getOsManager( ).isProcessRunning( ".*wewenot.*" ) )
 					.isFalse( ) ;
 
-			assertThat( getApplication( ).getOsManager( ).isProcessRunning( ".*dockerd.*" ) )
+			assertThat( getOsManager( ).isProcessRunning( ".*dockerd.*" ) )
 					.isTrue( ) ;
 
 		}
@@ -469,7 +470,7 @@ class OsManager_Stubbed extends CsapThinTests {
 			logger.info( CsapApplication.testHeader( ) ) ;
 
 			var servicesOnHost = getApplication( ).getServicesOnHost( ) ;
-			var processTimer = getApplication( ).metrics( ).startTimer( ) ;
+			var processTimer = getCsapApis( ).metrics( ).startTimer( ) ;
 
 			for ( var i = 1; i < 10; i++ ) {
 
@@ -477,11 +478,11 @@ class OsManager_Stubbed extends CsapThinTests {
 						servicesOnHost,
 						getApplication( ).check_for_stub( "", "linux/ps-service-matching.txt" ),
 						diskCollectionResults.toString( ),
-						getApplication( ).getOsManager( ).getDockerContainerProcesses( ) ) ;
+						getOsManager( ).getDockerContainerProcesses( ) ) ;
 
 			}
 
-			var psProcessNanos = getApplication( ).metrics( ).stopTimer( processTimer, "junitPs" ) ;
+			var psProcessNanos = getCsapApis( ).metrics( ).stopTimer( processTimer, "junitPs" ) ;
 
 			logger.debug( "process summary: {}", processMapper.getLatestProcessSummary( ) ) ;
 
@@ -500,16 +501,16 @@ class OsManager_Stubbed extends CsapThinTests {
 			var modelServiceInstances = new ArrayList<ServiceInstance>( ) ;
 			modelServiceInstances.add( k8TestService ) ;
 
-			getApplication( ).getOsManager( ).buildDockerPidMapping( ) ;
+			getOsManager( ).buildDockerPidMapping( ) ;
 			// CSAP.setLogToDebug( OsProcessMapper.class.getName() );
 
-			var processTimer = getApplication( ).metrics( ).startTimer( ) ;
+			var processTimer = getCsapApis( ).metrics( ).startTimer( ) ;
 			processMapper.process_find_all_service_matches(
 					modelServiceInstances,
 					getApplication( ).check_for_stub( "", "linux/ps-service-matching.txt" ),
 					diskCollectionResults.toString( ),
-					getApplication( ).getOsManager( ).getDockerContainerProcesses( ) ) ;
-			var psProcessNanos = getApplication( ).metrics( ).stopTimer( processTimer, "junitPs" ) ;
+					getOsManager( ).getDockerContainerProcesses( ) ) ;
+			var psProcessNanos = getCsapApis( ).metrics( ).stopTimer( processTimer, "junitPs" ) ;
 			logger.info( "PS Time Taken {}",
 					CSAP.timeUnitPresent( TimeUnit.NANOSECONDS.toMillis( psProcessNanos ) ) ) ;
 
@@ -560,24 +561,24 @@ class OsManager_Stubbed extends CsapThinTests {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			var testService = buildKubernetesMonitor( "test-k8s-csap-reference", DockerJson.containerWildCard
-					.json( ) ) ;
+			var testService = buildKubernetesMonitor( "test-k8s-csap-reference", C7.containerWildCard
+					.val( ) ) ;
 			var modelServiceInstances = new ArrayList<ServiceInstance>( ) ;
 			modelServiceInstances.add( testService ) ;
 
 			var locator = (ObjectNode) testService.getDockerLocator( ) ;
-			locator.put( DockerJson.podNamespace.json( ), "csap-test" ) ;
+			locator.put( C7.podNamespace.val( ), "csap-test" ) ;
 			testService.resetLocatorAndMatching( ) ;
 			logger.info( "locator: {}", locator ) ;
 
-			getApplication( ).getOsManager( ).buildDockerPidMapping( ) ;
+			getOsManager( ).buildDockerPidMapping( ) ;
 
 			// CSAP.setLogToDebug( OsProcessMapper.class.getName() );
 			processMapper.process_find_all_service_matches(
 					modelServiceInstances,
 					getApplication( ).check_for_stub( "", "linux/ps-service-matching.txt" ),
 					diskCollectionResults.toString( ),
-					getApplication( ).getOsManager( ).getDockerContainerProcesses( ) ) ;
+					getOsManager( ).getDockerContainerProcesses( ) ) ;
 
 			var processMatchResults = processMapper.getLatestProcessSummary( ) ;
 			logger.debug( "processMatchResults: {}", processMatchResults ) ;
@@ -652,18 +653,18 @@ class OsManager_Stubbed extends CsapThinTests {
 			modelServiceInstances.add( podProcessMatchService ) ;
 
 			var locator = (ObjectNode) podProcessMatchService.getDockerLocator( ) ;
-			locator.put( DockerJson.podName.json( ), "$$service-name-.*" ) ;
+			locator.put( C7.podName.val( ), "$$service-name-.*" ) ;
 			podProcessMatchService.resetLocatorAndMatching( ) ;
 			logger.info( "locator: {}", locator ) ;
 
-			getApplication( ).getOsManager( ).buildDockerPidMapping( ) ;
+			getOsManager( ).buildDockerPidMapping( ) ;
 
 			// CSAP.setLogToDebug( OsProcessMapper.class.getName() );
 			processMapper.process_find_all_service_matches(
 					modelServiceInstances,
 					getApplication( ).check_for_stub( "", "linux/ps-service-matching.txt" ),
 					diskCollectionResults.toString( ),
-					getApplication( ).getOsManager( ).getDockerContainerProcesses( ) ) ;
+					getOsManager( ).getDockerContainerProcesses( ) ) ;
 
 			var processMatchResults = processMapper.getLatestProcessSummary( ) ;
 			logger.debug( "processMatchResults: {}", processMatchResults ) ;
@@ -686,17 +687,17 @@ class OsManager_Stubbed extends CsapThinTests {
 			// Namespace MISSING
 			//
 
-			locator.put( DockerJson.podNamespace.json( ), "missing-namespace" ) ;
+			locator.put( C7.podNamespace.val( ), "missing-namespace" ) ;
 
 			// reload docker pids
 			podProcessMatchService.resetLocatorAndMatching( ) ;
-			getApplication( ).getOsManager( ).buildDockerPidMapping( ) ;
+			getOsManager( ).buildDockerPidMapping( ) ;
 
 			processMapper.process_find_all_service_matches(
 					modelServiceInstances,
 					getApplication( ).check_for_stub( "", "linux/ps-service-matching.txt" ),
 					diskCollectionResults.toString( ),
-					getApplication( ).getOsManager( ).getDockerContainerProcesses( ) ) ;
+					getOsManager( ).getDockerContainerProcesses( ) ) ;
 
 			matchedPids = getContainerPids( podProcessMatchService ) ;
 			matchedContainerLabels = getContainerLabels( podProcessMatchService ) ;
@@ -714,17 +715,17 @@ class OsManager_Stubbed extends CsapThinTests {
 			// Namespace WITH matching
 			//
 
-			locator.put( DockerJson.podNamespace.json( ), "csap-test" ) ;
+			locator.put( C7.podNamespace.val( ), "csap-test" ) ;
 
 			// reload docker pids
 			podProcessMatchService.resetLocatorAndMatching( ) ;
-			getApplication( ).getOsManager( ).buildDockerPidMapping( ) ;
+			getOsManager( ).buildDockerPidMapping( ) ;
 
 			processMapper.process_find_all_service_matches(
 					modelServiceInstances,
 					getApplication( ).check_for_stub( "", "linux/ps-service-matching.txt" ),
 					diskCollectionResults.toString( ),
-					getApplication( ).getOsManager( ).getDockerContainerProcesses( ) ) ;
+					getOsManager( ).getDockerContainerProcesses( ) ) ;
 
 			matchedPids = getContainerPids( podProcessMatchService ) ;
 			matchedContainerLabels = getContainerLabels( podProcessMatchService ) ;
@@ -758,14 +759,14 @@ class OsManager_Stubbed extends CsapThinTests {
 			var modelServiceInstances = new ArrayList<ServiceInstance>( ) ;
 			modelServiceInstances.add( serviceWithMultiContainers ) ;
 
-			getApplication( ).getOsManager( ).buildDockerPidMapping( ) ;
+			getOsManager( ).buildDockerPidMapping( ) ;
 
 			// CSAP.setLogToDebug( OsProcessMapper.class.getName() );
 			processMapper.process_find_all_service_matches(
 					modelServiceInstances,
 					getApplication( ).check_for_stub( "", "linux/ps-service-matching.txt" ),
 					diskCollectionResults.toString( ),
-					getApplication( ).getOsManager( ).getDockerContainerProcesses( ) ) ;
+					getOsManager( ).getDockerContainerProcesses( ) ) ;
 
 			var processMatchResults = processMapper.getLatestProcessSummary( ) ;
 			logger.debug( "processMatchResults: {}", processMatchResults ) ;
@@ -794,14 +795,14 @@ class OsManager_Stubbed extends CsapThinTests {
 			var modelServiceInstances = new ArrayList<ServiceInstance>( ) ;
 			modelServiceInstances.add( k8ApiService ) ;
 
-			getApplication( ).getOsManager( ).buildDockerPidMapping( ) ;
+			getOsManager( ).buildDockerPidMapping( ) ;
 
 			// CSAP.setLogToDebug( OsProcessMapper.class.getName() );
 			processMapper.process_find_all_service_matches(
 					modelServiceInstances,
 					getApplication( ).check_for_stub( "", "linux/ps-service-matching.txt" ),
 					diskCollectionResults.toString( ),
-					getApplication( ).getOsManager( ).getDockerContainerProcesses( ) ) ;
+					getOsManager( ).getDockerContainerProcesses( ) ) ;
 
 			CSAP.setLogToInfo( OsProcessMapper.class.getName( ) ) ;
 
@@ -866,11 +867,11 @@ class OsManager_Stubbed extends CsapThinTests {
 			//
 			var serviceAttributes = getJsonMapper( ).createObjectNode( ) ;
 			var docker = serviceAttributes.putObject( ServiceAttributes.dockerSettings.json( ) ) ;
-			var locator = docker.putObject( DockerJson.locator.json( ) ) ;
+			var locator = docker.putObject( C7.locator.val( ) ) ;
 
 			if ( StringUtils.isNotEmpty( dockerLocator ) ) {
 
-				locator.put( DockerJson.value.json( ), dockerLocator ) ;
+				locator.put( C7.value.val( ), dockerLocator ) ;
 
 			}
 
@@ -903,16 +904,16 @@ class OsManager_Stubbed extends CsapThinTests {
 			// triggered by removing the locator attribute
 			//
 			var dockerSettings = k8DeployService.getDockerSettings( ) ;
-			dockerSettings.remove( DockerJson.locator.json( ) ) ;
+			dockerSettings.remove( C7.locator.val( ) ) ;
 
-			getApplication( ).getOsManager( ).buildDockerPidMapping( ) ;
+			getOsManager( ).buildDockerPidMapping( ) ;
 
 			// CSAP.setLogToDebug( OsProcessMapper.class.getName() );
 			processMapper.process_find_all_service_matches(
 					modelServiceInstances,
 					getApplication( ).check_for_stub( "", "linux/ps-service-matching.txt" ),
 					diskCollectionResults.toString( ),
-					getApplication( ).getOsManager( ).getDockerContainerProcesses( ) ) ;
+					getOsManager( ).getDockerContainerProcesses( ) ) ;
 
 			var processMatchResults = processMapper.getLatestProcessSummary( ) ;
 			logger.info( "processMatchResults: {}", processMatchResults ) ;
@@ -961,12 +962,12 @@ class OsManager_Stubbed extends CsapThinTests {
 			activemqService.setProcessRuntime( ProcessRuntime.docker.getId( ) ) ;
 			modelServiceInstances.add( activemqService ) ;
 
-			getApplication( ).getOsManager( ).buildDockerPidMapping( ) ;
+			getOsManager( ).buildDockerPidMapping( ) ;
 			processMapper.process_find_all_service_matches(
 					modelServiceInstances,
 					getApplication( ).check_for_stub( "", "linux/ps-service-matching.txt" ),
 					diskCollectionResults.toString( ),
-					getApplication( ).getOsManager( ).getDockerContainerProcesses( ) ) ;
+					getOsManager( ).getDockerContainerProcesses( ) ) ;
 
 			String processMatchResults = processMapper.getLatestProcessSummary( ) ;
 
@@ -992,12 +993,12 @@ class OsManager_Stubbed extends CsapThinTests {
 
 			modelServiceInstances.add( activemqService ) ;
 
-			getApplication( ).getOsManager( ).buildDockerPidMapping( ) ;
+			getOsManager( ).buildDockerPidMapping( ) ;
 			processMapper.process_find_all_service_matches(
 					modelServiceInstances,
 					getApplication( ).check_for_stub( "", "linux/ps-service-matching.txt" ),
 					diskCollectionResults.toString( ),
-					getApplication( ).getOsManager( ).getDockerContainerProcesses( ) ) ;
+					getOsManager( ).getDockerContainerProcesses( ) ) ;
 
 			String processMatchResults = processMapper.getLatestProcessSummary( ) ;
 
@@ -1021,12 +1022,12 @@ class OsManager_Stubbed extends CsapThinTests {
 			csapTestDockerService.setProcessRuntime( ProcessRuntime.docker.getId( ) ) ;
 			modelServiceInstances.add( csapTestDockerService ) ;
 
-			getApplication( ).getOsManager( ).buildDockerPidMapping( ) ;
+			getOsManager( ).buildDockerPidMapping( ) ;
 			processMapper.process_find_all_service_matches(
 					modelServiceInstances,
 					getApplication( ).check_for_stub( "", "linux/ps-service-matching.txt" ),
 					diskCollectionResults.toString( ),
-					getApplication( ).getOsManager( ).getDockerContainerProcesses( ) ) ;
+					getOsManager( ).getDockerContainerProcesses( ) ) ;
 
 			String processMatchResults = processMapper.getLatestProcessSummary( ) ;
 
@@ -1058,7 +1059,7 @@ class OsManager_Stubbed extends CsapThinTests {
 					modelServiceInstances,
 					getApplication( ).check_for_stub( "", "linux/ps-service-matching.txt" ),
 					diskCollectionResults.toString( ),
-					getApplication( ).getOsManager( ).getDockerContainerProcesses( ) ) ;
+					getOsManager( ).getDockerContainerProcesses( ) ) ;
 			// CSAP.setLogToInfo( OsProcessMapper.class.getName() );
 
 			String processMatchResults = processMapper.getLatestProcessSummary( ) ;
@@ -1083,13 +1084,13 @@ class OsManager_Stubbed extends CsapThinTests {
 			nginxService.setProcessRuntime( ProcessRuntime.docker.getId( ) ) ;
 			modelServiceInstances.add( nginxService ) ;
 
-			getApplication( ).getOsManager( ).buildDockerPidMapping( ) ;
+			getOsManager( ).buildDockerPidMapping( ) ;
 
 			processMapper.process_find_all_service_matches(
 					modelServiceInstances,
 					getApplication( ).check_for_stub( "", "linux/ps-service-matching.txt" ),
 					diskCollectionResults.toString( ),
-					getApplication( ).getOsManager( ).getDockerContainerProcesses( ) ) ;
+					getOsManager( ).getDockerContainerProcesses( ) ) ;
 
 			String processMatchResults = processMapper.getLatestProcessSummary( ) ;
 
@@ -1123,7 +1124,7 @@ class OsManager_Stubbed extends CsapThinTests {
 					modelServiceInstances,
 					getApplication( ).check_for_stub( "", "linux/ps-service-matching.txt" ),
 					diskCollectionResults.toString( ),
-					getApplication( ).getOsManager( ).getDockerContainerProcesses( ) ) ;
+					getOsManager( ).getDockerContainerProcesses( ) ) ;
 			// CSAP.setLogToInfo( OsProcessMapper.class.getName() );
 
 			String processMatchResults = processMapper.getLatestProcessSummary( ) ;
@@ -1151,10 +1152,10 @@ class OsManager_Stubbed extends CsapThinTests {
 
 			ServiceInstance agentService = new ServiceInstance( ) ;
 
-			agentService.setName( CsapCore.AGENT_NAME ) ;
+			agentService.setName( CsapConstants.AGENT_NAME ) ;
 			agentService.setPort( "8011" ) ;
 			agentService.setProcessRuntime( ProcessRuntime.springboot.getId( ) ) ;
-			agentService.setProcessFilter( ".*" + CsapCore.AGENT_NAME + ".*" ) ;
+			agentService.setProcessFilter( ".*" + CsapConstants.AGENT_NAME + ".*" ) ;
 			agentService.getDefaultContainer( ).setSocketCount( 99 ) ;
 			modelServiceInstances.add( agentService ) ;
 
@@ -1163,7 +1164,7 @@ class OsManager_Stubbed extends CsapThinTests {
 					modelServiceInstances,
 					getApplication( ).check_for_stub( "", "linux/ps-service-matching.txt" ),
 					diskCollectionResults.toString( ),
-					getApplication( ).getOsManager( ).getDockerContainerProcesses( ) ) ;
+					getOsManager( ).getDockerContainerProcesses( ) ) ;
 			// CSAP.setLogToInfo( OsProcessMapper.class.getName() );
 
 			String processMatchResults = processMapper.getLatestProcessSummary( ) ;
@@ -1172,7 +1173,7 @@ class OsManager_Stubbed extends CsapThinTests {
 
 			assertThat( processMatchResults )
 					.as( OsManager.RECEIVE_MB )
-					.contains( CsapCore.AGENT_NAME + " - pid(s): [10941]" ) ;
+					.contains( CsapConstants.AGENT_NAME + " - pid(s): [10941]" ) ;
 
 			logger.info( "agentService.getRuntime: {}", CSAP.jsonPrint( agentService.buildRuntimeState( ) ) ) ;
 

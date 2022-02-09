@@ -9,8 +9,9 @@ import javax.inject.Inject ;
 
 import org.apache.commons.io.FileUtils ;
 import org.csap.agent.Agent_context_loaded ;
+import org.csap.agent.ApplicationConfiguration ;
+import org.csap.agent.CsapApis ;
 import org.csap.agent.CsapBareTest ;
-import org.csap.agent.CsapCoreService ;
 import org.csap.agent.integrations.MetricsPublisher ;
 import org.csap.agent.integrations.NagiosIntegration ;
 import org.csap.agent.model.Application ;
@@ -30,7 +31,7 @@ import com.fasterxml.jackson.core.JsonProcessingException ;
 import com.fasterxml.jackson.databind.ObjectMapper ;
 import com.fasterxml.jackson.databind.node.ObjectNode ;
 
-@SpringBootTest ( classes = CsapCoreService.class )
+@SpringBootTest ( classes = ApplicationConfiguration.class )
 @ActiveProfiles ( {
 		CsapBareTest.PROFILE_JUNIT, "EclipseJGitTests"
 } )
@@ -46,6 +47,9 @@ public class Metrics_Publish_Test {
 		CsapApplication.initialize( "" ) ;
 
 	}
+
+	@Inject
+	CsapApis csapApis ;
 
 	@Inject
 	Application csapApp ;
@@ -102,7 +106,7 @@ public class Metrics_Publish_Test {
 		// ,
 		// "token": "notUsed"}
 		CSAP.setLogToInfo( MetricsPublisher.class.getName( ) ) ;
-		MetricsPublisher publisher = new MetricsPublisher( csapApp, pubInfoJson ) ;
+		MetricsPublisher publisher = new MetricsPublisher( csapApis, pubInfoJson ) ;
 		publisher.setIntegrationEnabled( true ) ; // Uncomment to hit
 		publisher.publishHealthReport( ) ;
 
@@ -144,7 +148,7 @@ public class Metrics_Publish_Test {
 
 		CSAP.setLogToInfo( MetricsPublisher.class.getName( ) ) ;
 		CSAP.setLogToDebug( NagiosIntegration.class.getName( ) ) ;
-		MetricsPublisher publisher = new MetricsPublisher( csapApp, nagiosDefinition ) ;
+		MetricsPublisher publisher = new MetricsPublisher( csapApis, nagiosDefinition ) ;
 		publisher.setIntegrationEnabled( true ) ;
 		publisher.publishHealthReport( ) ;
 		;

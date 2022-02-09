@@ -23,7 +23,8 @@ import javax.management.remote.JMXServiceURL ;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory ;
 import org.apache.commons.lang3.text.WordUtils ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.ServiceAlertsEnum ;
 import org.csap.agent.model.ServiceInstance ;
@@ -40,17 +41,18 @@ public class JmxCollector {
 
 	ObjectMapper jacksonMapper = new ObjectMapper( ) ;
 
-	Application csapApplication ;
+	CsapApis csapApis ;
 	private ServiceCollector serviceCollector ;
 
 	private JmxCommonCollector javaCommonCollector = new JmxCommonCollector( ) ;
 	private JmxCustomCollector javaCustomCollector ;
 
-	public JmxCollector ( Application csapApp, ServiceCollector serviceCollector ) {
+	public JmxCollector ( CsapApis csapApis, ServiceCollector serviceCollector ) {
 
-		this.csapApplication = csapApp ;
+		this.csapApis = csapApis ;
+
 		this.serviceCollector = serviceCollector ;
-		javaCustomCollector = new JmxCustomCollector( serviceCollector, csapApplication ) ;
+		javaCustomCollector = new JmxCustomCollector( serviceCollector, csapApis ) ;
 
 	}
 
@@ -71,11 +73,11 @@ public class JmxCollector {
 		// Java GC can very occasionally prevent collection
 		// retries are limited to avoid impacting subsequent collections
 		numberOfCollectionAttempts = 0 ;
-		var timer = csapApplication.metrics( ).startTimer( ) ;
+		var timer = csapApis.metrics( ).startTimer( ) ;
 
-		Stream<ServiceInstance> serviceToCollectStream = csapApplication
+		Stream<ServiceInstance> serviceToCollectStream = csapApis.application( )
 				.getActiveProject( )
-				.getServicesOnHost( csapApplication.getCsapHostName( ) ) ;
+				.getServicesOnHost( csapApis.application( ).getCsapHostName( ) ) ;
 
 		numberOfCollectionAttempts = 0 ;
 
@@ -91,7 +93,7 @@ public class JmxCollector {
 
 			if ( failedToCollectInstances.size( ) > 0 ) {
 
-				csapApplication.metrics( ).incrementCounter( "collect-java.connection-retry" ) ;
+				csapApis.metrics( ).incrementCounter( "collect-java.connection-retry" ) ;
 				serviceToCollectStream = failedToCollectInstances.stream( ) ;
 
 				try {
@@ -115,7 +117,7 @@ public class JmxCollector {
 
 		}
 
-		csapApplication.metrics( ).stopTimer( timer, "csap.collect-jmx" ) ;
+		csapApis.metrics( ).stopTimer( timer, "csap.collect-jmx" ) ;
 
 	}
 
@@ -149,7 +151,7 @@ public class JmxCollector {
 		logger.debug( "{} Getting JMX Metrics, isIgnoreCollectionFailure: {}, custom metrics is: {}",
 				serviceNamePort, isIgnoreCollectionFailure, serviceInstance.getServiceMeters( ) ) ;
 
-		var serviceTimer = csapApplication.metrics( ).startTimer( ) ;
+		var serviceTimer = csapApis.metrics( ).startTimer( ) ;
 
 		// default value is 0 - gets updated if service is online
 		ServiceCollectionResults applicationResults = new ServiceCollectionResults( serviceInstance,
@@ -168,7 +170,7 @@ public class JmxCollector {
 		// Only connect to active instances
 		if ( ! serviceInstance.getDefaultContainer( ).isRunning( )
 				&& ! serviceInstance.isRemoteCollection( )
-				&& ! csapApplication.isJunit( ) ) {
+				&& ! csapApis.application( ).isJunit( ) ) {
 
 			logger.debug( "{} is inactive, skipping collection", serviceNamePort ) ;
 			serviceInstance.getDefaultContainer( ).setHealthReportCollected( null ) ;
@@ -177,12 +179,12 @@ public class JmxCollector {
 
 			logger.debug( "{} is active, starting JMX collection ", serviceNamePort ) ;
 
-			// String opHost = csapApplication.getCsapHostName();
+			// String opHost = csapApis.application().getCsapHostName();
 			String jmxHost = "localhost" ;
 
-			if ( csapApplication.isAllowRemoteJmx( ) ) {
+			if ( csapApis.application( ).isAllowRemoteJmx( ) ) {
 
-				jmxHost = csapApplication.getHostFqdn( ) ;
+				jmxHost = csapApis.application( ).getHostFqdn( ) ;
 
 			}
 
@@ -213,7 +215,7 @@ public class JmxCollector {
 
 			}
 
-			long maxJmxCollectionMs = csapApplication
+			long maxJmxCollectionMs = csapApis.application( )
 					.rootProjectEnvSettings( )
 					.getMaxJmxCollectionMs( ) ;
 
@@ -238,7 +240,7 @@ public class JmxCollector {
 				// keepRunning is set to false in junits
 				if ( serviceInstance
 						.getName( )
-						.equals( CsapCore.AGENT_NAME )
+						.equals( CsapConstants.AGENT_NAME )
 						&& serviceCollector.isKeepRunning( ) ) {
 
 					// optimize local collect
@@ -246,7 +248,7 @@ public class JmxCollector {
 
 				} else {
 
-					var connectionTimer = csapApplication.metrics( ).startTimer( ) ;
+					var connectionTimer = csapApis.metrics( ).startTimer( ) ;
 					// connector = JMXConnectorFactory.connect(new
 					// JMXServiceURL(serviceUrl));
 
@@ -259,12 +261,12 @@ public class JmxCollector {
 								"csap"
 						} ;
 
-						if ( csapApplication.getCsapCoreService( ) != null
-								&& csapApplication.getCsapCoreService( ).isJmxAuthentication( ) ) {
+						if ( csapApis.application( ).getCsapCoreService( ) != null
+								&& csapApis.application( ).getCsapCoreService( ).isJmxAuthentication( ) ) {
 
 							credentials = new String[] {
-									csapApplication.getCsapCoreService( ).getJmxUser( ),
-									csapApplication.getCsapCoreService( ).getJmxPass( )
+									csapApis.application( ).getCsapCoreService( ).getJmxUser( ),
+									csapApis.application( ).getCsapCoreService( ).getJmxPass( )
 							} ;
 
 						}
@@ -277,7 +279,7 @@ public class JmxCollector {
 
 					} catch ( Exception connectException ) {
 
-						csapApplication.metrics( ).incrementCounter( "collect-jmx." +
+						csapApis.metrics( ).incrementCounter( "collect-jmx." +
 								serviceInstance.getName( ) + ".connect" + ".failures" ) ;
 
 						logger.warn( "\n *** Failed connecting to: {} using: {}, due to: {}",
@@ -300,7 +302,7 @@ public class JmxCollector {
 
 					} finally {
 
-						csapApplication.metrics( ).stopTimer( connectionTimer, "collect-jmx.connect-" + serviceInstance
+						csapApis.metrics( ).stopTimer( connectionTimer, "collect-jmx.connect-" + serviceInstance
 								.getName( ) ) ;
 
 					}
@@ -325,8 +327,8 @@ public class JmxCollector {
 
 			} catch ( Exception e ) {
 
-				csapApplication.metrics( ).incrementCounter( "csap.collect-jmx.failures" ) ;
-				csapApplication.metrics( ).incrementCounter( "collect-jmx.failures." + serviceInstance.getName( ) ) ;
+				csapApis.metrics( ).incrementCounter( "csap.collect-jmx.failures" ) ;
+				csapApis.metrics( ).incrementCounter( "collect-jmx.failures." + serviceInstance.getName( ) ) ;
 
 				logger.debug( "{} Failed to get jmx data for service", serviceNamePort, e ) ;
 
@@ -408,7 +410,7 @@ public class JmxCollector {
 
 		}
 
-		csapApplication.metrics( ).stopTimer( serviceTimer, "collect-jmx." + serviceInstance.getName( ) ) ;
+		csapApis.metrics( ).stopTimer( serviceTimer, "collect-jmx." + serviceInstance.getName( ) ) ;
 
 		return true ; // results were recorded.
 

@@ -23,6 +23,10 @@ server:
   tomcat:
     # Note: FileRequests.getMaxEdit subtracts 500 for other parameters
     max-http-form-post-size: 8MB
+    
+    
+    threads:
+      max: 300
 #  error:
 #    include-message: always
       

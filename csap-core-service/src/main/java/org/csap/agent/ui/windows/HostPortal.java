@@ -19,17 +19,16 @@ import javax.servlet.http.HttpSession ;
 import org.apache.commons.io.FileUtils ;
 import org.apache.commons.lang3.StringEscapeUtils ;
 import org.apache.commons.lang3.StringUtils ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
-import org.csap.agent.CsapTemplate ;
+import org.csap.agent.ApplicationConfiguration ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.CsapTemplates ;
 import org.csap.agent.container.ContainerIntegration ;
-import org.csap.agent.container.kubernetes.KubernetesJson ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.Application.FileToken ;
 import org.csap.agent.model.ServiceInstance ;
 import org.csap.agent.services.OsManager ;
-import org.csap.agent.ui.explorer.OsExplorer ;
 import org.csap.agent.ui.rest.FileRequests ;
 import org.csap.agent.ui.rest.ServiceRequests ;
 import org.csap.docs.CsapDoc ;
@@ -57,7 +56,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode ;
 import com.fasterxml.jackson.databind.node.ObjectNode ;
 
 @Controller
-@RequestMapping ( CsapCoreService.OS_URL )
+@RequestMapping ( CsapConstants.OS_URL )
 @CsapDoc ( title = "Host and Perfomance Portals; including script execution" , notes = {
 		"Update, Reload and similar operations to manage the running application",
 		"<a class='csap-link' target='_blank' href='https://github.com/csap-platform/csap-core/wiki'>learn more</a>",
@@ -68,18 +67,22 @@ public class HostPortal {
 
 	final Logger logger = LoggerFactory.getLogger( CorePortals.class ) ;
 
-	private static final String _METRICS = "_METRICS_" ;
-
 	@Inject
-	public HostPortal ( Application csapApp, OsManager osManager, CsapEvents csapEventClient ) {
+	public HostPortal (
+			Application csapApp,
+			CsapApis csapApis,
+			OsManager osManager,
+			CsapEvents csapEventClient ) {
 
 		this.csapApp = csapApp ;
+		this.csapApis = csapApis ;
 		this.osManager = osManager ;
 		this.csapEventClient = csapEventClient ;
 
 	}
 
 	Application csapApp ;
+	CsapApis csapApis ;
 	OsManager osManager ;
 
 	@Autowired ( required = false )
@@ -93,7 +96,7 @@ public class HostPortal {
 	ObjectMapper jacksonMapper = new ObjectMapper( ) ;
 
 	final static String COMMAND_URL = "command" ;
-	public final static String COMMAND_SCREEN_URL = CsapCoreService.OS_URL + "/" + COMMAND_URL ;
+	public final static String COMMAND_SCREEN_URL = CsapConstants.OS_URL + "/" + COMMAND_URL ;
 
 	@RequestMapping ( COMMAND_URL )
 	public ModelAndView osCommandExecutor (
@@ -129,7 +132,7 @@ public class HostPortal {
 
 		// modelMap.addAttribute("location", targetFile.getCanonicalPath());
 		modelMap.addAttribute( "location", requestedFileOrFolder.toURI( ).getPath( ) ) ;
-		modelMap.addAttribute( "sameLocation", CsapCore.SAME_LOCATION ) ;
+		modelMap.addAttribute( "sameLocation", CsapConstants.SAME_LOCATION ) ;
 
 		if ( command.equals( "logSearch" )
 				&& fromFolder.startsWith( Application.FileToken.JOURNAL.value ) ) {
@@ -361,7 +364,7 @@ public class HostPortal {
 
 		modelMap.addAttribute( "templateArray", buildTemplates( ) ) ;
 
-		return new ModelAndView( CsapCoreService.OS_URL + "/command-body" ) ;
+		return new ModelAndView( CsapConstants.OS_URL + "/command-body" ) ;
 
 	}
 
@@ -377,7 +380,7 @@ public class HostPortal {
 		throws IOException {
 
 		File varFile = new File( name ) ;
-		File templateFile = new File( CsapTemplate.shell_scripts.getFile( ), varFile.getName( ) ) ;
+		File templateFile = new File( CsapTemplates.shell_scripts.getFile( ), varFile.getName( ) ) ;
 
 		if ( ! templateFile.exists( ) ) {
 
@@ -387,7 +390,7 @@ public class HostPortal {
 
 		if ( ! templateFile.exists( ) ) {
 
-			templateFile = new File( CsapTemplate.kubernetes_yaml.getFile( ), varFile.getName( ) ) ;
+			templateFile = new File( CsapTemplates.kubernetes_yaml.getFile( ), varFile.getName( ) ) ;
 
 		}
 
@@ -409,7 +412,7 @@ public class HostPortal {
 
 		ArrayNode templates = jacksonMapper.createArrayNode( ) ;
 
-		File scriptsFolder = CsapTemplate.shell_scripts.getFile( ) ;
+		File scriptsFolder = CsapTemplates.shell_scripts.getFile( ) ;
 
 		if ( scriptsFolder.exists( ) && scriptsFolder.isDirectory( ) ) {
 
@@ -444,8 +447,8 @@ public class HostPortal {
 
 								if ( desc.length == 2 ) {
 
-									template.put( "command", desc[ 0 ].trim( ) ) ;
-									template.put( "description", desc[ 1 ].trim( ) ) ;
+									template.put( "command", desc[0].trim( ) ) ;
+									template.put( "description", desc[1].trim( ) ) ;
 
 								}
 
@@ -545,59 +548,6 @@ public class HostPortal {
 
 	}
 
-	@GetMapping ( "HostDashboard-eol" )
-	public ModelAndView hostDashboard (
-										@RequestParam ( value = "emptyCache" , required = false ) String emptyCache ,
-										@RequestParam ( value = "clearStats" , required = false ) String clearStats ,
-										@RequestParam ( value = CsapCore.SERVICE_NOPORT_PARAM , required = false ) String serviceParam ,
-										ModelMap modelMap ,
-										HttpSession session ) {
-
-		setCommonAttributes( modelMap, session, "Host Dashboard" ) ;
-
-		if ( emptyCache != null ) {
-
-			osManager.resetAllCaches( ) ;
-
-		}
-
-		if ( clearStats != null ) {
-
-			csapApp.metricManager( ).clearResourceStats( ) ;
-
-		}
-
-		modelMap.addAttribute( "explorerUrl", OsExplorer.EXPLORER_URL ) ;
-
-		modelMap.addAttribute( "activityUrl", csapApp.rootProjectEnvSettings( ).getHostActivityUrl( ) ) ;
-		modelMap.addAttribute( "healthUrl", csapApp.rootProjectEnvSettings( ).getHostHealthUrl( ) ) ;
-
-		modelMap.addAttribute( "vsphereEnabled", csapApp.rootProjectEnvSettings( ).isVsphereConfigured( ) ) ;
-
-		if ( csapApp.isDockerInstalledAndActive( ) ) {
-
-			modelMap.addAttribute( "containerUrl", csapApp.getDockerIntegration( ).getSettings( ).getUrl( ) ) ;
-			modelMap.addAttribute( "dockerRepository", csapApp.getDockerIntegration( ).getSettings( )
-					.getTemplateRepository( ) ) ;
-			modelMap.addAttribute( "referenceImages", csapApp.getDockerUiDefaultImages( ) ) ;
-
-		}
-
-		if ( csapApp.isKubernetesInstalledAndActive( ) ) {
-
-			ServiceInstance kubernetesInstance = csapApp.kubeletInstance( ) ;
-
-			modelMap.addAttribute( "kubernetesApiUrl", kubernetesInstance.getUrl( ).split( "," )[ 0 ] ) ;
-			modelMap.addAttribute( "kubernetesNamespaces", csapApp.getKubernetesIntegration( ).nameSpaces( ) ) ;
-			modelMap.addAttribute( "kubernetesServiceTypes", KubernetesJson.k8TypeList( ) ) ;
-
-		}
-
-		modelMap.addAttribute( "serviceParam", serviceParam ) ;
-		return new ModelAndView( "/os/dashboard" ) ;
-
-	}
-
 	@GetMapping ( "performance" )
 	public String legacyPerformancePortalRedirect ( RedirectAttributes redirectAttributes , HttpServletRequest req ) {
 
@@ -608,7 +558,7 @@ public class HostPortal {
 	}
 
 	@Autowired
-	CsapCoreService agentConfig ;
+	ApplicationConfiguration agentConfig ;
 
 	@Autowired
 	CsapInformation csapInformation ;
@@ -620,7 +570,7 @@ public class HostPortal {
 
 		// log access
 
-		var auditTrail = CsapCoreService.OS_URL + '/' + windowName ;
+		var auditTrail = CsapConstants.OS_URL + '/' + windowName ;
 
 		if ( csapApp.getActiveUsers( ).addTrail( auditTrail ) ) {
 
@@ -655,7 +605,7 @@ public class HostPortal {
 
 		modelMap.addAttribute( "adminGroup", securitySettings.getRoles( ).getAdminGroup( ) ) ;
 
-		session.setAttribute( CsapCore.ROLES, securitySettings.getRoles( ).getAndStoreUserRoles( session ) ) ;
+		session.setAttribute( CsapConstants.ROLES, securitySettings.getRoles( ).getAndStoreUserRoles( session ) ) ;
 
 		modelMap.addAttribute( "csapApp", csapApp ) ;
 

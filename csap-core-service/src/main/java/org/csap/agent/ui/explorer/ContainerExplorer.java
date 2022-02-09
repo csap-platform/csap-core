@@ -5,11 +5,9 @@ import java.util.Optional ;
 import javax.inject.Inject ;
 import javax.servlet.http.HttpServletResponse ;
 
-import org.csap.agent.container.ContainerIntegration ;
-import org.csap.agent.container.DockerJson ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.integrations.CsapEvents ;
-import org.csap.agent.model.Application ;
-import org.csap.agent.services.OsManager ;
 import org.csap.helpers.CSAP ;
 import org.csap.security.config.CsapSecuritySettings ;
 import org.slf4j.Logger ;
@@ -45,18 +43,15 @@ public class ContainerExplorer {
 
 	@Inject
 	public ContainerExplorer (
-			Application csapApp,
-			OsManager osManager,
+			CsapApis csapApis,
 			CsapEvents csapEventClient ) {
 
-		this.csapApp = csapApp ;
-		this.osManager = osManager ;
+		this.csapApis = csapApis ;
 		this.csapEventClient = csapEventClient ;
 
 	}
 
-	Application csapApp ;
-	OsManager osManager ;
+	CsapApis csapApis ;
 
 	@Autowired ( required = false )
 	CsapSecuritySettings securitySettings ;
@@ -67,13 +62,10 @@ public class ContainerExplorer {
 	@Autowired ( required = false )
 	DockerClient dockerClient ;
 
-	@Autowired ( required = false )
-	ContainerIntegration dockerIntegration ;
-
 	@GetMapping ( "/configuration" )
 	public JsonNode dockerConfiguration ( ) {
 
-		if ( ! csapApp.isDockerInstalledAndActive( ) )
+		if ( ! csapApis.isContainerProviderInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		Info info = dockerClient.infoCmd( ).exec( ) ;
@@ -87,9 +79,9 @@ public class ContainerExplorer {
 
 		ArrayNode listing = jacksonMapper.createArrayNode( ) ;
 		ObjectNode item = listing.addObject( ) ;
-		item.put( DockerJson.list_label.json( ), DockerJson.error.json( ) + "Docker not configured" ) ;
+		item.put( C7.list_label.val( ), C7.error.val( ) + "Docker not configured" ) ;
 		item.put( "folder", false ) ;
-		item.put( DockerJson.error.json( ), "Docker not configured" ) ;
+		item.put( C7.error.val( ), "Docker not configured" ) ;
 		return listing ;
 
 	}
@@ -97,15 +89,15 @@ public class ContainerExplorer {
 	@GetMapping ( "/networks" )
 	public JsonNode networks ( ) {
 
-		if ( ! csapApp.isDockerInstalledAndActive( ) )
+		if ( ! csapApis.isContainerProviderInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
-		ArrayNode listing = dockerIntegration.networkList( ) ;
+		ArrayNode listing = csapApis.containerIntegration( ).networkList( ) ;
 
 		if ( listing.size( ) == 0 ) {
 
 			ObjectNode msg = listing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No networks defined" ) ;
+			msg.put( C7.error.val( ), "No networks defined" ) ;
 
 		}
 
@@ -116,15 +108,15 @@ public class ContainerExplorer {
 	@GetMapping ( "/volumes" )
 	public JsonNode volumes ( ) {
 
-		if ( ! csapApp.isDockerInstalledAndActive( ) )
+		if ( ! csapApis.isContainerProviderInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
-		ArrayNode listing = dockerIntegration.volumeList( ) ;
+		ArrayNode listing = csapApis.containerIntegration( ).volumeList( ) ;
 
 		if ( listing.size( ) == 0 ) {
 
 			ObjectNode msg = listing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No volumes defined" ) ;
+			msg.put( C7.error.val( ), "No volumes defined" ) ;
 
 		}
 
@@ -136,10 +128,10 @@ public class ContainerExplorer {
 	public JsonNode imagesList (
 									boolean showFilteredItems ) {
 
-		if ( ! csapApp.isDockerInstalledAndActive( ) )
+		if ( ! csapApis.isContainerProviderInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
-		return dockerIntegration.imageListWithDetails( showFilteredItems ) ;
+		return csapApis.containerIntegration( ).imageListWithDetails( showFilteredItems ) ;
 
 	}
 
@@ -148,7 +140,7 @@ public class ContainerExplorer {
 									String id ,
 									String name ) {
 
-		return dockerIntegration.imageInfo( name ) ;
+		return csapApis.containerIntegration( ).imageInfo( name ) ;
 
 	}
 
@@ -156,7 +148,7 @@ public class ContainerExplorer {
 	public String imagePullProgress (
 										@RequestParam ( defaultValue = "0" ) int offset ) {
 
-		return dockerIntegration.getLastResults( offset ) ;
+		return csapApis.containerIntegration( ).getLastResults( offset ) ;
 
 	}
 
@@ -168,7 +160,7 @@ public class ContainerExplorer {
 
 		issueAudit( "Pulling Image: " + name, null ) ;
 
-		return dockerIntegration.imagePull( name, null, 600, 1 ) ;
+		return csapApis.containerIntegration( ).imagePull( name, null, 600, 1 ) ;
 
 	}
 
@@ -183,7 +175,7 @@ public class ContainerExplorer {
 
 		issueAudit( "Removing Image: " + name, id ) ;
 
-		return dockerIntegration.imageRemove( force, id, name ) ;
+		return csapApis.containerIntegration( ).imageRemove( force, id, name ) ;
 
 	}
 
@@ -197,7 +189,7 @@ public class ContainerExplorer {
 
 		issueAudit( "Cleaning Images older then: " + days + " Days and " + minutes + " minutes", null ) ;
 
-		return osManager.cleanImages( days, minutes ) ;
+		return csapApis.osManager( ).cleanImages( days, minutes ) ;
 
 	}
 
@@ -205,13 +197,13 @@ public class ContainerExplorer {
 	public ArrayNode containersListing ( boolean showFilteredItems )
 		throws Exception {
 
-		if ( ! csapApp.isDockerInstalledAndActive( ) ) {
+		if ( ! csapApis.isContainerProviderInstalledAndActive( ) ) {
 
 			return build_not_configured_listing( ) ;
 
 		}
 
-		return dockerIntegration.containerListing( showFilteredItems ) ;
+		return csapApis.containerIntegration( ).containerListing( showFilteredItems ) ;
 
 	}
 
@@ -234,17 +226,17 @@ public class ContainerExplorer {
 
 		try {
 
-			InspectContainerResponse info = dockerIntegration.containerConfiguration( name ) ;
+			InspectContainerResponse info = csapApis.containerIntegration( ).containerConfiguration( name ) ;
 			return nonNullMapper.convertValue( info, ObjectNode.class ) ;
 
 		} catch ( Exception e ) {
 
 			String reason = CSAP.buildCsapStack( e ) ;
 			logger.warn( "Failed getting info {}, {}", name, reason ) ;
-			result.put( DockerJson.error.json( ), "Docker API Failure: " + e.getClass( ).getName( ) ) ;
+			result.put( C7.error.val( ), "Docker API Failure: " + e.getClass( ).getName( ) ) ;
 			// result.put( DockerJson.errorReason.json(), reason ) ;
 
-			var inspectDetails = dockerIntegration.inspectByCli( name ) ;
+			var inspectDetails = csapApis.containerIntegration( ).inspectByCli( name ) ;
 
 			result.setAll( inspectDetails ) ;
 
@@ -264,18 +256,18 @@ public class ContainerExplorer {
 
 		try {
 
-			InspectContainerResponse info = dockerIntegration.containerConfiguration( name ) ;
+			InspectContainerResponse info = csapApis.containerIntegration( ).containerConfiguration( name ) ;
 
-			String socketInfo = dockerIntegration.dockerOpenSockets( info.getState( ).getPid( ) + "" ) ;
+			String socketInfo = csapApis.containerIntegration( ).dockerOpenSockets( info.getState( ).getPid( ) + "" ) ;
 			result.put( "result", "socket info for pid: " + info.getState( ).getPid( ) ) ;
-			result.put( DockerJson.response_plain_text.json( ), socketInfo ) ;
+			result.put( C7.response_plain_text.val( ), socketInfo ) ;
 
 		} catch ( Exception e ) {
 
 			String reason = CSAP.buildCsapStack( e ) ;
 			logger.warn( "Failed starting {}, {}", name, reason ) ;
-			result.put( DockerJson.error.json( ), "Failed starting: " + name ) ;
-			result.put( DockerJson.errorReason.json( ), reason ) ;
+			result.put( C7.error.val( ), "Failed starting: " + name ) ;
+			result.put( C7.errorReason.val( ), reason ) ;
 
 		}
 
@@ -293,17 +285,17 @@ public class ContainerExplorer {
 
 		try {
 
-			InspectContainerResponse info = dockerIntegration.containerConfiguration( name ) ;
+			InspectContainerResponse info = csapApis.containerIntegration( ).containerConfiguration( name ) ;
 
-			result = osManager.buildProcessReport( info.getState( ).getPid( ) + "", name ) ;
+			result = csapApis.osManager( ).buildProcessReport( info.getState( ).getPid( ) + "", name ) ;
 			result.put( "result", "process tree for pid: " + info.getState( ).getPid( ) ) ;
 
 		} catch ( Exception e ) {
 
 			String reason = CSAP.buildCsapStack( e ) ;
 			logger.warn( "Failed starting {}, {}", name, reason ) ;
-			result.put( DockerJson.error.json( ), "Failed starting: " + name ) ;
-			result.put( DockerJson.errorReason.json( ), reason ) ;
+			result.put( C7.error.val( ), "Failed starting: " + name ) ;
+			result.put( C7.errorReason.val( ), reason ) ;
 
 		}
 
@@ -319,7 +311,7 @@ public class ContainerExplorer {
 										@RequestParam ( defaultValue = "500" ) int numberOfLines )
 		throws Exception {
 
-		dockerIntegration.containerTailStream( id, name, response, numberOfLines ) ;
+		csapApis.containerIntegration( ).containerTailStream( id, name, response, numberOfLines ) ;
 
 	}
 
@@ -331,13 +323,13 @@ public class ContainerExplorer {
 										@RequestParam ( defaultValue = "0" ) int since )
 		throws Exception {
 
-		return dockerIntegration.containerTail( id, name, numberOfLines, since ) ;
+		return csapApis.containerIntegration( ).containerTail( id, name, numberOfLines, since ) ;
 
 	}
 
 	private void issueAudit ( String commandDesc , String details ) {
 
-		csapEventClient.publishUserEvent( "docker",
+		csapEventClient.publishUserEvent( C7.definitionSettings.val( ),
 				securitySettings.getRoles( ).getUserIdFromContext( ),
 				commandDesc, details ) ;
 
@@ -356,17 +348,17 @@ public class ContainerExplorer {
 
 		try {
 
-			result.put( DockerJson.response_plain_text.json( ),
-					dockerIntegration.updateContainerCpuAllow( periodMs, quotaMs,
-							dockerIntegration.findContainerByName( name ).get( ).getId( ) ) ) ;
+			result.put( C7.response_plain_text.val( ),
+					csapApis.containerIntegration( ).updateContainerCpuAllow( periodMs, quotaMs,
+							csapApis.containerIntegration( ).findContainerByName( name ).get( ).getId( ) ) ) ;
 
 		} catch ( Exception e ) {
 
 			String reason = CSAP.buildCsapStack( e ) ;
 			logger.warn( "Failed updating {}, {}", name, reason ) ;
 
-			result.put( DockerJson.error.json( ), "Failed updaing: " + name ) ;
-			result.put( DockerJson.errorReason.json( ), reason ) ;
+			result.put( C7.error.val( ), "Failed updaing: " + name ) ;
+			result.put( C7.errorReason.val( ), reason ) ;
 
 		}
 
@@ -393,7 +385,7 @@ public class ContainerExplorer {
 
 		issueAudit( "creating container: " + name + " from image: " + image, null ) ;
 
-		return dockerIntegration.containerCreate(
+		return csapApis.containerIntegration( ).containerCreate(
 				null, start, image, name,
 				command, entry, workingDirectory,
 				network, restartPolicy, runUser,
@@ -425,7 +417,7 @@ public class ContainerExplorer {
 
 			} else {
 
-				result.put( DockerJson.error.json( ), "Container not found: " + name ) ;
+				result.put( C7.error.val( ), "Container not found: " + name ) ;
 
 			}
 
@@ -440,8 +432,8 @@ public class ContainerExplorer {
 
 			} else {
 
-				result.put( DockerJson.error.json( ), "Failed starting: " + name ) ;
-				result.put( DockerJson.errorReason.json( ), reason ) ;
+				result.put( C7.error.val( ), "Failed starting: " + name ) ;
+				result.put( C7.errorReason.val( ), reason ) ;
 
 			}
 
@@ -457,7 +449,7 @@ public class ContainerExplorer {
 
 		if ( id == null || id.isEmpty( ) ) {
 
-			Optional<Container> matchContainer = dockerIntegration.findContainerByName( name ) ;
+			Optional<Container> matchContainer = csapApis.containerIntegration( ).findContainerByName( name ) ;
 			targetId = matchContainer.get( ).getId( ) ;
 
 		}
@@ -476,7 +468,7 @@ public class ContainerExplorer {
 
 		issueAudit( "starting container: " + name, null ) ;
 
-		return dockerIntegration.containerStop( id, name, kill, stopSeconds ) ;
+		return csapApis.containerIntegration( ).containerStop( id, name, kill, stopSeconds ) ;
 
 	}
 
@@ -488,7 +480,7 @@ public class ContainerExplorer {
 		throws Exception {
 
 		issueAudit( "removeing container: " + name, null ) ;
-		return dockerIntegration.containerRemove( id, name, force ) ;
+		return csapApis.containerIntegration( ).containerRemove( id, name, force ) ;
 
 	}
 }

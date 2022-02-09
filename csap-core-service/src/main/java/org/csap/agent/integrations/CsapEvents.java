@@ -23,11 +23,11 @@ import javax.inject.Inject ;
 import org.apache.commons.lang3.StringUtils ;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory ;
 import org.apache.commons.lang3.text.WordUtils ;
-import org.csap.agent.model.Application ;
+import org.csap.agent.CsapApis ;
 import org.csap.agent.model.EnvironmentSettings ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
-import org.csap.integations.CsapMicroMeter ;
+import org.csap.integations.micrometer.CsapMeterUtilities ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
 import org.springframework.beans.factory.annotation.Autowired ;
@@ -55,7 +55,7 @@ public class CsapEvents {
 	private static int MAX_EVENT_BACKLOG = 2048 ;
 
 	@Autowired
-	CsapMicroMeter.Utilities metricUtilities ;
+	CsapMeterUtilities metricUtilities ;
 
 	volatile BlockingQueue<Runnable> eventPostQueue ;
 
@@ -160,9 +160,9 @@ public class CsapEvents {
 
 			try {
 
-				logger.info( CsapApplication.header( "attempt: " + attempts
+				logger.info( CsapApplication.highlightHeader( "attempt: " + attempts
 						+ " of " + maxAttempts
-						+ " to send to eventsService, events queued: " + getBacklogCount( ) ) ) ;
+						+ " to flush event backlog, remaining: " + getBacklogCount( ) ) ) ;
 
 				Thread.sleep( 1000 ) ;
 
@@ -194,8 +194,8 @@ public class CsapEvents {
 		var attempts = 0 ;
 		var maxAttempts = 40 ;
 
-		while ( ! Application.getInstance( ).isShutdown( )
-				&& ! Application.getInstance( ).isJunit( )
+		while ( ! CsapApis.getInstance( ).isShutdown( )
+				&& ! CsapApis.getInstance( ).application( ).isJunit( )
 				&& ( ++attempts <= 40 ) ) {
 
 			try {
@@ -397,9 +397,9 @@ public class CsapEvents {
 		ObjectNode eventJson = jacksonMapper.createObjectNode( ) ;
 		eventJson.put( "category", category ) ;
 		eventJson.put( "summary", summary ) ;
-		eventJson.put( "lifecycle", Application.getInstance( ).getCsapHostEnvironmentName( ) ) ;
+		eventJson.put( "lifecycle", CsapApis.getInstance( ).application( ).getCsapHostEnvironmentName( ) ) ;
 		eventJson.put( "project", this.projectName ) ;
-		eventJson.put( "host", Application.getInstance( ).getCsapHostName( ) ) ;
+		eventJson.put( "host", CsapApis.getInstance( ).application( ).getCsapHostName( ) ) ;
 
 		ObjectNode createdOn = eventJson.putObject( "createdOn" ) ;
 

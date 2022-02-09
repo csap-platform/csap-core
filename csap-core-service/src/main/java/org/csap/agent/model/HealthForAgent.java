@@ -5,6 +5,7 @@ import java.util.List ;
 import java.util.TreeMap ;
 import java.util.concurrent.atomic.AtomicInteger ;
 
+import org.csap.agent.CsapApis ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
 
@@ -17,12 +18,12 @@ public class HealthForAgent {
 
 	final Logger logger = LoggerFactory.getLogger( getClass( ) ) ;
 
-	Application csapApp ;
+	CsapApis csapApis ;
 	ObjectMapper jacksonMapper ;
 
-	public HealthForAgent ( Application application, ObjectMapper jsonMapper ) {
+	public HealthForAgent ( CsapApis csapApis, ObjectMapper jsonMapper ) {
 
-		this.csapApp = application ;
+		this.csapApis = csapApis ;
 		this.jacksonMapper = jsonMapper ;
 
 	}
@@ -47,16 +48,16 @@ public class HealthForAgent {
 
 		if ( blocking ) {
 
-			csapApp.markServicesForFileSystemScan( false ) ;
-			csapApp.run_application_scan( ) ;
+			csapApis.application( ).markServicesForFileSystemScan( false ) ;
+			csapApis.application( ).run_application_scan( ) ;
 
 		} else {
 
-			csapApp.run_application_scan( ) ;
+			csapApis.application( ).run_application_scan( ) ;
 
 		}
 
-		List<String> unregisteredContainers = csapApp.getOsManager( ).findUnregisteredContainerNames( ) ;
+		List<String> unregisteredContainers = csapApis.osManager( ).findUnregisteredContainerNames( ) ;
 
 		if ( unregisteredContainers.size( ) > 0 ) {
 
@@ -67,9 +68,9 @@ public class HealthForAgent {
 
 		}
 
-		csapApp
+		csapApis.application( )
 				.getActiveProject( )
-				.getServicesWithKubernetesFiltering( csapApp.getCsapHostName( ) )
+				.getServicesWithKubernetesFiltering( csapApis.application( ).getCsapHostName( ) )
 				.filter( service -> {
 
 					return service.getLifecycle( ).startsWith( clusterFilter ) ;
@@ -81,7 +82,8 @@ public class HealthForAgent {
 							.isActive( ) ) ;
 
 					var serviceName = serviceInstance.getName( ) ;
-					var serviceWithConfiguration = csapApp.findServiceByNameOnCurrentHost( serviceName ) ;
+					var serviceWithConfiguration = csapApis.application( ).findServiceByNameOnCurrentHost(
+							serviceName ) ;
 
 					// k8s has multiple containers, everything is 1
 					var numberToAdd = serviceInstance.getContainerStatusList( ).size( ) ;
@@ -104,8 +106,8 @@ public class HealthForAgent {
 
 						serviceTypeMap.put( serviceName, serviceInstance.getServerUiIconType( ) ) ;
 
-						serviceRuntimeMap.put( serviceName, serviceInstance.getUiRuntime( )) ;
-						
+						serviceRuntimeMap.put( serviceName, serviceInstance.getUiRuntime( ) ) ;
+
 						activeServiceReport.put( serviceName, 0 ) ;
 
 					}
@@ -132,10 +134,10 @@ public class HealthForAgent {
 
 				} ) ;
 
-		ObjectNode hostStatusNode = hostMapNode.putObject( csapApp.getCsapHostName( ) ) ;
-		hostStatusNode.put( "serviceTotal", csapApp.getServicesOnHost( ).size( ) ) ;
+		ObjectNode hostStatusNode = hostMapNode.putObject( csapApis.application( ).getCsapHostName( ) ) ;
+		hostStatusNode.put( "serviceTotal", csapApis.application( ).getServicesOnHost( ).size( ) ) ;
 		hostStatusNode.put( "serviceActive", totalServicesActive.get( ) ) ;
-		ObjectNode hostReport = csapApp.healthManager( ).build_host_status_using_cached_data( ) ;
+		ObjectNode hostReport = csapApis.application( ).healthManager( ).build_host_status_using_cached_data( ) ;
 
 		hostStatusNode.set( "vmLoggedIn", hostReport.path( "vmLoggedIn" ) ) ;
 
@@ -147,7 +149,7 @@ public class HealthForAgent {
 
 		hostStatusNode.put( "du", hostReport.path( "du" ).longValue( ) ) ;
 
-		int totalServices = csapApp.getServicesOnHost( ).size( ) ;
+		int totalServices = csapApis.application( ).getServicesOnHost( ).size( ) ;
 		int totalHosts = 1 ;
 
 		summaryJson.put( "totalHostsActive", totalServicesActive.get( ) ) ;

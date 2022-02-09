@@ -8,6 +8,7 @@ import java.time.LocalDateTime ;
 import java.time.format.DateTimeFormatter ;
 
 import org.apache.commons.io.FileUtils ;
+import org.csap.agent.CsapApis ;
 import org.csap.agent.model.Application ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
@@ -82,7 +83,7 @@ public class OutputFileMgr {
 		bufferedWriter = new BufferedWriter( fstream ) ;
 
 		bufferedWriter.write( CsapApplication.header(
-				Application.getInstance( ).getCsapHostName( )
+				CsapApis.getInstance( ).application( ).getCsapHostName( )
 						+ "\t" +
 						LocalDateTime.now( ).format(
 								DateTimeFormatter.ofPattern( "HH:mm:ss \t MMMM d uuuu " ) ) ) ) ;

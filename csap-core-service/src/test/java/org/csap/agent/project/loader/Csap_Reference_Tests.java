@@ -13,9 +13,10 @@ import java.util.List ;
 import java.util.stream.Collectors ;
 
 import org.csap.agent.CsapBareTest ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.api.ApplicationApi ;
 import org.csap.agent.api.ModelApi ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.linux.HostStatusManager ;
 import org.csap.agent.model.Application ;
@@ -71,11 +72,11 @@ class Csap_Reference_Tests extends CsapBareTest {
 		CsapApplication.initialize( Csap_Reference_Tests.class.getSimpleName( ) ) ;
 
 		HostStatusManager testHostStatusManager = new HostStatusManager( "admin/csap-reference-status.json",
-				getApplication( ) ) ;
+				getCsapApis( ) ) ;
 		getApplication( ).setHostStatusManager( testHostStatusManager ) ;
 
 		modelApi = new ModelApi( getApplication( ) ) ;
-		applicationApi = new ApplicationApi( getApplication( ), new CsapEvents( ), null ) ;
+		applicationApi = new ApplicationApi( getCsapApis( ), new CsapEvents( ), null ) ;
 
 		getApplication( ).setAgentRunHome( System.getProperty( "user.home" ) ) ;
 
@@ -407,7 +408,7 @@ class Csap_Reference_Tests extends CsapBareTest {
 
 			assertThat( trends.at( "/1/report" ).asText( ) ).isEqualTo( "application" ) ;
 
-			assertThat( trends.toString( ) ).contains( CsapCore.ADMIN_NAME ).contains( CsapCore.AGENT_NAME ) ;
+			assertThat( trends.toString( ) ).contains( CsapConstants.ADMIN_NAME ).contains( CsapConstants.AGENT_NAME ) ;
 
 			var realTimeMeters = getAppEnv( ).getRealTimeMeters( ) ;
 
@@ -419,7 +420,7 @@ class Csap_Reference_Tests extends CsapBareTest {
 			assertThat( realTimeMeters.at( "/0/" + MetricCategory.divideBy.json( ) ).asText( ) )
 					.isEqualTo( MetricCategory.hostCount.json( ) ) ;
 
-			assertThat( realTimeMeters.toString( ) ).contains( CsapCore.AGENT_NAME ) ;
+			assertThat( realTimeMeters.toString( ) ).contains( CsapConstants.AGENT_NAME ) ;
 
 			logger.info(
 					"Event Service: {}, user: {}, pass: {}, eventUrl: {}, metricsUrl: {}, analyticsUrl: {}, reportUri: {}",
@@ -431,10 +432,11 @@ class Csap_Reference_Tests extends CsapBareTest {
 					getAppEnv( ).getAnalyticsUiUrl( ),
 					getAppEnv( ).getReportUrl( ) ) ;
 
-			assertThat( getAppEnv( ).getEventApiUrl( ) ).isEqualTo( CsapCore.EVENTS_DISABLED + "/api/event" ) ;
+			assertThat( getAppEnv( ).getEventApiUrl( ) ).isEqualTo( CsapConstants.EVENTS_DISABLED + "/api/event" ) ;
 
-			assertThat( getAppEnv( ).getEventMetricsUrl( ) ).isEqualTo( CsapCore.EVENTS_DISABLED + "/api/metrics/" ) ;
-			assertThat( getAppEnv( ).getReportUrl( ) ).isEqualTo( new URI( CsapCore.EVENTS_DISABLED
+			assertThat( getAppEnv( ).getEventMetricsUrl( ) ).isEqualTo( CsapConstants.EVENTS_DISABLED
+					+ "/api/metrics/" ) ;
+			assertThat( getAppEnv( ).getReportUrl( ) ).isEqualTo( new URI( CsapConstants.EVENTS_DISABLED
 					+ "/api/report/" ) ) ;
 			assertThat( getAppEnv( ).getAnalyticsUiUrl( ) )
 					.isEqualTo( "events-disabled/../csap-admin/os/performance" ) ;
@@ -675,13 +677,13 @@ class Csap_Reference_Tests extends CsapBareTest {
 
 			var serviceLabels = getApplication( ).servicePerformanceLabels( ) ;
 
-			var agentLabels = serviceLabels.path( CsapCore.AGENT_NAME ) ;
+			var agentLabels = serviceLabels.path( CsapConstants.AGENT_NAME ) ;
 			logger.info( "agentLabels: {}", CSAP.jsonPrint( agentLabels ) ) ;
 
 			assertThat( agentLabels.isObject( ) ).isTrue( ) ;
 
 			var agentDefinition = getApplication( ).getActiveProject( ).findAndCloneServiceDefinition(
-					CsapCore.AGENT_NAME ) ;
+					CsapConstants.AGENT_NAME ) ;
 			assertThat( agentDefinition.path( Project.DEFINITION_SOURCE ).asText( ) ).isEqualTo( "csap-templates" ) ;
 
 		}
@@ -695,7 +697,7 @@ class Csap_Reference_Tests extends CsapBareTest {
 			logger.info( CsapApplication.testHeader( ) ) ;
 
 			var agentDefinition = getApplication( ).getActiveProject( ).findAndCloneServiceDefinition(
-					CsapCore.AGENT_NAME ) ;
+					CsapConstants.AGENT_NAME ) ;
 			assertThat( agentDefinition.path( Project.DEFINITION_SOURCE ).asText( ) ).isEqualTo( "csap-templates" ) ;
 
 			var agentInstance = getApplication( ).getLocalAgent( ) ;
@@ -708,7 +710,8 @@ class Csap_Reference_Tests extends CsapBareTest {
 			logger.info( "agent description: {}", agentInstance.getDescription( ) ) ;
 			assertThat( agentInstance.getDescription( ) ).isEqualTo( "junit-lifecycle-override" ) ;
 
-			var dockerInstance = getApplication( ).findServiceByNameOnCurrentHost( "docker" ) ;
+			var dockerInstance = getApplication( ).findServiceByNameOnCurrentHost( C7.dockerService
+					.val( ) ) ;
 			assertThat( dockerInstance.getDescription( ) ).isEqualTo( "junit-docker-description-override" ) ;
 
 		}
@@ -741,7 +744,7 @@ class Csap_Reference_Tests extends CsapBareTest {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			var firstAgentUrl = getApplication( ).getActiveProject( ).getServiceInstances( CsapCore.AGENT_NAME )
+			var firstAgentUrl = getApplication( ).getActiveProject( ).getServiceInstances( CsapConstants.AGENT_NAME )
 					.findFirst( ).get( ).getUrl( ) ;
 
 			logger.info( "first agent launch url: {}", firstAgentUrl ) ;
@@ -786,13 +789,14 @@ class Csap_Reference_Tests extends CsapBareTest {
 					.contains( "csap-dev01", "csap-dev20" )
 					.doesNotContain( "csap-stg01" ) ;
 
-			String activeModelAgents = getApplication( ).getActiveProject( ).getServiceInstances( CsapCore.AGENT_NAME )
+			String activeModelAgents = getApplication( ).getActiveProject( ).getServiceInstances(
+					CsapConstants.AGENT_NAME )
 					.map( ServiceInstance::toString )
 					.collect( Collectors.joining( "\n" ) ) ;
 
 			logger.info( "activeModelAgents: {}", activeModelAgents ) ;
 
-			List<String> hosts = getApplication( ).getActiveProject( ).getServiceInstances( CsapCore.AGENT_NAME )
+			List<String> hosts = getApplication( ).getActiveProject( ).getServiceInstances( CsapConstants.AGENT_NAME )
 					.map( ServiceInstance::getHostName )
 					.collect( Collectors.toList( ) ) ;
 
@@ -809,7 +813,8 @@ class Csap_Reference_Tests extends CsapBareTest {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			String activeModelAgents = getApplication( ).getActiveProject( ).getServiceInstances( CsapCore.AGENT_NAME )
+			String activeModelAgents = getApplication( ).getActiveProject( ).getServiceInstances(
+					CsapConstants.AGENT_NAME )
 					.map( ServiceInstance::toString )
 					.collect( Collectors.joining( "\n" ) ) ;
 

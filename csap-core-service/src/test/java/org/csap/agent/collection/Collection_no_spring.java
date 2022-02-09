@@ -3,7 +3,7 @@ package org.csap.agent.collection ;
 import static org.assertj.core.api.Assertions.assertThat ;
 
 import org.csap.agent.Agent_context_loaded ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.CsapThinTests ;
 import org.csap.agent.services.OsManager ;
 import org.csap.agent.stats.HostCollector ;
@@ -40,8 +40,8 @@ public class Collection_no_spring extends CsapThinTests {
 
 		var collectionInterval = 30 ;
 
-		OsSharedResourcesCollector osSharedCollecter = new OsSharedResourcesCollector( getApplication( ),
-				getApplication( ).getOsManager( ), collectionInterval, false ) ;
+		OsSharedResourcesCollector osSharedCollecter = new OsSharedResourcesCollector( getCsapApis( ),
+				collectionInterval, false ) ;
 
 		getApplication( ).metricManager( ).getOsSharedResourceCollectorMap( ).put( collectionInterval,
 				osSharedCollecter ) ;
@@ -51,14 +51,14 @@ public class Collection_no_spring extends CsapThinTests {
 		// shutdown to keep logs reasonable to trace during test.
 		osSharedCollecter.shutdown( ) ;
 
-		var osProcessCollector = new OsProcessCollector( getApplication( ), getOsManager( ), 30, false ) ;
+		var osProcessCollector = new OsProcessCollector( getCsapApis( ), 30, false ) ;
 		osProcessCollector.shutdown( ) ;
 		// var osProcessCollector = getApplication().getOsProcessCollector( -1 ) ;
 		CSAP.setLogToInfo( OsProcessCollector.class.getName( ) ) ;
 		osProcessCollector.testCollection( ) ;
 		CSAP.setLogToInfo( OsProcessCollector.class.getName( ) ) ;
 
-		var serviceCollector = new ServiceCollector( getApplication( ), getApplication( ).getOsManager( ), 30, false ) ;
+		var serviceCollector = new ServiceCollector( getCsapApis( ), 30, false ) ;
 		serviceCollector.shutdown( ) ;
 		serviceCollector.testHttpCollection( 10000 ) ;
 
@@ -70,7 +70,7 @@ public class Collection_no_spring extends CsapThinTests {
 				"diskTest" ) ) ) ;
 
 		CSAP.setLogToDebug( OsManager.class.getName( ) ) ;
-		var realTimeReport = getApplication( ).getOsManager( ).buildRealTimeCollectionReport( ) ;
+		var realTimeReport = getOsManager( ).buildRealTimeCollectionReport( ) ;
 		CSAP.setLogToInfo( OsManager.class.getName( ) ) ;
 
 		logger.info( "realTimeReport: {}", CSAP.jsonPrint( realTimeReport ) ) ;
@@ -84,7 +84,7 @@ public class Collection_no_spring extends CsapThinTests {
 		assertThat(
 				realTimeReport
 						.path( MetricCategory.java.json( ) )
-						.path( JmxCommonEnum.heapUsed + "_" + CsapCore.AGENT_NAME ).asInt( ) )
+						.path( JmxCommonEnum.heapUsed + "_" + CsapConstants.AGENT_NAME ).asInt( ) )
 								.isGreaterThan( 10 ) ;
 
 	}
@@ -95,8 +95,7 @@ public class Collection_no_spring extends CsapThinTests {
 		logger.info( CsapApplication.testHeader( ) ) ;
 
 		// csapApp.shutdown();
-		OsSharedResourcesCollector osSharedCollecter = new OsSharedResourcesCollector( getApplication( ),
-				getApplication( ).getOsManager( ), 30, false ) ;
+		OsSharedResourcesCollector osSharedCollecter = new OsSharedResourcesCollector( getCsapApis( ), 30, false ) ;
 
 		// shutdown to keep logs reasonable to trace during test.
 		osSharedCollecter.shutdown( ) ;
@@ -104,7 +103,8 @@ public class Collection_no_spring extends CsapThinTests {
 		ObjectNode osSharedReport = osSharedCollecter.buildCollectionReport( false, null, HostCollector.SHOW_ALL_DATA,
 				0 ) ;
 
-		logger.info( "osSharedReport titles: {} ", CsapCore.jsonPrint( osSharedReport.at( "/attributes/titles" ) ) ) ;
+		logger.info( "osSharedReport titles: {} ", CsapConstants.jsonPrint( osSharedReport.at(
+				"/attributes/titles" ) ) ) ;
 
 		assertThat( osSharedReport.at( "/attributes/titles/OS_MpStat" ).asText( ) )
 				.as( "/attributes/titles/OS_MpStat" )

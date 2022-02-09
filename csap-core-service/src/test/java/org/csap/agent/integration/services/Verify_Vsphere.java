@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat ;
 import java.io.IOException ;
 
 import org.csap.agent.CsapThinTests ;
-import org.csap.agent.container.DockerJson ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.integrations.Vsphere ;
 import org.csap.agent.ui.explorer.VsphereExplorer ;
 import org.csap.helpers.CSAP ;
@@ -26,10 +26,9 @@ class Verify_Vsphere extends CsapThinTests {
 
 		logger.info( CsapApplication.testHeader( ) ) ;
 
-		vsphere = new Vsphere( getJsonMapper( ), getApplication( ) ) ;
+		vsphere = new Vsphere( getJsonMapper( ), getCsapApis( ) ) ;
 
-		vsphereExplorer = new VsphereExplorer( vsphere, getApplication( ), getApplication( ).getEventClient( ),
-				getJsonMapper( ) ) ;
+		vsphereExplorer = new VsphereExplorer( vsphere, getCsapApis( ), getJsonMapper( ) ) ;
 
 		loadDefaultCsapApplicationDefinition( ) ;
 
@@ -40,13 +39,13 @@ class Verify_Vsphere extends CsapThinTests {
 
 		logger.info( CsapApplication.testHeader( ) ) ;
 
-		var datastoreListCommand = getApplication( ).getOsManager( ).getOsCommands( ).getGovcDatastoreList( ) ;
+		var datastoreListCommand = getCsapApis( ).osManager( ).getOsCommands( ).getGovcDatastoreList( ) ;
 		logger.info( "listCommand: {}", datastoreListCommand ) ;
 
 		assertThat( datastoreListCommand.size( ) )
 				.isEqualTo( 2 ) ;
 
-		var vmListCommand = getApplication( ).getOsManager( ).getOsCommands( ).getGovcVmList( "vm/RNIs/CSAP-DEV_p" ) ;
+		var vmListCommand = getCsapApis( ).osManager( ).getOsCommands( ).getGovcVmList( "vm/RNIs/CSAP-DEV_p" ) ;
 		logger.info( "vmListCommand: {}", vmListCommand ) ;
 
 		assertThat( vmListCommand.size( ) )
@@ -140,7 +139,7 @@ class Verify_Vsphere extends CsapThinTests {
 
 		var addResults = vsphere.datastore_file_add( "CSAP_DS1_NFS", "demo-folder/demo.vmdk", "9M", "thin" ) ;
 
-		logger.info( "addResults: {}", addResults.path( DockerJson.response_plain_text.json( ) ).asText( ) ) ;
+		logger.info( "addResults: {}", addResults.path( C7.response_plain_text.val( ) ).asText( ) ) ;
 
 	}
 
@@ -152,7 +151,7 @@ class Verify_Vsphere extends CsapThinTests {
 
 		var findResults = vsphere.datastore_file_find( "demo-folder/demo.vmdk" ) ;
 
-		logger.info( "findResults: {}", findResults.path( DockerJson.response_plain_text.json( ) ).asText( ) ) ;
+		logger.info( "findResults: {}", findResults.path( C7.response_plain_text.val( ) ).asText( ) ) ;
 
 	}
 
@@ -163,7 +162,7 @@ class Verify_Vsphere extends CsapThinTests {
 
 		var deleteResults = vsphere.datastore_file_delete( "CSAP_DS1_NFS", "demo-folder/demo.vmdk" ) ;
 
-		logger.info( "deleteResults: {}", deleteResults.path( DockerJson.response_plain_text.json( ) ).asText( ) ) ;
+		logger.info( "deleteResults: {}", deleteResults.path( C7.response_plain_text.val( ) ).asText( ) ) ;
 
 	}
 

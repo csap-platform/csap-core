@@ -14,11 +14,11 @@ Configuration:
       name: consoleAppender
       target: SYSTEM_OUT
       PatternLayout:
-#        Pattern: "--- %-11p %-60logger{5.9.~} (%file:%line).%method()   %n%-15date{ABSOLUTE} %-55thread %n%n%message%n---%n%n"
+        Pattern: "--- %-11p %-60logger{5.9.~} (%file:%line).%method()   %n%-15date{ABSOLUTE} %-55thread %n%n%message%n---%n%n"
         # %d is preferred for full output; but for desktop 
         # https://logging.apache.org/log4j/2.x/log4j-core/apidocs/org/apache/logging/log4j/core/pattern/AnsiEscape.html#BG_GREEN
-        disableAnsi: false
-        Pattern: "%highlight{--- %-11p %-60logger{5.9.~} (%file:%line).%method()   %n%-15date{ABSOLUTE} %-55thread %n%message%n---%n%n}{ERROR=bright red bg_white, WARN=bright red, INFO=black, DEBUG=green, TRACE=BRIGHT YELLOW}"
+        #disableAnsi: false
+        #Pattern: "%highlight{--- %-11p %-60logger{5.9.~} (%file:%line).%method()   %n%-15date{ABSOLUTE} [ %thread ] %n%message%n---%n%n}{ERROR=bright red bg_white, WARN=bright red, INFO=black, DEBUG=green, TRACE=BRIGHT YELLOW}"
      
    
         

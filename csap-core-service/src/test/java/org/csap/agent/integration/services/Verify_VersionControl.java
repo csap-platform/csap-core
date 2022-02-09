@@ -19,7 +19,7 @@ import java.util.regex.Pattern ;
 import org.apache.commons.io.FileUtils ;
 import org.apache.commons.lang3.StringUtils ;
 import org.csap.agent.CsapBareTest ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.CsapThinNoProfile ;
 import org.csap.agent.integrations.VersionControl ;
 import org.csap.agent.integrations.VersionControl.ScmProvider ;
@@ -189,7 +189,7 @@ class Verify_VersionControl extends CsapThinNoProfile {
 			logger.info( CsapApplication.TC_HEAD ) ;
 
 			ServiceInstance serviceInstance = getApplication( ).findFirstServiceInstanceInLifecycle(
-					CsapCore.AGENT_NAME ) ;
+					CsapConstants.AGENT_NAME ) ;
 			serviceInstance.setScmLocation( "https://github.com/csap-platform/csap-core.git" ) ;
 			checkOutAndVerifyService( serviceInstance, null ) ;
 
@@ -712,7 +712,7 @@ class Verify_VersionControl extends CsapThinNoProfile {
 			if ( delFolder.exists( ) ) {
 
 				// delete 1st file found
-				File delFile = new File( delFolder, delFolder.list( )[ 0 ] ) ;
+				File delFile = new File( delFolder, delFolder.list( )[0] ) ;
 				FileUtils.deleteQuietly( delFile ) ;
 
 				// filesToDelete.add( delFile ) ;

@@ -1,9 +1,10 @@
-package org.csap.agent ;
+package org.csap.agent.container ;
 
+import org.csap.agent.CsapConstants ;
 import org.csap.helpers.CSAP ;
 import org.springframework.boot.context.properties.ConfigurationProperties ;
 
-@ConfigurationProperties ( CsapCoreService.CONFIGURATION_PREFIX + ".docker" )
+@ConfigurationProperties ( CsapConstants.CONFIGURATION_PREFIX + ".docker" )
 public class ContainerSettings {
 	private String url ;
 
@@ -80,7 +81,7 @@ public class ContainerSettings {
 	public String toString ( ) {
 
 		return CSAP.buildDescription(
-				"DockerSettings",
+				this.getClass( ).getName( ),
 				"enabled", enabled,
 				"url", url,
 				"templateRepository", templateRepository,

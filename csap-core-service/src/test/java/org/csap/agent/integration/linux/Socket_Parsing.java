@@ -12,8 +12,9 @@ import java.util.Arrays ;
 
 import org.apache.commons.io.FileUtils ;
 import org.csap.agent.Agent_context_loaded ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.CsapThinTests ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.linux.OsCommandRunner ;
 import org.csap.agent.linux.ResourceCollector ;
 import org.csap.agent.model.ServiceInstance ;
@@ -51,7 +52,7 @@ public class Socket_Parsing extends CsapThinTests {
 		// csapApplication.setAutoReload( false ) ;
 		//
 		// csapApplication.initialize() ;
-		osCollector = new ResourceCollector( getApplication( ), new OsCommandRunner( 2, 2, "dummy" ) ) ;
+		osCollector = new ResourceCollector( getCsapApis( ), new OsCommandRunner( 2, 2, "dummy" ) ) ;
 
 		assertThat( getApplication( ).loadDefinitionForJunits( false, Agent_context_loaded.SIMPLE_TEST_DEFINITION ) )
 				.as( "No Errors or warnings" )
@@ -65,7 +66,7 @@ public class Socket_Parsing extends CsapThinTests {
 
 		logger.info( CsapApplication.testHeader( ) ) ;
 
-		ServiceInstance agentInstance = getApplication( ).getServiceInstanceCurrentHost( CsapCore.AGENT_ID ) ;
+		ServiceInstance agentInstance = getApplication( ).getServiceInstanceCurrentHost( CsapConstants.AGENT_ID ) ;
 		assertThat( agentInstance.is_springboot_server( ) )
 				.as( "server override" )
 				.isTrue( ) ;
@@ -93,7 +94,7 @@ public class Socket_Parsing extends CsapThinTests {
 		ServiceInstance ingressService = ServiceInstance.buildInstance( getJsonMapper( ), nginxExport ) ;
 
 		var customDef = getJsonMapper( ).createObjectNode( ) ;
-		customDef.set( "docker", nginxExport.path( "dockerSettings" ) ) ;
+		customDef.set( C7.definitionSettings.val( ), nginxExport.path( "dockerSettings" ) ) ;
 		ingressService.parseDefinition( "default", customDef, new StringBuilder( ) ) ;
 
 		assertThat( ingressService.is_docker_server( ) )
@@ -115,7 +116,7 @@ public class Socket_Parsing extends CsapThinTests {
 
 		logger.info( CsapApplication.testHeader( ) ) ;
 
-		ServiceInstance agentInstance = getApplication( ).getServiceInstanceCurrentHost( CsapCore.AGENT_ID ) ;
+		ServiceInstance agentInstance = getApplication( ).getServiceInstanceCurrentHost( CsapConstants.AGENT_ID ) ;
 		assertThat( agentInstance.is_springboot_server( ) )
 				.as( "server override" )
 				.isTrue( ) ;

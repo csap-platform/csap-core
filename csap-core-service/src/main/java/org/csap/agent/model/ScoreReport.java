@@ -2,8 +2,9 @@ package org.csap.agent.model ;
 
 import java.util.concurrent.atomic.AtomicInteger ;
 
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.services.HostKeys ;
 import org.csap.helpers.CSAP ;
 import org.slf4j.Logger ;
@@ -21,7 +22,7 @@ public class ScoreReport {
 	final Logger logger = LoggerFactory.getLogger( getClass( ) ) ;
 
 	ObjectMapper jacksonMapper ;
-	Application application ;
+	CsapApis csapApis ;
 
 	private ObjectNode cachedAgentScoreReport = null ;
 
@@ -36,9 +37,9 @@ public class ScoreReport {
 	static final long CSAPTOOLS_REFRESH = 1000 * 60 * 30 ; // every 30 minutes
 	final static String TOOLS_ID = Application.PERFORMANCE_ID + "remote.csaptools.runtime" ;
 
-	public ScoreReport ( Application application, ObjectMapper jacksonMapper ) {
+	public ScoreReport ( CsapApis csapApis, ObjectMapper jacksonMapper ) {
 
-		this.application = application ;
+		this.csapApis = csapApis ;
 		this.jacksonMapper = jacksonMapper ;
 
 	}
@@ -46,7 +47,7 @@ public class ScoreReport {
 	public String updatePlatformVersionsFromCsapTools (
 														boolean forceUpdate ) {
 
-		if ( ! application.rootProjectEnvSettings( ).isEventPublishEnabled( ) ) {
+		if ( ! csapApis.application( ).rootProjectEnvSettings( ).isEventPublishEnabled( ) ) {
 
 			logger.info( "Stubbing out data for trends - add csap events services" ) ;
 			setMinVersionsUsingDefaults( ) ;
@@ -66,7 +67,7 @@ public class ScoreReport {
 		// factory.setHttpClient(httpClient);
 		// factory.getHttpClient().getConnectionManager().getSchemeRegistry().register(scheme);
 
-		int timeInMs = application.rootProjectEnvSettings( ).getAdminToAgentTimeoutSeconds( )
+		int timeInMs = csapApis.application( ).rootProjectEnvSettings( ).getAdminToAgentTimeoutSeconds( )
 				* Math.toIntExact( CSAP.ONE_SECOND_MS ) ;
 		factory.setConnectTimeout( timeInMs ) ;
 		factory.setReadTimeout( timeInMs ) ;
@@ -79,12 +80,12 @@ public class ScoreReport {
 				.getMessageConverters( )
 				.add( new MappingJackson2HttpMessageConverter( ) ) ;
 
-		String adminRuntimeUrl = application.rootProjectEnvSettings( ).getCsapAnalyticsServerRootUrl( )
-				+ "/" + CsapCore.ADMIN_NAME
-				+ CsapCoreService.API_APPLICATION_URL
+		String adminRuntimeUrl = csapApis.application( ).rootProjectEnvSettings( ).getCsapAnalyticsServerRootUrl( )
+				+ "/" + CsapConstants.ADMIN_NAME
+				+ CsapConstants.API_APPLICATION_URL
 				+ "/scorecard/versions" ;
 
-		var timer = application.metrics( ).startTimer( ) ;
+		var timer = csapApis.metrics( ).startTimer( ) ;
 
 		try {
 
@@ -92,22 +93,23 @@ public class ScoreReport {
 			JsonNode minVersionReport = restTemplate.getForObject( adminRuntimeUrl, ObjectNode.class ) ;
 
 			csagentCachedRelease = minVersionReport.path( "csap" ).asText( "notFound" ) ;
-			dockerCachedRelease = minVersionReport.path( "docker" ).asText( "notFound" ) ;
+			dockerCachedRelease = minVersionReport.path( C7.definitionSettings.val( ) ).asText(
+					"notFound" ) ;
 			kubeletCachedRelease = minVersionReport.path( "kubelet" ).asText( "notFound" ) ;
 
 		} catch ( Exception e ) {
 
-			application.metrics( ).incrementCounter( TOOLS_ID + ".errors" ) ;
+			csapApis.metrics( ).incrementCounter( TOOLS_ID + ".errors" ) ;
 			logger.warn( "Failed getting platform version from:  {}, time out: '{}' seconds {} ",
 					adminRuntimeUrl,
-					application.rootProjectEnvSettings( ).getAdminToAgentTimeoutSeconds( ),
+					csapApis.application( ).rootProjectEnvSettings( ).getAdminToAgentTimeoutSeconds( ),
 					CSAP.buildCsapStack( e ) ) ;
 
 			setMinVersionsUsingDefaults( ) ;
 
 		}
 
-		application.metrics( ).stopTimer( timer, TOOLS_ID ) ;
+		csapApis.metrics( ).stopTimer( timer, TOOLS_ID ) ;
 
 		String result = csagentCachedRelease + ", " + dockerCachedRelease + ", " + kubeletCachedRelease ;
 
@@ -119,9 +121,9 @@ public class ScoreReport {
 
 	private void setMinVersionsUsingDefaults ( ) {
 
-		csagentCachedRelease = application.getCsapCoreService( ).getMinVersionCsap( ) ;
-		dockerCachedRelease = application.getCsapCoreService( ).getMinVersionDocker( ) ;
-		kubeletCachedRelease = application.getCsapCoreService( ).getMinVersionKubelet( ) ;
+		csagentCachedRelease = csapApis.application( ).getCsapCoreService( ).getMinVersionCsap( ) ;
+		dockerCachedRelease = csapApis.application( ).getCsapCoreService( ).getMinVersionDocker( ) ;
+		kubeletCachedRelease = csapApis.application( ).getCsapCoreService( ).getMinVersionKubelet( ) ;
 		linuxCachedRelease = "6" ;
 		jdkCachedRelease = "6" ;
 
@@ -151,9 +153,10 @@ public class ScoreReport {
 
 		ObjectNode hostServiceReports ;
 
-		if ( application.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
-			hostServiceReports = application.getHostStatusManager( ).serviceCollectionReport( null, null, null ) ;
+			hostServiceReports = csapApis.application( ).getHostStatusManager( ).serviceCollectionReport( null, null,
+					null ) ;
 
 		} else {
 
@@ -161,7 +164,7 @@ public class ScoreReport {
 
 			try {
 
-				hostServiceReports.set( application.getCsapHostName( ), application.getOsManager( )
+				hostServiceReports.set( csapApis.application( ).getCsapHostName( ), csapApis.osManager( )
 						.getHostRuntime( ) ) ;
 
 			} catch ( Exception e ) {
@@ -178,7 +181,7 @@ public class ScoreReport {
 
 			var hostReport = hostServiceReports.path( hostName ) ;
 			agentTotal.incrementAndGet( ) ;
-			var jpath = "/services/" + CsapCore.AGENT_ID + "/containers/0/" + ContainerState.DEPLOYED_ARTIFACTS ;
+			var jpath = "/services/" + CsapConstants.AGENT_ID + "/containers/0/" + ContainerState.DEPLOYED_ARTIFACTS ;
 			var hostVersion = hostReport.at( jpath ).asText( ) ;
 
 			var agentVersionCompare = hostVersion.compareTo( csagentCachedRelease ) ;
@@ -220,10 +223,11 @@ public class ScoreReport {
 
 		ObjectNode hostServiceReports ;
 
-		if ( application.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
-			hostServiceReports = application.getHostStatusManager( ).serviceCollectionReport( null, HostKeys.hostStats
-					.json( ), null ) ;
+			hostServiceReports = csapApis.application( ).getHostStatusManager( ).serviceCollectionReport( null,
+					HostKeys.hostStats
+							.json( ), null ) ;
 
 		} else {
 
@@ -231,7 +235,7 @@ public class ScoreReport {
 
 			try {
 
-				hostServiceReports.set( application.getCsapHostName( ), application.getOsManager( )
+				hostServiceReports.set( csapApis.application( ).getCsapHostName( ), csapApis.osManager( )
 						.getHostRuntime( ) ) ;
 
 			} catch ( Exception e ) {

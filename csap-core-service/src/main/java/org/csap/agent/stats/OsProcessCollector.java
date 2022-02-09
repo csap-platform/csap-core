@@ -14,12 +14,11 @@ import java.util.Map ;
 import java.util.concurrent.TimeUnit ;
 import java.util.stream.Collectors ;
 
-import org.csap.agent.model.Application ;
+import org.csap.agent.CsapApis ;
 import org.csap.agent.model.ClusterType ;
 import org.csap.agent.model.ContainerState ;
 import org.csap.agent.model.ProcessRuntime ;
 import org.csap.agent.model.ServiceInstance ;
-import org.csap.agent.services.OsManager ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
 import org.slf4j.Logger ;
@@ -34,17 +33,16 @@ public class OsProcessCollector extends HostCollector implements Runnable {
 
 	final Logger logger = LoggerFactory.getLogger( OsProcessCollector.class ) ;
 
-	public OsProcessCollector ( Application csapApplication,
-			OsManager osManager, int intervalSeconds, boolean publishSummary ) {
+	public OsProcessCollector ( CsapApis csapApis, int intervalSeconds, boolean publishSummary ) {
 
-		super( csapApplication, osManager, intervalSeconds, publishSummary ) ;
+		super( csapApis, intervalSeconds, publishSummary ) ;
 
 		timeStampArray = jacksonMapper.createArrayNode( ) ;
 		totalCpuArray = jacksonMapper.createArrayNode( ) ;
 
 		scheduleCollection( this ) ;
 
-		if ( csapApplication.isDesktopHost( ) ) {
+		if ( csapApis.application( ).isDesktopHost( ) ) {
 
 			cleanStaleServicesMs = TimeUnit.MINUTES.toMillis( 5 ) ;
 
@@ -114,7 +112,7 @@ public class OsProcessCollector extends HostCollector implements Runnable {
 
 		logger.debug( "Getting updated service metrics" ) ;
 
-		var os_metrics = osManager.buildServiceStatsReportAndUpdateTopCpu( true ) ;
+		var os_metrics = csapApis.osManager( ).buildServiceStatsReportAndUpdateTopCpu( true ) ;
 
 		if ( os_metrics != null && os_metrics.has( "ps" ) ) {
 
@@ -125,9 +123,9 @@ public class OsProcessCollector extends HostCollector implements Runnable {
 			try {
 
 				logger.debug( "servicesNode status: \n {}", CSAP.jsonPrint( latestServiceStatistics ) ) ;
-				// totalCpuArray.insert( 0, osManager.getVmTotal() *
+				// totalCpuArray.insert( 0, csapApis.osManager( ).getVmTotal() *
 				// osStats.getAvailableProcessors() );
-				totalCpuArray.insert( 0, osManager.getHostTotalTopCpu( ) ) ;
+				totalCpuArray.insert( 0, csapApis.osManager( ).getHostTotalTopCpu( ) ) ;
 
 			} catch ( Exception e ) {
 
@@ -192,7 +190,7 @@ public class OsProcessCollector extends HostCollector implements Runnable {
 
 		boolean isAggregateContainers = false ;
 
-		var activeService = csapApplication.findServiceByNameOnCurrentHost( serviceName ) ;
+		var activeService = csapApis.application( ).findServiceByNameOnCurrentHost( serviceName ) ;
 
 		if ( activeService != null ) {
 
@@ -440,7 +438,7 @@ public class OsProcessCollector extends HostCollector implements Runnable {
 
 				// full upload. We could make call to event service to see if
 				// they match...for now we do on restarts
-				csapApplication.getEventClient( ).publishEvent( PROCESS_METRICS_EVENT + collectionIntervalSeconds
+				csapApis.events( ).publishEvent( PROCESS_METRICS_EVENT + collectionIntervalSeconds
 						+ "/attributes",
 						"Modified", null,
 						attributeCacheJson ) ;
@@ -453,13 +451,13 @@ public class OsProcessCollector extends HostCollector implements Runnable {
 				processCorrellationAttributes = jacksonMapper.createObjectNode( ) ;
 				processCorrellationAttributes.put( "id", CsapApplication.COLLECTION_OS_PROCESS + "_"
 						+ collectionIntervalSeconds ) ;
-				processCorrellationAttributes.put( "hostName", csapApplication.getCsapHostShortname( ) ) ;
+				processCorrellationAttributes.put( "hostName", csapApis.application( ).getCsapHostShortname( ) ) ;
 
 			}
 
 			// Send normalized data
 			metricSample.set( "attributes", processCorrellationAttributes ) ;
-			csapApplication.getEventClient( ).publishEvent( PROCESS_METRICS_EVENT + collectionIntervalSeconds + "/data",
+			csapApis.events( ).publishEvent( PROCESS_METRICS_EVENT + collectionIntervalSeconds + "/data",
 					"Upload", null,
 					metricSample ) ;
 
@@ -496,7 +494,7 @@ public class OsProcessCollector extends HostCollector implements Runnable {
 										int skipFirstItems ,
 										String... services ) {
 
-		if ( services[ 0 ].toLowerCase( ).equals( ALL_SERVICES ) ) {
+		if ( services[0].toLowerCase( ).equals( ALL_SERVICES ) ) {
 
 			services = service_to_metricsArrays.keySet( ).toArray( new String[0] ) ;
 
@@ -676,7 +674,7 @@ public class OsProcessCollector extends HostCollector implements Runnable {
 
 			//
 			// summary is per HOST: if service is kubernetes - strip of container suffix
-			ServiceInstance serviceInstance = csapApplication.flexFindFirstInstanceCurrentHost( serviceId ) ;
+			ServiceInstance serviceInstance = csapApis.application( ).flexFindFirstInstanceCurrentHost( serviceId ) ;
 
 			if ( serviceInstance == null ) {
 
@@ -795,7 +793,7 @@ public class OsProcessCollector extends HostCollector implements Runnable {
 		attributeJson.put( "metricName", "Service Resources" ) ;
 		attributeJson.put( "description", "Contains service metrics" ) ;
 		attributeJson.put( "timezone", TIME_ZONE_OFFSET ) ;
-		attributeJson.put( "hostName", csapApplication.getCsapHostShortname( ) ) ;
+		attributeJson.put( "hostName", csapApis.application( ).getCsapHostShortname( ) ) ;
 		attributeJson.put( "sampleInterval", collectionIntervalSeconds ) ;
 		attributeJson.put( "samplesRequested", requestedSampleSize ) ;
 		attributeJson.put( "samplesOffset", skipFirstItems ) ;
@@ -836,7 +834,7 @@ public class OsProcessCollector extends HostCollector implements Runnable {
 			// }
 			//
 			// if ( desc.equals( "topCpu" ) ) {
-			// desc = "Cpu_" + csapApplication.getTopInterval() + "s";
+			// desc = "Cpu_" + csapApis.application().getTopInterval() + "s";
 			// }
 
 			ObjectNode resourceGraph = graphsObject.putObject( desc ) ;

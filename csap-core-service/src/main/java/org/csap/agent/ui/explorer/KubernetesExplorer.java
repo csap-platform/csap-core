@@ -12,8 +12,9 @@ import javax.servlet.http.HttpServletResponse ;
 
 import org.apache.commons.io.FileUtils ;
 import org.apache.commons.lang3.StringUtils ;
-import org.csap.agent.CsapTemplate ;
-import org.csap.agent.container.DockerJson ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapTemplates ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.container.kubernetes.KubernetesIntegration ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.model.Application ;
@@ -53,11 +54,13 @@ public class KubernetesExplorer {
 	@Inject
 	public KubernetesExplorer (
 			Application csapApp,
+			CsapApis csapApis,
 			OsManager osManager,
 			CsapEvents csapEventClient,
 			ObjectMapper jsonMapper ) {
 
 		this.csapApp = csapApp ;
+		this.csapApis = csapApis ;
 		this.osManager = osManager ;
 		this.csapEventClient = csapEventClient ;
 		this.jsonMapper = jsonMapper ;
@@ -65,6 +68,7 @@ public class KubernetesExplorer {
 	}
 
 	Application csapApp ;
+	CsapApis csapApis ;
 	OsManager osManager ;
 
 	ObjectMapper jsonMapper ;
@@ -80,7 +84,7 @@ public class KubernetesExplorer {
 	@GetMapping ( "/events" )
 	public JsonNode events ( String namespace , int maxEvents ) {
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		ArrayNode listing = kubernetes.eventListing( namespace, maxEvents ) ;
@@ -88,7 +92,7 @@ public class KubernetesExplorer {
 		if ( listing.size( ) == 0 ) {
 
 			ObjectNode msg = listing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No events found" ) ;
+			msg.put( C7.error.val( ), "No events found" ) ;
 
 		}
 
@@ -99,7 +103,7 @@ public class KubernetesExplorer {
 	@GetMapping ( "/helm" )
 	public JsonNode helmResources ( String namespace ) {
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		var listing = helmResourceListing( namespace ) ;
@@ -126,11 +130,11 @@ public class KubernetesExplorer {
 						var label = helmResource + "," + count + " found" ;
 
 						var apiItem = apis.addObject( ) ;
-						apiItem.put( DockerJson.list_label.json( ), label ) ;
+						apiItem.put( C7.list_label.val( ), label ) ;
 						apiItem.put( "folder", true ) ;
 						apiItem.put( "lazy", true ) ;
 						var attributes = apiItem.putObject( "attributes" ) ;
-						attributes.put( DockerJson.list_folderUrl.json( ), "kubernetes/helm/" + helmResource
+						attributes.put( C7.list_folderUrl.val( ), "kubernetes/helm/" + helmResource
 								.toLowerCase( ) ) ;
 						attributes.put( "path", "/" ) ;
 
@@ -139,7 +143,7 @@ public class KubernetesExplorer {
 		} catch ( Exception e ) {
 
 			ObjectNode msg = apis.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No resources found" ) ;
+			msg.put( C7.error.val( ), "No resources found" ) ;
 
 		}
 
@@ -153,7 +157,7 @@ public class KubernetesExplorer {
 
 		var currentRepos = helmRepositories( ) ;
 
-		if ( ! currentRepos.path( 0 ).has( DockerJson.error.json( ) ) ) {
+		if ( ! currentRepos.path( 0 ).has( C7.error.val( ) ) ) {
 
 			count = currentRepos.size( ) ;
 
@@ -169,7 +173,7 @@ public class KubernetesExplorer {
 
 		var currentRepos = helmReleases( namespace ) ;
 
-		if ( ! currentRepos.path( 0 ).has( DockerJson.error.json( ) ) ) {
+		if ( ! currentRepos.path( 0 ).has( C7.error.val( ) ) ) {
 
 			count = currentRepos.size( ) ;
 
@@ -182,12 +186,12 @@ public class KubernetesExplorer {
 	@GetMapping ( "/helm/repositories" )
 	public JsonNode helmRepositories ( ) {
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		var listing = jsonMapper.createArrayNode( ) ;
 
-		var resultReport = csapApp.getOsManager( ).helmCli( "repo list --output json" ) ;
+		var resultReport = csapApis.osManager( ).helmCli( "repo list --output json" ) ;
 
 		logger.info( CSAP.jsonPrint( resultReport ) ) ;
 
@@ -202,12 +206,12 @@ public class KubernetesExplorer {
 						var repoUrl = releaseReport.path( "url" ).asText( ) ;
 
 						var apiItem = listing.addObject( ) ;
-						apiItem.put( DockerJson.list_label.json( ),
+						apiItem.put( C7.list_label.val( ),
 								repoName + "," + repoUrl ) ;
 						apiItem.put( "folder", true ) ;
 						apiItem.put( "lazy", true ) ;
 						var attributes = apiItem.putObject( "attributes" ) ;
-						attributes.put( DockerJson.list_folderUrl.json( ), "kubernetes/helm/repositories/status/"
+						attributes.put( C7.list_folderUrl.val( ), "kubernetes/helm/repositories/status/"
 								+ repoName ) ;
 						attributes.put( "path", "/" ) ;
 
@@ -223,7 +227,7 @@ public class KubernetesExplorer {
 		if ( listing.size( ) == 0 ) {
 
 			ObjectNode msg = listing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No resources found" ) ;
+			msg.put( C7.error.val( ), "No resources found" ) ;
 
 		}
 
@@ -235,12 +239,12 @@ public class KubernetesExplorer {
 	public JsonNode helmRepositoriesStatus (
 												@PathVariable String repoName ) {
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		var allReposReport = jsonMapper.createObjectNode( ) ;
 
-		var resultReport = csapApp.getOsManager( ).helmCli( "search repo  " + repoName
+		var resultReport = csapApis.osManager( ).helmCli( "search repo  " + repoName
 				+ " --output json" ) ;
 
 		logger.info( CSAP.jsonPrint( resultReport ) ) ;
@@ -274,7 +278,7 @@ public class KubernetesExplorer {
 	@GetMapping ( "/helm/releases" )
 	public JsonNode helmReleases ( String namespace ) {
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		var listing = jsonMapper.createArrayNode( ) ;
@@ -287,7 +291,7 @@ public class KubernetesExplorer {
 
 		}
 
-		var resultReport = csapApp.getOsManager( ).helmCli( "list " + namespaceFilter + " --output json" ) ;
+		var resultReport = csapApis.osManager( ).helmCli( "list " + namespaceFilter + " --output json" ) ;
 		logger.info( CSAP.jsonPrint( resultReport ) ) ;
 
 		var report = resultReport.path( "result" ) ;
@@ -301,13 +305,13 @@ public class KubernetesExplorer {
 						var chartNamespace = releaseReport.path( "namespace" ).asText( ) ;
 
 						var apiItem = listing.addObject( ) ;
-						apiItem.put( DockerJson.list_label.json( ),
+						apiItem.put( C7.list_label.val( ),
 								chartName + ", chart: " + releaseReport.path( "chart" ).asText( )
 										+ "  " + chartNamespace ) ;
 						apiItem.put( "folder", true ) ;
 						apiItem.put( "lazy", true ) ;
 						var attributes = apiItem.putObject( "attributes" ) ;
-						attributes.put( DockerJson.list_folderUrl.json( ), "kubernetes/helm/release/status/"
+						attributes.put( C7.list_folderUrl.val( ), "kubernetes/helm/release/status/"
 								+ chartNamespace
 								+ "/" + chartName ) ;
 						attributes.put( "path", "/" ) ;
@@ -324,7 +328,7 @@ public class KubernetesExplorer {
 		if ( listing.size( ) == 0 ) {
 
 			ObjectNode msg = listing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No resources found" ) ;
+			msg.put( C7.error.val( ), "No resources found" ) ;
 
 		}
 
@@ -337,7 +341,7 @@ public class KubernetesExplorer {
 										@PathVariable String namespace ,
 										@PathVariable String releaseName ) {
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		var statusReport = jsonMapper.createObjectNode( ) ;
@@ -350,7 +354,7 @@ public class KubernetesExplorer {
 
 		}
 
-		var resultReport = csapApp.getOsManager( ).helmCli( "status " + namespaceFilter + " " + releaseName
+		var resultReport = csapApis.osManager( ).helmCli( "status " + namespaceFilter + " " + releaseName
 				+ " --output json" ) ;
 		logger.info( CSAP.jsonPrint( resultReport ) ) ;
 
@@ -375,7 +379,7 @@ public class KubernetesExplorer {
 	@GetMapping ( "/api/providers" )
 	public JsonNode apiProviders ( ) {
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		ArrayNode listing = kubernetes.apiProviders( ) ;
@@ -383,7 +387,7 @@ public class KubernetesExplorer {
 		if ( listing.size( ) == 0 ) {
 
 			ObjectNode msg = listing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No providers found" ) ;
+			msg.put( C7.error.val( ), "No providers found" ) ;
 
 		}
 
@@ -394,7 +398,7 @@ public class KubernetesExplorer {
 	@GetMapping ( "/api/provider/resources" )
 	public JsonNode apiProviderResources ( String path ) {
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		ArrayNode listing = kubernetes.apiProviderResourceTypes_listing( path ) ;
@@ -402,7 +406,7 @@ public class KubernetesExplorer {
 		if ( listing.size( ) == 0 ) {
 
 			ObjectNode msg = listing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No resources types" ) ;
+			msg.put( C7.error.val( ), "No resources types" ) ;
 
 		}
 
@@ -413,7 +417,7 @@ public class KubernetesExplorer {
 	@GetMapping ( "/api/secrets" )
 	public JsonNode apiSecrets ( String namespace ) {
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		ArrayNode listing = kubernetes.listingsBuilder( ).secretListing( namespace ) ;
@@ -421,7 +425,7 @@ public class KubernetesExplorer {
 		if ( listing.size( ) == 0 ) {
 
 			ObjectNode msg = listing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No secrets" ) ;
+			msg.put( C7.error.val( ), "No secrets" ) ;
 
 		}
 
@@ -432,7 +436,7 @@ public class KubernetesExplorer {
 	@GetMapping ( "/api/resource" )
 	public JsonNode apiResource ( String path , String namespace ) {
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		var namespaceTarget = "" ;
@@ -452,7 +456,7 @@ public class KubernetesExplorer {
 		if ( listing.size( ) == 0 ) {
 
 			ObjectNode msg = listing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No resources types" ) ;
+			msg.put( C7.error.val( ), "No resources types" ) ;
 
 		}
 
@@ -463,7 +467,7 @@ public class KubernetesExplorer {
 	@GetMapping ( "/api/resources" )
 	public JsonNode apiResources ( String path ) {
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		ArrayNode listing = kubernetes.apiResourceType_listing( true ) ;
@@ -471,7 +475,7 @@ public class KubernetesExplorer {
 		if ( listing.size( ) == 0 ) {
 
 			ObjectNode msg = listing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No resource types found" ) ;
+			msg.put( C7.error.val( ), "No resource types found" ) ;
 
 		}
 
@@ -482,7 +486,7 @@ public class KubernetesExplorer {
 	@GetMapping ( "/configMaps" )
 	public JsonNode configMaps ( String namespace ) {
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		ArrayNode listing = kubernetes.listingsBuilder( ).configMapListing( namespace ) ;
@@ -490,7 +494,7 @@ public class KubernetesExplorer {
 		if ( listing.size( ) == 0 ) {
 
 			ObjectNode msg = listing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No config maps deployed" ) ;
+			msg.put( C7.error.val( ), "No config maps deployed" ) ;
 
 		}
 
@@ -501,7 +505,7 @@ public class KubernetesExplorer {
 	@GetMapping ( "/pods" )
 	public JsonNode pods ( String namespace , String podName ) {
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		ArrayNode listing = kubernetes.listingsBuilder( ).podCsapListing( namespace, podName ) ;
@@ -509,7 +513,7 @@ public class KubernetesExplorer {
 		if ( listing.size( ) == 0 ) {
 
 			ObjectNode msg = listing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No pods deployed" ) ;
+			msg.put( C7.error.val( ), "No pods deployed" ) ;
 
 		}
 
@@ -565,7 +569,7 @@ public class KubernetesExplorer {
 	@GetMapping ( "/configuration" )
 	public JsonNode configuration ( String namespace ) {
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		ArrayNode listing = kubernetes.buildSystemSummaryListing( namespace ) ;
@@ -573,7 +577,7 @@ public class KubernetesExplorer {
 		if ( listing.size( ) == 0 ) {
 
 			ObjectNode msg = listing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No volumes defined" ) ;
+			msg.put( C7.error.val( ), "No volumes defined" ) ;
 
 		}
 
@@ -585,9 +589,9 @@ public class KubernetesExplorer {
 
 		ArrayNode listing = jsonMapper.createArrayNode( ) ;
 		ObjectNode item = listing.addObject( ) ;
-		item.put( DockerJson.list_label.json( ), DockerJson.error.json( ) + "Kubernetes not configured" ) ;
+		item.put( C7.list_label.val( ), C7.error.val( ) + "Kubernetes not configured" ) ;
 		item.put( "folder", false ) ;
-		item.put( DockerJson.error.json( ), "Kubernetes not configured" ) ;
+		item.put( C7.error.val( ), "Kubernetes not configured" ) ;
 		return listing ;
 
 	}
@@ -604,7 +608,7 @@ public class KubernetesExplorer {
 	public String template_load ( @PathVariable String name )
 		throws IOException {
 
-		File scriptsFolder = CsapTemplate.kubernetes_yaml.getFile( ) ;
+		File scriptsFolder = CsapTemplates.kubernetes_yaml.getFile( ) ;
 		File script = new File( scriptsFolder, name ) ;
 		logger.info( "reading: {}", script.getCanonicalPath( ) ) ;
 		return FileUtils.readFileToString( script ) ;
@@ -667,7 +671,7 @@ public class KubernetesExplorer {
 
 		String command = "create --save-config -f " + yamlFile.getAbsolutePath( ) ;
 
-		return osManager.kubernetesCli( command, DockerJson.response_shell ) ;
+		return osManager.kubernetesCli( command, C7.response_shell ) ;
 
 	}
 
@@ -685,7 +689,7 @@ public class KubernetesExplorer {
 
 		String command = "apply -f " + yamlFile.getAbsolutePath( ) ;
 
-		return osManager.kubernetesCli( command, DockerJson.response_shell ) ;
+		return osManager.kubernetesCli( command, C7.response_shell ) ;
 
 	}
 
@@ -720,7 +724,7 @@ public class KubernetesExplorer {
 
 		}
 
-		return osManager.kubernetesCli( command, DockerJson.response_shell ) ;
+		return osManager.kubernetesCli( command, C7.response_shell ) ;
 
 	}
 
@@ -756,7 +760,7 @@ public class KubernetesExplorer {
 
 				logger.info( "hitting: {}, hosts: {}, urlVariables: {} ", url, hosts, urlVariables ) ;
 
-				JsonNode remoteCall = csapApp.getOsManager( ).getServiceManager( ).remoteAgentsGet(
+				JsonNode remoteCall = csapApis.osManager( ).getServiceManager( ).remoteAgentsGet(
 						hosts,
 						url,
 						urlVariables ) ;
@@ -776,7 +780,7 @@ public class KubernetesExplorer {
 
 		issueAudit( "kubectl cli: " + resourcePath, command ) ;
 
-		return osManager.kubernetesCli( command, DockerJson.response_yaml ) ;
+		return osManager.kubernetesCli( command, C7.response_yaml ) ;
 		// kubectl get -o=yaml deployment.extensions/peter
 		// or kubectl run my-cool-app —-image=me/my-cool-app:v1 -o yaml --dry-run >
 		// my-cool-app.yaml
@@ -798,7 +802,7 @@ public class KubernetesExplorer {
 
 		issueAudit( "kubectl - get " + type, command ) ;
 
-		return osManager.kubernetesCli( command, DockerJson.response_yaml ) ;
+		return osManager.kubernetesCli( command, C7.response_yaml ) ;
 		// kubectl get -o=yaml deployment.extensions/peter
 		// or kubectl run my-cool-app —-image=me/my-cool-app:v1 -o yaml --dry-run >
 		// my-cool-app.yaml
@@ -815,7 +819,7 @@ public class KubernetesExplorer {
 
 		String command = "describe pods " + pod + " --namespace=" + namespace ;
 
-		return osManager.kubernetesCli( command, DockerJson.response_yaml ) ;
+		return osManager.kubernetesCli( command, C7.response_yaml ) ;
 
 	}
 
@@ -829,7 +833,7 @@ public class KubernetesExplorer {
 
 		String command = "describe deployments " + deploy + " --namespace=" + namespace ;
 
-		return osManager.kubernetesCli( command, DockerJson.response_yaml ) ;
+		return osManager.kubernetesCli( command, C7.response_yaml ) ;
 
 	}
 
@@ -842,14 +846,14 @@ public class KubernetesExplorer {
 
 		String command = "describe node " + node ;
 
-		return osManager.kubernetesCli( command, DockerJson.response_yaml ) ;
+		return osManager.kubernetesCli( command, C7.response_yaml ) ;
 
 	}
 
 	@GetMapping ( "/endpoints" )
 	public JsonNode endpoint_list ( String namespace ) {
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		ArrayNode listing = kubernetes.listingsBuilder( ).endpointListing( namespace ) ;
@@ -857,7 +861,7 @@ public class KubernetesExplorer {
 		if ( listing.size( ) == 0 ) {
 
 			ObjectNode msg = listing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No Endpoints" ) ;
+			msg.put( C7.error.val( ), "No Endpoints" ) ;
 
 		}
 
@@ -868,7 +872,7 @@ public class KubernetesExplorer {
 	@GetMapping ( "/daemonSets" )
 	public JsonNode daemonSetList ( String namespace ) {
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		ArrayNode listing = kubernetes.listingsBuilder( ).daemonSetListing( namespace ) ;
@@ -876,7 +880,7 @@ public class KubernetesExplorer {
 		if ( listing.size( ) == 0 ) {
 
 			ObjectNode msg = listing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No Daemon Sets" ) ;
+			msg.put( C7.error.val( ), "No Daemon Sets" ) ;
 
 		}
 
@@ -899,7 +903,7 @@ public class KubernetesExplorer {
 	@GetMapping ( "/statefulSets" )
 	public JsonNode statefulSetList ( String namespace ) {
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		ArrayNode listing = kubernetes.listingsBuilder( ).statefulSetListing( namespace ) ;
@@ -907,7 +911,7 @@ public class KubernetesExplorer {
 		if ( listing.size( ) == 0 ) {
 
 			ObjectNode msg = listing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No Stateful Sets" ) ;
+			msg.put( C7.error.val( ), "No Stateful Sets" ) ;
 
 		}
 
@@ -930,7 +934,7 @@ public class KubernetesExplorer {
 	@GetMapping ( "/deployments" )
 	public JsonNode deploymentsList ( String namespace ) {
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		ArrayNode listing = kubernetes.listingsBuilder( ).deploymentListing( namespace ) ;
@@ -938,7 +942,7 @@ public class KubernetesExplorer {
 		if ( listing.size( ) == 0 ) {
 
 			ObjectNode msg = listing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No deployments" ) ;
+			msg.put( C7.error.val( ), "No deployments" ) ;
 
 		}
 
@@ -1037,7 +1041,7 @@ public class KubernetesExplorer {
 	@GetMapping ( "/persistent-volume-claims" )
 	public JsonNode volumeClaims_get ( String namespace ) {
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		ArrayNode listing = kubernetes.listingsBuilder( ).persistentVolumeClaimListing( namespace ) ;
@@ -1045,7 +1049,7 @@ public class KubernetesExplorer {
 		if ( listing.size( ) == 0 ) {
 
 			ObjectNode msg = listing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No claims found deployed" ) ;
+			msg.put( C7.error.val( ), "No claims found deployed" ) ;
 
 		}
 
@@ -1056,7 +1060,7 @@ public class KubernetesExplorer {
 	@GetMapping ( "/jobs" )
 	public JsonNode jobs_get ( String namespace ) {
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		ArrayNode listing = kubernetes.listingsBuilder( ).jobAndCronJobListing( namespace ) ;
@@ -1064,7 +1068,7 @@ public class KubernetesExplorer {
 		if ( listing.size( ) == 0 ) {
 
 			ObjectNode msg = listing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No services deployed" ) ;
+			msg.put( C7.error.val( ), "No services deployed" ) ;
 
 		}
 
@@ -1075,7 +1079,7 @@ public class KubernetesExplorer {
 	@GetMapping ( "/services" )
 	public JsonNode services_get ( String namespace ) {
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		ArrayNode listing = kubernetes.listingsBuilder( ).serviceAndIngressListing( namespace ) ;
@@ -1083,7 +1087,7 @@ public class KubernetesExplorer {
 		if ( listing.size( ) == 0 ) {
 
 			ObjectNode msg = listing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No services deployed" ) ;
+			msg.put( C7.error.val( ), "No services deployed" ) ;
 
 		}
 
@@ -1138,7 +1142,7 @@ public class KubernetesExplorer {
 	@GetMapping ( "/replicaSets" )
 	public JsonNode replicaSets ( String namespace ) {
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) )
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) )
 			return build_not_configured_listing( ) ;
 
 		ArrayNode listing = kubernetes.listingsBuilder( ).replicaSetListing( namespace ) ;
@@ -1146,7 +1150,7 @@ public class KubernetesExplorer {
 		if ( listing.size( ) == 0 ) {
 
 			ObjectNode msg = listing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No replicas" ) ;
+			msg.put( C7.error.val( ), "No replicas" ) ;
 
 		}
 

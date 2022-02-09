@@ -1,8 +1,6 @@
 package org.csap.agent ;
 
 import static org.assertj.core.api.Assertions.assertThat ;
-import static org.mockito.Mockito.doReturn ;
-import static org.mockito.Mockito.mock ;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user ;
 
 import java.lang.annotation.ElementType ;
@@ -18,8 +16,6 @@ import org.csap.agent.services.OsManager ;
 import org.csap.agent.services.ServiceOsManager ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
-import org.csap.integations.CsapWebServerConfig ;
-import org.csap.integations.CsapWebSettings ;
 import org.csap.security.config.CsapSecurityRoles ;
 import org.junit.jupiter.api.BeforeAll ;
 import org.junit.jupiter.api.TestInstance ;
@@ -61,7 +57,7 @@ public abstract class CsapBareTest {
 
 	@Target ( ElementType.TYPE )
 	@Retention ( RetentionPolicy.RUNTIME )
-	@SpringBootTest ( classes = CsapCoreService.class )
+	@SpringBootTest ( classes = ApplicationConfiguration.class )
 	@TestInstance ( TestInstance.Lifecycle.PER_CLASS )
 	@ActiveProfiles ( {
 			"agent", PROFILE_JUNIT
@@ -71,7 +67,7 @@ public abstract class CsapBareTest {
 
 	@Target ( ElementType.TYPE )
 	@Retention ( RetentionPolicy.RUNTIME )
-	@SpringBootTest ( classes = CsapCoreService.class )
+	@SpringBootTest ( classes = ApplicationConfiguration.class )
 	@TestInstance ( TestInstance.Lifecycle.PER_CLASS )
 	@ActiveProfiles ( {
 			"admin", PROFILE_JUNIT
@@ -107,20 +103,20 @@ public abstract class CsapBareTest {
 		//
 		// Mock disable the ssl configuration
 		//
-		CsapWebServerConfig webServer = mock( CsapWebServerConfig.class ) ;
-		CsapWebSettings webSettings = mock( CsapWebSettings.class ) ;
-		CsapWebSettings.SslSettings sslSettings = mock( CsapWebSettings.SslSettings.class ) ;
-
-		application.getCsapCoreService( ).setCsapWebServer( webServer ) ;
-
-		doReturn( webSettings ).when( webServer ).getSettings( ) ;
-		doReturn( false ).when( webServer ).isSslClient( ) ;
-
-		doReturn( sslSettings ).when( webSettings ).getSsl( ) ;
-
-		doReturn( false ).when( sslSettings ).isEnabled( ) ;
-
-		doReturn( false ).when( sslSettings ).isSelfSigned( ) ;
+//		CsapWebServerConfig webServer = mock( CsapWebServerConfig.class ) ;
+//		CsapWebSettings webSettings = mock( CsapWebSettings.class ) ;
+//		CsapWebSettings.SslSettings sslSettings = mock( CsapWebSettings.SslSettings.class ) ;
+//
+//		application.getCsapCoreService( ).setCsapWebServer( webServer ) ;
+//
+//		doReturn( webSettings ).when( webServer ).getSettings( ) ;
+//		doReturn( false ).when( webServer ).isSslClient( ) ;
+//
+//		doReturn( sslSettings ).when( webSettings ).getSsl( ) ;
+//
+//		doReturn( false ).when( sslSettings ).isEnabled( ) ;
+//
+//		doReturn( false ).when( sslSettings ).isSelfSigned( ) ;
 
 		// when( webServer.getSettings( ) ).thenReturn( webSettings ) ;
 //		when( webServer.isSslClient( ) ).thenReturn( false ) ;
@@ -138,15 +134,21 @@ public abstract class CsapBareTest {
 
 	}
 
+	public CsapApis getCsapApis ( ) {
+
+		return CsapApis.getInstance( ) ;
+
+	}
+
 	public OsManager getOsManager ( ) {
 
-		return getApplication( ).getOsManager( ) ;
+		return getCsapApis( ).osManager( ) ;
 
 	}
 
 	public ServiceOsManager getServiceOsManager ( ) {
 
-		return getApplication( ).getOsManager( ).getServiceManager( ) ;
+		return getOsManager( ).getServiceManager( ) ;
 
 	}
 

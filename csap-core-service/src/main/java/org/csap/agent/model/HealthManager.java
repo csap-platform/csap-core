@@ -18,7 +18,9 @@ import java.util.stream.Collectors ;
 import java.util.stream.Stream ;
 
 import org.apache.commons.lang3.StringUtils ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.integrations.MetricsPublisher ;
 import org.csap.agent.linux.OutputFileMgr ;
@@ -42,7 +44,7 @@ public class HealthManager {
 	public static final String HEALTH_DETAILS = "details" ;
 	public static final String RUNAWAY_KILL = "/runaway/kill/" ;
 
-	Application application ;
+	CsapApis csapApis ;
 	ObjectMapper jsonMapper ;
 	HealthForAdmin healthForAdmin ;
 	HealthForAgent healthForAgent ;
@@ -50,13 +52,15 @@ public class HealthManager {
 	final com.sun.management.OperatingSystemMXBean osStats = (com.sun.management.OperatingSystemMXBean) ManagementFactory
 			.getOperatingSystemMXBean( ) ;
 
-	public HealthManager ( Application application, ObjectMapper jsonMapper ) {
+	public HealthManager (
+			CsapApis csapApis,
+			ObjectMapper jsonMapper ) {
 
-		this.application = application ;
+		this.csapApis = csapApis ;
 		this.jsonMapper = jsonMapper ;
 
-		healthForAdmin = new HealthForAdmin( application, jsonMapper ) ;
-		healthForAgent = new HealthForAgent( application, jsonMapper ) ;
+		healthForAdmin = new HealthForAdmin( csapApis, jsonMapper ) ;
+		healthForAgent = new HealthForAgent( csapApis, jsonMapper ) ;
 
 	}
 
@@ -71,29 +75,26 @@ public class HealthManager {
 		return healthForAgent ;
 
 	}
-	
-
 
 	public ArrayNode buildServiceAlertReport ( String project , String filter ) {
 
 		if ( project == null ) {
 
-			project = application.getActiveProjectName( ) ;
+			project = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 		// ArrayList<String> lifeCycleHostList = csapApp
 		// .getLifeCycleToHostMap().get(clusterFilter);
 
-		var requestedPackage = application.getProject( project ) ;
+		var requestedPackage = csapApis.application( ).getProject( project ) ;
 
 		var includeKubernetesCheck = false ;
 
-		if ( application.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			includeKubernetesCheck = true ; // detects k8s crashed processes
 
 		}
-
 
 		var serviceReport = jsonMapper.createArrayNode( ) ;
 		var healthReport = build_health_report(
@@ -132,14 +133,14 @@ public class HealthManager {
 		logger.debug( "alertLevel: {}, includeKubernetesWarnings: {}", alertLevel, includeKubernetesWarnings,
 				project ) ;
 
-		var timer = application.metrics( ).startTimer( ) ;
+		var timer = csapApis.metrics( ).startTimer( ) ;
 
 		ObjectNode healthReport = jsonMapper.createObjectNode( ) ;
 
 		ObjectNode summaryReport = healthReport.putObject( "summary" ) ;
 		ObjectNode detailReport = healthReport.putObject( "details" ) ;
 
-		if ( application.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			buildErrorReportsForAdmin( summaryReport, detailReport, alertLevel, includeKubernetesWarnings, project ) ;
 
@@ -152,8 +153,10 @@ public class HealthManager {
 
 			if ( errors.size( ) > 0 ) {
 
-				summaryReport.set( application.getCsapHostName( ), agentHealthReport.get( HEALTH_SUMMARY ) ) ;
-				detailReport.set( application.getCsapHostName( ), agentHealthReport.get( HEALTH_DETAILS ) ) ;
+				summaryReport.set( csapApis.application( ).getCsapHostName( ), agentHealthReport.get(
+						HEALTH_SUMMARY ) ) ;
+				detailReport.set( csapApis.application( ).getCsapHostName( ), agentHealthReport.get(
+						HEALTH_DETAILS ) ) ;
 
 				// healthReport.set( "states", states ) ;
 			}
@@ -162,7 +165,7 @@ public class HealthManager {
 
 		logger.debug( "healthReport: {}", CSAP.jsonPrint( healthReport ) ) ;
 
-		application.metrics( ).stopTimer( timer, application.PERFORMANCE_ID + "build.errors" ) ;
+		csapApis.metrics( ).stopTimer( timer, csapApis.application( ).PERFORMANCE_ID + "build.errors" ) ;
 		return healthReport ;
 
 	}
@@ -183,15 +186,15 @@ public class HealthManager {
 		//
 		// logger.info( "notes: {}", notes ) ;
 
-		application.getReleasePackageStream( )
+		csapApis.application( ).getReleasePackageStream( )
 
-				.filter( project -> project.getHostsForEnvironment( application
+				.filter( project -> project.getHostsForEnvironment( csapApis.application( )
 						.getCsapHostEnvironmentName( ) ) != null )
 
 				.filter( project -> {
 
 					if ( ( requestedProject == null ) || // default to all packages
-							( requestedProject == application.getRootProject( ).getAllPackagesModel( ) ) ||
+							( requestedProject == csapApis.application( ).getRootProject( ).getAllPackagesModel( ) ) ||
 							( project.getName( ).equals( requestedProject.getName( ) ) ) ) {
 
 						return true ;
@@ -205,10 +208,10 @@ public class HealthManager {
 				.forEach( matchedProject -> {
 
 					logger.debug( "using hosts in: {}", matchedProject.getName( ) ) ;
-					var lifecycleHosts = matchedProject.getHostsForEnvironment( application
+					var lifecycleHosts = matchedProject.getHostsForEnvironment( csapApis.application( )
 							.getCsapHostEnvironmentName( ) ) ;
 
-					Set<String> kubernetesRunningServices = application.getHostStatusManager( )
+					Set<String> kubernetesRunningServices = csapApis.application( ).getHostStatusManager( )
 							.findRunningKubernetesServices( lifecycleHosts ) ;
 
 					for ( String host : lifecycleHosts ) {
@@ -216,9 +219,10 @@ public class HealthManager {
 
 						ObjectNode hostStatusJson = null ;
 
-						if ( application.getHostStatusManager( ) != null ) {
+						if ( csapApis.application( ).getHostStatusManager( ) != null ) {
 
-							hostStatusJson = application.getHostStatusManager( ).getResponseFromHost( host ) ;
+							hostStatusJson = csapApis.application( ).getHostStatusManager( ).getResponseFromHost(
+									host ) ;
 
 						}
 
@@ -364,8 +368,8 @@ public class HealthManager {
 			alertMessages = alertsBuilder(
 					alertLevel,
 					includeKubernetesWarnings,
-					application.getCsapHostName( ),
-					(ObjectNode) application.getOsManager( ).getHostRuntime( ),
+					csapApis.application( ).getCsapHostName( ),
+					(ObjectNode) csapApis.osManager( ).getHostRuntime( ),
 					clusterFilter ) ;
 
 		} catch ( Exception e ) {
@@ -376,7 +380,8 @@ public class HealthManager {
 
 			}
 
-			errorArray.add( application.getCsapHostName( ) + ": " + "Failed HealthCheck reason: " + e.getMessage( ) ) ;
+			errorArray.add( csapApis.application( ).getCsapHostName( ) + ": " + "Failed HealthCheck reason: " + e
+					.getMessage( ) ) ;
 
 		}
 
@@ -510,10 +515,11 @@ public class HealthManager {
 
 		StringBuilder serviceMessages = new StringBuilder( ) ;
 
-		logger.debug( "hostName: {}, clusterFilter: {}, application.isAgentProfile: {} ", hostName, clusterFilter,
-				application.isAgentProfile( ) ) ;
+		logger.debug( "hostName: {}, clusterFilter: {}, csapApis.application().isAgentProfile: {} ", hostName,
+				clusterFilter,
+				csapApis.application( ).isAgentProfile( ) ) ;
 
-		application
+		csapApis.application( )
 				.getAllPackages( )
 				// .getServicesWithKubernetesFiltering( hostName )
 				.getServicesOnHost( hostName )
@@ -533,7 +539,7 @@ public class HealthManager {
 				} )
 				.filter( serviceInstance -> {
 
-					if ( application.isAgentProfile( ) ) {
+					if ( csapApis.application( ).isAgentProfile( ) ) {
 
 						return serviceInstance.filterInactiveKubernetesWorker( ) ;
 
@@ -561,7 +567,7 @@ public class HealthManager {
 									serviceInstance, alertLevel,
 									includeKubernetesWarnings,
 									serviceHealthCollected.get( serviceInstance.getServiceName_Port( ) ),
-									application.rootProjectEnvSettings( ),
+									csapApis.application( ).rootProjectEnvSettings( ),
 									healthReport ) ;
 
 							// if ( serviceInstance.getServiceName().contains( "crashed" )) {
@@ -622,10 +628,10 @@ public class HealthManager {
 						.asText( ) ;
 				String perCent = perCentString.substring( 0, perCentString.length( ) - 1 ) ;
 				int perCentInt = Integer.parseInt( perCent ) ;
-				int diskMax = (int) Math.round( application.rootProjectEnvSettings( )
+				int diskMax = (int) Math.round( csapApis.application( ).rootProjectEnvSettings( )
 						.getMaxDiskPercent( hostName ) * alertLevel ) ;
 
-				if ( ( application.rootProjectEnvSettings( ).is_disk_monitored( hostName, mount ) )
+				if ( ( csapApis.application( ).rootProjectEnvSettings( ).is_disk_monitored( hostName, mount ) )
 						&& perCentInt > diskMax ) {
 
 					// states.put("disk", MetricsPublisher.NAGIOS_WARN) ;
@@ -649,10 +655,10 @@ public class HealthManager {
 
 		if ( hostStatsNode.has( OsManager.IO_UTIL_IN_PERCENT ) ) {
 
-			int ioUsagePercentMax = (int) Math.round( application.rootProjectEnvSettings( )
+			int ioUsagePercentMax = (int) Math.round( csapApis.application( ).rootProjectEnvSettings( )
 					.getMaxDeviceIoPercent( hostName ) * alertLevel ) ;
 
-			CsapCore.jsonStream( hostStatsNode.get( OsManager.IO_UTIL_IN_PERCENT ) )
+			CsapConstants.jsonStream( hostStatsNode.get( OsManager.IO_UTIL_IN_PERCENT ) )
 					.forEach( device -> {
 
 						int deviceUsage = device.get( "percentCapacity" ).asInt( ) ;
@@ -710,7 +716,7 @@ public class HealthManager {
 
 		if ( hostStatsNode.has( "memoryAggregateFreeMb" ) ) {
 
-			int minFree = application.rootProjectEnvSettings( )
+			int minFree = csapApis.application( ).rootProjectEnvSettings( )
 					.getMinFreeMemoryMb( hostName ) ;
 			int freeMem = hostStatsNode
 					.path( "memoryAggregateFreeMb" )
@@ -749,7 +755,7 @@ public class HealthManager {
 				.path( "cpuLoad" )
 				.asDouble( ) ).intValue( ) ;
 
-		int maxLoad = (int) Math.round( application.rootProjectEnvSettings( )
+		int maxLoad = (int) Math.round( csapApis.application( ).rootProjectEnvSettings( )
 				.getMaxHostCpuLoad( hostName ) * alertLevel ) ;
 
 		if ( hostLoad >= maxLoad ) {
@@ -765,7 +771,7 @@ public class HealthManager {
 		int hostCpu = ( (Double) hostStatusResponse
 				.path( "cpu" )
 				.asDouble( ) ).intValue( ) ;
-		int maxCpu = (int) Math.round( application.rootProjectEnvSettings( )
+		int maxCpu = (int) Math.round( csapApis.application( ).rootProjectEnvSettings( )
 				.getMaxHostCpu( hostName ) * alertLevel ) ;
 
 		if ( hostCpu >= maxCpu ) {
@@ -781,7 +787,7 @@ public class HealthManager {
 		int hostCpuIoWait = ( (Double) hostStatusResponse
 				.path( "cpuIoWait" )
 				.asDouble( ) ).intValue( ) ;
-		int maxCpuIoWait = (int) Math.round( application.rootProjectEnvSettings( )
+		int maxCpuIoWait = (int) Math.round( csapApis.application( ).rootProjectEnvSettings( )
 				.getMaxHostCpuIoWait( hostName ) * alertLevel ) ;
 
 		if ( hostCpuIoWait >= maxCpuIoWait ) {
@@ -818,11 +824,11 @@ public class HealthManager {
 
 	}
 
-	static final List<String> csapAdminServices = Arrays.asList( CsapCore.AGENT_NAME, CsapCore.ADMIN_NAME ) ;
+	static final List<String> csapAdminServices = Arrays.asList( CsapConstants.AGENT_NAME, CsapConstants.ADMIN_NAME ) ;
 
 	public void killRunaways ( ) {
 
-		if ( application.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			return ;
 
@@ -837,8 +843,8 @@ public class HealthManager {
 	public Stream<ServiceInstance> findServicesWithResourceRunaway ( ) {
 
 		// @formatter:off
-		Stream<ServiceInstance> run_away_stream = application.getActiveProject( )
-				.getServicesOnHost( application.getCsapHostName( ) )
+		Stream<ServiceInstance> run_away_stream = csapApis.application( ).getActiveProject( )
+				.getServicesOnHost( csapApis.application( ).getCsapHostName( ) )
 				.filter( service -> {
 
 					return service.getDefaultContainer( ).isActive( ) ;
@@ -863,10 +869,10 @@ public class HealthManager {
 //		long maxAllowedDisk = ServiceAlertsEnum.getMaxDiskInMb( serviceDefinition, application
 //				.rootProjectEnvSettings( ) ) ;
 
-		var maxAllowedDisk = ServiceAlertsEnum.getEffectiveLimit( serviceDefinition, application
+		var maxAllowedDisk = ServiceAlertsEnum.getEffectiveLimit( serviceDefinition, csapApis.application( )
 				.rootProjectEnvSettings( ), ServiceAlertsEnum.diskSpace ) ;
 
-		double resourceThresholdMultiplier = application.rootProjectEnvSettings( )
+		double resourceThresholdMultiplier = csapApis.application( ).rootProjectEnvSettings( )
 				.getAutoStopServiceThreshold( serviceDefinition.getHostName( ) ) ;
 
 		long diskKillThreshold = Math.round( maxAllowedDisk * resourceThresholdMultiplier ) ;
@@ -915,7 +921,7 @@ public class HealthManager {
 
 					long maxAllowed = ServiceAlertsEnum.getEffectiveLimit(
 							serviceDefinition,
-							application.rootProjectEnvSettings( ),
+							csapApis.application( ).rootProjectEnvSettings( ),
 							alert ) ;
 
 					long killThreshold = Math.round( maxAllowed * resourceThresholdMultiplier ) ;
@@ -979,13 +985,13 @@ public class HealthManager {
 		}
 
 		// trigger a system event as well.
-		application.getEventClient( ).publishEvent( CsapEvents.CSAP_SYSTEM_CATEGORY + RUNAWAY_KILL
+		csapApis.events( ).publishEvent( CsapEvents.CSAP_SYSTEM_CATEGORY + RUNAWAY_KILL
 				+ serviceInstance.getName( ),
 				reasons.toString( ), null,
 				serviceInstance.buildRuntimeState( ) ) ;
 
 		// log a user event so it is found easier
-		application.getEventClient( ).publishEvent( CsapEvents.CSAP_USER_SERVICE_CATEGORY + "/"
+		csapApis.events( ).publishEvent( CsapEvents.CSAP_USER_SERVICE_CATEGORY + "/"
 				+ serviceInstance.getName( ),
 				RUNAWAY_KILL + ": " + reasons,
 				null,
@@ -995,12 +1001,12 @@ public class HealthManager {
 
 		try {
 
-			OutputFileMgr outputFileMgr = new OutputFileMgr( application.getCsapWorkingFolder( ),
+			OutputFileMgr outputFileMgr = new OutputFileMgr( csapApis.application( ).getCsapWorkingFolder( ),
 					"/" + serviceInstance.getName( ) + "_runaway" ) ;
 
 			if ( serviceInstance.is_docker_server( ) ) {
 
-				application.getOsManager( ).getServiceManager( ).killServiceUsingDocker(
+				csapApis.osManager( ).getServiceManager( ).killServiceUsingDocker(
 						serviceInstance,
 						outputFileMgr,
 						params,
@@ -1008,7 +1014,7 @@ public class HealthManager {
 
 			} else {
 
-				application.getOsManager( ).getServiceManager( ).run_service_script(
+				csapApis.osManager( ).getServiceManager( ).run_service_script(
 						Application.SYS_USER,
 						ServiceOsManager.KILL_FILE,
 						serviceInstance.getServiceName_Port( ), params,
@@ -1029,7 +1035,7 @@ public class HealthManager {
 												double alertLevel ,
 												boolean includeKubernetesWarnings ) {
 
-		var timer = application.metrics( ).startTimer( ) ;
+		var timer = csapApis.metrics( ).startTimer( ) ;
 
 		ObjectNode statusReport = jsonMapper.createObjectNode( ) ;
 		ObjectNode healthReport = build_health_report( alertLevel, includeKubernetesWarnings, null ) ;
@@ -1044,7 +1050,7 @@ public class HealthManager {
 		} else {
 
 			statusReport.put( "Healthy", false ) ;
-			statusReport.set( application.VALIDATION_ERRORS, summaryHostToErrors ) ;
+			statusReport.set( csapApis.application( ).VALIDATION_ERRORS, summaryHostToErrors ) ;
 
 		}
 
@@ -1063,19 +1069,19 @@ public class HealthManager {
 				/ 10.0 ;
 
 		hostSection.put( "cpuLoad", newKB ) ;
-		hostSection.put( "host", application.getCsapHostName( ) ) ;
-		hostSection.put( "project", application.getActiveProject( ).getName( ) ) ;
-		hostSection.put( "application", application.getName( ) ) ;
-		hostSection.put( "environment", application.getCsapHostEnvironmentName( ) ) ;
+		hostSection.put( "host", csapApis.application( ).getCsapHostName( ) ) ;
+		hostSection.put( "project", csapApis.application( ).getActiveProject( ).getName( ) ) ;
+		hostSection.put( "application", csapApis.application( ).getName( ) ) ;
+		hostSection.put( "environment", csapApis.application( ).getCsapHostEnvironmentName( ) ) ;
 
 		// used for host discovery
-		hostSection.put( EnvironmentSettings.LOADBALANCER_URL, application.rootProjectEnvSettings( )
+		hostSection.put( EnvironmentSettings.LOADBALANCER_URL, csapApis.application( ).rootProjectEnvSettings( )
 				.getLoadbalancerUrl( ) ) ;
 
 		int totalServicesActive = 0 ;
 		int totalServices = 0 ;
 
-		for ( ServiceInstance instance : application.getServicesOnHost( ) ) {
+		for ( ServiceInstance instance : csapApis.application( ).getServicesOnHost( ) ) {
 
 			if ( ! instance.is_files_only_package( ) ) { // Scripts should be
 															// ignored
@@ -1096,7 +1102,7 @@ public class HealthManager {
 		serviceNode.put( "total", totalServices ) ;
 		serviceNode.put( "active", totalServicesActive ) ;
 
-		application.metrics( ).stopTimer( timer, application.PERFORMANCE_ID + "status" ) ;
+		csapApis.metrics( ).stopTimer( timer, csapApis.application( ).PERFORMANCE_ID + "status" ) ;
 		return statusReport ;
 
 	}
@@ -1145,7 +1151,8 @@ public class HealthManager {
 							var serviceName = serviceReport.path( "serviceName" ).asText( ) ;
 
 							ServiceInstance serviceWithConfiguration = //
-									application.getServiceInstance( serviceInstanceName, hostName, packageName ) ;
+									csapApis.application( ).getServiceInstance( serviceInstanceName, hostName,
+											packageName ) ;
 
 							var clusterType = serviceReport.path( ClusterType.CLUSTER_TYPE ).asText( ) ;
 
@@ -1211,17 +1218,17 @@ public class HealthManager {
 
 		var host_report = jsonMapper.createArrayNode( ) ;
 
-		if ( application.isAgentProfile( ) ) {
+		if ( csapApis.application( ).isAgentProfile( ) ) {
 
-			application.getOsManager( ).checkForProcessStatusUpdate( ) ;
+			csapApis.osManager( ).checkForProcessStatusUpdate( ) ;
 
 			var hostDetailReport = host_report.addObject( ) ;
-			hostDetailReport.put( "name", application.getCsapHostName( ) ) ;
+			hostDetailReport.put( "name", csapApis.application( ).getCsapHostName( ) ) ;
 
 			// hostDetailReport.setAll( agentReport ) ;
 			try {
 
-				hostDetailReport.setAll( (ObjectNode) application.getOsManager( ).getHostRuntime( ) ) ;
+				hostDetailReport.setAll( (ObjectNode) csapApis.osManager( ).getHostRuntime( ) ) ;
 
 			} catch ( Exception e ) {
 
@@ -1231,9 +1238,10 @@ public class HealthManager {
 
 		} else {
 
-			Project project = application.getProject( projectName ) ;
+			Project project = csapApis.application( ).getProject( projectName ) ;
 
-			var environmentHostnames = project.getHostsForEnvironment( application.getCsapHostEnvironmentName( ) ) ;
+			var environmentHostnames = project.getHostsForEnvironment( csapApis.application( )
+					.getCsapHostEnvironmentName( ) ) ;
 
 			// logger.info( "lifeCycleHostList: {}", lifeCycleHostList );
 
@@ -1242,7 +1250,7 @@ public class HealthManager {
 				var hostDetailReport = host_report.addObject( ) ;
 				hostDetailReport.put( "name", host ) ;
 
-				ObjectNode agentReport = application.getHostStatusManager( ).getHostAsJson( host ) ;
+				ObjectNode agentReport = csapApis.application( ).getHostStatusManager( ).getHostAsJson( host ) ;
 
 				if ( agentReport != null ) {
 
@@ -1279,55 +1287,58 @@ public class HealthManager {
 		var hostSessions = summaryReport.putArray( "host-sessions" ) ;
 
 		long lastOpMills = -1 ;
-		summaryReport.put( "lastOp", application.getLastOpMessage( ) ) ;
+		summaryReport.put( "lastOp", csapApis.application( ).getLastOpMessage( ) ) ;
 
-		if ( application.isAgentProfile( ) ) {
+		if ( csapApis.application( ).isAgentProfile( ) ) {
 
-			summaryReport.put( "deploymentBacklog", application.getOsManager( ).getServiceManager( ).getOpsQueued( ) ) ;
+			summaryReport.put( "deploymentBacklog", csapApis.osManager( ).getServiceManager( )
+					.getOpsQueued( ) ) ;
 
-			application.getOsManager( ).checkForProcessStatusUpdate( ) ;
+			csapApis.osManager( ).checkForProcessStatusUpdate( ) ;
 
 			var hostLogin = hostSessions.addObject( ) ;
-			hostLogin.put( "name", application.getCsapHostName( ) ) ;
+			hostLogin.put( "name", csapApis.application( ).getCsapHostName( ) ) ;
 
 			var agentHostReport = build_host_status_using_cached_data( ) ;
 			hostLogin.set( "sessions", agentHostReport.path( "vmLoggedIn" ) ) ;
 
-			if ( application.isKubernetesInstalledAndActive( ) ) {
+			if ( csapApis.isKubernetesInstalledAndActive( ) ) {
 
-				kubernetesEventCount = (int) application.getKubernetesIntegration( ).eventCount( null ) ;
+				kubernetesEventCount = (int) csapApis.kubernetes( ).eventCount( null ) ;
 
 				kubernetesMetrics = ! agentHostReport.path( "kubernetes" ).path( "metrics" ).path( "current" ).path(
 						"cores" ).isMissingNode( ) ;
 
-				kubernetesNodeCount = (int) application.getKubernetesIntegration( ).nodeCount( ) ;
-				var podCountsReport = application.getKubernetesIntegration( ).podCountsReport( null ) ;
+				kubernetesNodeCount = (int) csapApis.kubernetes( ).nodeCount( ) ;
+				var podCountsReport = csapApis.kubernetes( ).podCountsReport( null ) ;
 				podCount = podCountsReport.path( "count" ).asInt( ) ;
 				podRestartCount = podCountsReport.path( "restarts" ).asInt( ) ;
-				volumeCount = (int) application.getKubernetesIntegration( ).listingsBuilder( ).persistentVolumeCount(
+				volumeCount = (int) csapApis.kubernetes( ).listingsBuilder( ).persistentVolumeCount(
 						null ) ;
 
-				serviceCount = application.getServicesOnHost( ).size( ) ;
+				serviceCount = csapApis.application( ).getServicesOnHost( ).size( ) ;
 
 			}
 
 		} else {
 
-			hostAllProjectCount = application.getAllHostsInAllPackagesInCurrentLifecycle( ).size( ) ;
+			hostAllProjectCount = csapApis.application( ).getAllHostsInAllPackagesInCurrentLifecycle( ).size( ) ;
 
-			summaryReport.put( "deploymentBacklog", application.getHostStatusManager( ).totalOpsQueued( ) ) ;
+			summaryReport.put( "deploymentBacklog", csapApis.application( ).getHostStatusManager( )
+					.totalOpsQueued( ) ) ;
 
-			Project project = application.getProject( projectName ) ;
+			Project project = csapApis.application( ).getProject( projectName ) ;
 
 			project.getAllPackagesModel( ).getHostsCurrentLc( ) ;
 
-			var environmentHostNames = project.getHostsForEnvironment( application.getCsapHostEnvironmentName( ) ) ;
+			var environmentHostNames = project.getHostsForEnvironment( csapApis.application( )
+					.getCsapHostEnvironmentName( ) ) ;
 
 			hostCount = environmentHostNames.size( ) ;
 
 			for ( var host : environmentHostNames ) {
 
-				ObjectNode agent_status = application.getHostStatusManager( ).getHostAsJson( host ) ;
+				ObjectNode agent_status = csapApis.application( ).getHostStatusManager( ).getHostAsJson( host ) ;
 
 				if ( agent_status != null ) {
 
@@ -1438,7 +1449,7 @@ public class HealthManager {
 	public ObjectNode build_host_status_using_cached_data (
 															String kubernetesNamespace ) {
 
-		var timer = application.metrics( ).startTimer( ) ;
+		var timer = csapApis.metrics( ).startTimer( ) ;
 
 		ObjectNode hostStatus = jsonMapper.createObjectNode( ) ;
 
@@ -1450,7 +1461,7 @@ public class HealthManager {
 			try {
 
 				var version = "2.1" ;
-				var linux = application.findServiceByNameOnCurrentHost( "csap-package-linux" ) ;
+				var linux = csapApis.application( ).findServiceByNameOnCurrentHost( "csap-package-linux" ) ;
 
 				if ( linux != null ) {
 
@@ -1466,17 +1477,22 @@ public class HealthManager {
 
 			}
 
-			hostStatus.put( "processCount", application.getOsManager( ).numberOfProcesses( ) ) ;
-			hostStatus.put( "csapCount", application.getServicesOnHost( ).size( ) ) ;
-			hostStatus.put( "linuxInterfaceCount", application.getOsManager( ).getCachedNetworkInterfaceCount( ) ) ;
-			hostStatus.put( "linuxServiceCount", application.getOsManager( ).getCachedLinuxServiceCount( ) ) ;
-			hostStatus.put( "linuxPackageCount", application.getOsManager( ).getCachedLinuxPackageCount( ) ) ;
-			hostStatus.put( "diskCount", application.getOsManager( ).getDiskCount( ) ) ;
+			hostStatus.put( "processCount", csapApis.osManager( ).numberOfProcesses( ) ) ;
+			hostStatus.put( "csapCount", csapApis.application( ).getServicesOnHost( ).size( ) ) ;
+			hostStatus.put( "linuxInterfaceCount", csapApis.osManager( )
+					.getCachedNetworkInterfaceCount( ) ) ;
+			hostStatus.put( "linuxServiceCount", csapApis.osManager( )
+					.getCachedLinuxServiceCount( ) ) ;
+			hostStatus.put( "linuxPackageCount", csapApis.osManager( )
+					.getCachedLinuxPackageCount( ) ) ;
+			hostStatus.put( "diskCount", csapApis.osManager( ).getDiskCount( ) ) ;
 
-			if ( application.isDockerInstalledAndActive( ) ) {
+			if ( csapApis.isContainerProviderInstalledAndActive( ) ) {
 
-				var dockerSummaryReport = application.getDockerIntegration( ).getCachedSummaryReport( ) ;
-				var dockerInstance = application.findServiceByNameOnCurrentHost( "docker" ) ;
+				var dockerSummaryReport = csapApis.containerIntegration( )
+						.getCachedSummaryReport( ) ;
+				var dockerInstance = csapApis.application( ).findServiceByNameOnCurrentHost( C7.dockerService
+						.val( ) ) ;
 
 				if ( dockerInstance != null ) {
 
@@ -1489,13 +1505,13 @@ public class HealthManager {
 
 				}
 
-				hostStatus.set( "docker", dockerSummaryReport ) ;
+				hostStatus.set( C7.definitionSettings.val( ), dockerSummaryReport ) ;
 
 			}
 
-			if ( application.isKubernetesInstalledAndActive( ) ) {
+			if ( csapApis.isKubernetesInstalledAndActive( ) ) {
 				// very costly - slim down to minimum
-				// hostStatus.set( "kubernetes", application.getKubernetesIntegration(
+				// hostStatus.set( "kubernetes", csapApis.getKubernetesIntegration(
 				// ).buildSummary( kubernetesNamespace ) ) ;
 
 				// hmmmm - this is triggering work -- remote apis could hang --- causing
@@ -1503,18 +1519,17 @@ public class HealthManager {
 
 				JsonNode summaryReport = jsonMapper.createObjectNode( ) ;
 
-				if ( application.kubeletInstance( ).isKubernetesMaster( )
+				if ( csapApis.application( ).kubeletInstance( ).isKubernetesMaster( )
 						|| kubernetesNamespace != null ) {
 
 					// full report ONLY on masters, or on specific UI requests
-					summaryReport = application
-							.getKubernetesIntegration( )
+					summaryReport = csapApis.kubernetes( )
 							.buildSummaryReport( kubernetesNamespace ) ;
 
 				} else {
 
 					// run metrics report only - typically agent heartbeats on non masters
-					summaryReport = application.getKubernetesIntegration( ).getCachedNodeHealthMetrics( ) ;
+					summaryReport = csapApis.kubernetes( ).getCachedNodeHealthMetrics( ) ;
 
 				}
 
@@ -1528,22 +1543,22 @@ public class HealthManager {
 			memory.put( "swapTotal", getGb( osStats.getTotalSwapSpaceSize( ) ) ) ;
 			memory.put( "swapFree", getGb( osStats.getFreeSwapSpaceSize( ) ) ) ;
 
-			var availableBytes = application.getOsManager( ).getMemoryAvailbleLessCache( ) * 1024L * 1024L ;
+			var availableBytes = csapApis.osManager( ).getMemoryAvailbleLessCache( ) * 1024L * 1024L ;
 			memory.put( "available", getGb( availableBytes ) ) ;
 
-			hostStatus.set( "users", application.getActiveUsers( ).getActive( ) ) ;
+			hostStatus.set( "users", csapApis.application( ).getActiveUsers( ).getActive( ) ) ;
 
-			hostStatus.put( "lastOp", application.getLastOpMessage( ) ) ;
+			hostStatus.put( "lastOp", csapApis.application( ).getLastOpMessage( ) ) ;
 
-			hostStatus.set( "vmLoggedIn", application.getOsManager( ).getVmLoggedIn( ) ) ;
+			hostStatus.set( "vmLoggedIn", csapApis.osManager( ).getVmLoggedIn( ) ) ;
 
-			hostStatus.put( "motd", application.getMotdMessage( ) ) ;
+			hostStatus.put( "motd", csapApis.application( ).getMotdMessage( ) ) ;
 
 			Format tsFormater = new SimpleDateFormat( "HH:mm:ss" ) ;
 
 			hostStatus.put( "timeStamp", tsFormater.format( new Date( ) ) ) ;
 
-			hostStatus.put( "lastOpMillis", application.getLastOpMillis( ) ) ;
+			hostStatus.put( "lastOpMillis", csapApis.application( ).getLastOpMillis( ) ) ;
 
 		} catch ( Exception e ) {
 
@@ -1552,7 +1567,7 @@ public class HealthManager {
 
 		}
 
-		application.metrics( ).stopTimer( timer, application.PERFORMANCE_ID + "status.host" ) ;
+		csapApis.metrics( ).stopTimer( timer, csapApis.application( ).PERFORMANCE_ID + "status.host" ) ;
 		return hostStatus ;
 
 	}
@@ -1561,7 +1576,7 @@ public class HealthManager {
 
 		var currentLoad = osStats.getSystemLoadAverage( ) ;
 
-		if ( application.isDesktopHost( ) && ( currentLoad == -1.0 ) ) {
+		if ( csapApis.application( ).isDesktopHost( ) && ( currentLoad == -1.0 ) ) {
 
 			currentLoad = 9.3 ;
 
@@ -1571,10 +1586,10 @@ public class HealthManager {
 
 		hostStatus.put( "cpuCount", osStats.getAvailableProcessors( ) ) ;
 
-		if ( application.rootProjectEnvSettings( ).getMetricToSecondsMap( ).size( ) > 0 ) {
+		if ( csapApis.application( ).rootProjectEnvSettings( ).getMetricToSecondsMap( ).size( ) > 0 ) {
 
-			hostStatus.put( "cpu", application.metricManager( ).getLatestCpuUsage( ) ) ;
-			hostStatus.put( "cpuIoWait", application.metricManager( ).getLatestIoWait( ) ) ;
+			hostStatus.put( "cpu", csapApis.application( ).metricManager( ).getLatestCpuUsage( ) ) ;
+			hostStatus.put( "cpuIoWait", csapApis.application( ).metricManager( ).getLatestIoWait( ) ) ;
 
 		}
 
@@ -1607,7 +1622,7 @@ public class HealthManager {
 		ServiceInstance runtimeService = definitionService ;
 		ObjectNode hostStatus ;
 
-		if ( application.isAgentProfile( ) ) {
+		if ( csapApis.application( ).isAgentProfile( ) ) {
 
 			hostStatus = build_host_status_using_cached_data( ) ;
 
@@ -1615,7 +1630,7 @@ public class HealthManager {
 
 			hostStatus = jsonMapper.createObjectNode( ) ;
 
-			ObjectNode hostAgentStatus = application
+			ObjectNode hostAgentStatus = csapApis.application( )
 					.getHostStatusManager( )
 					.getHostAsJson( definitionService.getHostName( ) ) ;
 
@@ -1623,7 +1638,7 @@ public class HealthManager {
 
 				hostStatus = (ObjectNode) hostAgentStatus.path( HostKeys.hostStats.jsonId ) ;
 
-				ObjectNode collectedServiceStatus = application
+				ObjectNode collectedServiceStatus = csapApis.application( )
 						.getHostStatusManager( )
 						.getServiceRuntime(
 								definitionService.getHostName( ),
@@ -1723,7 +1738,7 @@ public class HealthManager {
 
 		logger.debug( "{} : {}", definition.toSummaryString( ), CSAP.jsonPrint( uiInstanceData ) ) ;
 
-		if ( application.isRunningOnDesktop( ) ) {
+		if ( csapApis.application( ).isRunningOnDesktop( ) ) {
 
 			// using definition host for long name support
 			uiInstanceData.put( ServiceBase.HOSTNAME_JSON, definition.getHostName( ) ) ;
@@ -1772,9 +1787,9 @@ public class HealthManager {
 
 	public List<String> getHealthServiceIds ( ) {
 
-		var healthIds = application
+		var healthIds = csapApis.application( )
 				.getAllPackages( )
-				.getServicesOnHost( application.getCsapHostName( ) )
+				.getServicesOnHost( csapApis.application( ).getCsapHostName( ) )
 				.filter( ServiceInstance::isApplicationHealthEnabled )
 				.flatMap( ServiceInstance::getIds )
 				.collect( Collectors.toList( ) ) ;
@@ -1787,10 +1802,10 @@ public class HealthManager {
 
 		Map<String, Map<String, String>> healthUrlsByService ;
 
-		if ( application.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			//
-			healthUrlsByService = application.getAllPackages( )
+			healthUrlsByService = csapApis.application( ).getAllPackages( )
 					.getServiceConfigStreamInCurrentLC( )
 					.flatMap( serviceInstancesEntry -> serviceInstancesEntry.getValue( ).stream( ) )
 					.filter( ServiceInstance::isApplicationHealthEnabled )
@@ -1808,9 +1823,9 @@ public class HealthManager {
 
 		} else {
 
-			healthUrlsByService = application
+			healthUrlsByService = csapApis.application( )
 					.getAllPackages( )
-					.getServicesOnHost( application.getCsapHostName( ) )
+					.getServicesOnHost( csapApis.application( ).getCsapHostName( ) )
 					.filter( ServiceInstance::isApplicationHealthEnabled )
 					.collect( Collectors.toMap(
 							ServiceInstance::getName,
@@ -1828,7 +1843,7 @@ public class HealthManager {
 
 	private Map<String, String> discoveredHealthUrls ( ServiceInstance serviceInstance ) {
 
-		ObjectNode collectedRuntime = application.getHostStatusManager( ).getHostAsJson( serviceInstance
+		ObjectNode collectedRuntime = csapApis.application( ).getHostStatusManager( ).getHostAsJson( serviceInstance
 				.getHostName( ) ) ;
 
 		if ( collectedRuntime == null ) {

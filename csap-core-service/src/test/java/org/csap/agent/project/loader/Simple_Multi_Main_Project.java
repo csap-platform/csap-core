@@ -13,8 +13,8 @@ import java.io.File ;
 import java.util.stream.Collectors ;
 
 import org.csap.agent.CsapBareTest ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.container.DockerJson ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.linux.ServiceJobRunner ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.ClusterType ;
@@ -192,9 +192,10 @@ public class Simple_Multi_Main_Project extends CsapBareTest {
 		assertThat( simpleService.getDockerImageName( ) )
 				.isEqualTo( "nginx:1.2.3" ) ;
 
-		assertThat( simpleService.getDockerSettings( ).path( DockerJson.network.json( ) ).path( DockerJson.network_name
-				.json( ) ).asText( ) )
-						.isEqualTo( "nginx-network-over" ) ;
+		assertThat( simpleService.getDockerSettings( ).path( C7.network.val( ) ).path(
+				C7.network_name
+						.val( ) ).asText( ) )
+								.isEqualTo( "nginx-network-over" ) ;
 
 		//
 		// autoplay changes
@@ -223,7 +224,7 @@ public class Simple_Multi_Main_Project extends CsapBareTest {
 				CSAP.jsonPrint( modifyProject ) ) ;
 
 		var simpleServiceUpdated = modifyProject.at( "/service-templates/simple-service" ) ;
-		var simpleServiceDockerSetting = simpleServiceUpdated.path( "docker" ) ;
+		var simpleServiceDockerSetting = simpleServiceUpdated.path( C7.definitionSettings.val( ) ) ;
 
 		assertThat( simpleServiceDockerSetting.path( "image" ).asText( ) )
 				.isEqualTo( "nginx:17.17" ) ;
@@ -238,8 +239,8 @@ public class Simple_Multi_Main_Project extends CsapBareTest {
 		var envDef = simpleServiceUpdated.path( ServiceAttributes.environmentOverload.json( ) ).path( "xxx" ) ;
 		newSimple.parseDefinition( "junit-package", envDef, new StringBuilder( ) ) ;
 
-		assertThat( newSimple.getDockerSettings( ).path( DockerJson.network.json( ) ).path( DockerJson.network_name
-				.json( ) ).asText( ) )
+		assertThat( newSimple.getDockerSettings( ).path( C7.network.val( ) ).path( C7.network_name
+				.val( ) ).asText( ) )
 						.isEqualTo( "nginx-network-over" ) ;
 
 		var testSettingsPath = "/environments/xxx/settings" ;
@@ -418,7 +419,7 @@ public class Simple_Multi_Main_Project extends CsapBareTest {
 		assertThat( generatedProject.at( myNewEnv + "cluster-to-be-deleted" ).isMissingNode( ) ).isTrue( ) ;
 
 		assertThat( generatedProject.at( "/service-templates/elastic-search/server" ).asText( ) ).isEqualTo(
-				"docker" ) ;
+				C7.definitionSettings.val( ) ) ;
 
 		//
 		// deletes
@@ -588,22 +589,24 @@ public class Simple_Multi_Main_Project extends CsapBareTest {
 		// Env merge overrides
 		//
 
-		assertThat( simpleService.getDockerSettings( ).path( DockerJson.network.json( ) ).path( DockerJson.network_name
-				.json( ) ).asText( ) )
-						.isEqualTo( "nginx-network-over" ) ;
+		assertThat( simpleService.getDockerSettings( ).path( C7.network.val( ) ).path(
+				C7.network_name
+						.val( ) ).asText( ) )
+								.isEqualTo( "nginx-network-over" ) ;
 
-		assertThat( simpleService.getDockerSettings( ).path( DockerJson.network.json( ) ).path( "test-new" ).asText( ) )
-				.isEqualTo( "new-value" ) ;
+		assertThat( simpleService.getDockerSettings( ).path( C7.network.val( ) ).path( "test-new" )
+				.asText( ) )
+						.isEqualTo( "new-value" ) ;
 
 		var networkSettings = simpleService
 				.getDockerSettings( )
-				.path( DockerJson.network.json( ) )
-				.path( DockerJson.create_persistent.json( ) ) ;
+				.path( C7.network.val( ) )
+				.path( C7.create_persistent.val( ) ) ;
 
 		assertThat( networkSettings.path( "enabled" ).asBoolean( true ) )
 				.isFalse( ) ;
 
-		assertThat( networkSettings.path( DockerJson.network_driver.json( ) ).asText( ) )
+		assertThat( networkSettings.path( C7.network_driver.val( ) ).asText( ) )
 				.isEqualTo( "bridge" ) ;
 
 	}
@@ -618,9 +621,9 @@ public class Simple_Multi_Main_Project extends CsapBareTest {
 		logger.info( "jobs: {}", jobs ) ;
 
 		assertThat( jobs.toString( ) )
-				.doesNotContain( CsapCore.CSAP_DEF_NAME ) ;
+				.doesNotContain( CsapConstants.CSAP_DEF_NAME ) ;
 
-		ServiceJobRunner jobRunner = new ServiceJobRunner( getApplication( ) ) ;
+		ServiceJobRunner jobRunner = new ServiceJobRunner( getCsapApis( ) ) ;
 
 		var jobResults = jobRunner.runJobUsingDescription( simpleService, jobs.get( 0 ).getDescription( ), null ) ;
 		logger.info( "jobResults: {}", jobResults ) ;
@@ -629,13 +632,13 @@ public class Simple_Multi_Main_Project extends CsapBareTest {
 				.contains( "test1=test1-overridden" )
 				.contains( "test2=test2" )
 				.contains( "test-simple=test-val" )
-				.doesNotContain( CsapCore.CSAP_VARIABLE_PREFIX )
+				.doesNotContain( CsapConstants.CSAP_VARIABLE_PREFIX )
 				.contains( "test_csap_name=test-csap-name-value" )
 				.contains( "ingress_host=the-ingress-host" )
 				.contains( "test_inherit=test-base-resolution" )
 				.contains( "test-base-script" )
-				.doesNotContain( CsapCore.CSAP_DEF_REPLICA )
-				.doesNotContain( CsapCore.CSAP_DEF_NAME ) ;
+				.doesNotContain( CsapConstants.CSAP_DEF_REPLICA )
+				.doesNotContain( CsapConstants.CSAP_DEF_NAME ) ;
 
 	}
 
@@ -653,7 +656,7 @@ public class Simple_Multi_Main_Project extends CsapBareTest {
 
 		assertThat( specPathList.size( ) ).isEqualTo( 1 ) ;
 		assertThat( specPathList.toString( ) )
-				.doesNotContain( CsapCore.SEARCH_RESOURCES )
+				.doesNotContain( CsapConstants.SEARCH_RESOURCES )
 				.contains( "definitions/simple-multi-project/resources/simple-service/sample-deploy.yaml" ) ;
 
 		var simpleYamlDeployFile = specPathList.stream( )
@@ -680,7 +683,7 @@ public class Simple_Multi_Main_Project extends CsapBareTest {
 		logger.info( "yaml_with_vars_updated: {} ", yaml_with_vars_updated ) ;
 
 		assertThat( yaml_with_vars_updated )
-				.doesNotContain( CsapCore.CSAP_VARIABLE_PREFIX )
+				.doesNotContain( CsapConstants.CSAP_VARIABLE_PREFIX )
 				.doesNotContain( "$$service-name" )
 				.doesNotContain( "$$test-csap-name" )
 				.contains( "test-csap-name-value" )

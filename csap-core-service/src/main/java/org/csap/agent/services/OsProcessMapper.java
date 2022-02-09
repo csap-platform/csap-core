@@ -11,14 +11,15 @@ import java.util.regex.Pattern ;
 import java.util.stream.Collectors ;
 
 import org.apache.commons.lang3.StringUtils ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.container.ContainerProcess ;
-import org.csap.agent.container.DockerJson ;
+import org.csap.agent.container.kubernetes.K8 ;
 import org.csap.agent.model.ContainerState ;
 import org.csap.agent.model.ServiceInstance ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
-import org.csap.integations.CsapMicroMeter ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
 import org.springframework.util.LinkedMultiValueMap ;
@@ -39,13 +40,7 @@ public class OsProcessMapper {
 
 	private ObjectMapper jsonMapper = new ObjectMapper( ) ;
 
-	private File csapProcessingDirectory ;
-	CsapMicroMeter.Utilities metricUtilities ;
-
-	public OsProcessMapper ( File csapProcessingDirectory, CsapMicroMeter.Utilities metricUtilities ) {
-
-		this.csapProcessingDirectory = csapProcessingDirectory ;
-		this.metricUtilities = metricUtilities ;
+	public OsProcessMapper ( ) {
 
 	}
 
@@ -107,9 +102,10 @@ public class OsProcessMapper {
 		// clone because they will be updated
 		List<ContainerProcess> workingContainers = new ArrayList<>( discoveredContainers ) ;
 
-		var psParseTimer = metricUtilities.startTimer( ) ;
+		var psParseTimer = CsapApis.getInstance( ).metrics( ).startTimer( ) ;
 		List<OsProcess> osProcesses = parse_ps_output( ps_command_listing, LINE_SEPARATOR ) ;
-		metricUtilities.stopTimer( psParseTimer, OsProcessMapper.MAPPER_TIMER + ".ps-parse" ) ;
+		CsapApis.getInstance( ).metrics( ).stopTimer( psParseTimer, OsProcessMapper.MAPPER_TIMER
+				+ ".ps-parse" ) ;
 
 		setLatestDiscoveredProcesses( osProcesses ) ;
 
@@ -205,13 +201,14 @@ public class OsProcessMapper {
 
 			}
 
-			var diskTimer = metricUtilities.startTimer( ) ;
+			var diskTimer = CsapApis.getInstance( ).metrics( ).startTimer( ) ;
 
 			process_update_service_disk_usage( du_and_df_and_docker_volume_lines,
 					activeService,
 					tempServiceForAggregation ) ;
 
-			metricUtilities.stopTimer( diskTimer, OsProcessMapper.MAPPER_TIMER + ".disk-usage" ) ;
+			CsapApis.getInstance( ).metrics( ).stopTimer( diskTimer, OsProcessMapper.MAPPER_TIMER
+					+ ".disk-usage" ) ;
 
 		}
 
@@ -231,7 +228,8 @@ public class OsProcessMapper {
 
 			logger.debug( "active data: {}", activeService ) ;
 
-			activeService.updateServiceManagementState( csapProcessingDirectory ) ;
+			activeService.updateServiceManagementState( CsapApis.getInstance( ).application( )
+					.getCsapWorkingFolder( ) ) ;
 
 			if ( ! activeService.is_files_only_package( ) ) {
 
@@ -329,10 +327,11 @@ public class OsProcessMapper {
 
 		if ( liveInstance.isRunUsingDocker( ) || liveInstance.is_docker_server( ) ) {
 
-			var processTimer = metricUtilities.startTimer( ) ;
+			var processTimer = CsapApis.getInstance( ).metrics( ).startTimer( ) ;
 			container_match_check( process, discoveredContainers, liveInstance, instanceWithUpdatedRuntime,
 					process_filter_regex ) ;
-			metricUtilities.stopTimer( processTimer, OsProcessMapper.MAPPER_TIMER + ".container-mapping" ) ;
+			CsapApis.getInstance( ).metrics( ).stopTimer( processTimer, OsProcessMapper.MAPPER_TIMER
+					+ ".container-mapping" ) ;
 
 		} else if ( ! process.getParameters( ).matches( process_filter_regex ) ) {
 
@@ -398,7 +397,7 @@ public class OsProcessMapper {
 		// serviceMatch, discoveredContainers );
 
 		var namespaceMatching = resolvedLocators
-				.path( DockerJson.podNamespace.json( ) )
+				.path( C7.podNamespace.val( ) )
 				.asText( ) ;
 
 		if ( logger.isDebugEnabled( )
@@ -431,7 +430,7 @@ public class OsProcessMapper {
 					var containerNamespace = containerProcess.getPodNamespace( ) ;
 
 					if ( StringUtils.isNotEmpty( containerNamespace )
-							&& containerNamespace.equals( "kube-system" )
+							&& containerNamespace.equals( K8.systemNamespace.val( ) )
 							&& isServiceDebug( activeService ) ) {
 
 						logger.info( "{}", containerProcess ) ;
@@ -458,7 +457,7 @@ public class OsProcessMapper {
 					var containerNamespace = containerProcess.getPodNamespace( ) ;
 
 					if ( StringUtils.isNotEmpty( containerNamespace )
-							&& containerNamespace.equals( "kube-system" )
+							&& containerNamespace.equals( "csap-test" )
 							&& isServiceDebug( activeService ) ) {
 
 						logger.info( "{}", containerProcess ) ;
@@ -466,7 +465,7 @@ public class OsProcessMapper {
 					}
 
 					var podMatching = resolvedLocators
-							.path( DockerJson.podName.json( ) )
+							.path( C7.podName.val( ) )
 							.asText( ) ;
 
 					if ( StringUtils.isNotEmpty( podMatching )
@@ -482,7 +481,7 @@ public class OsProcessMapper {
 					} else if ( StringUtils.isNotEmpty( namespaceMatching )
 							&& StringUtils.isNotEmpty( containerNamespace )
 							&& containerNamespace.matches( namespaceMatching )
-							&& containerNameMatch.equals( DockerJson.containerWildCard.json( ) ) ) {
+							&& containerNameMatch.equals( C7.containerWildCard.val( ) ) ) {
 
 						//
 						// all containers in name space
@@ -644,12 +643,12 @@ public class OsProcessMapper {
 						// logger.info("Match found") ;
 						String[] duFields = diskLine.split( "\\s+" ) ;
 
-						String diskUsedField = duFields[ 0 ] ;
+						String diskUsedField = duFields[0] ;
 
 						if ( diskUsedField.contains( "/" ) ) {
 
 							// df output 815M/7942M /run 11% tmpfs
-							diskUsedField = diskUsedField.split( "/" )[ 0 ] ;
+							diskUsedField = diskUsedField.split( "/" )[0] ;
 
 						}
 
@@ -704,16 +703,19 @@ public class OsProcessMapper {
 
 	public boolean isServiceDebug ( ServiceInstance serviceInstance ) {
 
-//		if ( serviceInstance.getName( ).startsWith( "namespace-kube" ) ) {
-//
-//			return true ;
-//
-//		}
+		if ( StringUtils.isNotEmpty( CsapApis.getInstance( ).application( ).getServiceDebugName( ) )
+				&& serviceInstance.getName( ).startsWith( CsapApis.getInstance( ).application( )
+						.getServiceDebugName( ) ) ) {
+
+			return true ;
+
+		}
 
 		if ( serviceDebugLogger.isDebugEnabled( ) ) {
 
 			File serviceDebugFile = new File(
-					csapProcessingDirectory, "/" + serviceInstance.getName( ) + ".debug" ) ;
+					CsapApis.getInstance( ).application( ).getCsapWorkingFolder( ), "/" + serviceInstance.getName( )
+							+ ".debug" ) ;
 
 			// logger.info( "checking for {}",
 			// serviceDebugFile.getAbsolutePath() );

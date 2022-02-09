@@ -12,10 +12,9 @@ import java.util.Optional ;
 import java.util.Set ;
 import java.util.stream.Collectors ;
 
-import org.csap.agent.model.Application ;
+import org.csap.agent.CsapApis ;
 import org.csap.agent.model.ContainerState ;
 import org.csap.agent.model.ServiceInstance ;
-import org.csap.agent.services.OsManager ;
 import org.csap.agent.stats.service.HttpCollector ;
 import org.csap.agent.stats.service.JmxCollector ;
 import org.csap.agent.stats.service.JmxCommonEnum ;
@@ -59,15 +58,16 @@ public class ServiceCollector extends HostCollector implements Runnable {
 
 	}
 
-	public ServiceCollector ( Application csapApplication, OsManager osManager,
+	public ServiceCollector ( CsapApis csapApis,
 			int intervalSeconds, boolean publishSummary ) {
 
-		super( csapApplication, osManager, intervalSeconds, publishSummary ) ;
+		super( csapApis, intervalSeconds, publishSummary ) ;
 
-		httpCollector = new HttpCollector( csapApplication, this ) ;
-		jmxCollector = new JmxCollector( csapApplication, this ) ;
+		httpCollector = new HttpCollector( csapApis, this ) ;
+		jmxCollector = new JmxCollector( csapApis, this ) ;
 
-		// if ( Application.isRunningOnDesktop() && !csapApplication.isJunit() ) {
+		// if ( Application.isRunningOnDesktop() && !csapApis.application().isJunit() )
+		// {
 		// System.err.println( "\n ============= DESKTOP detected - setting logs to
 		// ERROR " ) ;
 		// Configurator.setLevel( ServiceCollector.class.getName(), Level.ERROR ) ;
@@ -76,7 +76,7 @@ public class ServiceCollector extends HostCollector implements Runnable {
 		collected_timestamps = jacksonMapper.createArrayNode( ) ;
 		collected_HostCpu = jacksonMapper.createArrayNode( ) ;
 
-		setMaxCollectionAllowedInMs( csapApplication
+		setMaxCollectionAllowedInMs( csapApis.application( )
 				.rootProjectEnvSettings( )
 				.getMaxJmxCollectionMs( ) ) ;
 
@@ -127,7 +127,7 @@ public class ServiceCollector extends HostCollector implements Runnable {
 
 		try {
 
-			if ( csapApplication.metricManager( ).isSuspendCollection( ) ) {
+			if ( csapApis.application( ).metricManager( ).isSuspendCollection( ) ) {
 
 				logger.info( "collection suspended - testing" ) ;
 				return ;
@@ -208,10 +208,10 @@ public class ServiceCollector extends HostCollector implements Runnable {
 
 		// ObjectNode hostRuntimeNode = (ObjectNode)
 		// osManager.buildServiceStatsReportAndUpdateTopCpu( true ) ;
-		// logger.info( "csapApplication.isBootstrapComplete {}",
-		// csapApplication.isBootstrapComplete() );
+		// logger.info( "csapApis.application().isBootstrapComplete {}",
+		// csapApis.application().isBootstrapComplete() );
 
-//		if ( hostRuntimeNode == null || ! hostRuntimeNode.has( "ps" ) || ! csapApplication.isBootstrapComplete( ) ) {
+//		if ( hostRuntimeNode == null || ! hostRuntimeNode.has( "ps" ) || ! csapApis.application().isBootstrapComplete( ) ) {
 //			logger.warn( "Failed to get valid data " ) ;
 //			collected_HostCpu.insert( 0, -1 ) ;
 //
@@ -338,7 +338,7 @@ public class ServiceCollector extends HostCollector implements Runnable {
 
 			String serviceName_port = javaIterator.next( ) ;
 
-			if ( csapApplication.flexFindFirstInstanceCurrentHost( serviceName_port ) == null ) {
+			if ( csapApis.application( ).flexFindFirstInstanceCurrentHost( serviceName_port ) == null ) {
 
 				logger.info( "{}  - removing from java monitoring cache", serviceName_port ) ;
 				javaIterator.remove( ) ;
@@ -352,7 +352,7 @@ public class ServiceCollector extends HostCollector implements Runnable {
 
 			String serviceId = appIterator.next( ) ;
 
-			if ( csapApplication.flexFindFirstInstanceCurrentHost( serviceId ) == null ) {
+			if ( csapApis.application( ).flexFindFirstInstanceCurrentHost( serviceId ) == null ) {
 
 				logger.info( "{}  - removing from app  monitoring cache", serviceId ) ;
 				appIterator.remove( ) ;
@@ -408,14 +408,15 @@ public class ServiceCollector extends HostCollector implements Runnable {
 
 		_lastCustomServiceSummary = jacksonMapper.createObjectNode( ) ;
 
-		csapApplication.servicesOnHost( )
+		csapApis.application( ).servicesOnHost( )
 				.filter( service -> service.hasServiceMeters( ) )
 				.forEach( service -> {
 
 					List<String> ids = serviceIds.stream( )
 							.filter( id -> {
 
-								ServiceInstance idInstance = csapApplication.flexFindFirstInstanceCurrentHost( id ) ;
+								ServiceInstance idInstance = csapApis.application( ).flexFindFirstInstanceCurrentHost(
+										id ) ;
 
 								if ( idInstance != null && idInstance.getName( ).equals( service.getName( ) ) ) {
 
@@ -484,8 +485,7 @@ public class ServiceCollector extends HostCollector implements Runnable {
 			_latestApplicationMetricsPublished.put( "attributes.location", customBaseCategory + "attributes" ) ;
 			_latestApplicationMetricsPublished.set( "attributes", attributeDefinition.get( "attributes" ) ) ;
 
-			csapApplication
-					.getEventClient( )
+			csapApis.events( )
 					.publishEvent( customBaseCategory + "attributes", "Modified", null,
 							attributeDefinition.get( "attributes" ) ) ;
 
@@ -497,7 +497,7 @@ public class ServiceCollector extends HostCollector implements Runnable {
 				+ collectionIntervalSeconds ) ;
 		// correlationAttributes.put( "id", "jmx" + reportId + "_" +
 		// collectionIntervalSeconds ) ;
-		correlationAttributes.put( "hostName", csapApplication.getCsapHostShortname( ) ) ;
+		correlationAttributes.put( "hostName", csapApis.application( ).getCsapHostShortname( ) ) ;
 
 		// Send normalized data
 		applicationMetrics.set( "attributes", correlationAttributes ) ;
@@ -505,8 +505,7 @@ public class ServiceCollector extends HostCollector implements Runnable {
 		logger.debug( "event: {}, {}", customBaseCategory + "data", CSAP.jsonPrint( applicationMetrics ) ) ;
 		_latestApplicationMetricsPublished.put( "data.location", customBaseCategory + "data" ) ;
 		_latestApplicationMetricsPublished.set( "data", applicationMetrics ) ;
-		csapApplication
-				.getEventClient( )
+		csapApis.events( )
 				.publishEvent( customBaseCategory + "data",
 						"Upload", null, applicationMetrics ) ;
 
@@ -546,8 +545,7 @@ public class ServiceCollector extends HostCollector implements Runnable {
 
 			// full upload. We could make call to event service to see if they
 			// match...for now we do on restarts
-			csapApplication
-					.getEventClient( )
+			csapApis.events( )
 					.publishEvent( JAVA_METRICS_EVENT + collectionIntervalSeconds + "/attributes", "Modified", null,
 							javaAttributeCache ) ;
 			isCacheNeedsPublishing = false ;
@@ -558,14 +556,13 @@ public class ServiceCollector extends HostCollector implements Runnable {
 
 			jmxCorrelationAttributes = jacksonMapper.createObjectNode( ) ;
 			jmxCorrelationAttributes.put( "id", CsapApplication.COLLECTION_JAVA + "_" + collectionIntervalSeconds ) ;
-			jmxCorrelationAttributes.put( "hostName", csapApplication.getCsapHostShortname( ) ) ;
+			jmxCorrelationAttributes.put( "hostName", csapApis.application( ).getCsapHostShortname( ) ) ;
 
 		}
 
 		// Send normalized data
 		jmxSamplesToUploadNode.set( "attributes", jmxCorrelationAttributes ) ;
-		csapApplication
-				.getEventClient( )
+		csapApis.events( )
 				.publishEvent( JAVA_METRICS_EVENT + collectionIntervalSeconds + "/data",
 						"Upload", null, jmxSamplesToUploadNode ) ;
 
@@ -581,7 +578,7 @@ public class ServiceCollector extends HostCollector implements Runnable {
 
 	public ObjectNode getJavaCollection ( int requestedSampleSize , int skipFirstItems , String... services ) {
 
-		if ( services[ 0 ].toLowerCase( ).equals( ALL_SERVICES ) ) {
+		if ( services[0].toLowerCase( ).equals( ALL_SERVICES ) ) {
 
 			services = getJavaServiceNames( ) ;
 
@@ -637,8 +634,9 @@ public class ServiceCollector extends HostCollector implements Runnable {
 
 			if ( requestedServices.size( ) == 1 ) {
 
-				ServiceInstance matchedInstance = csapApplication.flexFindFirstInstanceCurrentHost( requestedServices
-						.get( 0 ) ) ;
+				ServiceInstance matchedInstance = csapApis.application( ).flexFindFirstInstanceCurrentHost(
+						requestedServices
+								.get( 0 ) ) ;
 
 				if ( matchedInstance != null
 						&& matchedInstance.is_cluster_kubernetes( )
@@ -772,7 +770,8 @@ public class ServiceCollector extends HostCollector implements Runnable {
 
 				String summaryName = serviceName ;
 				// strip off port or pod suffix
-				ServiceInstance serviceInstance = csapApplication.flexFindFirstInstanceCurrentHost( serviceName ) ;
+				ServiceInstance serviceInstance = csapApis.application( ).flexFindFirstInstanceCurrentHost(
+						serviceName ) ;
 				summaryName = serviceInstance.getName( ) ;
 
 				ObjectNode serviceSummary ;
@@ -859,7 +858,7 @@ public class ServiceCollector extends HostCollector implements Runnable {
 
 			// Strip off ports for summary reports
 			// Handle k8s instance selection: uses pod it
-			ServiceInstance serviceInstance = csapApplication.flexFindFirstInstanceCurrentHost( serviceId ) ;
+			ServiceInstance serviceInstance = csapApis.application( ).flexFindFirstInstanceCurrentHost( serviceId ) ;
 			summaryServiceName = serviceInstance.getName( ) ;
 
 			ObjectNode summaryReport = jacksonMapper.createObjectNode( ) ;
@@ -952,7 +951,7 @@ public class ServiceCollector extends HostCollector implements Runnable {
 												int requestedSampleSize ,
 												int skipFirstItems ) {
 
-		long requestHashValue = csapApplication.getApplicationLoadedAtMillis( ) + servicesFilter
+		long requestHashValue = csapApis.application( ).getApplicationLoadedAtMillis( ) + servicesFilter
 				.toString( )
 				.hashCode( ) ;
 
@@ -971,7 +970,7 @@ public class ServiceCollector extends HostCollector implements Runnable {
 
 		}
 
-		var timer = csapApplication.metrics( ).startTimer( ) ;
+		var timer = csapApis.metrics( ).startTimer( ) ;
 
 		ObjectNode attributeJson = jacksonMapper.createObjectNode( ) ;
 
@@ -979,7 +978,7 @@ public class ServiceCollector extends HostCollector implements Runnable {
 		attributeJson.put( "metricName", "Java Collection" ) ;
 		attributeJson.put( "description", "Contains service metrics" ) ;
 		attributeJson.put( "timezone", TIME_ZONE_OFFSET ) ;
-		attributeJson.put( "hostName", csapApplication.getCsapHostShortname( ) ) ;
+		attributeJson.put( "hostName", csapApis.application( ).getCsapHostShortname( ) ) ;
 		attributeJson.put( "sampleInterval", collectionIntervalSeconds ) ;
 		attributeJson.put( "samplesRequested", requestedSampleSize ) ;
 		attributeJson.put( "samplesOffset", skipFirstItems ) ;
@@ -1030,7 +1029,7 @@ public class ServiceCollector extends HostCollector implements Runnable {
 				// ServiceInstance testInstance =
 				// getCsapApplication().getServiceInstanceAnyPackage(
 				// serviceName );
-				ServiceInstance testInstance = getCsapApplication( ).flexFindFirstInstanceCurrentHost( serviceId ) ;
+				ServiceInstance testInstance = csapApis.application( ).flexFindFirstInstanceCurrentHost( serviceId ) ;
 
 				if ( testInstance != null && metric.isTomcatOnly( ) ) {
 
@@ -1066,7 +1065,7 @@ public class ServiceCollector extends HostCollector implements Runnable {
 
 		}
 
-		csapApplication.metrics( ).stopTimer( timer, "service-collector.attributes-java" ) ;
+		csapApis.metrics( ).stopTimer( timer, "service-collector.attributes-java" ) ;
 
 		if ( isFullServicesRequest ) {
 
@@ -1091,7 +1090,7 @@ public class ServiceCollector extends HostCollector implements Runnable {
 														int skipFirstItems ) {
 
 		String primaryFilter = requestedServiceIds.get( 0 ) ;
-		ServiceInstance serviceInstance = csapApplication.flexFindFirstInstanceCurrentHost( primaryFilter ) ;
+		ServiceInstance serviceInstance = csapApis.application( ).flexFindFirstInstanceCurrentHost( primaryFilter ) ;
 
 		logger.debug( "{} build attributes for id: {}, all ids: {}",
 				serviceInstance.getName( ),
@@ -1118,11 +1117,12 @@ public class ServiceCollector extends HostCollector implements Runnable {
 
 		serviceAttributeCacheCalculator.append( requestedServiceIds.toString( ) ) ;
 
-		long requestHashValue = csapApplication.getApplicationLoadedAtMillis( ) + serviceAttributeCacheCalculator
-				.toString( ).hashCode( ) ;
+		long requestHashValue = csapApis.application( ).getApplicationLoadedAtMillis( )
+				+ serviceAttributeCacheCalculator
+						.toString( ).hashCode( ) ;
 
 		logger.debug( "{} at {} ms requestHashValue: {}, attributeCacheDetails: {}",
-				serviceInstance.getName( ), csapApplication.getApplicationLoadedAtMillis( ), requestHashValue,
+				serviceInstance.getName( ), csapApis.application( ).getApplicationLoadedAtMillis( ), requestHashValue,
 				serviceAttributeCacheCalculator ) ;
 
 		if ( serviceAttributeCache.has( serviceInstance.getName( ) ) ) {
@@ -1141,7 +1141,7 @@ public class ServiceCollector extends HostCollector implements Runnable {
 
 		}
 
-		var timer = csapApplication.metrics( ).startTimer( ) ;
+		var timer = csapApis.metrics( ).startTimer( ) ;
 		ObjectNode updatedAttributesJson = jacksonMapper.createObjectNode( ) ;
 		String serviceId = serviceInstance.getName( ) ;
 
@@ -1151,7 +1151,7 @@ public class ServiceCollector extends HostCollector implements Runnable {
 		updatedAttributesJson.put( "metricName", "Service Collection" ) ;
 		updatedAttributesJson.put( "description", "Contains service metrics" ) ;
 		updatedAttributesJson.put( "timezone", TIME_ZONE_OFFSET ) ;
-		updatedAttributesJson.put( "hostName", csapApplication.getCsapHostShortname( ) ) ;
+		updatedAttributesJson.put( "hostName", csapApis.application( ).getCsapHostShortname( ) ) ;
 		updatedAttributesJson.put( "sampleInterval", collectionIntervalSeconds ) ;
 		updatedAttributesJson.put( "samplesRequested", requestedSampleSize ) ;
 		updatedAttributesJson.put( "samplesOffset", skipFirstItems ) ;
@@ -1238,7 +1238,7 @@ public class ServiceCollector extends HostCollector implements Runnable {
 
 		}
 
-		csapApplication.metrics( ).stopTimer( timer, "service-collector.attributes-application" ) ;
+		csapApis.metrics( ).stopTimer( timer, "service-collector.attributes-application" ) ;
 
 		ObjectNode cachedAttributes = jacksonMapper.createObjectNode( ) ;
 		cachedAttributes.set( "attributes", updatedAttributesJson ) ;

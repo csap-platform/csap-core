@@ -1,13 +1,14 @@
-package org.csap.agent ;
+package org.csap.agent.container.kubernetes ;
 
 import java.text.MessageFormat ;
 import java.util.Map ;
 import java.util.regex.Matcher ;
 
+import org.csap.agent.CsapConstants ;
 import org.csap.helpers.CSAP ;
 import org.springframework.boot.context.properties.ConfigurationProperties ;
 
-@ConfigurationProperties ( CsapCoreService.CONFIGURATION_PREFIX + ".kubernetes" )
+@ConfigurationProperties ( CsapConstants.CONFIGURATION_PREFIX + ".kubernetes" )
 public class KubernetesSettings {
 
 	private boolean enabled = false ;

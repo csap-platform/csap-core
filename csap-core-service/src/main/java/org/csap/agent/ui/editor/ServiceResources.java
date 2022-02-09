@@ -13,7 +13,7 @@ import java.util.List ;
 import java.util.regex.Pattern ;
 
 import org.apache.commons.lang3.StringUtils ;
-import org.csap.agent.model.Application ;
+import org.csap.agent.CsapApis ;
 import org.csap.agent.model.DefinitionConstants ;
 import org.csap.agent.model.ServiceAttributes ;
 import org.csap.helpers.CSAP ;
@@ -72,7 +72,8 @@ public class ServiceResources {
 
 		}
 
-		return new File( Application.getInstance( ).getRootModelBuildLocation( ) + "/" + serviceResourcesFolder.key( )
+		return new File( CsapApis.getInstance( ).application( ).getRootModelBuildLocation( ) + "/"
+				+ serviceResourcesFolder.key( )
 				+ "/" ) ;
 
 	}
@@ -121,12 +122,12 @@ public class ServiceResources {
 		// "/resources" ;
 		var fullpath = templateFolder + DefinitionConstants.serviceResourcesFolder.key( ) + "/" + serviceName ;
 
-		var resourceFolder = new File( Application.getInstance( ).getDefinitionFolder( ), fullpath ) ;
+		var resourceFolder = new File( CsapApis.getInstance( ).application( ).getDefinitionFolder( ), fullpath ) ;
 
 		if ( ! CsapApplication.isCsapFolderSet( ) ) {
 
 			// JUNIT testing
-			if ( ( ! junitMode ) && Application.getInstance( ).isDesktopProfileActiveOrSpringNull( ) ) {
+			if ( ( ! junitMode ) && CsapApis.getInstance( ).application( ).isDesktopProfileActiveOrSpringNull( ) ) {
 
 				if ( ! isPrintedOnce ) {
 
@@ -319,7 +320,7 @@ public class ServiceResources {
 					if ( ! currentLine.contains( "$$" ) ) {
 
 						// legacy migrations skipped if $$ found
-						line = Application.getInstance( )
+						line = CsapApis.getInstance( ).application( )
 								.getProjectLoader( ).getProjectMigrator( )
 								.migrateServiceVariables( currentLine ) ;
 

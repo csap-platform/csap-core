@@ -19,7 +19,6 @@ import java.util.concurrent.BlockingQueue ;
 import java.util.concurrent.ExecutorService ;
 import java.util.concurrent.ThreadPoolExecutor ;
 import java.util.concurrent.TimeUnit ;
-import java.util.regex.Matcher ;
 import java.util.regex.Pattern ;
 import java.util.stream.Collectors ;
 
@@ -29,18 +28,14 @@ import javax.servlet.http.HttpServletResponse ;
 import javax.servlet.http.HttpSession ;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.api.AgentApi ;
-import org.csap.agent.container.DockerJson ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.linux.OsCommandRunner ;
 import org.csap.agent.linux.OutputFileMgr ;
-import org.csap.agent.model.ActiveUsers ;
 import org.csap.agent.model.Application ;
-import org.csap.agent.model.HealthManager ;
 import org.csap.agent.model.Project ;
-import org.csap.agent.model.ServiceAlertsEnum ;
 import org.csap.agent.model.ServiceInstance ;
 import org.csap.agent.services.HostKeys ;
 import org.csap.agent.services.OsManager ;
@@ -96,7 +91,7 @@ import io.micrometer.core.instrument.util.StringUtils ;
  *
  */
 @RestController
-@RequestMapping ( CsapCoreService.SERVICE_URL )
+@RequestMapping ( CsapConstants.SERVICE_URL )
 @CsapDoc ( title = "Service Operations" , notes = {
 		"Update, Reload and similar operations to manage the running application",
 		"<a class='csap-link' target='_blank' href='https://github.com/csap-platform/csap-core/wiki'>learn more</a>",
@@ -179,10 +174,10 @@ public class ServiceRequests {
 	@Qualifier ( "csapEventsService" )
 	private RestTemplate csapEventsService ;
 
-	@Cacheable ( value = CsapCoreService.TIMEOUT_CACHE_60s , key = "{'eventCount-' + #project }" )
+	@Cacheable ( value = CsapConstants.TIMEOUT_CACHE_60s , key = "{'eventCount-' + #project }" )
 	@RequestMapping ( value = "/activityCount" )
 	public ObjectNode eventCount (
-									@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProject ) {
+									@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProject ) {
 
 		ObjectNode eventReport = jacksonMapper.createObjectNode( ) ;
 
@@ -305,8 +300,8 @@ public class ServiceRequests {
 
 	@RequestMapping ( value = "/resources" )
 	public ObjectNode service_resources (
-											@RequestParam ( value = CsapCore.HOST_PARAM ) String[] hostNameArray ,
-											@RequestParam ( value = CsapCore.SERVICE_PORT_PARAM ) String serviceName ) {
+											@RequestParam ( value = CsapConstants.HOST_PARAM ) String[] hostNameArray ,
+											@RequestParam ( value = CsapConstants.SERVICE_PORT_PARAM ) String serviceName ) {
 
 		return csapApp.getServiceCollection( hostNameArray, serviceName ) ;
 
@@ -316,8 +311,8 @@ public class ServiceRequests {
 
 	@GetAndPostMapping ( LATEST_APP_STATS_URL )
 	public JsonNode getLatestAppStats (
-										@RequestParam ( value = CsapCore.HOST_PARAM , required = false ) ArrayList<String> hosts ,
-										@RequestParam ( value = CsapCore.SERVICE_PORT_PARAM ) String serviceName ,
+										@RequestParam ( value = CsapConstants.HOST_PARAM , required = false ) ArrayList<String> hosts ,
+										@RequestParam ( value = CsapConstants.SERVICE_PORT_PARAM ) String serviceName ,
 										String type ,
 										String interval ,
 										int number ,
@@ -329,9 +324,9 @@ public class ServiceRequests {
 
 			MultiValueMap<String, String> urlVariables = new LinkedMultiValueMap<String, String>( ) ;
 
-			String url = CsapCoreService.SERVICE_URL + LATEST_APP_STATS_URL ;
+			String url = CsapConstants.SERVICE_URL + LATEST_APP_STATS_URL ;
 
-			urlVariables.add( CsapCore.SERVICE_PORT_PARAM, serviceName ) ;
+			urlVariables.add( CsapConstants.SERVICE_PORT_PARAM, serviceName ) ;
 
 			urlVariables.add( "type", type ) ;
 			urlVariables.add( "interval", interval ) ;
@@ -343,7 +338,7 @@ public class ServiceRequests {
 
 			} else {
 
-				resultsJson.put( CsapCore.CONFIG_PARSE_ERROR, " - Failed to find hostName: "
+				resultsJson.put( CsapConstants.CONFIG_PARSE_ERROR, " - Failed to find hostName: "
 						+ hosts ) ;
 
 			}
@@ -364,10 +359,10 @@ public class ServiceRequests {
 
 	}
 
-	@Cacheable ( value = CsapCoreService.TIMEOUT_CACHE_60s , key = "{'realTimeMeters-' + #projectName + #detailMeters  }" )
+	@Cacheable ( value = CsapConstants.TIMEOUT_CACHE_60s , key = "{'realTimeMeters-' + #projectName + #detailMeters  }" )
 	@RequestMapping ( value = "/realTimeMeters" )
 	public ArrayNode getRealTimeMeters (
-											@RequestParam ( value = CsapCore.PROJECT_PARAMETER ) String projectName ,
+											@RequestParam ( value = CsapConstants.PROJECT_PARAMETER ) String projectName ,
 											@RequestParam ( value = "meterId" , required = false , defaultValue = "" ) ArrayList<String> detailMeters ) {
 
 		// copy the definitions - then added results
@@ -396,8 +391,8 @@ public class ServiceRequests {
 
 				String id = meterJson.get( "id" ).asText( ) ;
 				String[] jsonPath = id.split( Pattern.quote( "." ) ) ;
-				String collector = jsonPath[ 0 ] ;
-				String attribute = jsonPath[ 1 ] ;
+				String collector = jsonPath[0] ;
+				String attribute = jsonPath[1] ;
 				// logger.info("collector: " + collector + " attribute: " +
 				// attribute);
 				// vm. process. jmxCommon. jmxCustom.Service.var
@@ -412,8 +407,8 @@ public class ServiceRequests {
 
 					if ( collector.equals( MetricCategory.application.json( ) ) ) {
 
-						String serviceName = jsonPath[ 1 ] ;
-						attribute = jsonPath[ 2 ] ;
+						String serviceName = jsonPath[1] ;
+						attribute = jsonPath[2] ;
 
 						if ( ! collectedJson.has( serviceName ) ) {
 
@@ -480,7 +475,7 @@ public class ServiceRequests {
 	 */
 	public static final String EVENT_API_WRAPPER = "/eventApi" ;
 
-	@Cacheable ( value = CsapCoreService.TIMEOUT_CACHE_60s , key = "{'latestEvent-' + #apiName + #appId + #life + #category }" )
+	@Cacheable ( value = CsapConstants.TIMEOUT_CACHE_60s , key = "{'latestEvent-' + #apiName + #appId + #life + #category }" )
 	@RequestMapping ( value = EVENT_API_WRAPPER + "/{apiName:.+}" )
 	public ObjectNode latestEvent (
 									@PathVariable ( value = "apiName" ) String apiName ,
@@ -568,7 +563,7 @@ public class ServiceRequests {
 								@RequestParam ( value = "life" , required = true ) String life ,
 								@RequestParam ( value = "numberOfDays" , required = false , defaultValue = "1" ) int numberOfDays ,
 								@RequestParam ( value = "dateOffSet" , required = false , defaultValue = "0" ) int dateOffSet ,
-								@RequestParam ( value = CsapCore.SERVICE_PORT_PARAM , required = false ) String serviceName ,
+								@RequestParam ( value = CsapConstants.SERVICE_PORT_PARAM , required = false ) String serviceName ,
 								@RequestParam ( value = "padLatest" , required = false ) String padLatest ,
 								@RequestParam ( value = "searchFromBegining" , required = false ) String searchFromBegining ,
 								HttpServletResponse response )
@@ -630,14 +625,14 @@ public class ServiceRequests {
 
 	// #path1.concat('peter')
 	// @Cacheable ( CsapCoreService.TIMEOUT_CACHE_60s )
-	@Cacheable ( cacheNames = CsapCoreService.TIMEOUT_CACHE_60s , keyGenerator = "compareKeyGenerator" )
+	@Cacheable ( cacheNames = CsapConstants.TIMEOUT_CACHE_60s , keyGenerator = "compareKeyGenerator" )
 
 	@RequestMapping ( value = "/report" )
 	public ObjectNode analyticsCompareReport (
 												@RequestParam ( value = "report" , required = false ) String report ,
 												@RequestParam ( value = "appId" , required = true ) String appId ,
 												@RequestParam ( value = "project" , required = true ) String project ,
-												@RequestParam ( value = CsapCore.SERVICE_PORT_PARAM , required = false ) String serviceName ,
+												@RequestParam ( value = CsapConstants.SERVICE_PORT_PARAM , required = false ) String serviceName ,
 												@RequestParam ( value = "host" , required = false ) String host ,
 												@RequestParam ( value = "life" , required = false ) String life ,
 												@RequestParam ( value = "numDays" , required = false , defaultValue = "1" ) int numDays ,
@@ -672,7 +667,7 @@ public class ServiceRequests {
 				+ "&numDays=" + numDays
 				+ "&dateOffSet=" + dateOffSet ;
 
-		if ( ! project.contains( CsapCore.ALL_PACKAGES ) ) {
+		if ( ! project.contains( CsapConstants.ALL_PACKAGES ) ) {
 
 			restUrl += "&project=" + project ;
 
@@ -722,7 +717,8 @@ public class ServiceRequests {
 
 			if ( ! csapApp.rootProjectEnvSettings( ).isEventPublishEnabled( ) ) {
 
-				ClassPathResource reportStub = new ClassPathResource( CsapCore.EVENTS_STUB_FOLDER + "report-" + report
+				ClassPathResource reportStub = new ClassPathResource( CsapConstants.EVENTS_STUB_FOLDER + "report-"
+						+ report
 						+ ".json" ) ;
 				logger.info( "Stubbing out report data using: {},  add csap events services", reportStub ) ;
 				restResponse = (ObjectNode) jacksonMapper.readTree( reportStub.getFile( ) ) ;
@@ -777,7 +773,7 @@ public class ServiceRequests {
 												@RequestParam ( value = "report" , required = false ) String report ,
 												@RequestParam ( value = "appId" , required = true ) String appId ,
 												@RequestParam ( value = "project" , required = true ) String project ,
-												@RequestParam ( value = CsapCore.SERVICE_PORT_PARAM , required = false ) String serviceName ,
+												@RequestParam ( value = CsapConstants.SERVICE_PORT_PARAM , required = false ) String serviceName ,
 												@RequestParam ( value = "host" , required = false ) String host ,
 												@RequestParam ( value = "life" , required = false ) String life ,
 												@RequestParam ( value = "numDays" , required = false , defaultValue = "1" ) int numDays ,
@@ -803,7 +799,7 @@ public class ServiceRequests {
 				+ "&appId=" + appId
 				+ "&dateOffSet=" + dateOffSet ;
 
-		if ( ! project.contains( CsapCore.ALL_PACKAGES ) ) {
+		if ( ! project.contains( CsapConstants.ALL_PACKAGES ) ) {
 
 			restUrl += "&project=" + project ;
 
@@ -887,8 +883,8 @@ public class ServiceRequests {
 
 	@RequestMapping ( value = "/batchStart" , produces = MediaType.APPLICATION_JSON_VALUE )
 	public ObjectNode startBatch (
-									@RequestParam ( CsapCore.SERVICE_PORT_PARAM ) ArrayList<String> services ,
-									@RequestParam ( CsapCore.HOST_PARAM ) ArrayList<String> hosts ,
+									@RequestParam ( CsapConstants.SERVICE_PORT_PARAM ) ArrayList<String> services ,
+									@RequestParam ( CsapConstants.HOST_PARAM ) ArrayList<String> hosts ,
 									HttpServletRequest request ) {
 
 		String uiUser = securitySettings.getRoles( ).getUserIdFromContext( ) ;
@@ -1012,9 +1008,9 @@ public class ServiceRequests {
 
 	@RequestMapping ( value = "/batchDeploy" , produces = MediaType.APPLICATION_JSON_VALUE )
 	public ObjectNode deployBatch (
-									@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = true ) String csapProject ,
-									@RequestParam ( CsapCore.SERVICE_PORT_PARAM ) ArrayList<String> services ,
-									@RequestParam ( CsapCore.HOST_PARAM ) ArrayList<String> hosts ,
+									@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = true ) String csapProject ,
+									@RequestParam ( CsapConstants.SERVICE_PORT_PARAM ) ArrayList<String> services ,
+									@RequestParam ( CsapConstants.HOST_PARAM ) ArrayList<String> hosts ,
 									HttpServletRequest request ) {
 
 		String uiUser = securitySettings.getRoles( ).getUserIdFromContext( ) ;
@@ -1188,8 +1184,8 @@ public class ServiceRequests {
 	} , produces = MediaType.APPLICATION_JSON_VALUE )
 	@ResponseBody
 	public JsonNode deployProgress (
-										@RequestParam ( CsapCore.HOST_PARAM ) String hostName ,
-										@RequestParam ( CsapCore.SERVICE_PORT_PARAM ) String serviceName_port ,
+										@RequestParam ( CsapConstants.HOST_PARAM ) String hostName ,
+										@RequestParam ( CsapConstants.SERVICE_PORT_PARAM ) String serviceName_port ,
 										@RequestParam ( FileRequests.LOG_FILE_OFFSET_PARAM ) long offsetLong )
 		throws IOException {
 
@@ -1210,9 +1206,9 @@ public class ServiceRequests {
 
 			MultiValueMap<String, String> urlVariables = new LinkedMultiValueMap<String, String>( ) ;
 
-			urlVariables.set( CsapCore.SERVICE_PORT_PARAM, serviceName_port ) ;
+			urlVariables.set( CsapConstants.SERVICE_PORT_PARAM, serviceName_port ) ;
 			urlVariables.set( FileRequests.LOG_FILE_OFFSET_PARAM, Long.toString( offsetLong ) ) ;
-			String url = CsapCoreService.SERVICE_URL + DEPLOY_PROGRESS_URL ;
+			String url = CsapConstants.SERVICE_URL + DEPLOY_PROGRESS_URL ;
 			List<String> hosts = new ArrayList<>( ) ;
 			hosts.add( hostName ) ;
 			progress = serviceOsManager
@@ -1240,8 +1236,8 @@ public class ServiceRequests {
 			REBUILD_URL
 	} )
 	public ObjectNode deployService (
-										@RequestParam ( CsapCore.SERVICE_PORT_PARAM ) ArrayList<String> services ,
-										@RequestParam ( CsapCore.HOST_PARAM ) ArrayList<String> primaryHost ,
+										@RequestParam ( CsapConstants.SERVICE_PORT_PARAM ) ArrayList<String> services ,
+										@RequestParam ( CsapConstants.HOST_PARAM ) ArrayList<String> primaryHost ,
 
 										// required parameters
 										String scmUserid ,
@@ -1329,7 +1325,7 @@ public class ServiceRequests {
 	} )
 	@PostMapping ( "/deployments/pause" )
 	public ObjectNode deploymentsPause (
-											@RequestParam ( CsapCore.HOST_PARAM ) ArrayList<String> hosts ) {
+											@RequestParam ( CsapConstants.HOST_PARAM ) ArrayList<String> hosts ) {
 
 		String uiUser = securitySettings.getRoles( ).getUserIdFromContext( ) ;
 
@@ -1361,7 +1357,7 @@ public class ServiceRequests {
 	} )
 	@DeleteMapping ( value = "/deployments" , consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE )
 	public ObjectNode deploymentsClear (
-											@RequestParam ( CsapCore.HOST_PARAM ) ArrayList<String> hosts ) {
+											@RequestParam ( CsapConstants.HOST_PARAM ) ArrayList<String> hosts ) {
 
 		String uiUser = securitySettings.getRoles( ).getUserIdFromContext( ) ;
 
@@ -1386,8 +1382,8 @@ public class ServiceRequests {
 
 	@PostMapping ( "/runServiceJob" )
 	public ObjectNode runJob (
-								@RequestParam ( value = CsapCore.HOST_PARAM , required = false ) ArrayList<String> hosts ,
-								@RequestParam ( CsapCore.SERVICE_PORT_PARAM ) ArrayList<String> services ,
+								@RequestParam ( value = CsapConstants.HOST_PARAM , required = false ) ArrayList<String> hosts ,
+								@RequestParam ( CsapConstants.SERVICE_PORT_PARAM ) ArrayList<String> services ,
 								@RequestParam ( "jobToRun" ) String jobToRun ,
 								@RequestParam ( "jobParameters" ) String jobParameters ,
 								HttpServletRequest request )
@@ -1422,8 +1418,8 @@ public class ServiceRequests {
 
 	@RequestMapping ( START_URL )
 	public ObjectNode startServer (
-									@RequestParam ( CsapCore.SERVICE_PORT_PARAM ) ArrayList<String> services ,
-									@RequestParam ( CsapCore.HOST_PARAM ) ArrayList<String> hosts ,
+									@RequestParam ( CsapConstants.SERVICE_PORT_PARAM ) ArrayList<String> services ,
+									@RequestParam ( CsapConstants.HOST_PARAM ) ArrayList<String> hosts ,
 									@RequestParam ( required = false ) String commandArguments ,
 									@RequestParam ( required = false ) String hotDeploy ,
 									@RequestParam ( required = false ) String startClean ,
@@ -1472,8 +1468,8 @@ public class ServiceRequests {
 
 	@PostMapping ( value = "/stopServer" , produces = MediaType.APPLICATION_JSON_VALUE )
 	public JsonNode stopServer (
-									@RequestParam ( CsapCore.SERVICE_PORT_PARAM ) ArrayList<String> services ,
-									@RequestParam ( value = CsapCore.HOST_PARAM , required = false ) ArrayList<String> hosts ,
+									@RequestParam ( CsapConstants.SERVICE_PORT_PARAM ) ArrayList<String> services ,
+									@RequestParam ( value = CsapConstants.HOST_PARAM , required = false ) ArrayList<String> hosts ,
 									HttpServletRequest request ) {
 
 		String uiUser = securitySettings.getRoles( ).getUserIdFromContext( ) ;
@@ -1546,8 +1542,8 @@ public class ServiceRequests {
 
 	@PostMapping ( value = "/reImage" , produces = MediaType.APPLICATION_JSON_VALUE )
 	public ObjectNode reImage (
-								@RequestParam ( value = CsapCore.HOST_PARAM , required = false ) ArrayList<String> hosts ,
-								@RequestParam ( value = CsapCore.SERVICE_PORT_PARAM , required = false ) String[] svcNameArray ,
+								@RequestParam ( value = CsapConstants.HOST_PARAM , required = false ) ArrayList<String> hosts ,
+								@RequestParam ( value = CsapConstants.SERVICE_PORT_PARAM , required = false ) String[] svcNameArray ,
 								HttpServletRequest request )
 		throws IOException {
 
@@ -1565,7 +1561,7 @@ public class ServiceRequests {
 
 					if ( service.trim( ).length( ) != 0 ) {
 
-						urlVariables.add( CsapCore.SERVICE_PORT_PARAM, service ) ;
+						urlVariables.add( CsapConstants.SERVICE_PORT_PARAM, service ) ;
 
 					}
 
@@ -1573,7 +1569,7 @@ public class ServiceRequests {
 
 			}
 
-			String url = CsapCoreService.SERVICE_URL + "/reImage" ;
+			String url = CsapConstants.SERVICE_URL + "/reImage" ;
 
 			if ( hosts != null ) {
 
@@ -1581,7 +1577,7 @@ public class ServiceRequests {
 
 			} else {
 
-				resultsJson.put( CsapCore.CONFIG_PARSE_ERROR, " - Failed to find hostName: " + hosts ) ;
+				resultsJson.put( CsapConstants.CONFIG_PARSE_ERROR, " - Failed to find hostName: " + hosts ) ;
 
 			}
 
@@ -1637,7 +1633,7 @@ public class ServiceRequests {
 		osCommandRunner.executeString( parmList,
 				csapApp.getCsapPackageFolder( ), null, null, 600, 1, null ) ;
 
-		String svcName = CsapCore.AGENT_ID ;
+		String svcName = CsapConstants.AGENT_ID ;
 		ArrayList<String> params = new ArrayList<String>( ) ;
 
 		params.add( "-cleanType" ) ;
@@ -1656,8 +1652,8 @@ public class ServiceRequests {
 
 	@RequestMapping ( value = "/batchKill" , produces = MediaType.APPLICATION_JSON_VALUE )
 	public ObjectNode killBatch (
-									@RequestParam ( CsapCore.SERVICE_PORT_PARAM ) ArrayList<String> services ,
-									@RequestParam ( CsapCore.HOST_PARAM ) ArrayList<String> hosts ,
+									@RequestParam ( CsapConstants.SERVICE_PORT_PARAM ) ArrayList<String> services ,
+									@RequestParam ( CsapConstants.HOST_PARAM ) ArrayList<String> hosts ,
 									@RequestParam ( defaultValue = "" ) String clean ,
 									HttpServletRequest request ) {
 
@@ -1836,8 +1832,8 @@ public class ServiceRequests {
 
 	@RequestMapping ( KILL_URL )
 	public ObjectNode killServer (
-									@RequestParam ( CsapCore.SERVICE_PORT_PARAM ) ArrayList<String> services ,
-									@RequestParam ( CsapCore.HOST_PARAM ) ArrayList<String> hosts ,
+									@RequestParam ( CsapConstants.SERVICE_PORT_PARAM ) ArrayList<String> services ,
+									@RequestParam ( CsapConstants.HOST_PARAM ) ArrayList<String> hosts ,
 									@RequestParam ( required = false ) String clean ,
 									@RequestParam ( required = false ) String keepLogs ,
 									HttpServletRequest request )
@@ -1903,8 +1899,8 @@ public class ServiceRequests {
 	 */
 	@PostMapping ( value = "/jmeter" , produces = MediaType.APPLICATION_JSON_VALUE )
 	public ObjectNode jmeter (
-								@RequestParam ( value = CsapCore.HOST_PARAM , required = false ) ArrayList<String> hosts ,
-								@RequestParam ( CsapCore.SERVICE_PORT_PARAM ) String[] svcNameArray ,
+								@RequestParam ( value = CsapConstants.HOST_PARAM , required = false ) ArrayList<String> hosts ,
+								@RequestParam ( CsapConstants.SERVICE_PORT_PARAM ) String[] svcNameArray ,
 								HttpServletRequest request ) {
 
 		logger.info( "hostName : " + hosts + " svcName count: "
@@ -1918,11 +1914,11 @@ public class ServiceRequests {
 
 			for ( String service : svcNameArray ) {
 
-				urlVariables.add( CsapCore.SERVICE_PORT_PARAM, service ) ;
+				urlVariables.add( CsapConstants.SERVICE_PORT_PARAM, service ) ;
 
 			}
 
-			String url = CsapCoreService.SERVICE_URL + "/jmeter" ;
+			String url = CsapConstants.SERVICE_URL + "/jmeter" ;
 
 			if ( hosts != null ) {
 
@@ -1930,7 +1926,7 @@ public class ServiceRequests {
 
 			} else {
 
-				resultsJson.put( CsapCore.CONFIG_PARSE_ERROR, " - Failed to find hostName: " + hosts ) ;
+				resultsJson.put( CsapConstants.CONFIG_PARSE_ERROR, " - Failed to find hostName: " + hosts ) ;
 
 			}
 
@@ -1940,7 +1936,7 @@ public class ServiceRequests {
 
 		for ( int i = 0; i < svcNameArray.length; i++ ) {
 
-			String svcName = svcNameArray[ i ] ;
+			String svcName = svcNameArray[i] ;
 			ArrayList<String> params = new ArrayList<String>( ) ;
 
 			// check for host
@@ -1958,8 +1954,8 @@ public class ServiceRequests {
 	@PostMapping ( value = "/purgeDeployCache" , produces = MediaType.APPLICATION_JSON_VALUE )
 	public ObjectNode purgeDeployCaches (
 
-											@RequestParam ( CsapCore.SERVICE_PORT_PARAM ) ArrayList<String> services ,
-											@RequestParam ( CsapCore.HOST_PARAM ) ArrayList<String> hosts ,
+											@RequestParam ( CsapConstants.SERVICE_PORT_PARAM ) ArrayList<String> services ,
+											@RequestParam ( CsapConstants.HOST_PARAM ) ArrayList<String> hosts ,
 											@RequestParam ( value = "global" , required = false ) String global ,
 											HttpServletRequest request ) {
 
@@ -1972,11 +1968,11 @@ public class ServiceRequests {
 		if ( csapApp.isAdminProfile( ) ) {
 
 			MultiValueMap<String, String> urlVariables = new LinkedMultiValueMap<String, String>( ) ;
-			urlVariables.put( CsapCore.SERVICE_PORT_PARAM, services ) ;
+			urlVariables.put( CsapConstants.SERVICE_PORT_PARAM, services ) ;
 			// }
 			urlVariables.add( "global", global ) ;
 
-			String url = CsapCoreService.SERVICE_URL + "/purgeDeployCache" ;
+			String url = CsapConstants.SERVICE_URL + "/purgeDeployCache" ;
 
 			resultsJson = serviceOsManager.remoteAgentsUsingUserCredentials(
 					hosts, url, urlVariables,
@@ -2016,9 +2012,6 @@ public class ServiceRequests {
 		return csapApp.healthManager( ).buildServiceAlertReport( project, filter ) ;
 
 	}
-
-	@Inject
-	ActiveUsers activeUsers ;
 
 	private String SESSION_EXPIRED = "SessionExpired" ;
 
@@ -2067,8 +2060,8 @@ public class ServiceRequests {
 	@PostMapping ( "/uploadArtifact" )
 	public JsonNode uploadArtifact (
 										@RequestParam ( value = "distFile" , required = false ) MultipartFile multiPartFile ,
-										@RequestParam ( value = CsapCore.SERVICE_PORT_PARAM , required = false ) String serviceName ,
-										@RequestParam ( value = CsapCore.HOST_PARAM , required = true ) String[] hostNameArray ,
+										@RequestParam ( value = CsapConstants.SERVICE_PORT_PARAM , required = false ) String serviceName ,
+										@RequestParam ( value = CsapConstants.HOST_PARAM , required = true ) String[] hostNameArray ,
 										HttpServletRequest request )
 		throws IOException {
 
@@ -2082,7 +2075,7 @@ public class ServiceRequests {
 		if ( multiPartFile == null
 				|| serviceName == null ) {
 
-			resultReport.put( CsapCore.CONFIG_PARSE_ERROR, "Failed to process request" ) ;
+			resultReport.put( CsapConstants.CONFIG_PARSE_ERROR, "Failed to process request" ) ;
 
 			return resultReport ;
 
@@ -2116,7 +2109,7 @@ public class ServiceRequests {
 
 			} catch ( Exception e ) {
 
-				results.append( "\n== " + CsapCore.CONFIG_PARSE_ERROR + " Host "
+				results.append( "\n== " + CsapConstants.CONFIG_PARSE_ERROR + " Host "
 						+ csapApp.getCsapHostName( ) + ":" + e.getMessage( ) ) ;
 
 			}
@@ -2190,7 +2183,7 @@ public class ServiceRequests {
 
 		results.append( "Completed upload. Click Start to use the new file." ) ;
 
-		resultReport.put( DockerJson.response_plain_text.json( ), results.toString( ) ) ;
+		resultReport.put( C7.response_plain_text.val( ), results.toString( ) ) ;
 		return resultReport ;
 
 	}
@@ -2199,7 +2192,7 @@ public class ServiceRequests {
 	public ResponseEntity<StreamingResponseBody> profilerLauncher (
 																	@RequestParam ( "jmxPorts" ) String jmxHostPortsSpaceDelimArray ,
 																	@RequestParam ( value = "jvisualvm" , required = false ) String jvisualvm ,
-																	@RequestParam ( value = CsapCore.SERVICE_PORT_PARAM ) String serviceName_port )
+																	@RequestParam ( value = CsapConstants.SERVICE_PORT_PARAM ) String serviceName_port )
 		throws Exception {
 
 		StringBuilder batContents = new StringBuilder( ) ;
@@ -2227,7 +2220,7 @@ public class ServiceRequests {
 
 		}
 
-		csapEventClient.publishUserEvent( CsapCore.AGENT_ID, securitySettings.getRoles( ).getUserIdFromContext( ),
+		csapEventClient.publishUserEvent( CsapConstants.AGENT_ID, securitySettings.getRoles( ).getUserIdFromContext( ),
 				" Java Profiler Launch: " + csapApp.getCsapHostName( ), "no details" ) ;
 
 		batContents.append( "echo %JAVA_HOME% \r\n" ) ;
@@ -2255,18 +2248,18 @@ public class ServiceRequests {
 
 			// from csap-eng01:8026 to
 			// service:jmx:rmi://csap-eng01:8028/jndi/rmi://csap-eng01:8027/jmxrmi
-			String jndiDest = jmxHostPortArray[ i ]
-					.substring( 0, jmxHostPortArray[ i ].length( ) - 1 ) + "7" ;
-			String firewallDest = jmxHostPortArray[ i ].substring( 0,
-					jmxHostPortArray[ i ].length( ) - 1 ) + "8" ;
+			String jndiDest = jmxHostPortArray[i]
+					.substring( 0, jmxHostPortArray[i].length( ) - 1 ) + "7" ;
+			String firewallDest = jmxHostPortArray[i].substring( 0,
+					jmxHostPortArray[i].length( ) - 1 ) + "8" ;
 
 			// if ( isJmxUsingRmi ) {
 			// batContents.append( "service:jmx:rmi://" + firewallDest );
 			// batContents.append( "/jndi/rmi://" + jndiDest + "/jmxrmi " );
 			// } else {
-			String hostPort[] = jmxHostPortArray[ i ].split( ":" ) ;
-			firstHost = hostPort[ 0 ] ;
-			batContents.append( csapApp.getHostUsingFqdn( firstHost ) + ":" + hostPort[ 1 ] ) ;
+			String hostPort[] = jmxHostPortArray[i].split( ":" ) ;
+			firstHost = hostPort[0] ;
+			batContents.append( csapApp.getHostUsingFqdn( firstHost ) + ":" + hostPort[1] ) ;
 			// }
 
 			if ( jvisualvm != null ) {
@@ -2284,7 +2277,7 @@ public class ServiceRequests {
 
 		for ( int i = 0; i < jmxHostPortArray.length; i++ ) {
 
-			batContents.append( jmxHostPortArray[ i ] ) ;
+			batContents.append( jmxHostPortArray[i] ) ;
 			batContents.append( " " ) ;
 
 		}
@@ -2328,8 +2321,8 @@ public class ServiceRequests {
 
 	@PostMapping ( value = "/undeploy" , produces = MediaType.APPLICATION_JSON_VALUE )
 	public ObjectNode undeploy (
-									@RequestParam ( value = CsapCore.HOST_PARAM , required = false ) ArrayList<String> hosts ,
-									@RequestParam ( CsapCore.SERVICE_PORT_PARAM ) String serviceName ,
+									@RequestParam ( value = CsapConstants.HOST_PARAM , required = false ) ArrayList<String> hosts ,
+									@RequestParam ( CsapConstants.SERVICE_PORT_PARAM ) String serviceName ,
 									@RequestParam ( "warSelect" ) String warSelect ,
 									HttpServletRequest request ,
 									HttpServletResponse response ) {
@@ -2340,7 +2333,7 @@ public class ServiceRequests {
 
 		ObjectNode resultsJson = jacksonMapper.createObjectNode( ) ;
 
-		if ( serviceName.startsWith( CsapCore.AGENT_NAME ) ) {
+		if ( serviceName.startsWith( CsapConstants.AGENT_NAME ) ) {
 
 			resultsJson.put( serviceName, "Agent does not support undeploys" ) ;
 			return resultsJson ;
@@ -2350,11 +2343,11 @@ public class ServiceRequests {
 		if ( csapApp.isAdminProfile( ) ) {
 
 			MultiValueMap<String, String> urlVariables = new LinkedMultiValueMap<String, String>( ) ;
-			urlVariables.add( CsapCore.SERVICE_PORT_PARAM, serviceName ) ;
+			urlVariables.add( CsapConstants.SERVICE_PORT_PARAM, serviceName ) ;
 
 			urlVariables.add( "warSelect", warSelect ) ;
 
-			String url = CsapCoreService.SERVICE_URL + "/undeploy" ;
+			String url = CsapConstants.SERVICE_URL + "/undeploy" ;
 
 			if ( hosts != null ) {
 
@@ -2362,7 +2355,7 @@ public class ServiceRequests {
 
 			} else {
 
-				resultsJson.put( CsapCore.CONFIG_PARSE_ERROR, " - Failed to find hostName: " + hosts ) ;
+				resultsJson.put( CsapConstants.CONFIG_PARSE_ERROR, " - Failed to find hostName: " + hosts ) ;
 
 			}
 
@@ -2386,7 +2379,7 @@ public class ServiceRequests {
 			// response.getWriter().print(sourceControlManager.executeShell(parmList,
 			// null));
 
-			csapEventClient.publishUserEvent( CsapCore.AGENT_ID,
+			csapEventClient.publishUserEvent( CsapConstants.AGENT_ID,
 					securitySettings.getRoles( ).getUserIdFromContext( ),
 					" Undeploying: " + targetFile.getAbsolutePath( )
 							+ csapApp.getCsapHostName( ),
@@ -2407,7 +2400,7 @@ public class ServiceRequests {
 	@PostMapping ( value = "/updateMotd" , produces = MediaType.APPLICATION_JSON_VALUE )
 	public ObjectNode updateMotd (
 									@RequestParam ( "motd" ) String motdMessage ,
-									@RequestParam ( value = CsapCore.HOST_PARAM , required = false ) ArrayList<String> hosts ,
+									@RequestParam ( value = CsapConstants.HOST_PARAM , required = false ) ArrayList<String> hosts ,
 									HttpServletRequest request ) {
 
 		logger.debug( " motdMessage: {}", motdMessage ) ;
@@ -2419,7 +2412,7 @@ public class ServiceRequests {
 			MultiValueMap<String, String> urlVariables = new LinkedMultiValueMap<String, String>( ) ;
 			urlVariables.add( "motd", motdMessage ) ;
 
-			String url = CsapCoreService.SERVICE_URL + "/updateMotd" ;
+			String url = CsapConstants.SERVICE_URL + "/updateMotd" ;
 
 			if ( hosts != null ) {
 
@@ -2427,7 +2420,7 @@ public class ServiceRequests {
 
 			} else {
 
-				resultsJson.put( CsapCore.CONFIG_PARSE_ERROR, " - Failed to find hostName: " + hosts ) ;
+				resultsJson.put( CsapConstants.CONFIG_PARSE_ERROR, " - Failed to find hostName: " + hosts ) ;
 
 			}
 
@@ -2436,7 +2429,7 @@ public class ServiceRequests {
 		}
 
 		csapApp.setMotdMessage( securitySettings.getRoles( ).getUserIdFromContext( ) + ": " + motdMessage ) ;
-		csapEventClient.publishUserEvent( CsapCore.AGENT_ID, securitySettings.getRoles( ).getUserIdFromContext( ),
+		csapEventClient.publishUserEvent( CsapConstants.AGENT_ID, securitySettings.getRoles( ).getUserIdFromContext( ),
 				" updated motd on Host: " + csapApp.getCsapHostName( ), motdMessage ) ;
 
 		resultsJson.put( "results", " updated motd on Host: " + csapApp.getCsapHostName( ) ) ;
@@ -2447,7 +2440,7 @@ public class ServiceRequests {
 
 	private void sendCsapEvent ( String commandDesc , String details ) {
 
-		csapEventClient.publishUserEvent( CsapCore.AGENT_ID, securitySettings.getRoles( ).getUserIdFromContext( ),
+		csapEventClient.publishUserEvent( CsapConstants.AGENT_ID, securitySettings.getRoles( ).getUserIdFromContext( ),
 				commandDesc, details ) ;
 
 	}

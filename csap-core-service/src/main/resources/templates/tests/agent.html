@@ -5,10 +5,14 @@
 <head>
 <title>fragment</title>
 </head>
+
+
+
 <body
 	th:fragment="pageContent"
 	th:remove="tag">
 
+	
 
 	<table
 		id="core"
@@ -207,15 +211,52 @@
 				<td>Web App</td>
 				<td>Application Portal, default landing page</td>
 			</tr>
+
 			<tr>
 				<td>
 					<a
 						class="csap-link"
-						th:href="@{/swagger-ui/index.html}">Swagger Api Documentation</a>
+						th:href="@{/location/ingress(path='/test-k8s-by-spec',debug='true')}">path=/test-k8s-by-spec&ssl=false</a>
+					<a
+						class="csap-link"
+						th:href="@{/location/ingress(path='/test-k8s-by-spec',debug='true',ssl='true')}">path=/test-k8s-by-spec&ssl=true</a>
+
 				</td>
 				<td>Web App</td>
-				<td>Swagger documentation and api tester</td>
+				<td>ingress lookup and launch</td>
 			</tr>
+			
+			
+		
+			
+
+
+
+				<tr>
+					<td>
+						<a
+							class="csap-link-icon csap-window"
+							target="_blank"
+							th:href="@{/swagger-ui/index.html}">Swagger UI</a>
+							
+							
+						<br>
+						
+						<a
+							class="csap-link-icon csap-window"
+							target="_blank"
+							th:href="@{/v3/api-docs}">OpenApi Docs</a>
+						
+
+					</td>
+					<td>web app</td>
+					<td>
+						<a
+							class="csap-link-icon csap-window"
+							target="_blank"
+							href="https://springdoc.org/">springdoc reference guide</a>
+						<br></td>
+				</tr>
 
 			<tr>
 				<td>
@@ -362,7 +403,7 @@
 				<td>
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/application'} }"> Application Editor </a>
+						th:href="@{${ @csapConstants.EDIT_URL + '/application'} }"> Application Editor </a>
 				</td>
 				<td>Web App</td>
 				<td>UI Used to modify the application definition</td>
@@ -373,11 +414,11 @@
 				<td>
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.OS_URL + '/definitionZip'} }"> Application Definition </a>
+						th:href="@{${ @csapConstants.OS_URL + '/definitionZip'} }"> Application Definition </a>
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.OS_URL + '/folderZip'}(token=-p5zof6.inoz9dfexk6do1us,path=csap,service=kubeadm_8014) }">
+						th:href="@{${ @csapConstants.OS_URL + '/folderZip'}(token=-p5zof6.inoz9dfexk6do1us,path=csap,service=kubeadm_8014) }">
 						Folder Zip </a>
 
 				</td>
@@ -389,7 +430,7 @@
 				<td>
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/summary'} }"> Application Summary </a>
+						th:href="@{${ @csapConstants.EDIT_URL + '/summary'} }"> Application Summary </a>
 				</td>
 				<td>Web App</td>
 				<td>Summary report of Application, included limits, instance information</td>
@@ -398,12 +439,12 @@
 				<td>
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/lifecycle'} }"> Environment Editor </a>
+						th:href="@{${ @csapConstants.EDIT_URL + '/lifecycle'} }"> Environment Editor </a>
 						
 						
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/settingsDialog'} }"> Environment Settings </a>
+						th:href="@{${ @csapConstants.EDIT_URL + '/settingsDialog'} }"> Environment Settings </a>
 				</td>
 				<td>Web App</td>
 				<td>Modify clusters, services, landing page, agent collections,...</td>
@@ -414,7 +455,7 @@
 				<td>
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/clusterDialog'}(clusterName='*') }"> Cluster Editor </a>
+						th:href="@{${ @csapConstants.EDIT_URL + '/clusterDialog'}(clusterName='*') }"> Cluster Editor </a>
 
 				</td>
 				<td>Web App</td>
@@ -427,30 +468,30 @@
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=${viewConstants.get('AGENT_NAME')},hostName='*') }">
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=${viewConstants.get('AGENT_NAME')},hostName='*') }">
 						[[ ${viewConstants.get('AGENT_NAME')} ]] </a>
 
 
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=simple-monitor,hostName='*') }">
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=simple-monitor,hostName='*') }">
 						simple-monitor </a>
 
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=csap-package-java,hostName='*') }">
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=csap-package-java,hostName='*') }">
 						csap-package-java </a>
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=csap-package-linux,hostName='*') }">
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=csap-package-linux,hostName='*') }">
 						csap-package-linux </a>
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=httpd,hostName='*') }"> httpd </a>
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=httpd,hostName='*') }"> httpd </a>
 
 
 				</td>
@@ -463,28 +504,28 @@
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=docker,hostName='*') }"> docker </a>
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=docker,hostName='*') }"> docker </a>
 
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=nfs-server,hostName='*') }">
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=nfs-server,hostName='*') }">
 						nfs-server </a>
 
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=test-docker-activemq,hostName='*') }">
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=test-docker-activemq,hostName='*') }">
 						test-docker-activemq </a>
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=test-docker-nginx,hostName='*') }"> test-docker-nginx </a>
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=test-docker-nginx,hostName='*') }"> test-docker-nginx </a>
 
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=test-docker-postgres,hostName='*') }">
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=test-docker-postgres,hostName='*') }">
 						test-docker-postgres </a>
 
 
@@ -497,72 +538,72 @@
 				<td>
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=kubelet,hostName='*') }"> kubelet </a>
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=kubelet,hostName='*') }"> kubelet </a>
 
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=my-kubernetes-copy-with-a-super-duper-long-name,hostName='*') }">
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=my-kubernetes-copy-with-a-super-duper-long-name,hostName='*') }">
 						my-kubernetes-copy-with-a-super-duper-long-name </a>
 
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=demo-shared-service,hostName='*') }">
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=demo-shared-service,hostName='*') }">
 						demo-shared-service</a>
 
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=test-k8s-by-spec,hostName='*') }">
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=test-k8s-by-spec,hostName='*') }">
 						test-k8s-by-spec </a>
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=test-k8s-csap-reference,hostName='*') }">
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=test-k8s-csap-reference,hostName='*') }">
 						test-k8s-csap-reference </a>
 
 
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=metrics-server,hostName='*') }">
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=metrics-server,hostName='*') }">
 						metrics-server </a>
 
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=kubernetes-dashboard,hostName='*') }">
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=kubernetes-dashboard,hostName='*') }">
 						kubernetes-dashboard </a>
 
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=etcd,hostName='*') }"> etcd </a>
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=etcd,hostName='*') }"> etcd </a>
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=k8s-csap-test,hostName='*') }">
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=k8s-csap-test,hostName='*') }">
 						k8s-csap-test </a>
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=kube-apiserver,hostName='*') }">
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=kube-apiserver,hostName='*') }">
 						kube-apiserver </a>
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=test-k8s-postgres,hostName='*') }">
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=test-k8s-postgres,hostName='*') }">
 						test-k8s-postgres </a>
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=k8s-not-running-service,hostName='*') }">
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=k8s-not-running-service,hostName='*') }">
 						k8s-not-running-service </a>
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=multiple-container-catcher,hostName='*') }">
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=multiple-container-catcher,hostName='*') }">
 						multiple-container-catcher </a>
 
 
@@ -577,17 +618,17 @@
 				<td>
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=csap-demo-tomcat,hostName='*') }">
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=csap-demo-tomcat,hostName='*') }">
 						csap-demo-tomcat </a>
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=csap-verify-service,hostName='*') }">
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=csap-verify-service,hostName='*') }">
 						csap-verify-service </a>
 
 					<a
 						class="csap-link"
-						th:href="@{${ @csapCoreService.EDIT_URL + '/serviceDialog'}(serviceName=PackageAJvm,hostName='*') }">
+						th:href="@{${ @csapConstants.EDIT_URL + '/serviceDialog'}(serviceName=PackageAJvm,hostName='*') }">
 						PackageAJvm </a>
 
 				</td>

@@ -41,7 +41,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode ;
 
 @Tag ( "core" )
 @Tag ( "full" )
-@SpringBootTest ( classes = CsapCoreService.class )
+@SpringBootTest ( classes = ApplicationConfiguration.class )
 
 @CsapBareTest.ActiveProfiles_JunitOverRides
 

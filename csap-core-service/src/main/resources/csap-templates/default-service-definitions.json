@@ -158,7 +158,7 @@
 			"appDirectory": "/",
 			"propDirectory": "/$$kubernetes-config/network",
 			"alerts": {
-				"max_threadCount": "100",
+				"max_threadCount": "150",
 				"max_diskUtil": "300m",
 				"max_socketCount": "10"
 			},
@@ -2373,13 +2373,14 @@
 			"user": "root",
 			"disk": "lib/kubelet"
 		},
+
 		"kubernetes-dashboard": {
 			"server": "docker",
 			"autoStart": 120,
 			"description": "Kubernetes dashboard user interface",
 			"docUrl": "https://github.com/kubernetes/dashboard",
-			"read-me": "https://raw.githubusercontent.com/kubernetes/dashboard/master/README.md",
-			"propDirectory": "/$$kubernetes-config/dashboard-2.x",
+			"read-me-eol": "https://raw.githubusercontent.com/kubernetes/dashboard/master/README.md",
+			"propDirectory": "/$$kubernetes-config/dashboard",
 			"alerts": {
 				"max_socketCount": "30"
 			},
@@ -2388,7 +2389,8 @@
 				"scripts": [
 					{
 						"description": "wait for pod startup",
-						"frequency": "event-post-deploy",
+						"frequency": "on-demand",
+						"frequency-no-block": "event-post-deploy",
 						"script": "wait_for_pod_running $$service-name"
 					},
 					{
@@ -2398,8 +2400,26 @@
 					}
 				]
 			},
+			
 			"runUsingDocker": "true",
+			
 			"docker": {
+				"kubernetesNamespace": "$$service-name",
+				"deployment-file-names": [
+					"$$kubernetes-config/dashboard/helm-values.yaml",
+					"$$kubernetes-config/dashboard/dashboard-access.yaml"
+				],
+				"helm-chart-name": "kubernetes-dashboard/kubernetes-dashboard",
+				"helm-chart-version": "latest",
+				"helm-chart-repo": "kubernetes-dashboard https://kubernetes.github.io/dashboard/",
+				"container-count": "1",
+				"locator": {
+					"podName": "$$service-name-.*"
+				},
+				"deployment-files-use": "true"
+			},
+			
+			"docker-eol": {
 				"locator": {
 					"type": "io.kubernetes.container.name",
 					"value": "$$service-name"
@@ -2439,6 +2459,46 @@
 		},
 
 		"metrics-server": {
+			"server": "docker",
+			"propDirectory": "/$$kubernetes-config/metrics-server",
+			"appDirectory": "/",
+			"autoStart": 115,
+			"description": "Kubernetes Metrics Service provide access to kubectl top and related functions",
+			"docUrl": "https://github.com/kubernetes-incubator/metrics-server/blob/master/README.md",
+			"alerts": {
+				"max_socketCount": "30"
+			},
+			"docker": {
+				"helm-chart-repo": "metrics-server https://kubernetes-sigs.github.io/metrics-server",
+				"helm-chart-name": "metrics-server/metrics-server",
+				"helm-chart-version": "latest",
+				"deployment-files-use": "true",
+				"deployment-file-names": [
+					"$$kubernetes-config/metrics-server/helm-values.yaml"
+				],
+				"container-count": "1",
+				"locator": {
+					"podName": "$$service-name-.*"
+				}
+			},
+			"scheduledJobs": {
+				"scripts": [
+					{
+						"description": "wait for pod startup",
+						"frequency": "on-demand",
+						"frequency-no-block": "event-post-deploy",
+						"script": "wait_for_pod_running $$service-name"
+					},
+					{
+						"description": "wait for pod shutdown",
+						"frequency": "event-post-stop",
+						"script": "wait_for_pod_removed $$service-name"
+					}
+				]
+			}
+		},
+
+		"metrics-server-eol": {
 			"server": "docker",
 			"propDirectory": "/$$kubernetes-config/metrics-server",
 			"appDirectory": "/",
@@ -2519,7 +2579,9 @@
 			"url": "https://github.com/kubernetes-incubator/external-storage/tree/master/nfs-client",
 			"scmVersion": "os"
 		},
-		"nginx-ingress-controller": {
+		
+		
+		"ingress-nginx": {
 			"server": "docker",
 			"autoStart": 110,
 			"description": "allows access to Kubernetes services from outside the Kubernetes cluster",
@@ -2529,7 +2591,7 @@
 			"propDirectory": "/$$kubernetes-config/ingress",
 			"environmentVariables": {
 				"configuration-maps": [
-					"nginx-ingress"
+					"ingress-nginx"
 				]
 			},
 			"alerts": {
@@ -2567,15 +2629,14 @@
 			"docker": {
 				"socketNamespace": "global", 
 				"locator": {
-					"type": "io.kubernetes.container.name",
-					"value": "$$service-name"
+    				"podName": "$$service-name.*"
 				},
 				"deployment-files-use": "true",
 				"deployment-file-names": [
 					"$$kubernetes-config/ingress/ingress-nginx.yaml"
 				],
-				"container-count": "1",
-				"image": "k8s.gcr.io/ingress-nginx/controller:v0.47.0@sha256:a1e4efc107be0bb78f32eaec37bef17d7a0c81bec8066cdf2572508d21351d0b"
+				"about-alternate": "ingress-nginx-large.yaml supports larger buffer size",
+				"container-count": "1"
 			},
 			"url": "https://kubernetes.github.io/ingress-nginx/",
 			"scmVersion": "os"

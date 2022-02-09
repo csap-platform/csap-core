@@ -19,7 +19,7 @@ import java.util.stream.Collectors ;
 import org.apache.commons.lang3.StringUtils ;
 import org.apache.commons.lang3.text.WordUtils ;
 import org.csap.agent.CsapBareTest ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.ClusterType ;
 import org.csap.agent.model.ContainerState ;
@@ -33,7 +33,7 @@ import org.csap.agent.services.ServiceOsManager ;
 import org.csap.agent.ui.editor.ServiceResources ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
-import org.csap.integations.CsapMicroMeter ;
+import org.csap.integations.micrometer.CsapMicroMeter ;
 import org.junit.jupiter.api.BeforeAll ;
 import org.junit.jupiter.api.DisplayName ;
 import org.junit.jupiter.api.Nested ;
@@ -77,7 +77,7 @@ class Model_As_Agent extends CsapBareTest {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			ServiceInstance agentInstance = getApplication( ).getServiceInstanceCurrentHost( CsapCore.AGENT_ID ) ;
+			ServiceInstance agentInstance = getApplication( ).getServiceInstanceCurrentHost( CsapConstants.AGENT_ID ) ;
 
 			ObjectNode healthReport = (ObjectNode) jsonMapper
 					.readTree( getApplication( ).check_for_stub( "", "httpCollect/csap-reference-health.json" ) ) ;
@@ -108,7 +108,7 @@ class Model_As_Agent extends CsapBareTest {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			ServiceInstance agentInstance = getApplication( ).getServiceInstanceCurrentHost( CsapCore.AGENT_ID ) ;
+			ServiceInstance agentInstance = getApplication( ).getServiceInstanceCurrentHost( CsapConstants.AGENT_ID ) ;
 
 			ObjectNode healthReport = (ObjectNode) jsonMapper
 					.readTree( getApplication( ).check_for_stub( "", "httpCollect/csap-reference-health.json" ) ) ;
@@ -165,7 +165,7 @@ class Model_As_Agent extends CsapBareTest {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			int maxTime = getApplication( ).getMaxDeploySecondsForService( CsapCore.AGENT_NAME ) ;
+			int maxTime = getApplication( ).getMaxDeploySecondsForService( CsapConstants.AGENT_NAME ) ;
 
 			logger.info( "maxTime deploy for agent: {}", maxTime ) ;
 			assertThat( maxTime ).isEqualTo( 300 ) ;
@@ -187,7 +187,7 @@ class Model_As_Agent extends CsapBareTest {
 			logger.info( "all_services: {}", CSAP.jsonPrint( all_services ) ) ;
 
 			assertThat( all_services.toString( ) )
-					.contains( CsapCore.AGENT_NAME ) ;
+					.contains( CsapConstants.AGENT_NAME ) ;
 
 		}
 
@@ -229,7 +229,7 @@ class Model_As_Agent extends CsapBareTest {
 
 			assertThat( getApplication( ).getRootProject( ).getClustersToServicesMapInCurrentLifecycle( ).get(
 					"simple-cluster" ) )
-							.contains( CsapCore.AGENT_NAME, "simple-cluster-service" ) ;
+							.contains( CsapConstants.AGENT_NAME, "simple-cluster-service" ) ;
 
 		}
 
@@ -513,7 +513,7 @@ class Model_As_Agent extends CsapBareTest {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			ServiceInstance agentInstance = getApplication( ).getServiceInstanceCurrentHost( CsapCore.AGENT_ID ) ;
+			ServiceInstance agentInstance = getApplication( ).getServiceInstanceCurrentHost( CsapConstants.AGENT_ID ) ;
 
 			assertThat( agentInstance.isKubernetesMaster( ) )
 					.as( "k8 master" )
@@ -525,7 +525,7 @@ class Model_As_Agent extends CsapBareTest {
 
 			assertThat( agentInstance.getProcessFilter( ) )
 					.as( "process filter" )
-					.isEqualTo( ".*java.*csapProcessId=" + CsapCore.AGENT_NAME + ".*8011.*" ) ;
+					.isEqualTo( ".*java.*csapProcessId=" + CsapConstants.AGENT_NAME + ".*8011.*" ) ;
 
 			assertThat( agentInstance.getOsProcessPriority( ) )
 					.as( "process override" )
@@ -568,7 +568,7 @@ class Model_As_Agent extends CsapBareTest {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			ServiceInstance agentInstance = getApplication( ).getServiceInstanceCurrentHost( CsapCore.AGENT_ID ) ;
+			ServiceInstance agentInstance = getApplication( ).getServiceInstanceCurrentHost( CsapConstants.AGENT_ID ) ;
 
 			assertThat( agentInstance.getJobs( ).size( ) )
 					.as( "number of jobs" )
@@ -710,7 +710,7 @@ class Model_As_Agent extends CsapBareTest {
 
 			assertThat( bootService.getUrl( ) )
 					.as( "boot url" )
-					.isEqualTo( "http://localhost." + CsapCore.DEFAULT_DOMAIN + ":0/admin/info" ) ;
+					.isEqualTo( "http://localhost." + CsapConstants.DEFAULT_DOMAIN + ":0/admin/info" ) ;
 
 			assertThat( bootService.getProcessFilter( ) )
 					.as( "process filter" )
@@ -756,7 +756,8 @@ class Model_As_Agent extends CsapBareTest {
 
 			assertThat( hyphenService.getUrl( ) )
 					.as( "url" )
-					.isEqualTo( "http://factory-dev001." + CsapCore.DEFAULT_DOMAIN + ":0/factory-service-2-dev001" ) ;
+					.isEqualTo( "http://factory-dev001." + CsapConstants.DEFAULT_DOMAIN
+							+ ":0/factory-service-2-dev001" ) ;
 
 		}
 
@@ -786,7 +787,7 @@ class Model_As_Agent extends CsapBareTest {
 
 			assertThat( factoryService.getUrl( ) )
 					.as( "url" )
-					.isEqualTo( "http://factory-dev001." + CsapCore.DEFAULT_DOMAIN + ":0/FactoryService-dev001" ) ;
+					.isEqualTo( "http://factory-dev001." + CsapConstants.DEFAULT_DOMAIN + ":0/FactoryService-dev001" ) ;
 
 		}
 
@@ -1000,14 +1001,14 @@ class Model_As_Agent extends CsapBareTest {
 		@BeforeAll
 		void beforeAll ( ) {
 
-			serviceOsManager = new ServiceOsManager( getApplication( ) ) ;
+			serviceOsManager = new ServiceOsManager( getCsapApis( ) ) ;
 
 		}
 
 		@Test
 		void verify_configuration_maps ( ) {
 
-			ServiceInstance agentInstance = getApplication( ).getServiceInstanceCurrentHost( CsapCore.AGENT_ID ) ;
+			ServiceInstance agentInstance = getApplication( ).getServiceInstanceCurrentHost( CsapConstants.AGENT_ID ) ;
 
 			logger.info( CsapApplication.testHeader( ) + agentInstance.toString( ) ) ;
 
@@ -1064,7 +1065,7 @@ class Model_As_Agent extends CsapBareTest {
 
 			logger.info( "fileNames: {}", specUriPaths ) ;
 
-			var partialNameWithVariablesResolved = CsapCore.SEARCH_RESOURCES + "spec-from-resource-life-nfs.yaml" ;
+			var partialNameWithVariablesResolved = CsapConstants.SEARCH_RESOURCES + "spec-from-resource-life-nfs.yaml" ;
 
 			assertThat( specUriPaths )
 					.doesNotContain( "$$storage_type" )

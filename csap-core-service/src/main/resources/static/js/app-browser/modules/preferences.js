@@ -150,19 +150,22 @@ define( [ "browser/utils", "ace/ace" ], function ( utils, aceEditor ) {
 
                 if ( env.includes( "sand" ) ) {
                     autoType = "sand" ;
-                } else if ( env.includes( "metal" ) || env.includes( "perf" ) ) {
+                } else if ( env.includes( "metal" ) || env.includes( "perf" ) || env.includes( "demo" ) ) {
                     autoType = "metal" ;
+                
                 } else if ( env.includes( "accept" ) ) {
                     autoType = "apple" ;
+                    
                 } else if ( env.includes( "test" ) || env.includes( "qa" ) ) {
                     autoType = "tree" ;
+                
                 } else if ( env.includes( "stage" ) ) {
                     autoType = "sun" ;
+                
                 } else if ( env.includes( "prod" ) || env.includes( "tenant" ) ) {
                     autoType = "aqua" ;
-                } else if (
-                        env.includes( "container" )
-                        ) {
+                
+                } else if (  env.includes( "container" )  ) {
                     autoType = "forest" ;
                 }
                 theme = $( `.${ autoType }`, $( this ) ).attr( "value" ) ;

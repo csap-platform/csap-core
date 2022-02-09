@@ -13,7 +13,7 @@ import java.util.stream.Collectors ;
 
 import org.csap.agent.Agent_context_loaded ;
 import org.csap.agent.CsapBareTest ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.linux.HostStatusManager ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.EnvironmentSettings ;
@@ -51,7 +51,7 @@ public class Model_As_Manager extends CsapBareTest {
 						.getPath( ) ) ;
 
 		getApplication( ).setJvmInManagerMode( true ) ;
-		HostStatusManager testStatus = new HostStatusManager( "CsAgent_Host_Response.json", getApplication( ) ) ;
+		HostStatusManager testStatus = new HostStatusManager( "CsAgent_Host_Response.json", getCsapApis( ) ) ;
 		getApplication( ).setHostStatusManager( testStatus ) ;
 
 		assertThat( getApplication( ).loadCleanForJunits( false, csapApplicationDefinition ) )
@@ -127,7 +127,7 @@ public class Model_As_Manager extends CsapBareTest {
 						"clusterConfigManagerA.json",
 						"clusterConfigManagerB.json" ) ;
 
-		assertThat( getApplication( ).serviceNameToAllInstances( ).get( CsapCore.AGENT_NAME ) )
+		assertThat( getApplication( ).serviceNameToAllInstances( ).get( CsapConstants.AGENT_NAME ) )
 				.as( "CsAgents instances found" )
 				.hasSize( 7 ) ;
 
@@ -153,7 +153,7 @@ public class Model_As_Manager extends CsapBareTest {
 						.as( "All service instanaces in all models" )
 						.hasSize( 19 )
 						.contains( "SpringBootRest",
-								CsapCore.AGENT_NAME, "CsspSample",
+								CsapConstants.AGENT_NAME, "CsspSample",
 								"Factory2Sample",
 								"FactorySample",
 								"SampleDataLoader",
@@ -177,13 +177,13 @@ public class Model_As_Manager extends CsapBareTest {
 
 		List<ServiceInstance> services = getApplication( ).getProject( Application.ALL_PACKAGES )
 				.getServiceToAllInstancesMap( )
-				.get( CsapCore.AGENT_NAME ) ;
+				.get( CsapConstants.AGENT_NAME ) ;
 		// logger.info( "services: {}" , services);
 		assertThat( services )
 				.as( "All Hosts found" )
 				.hasSize( 10 ) ;
 
-		assertThat( getApplication( ).getMaxDeploySecondsForService( CsapCore.AGENT_NAME ) )
+		assertThat( getApplication( ).getMaxDeploySecondsForService( CsapConstants.AGENT_NAME ) )
 				.as( "Maximum Deploy for Agent" )
 				.isEqualTo( 300 ) ;
 
@@ -251,8 +251,9 @@ public class Model_As_Manager extends CsapBareTest {
 	public void verify_agent_attributes ( ) {
 
 		logger.info( CsapApplication.testHeader( ) ) ;
-		ServiceInstance agentInstance = getApplication( ).serviceNameToAllInstances( ).get( CsapCore.AGENT_NAME ).get(
-				0 ) ;
+		ServiceInstance agentInstance = getApplication( ).serviceNameToAllInstances( ).get( CsapConstants.AGENT_NAME )
+				.get(
+						0 ) ;
 
 		assertThat( agentInstance.is_springboot_server( ) )
 				.as( "server override" )
@@ -260,7 +261,7 @@ public class Model_As_Manager extends CsapBareTest {
 
 		assertThat( agentInstance.getProcessFilter( ) )
 				.as( "process filter" )
-				.isEqualTo( ".*java.*csapProcessId=" + CsapCore.AGENT_NAME + ".*8011.*" ) ;
+				.isEqualTo( ".*java.*csapProcessId=" + CsapConstants.AGENT_NAME + ".*8011.*" ) ;
 
 		assertThat( agentInstance.getOsProcessPriority( ) )
 				.as( "os priority" )

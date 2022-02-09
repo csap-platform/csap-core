@@ -7,7 +7,8 @@ import java.net.URI ;
 import java.util.stream.Collectors ;
 
 import org.csap.agent.CsapBareTest ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.DefinitionConstants ;
 import org.csap.agent.model.Project ;
@@ -88,17 +89,18 @@ class Service_Templates extends CsapBareTest {
 		assertThat( copyTemplateDefinition.path( Project.DEFINITION_SOURCE ).asText( ) ).isEqualTo( "copySource" ) ;
 
 		var csapTemplateDefinition = getApplication( ).getProject( "SampleDefaultPackage" )
-				.findAndCloneServiceDefinition( "docker" ) ;
+				.findAndCloneServiceDefinition( C7.dockerService.val( ) ) ;
 		logger.debug( "csapTemplateDefinition: {}", csapTemplateDefinition ) ;
 		assertThat( csapTemplateDefinition.path( Project.DEFINITION_SOURCE ).asText( ) ).isEqualTo( "csap-templates" ) ;
 		assertThat( csapTemplateDefinition.path( Project.DEFINITION_COPY ).isMissingNode( ) ).isTrue( ) ;
 
 		var csapTemplateFromCopyDefinition = getApplication( ).getProject( "Supporting Sample A" )
-				.findAndCloneServiceDefinition( "docker" ) ;
+				.findAndCloneServiceDefinition( C7.dockerService.val( ) ) ;
 		logger.debug( "csapTemplateFromCopyDefinition: {}", csapTemplateFromCopyDefinition ) ;
 		assertThat( csapTemplateFromCopyDefinition.path( Project.DEFINITION_SOURCE ).asText( ) ).isEqualTo(
 				"copySource" ) ;
-		assertThat( csapTemplateFromCopyDefinition.path( Project.DEFINITION_COPY ).asText( ) ).isEqualTo( "docker" ) ;
+		assertThat( csapTemplateFromCopyDefinition.path( Project.DEFINITION_COPY ).asText( ) ).isEqualTo(
+				C7.dockerService.val( ) ) ;
 
 	}
 
@@ -165,17 +167,15 @@ class Service_Templates extends CsapBareTest {
 		assertThat( demoWithOverridesService.getDescription( ) ).isEqualTo( "dev description" ) ;
 
 		assertThat( demoWithOverridesService.getDeploymentNotes( ) ).isEqualTo( "test-base-env notes" ) ;
-		
-
 
 		assertThat( demoWithOverridesService.getKubernetesReplicaCount( ).asInt( ) ).isEqualTo( 9 ) ;
 
 		// ensure release package has all names
 		assertThat( getApplication( ).getActiveProject( ).getAllPackagesModel( ).getServiceNamesInLifecycle( ) )
 				.contains( demoWithOverridesService.getName( ) ) ;
-		
+
 		//
-		//  verify kubernetes yaml specs
+		// verify kubernetes yaml specs
 		//
 		var specUriStream = getServiceOsManager( ).buildSpecificationFileArray(
 				demoWithOverridesService,
@@ -186,15 +186,16 @@ class Service_Templates extends CsapBareTest {
 
 		assertThat( specPathList.size( ) ).isEqualTo( 3 ) ;
 		assertThat( specPathList.toString( ) )
-				.doesNotContain( CsapCore.SEARCH_RESOURCES )
+				.doesNotContain( CsapConstants.SEARCH_RESOURCES )
 				.contains( "definitions/simple-packages/resources/demo-import-overrides/common/k8-import-sample.yaml" )
-				.contains( "definitions/simple-packages/resources/demo-import-overrides/dev/k8-import-over.yaml" ) 
-				.contains( "definitions/simple-packages/resources/demo-import-overrides/test-base-env/k8-import-base-env.yaml" ) ;
+				.contains( "definitions/simple-packages/resources/demo-import-overrides/dev/k8-import-over.yaml" )
+				.contains(
+						"definitions/simple-packages/resources/demo-import-overrides/test-base-env/k8-import-base-env.yaml" ) ;
 
 		var sampleDeployYamlFileNames = specPathList.stream( )
 				.map( specUri -> new File( specUri ) )
 				.collect( Collectors.toList( ) ) ;
-		
+
 		var notOverridenDeploySpec = sampleDeployYamlFileNames.get( 0 ) ;
 
 		// getServiceOsManager().buildYamlTemplate( simpleService, sourceFile ) ;
@@ -202,25 +203,26 @@ class Service_Templates extends CsapBareTest {
 		logger.info( "Original yaml: {} ", sampleDeployFileContents ) ;
 
 		assertThat( sampleDeployFileContents ).contains( "$$service-name" ) ;
-		
+
 		var deploymentFile = getServiceOsManager( )
-				.buildDeplomentFile( demoWithOverridesService, notOverridenDeploySpec, getJsonMapper( ).createObjectNode( ) ) ;
+				.buildDeplomentFile( demoWithOverridesService, notOverridenDeploySpec, getJsonMapper( )
+						.createObjectNode( ) ) ;
 
 		var yaml_with_vars_updated = Application.readFile( deploymentFile ) ;
 
 		logger.info( "deploymentFile: {} yaml_with_vars_updated: {} ", deploymentFile, yaml_with_vars_updated ) ;
 
 		assertThat( yaml_with_vars_updated )
-				.doesNotContain( CsapCore.CSAP_VARIABLE_PREFIX )
+				.doesNotContain( CsapConstants.CSAP_VARIABLE_PREFIX )
 				.doesNotContain( "$$service-name" )
 				.doesNotContain( "$$service-namespace" )
 				.contains( "demo-import-overrides-id" ) ;
 
 		//
-		//  OverRidden current environment
+		// OverRidden current environment
 		//
 		var devDeploySpec = sampleDeployYamlFileNames.get( 1 ) ;
-		
+
 		var devDeploymentFile = getServiceOsManager( )
 				.buildDeplomentFile( demoWithOverridesService, devDeploySpec, getJsonMapper( ).createObjectNode( ) ) ;
 
@@ -229,19 +231,17 @@ class Service_Templates extends CsapBareTest {
 		logger.info( "devDeploySpec:{} yaml_with_vars_updated: {} ", devDeploySpec, yaml_with_vars_updated ) ;
 
 		assertThat( yaml_with_vars_updated )
-				.doesNotContain( CsapCore.CSAP_VARIABLE_PREFIX )
+				.doesNotContain( CsapConstants.CSAP_VARIABLE_PREFIX )
 				.doesNotContain( "$$service-name" )
 				.doesNotContain( "$$service-namespace" )
 				.doesNotContain( "import-over-base" )
 				.contains( "import-over-dev" ) ;
-		
-
 
 		//
-		//  OverRidden - imports from base
+		// OverRidden - imports from base
 		//
 		var baseDeploySpec = sampleDeployYamlFileNames.get( 2 ) ;
-		
+
 		var baseDeploymentFile = getServiceOsManager( )
 				.buildDeplomentFile( demoWithOverridesService, baseDeploySpec, getJsonMapper( ).createObjectNode( ) ) ;
 
@@ -250,13 +250,11 @@ class Service_Templates extends CsapBareTest {
 		logger.info( "baseDeploymentFile:{} yaml_with_vars_updated: {} ", baseDeploymentFile, yaml_with_vars_updated ) ;
 
 		assertThat( yaml_with_vars_updated )
-				.doesNotContain( CsapCore.CSAP_VARIABLE_PREFIX )
+				.doesNotContain( CsapConstants.CSAP_VARIABLE_PREFIX )
 				.doesNotContain( "$$service-name" )
 				.doesNotContain( "$$service-namespace" )
 				.doesNotContain( "import-should-not-be-used" )
 				.contains( "import-over-base-env" ) ;
-
-
 
 	}
 
@@ -302,7 +300,7 @@ class Service_Templates extends CsapBareTest {
 
 		assertThat( packageTemplateService ).isNotNull( ) ;
 
-		ServiceOsManager serviceOsManager = new ServiceOsManager( getApplication( ) ) ;
+		ServiceOsManager serviceOsManager = new ServiceOsManager( getCsapApis( ) ) ;
 
 		var specfiles = serviceOsManager.buildSpecificationFileArray(
 				packageTemplateService,

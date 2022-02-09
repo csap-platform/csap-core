@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicLong ;
 import java.util.stream.Collectors ;
 
 import org.apache.commons.lang3.StringUtils ;
-import org.csap.agent.model.Application ;
+import org.csap.agent.CsapApis ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapSimpleCache ;
 import org.slf4j.Logger ;
@@ -101,7 +101,7 @@ public class ReportsBuilder {
 					ListingsBuilder.timeoutSeconds_max,
 					ListingsBuilder.allowWatchBookmarks_null ) ;
 
-			var nodeReport = kubernetes.listingsBuilder( ).buildResultReport( apiResult ) ;
+			var nodeReport = kubernetes.listingsBuilder( ).serializeToJson( apiResult ) ;
 			logger.debug( "nodeInfo: {}", CSAP.jsonPrint( nodeReport ) ) ;
 
 			var nodeItems = nodeReport.path( "items" ) ;
@@ -158,11 +158,11 @@ public class ReportsBuilder {
 					// via
 					//
 					var capacity = node.putObject( "capacity" ) ;
-					capacity.put( KubernetesJson.pods.json( ), nodeListing.at( "/status/capacity/pods" ).asInt( ) ) ;
-					capacity.put( KubernetesJson.cores.json( ),
+					capacity.put( K8.pods.val( ), nodeListing.at( "/status/capacity/pods" ).asInt( ) ) ;
+					capacity.put( K8.cores.val( ),
 							nodeListing.at( "/status/capacity/cpu" ).asInt( ) ) ;
 					usage.put( "memory", nodeListing.at( "/status/capacity/memory" ).asText( ) ) ;
-					capacity.put( KubernetesJson.memoryGb.json( ),
+					capacity.put( K8.memoryGb.val( ),
 							metrics.memoryMbToGb( metrics.metricsServerMemoryInMb( metricsFormat ) ) ) ;
 
 					//
@@ -179,20 +179,20 @@ public class ReportsBuilder {
 
 						if ( nodeMetricReport.isObject( ) ) {
 
-							coresActive = nodeMetricReport.path( KubernetesJson.cores.json( ) ).asDouble( ) ;
-							podsActive = nodeMetricReport.path( KubernetesJson.podsRunning.json( ) ).asInt( ) ;
+							coresActive = nodeMetricReport.path( K8.cores.val( ) ).asDouble( ) ;
+							podsActive = nodeMetricReport.path( K8.podsRunning.val( ) ).asInt( ) ;
 //									+ nodeMetricReport.path( KubernetesJson.podsNotRunning.json( ) ).asInt( ) ;
 							memoryInGbActive = metrics.memoryMbToGb(
-									nodeMetricReport.path( KubernetesJson.memoryGb.json( ) ).asLong( ) ) ;
+									nodeMetricReport.path( K8.memoryGb.val( ) ).asLong( ) ) ;
 
 						}
 
 					}
 
 					var activeReport = node.putObject( "active" ) ;
-					activeReport.put( KubernetesJson.pods.json( ), podsActive ) ;
-					activeReport.put( KubernetesJson.cores.json( ), coresActive ) ;
-					activeReport.put( KubernetesJson.memoryGb.json( ), memoryInGbActive ) ;
+					activeReport.put( K8.pods.val( ), podsActive ) ;
+					activeReport.put( K8.cores.val( ), coresActive ) ;
+					activeReport.put( K8.memoryGb.val( ), memoryInGbActive ) ;
 
 					//
 					// node resource report
@@ -224,7 +224,7 @@ public class ReportsBuilder {
 		var formatOnlyMetrics = jsonMapper.createObjectNode( ) ;
 		var formatOnlyUsage = formatOnlyMetrics.putObject( "usage" ) ;
 
-		var nodeUsageReport = Application.getInstance( ).getOsManager( ).buildCachedKubernetesNodeUsageReport( ) ;
+		var nodeUsageReport = CsapApis.getInstance( ).osManager( ).buildCachedKubernetesNodeUsageReport( ) ;
 		logger.debug( "nodeUsageReport: {}", CSAP.jsonPrint( nodeUsageReport ) ) ;
 
 		if ( StringUtils.isEmpty( nodeName ) ) {
@@ -234,7 +234,7 @@ public class ReportsBuilder {
 
 				var nodeReportName = nameIter.next( ) ;
 
-				if ( nodeReportName.startsWith( Application.getInstance( ).getCsapHostName( ) ) ) {
+				if ( nodeReportName.startsWith( CsapApis.getInstance( ).application( ).getCsapHostName( ) ) ) {
 
 					nodeName = nodeReportName ;
 					break ;
@@ -252,44 +252,44 @@ public class ReportsBuilder {
 			//
 			// requests
 			//
-			formatOnlyUsage.put( KubernetesJson.formatCpu.json( ), currentNodeReport.at( "/Allocated/cpu/request" )
+			formatOnlyUsage.put( K8.formatCpu.val( ), currentNodeReport.at( "/Allocated/cpu/request" )
 					.asText( ) ) ;
 			formatOnlyUsage.put( "memory", currentNodeReport.at( "/Allocated/memory/request" ).asText( ) ) ;
 			var cores = CSAP.roundIt( metrics.metricsServerNormalizedCores( formatOnlyMetrics ), 2 ) ;
 			var memoryGb = metrics.memoryMbToGb( metrics.metricsServerMemoryInMb( formatOnlyMetrics ) ) ;
 
 			var requests = allocated.putObject( "requests" ) ;
-			requests.put( KubernetesJson.cores.json( ), cores ) ;
+			requests.put( K8.cores.val( ), cores ) ;
 			requests.put( "coresPercent", currentNodeReport.at( "/Allocated/cpu/requestPercent" ).asInt( ) ) ;
-			requests.put( KubernetesJson.memoryGb.json( ), memoryGb ) ;
+			requests.put( K8.memoryGb.val( ), memoryGb ) ;
 			requests.put( "memoryPercent", currentNodeReport.at( "/Allocated/memory/requestPercent" ).asInt( ) ) ;
 
 			//
 			// limits
 			//
-			formatOnlyUsage.put( KubernetesJson.formatCpu.json( ), currentNodeReport.at( "/Allocated/cpu/limit" )
+			formatOnlyUsage.put( K8.formatCpu.val( ), currentNodeReport.at( "/Allocated/cpu/limit" )
 					.asText( ) ) ;
 			formatOnlyUsage.put( "memory", currentNodeReport.at( "/Allocated/memory/limit" ).asText( ) ) ;
 			cores = CSAP.roundIt( metrics.metricsServerNormalizedCores( formatOnlyMetrics ), 2 ) ;
 			memoryGb = metrics.memoryMbToGb( metrics.metricsServerMemoryInMb( formatOnlyMetrics ) ) ;
 
 			var limits = allocated.putObject( "limits" ) ;
-			limits.put( KubernetesJson.cores.json( ), cores ) ;
+			limits.put( K8.cores.val( ), cores ) ;
 			limits.put( "coresPercent", currentNodeReport.at( "/Allocated/cpu/limitPercent" ).asInt( ) ) ;
-			limits.put( KubernetesJson.memoryGb.json( ), memoryGb ) ;
+			limits.put( K8.memoryGb.val( ), memoryGb ) ;
 			limits.put( "memoryPercent", currentNodeReport.at( "/Allocated/memory/limitPercent" ).asInt( ) ) ;
 
 			//
 			// capacity
 			//
-			formatOnlyUsage.put( KubernetesJson.formatCpu.json( ), currentNodeReport.at( "/Capacity/cpu" ).asText( ) ) ;
+			formatOnlyUsage.put( K8.formatCpu.val( ), currentNodeReport.at( "/Capacity/cpu" ).asText( ) ) ;
 			formatOnlyUsage.put( "memory", currentNodeReport.at( "/Capacity/memory" ).asText( ) ) ;
 			cores = CSAP.roundIt( metrics.metricsServerNormalizedCores( formatOnlyMetrics ), 2 ) ;
 			memoryGb = metrics.memoryMbToGb( metrics.metricsServerMemoryInMb( formatOnlyMetrics ) ) ;
 
 			var capacity = allocated.putObject( "capacity" ) ;
-			capacity.put( KubernetesJson.cores.json( ), cores ) ;
-			capacity.put( KubernetesJson.memoryGb.json( ), memoryGb ) ;
+			capacity.put( K8.cores.val( ), cores ) ;
+			capacity.put( K8.memoryGb.val( ), memoryGb ) ;
 
 		}
 
@@ -388,7 +388,7 @@ public class ReportsBuilder {
 					ListingsBuilder.timeoutSeconds_max,
 					ListingsBuilder.allowWatchBookmarks_null ) ;
 
-			var volumeReport = kubernetes.listingsBuilder( ).buildResultReport( apiResult ) ;
+			var volumeReport = kubernetes.listingsBuilder( ).serializeToJson( apiResult ) ;
 
 			logger.debug( "volumeList: {}", CSAP.jsonPrint( volumeReport ) ) ;
 
@@ -446,7 +446,7 @@ public class ReportsBuilder {
 
 		ArrayNode pods = kubernetes.listingsBuilder( ).podCsapListing( namespaceName, podNameFilter ) ;
 
-		var podMetrics = metrics.cachedKubeletReport( ).path( KubernetesJson.pods.json( ) ) ;
+		var podMetrics = metrics.cachedKubeletReport( ).path( K8.pods.val( ) ) ;
 
 		ArrayNode podSummaryReport = jsonMapper.createArrayNode( ) ;
 
@@ -503,15 +503,15 @@ public class ReportsBuilder {
 						podSummary.put( "ownerKind", ownerKind ) ;
 						podSummary.put( "ownerName", ownerName ) ;
 						podSummary.put( "owner", ownerShortName ) ;
-						podSummary.put( KubernetesJson.cores.json( ), 0.0 ) ;
+						podSummary.put( K8.cores.val( ), 0.0 ) ;
 
 					}
 
-					var podInstances = podSummary.path( KubernetesJson.pods.json( ) ) ;
+					var podInstances = podSummary.path( K8.pods.val( ) ) ;
 
 					if ( ! podInstances.isArray( ) ) {
 
-						podInstances = podSummary.putArray( KubernetesJson.pods.json( ) ) ;
+						podInstances = podSummary.putArray( K8.pods.val( ) ) ;
 
 					}
 
@@ -526,7 +526,7 @@ public class ReportsBuilder {
 					podInstance.put( "namespace", podNamespace ) ;
 					podInstance.put( "host", pod.at( "/attributes/hostname" ).asText( ) ) ;
 					podInstance.put( "status", podState( pod ) ) ;
-					podInstance.put( "container-count", podTypeCount( pod, KubernetesJson.containers.json( ) ) ) ;
+					podInstance.put( "container-count", podTypeCount( pod, K8.containers.val( ) ) ) ;
 
 					var containerNames = podInitAndRunContainerNames( pod ) ;
 					podInstance.set( "container-names", containerNames ) ;
@@ -547,7 +547,7 @@ public class ReportsBuilder {
 					podInstance.put( "container-restarts", podContainersRestartCount( pod ) ) ;
 
 					kubernetes.addApiPath( podInstance,
-							KubernetesJson.pods.json( ),
+							K8.pods.val( ),
 							podNamespace, podName ) ;
 
 					var metrics = podMetrics.path( podName ) ;
@@ -555,9 +555,9 @@ public class ReportsBuilder {
 					if ( metrics.isObject( ) ) {
 
 						podInstance.set( "metrics", metrics ) ;
-						podSummary.put( KubernetesJson.cores.json( ), CSAP.roundIt(
-								podSummary.path( KubernetesJson.cores.json( ) ).asDouble( ) + metrics.path(
-										KubernetesJson.cores.json( ) ).asDouble( ),
+						podSummary.put( K8.cores.val( ), CSAP.roundIt(
+								podSummary.path( K8.cores.val( ) ).asDouble( ) + metrics.path(
+										K8.cores.val( ) ).asDouble( ),
 								2 ) ) ;
 
 					}
@@ -661,10 +661,10 @@ public class ReportsBuilder {
 					if ( metrics.isObject( ) ) {
 
 						namespaceSummary.set( "metrics", metrics ) ;
-						allCores.addAndGet( metrics.path( KubernetesJson.cores.json( ) ).asDouble( ) ) ;
-						allMemory.addAndGet( metrics.path( KubernetesJson.memoryInMb.json( ) ).asLong( ) ) ;
-						allContainers.addAndGet( metrics.path( KubernetesJson.containers.json( ) ).asLong( ) ) ;
-						allPodCount.addAndGet( metrics.path( KubernetesJson.pods.json( ) ).asLong( ) ) ;
+						allCores.addAndGet( metrics.path( K8.cores.val( ) ).asDouble( ) ) ;
+						allMemory.addAndGet( metrics.path( K8.memoryInMb.val( ) ).asLong( ) ) ;
+						allContainers.addAndGet( metrics.path( K8.containers.val( ) ).asLong( ) ) ;
+						allPodCount.addAndGet( metrics.path( K8.pods.val( ) ).asLong( ) ) ;
 
 					}
 
@@ -682,10 +682,10 @@ public class ReportsBuilder {
 		allNameSpacesTotals.put( "container-restarts", allContainerRestarts.get( ) ) ;
 
 		var allMetrics = allNameSpacesTotals.putObject( "metrics" ) ;
-		allMetrics.put( KubernetesJson.cores.json( ), CSAP.roundIt( allCores.get( ), 2 ) ) ;
-		allMetrics.put( KubernetesJson.memoryInMb.json( ), allMemory.get( ) ) ;
-		allMetrics.put( KubernetesJson.containers.json( ), allContainers.get( ) ) ;
-		allMetrics.put( KubernetesJson.pods.json( ), allPodCount.get( ) ) ;
+		allMetrics.put( K8.cores.val( ), CSAP.roundIt( allCores.get( ), 2 ) ) ;
+		allMetrics.put( K8.memoryInMb.val( ), allMemory.get( ) ) ;
+		allMetrics.put( K8.containers.val( ), allContainers.get( ) ) ;
+		allMetrics.put( K8.pods.val( ), allPodCount.get( ) ) ;
 
 		return namespaceSummaryReport ;
 

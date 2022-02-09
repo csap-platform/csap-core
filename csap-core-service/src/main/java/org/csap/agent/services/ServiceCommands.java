@@ -5,11 +5,10 @@ import java.util.Arrays ;
 import java.util.List ;
 
 import org.apache.commons.lang3.StringUtils ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.api.AgentApi ;
 import org.csap.agent.integrations.CsapEvents ;
-import org.csap.agent.model.Application ;
 import org.csap.agent.model.ServiceInstance ;
 import org.csap.helpers.CSAP ;
 import org.slf4j.Logger ;
@@ -32,19 +31,17 @@ public class ServiceCommands {
 
 	@Autowired
 	public ServiceCommands (
-			Application csapApp,
-			ServiceOsManager serviceManager,
-			CsapEvents csapEventClient ) {
+			CsapApis csapApis,
+			ServiceOsManager serviceManager ) {
 
-		this.csapApp = csapApp ;
+		this.csapApis = csapApis ;
+
 		this.serviceOsManager = serviceManager ;
-		this.csapEventClient = csapEventClient ;
 
 	}
 
 	private ServiceOsManager serviceOsManager ;
-	private CsapEvents csapEventClient ;
-	private Application csapApp ;
+	private CsapApis csapApis ;
 
 	ObjectMapper jacksonMapper = new ObjectMapper( ) ;
 
@@ -64,7 +61,7 @@ public class ServiceCommands {
 		ArrayNode hostsArray = resultJson.putArray( "hosts" ) ;
 		hosts.forEach( hostsArray::add ) ;
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
 			resultJson
 					.put( "error",
@@ -102,14 +99,14 @@ public class ServiceCommands {
 					apiUserid,
 					apiPass,
 					hosts,
-					CsapCoreService.API_AGENT_URL + AgentApi.KILL_SERVICES_URL,
+					CsapConstants.API_AGENT_URL + AgentApi.KILL_SERVICES_URL,
 					stopParameters ) ;
 
 			logger.debug( "Results: {}", clusterResponse ) ;
 
 			resultJson.set( "clusteredResults", clusterResponse ) ;
 
-			csapApp.getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
+			csapApis.application( ).getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
 
 		}
 
@@ -127,10 +124,10 @@ public class ServiceCommands {
 
 		ObjectNode resultJson = jacksonMapper.createObjectNode( ) ;
 
-		if ( csapApp.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			resultJson
-					.put( CsapCore.CONFIG_PARSE_ERROR,
+					.put( CsapConstants.CONFIG_PARSE_ERROR,
 							"Common only valid on agents" ) ;
 
 		} else {
@@ -141,7 +138,7 @@ public class ServiceCommands {
 
 				try {
 
-					ServiceInstance instance = csapApp.getServiceInstanceCurrentHost( service_port ) ;
+					ServiceInstance instance = csapApis.application( ).getServiceInstanceCurrentHost( service_port ) ;
 
 					if ( instance == null ) {
 
@@ -167,7 +164,7 @@ public class ServiceCommands {
 
 						if ( isPresent( auditUserid ) ) {
 
-							csapEventClient.publishUserEvent(
+							csapApis.events( ).publishUserEvent(
 									CsapEvents.CSAP_USER_SERVICE_CATEGORY + "/" + instance.getName( ),
 									auditUserid, "Kill Request Received", " clean:" + clean ) ;
 
@@ -199,18 +196,18 @@ public class ServiceCommands {
 
 		ObjectNode stopResultReport = jacksonMapper.createObjectNode( ) ;
 
-		if ( csapApp.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			stopResultReport
-					.put( CsapCore.CONFIG_PARSE_ERROR,
+					.put( CsapConstants.CONFIG_PARSE_ERROR,
 							"Common only valid on agents" ) ;
 
 		}
 
-		if ( ! csapApp.isBootstrapComplete( ) ) {
+		if ( ! csapApis.application( ).isBootstrapComplete( ) ) {
 
 			stopResultReport
-					.put( CsapCore.CONFIG_PARSE_WARN,
+					.put( CsapConstants.CONFIG_PARSE_WARN,
 							"Agent is currently restarting - wait a few minutes and try again" ) ;
 
 		} else {
@@ -221,7 +218,7 @@ public class ServiceCommands {
 
 				try {
 
-					ServiceInstance instance = csapApp.getServiceInstanceCurrentHost( service_port ) ;
+					ServiceInstance instance = csapApis.application( ).getServiceInstanceCurrentHost( service_port ) ;
 
 					if ( instance == null ) {
 
@@ -240,7 +237,7 @@ public class ServiceCommands {
 
 						if ( serviceOsManager.getOpsQueued( ) > 0 ) {
 
-							stopResultReport.put( CsapCore.CONFIG_PARSE_WARN,
+							stopResultReport.put( CsapConstants.CONFIG_PARSE_WARN,
 									" Multiple jobs are currently queued: \n"
 											+ serviceOsManager.getQueuedDeployments( ) ) ;
 
@@ -248,7 +245,7 @@ public class ServiceCommands {
 
 						if ( auditUserid != null && auditUserid.length( ) > 0 ) {
 
-							csapEventClient.publishUserEvent(
+							csapApis.events( ).publishUserEvent(
 									CsapEvents.CSAP_USER_SERVICE_CATEGORY + "/" + instance.getName( ),
 									auditUserid, "Start Request Received", " params:" + params ) ;
 
@@ -300,7 +297,7 @@ public class ServiceCommands {
 		ArrayNode hostsArray = resultJson.putArray( "hosts" ) ;
 		hosts.forEach( hostsArray::add ) ;
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
 			resultJson
 					.put( "error",
@@ -325,14 +322,14 @@ public class ServiceCommands {
 					apiUserid,
 					apiPass,
 					hosts,
-					CsapCoreService.API_AGENT_URL + AgentApi.STOP_SERVICES_URL,
+					CsapConstants.API_AGENT_URL + AgentApi.STOP_SERVICES_URL,
 					startParameters ) ;
 
 			logger.debug( "Results: {}", clusterResponse ) ;
 
 			resultJson.set( "clusteredResults", clusterResponse ) ;
 
-			csapApp.getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
+			csapApis.application( ).getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
 
 		}
 
@@ -352,18 +349,18 @@ public class ServiceCommands {
 
 		ObjectNode resultJson = jacksonMapper.createObjectNode( ) ;
 
-		if ( csapApp.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			resultJson
-					.put( CsapCore.CONFIG_PARSE_ERROR,
+					.put( CsapConstants.CONFIG_PARSE_ERROR,
 							"Common only valid on agents" ) ;
 
 		}
 
-		if ( ! csapApp.isBootstrapComplete( ) ) {
+		if ( ! csapApis.application( ).isBootstrapComplete( ) ) {
 
 			resultJson
-					.put( CsapCore.CONFIG_PARSE_WARN,
+					.put( CsapConstants.CONFIG_PARSE_WARN,
 							"Agent is currently restarting - wait a few minutes and try again" ) ;
 
 		} else {
@@ -374,7 +371,7 @@ public class ServiceCommands {
 
 				try {
 
-					ServiceInstance instance = csapApp.getServiceInstanceCurrentHost( service_port ) ;
+					ServiceInstance instance = csapApis.application( ).getServiceInstanceCurrentHost( service_port ) ;
 
 					if ( instance == null ) {
 
@@ -412,7 +409,7 @@ public class ServiceCommands {
 
 						if ( serviceOsManager.getOpsQueued( ) > 0 ) {
 
-							resultJson.put( CsapCore.CONFIG_PARSE_WARN,
+							resultJson.put( CsapConstants.CONFIG_PARSE_WARN,
 									" Multiple jobs are currently queued: \n"
 											+ serviceOsManager.getQueuedDeployments( ) ) ;
 
@@ -420,7 +417,7 @@ public class ServiceCommands {
 
 						if ( auditUserid != null && auditUserid.length( ) > 0 ) {
 
-							csapEventClient.publishUserEvent(
+							csapApis.events( ).publishUserEvent(
 									CsapEvents.CSAP_USER_SERVICE_CATEGORY + "/" + instance.getName( ),
 									auditUserid, "Start Request Received", " params:" + params ) ;
 
@@ -480,7 +477,7 @@ public class ServiceCommands {
 		ArrayNode hostsArray = resultJson.putArray( "hosts" ) ;
 		hosts.forEach( hostsArray::add ) ;
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
 			resultJson
 					.put( "error",
@@ -535,14 +532,14 @@ public class ServiceCommands {
 					apiUserid,
 					apiPass,
 					hosts,
-					CsapCoreService.API_AGENT_URL + AgentApi.START_SERVICES_URL,
+					CsapConstants.API_AGENT_URL + AgentApi.START_SERVICES_URL,
 					startParameters ) ;
 
 			logger.debug( "Results: {}", clusterResponse ) ;
 
 			resultJson.set( "clusteredResults", clusterResponse ) ;
 
-			csapApp.getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
+			csapApis.application( ).getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
 
 		}
 
@@ -615,7 +612,7 @@ public class ServiceCommands {
 
 		hosts.forEach( hostsArray::add ) ;
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
 			resultJson
 					.put( "error",
@@ -690,14 +687,14 @@ public class ServiceCommands {
 					apiUserid,
 					apiPass,
 					hosts,
-					CsapCoreService.API_AGENT_URL + AgentApi.DEPLOY_SERVICES_URL,
+					CsapConstants.API_AGENT_URL + AgentApi.DEPLOY_SERVICES_URL,
 					deployParameters ) ;
 
 			logger.debug( "Results: {}", clusterResponse ) ;
 
 			resultJson.set( "clusteredResults", clusterResponse ) ;
 
-			csapApp.getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
+			csapApis.application( ).getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
 
 		}
 
@@ -722,18 +719,18 @@ public class ServiceCommands {
 
 		ObjectNode resultJson = jacksonMapper.createObjectNode( ) ;
 
-		if ( csapApp.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			resultJson
-					.put( CsapCore.CONFIG_PARSE_ERROR,
+					.put( CsapConstants.CONFIG_PARSE_ERROR,
 							"Common only valid on agents" ) ;
 
 		}
 
-		if ( ! csapApp.isBootstrapComplete( ) ) {
+		if ( ! csapApis.application( ).isBootstrapComplete( ) ) {
 
 			resultJson
-					.put( CsapCore.CONFIG_PARSE_WARN,
+					.put( CsapConstants.CONFIG_PARSE_WARN,
 							"Agent is currently restarting - wait a few minutes and try again" ) ;
 
 		} else {
@@ -744,13 +741,14 @@ public class ServiceCommands {
 
 				try {
 
-					ServiceInstance instance = csapApp.getServiceInstanceCurrentHost( service_port ) ;
+					ServiceInstance instance = csapApis.application( ).getServiceInstanceCurrentHost( service_port ) ;
 
 					if ( instance == null ) {
 
 						// some deploys select different ports - bad practice -
 						// but handled
-						instance = csapApp.findServiceByNameOnCurrentHost( service_port.split( "_" )[ 0 ] ) ;
+						instance = csapApis.application( ).findServiceByNameOnCurrentHost( service_port.split(
+								"_" )[0] ) ;
 
 						if ( instance != null ) {
 
@@ -787,14 +785,14 @@ public class ServiceCommands {
 
 						if ( serviceOsManager.getOpsQueued( ) > 1 ) {
 
-							resultJson.put( CsapCore.CONFIG_PARSE_WARN,
+							resultJson.put( CsapConstants.CONFIG_PARSE_WARN,
 									"Request Queued behind others:\n" + serviceOsManager.getQueuedDeployments( ) ) ;
 
 						}
 
 						if ( auditUserid != null && auditUserid.length( ) > 0 ) {
 
-							csapEventClient.publishUserEvent(
+							csapApis.events( ).publishUserEvent(
 									CsapEvents.CSAP_USER_SERVICE_CATEGORY + "/" + instance.getName( ),
 									auditUserid, "Deploy Request Received", " rebuildVariables:" + filteredVariables ) ;
 
@@ -847,14 +845,14 @@ public class ServiceCommands {
 				apiUserid,
 				apiPass,
 				hosts,
-				CsapCoreService.API_AGENT_URL + AgentApi.PAUSE_DEPLOYMENTS_URL,
+				CsapConstants.API_AGENT_URL + AgentApi.PAUSE_DEPLOYMENTS_URL,
 				pauseParameters ) ;
 
 		logger.debug( "Results: {}", clusterResponse ) ;
 
 		resultJson.set( "clusteredResults", clusterResponse ) ;
 
-		csapApp.getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
+		csapApis.application( ).getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
 
 		return resultJson ;
 
@@ -865,7 +863,7 @@ public class ServiceCommands {
 													String apiUserid ) {
 
 		var result = serviceOsManager.togglePauseOnDeployments( ) ;
-		csapEventClient.publishUserEvent(
+		csapApis.events( ).publishUserEvent(
 				CsapEvents.CSAP_USER_SERVICE_CATEGORY + "/deployments",
 				auditUserid, "Deployement Paused: " + result.path( "isPaused" ).asBoolean( ), result ) ;
 
@@ -889,14 +887,14 @@ public class ServiceCommands {
 				apiUserid,
 				apiPass,
 				hosts,
-				CsapCoreService.API_AGENT_URL + AgentApi.CLEAR_DEPLOYMENTS_URL,
+				CsapConstants.API_AGENT_URL + AgentApi.CLEAR_DEPLOYMENTS_URL,
 				pauseParameters ) ;
 
 		logger.debug( "Results: {}", clusterResponse ) ;
 
 		resultJson.set( "clusteredResults", clusterResponse ) ;
 
-		csapApp.getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
+		csapApis.application( ).getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
 
 		return resultJson ;
 
@@ -907,7 +905,7 @@ public class ServiceCommands {
 											String apiUserid ) {
 
 		var result = serviceOsManager.cancelAllDeployments( ) ;
-		csapEventClient.publishUserEvent(
+		csapApis.events( ).publishUserEvent(
 				CsapEvents.CSAP_USER_SERVICE_CATEGORY + "/deployments",
 				auditUserid, "Deployement Queue Emptied", result ) ;
 
@@ -937,14 +935,14 @@ public class ServiceCommands {
 				apiUserid,
 				apiPass,
 				hosts,
-				CsapCoreService.API_AGENT_URL + AgentApi.RUN_SERVICE_JOB,
+				CsapConstants.API_AGENT_URL + AgentApi.RUN_SERVICE_JOB,
 				pauseParameters ) ;
 
 		logger.debug( "Results: {}", clusterResponse ) ;
 
 		resultJson.set( "clusteredResults", clusterResponse ) ;
 
-		csapApp.getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
+		csapApis.application( ).getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
 
 		return resultJson ;
 
@@ -957,13 +955,13 @@ public class ServiceCommands {
 								String auditUserid ,
 								String apiUserid ) {
 
-		var service = csapApp.flexFindFirstInstanceCurrentHost( serviceName_port ) ;
+		var service = csapApis.application( ).flexFindFirstInstanceCurrentHost( serviceName_port ) ;
 
 		ObjectNode resultsJson = jacksonMapper.createObjectNode( ) ;
 
-		ServiceInstance serviceInstance = csapApp.getServiceInstanceCurrentHost( serviceName_port ) ;
+		ServiceInstance serviceInstance = csapApis.application( ).getServiceInstanceCurrentHost( serviceName_port ) ;
 
-		String jobResults = serviceOsManager.getOsManager( ).getJobRunner( )
+		String jobResults = csapApis.osManager( ).getJobRunner( )
 				.runJobUsingDescription(
 						serviceInstance,
 						jobToRun,
@@ -971,7 +969,7 @@ public class ServiceCommands {
 
 		resultsJson.put( serviceName_port, jobResults ) ;
 
-		csapEventClient.publishUserEvent(
+		csapApis.events( ).publishUserEvent(
 				CsapEvents.CSAP_USER_SERVICE_CATEGORY + "/" + service.getName( ) + "/job",
 				auditUserid, "Job: " + jobToRun, resultsJson ) ;
 

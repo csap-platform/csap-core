@@ -14,8 +14,8 @@ import java.util.concurrent.Future ;
 import java.util.concurrent.TimeUnit ;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.api.AgentApi ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.services.OsManager ;
@@ -51,7 +51,7 @@ public class TransferManager {
 	BufferedWriter globalWriterForResults ;
 
 	int timeOutSeconds = 120 ;
-	Application csapApp ;
+	CsapApis csapApis ;
 
 	/**
 	 * 
@@ -61,11 +61,12 @@ public class TransferManager {
 	 * @param numberOfThreads
 	 * @param outputWriter
 	 */
-	public TransferManager ( Application csapApp, int timeOutSeconds, BufferedWriter outputWriter ) {
+	public TransferManager ( CsapApis csapApis, int timeOutSeconds, BufferedWriter outputWriter ) {
 
-		this.csapApp = csapApp ;
+		this.csapApis = csapApis ;
 
-		logger.debug( "Number of workers: {}", csapApp.rootProjectEnvSettings( ).getNumberWorkerThreads( ) ) ;
+		logger.debug( "Number of workers: {}", csapApis.application( ).rootProjectEnvSettings( )
+				.getNumberWorkerThreads( ) ) ;
 		this.timeOutSeconds = timeOutSeconds ;
 
 		osCommandRunner = new OsCommandRunner( timeOutSeconds, 1, "TransferMgr" ) ;
@@ -73,7 +74,8 @@ public class TransferManager {
 		this.globalWriterForResults = outputWriter ;
 
 		updateProgress( "" ) ; // blank line
-		updateProgress( "Artifact Transfer: maximum " + csapApp.rootProjectEnvSettings( ).getNumberWorkerThreads( )
+		updateProgress( "Artifact Transfer: maximum " + csapApis.application( ).rootProjectEnvSettings( )
+				.getNumberWorkerThreads( )
 				+ " threads.\n\n" ) ;
 
 		BasicThreadFactory schedFactory = new BasicThreadFactory.Builder( )
@@ -82,7 +84,8 @@ public class TransferManager {
 				.priority( Thread.NORM_PRIORITY )
 				.build( ) ;
 
-		fileTransferService = Executors.newFixedThreadPool( csapApp.rootProjectEnvSettings( ).getNumberWorkerThreads( ),
+		fileTransferService = Executors.newFixedThreadPool( csapApis.application( ).rootProjectEnvSettings( )
+				.getNumberWorkerThreads( ),
 				schedFactory ) ;
 
 		fileTransferComplete = new ExecutorCompletionService<String>( fileTransferService ) ;
@@ -141,7 +144,8 @@ public class TransferManager {
 										List<String> targetHostList )
 		throws IOException {
 
-		httpCopyViaCsAgent( auditUser, sourceLocation, destName, targetHostList, csapApp.getAgentRunUser( ) ) ;
+		httpCopyViaCsAgent( auditUser, sourceLocation, destName, targetHostList, csapApis.application( )
+				.getAgentRunUser( ) ) ;
 
 	}
 
@@ -192,7 +196,7 @@ public class TransferManager {
 
 		}
 
-		File workingFolder = csapApp.csapPlatformTemp( ) ;
+		File workingFolder = csapApis.application( ).csapPlatformTemp( ) ;
 
 		if ( ! workingFolder.exists( ) ) {
 
@@ -202,7 +206,8 @@ public class TransferManager {
 
 		var fileName = new File( sourceLocation.getName( ) + ".tgz" ) ;
 		var zipLocation = new File( workingFolder, fileName.getName( ) ) ;
-		var unzipAsRootScriptFile = new File( csapApp.getCsapInstallFolder( ), "/bin/csap-unzip-as-root.sh" ) ;
+		var unzipAsRootScriptFile = new File( csapApis.application( ).getCsapInstallFolder( ),
+				"/bin/csap-unzip-as-root.sh" ) ;
 
 		var parmList = new ArrayList<String>( ) ;
 
@@ -210,7 +215,7 @@ public class TransferManager {
 				sourceLocation.getName( ), zipLocation.getAbsolutePath( ), _itemsRemaining ) ;
 
 		// Using linux to build a compressed file
-		if ( csapApp.isRunningAsRoot( ) ) {
+		if ( csapApis.application( ).isRunningAsRoot( ) ) {
 
 			parmList.add( "/usr/bin/sudo" ) ;
 			parmList.add( unzipAsRootScriptFile.getAbsolutePath( ) ) ;
@@ -234,7 +239,7 @@ public class TransferManager {
 
 		var results = "" ;
 
-		if ( csapApp.isJunit( ) ) {
+		if ( csapApis.application( ).isJunit( ) ) {
 
 			results = "junit profile: skipping execution of " + parmList ;
 
@@ -264,7 +269,7 @@ public class TransferManager {
 					&& ! host.equals( "csap-dev01" )
 					&& ! host.equals( "csap-dev02" )
 					&& ! host.equals( "csap-dev03" )
-					&& ! host.equals( Application.getInstance( ).getCsapHostName( ) ) ) {
+					&& ! host.equals( CsapApis.getInstance( ).application( ).getCsapHostName( ) ) ) {
 
 				logger.info( CsapApplication.testHeader( "desktop development, skipping {}" ), host ) ;
 				updateProgress( "\nDesktop development, skipping: " + host ) ;
@@ -289,7 +294,7 @@ public class TransferManager {
 			jobCount++ ;
 			fileTransferComplete.submit(
 					new HttpTransferRunnable(
-							csapApp, auditUser,
+							csapApis, auditUser,
 							host, sourceLocation, zipLocation,
 							destinationLocation, chownUserid ) ) ;
 
@@ -330,8 +335,8 @@ public class TransferManager {
 
 			logger.error( "One or more transfers failed to complete \n {}", CSAP.buildCsapStack( e ) ) ;
 
-			resultsNode.add( CsapCore.CONFIG_PARSE_ERROR
-					+ CsapCore.CONFIG_PARSE_ERROR
+			resultsNode.add( CsapConstants.CONFIG_PARSE_ERROR
+					+ CsapConstants.CONFIG_PARSE_ERROR
 					+ ": One or more scps failed to complete" ) ;
 
 		}
@@ -394,8 +399,8 @@ public class TransferManager {
 
 			logger.error( "One or more transfers failed to complete", e ) ;
 
-			results.append( "\n\n" + CsapCore.CONFIG_PARSE_ERROR
-					+ CsapCore.CONFIG_PARSE_ERROR
+			results.append( "\n\n" + CsapConstants.CONFIG_PARSE_ERROR
+					+ CsapConstants.CONFIG_PARSE_ERROR
 					+ ": One or more scps failed to complete" ) ;
 
 		}
@@ -419,7 +424,7 @@ public class TransferManager {
 
 		}
 
-		if ( rawResultText.contains( CsapCore.CONFIG_PARSE_ERROR )
+		if ( rawResultText.contains( CsapConstants.CONFIG_PARSE_ERROR )
 				|| resultReport == null ) {
 
 			var errorText = rawResultText ;
@@ -445,7 +450,7 @@ public class TransferManager {
 
 			if ( firstResultLines.length > 2 ) {
 
-				shortResults = firstResultLines[ 0 ] ;
+				shortResults = firstResultLines[0] ;
 
 			}
 
@@ -478,12 +483,13 @@ public class TransferManager {
 		private File zipLocation ;
 		private String chownUserid ;
 		private File sourceLocation ;
-		private Application csapApp ;
+		private CsapApis csapApis ;
 
-		public HttpTransferRunnable ( Application csapApp, String auditUser, String host, File sourceLocation,
+		public HttpTransferRunnable ( CsapApis csapApis, String auditUser, String host, File sourceLocation,
 				File zipLocation, String extractDir, String chownUserid ) {
 
-			this.csapApp = csapApp ;
+			this.csapApis = csapApis ;
+
 			this.sourceLocation = sourceLocation ;
 			this.host = host ;
 			this.auditUser = auditUser ;
@@ -497,7 +503,7 @@ public class TransferManager {
 			// platform will get resolved client side - based on local install folder
 			// Mostly - for desktop - but some labs might do this as well
 
-			var csapPlatformFolder = Application.filePathAllOs( csapApp.getCsapInstallFolder( ) ) ;
+			var csapPlatformFolder = Application.filePathAllOs( csapApis.application( ).getCsapInstallFolder( ) ) ;
 
 			if ( extractDir.startsWith( csapPlatformFolder ) ) {
 
@@ -515,10 +521,11 @@ public class TransferManager {
 
 			ObjectNode transferResult = jacksonMapper.createObjectNode( ) ;
 
-			var timer = csapApp.metrics( ).startTimer( ) ;
+			var timer = csapApis.metrics( ).startTimer( ) ;
 
 			// default to using csapApp connection
-			RestTemplate restTemplate = csapApp.getAgentPooledConnection( zipLocation.length( ), timeOutSeconds ) ;
+			RestTemplate restTemplate = csapApis.application( ).getAgentPooledConnection( zipLocation.length( ),
+					timeOutSeconds ) ;
 			String connectionType = "pooled" ;
 
 			if ( restTemplate.getRequestFactory( ) instanceof SimpleClientHttpRequestFactory ) {
@@ -545,9 +552,9 @@ public class TransferManager {
 			transferParameters.add( "auditUser", auditUser ) ;
 			transferParameters.add( "chownUserid", chownUserid ) ;
 
-			transferParameters.set( SpringAuthCachingFilter.USERID, csapApp.rootProjectEnvSettings( )
+			transferParameters.set( SpringAuthCachingFilter.USERID, csapApis.application( ).rootProjectEnvSettings( )
 					.getAgentUser( ) ) ;
-			transferParameters.set( SpringAuthCachingFilter.PASSWORD, csapApp.rootProjectEnvSettings( )
+			transferParameters.set( SpringAuthCachingFilter.PASSWORD, csapApis.application( ).rootProjectEnvSettings( )
 					.getAgentPass( ) ) ;
 
 			if ( isDeleteExisting ) {
@@ -556,13 +563,14 @@ public class TransferManager {
 
 			}
 
-			var targetAgentUrl = csapApp.getAgentUrl( host, CsapCoreService.API_AGENT_URL + AgentApi.PLATFORM_UPDATE,
+			var targetAgentUrl = csapApis.application( ).getAgentUrl( host, CsapConstants.API_AGENT_URL
+					+ AgentApi.PLATFORM_UPDATE,
 					true ) ;
 
-			if ( csapApp.isJunit( ) ) {
+			if ( csapApis.application( ).isJunit( ) ) {
 
-				targetAgentUrl = "http://" + host + ":" + csapApp.flexFindFirstInstanceCurrentHost(
-						CsapCore.AGENT_NAME ).getPort( ) + CsapCoreService.API_AGENT_URL + AgentApi.PLATFORM_UPDATE ;
+				targetAgentUrl = "http://" + host + ":" + csapApis.application( ).flexFindFirstInstanceCurrentHost(
+						CsapConstants.AGENT_NAME ).getPort( ) + CsapConstants.API_AGENT_URL + AgentApi.PLATFORM_UPDATE ;
 				logger.warn( CsapApplication.testHeader( "junit agent url: {}" ), targetAgentUrl ) ;
 
 			}
@@ -585,7 +593,7 @@ public class TransferManager {
 				String agentResponse = response.getBody( ) ;
 
 				if ( agentResponse != null
-						&& agentResponse.contains( CsapCore.CONFIG_PARSE_ERROR ) ) {
+						&& agentResponse.contains( CsapConstants.CONFIG_PARSE_ERROR ) ) {
 
 					int numRetries = 3 ;
 
@@ -608,14 +616,14 @@ public class TransferManager {
 
 						}
 
-						csapApp.metrics( ).incrementCounter( "java.TransferManager.retryFilePush" ) ;
+						csapApis.metrics( ).incrementCounter( "java.TransferManager.retryFilePush" ) ;
 						response = restTemplate.postForEntity( targetAgentUrl, transferParameters, String.class ) ;
 						agentResponse = response.getBody( ) ;
 
 					}
 
 					if ( agentResponse != null
-							&& agentResponse.contains( CsapCore.CONFIG_PARSE_ERROR ) ) {
+							&& agentResponse.contains( CsapConstants.CONFIG_PARSE_ERROR ) ) {
 
 						logger.error( "Error transferring file(s)  {}  Response: \n {}",
 								details,
@@ -630,7 +638,7 @@ public class TransferManager {
 
 				logger.debug( "response from  url: {}, http status: {}, params: {}, agentResponse: {}",
 						targetAgentUrl, response.getStatusCode( ), transferParameters, agentResponse ) ;
-				var nanos = csapApp.metrics( ).stopTimer( timer, "java.TransferManager" ) ;
+				var nanos = csapApis.metrics( ).stopTimer( timer, "java.TransferManager" ) ;
 
 				if ( ! response.getStatusCode( ).equals( HttpStatus.OK ) ) {
 
@@ -667,7 +675,7 @@ public class TransferManager {
 				// Staging/bin/unzipAsroot, and add a sleep 200
 				//
 
-				transferResult.put( "error", "\n\n**" + CsapCore.CONFIG_PARSE_ERROR
+				transferResult.put( "error", "\n\n**" + CsapConstants.CONFIG_PARSE_ERROR
 						+ " Failed to transfer: " + sourceLocation.getName( ) + " to:" + targetAgentUrl + " Message: "
 						+ e.getMessage( ) ) ;
 

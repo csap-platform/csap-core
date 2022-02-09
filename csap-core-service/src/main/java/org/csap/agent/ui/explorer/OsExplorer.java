@@ -6,7 +6,7 @@ import javax.inject.Inject ;
 import javax.servlet.http.HttpSession ;
 
 import org.apache.commons.lang3.StringUtils ;
-import org.csap.agent.container.DockerJson ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.services.OsManager ;
@@ -80,23 +80,23 @@ public class OsExplorer {
 					String[] interfaceFields = interfaceLine.split( " ", 3 ) ;
 					ObjectNode item = networkListing.addObject( ) ;
 					var state = "" ;
-					var stateSplit = interfaceFields[ 2 ].split( "state", 2 ) ;
+					var stateSplit = interfaceFields[2].split( "state", 2 ) ;
 
 					if ( stateSplit.length == 2 ) {
 
-						state = stateSplit[ 1 ].trim( ).split( " ", 2 )[ 0 ] ;
+						state = stateSplit[1].trim( ).split( " ", 2 )[0] ;
 
 					}
 
-					var inetSplit = interfaceFields[ 2 ].split( "inet", 2 ) ;
+					var inetSplit = interfaceFields[2].split( "inet", 2 ) ;
 
 					if ( inetSplit.length == 2 ) {
 
-						state = inetSplit[ 1 ].trim( ).split( " ", 2 )[ 0 ] + ":" + state ;
+						state = inetSplit[1].trim( ).split( " ", 2 )[0] + ":" + state ;
 
 					}
 
-					var index = interfaceFields[ 0 ] ;
+					var index = interfaceFields[0] ;
 
 					if ( index.length( ) == 2 ) {
 
@@ -104,8 +104,8 @@ public class OsExplorer {
 
 					}
 
-					item.put( "label", index + " " + interfaceFields[ 1 ] + " (" + state + ")" ) ;
-					item.put( "description", interfaceFields[ 2 ] ) ;
+					item.put( "label", index + " " + interfaceFields[1] + " (" + state + ")" ) ;
+					item.put( "description", interfaceFields[2] ) ;
 					item.put( "folder", false ) ;
 					item.put( "lazy", false ) ;
 
@@ -124,7 +124,7 @@ public class OsExplorer {
 
 		String commandOutput = osManager.systemStatus( ) ;
 
-		report.put( DockerJson.response_plain_text.json( ), commandOutput ) ;
+		report.put( C7.response_plain_text.val( ), commandOutput ) ;
 		return report ;
 
 	}
@@ -156,7 +156,7 @@ public class OsExplorer {
 
 		}
 
-		report.put( DockerJson.response_yaml.json( ), commandOutput ) ;
+		report.put( C7.response_yaml.val( ), commandOutput ) ;
 		return report ;
 
 	}
@@ -223,7 +223,7 @@ public class OsExplorer {
 
 					if ( users.length == 3 ) {
 
-						processInfo = users[ 1 ] ;
+						processInfo = users[1] ;
 
 					}
 
@@ -356,10 +356,10 @@ public class OsExplorer {
 						.replaceAll( REPLACE_SPACES, " " )
 						.split( " " ) ;
 
-				switch ( words[ 0 ] ) {
+				switch ( words[0] ) {
 
 				case "URL":
-					url = words[ 2 ] ;
+					url = words[2] ;
 					break ;
 
 				case "Description":
@@ -474,7 +474,7 @@ public class OsExplorer {
 
 			if ( params.length >= 0 ) {
 
-				processCommandPath = params[ 0 ] ;
+				processCommandPath = params[0] ;
 
 				if ( processCommandPath.startsWith( "[kworker" ) ) {
 

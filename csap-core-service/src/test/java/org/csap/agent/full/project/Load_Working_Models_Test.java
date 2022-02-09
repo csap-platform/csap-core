@@ -13,9 +13,10 @@ import javax.inject.Inject ;
 
 import org.apache.commons.io.FileUtils ;
 import org.csap.agent.Agent_context_loaded ;
+import org.csap.agent.ApplicationConfiguration ;
+import org.csap.agent.CsapApis ;
 import org.csap.agent.CsapBareTest ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.integrations.HttpdIntegration ;
 import org.csap.agent.linux.HostStatusManager ;
 import org.csap.agent.model.Application ;
@@ -39,7 +40,7 @@ import com.fasterxml.jackson.core.JsonProcessingException ;
 import com.fasterxml.jackson.databind.ObjectMapper ;
 
 @Tag ( "full" )
-@SpringBootTest ( classes = CsapCoreService.class )
+@SpringBootTest ( classes = ApplicationConfiguration.class )
 @ActiveProfiles ( {
 		CsapBareTest.PROFILE_JUNIT, "Load_Working_Models_Test"
 } )
@@ -81,6 +82,9 @@ class Load_Working_Models_Test {
 	@Inject
 	Application csapApplication ;
 
+	@Inject
+	CsapApis csapApis ;
+
 	@Test
 	public void get_latest_csap_version_number_from_csaptools ( )
 		throws JsonProcessingException ,
@@ -119,16 +123,16 @@ class Load_Working_Models_Test {
 				.hasSize( 3 )
 				.contains( "dev", "dev:simple-cluster", "defaults" ) ;
 
-		assertThat( csapApplication.serviceNameToAllInstances( ).get( CsapCore.AGENT_NAME ) )
+		assertThat( csapApplication.serviceNameToAllInstances( ).get( CsapConstants.AGENT_NAME ) )
 				.as( "CsAgents instances found" )
 				.hasSize( 2 ) ;
 
-		assertThat( csapApplication.getServiceInstanceAnyPackage( CsapCore.AGENT_ID ).getOsProcessPriority( ) )
+		assertThat( csapApplication.getServiceInstanceAnyPackage( CsapConstants.AGENT_ID ).getOsProcessPriority( ) )
 				.as( "CsAgent OS Priority" )
 				.isEqualTo(
 						-12 ) ;
 
-		assertThat( csapApplication.getServiceInstanceCurrentHost( CsapCore.AGENT_ID ).getMavenRepo( ) )
+		assertThat( csapApplication.getServiceInstanceCurrentHost( CsapConstants.AGENT_ID ).getMavenRepo( ) )
 				.as( "CsAgent Maven Repo" )
 				.isEqualTo(
 						"https://repo.maven.apache.org/maven2/" ) ;
@@ -183,12 +187,11 @@ class Load_Working_Models_Test {
 				.hasSize( 5 )
 				.contains( "dev", "stage" ) ;
 
-		assertThat( csapApplication.serviceNameToAllInstances( ).get( CsapCore.AGENT_NAME ) )
+		assertThat( csapApplication.serviceNameToAllInstances( ).get( CsapConstants.AGENT_NAME ) )
 				.as( "CsAgent Instances found" )
 				.hasSize( 3 ) ;
 
-		ServiceInstance agentInstance = csapApplication.getServiceInstanceCurrentHost( CsapCore.AGENT_ID ) ;
-		csapApplication.getOsManager( ).checkForProcessStatusUpdate( ) ;
+		var agentInstance = csapApplication.getServiceInstanceCurrentHost( CsapConstants.AGENT_ID ) ;
 
 		assertThat( agentInstance.isAutoStart( ) )
 				.as( "CsAgent autostart" )
@@ -308,24 +311,24 @@ class Load_Working_Models_Test {
 				.hasSize( 9 )
 				.contains( "dev", "dev:WebServer", "stage" ) ;
 
-		assertThat( csapApplication.serviceNameToAllInstances( ).get( CsapCore.AGENT_NAME ) )
+		assertThat( csapApplication.serviceNameToAllInstances( ).get( CsapConstants.AGENT_NAME ) )
 				.as( "CsAgents instances found" )
 				.hasSize( 9 ) ;
 
 		assertThat( csapApplication.serviceNameToAllInstances( ).keySet( ) )
 				.as( "Service instances found" )
 				.hasSize( 15 )
-				.contains( "AuditService", CsapCore.AGENT_NAME, "CsspSample",
+				.contains( "AuditService", CsapConstants.AGENT_NAME, "CsspSample",
 						"Factory2Sample",
 						"FactorySample", "SampleDataLoader",
 						"ServletSample", "activemq",
-						CsapCore.ADMIN_NAME, "denodo", "httpd", "oracle",
+						CsapConstants.ADMIN_NAME, "denodo", "httpd", "oracle",
 						"sampleOsWrapper",
 						"springmvc-showcase", "vmmemctl" ) ;
 
 		// New instance meta data
 		ServiceInstance csAgentInstance = csapApplication
-				.getServiceInstanceAnyPackage( CsapCore.AGENT_ID ) ;
+				.getServiceInstanceAnyPackage( CsapConstants.AGENT_ID ) ;
 
 		assertThat( csAgentInstance.getOsProcessPriority( ) )
 				.as( "CsAgent OS Priority" )
@@ -380,8 +383,8 @@ class Load_Working_Models_Test {
 		logger.info( "Sntc Parsing Results:\n {}", parsingResults ) ;
 		assertThat( parsingResults.toString( ) )
 				.as( "SNTC 3 loads with warnings" )
-				.doesNotContain( CsapCore.CONFIG_PARSE_ERROR )
-				.contains( CsapCore.CONFIG_PARSE_WARN ) ;
+				.doesNotContain( CsapConstants.CONFIG_PARSE_ERROR )
+				.contains( CsapConstants.CONFIG_PARSE_WARN ) ;
 
 		assertThat( csapApplication.getName( ) )
 				.as( "Capability Name parsed" )
@@ -573,18 +576,18 @@ class Load_Working_Models_Test {
 				.isEqualTo(
 						"Supporting Sample A" ) ;
 
-		String activeModelAgents = csapApplication.getActiveProject( ).getServiceInstances( CsapCore.AGENT_NAME )
+		String activeModelAgents = csapApplication.getActiveProject( ).getServiceInstances( CsapConstants.AGENT_NAME )
 				.map( ServiceInstance::toString )
 				.collect( Collectors.joining( "\n" ) ) ;
 		logger.info( "All packages: {}, \n Active model: {}",
-				csapApplication.serviceNameToAllInstances( ).get( CsapCore.AGENT_NAME ),
+				csapApplication.serviceNameToAllInstances( ).get( CsapConstants.AGENT_NAME ),
 				activeModelAgents ) ;
 
-		assertThat( csapApplication.serviceNameToAllInstances( ).get( CsapCore.AGENT_NAME ) )
+		assertThat( csapApplication.serviceNameToAllInstances( ).get( CsapConstants.AGENT_NAME ) )
 				.as( "CsAgents instances found" )
 				.hasSize( 3 ) ;
 
-		assertThat( csapApplication.getActiveProject( ).getServiceInstances( CsapCore.AGENT_NAME ).count( ) )
+		assertThat( csapApplication.getActiveProject( ).getServiceInstances( CsapConstants.AGENT_NAME ).count( ) )
 				.as( "CsAgents instances in active model and lifecycle" )
 				.isEqualTo( 2 ) ;
 
@@ -619,7 +622,7 @@ class Load_Working_Models_Test {
 						"middlewareA2",
 						"middlewareB" ) ;
 
-		assertThat( csapApplication.getServiceInstanceCurrentHost( CsapCore.AGENT_ID ).getMavenRepo( ) )
+		assertThat( csapApplication.getServiceInstanceCurrentHost( CsapConstants.AGENT_ID ).getMavenRepo( ) )
 				.as( "CsAgent Maven Repo" )
 				.isEqualTo(
 						"https://repo.maven.apache.org/maven2/" ) ;
@@ -642,7 +645,7 @@ class Load_Working_Models_Test {
 		assertThat( csapApplication.getRootProject( ).getServiceToAllInstancesMap( ).keySet( ) )
 				.as( "Services in root model" )
 				.hasSize( 8 )
-				.contains( CsapCore.AGENT_NAME,
+				.contains( CsapConstants.AGENT_NAME,
 						"CsspSample",
 						"FactorySample",
 						"RedHatLinux",
@@ -699,7 +702,7 @@ class Load_Working_Models_Test {
 				.as( "Release Package" )
 				.isEqualTo( "SampleDefaultPackage" ) ;
 
-		assertThat( csapApplication.serviceNameToAllInstances( ).get( CsapCore.AGENT_NAME ) )
+		assertThat( csapApplication.serviceNameToAllInstances( ).get( CsapConstants.AGENT_NAME ) )
 				.as( "CsAgents instances found" )
 				.hasSize( 9 ) ;
 
@@ -768,7 +771,7 @@ class Load_Working_Models_Test {
 
 		// Configure the manager...
 		csapApplication.setJvmInManagerMode( true ) ;
-		HostStatusManager testStatus = new HostStatusManager( "CsAgent_Host_Response.json", csapApplication ) ;
+		HostStatusManager testStatus = new HostStatusManager( "CsAgent_Host_Response.json", csapApis ) ;
 
 		csapApplication.setHostStatusManager( testStatus ) ;
 
@@ -785,7 +788,7 @@ class Load_Working_Models_Test {
 				.isEqualTo(
 						"Supporting Sample A" ) ;
 
-		assertThat( csapApplication.serviceNameToAllInstances( ).get( CsapCore.AGENT_NAME ) )
+		assertThat( csapApplication.serviceNameToAllInstances( ).get( CsapConstants.AGENT_NAME ) )
 				.as( "CsAgents instances found" )
 				.hasSize( 9 ) ;
 
@@ -811,7 +814,7 @@ class Load_Working_Models_Test {
 						.as( "All service instanaces in all models" )
 						.hasSize( 18 )
 						.contains( "SpringBootRest",
-								CsapCore.AGENT_NAME, "CsspSample",
+								CsapConstants.AGENT_NAME, "CsspSample",
 								"Factory2Sample",
 								"FactorySample",
 								"SampleDataLoader",
@@ -957,7 +960,7 @@ class Load_Working_Models_Test {
 						"stage:cssp",
 						"stage:factory" ) ;
 
-		assertThat( csapApplication.serviceNameToAllInstances( ).get( CsapCore.AGENT_NAME ) )
+		assertThat( csapApplication.serviceNameToAllInstances( ).get( CsapConstants.AGENT_NAME ) )
 				.as( "CsAgent Instances found" )
 				.hasSize( 8 ) ;
 
@@ -989,7 +992,7 @@ class Load_Working_Models_Test {
 						"stage:cssp",
 						"stage:factory" ) ;
 
-		assertThat( csapApplication.getServiceInstanceAnyPackage( CsapCore.AGENT_ID ).getOsProcessPriority( ) )
+		assertThat( csapApplication.getServiceInstanceAnyPackage( CsapConstants.AGENT_ID ).getOsProcessPriority( ) )
 				.as( "CsAgent OS Priority" )
 				.isEqualTo(
 						-10 ) ;

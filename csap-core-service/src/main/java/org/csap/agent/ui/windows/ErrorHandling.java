@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse ;
 import org.apache.commons.lang3.exception.ExceptionUtils ;
 import org.csap.alerts.CsapGlobalId ;
 import org.csap.helpers.CSAP ;
-import org.csap.integations.CsapMicroMeter ;
+import org.csap.integations.micrometer.CsapMeterUtilities ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
 import org.springframework.beans.factory.annotation.Autowired ;
@@ -26,7 +26,7 @@ public class ErrorHandling {
 	final Logger logger = LoggerFactory.getLogger( getClass( ) ) ;
 
 	@Autowired
-	CsapMicroMeter.Utilities metricUtilities ;
+	CsapMeterUtilities metricUtilities ;
 
 	/**
 	 * Default handler. Note the Springs error handling does not extend into - they

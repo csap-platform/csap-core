@@ -8,10 +8,10 @@ import java.util.regex.Pattern ;
 
 import org.apache.commons.lang3.StringUtils ;
 import org.csap.CsapMonitor ;
-import org.csap.agent.CsapCoreService ;
-import org.csap.agent.container.DockerJson ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.integrations.CsapEvents ;
-import org.csap.agent.model.Application ;
 import org.csap.docs.CsapDoc ;
 import org.csap.helpers.CSAP ;
 import org.csap.security.SpringAuthCachingFilter ;
@@ -37,7 +37,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode ;
 
 @CsapMonitor ( prefix = "api.agent" )
 
-@RequestMapping ( CsapCoreService.API_AGENT_URL )
+@RequestMapping ( CsapConstants.API_AGENT_URL )
 
 @CsapDoc ( title = "/api/container/*: apis for querying data collected by management agent." , type = CsapDoc.PUBLIC , notes = {
 		"CSAP container apis provide access to both docker and kubernetes plugins",
@@ -47,13 +47,15 @@ public class ContainerApi {
 
 	final Logger logger = LoggerFactory.getLogger( this.getClass( ) ) ;
 
-	Application application ;
 	ObjectMapper jsonMapper ;
+	CsapApis csapApis ;
 
 	@Autowired
-	public ContainerApi ( Application application, ObjectMapper jsonMapper ) {
+	public ContainerApi (
+			CsapApis csapApis,
+			ObjectMapper jsonMapper ) {
 
-		this.application = application ;
+		this.csapApis = csapApis ;
 		this.jsonMapper = jsonMapper ;
 
 	}
@@ -75,16 +77,16 @@ public class ContainerApi {
 
 		ArrayNode namespaces = jsonMapper.createArrayNode( ) ;
 
-		if ( application.isKubernetesInstalledAndActive( ) ) {
+		if ( csapApis.isKubernetesInstalledAndActive( ) ) {
 
-			namespaces = application.getKubernetesIntegration( ).namespaceInfo( namespace ) ;
+			namespaces = csapApis.kubernetes( ).namespaceInfo( namespace ) ;
 
 		}
 
 		if ( namespaces.size( ) == 0 ) {
 
 			ObjectNode msg = namespaces.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No pods deployed" ) ;
+			msg.put( C7.error.val( ), "No pods deployed" ) ;
 
 		}
 
@@ -106,16 +108,16 @@ public class ContainerApi {
 
 		var nodeReport = jsonMapper.createArrayNode( ) ;
 
-		if ( application.isKubernetesInstalledAndActive( ) ) {
+		if ( csapApis.isKubernetesInstalledAndActive( ) ) {
 
-			nodeReport = application.getKubernetesIntegration( ).reportsBuilder( ).nodeReports( ) ;
+			nodeReport = csapApis.kubernetes( ).reportsBuilder( ).nodeReports( ) ;
 
 		}
 
 		if ( nodeReport.size( ) == 0 ) {
 
 			ObjectNode msg = nodeReport.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No pods deployed" ) ;
+			msg.put( C7.error.val( ), "No pods deployed" ) ;
 
 		}
 
@@ -142,9 +144,9 @@ public class ContainerApi {
 
 		ArrayNode namespaceReport = jsonMapper.createArrayNode( ) ;
 
-		if ( application.isKubernetesInstalledAndActive( ) ) {
+		if ( csapApis.isKubernetesInstalledAndActive( ) ) {
 
-			namespaceReport = application.getKubernetesIntegration( ).reportsBuilder( ).podNamespaceSummaryReport(
+			namespaceReport = csapApis.kubernetes( ).reportsBuilder( ).podNamespaceSummaryReport(
 					null ) ;
 
 		}
@@ -152,7 +154,7 @@ public class ContainerApi {
 		if ( namespaceReport.size( ) == 0 ) {
 
 			ObjectNode msg = namespaceReport.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No pods deployed" ) ;
+			msg.put( C7.error.val( ), "No pods deployed" ) ;
 
 		}
 
@@ -177,16 +179,16 @@ public class ContainerApi {
 
 		ArrayNode jobListing = jsonMapper.createArrayNode( ) ;
 
-		if ( application.isKubernetesInstalledAndActive( ) ) {
+		if ( csapApis.isKubernetesInstalledAndActive( ) ) {
 
-			jobListing = application.getKubernetesIntegration( ).listingsBuilder( ).jobListing( namespace ) ;
+			jobListing = csapApis.kubernetes( ).listingsBuilder( ).jobListing( namespace ) ;
 
 		}
 
 		if ( jobListing.size( ) == 0 ) {
 
 			ObjectNode msg = jobListing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No jobs deployed" ) ;
+			msg.put( C7.error.val( ), "No jobs deployed" ) ;
 
 		}
 
@@ -211,9 +213,9 @@ public class ContainerApi {
 
 		ArrayNode deploymentListing = jsonMapper.createArrayNode( ) ;
 
-		if ( application.isKubernetesInstalledAndActive( ) ) {
+		if ( csapApis.isKubernetesInstalledAndActive( ) ) {
 
-			deploymentListing = application.getKubernetesIntegration( ).listingsBuilder( ).deploymentListing(
+			deploymentListing = csapApis.kubernetes( ).listingsBuilder( ).deploymentListing(
 					namespace ) ;
 
 		}
@@ -221,7 +223,7 @@ public class ContainerApi {
 		if ( deploymentListing.size( ) == 0 ) {
 
 			ObjectNode msg = deploymentListing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No deployments" ) ;
+			msg.put( C7.error.val( ), "No deployments" ) ;
 
 		}
 
@@ -246,16 +248,16 @@ public class ContainerApi {
 
 		ArrayNode podListing = jsonMapper.createArrayNode( ) ;
 
-		if ( application.isKubernetesInstalledAndActive( ) ) {
+		if ( csapApis.isKubernetesInstalledAndActive( ) ) {
 
-			podListing = application.getKubernetesIntegration( ).podRawReports( namespace, null ) ;
+			podListing = csapApis.kubernetes( ).podRawReports( namespace, null ) ;
 
 		}
 
 		if ( podListing.size( ) == 0 ) {
 
 			ObjectNode msg = podListing.addObject( ) ;
-			msg.put( DockerJson.error.json( ), "No pods deployed" ) ;
+			msg.put( C7.error.val( ), "No pods deployed" ) ;
 
 		}
 
@@ -287,9 +289,9 @@ public class ContainerApi {
 
 		var logs = "not available" ;
 
-		if ( application.isKubernetesInstalledAndActive( ) ) {
+		if ( csapApis.isKubernetesInstalledAndActive( ) ) {
 
-			logs = application.getKubernetesIntegration( ).podLogs( namespace, podName, numberOfLines, findFirst ) ;
+			logs = csapApis.kubernetes( ).podLogs( namespace, podName, numberOfLines, findFirst ) ;
 
 		}
 
@@ -315,11 +317,11 @@ public class ContainerApi {
 
 		issueAudit( userid, "create", yaml ) ;
 
-		File yamlFile = application.createYamlFile( "-create-", yaml, userid ) ;
+		File yamlFile = csapApis.application( ).createYamlFile( "-create-", yaml, userid ) ;
 
 		String command = "create --save-config -f " + yamlFile.getAbsolutePath( ) ;
 
-		return application.getOsManager( ).kubernetesCli( command, DockerJson.response_shell ) ;
+		return csapApis.osManager( ).kubernetesCli( command, C7.response_shell ) ;
 
 	}
 
@@ -348,11 +350,11 @@ public class ContainerApi {
 
 		logger.info( "Apply: {}", yaml ) ;
 
-		File yamlFile = application.createYamlFile( "-apply-", yaml, userid ) ;
+		File yamlFile = csapApis.application( ).createYamlFile( "-apply-", yaml, userid ) ;
 
 		String command = "apply -f " + yamlFile.getAbsolutePath( ) ;
 
-		return application.getOsManager( ).kubernetesCli( command, DockerJson.response_shell ) ;
+		return csapApis.osManager( ).kubernetesCli( command, C7.response_shell ) ;
 
 	}
 
@@ -398,19 +400,19 @@ public class ContainerApi {
 
 		logger.info( "deleting: {} ", yaml ) ;
 
-		File yamlFile = application.createYamlFile( "-delete-", yaml,
+		File yamlFile = csapApis.application( ).createYamlFile( "-delete-", yaml,
 				userid ) ;
 
 		String command = "delete -f " + yamlFile.getAbsolutePath( ) ;
 
-		return application.getOsManager( ).kubernetesCli( command, DockerJson.response_shell ) ;
+		return csapApis.osManager( ).kubernetesCli( command, C7.response_shell ) ;
 
 	}
 
 	public void issueAudit ( String user , String commandDesc , String yaml ) {
 
 		var summary = buildSummary( yaml ) ;
-		var kind = summary.split( "," )[ 0 ] ;
+		var kind = summary.split( "," )[0] ;
 
 		try {
 
@@ -419,14 +421,14 @@ public class ContainerApi {
 				var commandFromYaml = buildJobYamlSumary( yaml ) ;
 				logger.debug( "commandFromYaml: {}", commandFromYaml ) ;
 
-				application.getEventClient( ).publishEvent(
+				csapApis.events( ).publishEvent(
 						CsapEvents.CSAP_SYSTEM_SERVICE_CATEGORY + "/kubernetes/api/job",
 						commandDesc + ": " + summary,
 						commandFromYaml ) ;
 
 			} else {
 
-				application.getEventClient( ).publishUserEvent(
+				csapApis.events( ).publishUserEvent(
 						"kubernetes/api/" + kind,
 						user,
 						commandDesc + ": " + summary, yaml ) ;

@@ -21,10 +21,11 @@ import javax.servlet.http.HttpServletResponse ;
 import javax.servlet.http.HttpSession ;
 
 import org.apache.commons.lang3.StringUtils ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
+import org.csap.agent.ApplicationConfiguration ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.container.kubernetes.KubernetesIntegration ;
-import org.csap.agent.container.kubernetes.KubernetesJson ;
+import org.csap.agent.container.kubernetes.K8 ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.linux.OsCommandRunner ;
 import org.csap.agent.model.Application ;
@@ -53,6 +54,7 @@ import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
 import org.springframework.beans.factory.annotation.Autowired ;
 import org.springframework.beans.factory.annotation.Qualifier ;
+import org.springframework.context.annotation.Lazy ;
 import org.springframework.http.HttpStatus ;
 import org.springframework.http.MediaType ;
 import org.springframework.http.ResponseEntity ;
@@ -73,7 +75,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode ;
 import com.fasterxml.jackson.databind.node.ObjectNode ;
 
 @Controller
-@RequestMapping ( value = CsapCoreService.BASE_URL )
+@RequestMapping ( value = CsapConstants.BASE_URL )
 @CsapDoc ( title = "CSAP Application Portal" , notes = {
 		"CSAP Application Portal provides core application management capabilities, including "
 				+ "starting/stoping/deploying services, viewing log files, and much more.",
@@ -87,18 +89,18 @@ public class CorePortals {
 
 	@Inject
 	public CorePortals (
-			Application csapApp,
+			CsapApis csapApis,
 			HostRequests hostController,
 			CsapInformation globalContext,
 			CsapEvents csapEventClient ) {
 
-		this.application = csapApp ;
+		this.csapApis = csapApis ;
 		this.csapInformation = globalContext ;
 		this.csapEventClient = csapEventClient ;
 
 		var restTemplateFactory = new CsapRestTemplateFactory(
-				csapApp.getCsapCoreService( ).getSslCertificateUrl( ),
-				csapApp.getCsapCoreService( ).getSslCertificatePass( ) ) ;
+				csapApis.application( ).getCsapCoreService( ).getSslCertificateUrl( ),
+				csapApis.application( ).getCsapCoreService( ).getSslCertificatePass( ) ) ;
 
 		podProxyRestTemplate = restTemplateFactory.buildDefaultTemplate(
 				"PodProxyConnections",
@@ -109,9 +111,11 @@ public class CorePortals {
 
 	}
 
-	Application application ;
+	CsapApis csapApis ;
+
 	CsapInformation csapInformation ;
 
+	@Lazy
 	@Autowired ( required = false )
 	ApplicationBrowser appBrowser ;
 
@@ -130,21 +134,21 @@ public class CorePortals {
 
 	}
 
-	@GetMapping ( CsapCoreService.TEST_URL )
+	@GetMapping ( CsapConstants.TEST_URL )
 	public String integrationTestsPage ( ModelMap springViewModelMap , HttpSession session ) {
 
 		appBrowser.setCommonAttributes( springViewModelMap, session ) ;
 
-		String pageName = "agent@" + application.getCsapHostName( ) ;
+		String pageName = "agent@" + csapApis.application( ).getCsapHostName( ) ;
 
-		if ( application.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
-			pageName = "admin@" + application.getCsapHostName( ) ;
+			pageName = "admin@" + csapApis.application( ).getCsapHostName( ) ;
 
 		}
 
 		springViewModelMap.addAttribute( "pageName", pageName ) ;
-		springViewModelMap.addAttribute( "host", application.getCsapHostName( ) ) ;
+		springViewModelMap.addAttribute( "host", csapApis.application( ).getCsapHostName( ) ) ;
 
 		return "IntegrationTests" ;
 
@@ -164,7 +168,7 @@ public class CorePortals {
 
 		}
 
-		AlertSettings alertSettings = application.getCsapCoreService( ).getAlerts( ) ;
+		AlertSettings alertSettings = csapApis.application( ).getCsapCoreService( ).getAlerts( ) ;
 		HashMap<String, String> settings = new HashMap<>( ) ;
 		settings.put( "Health Report Interval", alertSettings.getReport( ).getIntervalSeconds( ) + " seconds" ) ;
 		settings.put( "Maximum items to store", alertSettings.getRememberCount( ) + "" ) ;
@@ -174,7 +178,8 @@ public class CorePortals {
 		modelMap.addAttribute( "csapPageLabel", "Service Health Reports" ) ;
 		modelMap.addAttribute( "settings", settings ) ;
 
-		Map<String, Map<String, String>> healthUrlsByService = application.healthManager( ).buildHealthUrls( ) ;
+		Map<String, Map<String, String>> healthUrlsByService = csapApis.application( ).healthManager( )
+				.buildHealthUrls( ) ;
 
 		modelMap.addAttribute( "healthUrlsByServiceByInstance", healthUrlsByService ) ;
 
@@ -195,7 +200,7 @@ public class CorePortals {
 
 		ArrayNode alertsTriggered ;
 
-		if ( ! application.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
 			alertsTriggered = jacksonMapper.createArrayNode( ) ;
 			ObjectNode t = alertsTriggered.addObject( ) ;
@@ -212,7 +217,7 @@ public class CorePortals {
 
 		} else if ( testCount == 0 ) {
 
-			alertsTriggered = application.getHostStatusManager( ).getAllAlerts( ) ;
+			alertsTriggered = csapApis.application( ).getHostStatusManager( ).getAllAlerts( ) ;
 
 		} else {
 
@@ -286,7 +291,7 @@ public class CorePortals {
 
 	@RequestMapping ( "/batchDialog" )
 	public String applicationBatchDeploymentDashboard (
-														@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String projectName ,
+														@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String projectName ,
 														ModelMap modelMap ,
 														HttpSession session ) {
 
@@ -298,7 +303,7 @@ public class CorePortals {
 
 		if ( StringUtils.isEmpty( projectName ) ) {
 
-			projectName = application.getActiveProjectName( ) ;
+			projectName = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
@@ -306,7 +311,7 @@ public class CorePortals {
 
 		// addSelectedReleasePackage( session, modelMap, projectName ) ;
 
-		Project project = application.getProject( projectName ) ;
+		Project project = csapApis.application( ).getProject( projectName ) ;
 
 		Map<String, String> servicesToType = project
 				.serviceInstancesInCurrentLifeByName( ).values( )
@@ -331,11 +336,11 @@ public class CorePortals {
 
 		modelMap.addAttribute( "serviceNames", servicesToType ) ;
 
-		modelMap.addAttribute( "hostNames", application.sortedHostsInLifecycle( project ) ) ;
+		modelMap.addAttribute( "hostNames", csapApis.application( ).sortedHostsInLifecycle( project ) ) ;
 
-		if ( ! application.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
-			servicesToType = application
+			servicesToType = csapApis.application( )
 					.servicesOnHost( )
 					.filter( service -> {
 
@@ -353,7 +358,7 @@ public class CorePortals {
 																										// sorted
 
 			modelMap.addAttribute( "serviceNames", servicesToType ) ;
-			modelMap.addAttribute( "hostNames", application.getCsapHostName( ) ) ;
+			modelMap.addAttribute( "hostNames", csapApis.application( ).getCsapHostName( ) ) ;
 
 		}
 
@@ -368,7 +373,8 @@ public class CorePortals {
 
 					var services = clusterToServices.get( clusterHostsEntry.getKey( ) ) ;
 
-					var serviceInstance = application.findFirstServiceInstanceInLifecycle( services.get( 0 ) ) ;
+					var serviceInstance = csapApis.application( ).findFirstServiceInstanceInLifecycle( services.get(
+							0 ) ) ;
 					var optionalInstance = project.getServiceInstances( services.get( 0 ) ).findFirst( ) ;
 
 					if ( optionalInstance.isPresent( ) ) {
@@ -390,11 +396,12 @@ public class CorePortals {
 		modelMap.addAttribute( "clustersToType", project.getClustersToTypeInCurrentLifecycle( ) ) ;
 
 		// "/CsAgent/file/FileMonitor?isLogFile=true&" );
-		ServiceInstance adminInstance = application.findServiceByNameOnCurrentHost( CsapCore.ADMIN_NAME ) ;
+		ServiceInstance adminInstance = csapApis.application( ).findServiceByNameOnCurrentHost(
+				CsapConstants.ADMIN_NAME ) ;
 
 		if ( adminInstance == null ) {
 
-			adminInstance = application.getLocalAgent( ) ;
+			adminInstance = csapApis.application( ).getLocalAgent( ) ;
 
 		}
 
@@ -426,12 +433,12 @@ public class CorePortals {
 	}
 
 //	void addSelectedReleasePackage ( HttpSession session , ModelMap modelMap , String releasePackage ) {
-//		modelMap.addAttribute( "selectedRelease", application.getActiveProjectName( ) ) ;
+//		modelMap.addAttribute( "selectedRelease",  csapApis.application().getActiveProjectName( ) ) ;
 //
-//		Project csapProject = application.getActiveProject( ) ;
+//		Project csapProject =  csapApis.application().getActiveProject( ) ;
 //		if ( releasePackage != null ) {
 //			modelMap.addAttribute( "selectedRelease", releasePackage ) ;
-//			csapProject = application.getProject( releasePackage ) ;
+//			csapProject =  csapApis.application().getProject( releasePackage ) ;
 //		}
 //
 //		modelMap.addAttribute( "hosts", csapProject.getHostsCurrentLc( ) ) ;
@@ -439,9 +446,9 @@ public class CorePortals {
 //		String userView = (String) session.getAttribute( releasePackage + DEFAULT_VIEW_ATTRIBUTE ) ;
 //		if ( userView == null ) {
 //
-//			String defaultView = application.getCsapHostEnvironmentName( ) ;
+//			String defaultView =  csapApis.application().getCsapHostEnvironmentName( ) ;
 //			String uiView = csapProject.getEnvironmentNameToSettings( )
-//					.get( application.getCsapHostEnvironmentName( ) )
+//					.get(  csapApis.application().getCsapHostEnvironmentName( ) )
 //					.getUiDefaultView( ) ;
 //
 //			// if ( !uiView.equalsIgnoreCase( LifeCycleSettings.ALL_IN_LIFECYCLE ) ) {
@@ -454,7 +461,7 @@ public class CorePortals {
 //
 //		modelMap.addAttribute( DEFAULT_VIEW_ATTRIBUTE, userView.trim( ) ) ;
 //
-//		modelMap.addAttribute( "currentLifecycle", application.getCsapHostEnvironmentName( ) ) ;
+//		modelMap.addAttribute( "currentLifecycle",  csapApis.application().getCsapHostEnvironmentName( ) ) ;
 //	}
 
 	@Autowired
@@ -477,7 +484,7 @@ public class CorePortals {
 		if ( securitySettings.getRoles( ).getAndStoreUserRoles( session )
 				.contains( CsapSecurityRoles.ADMIN_ROLE ) ) {
 
-			ServiceInstance kublet = application.kubeletInstance( ) ;
+			ServiceInstance kublet = csapApis.application( ).kubeletInstance( ) ;
 
 			if ( kublet != null ) {
 
@@ -486,12 +493,11 @@ public class CorePortals {
 
 				results = OsCommandRunner.trimHeader( osManager.runFile( tokenScript ) ) ;
 
-				url = application
-						.getKubernetesIntegration( )
+				url = csapApis.kubernetes( )
 						.nodePortUrl(
-								application,
+								csapApis.application( ),
 								serviceName,
-								application.getCsapHostName( ),
+								csapApis.application( ).getCsapHostName( ),
 								path,
 								ssl ) ;
 
@@ -502,7 +508,7 @@ public class CorePortals {
 		modelMap.addAttribute( "token", results ) ;
 		modelMap.addAttribute( "dashUrl", url ) ;
 
-		return new ModelAndView( CsapCoreService.OS_URL + "/launch-dashboard" ) ;
+		return new ModelAndView( CsapConstants.OS_URL + "/launch-dashboard" ) ;
 
 	}
 
@@ -525,7 +531,7 @@ public class CorePortals {
 
 		try {
 
-			var nonK8Service = application.findServiceByNameOnCurrentHost( serviceid ) ;
+			var nonK8Service = csapApis.application( ).findServiceByNameOnCurrentHost( serviceid ) ;
 			String configuredUrl ;
 
 			if ( nonK8Service != null ) {
@@ -546,7 +552,7 @@ public class CorePortals {
 
 				logger.debug( "serviceid: {} serviceName: {} podIndex: {}", serviceid, serviceName, podIndex ) ;
 
-				var service = application.findServiceByNameOnCurrentHost( serviceName ) ;
+				var service = csapApis.application( ).findServiceByNameOnCurrentHost( serviceName ) ;
 
 				var containerStatusReport = service.getContainerStatusList( ).get( Integer.parseInt( podIndex ) - 1 ) ;
 
@@ -557,7 +563,7 @@ public class CorePortals {
 				configuredUrl = service.resolveRuntimeVariables( configuredUrl ) ;
 
 				configuredUrl = configuredUrl.replaceAll(
-						Matcher.quoteReplacement( CsapCore.K8_POD_IP ),
+						Matcher.quoteReplacement( CsapConstants.K8_POD_IP ),
 						containerStatusReport.getPodIp( ) ) ;
 
 			}
@@ -591,7 +597,7 @@ public class CorePortals {
 				// .getFile() );
 
 				String target = configuredUrl.substring( configuredUrl.indexOf( ":" ) + 1 ) ;
-				String stubResults = application.check_for_stub( "", target ) ;
+				String stubResults = csapApis.application( ).check_for_stub( "", target ) ;
 
 				collectionResponse = new ResponseEntity<String>( stubResults,
 						HttpStatus.OK ) ;
@@ -632,8 +638,8 @@ public class CorePortals {
 									HttpServletResponse response )
 		throws Exception {
 
-		String location = application.getKubernetesIntegration( ).nodePortUrl(
-				application,
+		String location = csapApis.kubernetes( ).nodePortUrl(
+				csapApis.application( ),
 				serviceName,
 				"$host",
 				path,
@@ -674,16 +680,16 @@ public class CorePortals {
 
 		}
 
-		String ingressHost = null ; // can be optionally defined as env var; or if not found the first will be used
+		var ingressHost = "" ; // can be optionally defined as env var; or if not found the first will be used
 
 		try {
 
-			var serviceInstance = application.flexFindFirstInstanceCurrentHost( serviceName ) ;
+			var serviceInstance = csapApis.application( ).flexFindFirstInstanceCurrentHost( serviceName ) ;
 
 			if ( serviceInstance == null ) {
 
 				// use kubelet instance for variables
-				serviceInstance = application.kubeletInstance( ) ;
+				serviceInstance = csapApis.application( ).kubeletInstance( ) ;
 
 			}
 
@@ -696,7 +702,7 @@ public class CorePortals {
 			if ( ingressHost != null
 					&& ingressHost.contains( "*" ) ) {
 
-				ingressHost = null ;
+				ingressHost = null ; // wildcard rule: just use the host of the first running instance located
 
 			}
 
@@ -707,7 +713,7 @@ public class CorePortals {
 
 		}
 
-		String location = application.getKubernetesIntegration( ).ingressUrl( application, path, ingressHost, ssl ) ;
+		String location = csapApis.kubernetes( ).ingressUrl( csapApis.application( ), path, ingressHost, ssl ) ;
 
 		logger.info( "Path location: '{}'", location ) ;
 		response.setHeader( "Location", location ) ;
@@ -734,11 +740,11 @@ public class CorePortals {
 									HttpServletResponse response )
 		throws Exception {
 
-		File path = application.getCsapWorkingSubFolder(
-				application.findServiceByNameOnCurrentHost( serviceName )
+		File path = csapApis.application( ).getCsapWorkingSubFolder(
+				csapApis.application( ).findServiceByNameOnCurrentHost( serviceName )
 						.getName( ) ) ;
 
-		application.create_browseable_file_and_redirect_to_it( response, new File( path, filePath ) ) ;
+		csapApis.application( ).create_browseable_file_and_redirect_to_it( response, new File( path, filePath ) ) ;
 
 	}
 
@@ -749,15 +755,15 @@ public class CorePortals {
 
 		ModelAndView mav = new ModelAndView( ) ;
 
-		var targetView = CsapCoreService.ADMIN_URL ;
+		var targetView = CsapConstants.ADMIN_URL ;
 
-		if ( application.isAgentProfile( ) ) {
+		if ( csapApis.application( ).isAgentProfile( ) ) {
 
-			targetView = CsapCoreService.BASE_URL ;
+			targetView = CsapConstants.BASE_URL ;
 
 		}
-		
-		var redirectUrl = targetView +   "app-browser#services-tab,instances," + serviceName ;
+
+		var redirectUrl = targetView + "app-browser#services-tab,instances," + serviceName ;
 
 		mav.setView( new RedirectView( redirectUrl, true, false, true ) ) ;
 
@@ -774,9 +780,9 @@ public class CorePortals {
 	private RestTemplate csapEventsService ;
 
 	@Inject
-	CsapCoreService csapCore ;
+	ApplicationConfiguration csapCore ;
 
-	@RequestMapping ( CsapCoreService.SCREEN_URL )
+	@RequestMapping ( CsapConstants.SCREEN_URL )
 	public String csapScreenCastViewer (
 											ModelMap modelMap ,
 											@RequestParam ( "item" ) String item ,
@@ -822,18 +828,18 @@ public class CorePortals {
 
 	public void setViewConstants ( ModelMap modelMap ) {
 
-		modelMap.addAttribute( "csapApp", application ) ;
+		modelMap.addAttribute( "csapApp", csapApis.application( ) ) ;
 
-		modelMap.addAttribute( "csapHostAgentPattern", application.getAgentHostUrlPattern( false ) ) ;
-		modelMap.addAttribute( "csapHostName", application.getCsapHostName( ) ) ;
-		modelMap.addAttribute( "csapHostEnvironmentName", application.getCsapHostEnvironmentName( ) ) ;
+		modelMap.addAttribute( "csapHostAgentPattern", csapApis.application( ).getAgentHostUrlPattern( false ) ) ;
+		modelMap.addAttribute( "csapHostName", csapApis.application( ).getCsapHostName( ) ) ;
+		modelMap.addAttribute( "csapHostEnvironmentName", csapApis.application( ).getCsapHostEnvironmentName( ) ) ;
 
 		modelMap.addAttribute( "collectionHost", CsapApplication.COLLECTION_HOST ) ;
 		modelMap.addAttribute( "collectionOsProcess", CsapApplication.COLLECTION_OS_PROCESS ) ;
 		modelMap.addAttribute( "collectionJava", CsapApplication.COLLECTION_JAVA ) ;
 		modelMap.addAttribute( "collectionApplication", CsapApplication.COLLECTION_APPLICATION ) ;
 
-		modelMap.addAttribute( "viewConstants", CsapCoreService.viewConstants ) ;
+		modelMap.addAttribute( "viewConstants", CsapConstants.viewConstants ) ;
 
 		modelMap.addAttribute( "csapHelper", CSAP.class ) ;
 
@@ -855,9 +861,9 @@ public class CorePortals {
 			var isSimulateLiveEnv = true ;
 			modelMap.addAttribute( "isSimulateLiveEnv", isSimulateLiveEnv ) ;
 
-			if ( isSimulateLiveEnv && application.isDesktopHost( ) ) {
+			if ( isSimulateLiveEnv && csapApis.application( ).isDesktopHost( ) ) {
 
-				if ( application.isAgentProfile( ) ) {
+				if ( csapApis.application( ).isAgentProfile( ) ) {
 
 					var testHost = (String) session.getAttribute( TESTHOST ) ;
 
@@ -874,7 +880,7 @@ public class CorePortals {
 
 //					modelMap.addAttribute( "analyticsUrl",
 //							"http://localhost.***REMOVED***:8021/csap-admin/os/performance"
-//									+ "?life=" + application.getCsapHostEnvironmentName( ) ) ;
+//									+ "?life=" +  csapApis.application().getCsapHostEnvironmentName( ) ) ;
 					modelMap.addAttribute( "analyticsUrl",
 							"http://localhost.***REMOVED***:8021/csap-admin/os/performance" ) ;
 
@@ -887,11 +893,11 @@ public class CorePortals {
 
 		}
 
-		modelMap.addAttribute( "applicationBranch", application.getSourceBranch( ) ) ;
+		modelMap.addAttribute( "applicationBranch", csapApis.application( ).getSourceBranch( ) ) ;
 
-		modelMap.addAttribute( "agentHostUrlPattern", application.getAgentHostUrlPattern( false ) ) ;
+		modelMap.addAttribute( "agentHostUrlPattern", csapApis.application( ).getAgentHostUrlPattern( false ) ) ;
 
-		modelMap.addAttribute( "host", application.getCsapHostName( ) ) ;
+		modelMap.addAttribute( "host", csapApis.application( ).getCsapHostName( ) ) ;
 		modelMap.addAttribute( "javaServers", ProcessRuntime.javaServers( ) ) ;
 
 		try {
@@ -905,19 +911,19 @@ public class CorePortals {
 
 		}
 
-		EnvironmentSettings rootEnvSettings = application.rootProjectEnvSettings( ) ;
+		EnvironmentSettings rootEnvSettings = csapApis.application( ).rootProjectEnvSettings( ) ;
 		modelMap.addAttribute( "lifeCycleSettings", rootEnvSettings ) ;
 		modelMap.addAttribute( "environmentSettings", rootEnvSettings ) ;
 
-		modelMap.addAttribute( "lifecycle", application.getCsapHostEnvironmentName( ) ) ;
+		modelMap.addAttribute( "lifecycle", csapApis.application( ).getCsapHostEnvironmentName( ) ) ;
 
-		modelMap.addAttribute( "name", application.getName( ) ) ;
-		modelMap.addAttribute( "packageNames", application.getPackageNames( ) ) ;
-		modelMap.addAttribute( "packageMap", application.getPackageNameToFileMap( ) ) ;
+		modelMap.addAttribute( "name", csapApis.application( ).getName( ) ) ;
+		modelMap.addAttribute( "packageNames", csapApis.application( ).getPackageNames( ) ) ;
+		modelMap.addAttribute( "packageMap", csapApis.application( ).getPackageNameToFileMap( ) ) ;
 
 		ArrayNode testUrls = jacksonMapper.createArrayNode( ) ;
 
-		for ( String url : application.getRootProject( ).getHttpdTestUrls( ) ) {
+		for ( String url : csapApis.application( ).getRootProject( ).getHttpdTestUrls( ) ) {
 
 			testUrls.add( url ) ;
 
@@ -926,33 +932,37 @@ public class CorePortals {
 		modelMap.addAttribute( "testUrls", testUrls ) ;
 		logger.debug( "testUrls: {} ", testUrls.toString( ) ) ;
 
-		logger.debug( "Root Model: {} ", application.getRootProject( ) ) ;
+		logger.debug( "Root Model: {} ", csapApis.application( ).getRootProject( ) ) ;
 
 		modelMap.addAttribute( "version", csapInformation.getVersion( ) ) ;
 
-		modelMap.addAttribute( "kubernetesServiceTypes", KubernetesJson.k8TypeList( ) ) ;
+		modelMap.addAttribute( "kubernetesServiceTypes", K8.k8TypeList( ) ) ;
 
 		modelMap.addAttribute( "dateTime",
 				LocalDateTime.now( ).format( DateTimeFormatter.ofPattern( "HH:mm:ss,   MMM d  uuuu " ) ) ) ;
 
-//		modelMap.addAttribute( "analyticsUrl", application.rootProjectEnvSettings( ).getAnalyticsUiUrl( )
-//				+ "?life=" + application.getCsapHostEnvironmentName( ) ) ;
-		modelMap.addAttribute( "analyticsUrl", application.rootProjectEnvSettings( ).getAnalyticsUiUrl( ) ) ;
+//		modelMap.addAttribute( "analyticsUrl",  csapApis.application().rootProjectEnvSettings( ).getAnalyticsUiUrl( )
+//				+ "?life=" +  csapApis.application().getCsapHostEnvironmentName( ) ) ;
+		modelMap.addAttribute( "analyticsUrl", csapApis.application( ).rootProjectEnvSettings( )
+				.getAnalyticsUiUrl( ) ) ;
 		//
-		modelMap.addAttribute( "prodDataUrl", application.rootProjectEnvSettings( ).getAnalyticsUiUrl( )
-				+ "?life=prod&report=service/detail&appId=" + application.rootProjectEnvSettings( ).getEventDataUser( )
+		modelMap.addAttribute( "prodDataUrl", csapApis.application( ).rootProjectEnvSettings( ).getAnalyticsUiUrl( )
+				+ "?life=prod&report=service/detail&appId=" + csapApis.application( ).rootProjectEnvSettings( )
+						.getEventDataUser( )
 				+ "&service=" ) ;
 
-		modelMap.addAttribute( "applicationId", application.rootProjectEnvSettings( ).getEventDataUser( ) ) ;
-		modelMap.addAttribute( "eventUser", application.rootProjectEnvSettings( ).getEventDataUser( ) ) ;
-		modelMap.addAttribute( "eventApiUrl", application.rootProjectEnvSettings( ).getEventApiUrl( ) ) ;
-		modelMap.addAttribute( "eventMetricsUrl", application.rootProjectEnvSettings( ).getEventMetricsUrl( ) ) ;
+		modelMap.addAttribute( "applicationId", csapApis.application( ).rootProjectEnvSettings( )
+				.getEventDataUser( ) ) ;
+		modelMap.addAttribute( "eventUser", csapApis.application( ).rootProjectEnvSettings( ).getEventDataUser( ) ) ;
+		modelMap.addAttribute( "eventApiUrl", csapApis.application( ).rootProjectEnvSettings( ).getEventApiUrl( ) ) ;
+		modelMap.addAttribute( "eventMetricsUrl", csapApis.application( ).rootProjectEnvSettings( )
+				.getEventMetricsUrl( ) ) ;
 
 	}
 
 	public void addSecurityAttributes ( ModelMap modelMap , HttpSession session ) {
 
-		session.setAttribute( CsapCore.ROLES, securitySettings.getRoles( ).getAndStoreUserRoles( session ) ) ;
+		session.setAttribute( CsapConstants.ROLES, securitySettings.getRoles( ).getAndStoreUserRoles( session ) ) ;
 
 		if ( securitySettings.getRoles( ).getAndStoreUserRoles( session )
 				.contains( CsapSecurityRoles.ADMIN_ROLE ) ) {
@@ -997,10 +1007,10 @@ public class CorePortals {
 												@RequestParam ( value = "serviceName" , required = false ) String serviceNamePort ,
 												@RequestParam ( value = "project" , required = false ) String project ,
 												@RequestParam ( value = "life" , required = false ) String life ,
-												@RequestParam ( value = CsapCore.HOST_PARAM , required = false ) String hostName )
+												@RequestParam ( value = CsapConstants.HOST_PARAM , required = false ) String hostName )
 		throws IOException {
 
-		if ( application.getActiveUsers( ).addTrail( "/csap-analytics" ) ) {
+		if ( csapApis.application( ).getActiveUsers( ).addTrail( "/csap-analytics" ) ) {
 
 			csapEventClient.publishUserEvent( CsapEvents.CSAP_OS_CATEGORY + "/accessed", CsapUser.currentUsersID( ),
 					"User interface: csap-analytics", "" ) ;

@@ -13,6 +13,7 @@ import org.csap.agent.linux.TransferManager ;
 import org.csap.agent.model.Application ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
+import org.csap.security.config.CsapSecuritySettings ;
 import org.junit.jupiter.api.BeforeAll ;
 import org.junit.jupiter.api.Tag ;
 import org.junit.jupiter.api.Test ;
@@ -35,7 +36,10 @@ import com.fasterxml.jackson.databind.ObjectMapper ;
 
 @Tag ( "full" )
 
-@SpringBootTest ( classes = CsapCoreService.class , webEnvironment = WebEnvironment.RANDOM_PORT )
+@SpringBootTest ( classes = {
+		CsapSecuritySettings.class,
+		ApplicationConfiguration.class
+} , webEnvironment = WebEnvironment.RANDOM_PORT )
 
 @ActiveProfiles ( {
 		"agent", CsapBareTest.PROFILE_JUNIT, "security-disabled"
@@ -44,6 +48,7 @@ import com.fasterxml.jackson.databind.ObjectMapper ;
 @DirtiesContext
 
 @TestInstance ( TestInstance.Lifecycle.PER_CLASS )
+
 public class Agent_Http_Services {
 
 	Logger logger = LoggerFactory.getLogger( getClass( ) ) ;
@@ -59,6 +64,9 @@ public class Agent_Http_Services {
 
 	@Inject
 	Application csapApp ;
+
+	@Inject
+	CsapApis csapApis ;
 
 	@Inject
 	ObjectMapper jacksonMapper ;
@@ -78,7 +86,7 @@ public class Agent_Http_Services {
 				.as( "No Errors or warnings" )
 				.isTrue( ) ;
 
-		var agent = csapApp.flexFindFirstInstanceCurrentHost( CsapCore.AGENT_NAME ) ;
+		var agent = csapApp.flexFindFirstInstanceCurrentHost( CsapConstants.AGENT_NAME ) ;
 		agent.setPort( Integer.toString( testPort ) ) ;
 
 	}
@@ -86,13 +94,13 @@ public class Agent_Http_Services {
 	@Test
 	void verify_agent_loaded ( ) {
 
-		var agent = csapApp.flexFindFirstInstanceCurrentHost( CsapCore.AGENT_NAME ) ;
+		var agent = csapApp.flexFindFirstInstanceCurrentHost( CsapConstants.AGENT_NAME ) ;
 
 		logger.info( CsapApplication.testHeader( "Agent {}" ), agent.toSummaryString( ) ) ;
 
 		var restTemplate = new TestRestTemplate( restTemplateBuilder ) ;
 
-		var uiLandingUrl = "http://localhost:" + testPort + CsapCoreService.APP_BROWSER_URL ;
+		var uiLandingUrl = "http://localhost:" + testPort + CsapConstants.APP_BROWSER_URL ;
 
 		ResponseEntity<String> landingResponse = restTemplate.getForEntity( uiLandingUrl, String.class ) ;
 
@@ -127,7 +135,7 @@ public class Agent_Http_Services {
 				csapApp.getCsapWorkingFolder( ), "/"
 						+ simpleService.getName( ) + "-junit-test" ) ;
 
-		TransferManager transferManager = new TransferManager( csapApp, 3, outputManager.getBufferedWriter( ) ) ;
+		TransferManager transferManager = new TransferManager( csapApis, 3, outputManager.getBufferedWriter( ) ) ;
 
 		var sourceFile = new File( csapApp.getCsapInstallFolder( ), "junit-transfer-demo" ) ;
 
@@ -177,7 +185,7 @@ public class Agent_Http_Services {
 
 		var executeScriptUrl = UriComponentsBuilder
 				.fromHttpUrl( "http://localhost:" + testPort )
-				.path( CsapCoreService.OS_URL + "/executeScript" )
+				.path( CsapConstants.OS_URL + "/executeScript" )
 				.queryParam( "chownUserid", "csap" )
 				.queryParam( "hosts", "localhost" )
 				.queryParam( "scriptName", "junit-ls.sh" )

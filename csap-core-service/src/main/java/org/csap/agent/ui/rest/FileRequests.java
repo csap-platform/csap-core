@@ -37,9 +37,10 @@ import javax.servlet.http.HttpSession ;
 
 import org.apache.commons.io.FileUtils ;
 import org.apache.commons.lang3.StringUtils ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.api.AgentApi ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.linux.OsCommandRunner ;
@@ -100,7 +101,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode ;
  *
  */
 @Controller
-@RequestMapping ( CsapCoreService.FILE_URL )
+@RequestMapping ( CsapConstants.FILE_URL )
 @CsapDoc ( title = "File Operations" , notes = {
 		"File browser/manager, and associated rest operations. Includes viewing, saving, editing files",
 		"<a class='csap-link' target='_blank' href='https://github.com/csap-platform/csap-core/wiki'>learn more</a>",
@@ -116,20 +117,17 @@ public class FileRequests {
 	final Logger logger = LoggerFactory.getLogger( FileRequests.class ) ;
 
 	@Inject
-	public FileRequests ( Application csapApp,
-			CsapEvents csapEventClient ) {
+	public FileRequests (
+			CsapApis csapApis ) {
 
-		this.csapApp = csapApp ;
-		this.csapEventClient = csapEventClient ;
+		this.csapApis = csapApis ;
 
 	}
 
-	Application csapApp ;
+	CsapApis csapApis ;
 
 	@Autowired ( required = false )
 	CsapSecuritySettings securitySettings ;
-
-	CsapEvents csapEventClient ;
 
 	OsCommandRunner osCommandRunner = new OsCommandRunner( 90, 3, "FileRequests" ) ;
 
@@ -142,7 +140,7 @@ public class FileRequests {
 		throws IOException {
 
 		setCommonAttributes( modelMap, request, "Property Encoder" ) ;
-		modelMap.addAttribute( "name", csapApp.getCsapHostName( ) ) ;
+		modelMap.addAttribute( "name", csapApis.application( ).getCsapHostName( ) ) ;
 		return "misc/property-encoder" ;
 
 	}
@@ -151,7 +149,7 @@ public class FileRequests {
 
 	@RequestMapping ( FILE_MANAGER )
 	public String fileManager (
-								@RequestParam ( value = CsapCore.SERVICE_PORT_PARAM , required = false ) String serviceFlexId ,
+								@RequestParam ( value = CsapConstants.SERVICE_PORT_PARAM , required = false ) String serviceFlexId ,
 								@RequestParam ( value = "fromFolder" , defaultValue = "." ) String fromFolder ,
 								@RequestParam ( value = "showDu" , required = false ) String showDu ,
 								String nfs ,
@@ -160,11 +158,13 @@ public class FileRequests {
 								HttpServletRequest request ,
 								HttpSession session ) {
 
+		logger.trace( CsapApplication.testHeader( ) ) ;
+
 		ServiceInstance service = null ;
 
 		if ( StringUtils.isNotEmpty( serviceFlexId ) ) {
 
-			service = csapApp.flexFindFirstInstanceCurrentHost( serviceFlexId ) ;
+			service = csapApis.application( ).flexFindFirstInstanceCurrentHost( serviceFlexId ) ;
 
 		}
 
@@ -194,7 +194,7 @@ public class FileRequests {
 		Map<String, String> diskPathsForTips = new HashMap<>( ) ;
 		modelMap.addAttribute( "diskPathsForTips", diskPathsForTips ) ;
 
-		var workingFolder = csapApp.getRequestedFile( fromFolder, serviceFlexId, false ) ;
+		var workingFolder = csapApis.application( ).getRequestedFile( fromFolder, serviceFlexId, false ) ;
 
 		if ( workingFolder.exists( ) ) {
 
@@ -216,7 +216,8 @@ public class FileRequests {
 		diskPathsForTips.put( "homeDisk", pathForTips( FileToken.HOME.value, serviceFlexId ) ) ;
 		diskPathsForTips.put( "stagingDisk", pathForTips( FileToken.PLATFORM.value, serviceFlexId ) ) ;
 		diskPathsForTips.put( "installDisk", pathForTips( FileToken.PLATFORM.value + "/..", serviceFlexId ) ) ;
-		diskPathsForTips.put( "processingDisk", pathForTips( csapApp.getCsapWorkingFolder( ).getAbsolutePath( ),
+		diskPathsForTips.put( "processingDisk", pathForTips( csapApis.application( ).getCsapWorkingFolder( )
+				.getAbsolutePath( ),
 				serviceFlexId ) ) ;
 
 		if ( service != null ) {
@@ -240,7 +241,7 @@ public class FileRequests {
 
 			// use fully resolved paths for configuration and app folders
 			diskPathsForTips.put( "propDisk",
-					csapApp.getRequestedFile(
+					csapApis.application( ).getRequestedFile(
 							FileToken.PROPERTY.value, serviceFlexId, false )
 							.getAbsolutePath( ) ) ;
 
@@ -271,7 +272,8 @@ public class FileRequests {
 				// String baseDocker = dockerIntegration.determineDockerContainerName( service
 				// );
 
-				var serviceProperyFolder = csapApp.resolveDefinitionVariables( service.getPropDirectory( ), service ) ;
+				var serviceProperyFolder = csapApis.application( ).resolveDefinitionVariables( service
+						.getPropDirectory( ), service ) ;
 
 				if ( serviceProperyFolder.startsWith( NAMESPACE_PVC_TOKEN ) ) {
 
@@ -289,7 +291,8 @@ public class FileRequests {
 
 				}
 
-				var serviceAppFolder = csapApp.resolveDefinitionVariables( service.getAppDirectory( ), service ) ;
+				var serviceAppFolder = csapApis.application( ).resolveDefinitionVariables( service.getAppDirectory( ),
+						service ) ;
 
 				if ( serviceAppFolder.startsWith( NAMESPACE_PVC_TOKEN ) ) {
 
@@ -322,11 +325,14 @@ public class FileRequests {
 
 		}
 
-		if ( csapApp.isDockerInstalledAndActive( ) ) {
+		if ( csapApis.isContainerProviderInstalledAndActive( ) ) {
 
 			try {
 
-				var dockerRoot = dockerIntegration.getCachedSummaryReport( ).path( "rootDirectory" ).asText( "_error_" ) ;
+				logger.trace( "container provider found" ) ;
+
+				var dockerRoot = dockerIntegration.getCachedSummaryReport( ).path( "rootDirectory" ).asText(
+						"_error_" ) ;
 				diskPathsForTips.put( "dockerDisk", dockerRoot ) ;
 
 				if ( isDockerFolder( fromFolder ) ) {
@@ -341,6 +347,10 @@ public class FileRequests {
 				logger.error( "Failed to parse docker information: {}", CSAP.buildCsapStack( e ) ) ;
 
 			}
+
+		} else {
+
+			logger.trace( "container provider not found" ) ;
 
 		}
 
@@ -376,18 +386,18 @@ public class FileRequests {
 
 		}
 
-		return CsapCoreService.FILE_URL + "/file-browser" ;
+		return CsapConstants.FILE_URL + "/file-browser" ;
 
 	}
 
 	private String buildNamespaceListingPath ( ServiceInstance service , String serviceProperyFolder ) {
 
-		var volumeReports = csapApp.getKubernetesIntegration( ).reportsBuilder( ).volumeReport( ) ;
+		var volumeReports = csapApis.kubernetes( ).reportsBuilder( ).volumeReport( ) ;
 		var podNamespace = service.getDefaultContainer( ).getPodNamespace( ) ;
 
 		if ( StringUtils.isNotEmpty( podNamespace ) ) {
 
-			if ( csapApp.isDesktopHost( ) ) {
+			if ( csapApis.application( ).isDesktopHost( ) ) {
 
 				logger.warn( CsapApplication.testHeader( "setting test namespace for {}" ),
 						serviceProperyFolder ) ;
@@ -466,18 +476,18 @@ public class FileRequests {
 
 		// logger.info( "fromFolder: {}, folders2: {}", fromFolder, Arrays.asList(
 		// folders2 ) );
-		var firstFolder = folders[ 1 ] ;
+		var firstFolder = folders[1] ;
 		var mountSource = volumeNfsServer + ":/" + firstFolder ;
 
-		var mountLocation = csapApp.getOsManager( ).getMountPath( mountSource ) ;
+		var mountLocation = csapApis.osManager( ).getMountPath( mountSource ) ;
 
-		volumePath = mountLocation + "/" + folders[ 2 ] ;
+		volumePath = mountLocation + "/" + folders[2] ;
 		File testNfsFolder = new File( volumePath ) ;
 
 		if ( ! testNfsFolder.exists( ) ) {
 
 			// some time nfs is subfoldered, strip off another level\
-			volumePath = mountLocation + "/" + folders2[ 3 ] ;
+			volumePath = mountLocation + "/" + folders2[3] ;
 			testNfsFolder = new File( volumePath ) ;
 
 			if ( ! testNfsFolder.exists( ) ) {
@@ -497,7 +507,7 @@ public class FileRequests {
 
 	private String pathForTips ( String location , String serviceName ) {
 
-		return csapApp.getRequestedFile( location, serviceName, false ).getAbsolutePath( ) ;
+		return csapApis.application( ).getRequestedFile( location, serviceName, false ).getAbsolutePath( ) ;
 
 	}
 
@@ -523,15 +533,16 @@ public class FileRequests {
 
 		}
 
-		if ( csapApp.isAdminProfile( ) ) {
-			// csapApp.getRootModel().getAllPackagesModel().getServiceInstances(
+		if ( csapApis.application( ).isAdminProfile( ) ) {
+			// csapApis.application().getRootModel().getAllPackagesModel().getServiceInstances(
 			// serviceName )
 
 			String cluster = browseSettings.get( "cluster" ).asText( ) ;
-			ArrayList<String> clusterHosts = csapApp.getActiveProject( ).getAllPackagesModel( )
+			ArrayList<String> clusterHosts = csapApis.application( ).getActiveProject( ).getAllPackagesModel( )
 					.getLifeClusterToHostMap( ).get( cluster ) ;
 
-			logger.debug( "specified: {}, Keys: {}", cluster, csapApp.getActiveProject( ).getAllPackagesModel( )
+			logger.debug( "specified: {}, Keys: {}", cluster, csapApis.application( ).getActiveProject( )
+					.getAllPackagesModel( )
 					.getLifeClusterToHostMap( ).keySet( ) ) ;
 
 			if ( clusterHosts == null || clusterHosts.size( ) == 0 ) {
@@ -542,7 +553,8 @@ public class FileRequests {
 
 			}
 
-			return "redirect:" + csapApp.getAgentUrl( clusterHosts.get( 0 ), "/file/browser/" + browseId, false ) ;
+			return "redirect:" + csapApis.application( ).getAgentUrl( clusterHosts.get( 0 ), "/file/browser/"
+					+ browseId, false ) ;
 
 		}
 
@@ -563,7 +575,7 @@ public class FileRequests {
 
 		modelMap.addAttribute( "fromFolder", Application.FileToken.ROOT.value ) ;
 
-		return CsapCoreService.FILE_URL + "/file-browser" ;
+		return CsapConstants.FILE_URL + "/file-browser" ;
 
 	}
 
@@ -586,7 +598,7 @@ public class FileRequests {
 
 	private JsonNode getBrowseSettings ( String browseId ) {
 
-		JsonNode groupFileNode = (JsonNode) csapApp.rootProjectEnvSettings( ).getFileBrowserConfig( )
+		JsonNode groupFileNode = (JsonNode) csapApis.application( ).rootProjectEnvSettings( ).getFileBrowserConfig( )
 				.at( "/" + browseId ) ;
 		return groupFileNode ;
 
@@ -612,7 +624,7 @@ public class FileRequests {
 
 		if ( StringUtils.isNotEmpty( windowName ) ) {
 
-			var auditName = CsapCoreService.FILE_URL + "/" + windowName ;
+			var auditName = CsapConstants.FILE_URL + "/" + windowName ;
 			var userName = CsapUser.currentUsersID( ) ;
 
 			if ( StringUtils.isNotEmpty( apiUser ) ) {
@@ -626,9 +638,9 @@ public class FileRequests {
 
 			}
 
-			if ( csapApp.getActiveUsers( ).addTrail( userName, auditName ) ) {
+			if ( csapApis.application( ).getActiveUsers( ).addTrail( userName, auditName ) ) {
 
-				csapEventClient.publishUserEvent(
+				csapApis.events( ).publishUserEvent(
 						CsapEvents.CSAP_OS_CATEGORY + "/accessed",
 						userName,
 						"User interface: " + windowName, "" ) ;
@@ -641,30 +653,31 @@ public class FileRequests {
 
 		}
 
-		modelMap.addAttribute( "host", csapApp.getCsapHostName( ) ) ;
+		modelMap.addAttribute( "host", csapApis.application( ).getCsapHostName( ) ) ;
 
-		modelMap.addAttribute( "osUsers", csapApp.buildOsUsersList( ) ) ;
+		modelMap.addAttribute( "osUsers", csapApis.application( ).buildOsUsersList( ) ) ;
 
 		modelMap.addAttribute( "dateTime",
 				LocalDateTime.now( ).format( DateTimeFormatter.ofPattern( "HH:mm:ss,   MMMM d  uuuu " ) ) ) ;
 
 		modelMap.addAttribute( "userid", CsapUser.currentUsersID( ) ) ;
 
-		modelMap.addAttribute( "deskTop", csapApp.isDesktopHost( ) ) ;
+		modelMap.addAttribute( "deskTop", csapApis.application( ).isDesktopHost( ) ) ;
 
-		modelMap.addAttribute( "user", csapApp.getAgentRunUser( ) ) ;
-		modelMap.addAttribute( "csapApp", csapApp ) ;
+		modelMap.addAttribute( "user", csapApis.application( ).getAgentRunUser( ) ) ;
+		modelMap.addAttribute( "csapApp", csapApis.application( ) ) ;
 
-		modelMap.addAttribute( csapApp.rootProjectEnvSettings( ) ) ;
-		modelMap.addAttribute( "analyticsUrl", csapApp.rootProjectEnvSettings( ).getAnalyticsUiUrl( ) ) ;
-		modelMap.addAttribute( "eventApiUrl", csapApp.rootProjectEnvSettings( ).getEventApiUrl( ) ) ;
+		modelMap.addAttribute( csapApis.application( ).rootProjectEnvSettings( ) ) ;
+		modelMap.addAttribute( "analyticsUrl", csapApis.application( ).rootProjectEnvSettings( )
+				.getAnalyticsUiUrl( ) ) ;
+		modelMap.addAttribute( "eventApiUrl", csapApis.application( ).rootProjectEnvSettings( ).getEventApiUrl( ) ) ;
 
-		modelMap.addAttribute( "eventApiUrl", csapApp.rootProjectEnvSettings( ).getEventApiUrl( ) ) ;
+		modelMap.addAttribute( "eventApiUrl", csapApis.application( ).rootProjectEnvSettings( ).getEventApiUrl( ) ) ;
 
 		modelMap.addAttribute( "eventMetricsUrl",
-				csapApp.rootProjectEnvSettings( ).getEventMetricsUrl( ) ) ;
-		modelMap.addAttribute( "eventUser", csapApp.rootProjectEnvSettings( ).getEventDataUser( ) ) ;
-		modelMap.addAttribute( "life", csapApp.getCsapHostEnvironmentName( ) ) ;
+				csapApis.application( ).rootProjectEnvSettings( ).getEventMetricsUrl( ) ) ;
+		modelMap.addAttribute( "eventUser", csapApis.application( ).rootProjectEnvSettings( ).getEventDataUser( ) ) ;
+		modelMap.addAttribute( "life", csapApis.application( ).getCsapHostEnvironmentName( ) ) ;
 
 	}
 
@@ -674,7 +687,7 @@ public class FileRequests {
 	@GetMapping ( "/remote/listing" )
 	@ResponseBody
 	public String remoteFileMonitorListing (
-												@RequestParam ( value = CsapCore.SERVICE_PORT_PARAM , required = false ) String serviceName ,
+												@RequestParam ( value = CsapConstants.SERVICE_PORT_PARAM , required = false ) String serviceName ,
 												String hostName ,
 												String containerName ,
 												String fileName ,
@@ -683,13 +696,13 @@ public class FileRequests {
 												HttpServletRequest request ,
 												HttpSession session ) {
 
-		if ( csapApp.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			var requestParameters = new LinkedMultiValueMap<String, String>( ) ;
 
 			if ( serviceName != null ) {
 
-				requestParameters.set( CsapCore.SERVICE_PORT_PARAM, serviceName ) ;
+				requestParameters.set( CsapConstants.SERVICE_PORT_PARAM, serviceName ) ;
 
 			} else {
 
@@ -707,13 +720,13 @@ public class FileRequests {
 //				requestParameters.set( "fileName", FileToken.DOCKER.value + "" + containerName ) ;
 //			}
 
-			String url = CsapCoreService.FILE_URL + FILE_REMOTE_MONITOR ;
+			String url = CsapConstants.FILE_URL + FILE_REMOTE_MONITOR ;
 			List<String> hosts = new ArrayList<>( ) ;
 			hosts.add( hostName ) ;
 
 			logger.debug( " hitting: {} with {}", hostName, requestParameters ) ;
 
-			JsonNode remoteCall = csapApp.getOsManager( ).getServiceManager( ).remoteAgentsGet(
+			JsonNode remoteCall = csapApis.osManager( ).getServiceManager( ).remoteAgentsGet(
 					hosts,
 					url,
 					requestParameters ) ;
@@ -722,7 +735,7 @@ public class FileRequests {
 
 			var remoteListing = remoteCall.path( hostName ).asText( ) ;
 
-			if ( remoteListing.startsWith( CsapCore.CONFIG_PARSE_ERROR ) ) {
+			if ( remoteListing.startsWith( CsapConstants.CONFIG_PARSE_ERROR ) ) {
 
 				remoteListing = "error: failed to get remote listing " + url ;
 				remoteListing += "\n\n" + CSAP.jsonPrint( remoteCall ) ;
@@ -746,7 +759,7 @@ public class FileRequests {
 	public String fileMonitor (
 								@RequestParam ( value = "fromFolder" , required = false ) String fromFolder ,
 								@RequestParam ( value = "fileName" , required = false ) String fileName ,
-								@RequestParam ( value = CsapCore.SERVICE_PORT_PARAM , required = false ) String serviceName ,
+								@RequestParam ( value = CsapConstants.SERVICE_PORT_PARAM , required = false ) String serviceName ,
 								String podName ,
 								boolean agentUi ,
 								String apiUser ,
@@ -772,7 +785,7 @@ public class FileRequests {
 		if ( csapOauthConfig != null && StringUtils.isNotEmpty( corsHost ) ) {
 
 			fileChangeUrl = "http://" + corsHost + ":" + request.getServerPort( ) + request.getContextPath( )
-					+ CsapCoreService.FILE_URL
+					+ CsapConstants.FILE_URL
 					+ FILE_CHANGES_URL ;
 			modelMap.addAttribute( "bearerAuth", csapOauthConfig.getAuthorizationHeader( ) ) ;
 			logger.info( "bearer: '{}'", csapOauthConfig.getAuthorizationHeader( ) ) ;
@@ -804,12 +817,13 @@ public class FileRequests {
 
 			if ( ! serviceName.equals( ProcessRuntime.unregistered.getId( ) ) ) {
 
-				serviceInstance = csapApp.flexFindFirstInstanceCurrentHost( serviceName ) ;
+				serviceInstance = csapApis.application( ).flexFindFirstInstanceCurrentHost( serviceName ) ;
 
 				if ( serviceInstance == null ) {
 
 					logger.warn( "Requested service not found using csap-agent" ) ;
-					serviceInstance = csapApp.flexFindFirstInstanceCurrentHost( CsapCore.AGENT_NAME ) ;
+					serviceInstance = csapApis.application( ).flexFindFirstInstanceCurrentHost(
+							CsapConstants.AGENT_NAME ) ;
 
 				}
 
@@ -887,7 +901,7 @@ public class FileRequests {
 
 			} else {
 
-				File targetFile = csapApp.getRequestedFile( fileName, serviceName, false ) ;
+				File targetFile = csapApis.application( ).getRequestedFile( fileName, serviceName, false ) ;
 
 				if ( targetFile.getParentFile( ).exists( ) ) {
 
@@ -980,7 +994,7 @@ public class FileRequests {
 							modelMap.addAttribute( "podContainer", pod ) ;
 							var podNameFields = pod.getPodName( ).split( "-" ) ;
 							var csapContainerLabel = pod.getContainerLabel( ) + " ("
-									+ podNameFields[ podNameFields.length - 1 ] + ")" ;
+									+ podNameFields[podNameFields.length - 1] + ")" ;
 							modelMap.addAttribute( "csapContainerLabel", csapContainerLabel ) ;
 							modelMap.addAttribute( "container", pod.getContainerLabel( ) ) ;
 							modelMap.addAttribute( "pod", pod.getPodName( ) ) ;
@@ -1016,7 +1030,8 @@ public class FileRequests {
 			} else if ( serviceInstance != null ) {
 
 				// support for working dir for NON relative paths
-				File jobLogDir = new File( csapApp.getWorkingLogDir( serviceInstance.getServiceName_Port( ) ),
+				File jobLogDir = new File( csapApis.application( ).getWorkingLogDir( serviceInstance
+						.getServiceName_Port( ) ),
 						"serviceJobs" ) ;
 
 				if ( jobLogDir.exists( ) ) {
@@ -1072,7 +1087,7 @@ public class FileRequests {
 
 		logger.info( "initialLogFileToShow: '{}', firstNonZipFile: {}", initialLogFileToShow, firstNonZipFile ) ;
 
-		return CsapCoreService.FILE_URL + "/file-monitor" ;
+		return CsapConstants.FILE_URL + "/file-monitor" ;
 
 	}
 
@@ -1080,7 +1095,7 @@ public class FileRequests {
 
 		var logFileNames = new ArrayList<String>( ) ;
 
-		var serviceWorkingFolder = csapApp.getCsapWorkingFolder( ) ;
+		var serviceWorkingFolder = csapApis.application( ).getCsapWorkingFolder( ) ;
 
 		if ( serviceWorkingFolder.exists( ) ) {
 
@@ -1108,7 +1123,7 @@ public class FileRequests {
 
 		}
 
-//		File serviceFolder = csapApp.getLogDir( serviceInstance.getServiceName_Port( ) ) ;
+//		File serviceFolder =  csapApis.application().getLogDir( serviceInstance.getServiceName_Port( ) ) ;
 		var serviceFolder = serviceInstance.getLogWorkingDirectory( ) ;
 
 		if ( serviceInstance.isKubernetesMaster( ) ) {
@@ -1139,7 +1154,8 @@ public class FileRequests {
 				"logPath", logPath,
 				"getLogRegEx", serviceInstance.getLogRegEx( ),
 				"useContainerForLogs", useContainerForLogs,
-				"defaultLog", csapApp.getDefaultLogFileName( serviceInstance.getServiceName_Port( ) ) ) ) ;
+				"defaultLog", csapApis.application( ).getDefaultLogFileName( serviceInstance
+						.getServiceName_Port( ) ) ) ) ;
 
 		if ( useContainerForLogs ) {
 
@@ -1179,7 +1195,7 @@ public class FileRequests {
 					baseDockerLogs ) ;
 
 			List<String> subFileNames = new ArrayList<String>( ) ;
-			CsapCore.jsonStream( fileListing ).forEach( logListing -> {
+			CsapConstants.jsonStream( fileListing ).forEach( logListing -> {
 
 				logger.debug( "logListing: {}", logListing ) ;
 
@@ -1294,7 +1310,7 @@ public class FileRequests {
 		if ( logFileNames.size( ) == 0 ) {
 
 			logger.error( "Failed to find any matching log files: " + serviceFolder.getAbsolutePath( )
-					+ " \n Processing: " + csapApp.getCsapWorkingFolder( ).getAbsolutePath( ) ) ;
+					+ " \n Processing: " + csapApis.application( ).getCsapWorkingFolder( ).getAbsolutePath( ) ) ;
 
 		}
 
@@ -1493,7 +1509,7 @@ public class FileRequests {
 								@RequestParam ( value = "fromFolder" , required = true ) String fromFolder ,
 								@RequestParam ( value = "showDu" , required = false ) String showDu ,
 								@RequestParam ( defaultValue = "false" ) boolean useRoot ,
-								@RequestParam ( value = CsapCore.SERVICE_PORT_PARAM , required = false ) String serviceId ,
+								@RequestParam ( value = CsapConstants.SERVICE_PORT_PARAM , required = false ) String serviceId ,
 
 								String containerName ,
 								HttpSession session ,
@@ -1501,13 +1517,19 @@ public class FileRequests {
 								HttpServletResponse response )
 		throws IOException {
 
-		logger.debug( "fromFolder: {}, service: {}, showDu: {}, browseId: {}, useRoot: {}",
-				fromFolder, serviceId, showDu, browseId, useRoot ) ;
+		logger.debug( CSAP.buildDescription(
+				"File Listing",
+				"fromFolder", fromFolder,
+				"serviceId", serviceId,
+				"showDu", showDu,
+				"browseId", browseId,
+				"fromFolder", fromFolder,
+				"useRoot", useRoot ) ) ;
 
 		response.setHeader( "Cache-Control", "no-cache" ) ;
 		response.setContentType( MediaType.APPLICATION_JSON_VALUE ) ;
 
-		File targetFile = csapApp.getRequestedFile( fromFolder, serviceId, false ) ;
+		File targetFile = csapApis.application( ).getRequestedFile( fromFolder, serviceId, false ) ;
 
 		auditTrail( targetFile, "listing" ) ;
 
@@ -1554,7 +1576,7 @@ public class FileRequests {
 
 		if ( StringUtils.isNotEmpty( serviceId ) ) {
 
-			service = csapApp.flexFindFirstInstanceCurrentHost( serviceId ) ;
+			service = csapApis.application( ).flexFindFirstInstanceCurrentHost( serviceId ) ;
 
 		}
 
@@ -1572,7 +1594,8 @@ public class FileRequests {
 
 			if ( fromFolder.equals( prop_path ) ) {
 
-				var serviceProperyFolder = csapApp.resolveDefinitionVariables( service.getPropDirectory( ), service ) ;
+				var serviceProperyFolder = csapApis.application( ).resolveDefinitionVariables( service
+						.getPropDirectory( ), service ) ;
 
 				if ( serviceProperyFolder.startsWith( DOCKER_HOST_FILE_TOKEN ) ) {
 
@@ -1698,9 +1721,9 @@ public class FileRequests {
 
 		}
 
-		if ( csapApp.isDesktopHost( ) && fromFolder.contains( "pod--test" ) ) {
+		if ( csapApis.application( ).isDesktopHost( ) && fromFolder.contains( "pod--test" ) ) {
 
-			var podJson = csapApp.check_for_stub( "", "linux/ls-pod.json" ) ;
+			var podJson = csapApis.application( ).check_for_stub( "", "linux/ls-pod.json" ) ;
 			logger.info( podJson ) ;
 			fileListing = (ArrayNode) jacksonMapper.readTree( podJson ) ;
 
@@ -1722,14 +1745,14 @@ public class FileRequests {
 
 	private void auditTrail ( String userName , File targetFile , String operation ) {
 
-		var auditName = CsapCoreService.FILE_URL + "/" + operation + "/" + targetFile.getAbsolutePath( ) ;
+		var auditName = CsapConstants.FILE_URL + "/" + operation + "/" + targetFile.getAbsolutePath( ) ;
 
-		if ( csapApp.getActiveUsers( ).addTrail( userName, auditName ) ) {
+		if ( csapApis.application( ).getActiveUsers( ).addTrail( userName, auditName ) ) {
 
-			csapEventClient.publishUserEvent(
+			csapApis.events( ).publishUserEvent(
 					CsapEvents.CSAP_OS_CATEGORY + "/file/" + operation,
 					userName,
-					csapEventClient.fileName( targetFile, 60 ), targetFile.getAbsolutePath( ) ) ;
+					csapApis.events( ).fileName( targetFile, 60 ), targetFile.getAbsolutePath( ) ) ;
 
 		}
 
@@ -1744,7 +1767,7 @@ public class FileRequests {
 						+ targetFile.getAbsolutePath( ) + "/*" ) ;
 
 		var scriptOutput = osCommandRunner.runUsingRootUser( "ls-du", collectScript ) ;
-		scriptOutput = csapApp.check_for_stub( scriptOutput, "linux/ls-du-using-root.txt" ) ;
+		scriptOutput = csapApis.application( ).check_for_stub( scriptOutput, "linux/ls-du-using-root.txt" ) ;
 
 		var scriptOutputLines = scriptOutput.split( "\n" ) ;
 
@@ -1753,12 +1776,12 @@ public class FileRequests {
 
 		var diskNameToSizeMap = Arrays.stream( scriptOutputLines )
 				.filter( StringUtils::isNotEmpty )
-				.map( CsapCore::singleSpace )
+				.map( CsapConstants::singleSpace )
 				.filter( line -> ! line.startsWith( "#" ) )
 				.map( line -> line.split( " ", 2 ) )
 				.filter( keyValueArray -> keyValueArray.length == 2 )
-				.collect( Collectors.toMap( keyValueArray -> keyValueArray[ 1 ],
-						keyValueArray -> keyValueArray[ 0 ] ) ) ;
+				.collect( Collectors.toMap( keyValueArray -> keyValueArray[1],
+						keyValueArray -> keyValueArray[0] ) ) ;
 
 		return diskNameToSizeMap ;
 
@@ -1782,9 +1805,9 @@ public class FileRequests {
 
 			var containerNames = dockerIntegration.containerNames( true ) ;
 
-			if ( csapApp.isCrioInstalledAndActive( ) ) {
+			if ( csapApis.isCrioInstalledAndActive( ) ) {
 
-				containerNames.addAll( csapApp.crio( ).containerNames( ) ) ;
+				containerNames.addAll( csapApis.crio( ).containerNames( ) ) ;
 
 			}
 
@@ -1819,10 +1842,10 @@ public class FileRequests {
 			String[] dockerContainerAndPath = splitDockerTarget( targetFolder ) ;
 			String lsOutput ;
 
-			if ( csapApp.isCrioInstalledAndActive( )
+			if ( csapApis.isCrioInstalledAndActive( )
 					&& targetFolder.contains( OsManager.CRIO_DELIMETER ) ) {
 
-				var containerName = dockerContainerAndPath[ 0 ] ;
+				var containerName = dockerContainerAndPath[0] ;
 
 				if ( containerName.startsWith( "/" ) ) { // docker listings
 
@@ -1830,15 +1853,15 @@ public class FileRequests {
 
 				}
 
-				lsOutput = csapApp.crio( ).listFiles(
+				lsOutput = csapApis.crio( ).listFiles(
 						containerName,
-						dockerContainerAndPath[ 1 ] ) ;
+						dockerContainerAndPath[1] ) ;
 
 			} else {
 
 				lsOutput = dockerIntegration.listFiles(
-						dockerContainerAndPath[ 0 ],
-						dockerContainerAndPath[ 1 ] ) ;
+						dockerContainerAndPath[0],
+						dockerContainerAndPath[1] ) ;
 
 			}
 
@@ -1891,7 +1914,7 @@ public class FileRequests {
 		logger.debug( "lsCommand: {}", lsCommand ) ;
 
 		String lsOutput = osCommandRunner.runUsingRootUser( "file-ls", lsCommand ) ;
-		lsOutput = csapApp.check_for_stub( lsOutput, "linux/ls-using-root.txt" ) ;
+		lsOutput = csapApis.application( ).check_for_stub( lsOutput, "linux/ls-using-root.txt" ) ;
 
 		ArrayNode fileListing = buildListingUsingOs( fromFolder, lsOutput, duLines ) ;
 
@@ -1914,24 +1937,24 @@ public class FileRequests {
 
 		for ( String line : lsOutputLines ) {
 
-			String[] lsOutputWords = CsapCore.singleSpace( line
+			String[] lsOutputWords = CsapConstants.singleSpace( line
 					.replaceAll( REPLACE_DEBIAN, "" ) )
 					.split( " ", 9 ) ;
 
 			logger.debug( "line: {} words: {} ", line, lsOutputWords.length ) ;
 
-			if ( lsOutputWords.length == 9 && lsOutputWords[ 0 ].length( ) >= 10 ) {
+			if ( lsOutputWords.length == 9 && lsOutputWords[0].length( ) >= 10 ) {
 
 				ObjectNode itemJson = fileListing.addObject( ) ;
-				String currentItemName = lsOutputWords[ 8 ] ;
+				String currentItemName = lsOutputWords[8] ;
 				itemJson.put( "name", currentItemName ) ;
 
-				String fsize = lsOutputWords[ 4 ] + " b, " ;
+				String fsize = lsOutputWords[4] + " b, " ;
 				long fsizeNumeric = 0 ;
 
 				try {
 
-					Long fileSize = Long.parseLong( lsOutputWords[ 4 ] ) ;
+					Long fileSize = Long.parseLong( lsOutputWords[4] ) ;
 					fsizeNumeric = fileSize.longValue( ) ;
 					if ( fileSize > 1000 )
 						fsize = fsizeNumeric / 1000 + "kb, " ;
@@ -1944,7 +1967,7 @@ public class FileRequests {
 
 				}
 
-				if ( lsOutputWords[ 0 ].contains( "d" ) ) {
+				if ( lsOutputWords[0].contains( "d" ) ) {
 
 					itemJson.put( "folder", true ) ;
 					itemJson.put( "lazy", true ) ;
@@ -1977,23 +2000,23 @@ public class FileRequests {
 				itemJson.put( "restricted", true ) ;
 				itemJson.put( "filter", false ) ;
 				itemJson.put( "location",
-						fromFolder + lsOutputWords[ 8 ] ) ;
+						fromFolder + lsOutputWords[8] ) ;
 				// itemJson.put("data", dataNode) ;
-				itemJson.put( "title", lsOutputWords[ 8 ] ) ;
+				itemJson.put( "title", lsOutputWords[8] ) ;
 				itemJson.put(
 						"meta",
 						"~"
 								+ fsize
-								+ lsOutputWords[ 5 ] + " "
-								+ lsOutputWords[ 6 ] + " "
-								+ lsOutputWords[ 7 ] + ","
-								+ lsOutputWords[ 0 ] + ","
-								+ lsOutputWords[ 1 ] + ","
-								+ lsOutputWords[ 2 ] + ","
-								+ lsOutputWords[ 3 ] ) ;
+								+ lsOutputWords[5] + " "
+								+ lsOutputWords[6] + " "
+								+ lsOutputWords[7] + ","
+								+ lsOutputWords[0] + ","
+								+ lsOutputWords[1] + ","
+								+ lsOutputWords[2] + ","
+								+ lsOutputWords[3] ) ;
 
 				itemJson.put( "size", fsizeNumeric ) ;
-				itemJson.put( "target", fromFolder + lsOutputWords[ 8 ]
+				itemJson.put( "target", fromFolder + lsOutputWords[8]
 						+ "/" ) ;
 
 			}
@@ -2151,7 +2174,7 @@ public class FileRequests {
 								@RequestParam ( defaultValue = "false" ) boolean forceText ,
 								@RequestParam ( value = "fromFolder" , required = true ) String fromFolder ,
 								@RequestParam ( value = "isBinary" , required = false , defaultValue = "false" ) boolean isBinary ,
-								@RequestParam ( value = CsapCore.SERVICE_PORT_PARAM , required = false ) String svcName ,
+								@RequestParam ( value = CsapConstants.SERVICE_PORT_PARAM , required = false ) String svcName ,
 								@RequestParam ( value = "isLogFile" , required = false , defaultValue = "false" ) boolean isLogFile ,
 								HttpServletRequest request ,
 								HttpServletResponse response ,
@@ -2170,12 +2193,13 @@ public class FileRequests {
 					+ "&since=" + since
 					+ "&numberOfLines=500&reverse=false&json=false" ;
 
-			response.sendRedirect( csapApp.getAgentUrl( csapApp.getCsapHostName( ), target ) ) ;
+			response.sendRedirect( csapApis.application( ).getAgentUrl( csapApis.application( ).getCsapHostName( ),
+					target ) ) ;
 			return ;
 
 		}
 
-		File targetFile = csapApp.getRequestedFile( fromFolder, svcName, isLogFile ) ;
+		File targetFile = csapApis.application( ).getRequestedFile( fromFolder, svcName, isLogFile ) ;
 
 		// Restricted browse support
 		if ( browseId != null && browseId.length( ) > 0 ) {
@@ -2240,11 +2264,12 @@ public class FileRequests {
 
 				// run secondary check
 				if ( ! targetFile.getCanonicalPath( ).startsWith(
-						csapApp.getCsapWorkingFolder( ).getCanonicalPath( ) ) ) {
+						csapApis.application( ).getCsapWorkingFolder( ).getCanonicalPath( ) ) ) {
 
 					logger.warn(
 							"Attempt to access file system: {}. Only {} is permitted. Check if {}  is bypassing security: ",
-							targetFile.getCanonicalPath( ), csapApp.getCsapWorkingFolder( ).getCanonicalPath( ),
+							targetFile.getCanonicalPath( ), csapApis.application( ).getCsapWorkingFolder( )
+									.getCanonicalPath( ),
 							CsapUser.currentUsersID( ) ) ;
 					response.getWriter( ).println( "*** Content protected: can be accessed by admins " + fromFolder ) ;
 					return ;
@@ -2326,10 +2351,10 @@ public class FileRequests {
 
 		logger.debug( "file: {}", targetFile.getAbsolutePath( ) ) ;
 		auditTrail( targetFile, "download" ) ;
-		// csapEventClient.publishUserEvent( CsapEvents.CSAP_OS_CATEGORY +
+		// csapApis.events().publishUserEvent( CsapEvents.CSAP_OS_CATEGORY +
 		// "/file/download",
 		// CsapUser.currentUsersID(),
-		// csapEventClient.fileName( targetFile, 100 ),
+		// csapApis.events().fileName( targetFile, 100 ),
 		// targetFile.getAbsolutePath() ) ;
 
 		if ( forceText && targetFile.length( ) > getMaxEditSize( ) ) {
@@ -2360,10 +2385,10 @@ public class FileRequests {
 
 				}
 
-				if ( csapApp.isCrioInstalledAndActive( )
+				if ( csapApis.isCrioInstalledAndActive( )
 						&& dockerTarget.contains( OsManager.CRIO_DELIMETER ) ) {
 
-					var containerName = dockerContainerAndPath[ 0 ] ;
+					var containerName = dockerContainerAndPath[0] ;
 
 					if ( containerName.startsWith( "/" ) ) { // docker listings
 
@@ -2371,10 +2396,10 @@ public class FileRequests {
 
 					}
 
-					csapApp.crio( ).writeContainerFileToHttpResponse(
+					csapApis.crio( ).writeContainerFileToHttpResponse(
 							isBinary,
 							containerName,
-							dockerContainerAndPath[ 1 ],
+							dockerContainerAndPath[1],
 							response,
 							maxSizeForDocker,
 							CHUNK_SIZE_PER_REQUEST ) ;
@@ -2383,8 +2408,8 @@ public class FileRequests {
 
 					dockerIntegration.writeContainerFileToHttpResponse(
 							isBinary,
-							dockerContainerAndPath[ 0 ],
-							dockerContainerAndPath[ 1 ],
+							dockerContainerAndPath[0],
+							dockerContainerAndPath[1],
 							response,
 							maxSizeForDocker,
 							CHUNK_SIZE_PER_REQUEST ) ;
@@ -2399,9 +2424,9 @@ public class FileRequests {
 
 				}
 
-				if ( csapApp.isAgentProfile( ) && isHtml && ! isBinary ) {
+				if ( csapApis.application( ).isAgentProfile( ) && isHtml && ! isBinary ) {
 
-					csapApp.create_browseable_file_and_redirect_to_it( response, targetFile ) ;
+					csapApis.application( ).create_browseable_file_and_redirect_to_it( response, targetFile ) ;
 
 				} else {
 
@@ -2447,7 +2472,7 @@ public class FileRequests {
 			logger.warn(
 					"Failed accessing file - suspected nfs - using root tail to load 3mb as a workaround. reason: {}",
 					reason ) ;
-			response.getWriter( ).println( CsapCore.CONFIG_PARSE_ERROR + "Failed accessing file: " + targetFile
+			response.getWriter( ).println( CsapConstants.CONFIG_PARSE_ERROR + "Failed accessing file: " + targetFile
 					+ ". Attempting using root..." ) ;
 
 			var tailScript = List.of(
@@ -2490,19 +2515,31 @@ public class FileRequests {
 											String newName ,
 											boolean rename ,
 											boolean root ,
-											@RequestParam ( value = CsapCore.SERVICE_PORT_PARAM , required = false ) String svcNamePort )
+											@RequestParam ( value = CsapConstants.SERVICE_PORT_PARAM , required = false ) String svcNamePort )
 		throws IOException {
 
 		ObjectNode updateResults = jacksonMapper.createObjectNode( ) ;
 
-		logger.info( "fromFolder: {}", fromFolder ) ;
+		logger.info( CSAP.buildDescription( "file rename",
+				"fromFolder", fromFolder,
+				"newName", newName,
+				"rename", rename,
+				"root", root ) ) ;
 
-		File workingItem = csapApp.getRequestedFile( fromFolder, svcNamePort, false ) ;
-		File updatedItem = csapApp.getRequestedFile( newName, svcNamePort, false ) ;
+		File workingItem = csapApis.application( ).getRequestedFile( fromFolder, svcNamePort, false ) ;
 
-		if ( workingItem.getAbsolutePath( ).startsWith( csapApp.getDefinitionFolder( ).getAbsolutePath( ) ) ) {
+		File updatedItem = csapApis.application( ).getRequestedFile( newName, svcNamePort, false ) ;
 
-			csapApp.getRootProject( ).setEditUserid( CsapUser.currentUsersID( ) ) ;
+		if ( newName.startsWith( "/" ) ) {
+
+			updatedItem = new File( newName ) ;
+
+		}
+
+		if ( workingItem.getAbsolutePath( ).startsWith( csapApis.application( ).getDefinitionFolder( )
+				.getAbsolutePath( ) ) ) {
+
+			csapApis.application( ).getRootProject( ).setEditUserid( CsapUser.currentUsersID( ) ) ;
 
 		}
 
@@ -2514,7 +2551,7 @@ public class FileRequests {
 
 		}
 
-		csapEventClient.publishUserEvent( CsapEvents.CSAP_OS_CATEGORY + "/file/" + operation, CsapUser
+		csapApis.events( ).publishUserEvent( CsapEvents.CSAP_OS_CATEGORY + "/file/" + operation, CsapUser
 				.currentUsersID( ),
 				"Source: " + workingItem.getName( ) + " destination: " + updatedItem.getName( ),
 				"Previous: " + workingItem.getAbsolutePath( ) + "\n New: " + updatedItem.getAbsolutePath( ) ) ;
@@ -2527,11 +2564,11 @@ public class FileRequests {
 
 				if ( root ) {
 
-					List<String> lines = List.of(
+					var lines = List.of(
 							"\\mv --verbose --force " + workingItem.getAbsolutePath( ) + " " + updatedItem
 									.getAbsolutePath( ) ) ;
 
-					String scriptOutput = osCommandRunner.runUsingRootUser( "file-move", lines ) ;
+					var scriptOutput = osCommandRunner.runUsingRootUser( "file-move", lines ) ;
 
 					message += "\n command: " + lines + "\n output:" + scriptOutput ;
 
@@ -2553,11 +2590,11 @@ public class FileRequests {
 
 				if ( root ) {
 
-					List<String> lines = List.of(
+					var lines = List.of(
 							"\\cp --recursive --verbose --force " + workingItem.getAbsolutePath( ) + " " + updatedItem
 									.getAbsolutePath( ) ) ;
 
-					String scriptOutput = osCommandRunner.runUsingRootUser( "filesystem-copy", lines ) ;
+					var scriptOutput = osCommandRunner.runUsingRootUser( "filesystem-copy", lines ) ;
 
 					message += "\n command: " + lines + "\n output:" + scriptOutput ;
 
@@ -2600,29 +2637,34 @@ public class FileRequests {
 											String fromFolder ,
 											boolean recursive ,
 											boolean root ,
-											@RequestParam ( value = CsapCore.SERVICE_PORT_PARAM , required = false ) String svcNamePort )
+											@RequestParam ( value = CsapConstants.SERVICE_PORT_PARAM , required = false ) String svcNamePort )
 		throws IOException {
 
-		ObjectNode updateResults = jacksonMapper.createObjectNode( ) ;
+		var deleteReport = jacksonMapper.createObjectNode( ) ;
 
-		logger.info( "fromFolder: {}, recursive:{} ", fromFolder, recursive ) ;
 
-		File workingItem = csapApp.getRequestedFile( fromFolder, svcNamePort, false ) ;
+		logger.info( CSAP.buildDescription( "file delete",
+				"fromFolder", fromFolder,
+				"recursive", recursive,
+				"root", root ) ) ;
 
-		if ( workingItem.getAbsolutePath( ).startsWith( csapApp.getDefinitionFolder( ).getAbsolutePath( ) ) ) {
+		var workingItem = csapApis.application( ).getRequestedFile( fromFolder, svcNamePort, false ) ;
 
-			csapApp.getRootProject( ).setEditUserid( CsapUser.currentUsersID( ) ) ;
+		if ( workingItem.getAbsolutePath( ).startsWith( csapApis.application( ).getDefinitionFolder( )
+				.getAbsolutePath( ) ) ) {
+
+			csapApis.application( ).getRootProject( ).setEditUserid( CsapUser.currentUsersID( ) ) ;
 
 		}
 
-		var originalName = workingItem.getName( ) ;
 
 		var message = "Deleting: " + workingItem.getAbsolutePath( ) ;
 
 		try {
 
-			csapEventClient.publishUserEvent( CsapEvents.CSAP_OS_CATEGORY + "/file/delete", CsapUser.currentUsersID( ),
-					csapEventClient.fileName( workingItem, 60 ),
+			csapApis.events( ).publishUserEvent( CsapEvents.CSAP_OS_CATEGORY + "/file/delete", 
+					CsapUser.currentUsersID( ),
+					csapApis.events( ).fileName( workingItem, 60 ),
 					workingItem.getAbsolutePath( ) ) ;
 
 			if ( root ) {
@@ -2656,6 +2698,7 @@ public class FileRequests {
 						message += "  - SUCCESS" ;
 
 					} else {
+						
 
 						message += "  - FAILED. Verify: csap user has r/w, folders are empty(or recurse=true). Alternately - use delete++" ;
 
@@ -2673,10 +2716,12 @@ public class FileRequests {
 			message += " - FAILED " + "\n" + errMessage ;
 
 		}
+		
+		logger.info( message ) ;
 
-		updateResults.put( "plain-text", message ) ;
+		deleteReport.put( "plain-text", message ) ;
 
-		return updateResults ;
+		return deleteReport ;
 
 	}
 
@@ -2687,18 +2732,26 @@ public class FileRequests {
 											String newFolder ,
 											String newFile ,
 											boolean root ,
-											@RequestParam ( value = CsapCore.SERVICE_PORT_PARAM , required = false ) String svcNamePort )
+											@RequestParam ( value = CsapConstants.SERVICE_PORT_PARAM , required = false ) String svcNamePort )
 		throws IOException {
 
-		ObjectNode updateResults = jacksonMapper.createObjectNode( ) ;
+		var createReport = jacksonMapper.createObjectNode( ) ;
 
-		logger.info( "fromFolder: {}, newFolder: {}, newFile: {}, root:{} ", fromFolder, newFolder, newFile, root ) ;
 
-		File workingFolder = csapApp.getRequestedFile( fromFolder, svcNamePort, false ) ;
 
-		if ( workingFolder.getAbsolutePath( ).startsWith( csapApp.getDefinitionFolder( ).getAbsolutePath( ) ) ) {
+		logger.info( CSAP.buildDescription( "file create",
+				"fromFolder", fromFolder,
+				"newFolder", newFolder,
+				"newFile", newFile,
+				"root", root ) ) ;
 
-			csapApp.getRootProject( ).setEditUserid( CsapUser.currentUsersID( ) ) ;
+
+		var workingFolder = csapApis.application( ).getRequestedFile( fromFolder, svcNamePort, false ) ;
+
+		if ( workingFolder.getAbsolutePath( ).startsWith( csapApis.application( ).getDefinitionFolder( )
+				.getAbsolutePath( ) ) ) {
+
+			csapApis.application( ).getRootProject( ).setEditUserid( CsapUser.currentUsersID( ) ) ;
 
 		}
 
@@ -2706,7 +2759,7 @@ public class FileRequests {
 
 		var message = "Creating: " ;
 
-		csapEventClient.publishUserEvent( CsapEvents.CSAP_OS_CATEGORY + "/file/add", CsapUser.currentUsersID( ),
+		csapApis.events( ).publishUserEvent( CsapEvents.CSAP_OS_CATEGORY + "/file/add", CsapUser.currentUsersID( ),
 				"New Folder: " + newFolder + " file: " + newFile + " in " + workingFolder.getName( ),
 				workingFolder.getAbsolutePath( ) ) ;
 
@@ -2718,7 +2771,7 @@ public class FileRequests {
 
 				if ( root ) {
 
-					List<String> lines = List.of(
+					var lines = List.of(
 							"mkdir --parents --verbose " + workingFolder.getAbsolutePath( ) ) ;
 
 					String scriptOutput = osCommandRunner.runUsingRootUser( "filesystem-newfolder", lines ) ;
@@ -2739,7 +2792,7 @@ public class FileRequests {
 
 				if ( root ) {
 
-					List<String> lines = List.of(
+					var lines = List.of(
 							"touch " + createdFile.getAbsolutePath( ) ) ;
 
 					String scriptOutput = osCommandRunner.runUsingRootUser( "filesystem-new-file", lines ) ;
@@ -2765,9 +2818,9 @@ public class FileRequests {
 
 		}
 
-		updateResults.put( "plain-text", message ) ;
+		createReport.put( "plain-text", message ) ;
 
-		return updateResults ;
+		return createReport ;
 
 	}
 
@@ -2779,7 +2832,7 @@ public class FileRequests {
 //			@RequestParam ( value = "peter" , required = true ) String testParam ,
 								@RequestParam ( value = "fromFolder" , required = false ) String fromFolder ,
 								@RequestParam ( value = "chownUserid" , required = false ) String chownUserid ,
-								@RequestParam ( value = CsapCore.SERVICE_PORT_PARAM , required = false ) String svcNamePort ,
+								@RequestParam ( value = CsapConstants.SERVICE_PORT_PARAM , required = false ) String svcNamePort ,
 								@RequestParam ( value = "contents" , required = false , defaultValue = "" ) String contents ,
 								HttpServletRequest request ,
 								HttpServletResponse response ,
@@ -2820,7 +2873,7 @@ public class FileRequests {
 								boolean keepPermissions ,
 								@RequestParam ( value = "fromFolder" , required = false ) String fromFolder ,
 								@RequestParam ( value = "chownUserid" , required = false ) String chownUserid ,
-								@RequestParam ( value = CsapCore.SERVICE_PORT_PARAM , required = false ) String svcNamePort ,
+								@RequestParam ( value = CsapConstants.SERVICE_PORT_PARAM , required = false ) String svcNamePort ,
 								@RequestParam ( value = "contents" , required = false , defaultValue = "" ) String contents ,
 								HttpServletRequest request ,
 								HttpSession session )
@@ -2837,7 +2890,7 @@ public class FileRequests {
 
 		}
 
-		File targetFile = csapApp.getRequestedFile( fromFolder, svcNamePort, false ) ;
+		File targetFile = csapApis.application( ).getRequestedFile( fromFolder, svcNamePort, false ) ;
 
 		setCommonAttributes( modelMap, request, null, null ) ;
 
@@ -2853,7 +2906,7 @@ public class FileRequests {
 
 			if ( StringUtils.isEmpty( contents ) ) {
 
-				if ( csapApp.isCrioInstalledAndActive( )
+				if ( csapApis.isCrioInstalledAndActive( )
 						&& dockerTarget.contains( OsManager.CRIO_DELIMETER ) ) {
 
 					contents = "Skipping save: CRIO file updates will be implement in final release" ;
@@ -2862,8 +2915,8 @@ public class FileRequests {
 
 					contents = dockerIntegration.writeContainerFileToString(
 							modelMap,
-							dockerContainerAndPath[ 0 ],
-							dockerContainerAndPath[ 1 ],
+							dockerContainerAndPath[0],
+							dockerContainerAndPath[1],
 							getMaxEditSize( ),
 							CHUNK_SIZE_PER_REQUEST ).toString( ) ;
 
@@ -2873,7 +2926,7 @@ public class FileRequests {
 
 				var dockerWriteResults = jacksonMapper.createObjectNode( ) ;
 
-				if ( csapApp.isCrioInstalledAndActive( )
+				if ( csapApis.isCrioInstalledAndActive( )
 						&& dockerTarget.contains( OsManager.CRIO_DELIMETER ) ) {
 
 					dockerWriteResults.put( "error",
@@ -2883,8 +2936,8 @@ public class FileRequests {
 
 					dockerWriteResults = dockerIntegration.writeFileToContainer(
 							contents,
-							dockerContainerAndPath[ 0 ],
-							dockerContainerAndPath[ 1 ],
+							dockerContainerAndPath[0],
+							dockerContainerAndPath[1],
 							getMaxEditSize( ),
 							CHUNK_SIZE_PER_REQUEST ) ;
 
@@ -2945,26 +2998,33 @@ public class FileRequests {
 					// }
 				}
 
-				csapEventClient.publishUserEvent( CsapEvents.CSAP_OS_CATEGORY + "/file/edit",
+				csapApis.events( ).publishUserEvent( CsapEvents.CSAP_OS_CATEGORY + "/file/editor/load",
 						CsapUser.currentUsersID( ),
-						csapEventClient.fileName( targetFile, 100 ),
+						csapApis.events( ).fileName( targetFile, 100 ),
 						targetFile.getAbsolutePath( ) ) ;
 
 			} else {
+
+				csapApis.events( ).publishUserEvent( CsapEvents.CSAP_OS_CATEGORY + "/file/editor/save",
+						CsapUser.currentUsersID( ),
+						csapApis.events( ).fileName( targetFile, 100 ),
+						targetFile.getAbsolutePath( ) ) ;
 
 				saveUpdatedFile( modelMap, chownUserid, svcNamePort, contents, targetFile, keepPermissions ) ;
 
 				//
 				// Avoid auto reloading - since context is a application being edited
 				//
-				logger.debug( "targetFile: {}, definition folder: {}", targetFile.getAbsolutePath( ), csapApp
-						.getDefinitionFolder( ).getAbsolutePath( ) ) ;
+				logger.debug( "targetFile: {}, definition folder: {}",
+						targetFile.getAbsolutePath( ),
+						csapApis.application( ).getDefinitionFolder( ).getAbsolutePath( ) ) ;
 
-				if ( targetFile.getAbsolutePath( ).startsWith( csapApp.getDefinitionFolder( ).getAbsolutePath( ) ) ) {
+				if ( targetFile.getAbsolutePath( ).startsWith( csapApis.application( ).getDefinitionFolder( )
+						.getAbsolutePath( ) ) ) {
 
-					csapApp.getRootProject( ).setEditUserid( CsapUser.currentUsersID( ) ) ;
+					csapApis.application( ).getRootProject( ).setEditUserid( CsapUser.currentUsersID( ) ) ;
 					// subsequent scan will trigger restart.
-					csapApp.resetTimeStampsToBypassReload( ) ;
+					csapApis.application( ).resetTimeStampsToBypassReload( ) ;
 
 				}
 
@@ -2974,7 +3034,7 @@ public class FileRequests {
 
 		modelMap.addAttribute( "contents", contents ) ;
 
-		return CsapCoreService.FILE_URL + "/file-edit" ;
+		return CsapConstants.FILE_URL + "/file-edit" ;
 
 	}
 
@@ -2999,7 +3059,7 @@ public class FileRequests {
 
 		if ( filePath.endsWith( ".yml" ) ) {
 
-			String processing = Application.filePathAllOs( csapApp.getCsapWorkingFolder( ) ) ;
+			String processing = Application.filePathAllOs( csapApis.application( ).getCsapWorkingFolder( ) ) ;
 
 			if ( filePath.matches( processing + ".*admin.*application.*yml" ) ) {
 
@@ -3015,9 +3075,9 @@ public class FileRequests {
 
 		}
 
-		if ( csapApp.isRunningOnDesktop( ) && filePath.endsWith( ".sh" ) ) {
+		if ( csapApis.application( ).isRunningOnDesktop( ) && filePath.endsWith( ".sh" ) ) {
 
-			String processing = Application.filePathAllOs( csapApp.getCsapWorkingFolder( ) ) ;
+			String processing = Application.filePathAllOs( csapApis.application( ).getCsapWorkingFolder( ) ) ;
 			Pattern p = Pattern.compile( processing + ".*pTemp.*open.*sh" ) ;
 			Matcher m = p.matcher( filePath ) ;
 			logger.info( " Checking pattern {} for file in {}", p.toString( ), filePath ) ;
@@ -3051,25 +3111,39 @@ public class FileRequests {
 
 		auditTrail( targetFile, "save" ) ;
 
-		// csapEventClient.publishUserEvent( CsapEvents.CSAP_OS_CATEGORY + "/edit/save",
+		// csapApis.events().publishUserEvent( CsapEvents.CSAP_OS_CATEGORY +
+		// "/edit/save",
 		// CsapUser.currentUsersID(),
-		// csapEventClient.fileName( targetFile, 100 ),
+		// csapApis.events().fileName( targetFile, 100 ),
 		// targetFile.getAbsolutePath() ) ;
 
-		if ( serviceName_port != null ) {
+		// handle k8 edits when service stopped
 
-			String desc = csapApp.getServiceInstanceCurrentHost( serviceName_port ).getName( ) + "/edit" ;
+		if ( StringUtils.isNotEmpty( serviceName_port ) ) {
 
-			csapEventClient.publishUserEvent( CsapEvents.CSAP_USER_SERVICE_CATEGORY + "/" + desc, CsapUser
+			var service = csapApis.application( ).getServiceInstanceCurrentHost( serviceName_port ) ;
+			var desc = serviceName_port + "/edit" ;
+
+			if ( service != null ) {
+
+				desc = service.getName( ) + "/edit" ;
+
+			}
+
+			csapApis.events( ).publishUserEvent( CsapEvents.CSAP_USER_SERVICE_CATEGORY + "/" + desc, CsapUser
 					.currentUsersID( ),
-					csapEventClient.fileName( targetFile, 100 ),
+					csapApis.events( ).fileName( targetFile, 100 ),
 					targetFile.getAbsolutePath( ) ) ;
 
-		} else if ( Application.isRunningOnDesktop( ) ) {
+		}
+
+		if ( Application.isRunningOnDesktop( ) ) {
 
 			File backupFile = new File( targetFile.getAbsolutePath( ) + "."
 					+ CsapUser.currentUsersID( ) + "."
 					+ System.currentTimeMillis( ) ) ;
+
+			logger.warn( CsapApplication.testHeader( "desktop detectect - file is being copied: {}" ), backupFile ) ;
 
 			if ( ! backupFile.exists( ) ) {
 
@@ -3077,8 +3151,8 @@ public class FileRequests {
 
 			}
 
-			try ( FileWriter fstream = new FileWriter( targetFile );
-					BufferedWriter out = new BufferedWriter( fstream ); ) {
+			try ( var fstream = new FileWriter( targetFile );
+					var out = new BufferedWriter( fstream ); ) {
 				// Create file
 
 				out.write( contents ) ;
@@ -3087,7 +3161,7 @@ public class FileRequests {
 
 		}
 
-		File tempFolder = csapApp.csapPlatformTemp( ) ;
+		File tempFolder = csapApis.application( ).csapPlatformTemp( ) ;
 
 		if ( ! tempFolder.exists( ) ) {
 
@@ -3105,12 +3179,12 @@ public class FileRequests {
 
 		}
 
-		File scriptPath = csapApp.csapPlatformPath( "/bin/csap-edit-file.sh" ) ;
+		File scriptPath = csapApis.application( ).csapPlatformPath( "/bin/csap-edit-file.sh" ) ;
 
 		var backup_and_move_script = List.of(
 				"#!/bin/bash",
 				scriptPath.getAbsolutePath( )
-						+ " " + pathWithSpacesEscaped( csapApp.getCsapInstallFolder( ) )
+						+ " " + pathWithSpacesEscaped( csapApis.application( ).getCsapInstallFolder( ) )
 						+ " " + pathWithSpacesEscaped( tempLocation )
 						+ " " + pathWithSpacesEscaped( targetFile )
 						+ " " + chownUserid
@@ -3171,8 +3245,8 @@ public class FileRequests {
 										@RequestParam ( defaultValue = "0" ) int dockerLineCount ,
 										@RequestParam ( defaultValue = "0" ) String dockerSince ,
 										@RequestParam ( value = "bufferSize" , required = true ) long bufferSize ,
-										@RequestParam ( value = CsapCore.HOST_PARAM , required = false ) String hostName ,
-										@RequestParam ( value = CsapCore.SERVICE_PORT_PARAM , required = false ) String serviceName_port ,
+										@RequestParam ( value = CsapConstants.HOST_PARAM , required = false ) String hostName ,
+										@RequestParam ( value = CsapConstants.SERVICE_PORT_PARAM , required = false ) String serviceName_port ,
 										@RequestParam ( value = "isLogFile" , required = false , defaultValue = "false" ) boolean isLogFile ,
 										@RequestParam ( value = LOG_FILE_OFFSET_PARAM , required = false , defaultValue = "-1" ) long offsetLong ,
 										boolean useLocal ,
@@ -3183,15 +3257,15 @@ public class FileRequests {
 
 		if ( hostName == null ) {
 
-			hostName = csapApp.getCsapHostName( ) ;
+			hostName = csapApis.application( ).getCsapHostName( ) ;
 
 		}
 
-		var file_being_tailed = csapApp.getRequestedFile( fromFolder, serviceName_port, isLogFile ) ;
+		var file_being_tailed = csapApis.application( ).getRequestedFile( fromFolder, serviceName_port, isLogFile ) ;
 		var userName = CsapUser.currentUsersID( ) ;
 
-		// debug only && ! csapApp.isDesktopHost()
-		if ( csapApp.isAdminProfile( ) && ! useLocal ) {
+		// debug only && ! csapApis.application().isDesktopHost()
+		if ( csapApis.application( ).isAdminProfile( ) && ! useLocal ) {
 
 			MultiValueMap<String, String> urlVariables = new LinkedMultiValueMap<String, String>( ) ;
 
@@ -3200,21 +3274,20 @@ public class FileRequests {
 			urlVariables.set( "dockerLineCount", Integer.toString( dockerLineCount ) ) ;
 			urlVariables.set( "dockerSince", dockerSince ) ;
 			urlVariables.set( "bufferSize", Long.toString( bufferSize ) ) ;
-			urlVariables.set( CsapCore.HOST_PARAM, hostName ) ;
+			urlVariables.set( CsapConstants.HOST_PARAM, hostName ) ;
 			urlVariables.set( "isLogFile", Boolean.toString( isLogFile ) ) ;
 			urlVariables.set( "fromFolder", fromFolder ) ;
-			urlVariables.set( CsapCore.SERVICE_NOPORT_PARAM, serviceName_port ) ;
+			urlVariables.set( CsapConstants.SERVICE_NOPORT_PARAM, serviceName_port ) ;
 			urlVariables.set( FileRequests.LOG_FILE_OFFSET_PARAM, Long.toString( offsetLong ) ) ;
 
-			String url = CsapCoreService.API_AGENT_URL + AgentApi.LOG_CHANGES ;
-			List<String> hosts = new ArrayList<>( ) ;
-			hosts.add( hostName ) ;
+			String url = CsapConstants.API_AGENT_URL + AgentApi.LOG_CHANGES ;
+			var hosts = List.of(  hostName ) ;
 
-			JsonNode changesFromRemoteAgentApi = csapApp.getOsManager( ).getServiceManager( )
+			JsonNode changesFromRemoteAgentApi = csapApis.osManager( ).getServiceManager( )
 
 					.remoteAgentsApi(
-							csapApp.rootProjectEnvSettings( ).getAgentUser( ),
-							csapApp.rootProjectEnvSettings( ).getAgentPass( ),
+							csapApis.application( ).rootProjectEnvSettings( ).getAgentUser( ),
+							csapApis.application( ).rootProjectEnvSettings( ).getAgentPass( ),
 							hosts,
 							url,
 							urlVariables )
@@ -3222,7 +3295,7 @@ public class FileRequests {
 					.get( hostName ) ;
 
 			if ( changesFromRemoteAgentApi.isTextual( )
-					&& ( changesFromRemoteAgentApi.asText( ).startsWith( CsapCore.CONFIG_PARSE_ERROR )
+					&& ( changesFromRemoteAgentApi.asText( ).startsWith( CsapConstants.CONFIG_PARSE_ERROR )
 							|| changesFromRemoteAgentApi.asText( ).startsWith( "Skipping host" ) ) ) {
 
 				var errorReport = jacksonMapper.createObjectNode( ) ;
@@ -3260,12 +3333,12 @@ public class FileRequests {
 				if ( ! file_being_tailed
 						.getCanonicalPath( )
 						.startsWith(
-								csapApp.getCsapWorkingFolder( ).getCanonicalPath( ) ) ) {
+								csapApis.application( ).getCsapWorkingFolder( ).getCanonicalPath( ) ) ) {
 
 					logger.warn(
 							"Attempt to access file system: {}. Only {} is permitted. Check if {}  is bypassing security: ",
 							file_being_tailed.getCanonicalPath( ),
-							csapApp.getCsapWorkingFolder( ).getCanonicalPath( ),
+							csapApis.application( ).getCsapWorkingFolder( ).getCanonicalPath( ),
 							CsapUser.currentUsersID( ) ) ;
 
 					ObjectNode errorResponse = jacksonMapper.createObjectNode( ) ;
@@ -3303,7 +3376,7 @@ public class FileRequests {
 			ArrayList<String> fileList = (ArrayList<String>) request.getSession( )
 					.getAttribute( "FileAcess" ) ;
 
-			if ( CsapCore.HOST_PARAM == null
+			if ( CsapConstants.HOST_PARAM == null
 					&& ( fileList == null || ! fileList.contains( file_being_tailed.getAbsolutePath( ) ) ) ) {
 
 				if ( fileList == null ) {
@@ -3315,9 +3388,9 @@ public class FileRequests {
 
 				fileList.add( file_being_tailed.getAbsolutePath( ) ) ;
 
-				csapEventClient.publishUserEvent( CsapEvents.CSAP_OS_CATEGORY + "/file/tail",
+				csapApis.events( ).publishUserEvent( CsapEvents.CSAP_OS_CATEGORY + "/file/tail",
 						CsapUser.currentUsersID( ),
-						csapEventClient.fileName( file_being_tailed, 100 ),
+						csapApis.events( ).fileName( file_being_tailed, 100 ),
 						file_being_tailed.getAbsolutePath( ) ) ;
 
 			}
@@ -3412,7 +3485,7 @@ public class FileRequests {
 
 		}
 
-		fileChangesJson.put( "source", "docker" ) ;
+		fileChangesJson.put( "source", C7.definitionSettings.val( ) ) ;
 		ArrayNode contentsJson = fileChangesJson.putArray( "contents" ) ;
 
 		String dockerTarget = fromFolder.substring( Application.FileToken.DOCKER.value.length( ) ) ;
@@ -3420,12 +3493,12 @@ public class FileRequests {
 
 		try {
 
-			if ( dockerContainerAndPath[ 1 ] == null || dockerContainerAndPath[ 1 ].trim( ).length( ) == 0 ) {
+			if ( dockerContainerAndPath[1] == null || dockerContainerAndPath[1].trim( ).length( ) == 0 ) {
 
 				// show container logs
 				ObjectNode tailResult = dockerIntegration.containerTail(
 						null,
-						dockerContainerAndPath[ 0 ],
+						dockerContainerAndPath[0],
 						numberOfLines,
 						Integer.parseInt( dockerSince ) ) ;
 
@@ -3447,8 +3520,8 @@ public class FileRequests {
 				// tail on docker file
 				String logsAsText = dockerIntegration
 						.tailFile(
-								dockerContainerAndPath[ 0 ],
-								dockerContainerAndPath[ 1 ],
+								dockerContainerAndPath[0],
+								dockerContainerAndPath[1],
 								numberOfLines ) ;
 
 				fileChangesJson.put( "since", -1 ) ;
@@ -3478,7 +3551,7 @@ public class FileRequests {
 
 		var readPermissionScriptResult = "" ;
 		var setReadPermissionsScript = osManager.getOsCommands( ).getFileReadPermissions(
-				csapApp.getAgentRunUser( ),
+				csapApis.application( ).getAgentRunUser( ),
 				targetFile.getAbsolutePath( ) ) ;
 
 		try {
@@ -3493,7 +3566,8 @@ public class FileRequests {
 
 		}
 
-		readPermissionScriptResult = csapApp.check_for_stub( readPermissionScriptResult, "linux/du-using-root.txt" ) ;
+		readPermissionScriptResult = csapApis.application( ).check_for_stub( readPermissionScriptResult,
+				"linux/du-using-root.txt" ) ;
 
 		StringBuilder results = new StringBuilder( "Updating read access using setfacl: " + targetFile
 				.getAbsolutePath( ) ) ;
@@ -3531,7 +3605,8 @@ public class FileRequests {
 
 				var parentLines = List.of(
 						"#!/bin/bash",
-						"setfacl -m u:" + csapApp.getAgentRunUser( ) + ":rx '" + parentFolder.getAbsolutePath( )
+						"setfacl -m u:" + csapApis.application( ).getAgentRunUser( ) + ":rx '" + parentFolder
+								.getAbsolutePath( )
 								+ "' 2>&1",
 						"" ) ;
 
@@ -3543,14 +3618,14 @@ public class FileRequests {
 
 				} catch ( Exception e ) {
 
-					parentResult = CsapCore.CONFIG_PARSE_ERROR + "Failed running" ;
+					parentResult = CsapConstants.CONFIG_PARSE_ERROR + "Failed running" ;
 
 					logger.warn( "Failed running: {}", CSAP.buildCsapStack( e ) ) ;
 					break ;
 
 				}
 
-				parentResult = csapApp.check_for_stub( parentResult, "linux/du-using-root.txt" ) ;
+				parentResult = csapApis.application( ).check_for_stub( parentResult, "linux/du-using-root.txt" ) ;
 
 //				if ( StringUtils.isNotEmpty( parentResult ) ) {
 //
@@ -3564,7 +3639,7 @@ public class FileRequests {
 						"Result", parentResult ) ) ;
 
 				if ( parentResult.contains( "Operation not supported" )
-						|| parentResult.contains( CsapCore.CONFIG_PARSE_ERROR ) ) {
+						|| parentResult.contains( CsapConstants.CONFIG_PARSE_ERROR ) ) {
 
 					logger.warn( "Aborting facl request (suspected nfs folder)" ) ;
 					break ;
@@ -3577,9 +3652,9 @@ public class FileRequests {
 
 		}
 
-		csapEventClient.publishUserEvent( CsapEvents.CSAP_OS_CATEGORY + "/file/permissions",
+		csapApis.events( ).publishUserEvent( CsapEvents.CSAP_OS_CATEGORY + "/file/permissions",
 				securitySettings.getRoles( ).getUserIdFromContext( ),
-				"Adding read permissions: " + csapEventClient.fileName( targetFile, 50 ),
+				"Adding read permissions: " + csapApis.events( ).fileName( targetFile, 50 ),
 				results.toString( ) ) ;
 
 		logger.debug( "Result: {}", results ) ;

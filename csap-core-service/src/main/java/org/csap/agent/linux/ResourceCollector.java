@@ -10,7 +10,8 @@ import java.util.Arrays ;
 import java.util.List ;
 
 import org.apache.commons.lang3.StringUtils ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.ContainerState ;
 import org.csap.agent.model.ServiceInstance ;
@@ -30,14 +31,14 @@ public class ResourceCollector implements Runnable {
 
 	final Logger logger = LoggerFactory.getLogger( this.getClass( ) ) ;
 
-	public ResourceCollector ( Application csapApp, OsCommandRunner osCommandRunner ) {
+	public ResourceCollector ( CsapApis csapApis, OsCommandRunner osCommandRunner ) {
 
 		this.osCommandRunner = osCommandRunner ;
-		this.csapApp = csapApp ;
+		this.csapApis = csapApis ;
 
 	}
 
-	private Application csapApp ;
+	private CsapApis csapApis = null ;
 	private OsCommandRunner osCommandRunner ;
 
 	public void shutDown ( ) {
@@ -78,15 +79,15 @@ public class ResourceCollector implements Runnable {
 			//
 			// Process above reports, and collect File counts
 			//
-			var allServicesTimer = csapApp.metrics( ).startTimer( ) ;
+			var allServicesTimer = csapApis.metrics( ).startTimer( ) ;
 
 			logger.debug( "\n\n***** Refreshing open files cache   *******\n\n" ) ;
 
-			var hostServices = csapApp.getServicesOnHost( ) ;
+			var hostServices = csapApis.application( ).getServicesOnHost( ) ;
 
 			for ( var serviceInstance : hostServices ) {
 
-				var serviceTimer = csapApp.metrics( ).startTimer( ) ;
+				var serviceTimer = csapApis.metrics( ).startTimer( ) ;
 
 				if ( serviceInstance.is_files_only_package( )
 						|| serviceInstance.isRemoteCollection( )
@@ -105,12 +106,12 @@ public class ResourceCollector implements Runnable {
 				updateInstanceSockets( socketCollectionForRootNamespace, serviceInstance ) ;
 				updateInstanceFileIo( pidStatLines, serviceInstance ) ;
 
-				csapApp.metrics( ).stopTimer( serviceTimer, OsManager.COLLECT_OS + "resources-" + serviceInstance
+				csapApis.metrics( ).stopTimer( serviceTimer, OsManager.COLLECT_OS + "resources-" + serviceInstance
 						.getName( ) ) ;
 
 			}
 
-			csapApp.metrics( ).stopTimer( allServicesTimer, "csap." + OsManager.COLLECT_OS + "resources-all" ) ;
+			csapApis.metrics( ).stopTimer( allServicesTimer, "csap." + OsManager.COLLECT_OS + "resources-all" ) ;
 
 		} catch ( Exception e ) {
 
@@ -137,23 +138,23 @@ public class ResourceCollector implements Runnable {
 				pidstatResults = osCommandRunner
 						.runUsingRootUser(
 								"service-disk-io",
-								csapApp.getOsManager( ).getOsCommands( ).getServiceDiskIo( ) ) ;
+								csapApis.osManager( ).getOsCommands( ).getServiceDiskIo( ) ) ;
 
 				logger.debug( "output from: {}  , \n{}",
-						csapApp.getOsManager( ).getOsCommands( ).getServiceDiskIo( ),
+						csapApis.osManager( ).getOsCommands( ).getServiceDiskIo( ),
 						pidstatResults ) ;
 
 			} catch ( IOException e ) {
 
 				logger.info( "Failed to collect pidstat info: {} , \n reason: {}",
-						csapApp.getOsManager( ).getOsCommands( ).getServiceDiskIo( ),
+						csapApis.osManager( ).getOsCommands( ).getServiceDiskIo( ),
 						CSAP.buildCsapStack( e ) ) ;
 
 			}
 
 		}
 
-		pidstatResults = csapApp.check_for_stub( pidstatResults, PIDSTAT_STUB_FILE_RH7 ) ;
+		pidstatResults = csapApis.application( ).check_for_stub( pidstatResults, PIDSTAT_STUB_FILE_RH7 ) ;
 
 		logger.debug( "***X ENDINF" ) ;
 		return pidstatResults ;
@@ -196,10 +197,10 @@ public class ResourceCollector implements Runnable {
 
 			socketStatResult = osCommandRunner
 					.runUsingRootUser( "host-socket-collection",
-							csapApp.getOsManager( ).getOsCommands( ).getServiceSockets( ) ) ;
+							csapApis.osManager( ).getOsCommands( ).getServiceSockets( ) ) ;
 
 			logger.debug( "output from: {}  , \n{}",
-					csapApp.getOsManager( ).getOsCommands( ).getServiceSockets( ),
+					csapApis.osManager( ).getOsCommands( ).getServiceSockets( ),
 					socketStatResult ) ;
 
 		} catch ( Exception e ) {
@@ -209,7 +210,7 @@ public class ResourceCollector implements Runnable {
 
 		}
 
-		socketStatResult = csapApp.check_for_stub( socketStatResult, "linux/ps-socket-stat.txt" ) ;
+		socketStatResult = csapApis.application( ).check_for_stub( socketStatResult, "linux/ps-socket-stat.txt" ) ;
 
 		// if ( socketStatResult.contains( "pid=" ) ) {
 		// isPidEqualsFormat = true ;
@@ -245,7 +246,7 @@ public class ResourceCollector implements Runnable {
 					source = "container namespace" ;
 					var containerPid = container.getPid( ).get( 0 ) ;
 					List<String> socketCollectCommands = //
-							csapApp.getOsManager( )
+							csapApis.osManager( )
 									.getOsCommands( )
 									.getServiceSocketsDocker( containerPid ) ;
 
@@ -259,7 +260,7 @@ public class ResourceCollector implements Runnable {
 								serviceInstance.getName( ),
 								socketCollectCommands,
 								containerSocketOutput ) ;
-						containerSocketOutput = csapApp.check_for_stub( containerSocketOutput,
+						containerSocketOutput = csapApis.application( ).check_for_stub( containerSocketOutput,
 								"linux/docker-socket-stat.txt" ) ;
 						containerSocketCount = Integer.parseInt( containerSocketOutput.trim( ) ) ;
 
@@ -295,10 +296,10 @@ public class ResourceCollector implements Runnable {
 
 						Integer.parseInt( pid ) ;
 
-						if ( rootNamespaceCollectionLines[ lineNumber ].contains( "pid=" + pid + "," ) ) {
+						if ( rootNamespaceCollectionLines[lineNumber].contains( "pid=" + pid + "," ) ) {
 
 							socketCount++ ;
-							rootNamespaceCollectionLines[ lineNumber ] = "" ;
+							rootNamespaceCollectionLines[lineNumber] = "" ;
 
 						}
 
@@ -355,15 +356,15 @@ public class ResourceCollector implements Runnable {
 //							}
 
 							if ( cols.length != 7
-									|| ! StringUtils.isNumeric( cols[ 2 ] ) ) {
+									|| ! StringUtils.isNumeric( cols[2] ) ) {
 
-								pidStatLines[ currentIndex ] = "" ;
+								pidStatLines[currentIndex] = "" ;
 
 								continue ;
 
 							}
 
-							var pidParsed = cols[ 2 ].trim( ) ;
+							var pidParsed = cols[2].trim( ) ;
 
 							if ( ! pidParsed.equals( pid ) ) {
 
@@ -373,10 +374,10 @@ public class ResourceCollector implements Runnable {
 
 							try {
 
-								var kbRead = Float.parseFloat( cols[ 3 ] ) ;
+								var kbRead = Float.parseFloat( cols[3] ) ;
 								diskReadKb += kbRead ;
 
-								var kbWrite = Float.parseFloat( cols[ 4 ] ) ;
+								var kbWrite = Float.parseFloat( cols[4] ) ;
 								diskWriteKb += kbWrite ;
 
 								// var cancelledWrites = Double.parseDouble( cols[5] ) ;
@@ -386,13 +387,13 @@ public class ResourceCollector implements Runnable {
 								// failed to parse wipe it out
 
 								if ( logsOutput++ == 0
-										&& instance.getName( ).equals( CsapCore.AGENT_NAME ) ) {
+										&& instance.getName( ).equals( CsapConstants.AGENT_NAME ) ) {
 
 									logger.warn( "Failed parsing: {}", pidStatLine ) ;
 
 								}
 
-								pidStatLines[ currentIndex ] = "" ;
+								pidStatLines[currentIndex] = "" ;
 
 							}
 
@@ -413,7 +414,7 @@ public class ResourceCollector implements Runnable {
 
 		boolean isCsapProcess = ( instance.getUser( ) == null ) ;
 
-		var timer = csapApp.metrics( ).startTimer( ) ;
+		var timer = csapApis.metrics( ).startTimer( ) ;
 
 		if ( isCsapProcess && ! instance.is_docker_server( ) ) {
 
@@ -425,7 +426,7 @@ public class ResourceCollector implements Runnable {
 
 		}
 
-		csapApp.metrics( ).stopTimer( timer, OsManager.COLLECT_OS + "java-nio-files." + instance.getName( ) ) ;
+		csapApis.metrics( ).stopTimer( timer, OsManager.COLLECT_OS + "java-nio-files." + instance.getName( ) ) ;
 
 	}
 
@@ -506,7 +507,7 @@ public class ResourceCollector implements Runnable {
 
 		logger.debug( "{} running open files script", instance.getName( ) ) ;
 
-		if ( ! Application.getInstance( ).isRunningAsRoot( ) ) {
+		if ( ! CsapApis.getInstance( ).application( ).isRunningAsRoot( ) ) {
 
 			if ( numOpenWarnings++ < 10 ) {
 
@@ -553,7 +554,8 @@ public class ResourceCollector implements Runnable {
 
 				var commandResult = osCommandRunner.runUsingRootUser( "open-files-as-root", openFilesCollectScript ) ;
 
-				commandResult = csapApp.check_for_stub( commandResult, "linux/open-files-as-root.txt" ) ;
+				commandResult = csapApis.application( ).check_for_stub( commandResult,
+						"linux/open-files-as-root.txt" ) ;
 
 				logger.debug( "{} commandScript: \n {} \n\n commandResult:\n {}", instance.getName( ), lsCommandString,
 						commandResult ) ;

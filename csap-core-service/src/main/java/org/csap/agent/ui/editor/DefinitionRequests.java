@@ -21,9 +21,9 @@ import javax.servlet.http.HttpServletRequest ;
 
 import org.apache.commons.io.FileUtils ;
 import org.apache.commons.lang3.StringUtils ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
-import org.csap.agent.container.DockerJson ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.integrations.VersionControl ;
 import org.csap.agent.integrations.VersionControl.ScmProvider ;
@@ -90,7 +90,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode ;
  *
  */
 @RestController
-@RequestMapping ( CsapCoreService.DEFINITION_URL )
+@RequestMapping ( CsapConstants.DEFINITION_URL )
 @CsapDoc ( title = "Application Definition Operations" , notes = {
 		"Update, Reload and similar operations to manage the running application",
 		"<a class='csap-link' target='_blank' href='https://github.com/csap-platform/csap-core/wiki'>learn more</a>",
@@ -105,14 +105,14 @@ public class DefinitionRequests {
 	final Logger logger = LoggerFactory.getLogger( getClass( ) ) ;
 
 	public DefinitionRequests (
-			Application csapApp,
+			CsapApis csapApis,
 			CsapEvents csapEventClient,
 			VersionControl sourceControlManager,
 			StandardPBEStringEncryptor encryptor,
 			CsapEncryptionConfiguration csapEncProps,
 			CorePortals corePortals ) {
 
-		this.csapApp = csapApp ;
+		this.csapApis = csapApis ;
 		this.corePortals = corePortals ;
 		this.csapEventClient = csapEventClient ;
 		this.sourceControlManager = sourceControlManager ;
@@ -124,12 +124,12 @@ public class DefinitionRequests {
 	@EventListener ( {
 			ContextRefreshedEvent.class
 	} )
-	@Order ( CsapCore.CSAP_UI_LOAD_ORDER )
+	@Order ( CsapConstants.CSAP_UI_LOAD_ORDER )
 	public void initialize ( ) {
 
 		this.servicesResources = new ServiceResources(
-				csapApp.getRootModelBuildLocation( ),
-				csapApp.getCsapInstallFolder( ),
+				csapApis.application( ).getRootModelBuildLocation( ),
+				csapApis.application( ).getCsapInstallFolder( ),
 				jsonMapper ) ;
 
 		this.pendingDefinitionManager = new PendingDefinitionManager( servicesResources, jsonMapper ) ;
@@ -141,7 +141,7 @@ public class DefinitionRequests {
 	// standalone csap may optionally configure notifications.
 
 	CorePortals corePortals ;
-	Application csapApp ;
+	CsapApis csapApis ;
 
 	PendingDefinitionManager pendingDefinitionManager ;
 	ServiceResources servicesResources ;
@@ -156,7 +156,7 @@ public class DefinitionRequests {
 	ObjectMapper jsonMapper = new ObjectMapper( ) ;
 
 	@RequestMapping ( value = {
-			CsapCoreService.ENCODE_URL, CsapCoreService.DECODE_URL
+			CsapConstants.ENCODE_URL, CsapConstants.DECODE_URL
 	} , produces = MediaType.APPLICATION_JSON_VALUE )
 	public ObjectNode getSecureProperties (
 											@RequestParam ( "propertyFileContents" ) String propertyFileContents ,
@@ -181,7 +181,7 @@ public class DefinitionRequests {
 
 		boolean isYaml = false ;
 
-		if ( lines[ 0 ].contains( "yaml" ) ) {
+		if ( lines[0].contains( "yaml" ) ) {
 
 			isYaml = true ;
 
@@ -202,7 +202,7 @@ public class DefinitionRequests {
 
 		for ( int i = 0; i < lines.length; i++ ) {
 
-			String currentLine = lines[ i ] ;
+			String currentLine = lines[i] ;
 
 			logger.info( "line index {} to be transformed: {}", i, currentLine ) ;
 
@@ -410,23 +410,25 @@ public class DefinitionRequests {
 	@PostMapping ( value = "/project/source" , produces = MediaType.APPLICATION_JSON_VALUE )
 	public JsonNode updateProjectSource (
 											String source ,
-											@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProjectName ) {
+											@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProjectName ) {
 
 		logger.info( "project: '{}'", csapProjectName ) ;
 
 		if ( csapProjectName == null ) {
 
-			csapProjectName = csapApp.getActiveProjectName( ) ;
+			csapProjectName = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
-		var definition = csapApp.getProjectLoader( ).definition_string_reader( source.replaceAll( "\r", "\n" ) ) ;
+		var definition = csapApis.application( ).getProjectLoader( ).definition_string_reader( source.replaceAll( "\r",
+				"\n" ) ) ;
 
 		ObjectNode changeReport = null ;
 
-		if ( csapApp.getProject( csapProjectName ) != null ) {
+		if ( csapApis.application( ).getProject( csapProjectName ) != null ) {
 
-			changeReport = csapApp.getProject( csapProjectName ).editSource( CsapUser.currentUsersID( ), definition ) ;
+			changeReport = csapApis.application( ).getProject( csapProjectName ).editSource( CsapUser.currentUsersID( ),
+					definition ) ;
 
 		} else {
 
@@ -442,23 +444,23 @@ public class DefinitionRequests {
 
 	@GetMapping ( value = "/project/source" , produces = MediaType.APPLICATION_JSON_VALUE )
 	public JsonNode getProjectSource (
-										@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProjectName ) {
+										@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProjectName ) {
 
 		logger.info( "project: '{}'", csapProjectName ) ;
 
 		if ( csapProjectName == null ) {
 
-			csapProjectName = csapApp.getActiveProjectName( ) ;
+			csapProjectName = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
-		csapApp.run_application_scan( ) ;
+		csapApis.application( ).run_application_scan( ) ;
 
 		ObjectNode modelObject = jsonMapper.createObjectNode( ) ;
 
-		if ( csapApp.getProject( csapProjectName ) != null ) {
+		if ( csapApis.application( ).getProject( csapProjectName ) != null ) {
 
-			modelObject = csapApp.getProject( csapProjectName ).getSource( ) ;
+			modelObject = csapApis.application( ).getProject( csapProjectName ).getSource( ) ;
 
 		} else {
 
@@ -474,23 +476,23 @@ public class DefinitionRequests {
 
 	@RequestMapping ( value = "/getDefinition" , produces = MediaType.APPLICATION_JSON_VALUE )
 	public ObjectNode getDefinition (
-										@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProjectName ) {
+										@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProjectName ) {
 
 		logger.info( "releasePackage: '{}'", csapProjectName ) ;
 
 		if ( csapProjectName == null ) {
 
-			csapProjectName = csapApp.getActiveProjectName( ) ;
+			csapProjectName = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
-		csapApp.run_application_scan( ) ;
+		csapApis.application( ).run_application_scan( ) ;
 
 		ObjectNode modelObject ;
 
-		if ( csapApp.getProject( csapProjectName ) != null ) {
+		if ( csapApis.application( ).getProject( csapProjectName ) != null ) {
 
-			modelObject = (ObjectNode) csapApp.getProject( csapProjectName ).getSourceDefinition( ) ;
+			modelObject = (ObjectNode) csapApis.application( ).getProject( csapProjectName ).getSourceDefinition( ) ;
 
 		} else {
 
@@ -506,18 +508,18 @@ public class DefinitionRequests {
 
 	@GetMapping ( "/service-definitions" )
 	public ObjectNode serviceDefinitions (
-											@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProjectName )
+											@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProjectName )
 		throws IOException {
 
 		logger.info( "releasePackage {}", csapProjectName ) ;
 
 		if ( csapProjectName == null ) {
 
-			csapProjectName = csapApp.getActiveProjectName( ) ;
+			csapProjectName = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
-		Project currentPackage = csapApp.getProject( csapProjectName ) ;
+		Project currentPackage = csapApis.application( ).getProject( csapProjectName ) ;
 
 		ObjectNode serviceConfigurations = jsonMapper.createObjectNode( ) ;
 		currentPackage.getServiceNameStream( ).forEach( serviceName -> {
@@ -533,20 +535,21 @@ public class DefinitionRequests {
 
 	@GetMapping ( "/external-release" )
 	public ObjectNode getReleaseFile (
-										@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProjectName )
+										@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProjectName )
 		throws IOException {
 
 		logger.info( "project: {}", csapProjectName ) ;
 
 		if ( csapProjectName == null ) {
 
-			csapProjectName = csapApp.getActiveProjectName( ) ;
+			csapProjectName = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
-		csapApp.run_application_scan( ) ;
+		csapApis.application( ).run_application_scan( ) ;
 
-		File releaseFile = csapApp.getProject( csapProjectName ).getReleaseFile( csapApp.applicationDefinition( ) ) ;
+		File releaseFile = csapApis.application( ).getProject( csapProjectName ).getReleaseFile( csapApis.application( )
+				.applicationDefinition( ) ) ;
 
 		ObjectNode externalReleaseInfo = jsonMapper.createObjectNode( ) ;
 		externalReleaseInfo.put( "source", releaseFile.getName( ) ) ;
@@ -557,7 +560,7 @@ public class DefinitionRequests {
 
 				externalReleaseInfo.set(
 						ProjectLoader.SERVICE_TEMPLATES,
-						csapApp.getProjectLoader( ).definition_file_reader( releaseFile, false ) ) ;
+						csapApis.application( ).getProjectLoader( ).definition_file_reader( releaseFile, false ) ) ;
 
 			} catch ( IOException iOException ) {
 
@@ -580,17 +583,17 @@ public class DefinitionRequests {
 													@RequestParam ( value = "lifeToEdit" , required = false ) String lifeToEdit ,
 													@RequestParam ( "operation" ) String operation ,
 													@RequestParam ( value = "newName" , required = false , defaultValue = "dummy" ) String newName ,
-													@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProjectName ) {
+													@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProjectName ) {
 
 		if ( lifeToEdit == null ) {
 
-			lifeToEdit = csapApp.getCsapHostEnvironmentName( ) ;
+			lifeToEdit = csapApis.application( ).getCsapHostEnvironmentName( ) ;
 
 		}
 
 		if ( csapProjectName == null ) {
 
-			csapProjectName = csapApp.getActiveProjectName( ) ;
+			csapProjectName = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
@@ -601,15 +604,16 @@ public class DefinitionRequests {
 
 		try {
 
-			Project selectedProject = csapApp.getProject( csapProjectName ) ;
+			Project selectedProject = csapApis.application( ).getProject( csapProjectName ) ;
 			ObjectNode selectedProjectSource = (ObjectNode) selectedProject.getSourceDefinition( ) ;
 
 			ObjectNode testUpdatedSource = selectedProjectSource.deepCopy( ) ;
-			ObjectNode testClusterBase = (ObjectNode) testUpdatedSource.at( csapApp.getProjectLoader( )
+			ObjectNode testClusterBase = (ObjectNode) testUpdatedSource.at( csapApis.application( ).getProjectLoader( )
 					.getEnvPath( ) ) ;
 
-			JsonNode testLifeCycleDefinition = testUpdatedSource.at( csapApp.getProjectLoader( ).getEnvPath(
-					lifeToEdit ) ) ;
+			JsonNode testLifeCycleDefinition = testUpdatedSource.at( csapApis.application( ).getProjectLoader( )
+					.getEnvPath(
+							lifeToEdit ) ) ;
 
 			if ( operation.equals( "add" ) ) {
 
@@ -679,7 +683,7 @@ public class DefinitionRequests {
 			// logger.debug( "updateNode: \n{}",
 			// updatedClusterDefinition.toString() );
 
-			ObjectNode validationResults = csapApp.checkDefinitionForParsingIssues(
+			ObjectNode validationResults = csapApis.application( ).checkDefinitionForParsingIssues(
 					testUpdatedSource.toString( ),
 					selectedProject.getName( ) ) ;
 
@@ -690,7 +694,7 @@ public class DefinitionRequests {
 
 			if ( validatePassed ) {
 
-				updateResultNode.put( "updatedHost", csapApp.getCsapHostName( ) ) ;
+				updateResultNode.put( "updatedHost", csapApis.application( ).getCsapHostName( ) ) ;
 				// currentPackage.setSourceDefinition( testPackageModel ) ;
 				selectedProject.editSource( CsapUser.currentUsersID( ), testUpdatedSource ) ;
 
@@ -711,35 +715,35 @@ public class DefinitionRequests {
 	public ObjectNode clusterGet (
 									@RequestParam ( "clusterName" ) String clusterName ,
 									@RequestParam ( value = "lifeToEdit" , required = false ) String lifeToEdit ,
-									@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProjectName ) {
+									@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProjectName ) {
 
 		if ( lifeToEdit == null ) {
 
-			lifeToEdit = csapApp.getCsapHostEnvironmentName( ) ;
+			lifeToEdit = csapApis.application( ).getCsapHostEnvironmentName( ) ;
 
 		}
 
 		if ( csapProjectName == null ) {
 
-			csapProjectName = csapApp.getActiveProjectName( ) ;
+			csapProjectName = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
 		logger.info( "lifeToEdit: {}, clusterPath: {}, releasePackage: {}",
 				lifeToEdit, clusterName, csapProjectName ) ;
 
-		// ReleasePackage package = csapApp.getModel( releasePackage );
-		Project currentPackage = csapApp.getProject( csapProjectName ) ;
+		// ReleasePackage package = csapApis.application().getModel( releasePackage );
+		Project currentPackage = csapApis.application( ).getProject( csapProjectName ) ;
 
-		csapApp.run_application_scan( ) ;
+		csapApis.application( ).run_application_scan( ) ;
 
 		ObjectNode modelObject = (ObjectNode) currentPackage.getSourceDefinition( ) ;
-		// //ReleasePackage serviceModel = csapApp.getModel( hostName,
+		// //ReleasePackage serviceModel = csapApis.application().getModel( hostName,
 		// serviceName ) ;
 		// //logger.info( "Found model: {}",
 		// serviceModel.getReleasePackageName() );
 		ObjectNode clusterNode = (ObjectNode) modelObject.at(
-				csapApp.getProjectLoader( ).getEnvPath( lifeToEdit ) + "/" + clusterName ) ;
+				csapApis.application( ).getProjectLoader( ).getEnvPath( lifeToEdit ) + "/" + clusterName ) ;
 
 		return clusterNode ;
 
@@ -751,19 +755,19 @@ public class DefinitionRequests {
 													@RequestParam ( "clusterName" ) String clusterName ,
 													@RequestParam ( "operation" ) String operation ,
 													@RequestParam ( value = "newName" , required = false , defaultValue = "" ) String newName ,
-													@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProjectName ,
+													@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProjectName ,
 													@RequestParam ( "definition" ) String clusterDefinitionAsText ,
 													@RequestParam ( value = "isUpdate" , required = false ) String isUpdate ) {
 
 		if ( environmentName == null ) {
 
-			environmentName = csapApp.getCsapHostEnvironmentName( ) ;
+			environmentName = csapApis.application( ).getCsapHostEnvironmentName( ) ;
 
 		}
 
 		if ( csapProjectName == null ) {
 
-			csapProjectName = csapApp.getActiveProjectName( ) ;
+			csapProjectName = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
@@ -777,14 +781,14 @@ public class DefinitionRequests {
 
 			var updatedClusterDefinition = (ObjectNode) jsonMapper.readTree( clusterDefinitionAsText ) ;
 
-			Project currentProject = csapApp.getProject( csapProjectName ) ;
+			Project currentProject = csapApis.application( ).getProject( csapProjectName ) ;
 
 			var testProjectSource = currentProject.getSourceDefinition( ).deepCopy( ) ;
 
-			var environment = (ObjectNode) testProjectSource.at( csapApp.getProjectLoader( ).getEnvPath(
+			var environment = (ObjectNode) testProjectSource.at( csapApis.application( ).getProjectLoader( ).getEnvPath(
 					environmentName ) ) ;
 
-			var clusterNames = csapApp.getProjectLoader( ).clusterNames( environment ) ;
+			var clusterNames = csapApis.application( ).getProjectLoader( ).clusterNames( environment ) ;
 
 			if ( operation.equals( "delete" ) ) {
 
@@ -847,7 +851,8 @@ public class DefinitionRequests {
 
 			} else if ( operation.equals( "push" ) ) {
 
-				var pushResults = csapApp.getProjectLoader( ).getProjectOperators( ).pushDown( clusterName,
+				var pushResults = csapApis.application( ).getProjectLoader( ).getProjectOperators( ).pushDown(
+						clusterName,
 						environmentName, newName,
 						testProjectSource ) ;
 				logger.info( "push {} from: {} to {}, results : {}", clusterName, environmentName, newName,
@@ -870,7 +875,7 @@ public class DefinitionRequests {
 			results.put( "lifeToEdit", environmentName ) ;
 			logger.debug( "updateNode: \n{}", updatedClusterDefinition.toString( ) ) ;
 
-			var validationReport = csapApp
+			var validationReport = csapApis.application( )
 					.checkDefinitionForParsingIssues(
 							testProjectSource.toString( ),
 							currentProject.getName( ) ) ;
@@ -882,7 +887,7 @@ public class DefinitionRequests {
 
 			if ( isUpdate != null && validatePassed ) {
 
-				results.put( "updatedHost", csapApp.getCsapHostName( ) ) ;
+				results.put( "updatedHost", csapApis.application( ).getCsapHostName( ) ) ;
 				// currentPackage.setSourceDefinition( testProjectDefinition ) ;
 				currentProject.editSource( CsapUser.currentUsersID( ), testProjectSource ) ;
 
@@ -907,7 +912,7 @@ public class DefinitionRequests {
 
 		if ( lifeToEdit == null ) {
 
-			lifeToEdit = csapApp.getCsapHostEnvironmentName( ) ;
+			lifeToEdit = csapApis.application( ).getCsapHostEnvironmentName( ) ;
 
 		}
 
@@ -924,7 +929,7 @@ public class DefinitionRequests {
 
 			performanceCollections.set( "OS Process", OsProcessEnum.graphLabels( ) ) ;
 			performanceCollections.set( "Java", JmxCommonEnum.graphLabels( ) ) ;
-			performanceCollections.set( "Application", csapApp.servicePerformanceLabels( ) ) ;
+			performanceCollections.set( "Application", csapApis.application( ).servicePerformanceLabels( ) ) ;
 			config.set( "performanceLabels", performanceCollections ) ;
 
 		} catch ( Exception e ) {
@@ -933,7 +938,7 @@ public class DefinitionRequests {
 
 		}
 
-		csapApp.getActiveProject( )
+		csapApis.application( ).getActiveProject( )
 				.getAllPackagesModel( )
 				.serviceNamesInModel( true, ProjectLoader.SERVICE_TEMPLATES ).stream( )
 				.forEach( services::add ) ;
@@ -947,22 +952,22 @@ public class DefinitionRequests {
 	@GetMapping ( "/settings" )
 	public JsonNode settingsGet (
 									@RequestParam ( value = "lifeToEdit" , required = false ) String lifeToEdit ,
-									@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProjectName ) {
+									@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProjectName ) {
 
 		logger.debug( "lifeToEdit: {}, csapProjectName: {}", lifeToEdit, csapProjectName ) ;
 
 		if ( lifeToEdit == null ) {
 
-			lifeToEdit = csapApp.getCsapHostEnvironmentName( ) ;
+			lifeToEdit = csapApis.application( ).getCsapHostEnvironmentName( ) ;
 
 		}
 
-		csapApp.run_application_scan( ) ;
+		csapApis.application( ).run_application_scan( ) ;
 
 		JsonNode selectedModelDefinition = getModelOrRoot( csapProjectName ).getSourceDefinition( ) ;
 
 		JsonNode settingsDefinition = selectedModelDefinition.at(
-				csapApp.getProjectLoader( ).getEnvPath( lifeToEdit ) + "/"
+				csapApis.application( ).getProjectLoader( ).getEnvPath( lifeToEdit ) + "/"
 						+ ProjectLoader.SETTINGS ) ;
 
 		if ( settingsDefinition.isMissingNode( ) ) {
@@ -985,7 +990,7 @@ public class DefinitionRequests {
 
 						String id = realTimeDef.get( "id" ).asText( ) ;
 						String[] ids = id.split( "\\." ) ;
-						String[] attributes = ids[ 1 ].split( "_" ) ;
+						String[] attributes = ids[1].split( "_" ) ;
 
 						if ( attributes.length == 3 ) {
 
@@ -1057,11 +1062,11 @@ public class DefinitionRequests {
 
 	private Project getModelOrRoot ( String releasePackage ) {
 
-		Project model = csapApp.getRootProject( ) ;
+		Project model = csapApis.application( ).getRootProject( ) ;
 
 		if ( releasePackage != null ) {
 
-			Project serviceModel = csapApp.getProject( releasePackage ) ;
+			Project serviceModel = csapApis.application( ).getProject( releasePackage ) ;
 
 			if ( serviceModel != null ) {
 
@@ -1080,12 +1085,12 @@ public class DefinitionRequests {
 	public ObjectNode settingsUpdate (
 										@RequestParam ( "lifeToEdit" ) String lifeToEdit ,
 										@RequestParam ( "definition" ) String definitionText ,
-										@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProjectName ,
+										@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProjectName ,
 										@RequestParam ( value = "isUpdate" , required = false ) String isUpdate ) {
 
 		if ( lifeToEdit == null ) {
 
-			lifeToEdit = csapApp.getCsapHostEnvironmentName( ) ;
+			lifeToEdit = csapApis.application( ).getCsapHostEnvironmentName( ) ;
 
 		}
 
@@ -1119,11 +1124,12 @@ public class DefinitionRequests {
 			}
 
 			// ObjectNode modelNode = (ObjectNode)
-			// csapApp.getRootModel().getJsonModelDefinition() ;
+			// csapApis.application().getRootModel().getJsonModelDefinition() ;
 			Project currentProject = getModelOrRoot( csapProjectName ) ;
 			ObjectNode testProjectSource = currentProject.getSourceDefinition( ).deepCopy( ) ;
 
-			var environmentDefinition = testProjectSource.at( csapApp.getProjectLoader( ).getEnvPath( lifeToEdit ) ) ;
+			var environmentDefinition = testProjectSource.at( csapApis.application( ).getProjectLoader( ).getEnvPath(
+					lifeToEdit ) ) ;
 			settingsUpdateResults.put( "lifeToEdit", lifeToEdit ) ;
 
 			if ( environmentDefinition.isMissingNode( ) ) {
@@ -1139,7 +1145,7 @@ public class DefinitionRequests {
 				( (ObjectNode) environmentDefinition ).set( ProjectLoader.SETTINGS, updatedSettingsDefinition ) ;
 				logger.debug( "updateNode: \n{}", updatedSettingsDefinition.toString( ) ) ;
 
-				ObjectNode validationResults = csapApp.checkDefinitionForParsingIssues(
+				ObjectNode validationResults = csapApis.application( ).checkDefinitionForParsingIssues(
 						testProjectSource.toString( ),
 						currentProject.getName( ) ) ;
 
@@ -1156,7 +1162,7 @@ public class DefinitionRequests {
 
 				if ( isUpdate != null && validatePassed ) {
 
-					settingsUpdateResults.put( "updatedHost", csapApp.getCsapHostName( ) ) ;
+					settingsUpdateResults.put( "updatedHost", csapApis.application( ).getCsapHostName( ) ) ;
 					settingsUpdateResults.put( "updatedPackage", currentProject.getName( ) ) ;
 					// packageUpdated.setSourceDefinition( testPackageDefinition ) ;
 					currentProject.editSource( CsapUser.currentUsersID( ), testProjectSource ) ;
@@ -1182,8 +1188,9 @@ public class DefinitionRequests {
 														ObjectNode validationResults ) {
 
 		// these checks require LC be specified
-		Set<String> allowedNames = csapApp.getActiveProject( ).getAllPackagesModel( ).findServiceNamesInLifecycle(
-				lifeToEdit ) ;
+		Set<String> allowedNames = csapApis.application( ).getActiveProject( ).getAllPackagesModel( )
+				.findServiceNamesInLifecycle(
+						lifeToEdit ) ;
 
 		JsonNode trending = updatedSettingsDefinition.at( "/metricsCollectionInSeconds/trending" ) ;
 
@@ -1258,9 +1265,10 @@ public class DefinitionRequests {
 
 		throws IOException {
 
-		String sourceDir = csapApp.findFirstServiceInstanceInLifecycle( CsapCore.AGENT_NAME ).getScmLocation( ) ;
+		String sourceDir = csapApis.application( ).findFirstServiceInstanceInLifecycle( CsapConstants.AGENT_NAME )
+				.getScmLocation( ) ;
 
-		return csapApp.getTemplateAndUpdateVariables( templateName, sourceDir ) ;
+		return csapApis.application( ).getTemplateAndUpdateVariables( templateName, sourceDir ) ;
 
 	}
 
@@ -1270,18 +1278,18 @@ public class DefinitionRequests {
 											@RequestParam ( "hostName" ) String hostName ,
 											@RequestParam ( "fileName" ) String fileName ,
 											@RequestParam ( "environment" ) String environment ,
-											@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProjectName )
+											@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProjectName )
 		throws IOException {
 
 		Project serviceModel = null ;
 
 		if ( csapProjectName == null ) {
 
-			serviceModel = csapApp.getModel( hostName, serviceName ) ;
+			serviceModel = csapApis.application( ).getModel( hostName, serviceName ) ;
 
 		} else {
 
-			serviceModel = csapApp.getProject( csapProjectName ) ;
+			serviceModel = csapApis.application( ).getProject( csapProjectName ) ;
 
 		}
 
@@ -1324,28 +1332,28 @@ public class DefinitionRequests {
 	public ObjectNode serviceGet (
 									@RequestParam ( "serviceName" ) String serviceName ,
 									@RequestParam ( "hostName" ) String hostName ,
-									@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProjectName )
+									@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProjectName )
 		throws IOException {
 
 		logger.info( "serviceName: {}, hostName: {}, releasePackage {} ", serviceName, hostName, csapProjectName ) ;
 
 		if ( serviceName.contains( "_" ) ) {
 
-			serviceName = serviceName.split( "_" )[ 0 ] ;
+			serviceName = serviceName.split( "_" )[0] ;
 
 		}
 
-		csapApp.run_application_scan( ) ;
+		csapApis.application( ).run_application_scan( ) ;
 
 		Project serviceModel = null ;
 
 		if ( csapProjectName == null ) {
 
-			serviceModel = csapApp.getModel( hostName, serviceName ) ;
+			serviceModel = csapApis.application( ).getModel( hostName, serviceName ) ;
 
 		} else {
 
-			serviceModel = csapApp.getProject( csapProjectName ) ;
+			serviceModel = csapApis.application( ).getProject( csapProjectName ) ;
 
 		}
 
@@ -1357,7 +1365,7 @@ public class DefinitionRequests {
 		//
 		// handle autogenerated ns monitor template services
 		//
-		var matchedService = csapApp.findFirstServiceInstanceInLifecycle( serviceName ) ;
+		var matchedService = csapApis.application( ).findFirstServiceInstanceInLifecycle( serviceName ) ;
 
 		if ( qualifiedServiceDefinition.isMissingNode( )
 				&& matchedService != null ) {
@@ -1405,13 +1413,13 @@ public class DefinitionRequests {
 												@RequestParam ( "operation" ) String operation ,
 												@RequestParam ( "hostName" ) String hostName ,
 												@RequestParam ( value = "newName" , required = false , defaultValue = "dummy" ) String newName ,
-												@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProjectName ,
+												@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProjectName ,
 												@RequestParam ( "definition" ) String definition ,
 												@RequestParam ( value = "isUpdate" , required = false ) String isUpdate ) {
 
 		if ( serviceName.contains( "_" ) ) {
 
-			serviceName = serviceName.split( "_" )[ 0 ] ;
+			serviceName = serviceName.split( "_" )[0] ;
 
 		}
 
@@ -1435,11 +1443,11 @@ public class DefinitionRequests {
 
 			if ( csapProjectName == null ) {
 
-				currentProject = csapApp.getModel( hostName, serviceName ) ;
+				currentProject = csapApis.application( ).getModel( hostName, serviceName ) ;
 
 			} else {
 
-				currentProject = csapApp.getProject( csapProjectName ) ;
+				currentProject = csapApis.application( ).getProject( csapProjectName ) ;
 
 			}
 
@@ -1470,7 +1478,7 @@ public class DefinitionRequests {
 
 			logger.debug( "serviceDefinitions: {}", serviceDefinitions.getClass( ) ) ;
 
-			if ( serviceName.equalsIgnoreCase( CsapCore.AGENT_NAME )
+			if ( serviceName.equalsIgnoreCase( CsapConstants.AGENT_NAME )
 					&& ! operation.equals( "modify" )
 					&& ! isExternalDefinition ) {
 
@@ -1622,7 +1630,7 @@ public class DefinitionRequests {
 			updateResultNode.put( "releasePackage", currentProject.getName( ) ) ;
 			logger.debug( "updateNode: \n{}", updatedServiceDefinition.toString( ) ) ;
 
-			ObjectNode validationResults = csapApp.checkDefinitionForParsingIssues(
+			ObjectNode validationResults = csapApis.application( ).checkDefinitionForParsingIssues(
 					testProjectDefinition.toString( ),
 					currentProject.getName( ) ) ;
 
@@ -1633,7 +1641,7 @@ public class DefinitionRequests {
 
 			if ( isUpdate != null && validatePassed ) {
 
-				updateResultNode.put( "updatedHost", csapApp.getCsapHostName( ) ) ;
+				updateResultNode.put( "updatedHost", csapApis.application( ).getCsapHostName( ) ) ;
 				// currentProject.setSourceDefinition( testProjectDefinition ) ;
 				currentProject.editSource( CsapUser.currentUsersID( ), testProjectDefinition ) ;
 
@@ -1772,7 +1780,7 @@ public class DefinitionRequests {
 															boolean nameWarningOnly )
 		throws IOException {
 
-		if ( csapApp.getProjectLoader( ).is_invalid_model_name( newName ) ) {
+		if ( csapApis.application( ).getProjectLoader( ).is_invalid_model_name( newName ) ) {
 
 			throw new IOException( "attribute names must be alpha numeric, and optionally hyphens: " + newName ) ;
 
@@ -1794,12 +1802,12 @@ public class DefinitionRequests {
 	@PostMapping ( "/validateDefinition" )
 	synchronized public ObjectNode validateDefinition (
 														@RequestParam ( "updatedConfig" ) String updatedConfig ,
-														@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProjectName ,
+														@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProjectName ,
 														HttpServletRequest request ) {
 
 		logger.info( " releasePackage: {} ", csapProjectName ) ;
 
-		var results = csapApp.checkDefinitionForParsingIssues( updatedConfig, csapProjectName ) ;
+		var results = csapApis.application( ).checkDefinitionForParsingIssues( updatedConfig, csapProjectName ) ;
 
 		return results ;
 
@@ -1827,7 +1835,7 @@ public class DefinitionRequests {
 
 			if ( filePath.startsWith( "__" ) ) {
 
-				autoplayFile = csapApp.getRequestedFile( filePath, null, false ) ;
+				autoplayFile = csapApis.application( ).getRequestedFile( filePath, null, false ) ;
 
 			}
 
@@ -1835,7 +1843,7 @@ public class DefinitionRequests {
 
 			if ( autoplayFile.exists( ) && autoplayFile.isFile( ) && autoplayFile.length( ) > 10 ) {
 
-				var rootProject = csapApp.getRootProject( ) ;
+				var rootProject = csapApis.application( ).getRootProject( ) ;
 
 				if ( isApply ) {
 
@@ -1869,7 +1877,7 @@ public class DefinitionRequests {
 									Project rootProject )
 		throws IOException {
 
-		var homeAutoPlayFile = csapApp.getAutoPlayFile( ) ;
+		var homeAutoPlayFile = csapApis.application( ).getAutoPlayFile( ) ;
 
 		if ( homeAutoPlayFile.exists( ) ) {
 
@@ -1886,7 +1894,7 @@ public class DefinitionRequests {
 		//
 		// Desktop testing support
 		//
-		if ( csapApp.isDesktopHost( ) ) {
+		if ( csapApis.application( ).isDesktopHost( ) ) {
 
 			var desktopDefinition = new File( homeAutoPlayFile.getParentFile( ), "auto-play-desktop" ) ;
 
@@ -1898,14 +1906,14 @@ public class DefinitionRequests {
 			}
 
 			autoplayResult.put( "desktop-clone", desktopDefinition.getAbsolutePath( ) ) ;
-			FileUtils.copyDirectory( csapApp.getDefinitionFolder( ), desktopDefinition ) ;
+			FileUtils.copyDirectory( csapApis.application( ).getDefinitionFolder( ), desktopDefinition ) ;
 			liveDefinitionFile = new File( desktopDefinition, liveDefinitionFile.getName( ) ) ;
 
 		}
 
 		ObjectNode projectDefinition = rootProject.getSourceDefinition( ).deepCopy( ) ;
 
-		var autoplayResults = csapApp.getProjectLoader( ).getProjectOperators( ).processAutoPlay(
+		var autoplayResults = csapApis.application( ).getProjectLoader( ).getProjectOperators( ).processAutoPlay(
 				homeAutoPlayFile,
 				liveDefinitionFile,
 				projectDefinition ) ;
@@ -1914,7 +1922,8 @@ public class DefinitionRequests {
 
 		logger.info( "autoplayResults: ${}", autoplayResults ) ;
 
-		// csapApp.getProjectLoader().writeDefinitionToDisk( liveDefinitionFile,
+		// csapApis.application().getProjectLoader().writeDefinitionToDisk(
+		// liveDefinitionFile,
 		// projectDefinition ) ;
 
 		try {
@@ -1924,17 +1933,17 @@ public class DefinitionRequests {
 					null, true,
 					null,
 					"from autoplay apply",
-					csapApp.getProjectLoader( ).convertDefinition( projectDefinition ),
+					csapApis.application( ).getProjectLoader( ).convertDefinition( projectDefinition ),
 					rootProject.getName( ),
 					true, null ) ;
 
-			autoplayResult.put( "parsing-summary", csapApp.getProjectLoader( ).getLastSummary( ) ) ;
-			autoplayResult.put( "parsing-results", applyResults.path( DockerJson.response_plain_text.json( ) )
+			autoplayResult.put( "parsing-summary", csapApis.application( ).getProjectLoader( ).getLastSummary( ) ) ;
+			autoplayResult.put( "parsing-results", applyResults.path( C7.response_plain_text.val( ) )
 					.asText( ) ) ;
 
 		} catch ( Exception e ) {
 
-			var header = CsapCore.CONFIG_PARSE_ERROR ;
+			var header = CsapConstants.CONFIG_PARSE_ERROR ;
 			header += "\n\t For test purposes - ensure that the console host is included in at least one cluster" ;
 			var errorMessage = header + CSAP.buildCsapStack( e ) ;
 			logger.warn( "{}", errorMessage ) ;
@@ -1957,8 +1966,8 @@ public class DefinitionRequests {
 
 		}
 
-		autoplayResult.put( "cloning", csapApp.getDefinitionFolder( ).getAbsolutePath( ) ) ;
-		FileUtils.copyDirectory( csapApp.getDefinitionFolder( ), previewFolder ) ;
+		autoplayResult.put( "cloning", csapApis.application( ).getDefinitionFolder( ).getAbsolutePath( ) ) ;
+		FileUtils.copyDirectory( csapApis.application( ).getDefinitionFolder( ), previewFolder ) ;
 
 		var testAutoPlayFile = new File( previewFolder, autoplayFile.getName( ) ) ;
 		FileUtils.copyFile( autoplayFile, testAutoPlayFile ) ;
@@ -1967,23 +1976,23 @@ public class DefinitionRequests {
 		File definitionFile = new File( previewFolder, rootProject.getSourceFileName( ) ) ;
 
 		ObjectNode projectDefinition = rootProject.getSourceDefinition( ).deepCopy( ) ;
-		var results = csapApp.getProjectLoader( ).getProjectOperators( ).processAutoPlay(
+		var results = csapApis.application( ).getProjectLoader( ).getProjectOperators( ).processAutoPlay(
 				testAutoPlayFile, definitionFile,
 				projectDefinition ) ;
 		autoplayResult.set( "autoplay-results", results ) ;
 
-		csapApp.getProjectLoader( ).writeDefinitionToDisk( definitionFile, projectDefinition ) ;
+		csapApis.application( ).getProjectLoader( ).writeDefinitionToDisk( definitionFile, projectDefinition ) ;
 
 		StringBuilder parsingResults ;
 
 		try {
 
-			parsingResults = csapApp.getProjectLoader( ).process( true, definitionFile ) ;
-			autoplayResult.put( "parsing-summary", csapApp.getProjectLoader( ).getLastSummary( ) ) ;
+			parsingResults = csapApis.application( ).getProjectLoader( ).process( true, definitionFile ) ;
+			autoplayResult.put( "parsing-summary", csapApis.application( ).getProjectLoader( ).getLastSummary( ) ) ;
 
 		} catch ( Exception e ) {
 
-			var header = CsapCore.CONFIG_PARSE_ERROR ;
+			var header = CsapConstants.CONFIG_PARSE_ERROR ;
 			header += "\n\t For test purposes - ensure that the console host is included in at least one cluster" ;
 			var errorMessage = header + CSAP.buildCsapStack( e ) ;
 			parsingResults = new StringBuilder( errorMessage ) ;
@@ -2016,7 +2025,7 @@ public class DefinitionRequests {
 											@RequestParam ( "scmBranch" ) String scmBranch ,
 											@RequestParam ( value = "comment" , required = false ) String comment ,
 											@RequestParam ( value = "updatedConfig" , required = false ) String projectDefinition ,
-											@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProjectName ,
+											@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProjectName ,
 											@RequestParam ( value = "applyButNoCheckin" , defaultValue = "false" ) boolean isApplyButNoCheckin ,
 											HttpServletRequest request )
 				throws Exception {
@@ -2028,12 +2037,13 @@ public class DefinitionRequests {
 				scmUserid, scmBranch, csapProjectName, isApplyButNoCheckin ) ;
 
 		ServiceInstance dummyServiceInstanceForApp = new ServiceInstance( ) ;
-		dummyServiceInstanceForApp.setScmLocation( csapApp.getRootProjectDefinitionUrl( ) ) ;
-		dummyServiceInstanceForApp.setScm( csapApp.getSourceType( ) ) ;
+		dummyServiceInstanceForApp.setScmLocation( csapApis.application( ).getRootProjectDefinitionUrl( ) ) ;
+		dummyServiceInstanceForApp.setScm( csapApis.application( ).getSourceType( ) ) ;
 
-		File globalModelBuildFolder = new File( csapApp.getRootModelBuildLocation( ) ) ;
+		File globalModelBuildFolder = new File( csapApis.application( ).getRootModelBuildLocation( ) ) ;
 
-		String targetProjectFileNameToUpdate = csapApp.getProject( csapProjectName ).getSourceFileName( ) ;
+		String targetProjectFileNameToUpdate = csapApis.application( ).getProject( csapProjectName )
+				.getSourceFileName( ) ;
 
 		// Critical hook - need to blow away previous folder since there is no
 		// clean
@@ -2046,7 +2056,7 @@ public class DefinitionRequests {
 
 		}
 
-		OutputFileMgr outputManager = new OutputFileMgr( csapApp.getCsapWorkingFolder( ),
+		OutputFileMgr outputManager = new OutputFileMgr( csapApis.application( ).getCsapWorkingFolder( ),
 				command.substring( 1 ) ) ;
 
 		try {
@@ -2054,7 +2064,8 @@ public class DefinitionRequests {
 			// Create a new empty working folder for the uploaded file
 			// Working folder is used solely to validate contents, then will be
 			// moved to build folder prior to triggering reload
-			File defWorkingFolder = new File( csapApp.getRootModelBuildLocation( ) + CONFIG_SUFFIX_FOR_UPDATE ) ;
+			File defWorkingFolder = new File( csapApis.application( ).getRootModelBuildLocation( )
+					+ CONFIG_SUFFIX_FOR_UPDATE ) ;
 
 			FileUtils.deleteQuietly( defWorkingFolder ) ; // maybe just be doing
 															// updates instead
@@ -2069,7 +2080,7 @@ public class DefinitionRequests {
 			} else {
 
 				// createWorkingFolder using existing live files
-				File sourceLocation = csapApp.getDefinitionFolder( ) ;
+				File sourceLocation = csapApis.application( ).getDefinitionFolder( ) ;
 
 				// FileUtils.copyDirectory( sourceLocation, workingFolder,
 				// FileFilterUtils.suffixFileFilter( ".js" ) );
@@ -2083,14 +2094,15 @@ public class DefinitionRequests {
 
 			// First put the uploaded file into working directory
 			File testProjectFile = new File( defWorkingFolder, targetProjectFileNameToUpdate ) ;
-			File testRootProjectFile = new File( defWorkingFolder, csapApp
-					.getRootProject( )
-					.getSourceFileName( ) ) ;
+			File testRootProjectFile = new File( defWorkingFolder,
+					csapApis.application( )
+							.getRootProject( )
+							.getSourceFileName( ) ) ;
 
 			if ( projectDefinition == null ) {
 
 				// iterate over all projects, writing them
-				csapApp.getRootProject( )
+				csapApis.application( ).getRootProject( )
 						.getProjects( )
 						.filter( Project::isModified )
 						.forEach( project -> {
@@ -2099,8 +2111,9 @@ public class DefinitionRequests {
 
 							logger.info( "Found edits for: {},  writing source to disk: {}", project.getName( ),
 									modifiedprojectFile ) ;
-							csapApp.getProjectLoader( ).writeDefinitionToDisk( modifiedprojectFile, project
-									.getSourceDefinition( ) ) ;
+							csapApis.application( ).getProjectLoader( ).writeDefinitionToDisk( modifiedprojectFile,
+									project
+											.getSourceDefinition( ) ) ;
 							// FileUtils.writeStringToFile( modifiedprojectFile,
 							// project.getEditInProgressDefinition() ) ;
 
@@ -2120,10 +2133,11 @@ public class DefinitionRequests {
 			try {
 
 				// first we run in test mode to verify content
-				StringBuilder parsingResultsBuffer = csapApp.getProjectLoader( ).process( true, testRootProjectFile ) ;
+				StringBuilder parsingResultsBuffer = csapApis.application( ).getProjectLoader( ).process( true,
+						testRootProjectFile ) ;
 
 				if ( ( parsingResultsBuffer != null )
-						&& parsingResultsBuffer.indexOf( CsapCore.CONFIG_PARSE_ERROR ) == -1 ) {
+						&& parsingResultsBuffer.indexOf( CsapConstants.CONFIG_PARSE_ERROR ) == -1 ) {
 
 					activate_definition(
 							outputManager, parsingResultsBuffer,
@@ -2141,18 +2155,19 @@ public class DefinitionRequests {
 						outputManager
 								.print( "\n\n============= Found Semantic Errors !! ====================\n"
 										+ "Filtered output for :"
-										+ CsapCore.CONFIG_PARSE_ERROR ) ;
+										+ CsapConstants.CONFIG_PARSE_ERROR ) ;
 						List<String> parmList = new ArrayList<String>( ) ;
 						Collections.addAll(
 								parmList,
 								"bash",
 								"-c",
-								"diff  " + csapApp.applicationDefinition( ).getAbsolutePath( ) + " "
+								"diff  " + csapApis.application( ).applicationDefinition( ).getAbsolutePath( ) + " "
 										+ testProjectFile.getAbsolutePath( ) ) ;
 						sourceControlManager.executeShell( parmList,
 								outputManager.getBufferedWriter( ) ) ;
 
-						csapApp.updateOutputWithLimitedInfo( CsapCore.CONFIG_PARSE_ERROR, 999, outputManager,
+						csapApis.application( ).updateOutputWithLimitedInfo( CsapConstants.CONFIG_PARSE_ERROR, 999,
+								outputManager,
 								parsingResultsBuffer, null ) ;
 
 					}
@@ -2165,11 +2180,11 @@ public class DefinitionRequests {
 				logger.error( "Parsing error in application: {}", errorStack ) ;
 				List<String> parmList = new ArrayList<String>( ) ;
 				Collections.addAll( parmList, "bash", "-c", "diff  "
-						+ csapApp.applicationDefinition( ).getAbsolutePath( ) + " "
+						+ csapApis.application( ).applicationDefinition( ).getAbsolutePath( ) + " "
 						+ testProjectFile.getAbsolutePath( ) ) ;
 				sourceControlManager.executeShell( parmList, outputManager.getBufferedWriter( ) ) ;
 
-				outputManager.print( CsapCore.CONFIG_PARSE_ERROR
+				outputManager.print( CsapConstants.CONFIG_PARSE_ERROR
 						+ "Parsing error in application: " + errorStack ) ;
 				// Application.getCustomStackTrace(e1)
 				outputManager.print( "\n     ACTION Required: Fix the error, and try again." ) ;
@@ -2189,7 +2204,7 @@ public class DefinitionRequests {
 
 			// outputManager.print( "\n\n" + CsapCore.CONFIG_PARSE_ERROR
 			// + "Failed updating application definition:\n" + errorStack ) ;
-			outputManager.print( CsapCore.CONFIG_PARSE_ERROR ) ;
+			outputManager.print( CsapConstants.CONFIG_PARSE_ERROR ) ;
 
 			var message = "git access failure - troubleshooting steps: \n\t - verify password \n\t - verify git service provider\n\t - verify network connectivity" ;
 			outputManager.print( CsapApplication.header( message ) ) ;
@@ -2204,7 +2219,7 @@ public class DefinitionRequests {
 					CsapUser.currentUsersID( ),
 					"Failure: " + e.getMessage( ), errorStack ) ;
 
-			outputManager.print( CsapCore.CONFIG_PARSE_ERROR
+			outputManager.print( CsapConstants.CONFIG_PARSE_ERROR
 					+ "Failed updating application definition:\n" + errorStack ) ;
 
 		} finally {
@@ -2216,17 +2231,17 @@ public class DefinitionRequests {
 		// this is what triggers local host to update.
 		// in case of password update --- this will occur AFTER transfers have
 		// completed
-		csapApp.run_application_scan( ) ;
+		csapApis.application( ).run_application_scan( ) ;
 
 		if ( isApplyButNoCheckin ) {
 
 			// user is testing changes - set their id...
-			csapApp.getRootProject( ).setEditUserid( CsapUser.currentUsersID( ) ) ;
+			csapApis.application( ).getRootProject( ).setEditUserid( CsapUser.currentUsersID( ) ) ;
 
 		}
 
 		ObjectNode resultJson = jsonMapper.createObjectNode( ) ;
-		resultJson.put( DockerJson.response_plain_text.json( ), outputManager.getContents( ) ) ;
+		resultJson.put( C7.response_plain_text.val( ), outputManager.getContents( ) ) ;
 
 		return resultJson ;
 
@@ -2252,7 +2267,7 @@ public class DefinitionRequests {
 		outputManager.print( CSAP.padLine( "Working Folder" ) + defWorkingFolder.getAbsolutePath( ) ) ;
 		outputManager.print( CSAP.padLine( "Replaced" ) + "using content retrieved from source control system" ) ;
 
-		var activeDefinitionFolder = csapApp.getDefinitionFolder( ) ;
+		var activeDefinitionFolder = csapApis.application( ).getDefinitionFolder( ) ;
 		//
 		// Verify working version was checked out of same version as active
 		//
@@ -2269,10 +2284,10 @@ public class DefinitionRequests {
 
 			if ( ! workingHash.equals( activeHash ) ) {
 
-				outputManager.print( CSAP.padLine( CsapCore.CONFIG_PARSE_WARN )
+				outputManager.print( CSAP.padLine( CsapConstants.CONFIG_PARSE_WARN )
 						+ "GIT version mismatch. To ignore - delete active head file" ) ;
 
-				if ( csapApp.environmentSettings( ).isDefinitionAbortOnBaseMismatch( ) ) {
+				if ( csapApis.application( ).environmentSettings( ).isDefinitionAbortOnBaseMismatch( ) ) {
 
 					throw new IOException(
 							"GIT has mismatch detected: the application definition on disk was not checked out from the selected branch"
@@ -2284,18 +2299,18 @@ public class DefinitionRequests {
 
 		} else {
 
-			outputManager.print( CSAP.padLine( CsapCore.CONFIG_PARSE_WARN ) + "git head file not found." ) ;
+			outputManager.print( CSAP.padLine( CsapConstants.CONFIG_PARSE_WARN ) + "git head file not found." ) ;
 
 		}
 
 		if ( isUpdateAll ) {
 
-			if ( csapApp.getSourceType( ).equals( ScmProvider.git.key ) ) {
+			if ( csapApis.application( ).getSourceType( ).equals( ScmProvider.git.key ) ) {
 
 				logger.warn( "replacing source control files checked out with current definition on disk" ) ;
 				outputManager.print( CsapApplication.header( "Merging working definition into checked out folder" ) ) ;
 
-				String deleteOutput = csapApp.getOsManager( ).removeNonGitFiles( defWorkingFolder ) ;
+				String deleteOutput = csapApis.osManager( ).removeNonGitFiles( defWorkingFolder ) ;
 
 				if ( logger.isDebugEnabled( ) ) {
 
@@ -2341,9 +2356,9 @@ public class DefinitionRequests {
 		outputManager.print( CsapApplication.header( "Activating application definition: " + workingApplicationFolder
 				.getPath( ) ) ) ;
 
-		if ( parsingResultsBuffer.indexOf( CsapCore.CONFIG_PARSE_WARN ) != -1 ) {
+		if ( parsingResultsBuffer.indexOf( CsapConstants.CONFIG_PARSE_WARN ) != -1 ) {
 
-			csapApp.updateOutputWithLimitedInfo( CsapCore.CONFIG_PARSE_WARN, 25, outputManager,
+			csapApis.application( ).updateOutputWithLimitedInfo( CsapConstants.CONFIG_PARSE_WARN, 25, outputManager,
 					parsingResultsBuffer, null ) ;
 
 		}
@@ -2354,11 +2369,11 @@ public class DefinitionRequests {
 					+ workingPackageDefinitionFile.getAbsolutePath( ) ) ;
 
 			// Only used if new package has been added
-			String scmLocation = csapApp.getRootProjectDefinitionUrl( ) ;
+			String scmLocation = csapApis.application( ).getRootProjectDefinitionUrl( ) ;
 
-			if ( csapApp.getSourceType( ).equals( VersionControl.ScmProvider.svn.key ) ) {
+			if ( csapApis.application( ).getSourceType( ).equals( VersionControl.ScmProvider.svn.key ) ) {
 
-				scmLocation = csapApp.getRootProjectDefinitionUrl( ).replace( "trunk", scmBranch ) ;
+				scmLocation = csapApis.application( ).getRootProjectDefinitionUrl( ).replace( "trunk", scmBranch ) ;
 
 			}
 
@@ -2384,7 +2399,7 @@ public class DefinitionRequests {
 			}
 
 			sourceControlManager.checkInFolder(
-					VersionControl.ScmProvider.parse( csapApp.getSourceType( ) ),
+					VersionControl.ScmProvider.parse( csapApis.application( ).getSourceType( ) ),
 					scmLocation, workingPackageDefinitionFile,
 					scmUserid, encryptedPass,
 					scmBranch, comment,
@@ -2408,10 +2423,11 @@ public class DefinitionRequests {
 			pendingDefinitionManager.apply_to_checked_out_folder( outputManager.getBufferedWriter( ),
 					workingApplicationFolder ) ;
 
-			if ( csapApp.getRootProjectDefinitionUrl( ).contains( "update-with-your-repo" ) ) {
+			if ( csapApis.application( ).getRootProjectDefinitionUrl( ).contains( "update-with-your-repo" ) ) {
 
-				logger.warn( "Git is NOT configured: '{}'. Clearing pending operations", csapApp
-						.getRootProjectDefinitionUrl( ) ) ;
+				logger.warn( "Git is NOT configured: '{}'. Clearing pending operations",
+						csapApis.application( )
+								.getRootProjectDefinitionUrl( ) ) ;
 				pendingDefinitionManager.clearAll( ) ;
 
 			}
@@ -2434,7 +2450,8 @@ public class DefinitionRequests {
 		}
 
 		// StringBuilder output = new StringBuilder();
-		// csapApp.move_to_csap_saved_folder( globalModelBuildFolder, output );
+		// csapApis.application().move_to_csap_saved_folder( globalModelBuildFolder,
+		// output );
 		// outputManager.print( output.toString() );
 
 		outputManager.print( CSAP.padLine( "Deleting BuildFolder" ) + globalModelBuildFolder.getAbsolutePath( ) ) ;
@@ -2445,7 +2462,7 @@ public class DefinitionRequests {
 
 		// results pushed directly onto httpResponseBuffeer
 		activateDefinitionAndTransfer(
-				csapApp.getProject( csapProjectName ),
+				csapApis.application( ).getProject( csapProjectName ),
 				liveConfigFile.getParentFile( ), parsingResultsBuffer,
 				outputManager, comment ) ;
 
@@ -2488,7 +2505,7 @@ public class DefinitionRequests {
 														@RequestParam ( "scmUserid" ) String scmUserid ,
 														@RequestParam ( "scmPass" ) String rawPass ,
 														@RequestParam ( "scmBranch" ) String scmBranch ,
-														@RequestParam ( value = CsapCore.SERVICE_PORT_PARAM , required = false ) String svcName )
+														@RequestParam ( value = CsapConstants.SERVICE_PORT_PARAM , required = false ) String svcName )
 		throws Exception {
 
 		String scmPass = encryptor.encrypt( rawPass ) ; // immediately encrypt
@@ -2496,7 +2513,7 @@ public class DefinitionRequests {
 
 		StringBuilder results = new StringBuilder( ) ;
 
-		OutputFileMgr outputManager = new OutputFileMgr( csapApp.getCsapWorkingFolder( ),
+		OutputFileMgr outputManager = new OutputFileMgr( csapApis.application( ).getCsapWorkingFolder( ),
 				APPLICATION_RELOAD ) ;
 
 		logger.info( "scmUserid: " + scmUserid + " scmBranch: " + scmBranch + " svcName: " + svcName ) ;
@@ -2515,7 +2532,7 @@ public class DefinitionRequests {
 				if ( checkOutSuccess ) {
 
 					reloadParseAndStore( scmUserid, scmBranch, results, outputManager ) ;
-					csapApp.run_application_scan( ) ;
+					csapApis.application( ).run_application_scan( ) ;
 					pendingDefinitionManager.clearAll( ) ;
 
 				} else {
@@ -2538,7 +2555,7 @@ public class DefinitionRequests {
 
 		} else {
 
-			results.append( CsapCore.CONFIG_PARSE_WARN
+			results.append( CsapConstants.CONFIG_PARSE_WARN
 					+ "\nPlease try again in a few minutes, reload already in progress on host: "
 					+ configLockMessage ) ;
 
@@ -2547,7 +2564,7 @@ public class DefinitionRequests {
 		outputManager.close( ) ;
 
 		ObjectNode resultJson = jsonMapper.createObjectNode( ) ;
-		resultJson.put( DockerJson.response_plain_text.json( ), outputManager.getContents( ) ) ;
+		resultJson.put( C7.response_plain_text.val( ), outputManager.getContents( ) ) ;
 
 		return resultJson ;
 
@@ -2560,21 +2577,22 @@ public class DefinitionRequests {
 										OutputFileMgr outputMgr )
 		throws IOException {
 
-		File rootApplicationDefinition = new File( csapApp.getRootModelBuildLocation( )
-				+ "/" + csapApp.applicationDefinition( ).getName( ) ) ;
+		File rootApplicationDefinition = new File( csapApis.application( ).getRootModelBuildLocation( )
+				+ "/" + csapApis.application( ).applicationDefinition( ).getName( ) ) ;
 
 		try {
 
-			StringBuilder resultBuf = csapApp.getProjectLoader( ).process( true, rootApplicationDefinition ) ;
+			StringBuilder resultBuf = csapApis.application( ).getProjectLoader( ).process( true,
+					rootApplicationDefinition ) ;
 
 			if ( ( resultBuf != null )
-					&& resultBuf.indexOf( CsapCore.CONFIG_PARSE_ERROR ) == -1 ) {
+					&& resultBuf.indexOf( CsapConstants.CONFIG_PARSE_ERROR ) == -1 ) {
 
 				// results are auto appended to resultsBuf
 				updateWorkingGitSource( outputMgr, scmBranch, rootApplicationDefinition.getParentFile( ) ) ;
 
 				activateDefinitionAndTransfer(
-						csapApp.getRootProject( ),
+						csapApis.application( ).getRootProject( ),
 						rootApplicationDefinition.getParentFile( ), resultBuf, outputMgr,
 						"Restoring definition from source control system." ) ;
 
@@ -2593,18 +2611,19 @@ public class DefinitionRequests {
 					outputMgr.print( "-" ) ;
 					outputMgr.print( "\n\n============= Found Semantic Errors !! ====================\n"
 							+ "Filtered output for :"
-							+ CsapCore.CONFIG_PARSE_ERROR ) ;
+							+ CsapConstants.CONFIG_PARSE_ERROR ) ;
 					List<String> parmList = new ArrayList<String>( ) ;
 					Collections
 							.addAll( parmList,
 									"bash",
 									"-c",
-									"diff  " + csapApp.applicationDefinition( ).getAbsolutePath( ) + " "
+									"diff  " + csapApis.application( ).applicationDefinition( ).getAbsolutePath( ) + " "
 											+ rootApplicationDefinition.getAbsolutePath( ) ) ;
 					results.append( sourceControlManager.executeShell( parmList,
 							outputMgr.getBufferedWriter( ) ) ) ;
 
-					csapApp.updateOutputWithLimitedInfo( CsapCore.CONFIG_PARSE_ERROR, 999, outputMgr, resultBuf,
+					csapApis.application( ).updateOutputWithLimitedInfo( CsapConstants.CONFIG_PARSE_ERROR, 999,
+							outputMgr, resultBuf,
 							null ) ;
 
 				}
@@ -2612,19 +2631,22 @@ public class DefinitionRequests {
 			}
 
 		} catch ( Exception exception ) {
-			
+
 			var errorDetails = CSAP.buildCsapStack( exception ) ;
 
-			logger.error( "Definition reload failed: {}", errorDetails  ) ;
+			logger.error( "Definition reload failed: {}", errorDetails ) ;
 
-			outputMgr.print( CsapApplication.highlightHeader( CsapCore.CONFIG_PARSE_ERROR + " Failed to load application definition" )  ) ;
-			
+			outputMgr.print( CsapApplication.highlightHeader( CsapConstants.CONFIG_PARSE_ERROR
+					+ " Failed to load application definition" ) ) ;
+
 			if ( exception.getMessage( ).contains( ProjectLoader.UNABLE_TO_ACTIVATE_ENV ) ) {
-				errorDetails = "\n\n reason: "  + exception.getMessage( ) + "\n\n"  ;
-			} 
-			
-			outputMgr.print( errorDetails  ) ;
-			
+
+				errorDetails = "\n\n reason: " + exception.getMessage( ) + "\n\n" ;
+
+			}
+
+			outputMgr.print( errorDetails ) ;
+
 			// Application.getCustomStackTrace(e1)
 			outputMgr.print( "\n\n ACTION Required: Fix the error, and try again" ) ;
 
@@ -2657,14 +2679,14 @@ public class DefinitionRequests {
 		try {
 
 			ServiceInstance definitionInstance = new ServiceInstance( ) ;
-			definitionInstance.setScmLocation( csapApp.getRootProjectDefinitionUrl( ) ) ;
-			definitionInstance.setScm( csapApp.getSourceType( ) ) ;
+			definitionInstance.setScmLocation( csapApis.application( ).getRootProjectDefinitionUrl( ) ) ;
+			definitionInstance.setScm( csapApis.application( ).getSourceType( ) ) ;
 
-			File definitionFolder = new File( csapApp.getRootModelBuildLocation( ) ) ;
+			File definitionFolder = new File( csapApis.application( ).getRootModelBuildLocation( ) ) ;
 
 			// back_up_to_csap_saved( clusterFileName, outputWriter );
 			StringBuilder output = new StringBuilder( ) ;
-			csapApp.move_to_csap_saved_folder( definitionFolder, output ) ;
+			csapApis.application( ).move_to_csap_saved_folder( definitionFolder, output ) ;
 			outputWriter.append( output.toString( ) ) ;
 
 			sourceControlManager.checkOutFolder(
@@ -2676,7 +2698,7 @@ public class DefinitionRequests {
 
 			logger.error( "Definition reload failed: {}", CSAP.buildCsapStack( gitException ) ) ;
 
-			outputWriter.write( "\n\n" + CsapCore.CONFIG_PARSE_ERROR
+			outputWriter.write( "\n\n" + CsapConstants.CONFIG_PARSE_ERROR
 					+ "Git Access Error: Verify credentials and path is correct:\n" + gitException.getMessage( ) ) ;
 
 			return false ;
@@ -2685,12 +2707,12 @@ public class DefinitionRequests {
 
 			logger.error( "Definition reload failed: {}", CSAP.buildCsapStack( e ) ) ;
 
-			outputWriter.write( "\n\n" + CsapCore.CONFIG_PARSE_ERROR
+			outputWriter.write( "\n\n" + CsapConstants.CONFIG_PARSE_ERROR
 					+ "SVN Failure: Verify password and target is correct:\n" + e ) ;
 
 			if ( e.toString( ).indexOf( "is already a working copy for a different URL" ) != -1 ) {
 
-				File svnCheckoutFolder = csapApp.getCsapBuildFolder( svcName ) ;
+				File svnCheckoutFolder = csapApis.application( ).getCsapBuildFolder( svcName ) ;
 				outputWriter.write( "Blowing away previous build folder, try again:"
 						+ svnCheckoutFolder ) ;
 				FileUtils.deleteQuietly( svnCheckoutFolder ) ;
@@ -2715,17 +2737,18 @@ public class DefinitionRequests {
 
 		StringBuilder results = new StringBuilder( ) ;
 
-		File liveDefinitionFolder = csapApp.getDefinitionFolder( ) ;
+		File liveDefinitionFolder = csapApis.application( ).getDefinitionFolder( ) ;
 
 		logger.info( "Parsing file success: \n" + resultBuf ) ;
 
 		outputMgr.print( CsapApplication.highlightHeader( "Activating Application Definition" ) ) ;
-		outputMgr.print( CSAP.padLine( "Updating" ) + csapApp.applicationDefinition( ).getAbsolutePath( ) ) ;
+		outputMgr.print( CSAP.padLine( "Updating" ) + csapApis.application( ).applicationDefinition( )
+				.getAbsolutePath( ) ) ;
 
 //		outputMgr.print( "\n\n =============  Parsing file success,  Overwriting: "
-//				+ csapApp.applicationDefinition().getAbsolutePath() + "\n\n" ) ;
+//				+ csapApis.application().applicationDefinition().getAbsolutePath() + "\n\n" ) ;
 
-		if ( Application.isRunningOnDesktop( ) && ! csapApp.isTestModeToSkipActivate( ) ) {
+		if ( Application.isRunningOnDesktop( ) && ! csapApis.application( ).isTestModeToSkipActivate( ) ) {
 
 			File testLocation = new File( workingFolder.getParentFile( ), workingFolder.getName( ) + ".desktop" ) ;
 
@@ -2779,7 +2802,7 @@ public class DefinitionRequests {
 		// back_up_to_csap_saved( liveDefinitionFolder,
 		// outputMgr.getBufferedWriter() );
 		StringBuilder output = new StringBuilder( ) ;
-		csapApp.move_to_csap_saved_folder( liveDefinitionFolder, output ) ;
+		csapApis.application( ).move_to_csap_saved_folder( liveDefinitionFolder, output ) ;
 		outputMgr.print( output.toString( ) ) ;
 
 		liveDefinitionFolder.mkdir( ) ;
@@ -2790,22 +2813,25 @@ public class DefinitionRequests {
 				+ " to live location: " + liveDefinitionFolder.getAbsolutePath( ) ) ;
 		FileUtils.copyDirectory( workingFolder, liveDefinitionFolder, getGitFilter( ) ) ;
 
-		if ( csapApp.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
-			TransferManager transferManager = new TransferManager( csapApp, 120, outputMgr.getBufferedWriter( ) ) ;
+			TransferManager transferManager = new TransferManager(
+					csapApis, 120,
+					outputMgr.getBufferedWriter( ) ) ;
 
 			transferManager.setDeleteExisting( true ) ;
 
 			transferManager.httpCopyViaCsAgent( CsapUser.currentUsersID( ),
 					liveDefinitionFolder,
-					csapApp.getDefinitionToken( ),
-					new ArrayList<String>( csapApp
-							.getAllHostsInAllPackagesInCurrentLifecycle( ) ) ) ;
+					csapApis.application( ).getDefinitionToken( ),
+					new ArrayList<String>(
+							csapApis.application( )
+									.getAllHostsInAllPackagesInCurrentLifecycle( ) ) ) ;
 
 			// in case of agent password update is there a race condition?
 			String transferResults = transferManager.waitForComplete( ) ;
 
-			if ( transferResults.contains( CsapCore.CONFIG_PARSE_ERROR ) ) {
+			if ( transferResults.contains( CsapConstants.CONFIG_PARSE_ERROR ) ) {
 
 				results.append( transferResults ) ;
 
@@ -2816,16 +2842,16 @@ public class DefinitionRequests {
 		} else {
 
 			outputMgr.print( "\n Running on Agent - Definition has ONLY been updated on: "
-					+ csapApp.getCsapHostName( ) ) ;
+					+ csapApis.application( ).getCsapHostName( ) ) ;
 			commandResultsBuf.append( "\n Running on Agent - Definition has ONLY been updated on: "
-					+ csapApp.getCsapHostName( ) ) ;
+					+ csapApis.application( ).getCsapHostName( ) ) ;
 
 		}
-		
 
-		var loadedMessage = CsapApplication.highlightHeader( "definitions updated, reloads will occur within 60 seconds" ) ;
+		var loadedMessage = CsapApplication.highlightHeader(
+				"definitions updated, reloads will occur within 60 seconds" ) ;
 
-		commandResultsBuf.append( loadedMessage  ) ;
+		commandResultsBuf.append( loadedMessage ) ;
 
 		// Scince not all output is logged to console, we dump to logs
 		// if (logger.isDebugEnabled())
@@ -2838,9 +2864,10 @@ public class DefinitionRequests {
 
 		outputMgr.print( loadedMessage ) ;
 
-		if ( resultBuf.indexOf( CsapCore.CONFIG_PARSE_WARN ) != -1 ) {
+		if ( resultBuf.indexOf( CsapConstants.CONFIG_PARSE_WARN ) != -1 ) {
 
-			csapApp.updateOutputWithLimitedInfo( CsapCore.CONFIG_PARSE_WARN, 25, outputMgr, resultBuf, null ) ;
+			csapApis.application( ).updateOutputWithLimitedInfo( CsapConstants.CONFIG_PARSE_WARN, 25, outputMgr,
+					resultBuf, null ) ;
 
 		}
 
@@ -2869,16 +2896,17 @@ public class DefinitionRequests {
 			// engine.addTemplateResolver( templateResolver );
 			Context context = new Context( ) ;
 			context.setVariable( "name", CsapUser.currentUsersID( ) ) ;
-			context.setVariable( "appUrl", csapApp.rootProjectEnvSettings( ).getLoadbalancerUrl( ) ) ;
-			context.setVariable( "sourceUrl", csapApp.getRootProjectDefinitionUrl( ) ) ;
-			context.setVariable( "life", csapApp.getCsapHostEnvironmentName( ) ) ;
+			context.setVariable( "appUrl", csapApis.application( ).rootProjectEnvSettings( ).getLoadbalancerUrl( ) ) ;
+			context.setVariable( "sourceUrl", csapApis.application( ).getRootProjectDefinitionUrl( ) ) ;
+			context.setVariable( "life", csapApis.application( ).getCsapHostEnvironmentName( ) ) ;
 			context.setVariable( "package", currentPackageModel.getName( ) ) ;
 			context.setVariable( "message", message ) ;
 			context.setVariable( "comment", comment ) ;
 			String testBody = springTemplateEngine.process( "infraEmail", context ) ;
 
 			logger.info( "{} package {} : \n\t to: {}\n\t message: {}",
-					csapApp.getName( ), currentPackageModel.getName( ), currentPackageModel.getEmailNotifications( ),
+					csapApis.application( ).getName( ), currentPackageModel.getName( ), currentPackageModel
+							.getEmailNotifications( ),
 					message ) ;
 
 			if ( ( csapMailSender == null ) || ( currentPackageModel.getEmailNotifications( ) == null ) ) {
@@ -2903,7 +2931,7 @@ public class DefinitionRequests {
 					}
 
 					messageHelper.setFrom( CsapUser.currentUsersEmailAddress( ) ) ;
-					messageHelper.setSubject( "CSAP Notification: " + csapApp.getName( ) ) ;
+					messageHelper.setSubject( "CSAP Notification: " + csapApis.application( ).getName( ) ) ;
 					messageHelper.setText( testBody, true ) ;
 					messageHelper.addAttachment( attachmentName,
 							new ByteArrayResource( attachment.getBytes( ) ) ) ;
@@ -2926,11 +2954,11 @@ public class DefinitionRequests {
 
 	}
 
-	@RequestMapping ( value = CsapCoreService.NOTIFY_URL , produces = MediaType.APPLICATION_JSON_VALUE , method = RequestMethod.POST )
+	@RequestMapping ( value = CsapConstants.NOTIFY_URL , produces = MediaType.APPLICATION_JSON_VALUE , method = RequestMethod.POST )
 	public ObjectNode notifyAdmin (
 									@RequestParam ( "itemName" ) String itemName ,
 									@RequestParam ( "hostName" ) String hostName ,
-									@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProjectName ,
+									@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProjectName ,
 									@RequestParam ( "message" ) String message ,
 									@RequestParam ( "definition" ) String definition ) {
 
@@ -2942,11 +2970,11 @@ public class DefinitionRequests {
 
 		if ( csapProjectName == null ) {
 
-			currentPackageModel = csapApp.getModel( hostName, itemName ) ;
+			currentPackageModel = csapApis.application( ).getModel( hostName, itemName ) ;
 
 		} else {
 
-			currentPackageModel = csapApp.getProject( csapProjectName ) ;
+			currentPackageModel = csapApis.application( ).getProject( csapProjectName ) ;
 
 		}
 

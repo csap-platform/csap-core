@@ -4,7 +4,8 @@ import java.util.Map ;
 
 import javax.inject.Inject ;
 
-import org.csap.agent.container.DockerJson ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.services.OsManager ;
@@ -30,6 +31,7 @@ public class CrioExplorer {
 
 	Application csapApp ;
 	OsManager osManager ;
+	CsapApis csapApis ;
 	CsapEvents csapEventClient ;
 
 	ObjectMapper jacksonMapper = new ObjectMapper( ) ;
@@ -45,10 +47,12 @@ public class CrioExplorer {
 	@Inject
 	public CrioExplorer (
 			Application csapApp,
+			CsapApis csapApis,
 			OsManager osManager,
 			CsapEvents csapEventClient ) {
 
 		this.csapApp = csapApp ;
+		this.csapApis = csapApis ;
 		this.osManager = osManager ;
 		this.csapEventClient = csapEventClient ;
 
@@ -58,22 +62,22 @@ public class CrioExplorer {
 	public JsonNode crioContainersListing ( )
 		throws Exception {
 
-		if ( ! csapApp.isCrioInstalledAndActive( ) ) {
+		if ( ! csapApis.isCrioInstalledAndActive( ) ) {
 
-			return csapApp.crio( ).build_not_configured_listing( ) ;
+			return csapApis.crio( ).build_not_configured_listing( ) ;
 
 		}
 
 		if ( Application.isRunningOnDesktop( ) ) {
 
-			var remoteListing = csapApp.crio( ).buildRemoteListing( CRIO_URL + "/containers", null ) ;
+			var remoteListing = csapApis.crio( ).buildRemoteListing( CRIO_URL + "/containers", null ) ;
 
 			if ( remoteListing.path( 0 ).has( "error" ) ) {
 
-				var stubbedListing = csapApp.crio( ).containerListing( ) ;
+				var stubbedListing = csapApis.crio( ).containerListing( ) ;
 
 				var errorEntry = stubbedListing.addObject( ) ;
-				errorEntry.put( "label", "Failed to perform remote listing: " + csapApp.getDockerHost( ) ) ;
+				errorEntry.put( "label", "Failed to perform remote listing: " + csapApis.containerHostConfigured( ) ) ;
 				errorEntry.put( "folder", true ) ;
 				errorEntry.putObject( "attributes" ) ;
 
@@ -83,7 +87,7 @@ public class CrioExplorer {
 
 		}
 
-		return csapApp.crio( ).containerListing( ) ;
+		return csapApis.crio( ).containerListing( ) ;
 
 	}
 
@@ -96,20 +100,20 @@ public class CrioExplorer {
 
 		if ( Application.isRunningOnDesktop( ) ) {
 
-			return csapApp.crio( ).buildRemoteListing( CRIO_URL + "/container/info", Map.of( "id", id ) ) ;
+			return csapApis.crio( ).buildRemoteListing( CRIO_URL + "/container/info", Map.of( "id", id ) ) ;
 
 		}
 
 		try {
 
-			var info = csapApp.crio( ).containerInspect( id ) ;
+			var info = csapApis.crio( ).containerInspect( id ) ;
 			return nonNullMapper.convertValue( info, ObjectNode.class ) ;
 
 		} catch ( Exception e ) {
 
 			String reason = CSAP.buildCsapStack( e ) ;
 			logger.warn( "Failed getting info {}, {}", id, reason ) ;
-			result.put( DockerJson.error.json( ), "Docker API Failure: " + e.getClass( ).getName( ) ) ;
+			result.put( C7.error.val( ), "Docker API Failure: " + e.getClass( ).getName( ) ) ;
 			// result.put( DockerJson.errorReason.json(), reason ) ;
 
 		}

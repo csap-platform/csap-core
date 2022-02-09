@@ -5,9 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat ;
 import java.io.File ;
 import java.util.List ;
 
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.CsapThinTests ;
-import org.csap.agent.container.DockerJson ;
+import org.csap.agent.container.C7 ;
+import org.csap.agent.container.kubernetes.K8 ;
 import org.csap.agent.services.HostKeys ;
 import org.csap.agent.stats.HostCollector ;
 import org.csap.agent.stats.OsProcessCollector ;
@@ -46,16 +47,16 @@ public class Namespace_Collection extends CsapThinTests {
 						.isTrue( ) ;
 
 		getApplication( ).metricManager( ).startCollectorsForJunit( ) ;
-		getApplication( ).getOsManager( ).checkForProcessStatusUpdate( ) ;
-		getApplication( ).getOsManager( ).wait_for_initial_process_status_scan( 3 ) ;
+		getOsManager( ).checkForProcessStatusUpdate( ) ;
+		getOsManager( ).wait_for_initial_process_status_scan( 3 ) ;
 
 		assertThat( getApplication( ).isBootstrapComplete( ) ).isTrue( ) ;
 
 		assertThat( getApplication( ).getServiceInstanceCurrentHost( testServiceName ) ).isNotNull( ) ;
 
 		logger.debug( "latest discovery: {}",
-				getApplication( ).getOsManager( ).latest_process_discovery_results( ).path(
-						DockerJson.response_plain_text.json( ) ).asText( ) ) ;
+				getOsManager( ).latest_process_discovery_results( ).path(
+						C7.response_plain_text.val( ) ).asText( ) ) ;
 
 	}
 
@@ -71,7 +72,7 @@ public class Namespace_Collection extends CsapThinTests {
 			var testK8Service = getApplication( ).getServiceInstanceCurrentHost( testServiceName ) ;
 
 			String[] requestedServices = {
-					CsapCore.AGENT_NAME, testServiceCollectionId
+					CsapConstants.AGENT_NAME, testServiceCollectionId
 			} ;
 
 			logger.info( CsapApplication.testHeader( "OS Collection for: {}" ), List.of( requestedServices ) ) ;
@@ -99,7 +100,7 @@ public class Namespace_Collection extends CsapThinTests {
 			assertThat( servicesAvailable )
 					.hasSize( 4 )
 					.containsOnly(
-							getApplication( ).getProjectLoader( ).getNsMonitorName( "kube-system" ) + "-1",
+							getApplication( ).getProjectLoader( ).getNsMonitorName( K8.systemNamespace.val( ) ) + "-1",
 							"csap-agent", "kubelet", testServiceCollectionId ) ;
 
 			logger.info( "servicesNotFound: \n {} ", CSAP.jsonPrint( osCollectionReport.at(
@@ -111,7 +112,7 @@ public class Namespace_Collection extends CsapThinTests {
 					.as( "/data/timeStamp/0" )
 					.isGreaterThanOrEqualTo( now ) ;
 
-			assertThat( osCollectionReport.at( "/data/threadCount_" + CsapCore.AGENT_NAME + "/0" ).asInt( ) )
+			assertThat( osCollectionReport.at( "/data/threadCount_" + CsapConstants.AGENT_NAME + "/0" ).asInt( ) )
 					.as( "threadCount_CsAgent" )
 					.isGreaterThan( 90 ) ;
 
@@ -122,17 +123,18 @@ public class Namespace_Collection extends CsapThinTests {
 			//
 			// Verify osManger runtime
 			//
-			JsonNode runtimeReport = getApplication( ).getOsManager( ).getHostRuntime( ) ;
+			JsonNode runtimeReport = getOsManager( ).getHostRuntime( ) ;
 			logger.info( "agent status: {}",
-					CSAP.jsonPrint( runtimeReport.at( HostKeys.servicesJsonPath( CsapCore.AGENT_ID ) ) ) ) ;
+					CSAP.jsonPrint( runtimeReport.at( HostKeys.servicesJsonPath( CsapConstants.AGENT_ID ) ) ) ) ;
 
-			var agentThreadPath = HostKeys.serviceMetricJsonPath( CsapCore.AGENT_ID, 0, OsProcessEnum.THREAD_COUNT ) ;
+			var agentThreadPath = HostKeys.serviceMetricJsonPath( CsapConstants.AGENT_ID, 0,
+					OsProcessEnum.THREAD_COUNT ) ;
 			assertThat( runtimeReport.at( agentThreadPath ).intValue( ) )
 					.as( agentThreadPath )
 					.isEqualTo( 107 ) ;
 
 			var agentNumSamplesPath = HostKeys.serviceMetricJsonPath(
-					CsapCore.AGENT_ID, 0,
+					CsapConstants.AGENT_ID, 0,
 					HostKeys.numberSamplesAveraged.jsonId ) ;
 			assertThat( runtimeReport.at( agentNumSamplesPath ).intValue( ) )
 					.as( agentNumSamplesPath )

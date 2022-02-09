@@ -5,6 +5,7 @@ import java.util.Arrays ;
 import java.util.List ;
 
 import org.apache.commons.lang3.StringUtils ;
+import org.csap.agent.CsapApis ;
 import org.csap.agent.services.OsProcess ;
 import org.csap.agent.stats.OsProcessEnum ;
 import org.csap.agent.stats.service.JmxCommonEnum ;
@@ -400,7 +401,7 @@ public class ContainerState {
 	public void setCpuUtil ( String collectedCpuUsage ) {
 
 		// allows allow overwrites on admins
-		if ( ( ! Application.getInstance( ).isAdminProfile( ) ) &&
+		if ( ( ! CsapApis.getInstance( ).application( ).isAdminProfile( ) ) &&
 				cpuUtil.equals( CPU_AUTO_MODE_TO_TRIGGER_HOUR_GLASS ) ||
 				cpuUtil.equals( "CLEAN" ) ) {
 

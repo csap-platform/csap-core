@@ -43,7 +43,7 @@
 					Kubernetes Container Matching:
 
 					<a
-						th:href="${@csapCoreService.getHelpUrl('os-process-mapping') }"
+						th:href="${@applicationConfiguration.getHelpUrl('os-process-mapping') }"
 						target="_blank"
 						class="csap-link-icon csap-help"></a>
 				</div>
@@ -220,7 +220,7 @@
 							target="_blank"
 							title="Learn more about CSAP Service Definitions"
 							class="csap-link-icon csap-help"
-							th:href="${@csapCoreService.getHelpUrl('service-templates') }" >csap template variables</a>
+							th:href="${@applicationConfiguration.getHelpUrl('service-templates') }" >csap template variables</a>
 					
 						may be used to specify path. eg.  $$service-resources is the location csap
 						service files</li>

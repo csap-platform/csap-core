@@ -16,11 +16,11 @@ import javax.inject.Inject ;
 
 import org.csap.agent.CsapBareTest ;
 import org.csap.agent.CsapThinNoProfile ;
-import org.csap.agent.KubernetesConfiguration ;
-import org.csap.agent.KubernetesSettings ;
-import org.csap.agent.container.DockerJson ;
+import org.csap.agent.container.C7 ;
+import org.csap.agent.container.kubernetes.KubernetesConfiguration ;
 import org.csap.agent.container.kubernetes.KubernetesIntegration ;
-import org.csap.agent.container.kubernetes.KubernetesJson ;
+import org.csap.agent.container.kubernetes.K8 ;
+import org.csap.agent.container.kubernetes.KubernetesSettings ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.ProjectLoader ;
 import org.csap.agent.model.ServiceInstance ;
@@ -75,6 +75,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 
 	@Autowired
 	ApplicationContext applicationContext ;
+
 	@Autowired
 	Environment springEnvironment ;
 
@@ -106,8 +107,12 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 
 			File extractDir = new File( System.getProperty( "user.home" ), "agent-junit-folder" ) ;
 			kubernetesSettings.setConfigFile( ( new File( extractDir, "config" ) ).getAbsolutePath( ) ) ;
+
 			// get the latest security
 			KubernetesIntegration.buildAndCacheDesktopCredentials( logger, getConfigUrl( ), extractDir ) ;
+
+			// rebuild connection pools
+			kubernetesConfig.buildApiClient( ) ;
 
 			while ( ! kubernetes.areMinimumMastersReady( 1 ) ) {
 
@@ -124,7 +129,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 			// verifies the build
 			apiTester.setApiV1( kubernetes.buildV1Api( ) ) ;
 
-			kubernetesConfig.setCsapApp( getApplication( ) ) ;
+			kubernetesConfig.setCsapApi( getCsapApis( ) ) ;
 
 			assertThat( apiTester.namespaces( ) ).doesNotContain( "csap-test-ha" ) ;
 
@@ -220,7 +225,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			var path = "/verify-simple" + KubernetesJson.labelsByType.spath( ) ;
+			var path = "/verify-simple" + K8.labelsByType.spath( ) ;
 			var labelDef = test_definitions.at( path ).toString( ) ;
 
 			logger.info( "path: {}, labelDef: {} ", path, labelDef ) ;
@@ -243,9 +248,9 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 			kubernetes.metricsBuilder( ).setTestMeterNames( testMeters ) ;
 			// kubernetes.setTestHost( "" ) ;
 
-			var jsonSample = getApplication( ).metrics( ).startTimer( ) ;
+			var jsonSample = getCsapApis( ).metrics( ).startTimer( ) ;
 			JsonNode allNameSpaceReport = kubernetes.buildSummaryReport( null ) ;
-			var jsonNanos = getApplication( ).metrics( ).stopTimer( jsonSample, "rawSample" ) ;
+			var jsonNanos = getCsapApis( ).metrics( ).stopTimer( jsonSample, "rawSample" ) ;
 			var summaryMs = TimeUnit.NANOSECONDS.toMillis( jsonNanos ) ;
 			logger.info( "allNameSpaceReport: {} \n\n loaded in {} ms", CSAP.jsonPrint( allNameSpaceReport ),
 					summaryMs ) ;
@@ -255,7 +260,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 					.as( "summary version" )
 					.startsWith( "v1." ) ;
 
-			JsonNode kubeSystemSummaryReport = kubernetes.buildSummaryReport( "kube-system" ) ;
+			JsonNode kubeSystemSummaryReport = kubernetes.buildSummaryReport( K8.systemNamespace.val( ) ) ;
 			logger.info( "kubeSystemSummaryReport: {}", CSAP.jsonPrint( kubeSystemSummaryReport ) ) ;
 
 			assertThat( kubeSystemSummaryReport.at( "/podReport/count" ).asInt( ) )
@@ -285,7 +290,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 					null ) ;
 			var podsInDefault = kubernetes.listingsBuilder( ).countResourceItems( "listPodForAllNamespaces",
 					"listNamespacedPod", null,
-					"kube-system" ) ;
+					K8.systemNamespace.val( ) ) ;
 
 			logger.info( "podsAllNamespaces: {}, podsInDefault: {}", podsAllNamespaces, podsInDefault ) ;
 
@@ -305,7 +310,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 			// general count methods
 			//
 			logger.info( "configMapCount: {} kube-system: {}", kubernetes.listingsBuilder( ).configMapCount( null ),
-					kubernetes.listingsBuilder( ).configMapCount( "kube-system" ) ) ;
+					kubernetes.listingsBuilder( ).configMapCount( K8.systemNamespace.val( ) ) ) ;
 			logger.info( "ingressCount: {}", kubernetes.listingsBuilder( ).ingressCount( null ) ) ;
 			logger.info( "persistentVolumeCount: {}", kubernetes.listingsBuilder( ).persistentVolumeCount( null ) ) ;
 			logger.info( "cronJobCount: {}", kubernetes.listingsBuilder( ).cronJobCount( null ) ) ;
@@ -318,7 +323,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 			logger.info( "replicaSetCount: {}", kubernetes.listingsBuilder( ).replicaSetCount( null ) ) ;
 
 			assertThat( kubernetes.listingsBuilder( ).configMapCount( null ) ).isGreaterThanOrEqualTo( 2 ) ;
-			assertThat( kubernetes.listingsBuilder( ).configMapCount( "kube-system" ) )
+			assertThat( kubernetes.listingsBuilder( ).configMapCount( K8.systemNamespace.val( ) ) )
 					.isGreaterThanOrEqualTo( 2 )
 					.isLessThan( kubernetes.listingsBuilder( ).configMapCount( null ) ) ;
 			assertThat( kubernetes.listingsBuilder( ).ingressCount( null ) ).isGreaterThanOrEqualTo( 2 ) ;
@@ -357,7 +362,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 
 			assertThat( namespaceNames )
 					.hasSizeGreaterThan( 5 )
-					.contains( "default", "kube-system", "kube-public" ) ;
+					.contains( "default", K8.systemNamespace.val( ), "kube-public" ) ;
 
 			//
 			// version info listing: empty param api
@@ -381,7 +386,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 			assertThat( serviceAccountForAll.path( "items" ).size( ) ).isGreaterThanOrEqualTo( 20 ) ;
 
 			var serviceAccountForNamespace = kubernetes.listingsBuilder( )
-					.buildResourceReport( "listNamespacedServiceAccount", null, "kube-system" ) ;
+					.buildResourceReport( "listNamespacedServiceAccount", null, K8.systemNamespace.val( ) ) ;
 			logger.debug( "serviceAccountForNamespace: {}", serviceAccountForNamespace ) ;
 			assertThat( serviceAccountForNamespace.path( "items" ).size( ) ).isGreaterThanOrEqualTo( 1 ) ;
 
@@ -434,7 +439,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 
 			assertThat( namespaceNames )
 					.hasSizeGreaterThan( 5 )
-					.contains( "default", "kube-system", "kube-public" ) ;
+					.contains( "default", K8.systemNamespace.val( ), "kube-public" ) ;
 
 			//
 			//
@@ -564,16 +569,16 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 					"/api/v1/namespaces/kube-system/pods", 2 ) ;
 			logger.info( "podReportsUserNamespace: {}", CSAP.jsonPrint( podReportsUserNamespace ) ) ;
 			assertThat( podReportsUserNamespace.at( "/0/attributes/metadata/name" ).asText( ) ).isNotEmpty( ) ;
-			assertThat( podReportsUserNamespace.at( "/0/attributes/" + KubernetesJson.apiPath.json( ) ).asText( ) )
+			assertThat( podReportsUserNamespace.at( "/0/attributes/" + K8.apiPath.val( ) ).asText( ) )
 					.isNotEmpty( ) ;
 
-			assertThat( podReportsUserNamespace.at( "/0/attributes/" + KubernetesJson.apiPath.json( ) ).asText( ) )
+			assertThat( podReportsUserNamespace.at( "/0/attributes/" + K8.apiPath.val( ) ).asText( ) )
 					.startsWith( "/api/v1/namespaces/kube-system/pods" ) ;
 
 			ArrayNode podReportsAllNamespace = kubernetes.apiResource_listing( "/api/v1/pods", "/api/v1NAMESPACE/pods",
 					2 ) ;
 			logger.info( "podReportsAllNamespace: {}", CSAP.jsonPrint( podReportsAllNamespace ) ) ;
-			assertThat( podReportsAllNamespace.at( "/0/attributes/" + KubernetesJson.apiPath.json( ) ).asText( ) )
+			assertThat( podReportsAllNamespace.at( "/0/attributes/" + K8.apiPath.val( ) ).asText( ) )
 					.matches( "/api/v1/namespaces/.*/pods/.*" ) ;
 
 		}
@@ -594,17 +599,17 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 
 			logger.info( "firstReplica: {}", CSAP.jsonPrint( firstReplica ) ) ;
 
-			assertThat( firstReplica.path( DockerJson.list_label.json( ) ).asText( ) ).isNotEmpty( ) ;
+			assertThat( firstReplica.path( C7.list_label.val( ) ).asText( ) ).isNotEmpty( ) ;
 
 			assertThat( firstReplica.path( "folder" ).asBoolean( ) ).isTrue( ) ;
 
 			assertThat( firstReplica.path( "lazy" ).asBoolean( ) ).isTrue( ) ;
 
 			assertThat(
-					firstReplica.path( "attributes" ).path( KubernetesJson.apiPath.json( ) ).asText( ) )
+					firstReplica.path( "attributes" ).path( K8.apiPath.val( ) ).asText( ) )
 							.matches( "/apis/apps/v1/namespaces/.*/replicasets/.*" ) ;
 
-			assertThat( firstReplica.has( DockerJson.list_attributes.json( ) ) ).isTrue( ) ;
+			assertThat( firstReplica.has( C7.list_attributes.val( ) ) ).isTrue( ) ;
 
 		}
 
@@ -671,7 +676,8 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 			logger.info( "namespaceSummaryReport: {}", CSAP.jsonPrint( namespaceSummaryReport ) ) ;
 
 			var kubeSystemNamespace = CSAP.jsonStream( namespaceSummaryReport )
-					.filter( namespaceReport -> namespaceReport.path( "name" ).asText( ).equals( "kube-system" ) )
+					.filter( namespaceReport -> namespaceReport.path( "name" ).asText( ).equals( K8.systemNamespace
+							.val( ) ) )
 					.findFirst( ) ;
 
 			assertThat( kubeSystemNamespace ).isNotEmpty( ) ;
@@ -688,7 +694,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			var namespace = "kube-system" ;
+			var namespace = K8.systemNamespace.val( ) ;
 
 			var podReport = kubernetes.reportsBuilder( ).podSummaryReport( namespace, null ) ;
 
@@ -718,11 +724,12 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 
 			assertThat( namespaces.size( ) ).isGreaterThanOrEqualTo( 3 ).as( "minimum namespaces" ) ;
 
-			ArrayNode kubeSystemNamespaces = kubernetes.namespaceInfo( "kube-system" ) ;
+			ArrayNode kubeSystemNamespaces = kubernetes.namespaceInfo( K8.systemNamespace.val( ) ) ;
 			logger.info( "single kubeSystemNamespace: {}", CSAP.jsonPrint( kubeSystemNamespaces ) ) ;
 
 			var systemMatch = CSAP.jsonStream( kubeSystemNamespaces )
-					.filter( namespace -> namespace.at( "/metadata/name" ).asText( ).equals( "kube-system" ) )
+					.filter( namespace -> namespace.at( "/metadata/name" ).asText( ).equals( K8.systemNamespace
+							.val( ) ) )
 					.findFirst( ) ;
 
 			assertThat( systemMatch.isPresent( ) ).isTrue( ).as( "kube-system found" ) ;
@@ -776,7 +783,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 
 			// pod name match
 			calicoLocator.remove( "value" ) ;
-			calicoLocator.put( DockerJson.podName.json( ), calico.getName( ) + ".*" ) ;
+			calicoLocator.put( C7.podName.val( ), calico.getName( ) + ".*" ) ;
 			calico.resetLocatorAndMatching( ) ;
 			logger.info( "Calico podName: {}", CSAP.jsonPrint( calico.getDockerSettings( ) ) ) ;
 			assertThat( kubernetes.isPodRunning( calico ) ).isTrue( ) ;
@@ -794,15 +801,24 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			var calicoPods = kubernetes.podsByLabel( "kube-system", "k8s-app=calico-node" ) ;
+			var calicoPods = kubernetes.podsByLabelSelector( K8.systemNamespace.val( ), "k8s-app=calico-node" ) ;
 			logger.debug( "calicoPods: {} \n {}", calicoPods.size( ), CSAP.jsonPrint( calicoPods ) ) ;
 
 			var containerNames = containerNames( calicoPods ) ;
-			logger.info( "containerNames: {}", containerNames ) ;
+			logger.info( CSAP.buildDescription( "calico pods found by label",
+					"nodeNames", nodeNames( calicoPods ),
+					"containerNames", containerNames ) ) ;
 
 			assertThat( containerNames )
 					.contains( "calico-node" )
 					.doesNotContain( "etcd", "coredns" ) ;
+
+			var metricsPods = kubernetes.podsByLabelSelector( K8.systemNamespace.val( ), K8.metricsServerLabel
+					.val( ) ) ;
+			var metricContainerNames = containerNames( metricsPods ) ;
+
+			logger.info( "metric pod count: {} metricContainerNames: {} \n {}",
+					metricsPods.size( ), metricContainerNames ) ;
 
 		}
 
@@ -812,7 +828,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			var systemPods = kubernetes.podRawReports( "kube-system", null ) ;
+			var systemPods = kubernetes.podRawReports( K8.systemNamespace.val( ), null ) ;
 			logger.debug( "systemPods: {}", CSAP.jsonPrint( systemPods ) ) ;
 
 			var systemPodNames = CSAP.jsonStream( systemPods )
@@ -834,7 +850,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 					"calico-kube-controllers" ) ).findFirst( ).get( ) ;
 
 			var calicoControllerMetricsReport = kubernetes.podContainerMetricsReport(
-					"kube-system",
+					K8.systemNamespace.val( ),
 					calicoControllerName ) ;
 
 			logger.debug( "calicoControllerMetricsReport: {}", CSAP.jsonPrint( calicoControllerMetricsReport ) ) ;
@@ -862,7 +878,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 			// Verify injected fields
 			//
 
-			assertThat( calicoControllerMetricsReport.path( DockerJson.list_label.json( ) ).asText( ) )
+			assertThat( calicoControllerMetricsReport.path( C7.list_label.val( ) ).asText( ) )
 					.isNotEmpty( ) ;
 
 			assertThat( calicoControllerMetricsReport.path( "hostname" ).asText( ) )
@@ -880,6 +896,16 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 
 		}
 
+		private List<String> nodeNames ( JsonNode systemPods ) {
+
+			var nodeNames = CSAP.jsonStream( systemPods )
+					.map( podJson -> podJson.at( "/spec/nodeName" ) )
+					.map( JsonNode::toString )
+					.collect( Collectors.toList( ) ) ;
+			return nodeNames ;
+
+		}
+
 		@Test
 		public void pods_csap_list ( ) {
 
@@ -891,7 +917,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 			assertThat( podListing.size( ) ).isGreaterThan( 10 ) ;
 
 			List<String> podLabels = CSAP.jsonStream( podListing )
-					.map( podJson -> podJson.path( DockerJson.list_label.json( ) ).asText( ) )
+					.map( podJson -> podJson.path( C7.list_label.val( ) ).asText( ) )
 					.collect( Collectors.toList( ) ) ;
 
 			logger.info( "podLabels", podLabels ) ;
@@ -901,7 +927,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 					.contains( "kube-controller-manager-", "coredns", "kube-proxy" ) ;
 
 			var calicoControllerPod = CSAP.jsonStream( podListing )
-					.filter( pod -> pod.path( DockerJson.list_label.json( ) ).asText( ).startsWith(
+					.filter( pod -> pod.path( C7.list_label.val( ) ).asText( ).startsWith(
 							"calico-kube-controllers" ) )
 					.findFirst( )
 					.get( ) ;
@@ -913,9 +939,9 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 					.matches( "calico-kube-controllers.*" )
 					.doesNotContain( "," ) ;
 
-			var attributes = calicoControllerPod.path( DockerJson.list_attributes.json( ) ) ;
+			var attributes = calicoControllerPod.path( C7.list_attributes.val( ) ) ;
 
-			assertThat( attributes.path( KubernetesJson.apiPath.json( ) ).asText( ) )
+			assertThat( attributes.path( K8.apiPath.val( ) ).asText( ) )
 					.matches( "/api/v1/namespaces/kube-system/pods/calico-kube-controllers-.*" ) ;
 
 			assertThat( attributes.path( "hostname" ).asText( ) )
@@ -930,7 +956,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 
 			String targetPod = "calico-node" ;
 
-			String firstCalicoLogs = kubernetes.podLogs( "kube-system", targetPod, 10, true ) ;
+			String firstCalicoLogs = kubernetes.podLogs( K8.systemNamespace.val( ), targetPod, 10, true ) ;
 
 			logger.info( "logs: {} ", firstCalicoLogs ) ;
 
@@ -1036,12 +1062,12 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 
 			if ( optionalIngress.isPresent( ) ) {
 
-				var ingressAttributes = optionalIngress.get( ).path( DockerJson.list_attributes.json( ) ) ;
+				var ingressAttributes = optionalIngress.get( ).path( C7.list_attributes.val( ) ) ;
 				logger.info( "Found: {}", CSAP.jsonPrint( ingressAttributes ) ) ;
 
-				assertThat( ingressAttributes.has( KubernetesJson.apiPath.json( ) ) ).isTrue( ) ;
+				assertThat( ingressAttributes.has( K8.apiPath.val( ) ) ).isTrue( ) ;
 
-				assertThat( ingressAttributes.path( KubernetesJson.apiPath.json( ) ).asText( ) )
+				assertThat( ingressAttributes.path( K8.apiPath.val( ) ).asText( ) )
 						.isEqualTo(
 								"/apis/networking.k8s.io/v1/namespaces/csap-test/ingresses/test-k8s-csap-reference-ingress" ) ;
 
@@ -1154,7 +1180,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			String url = kubernetes.ingressUrl( Application.testBuilder( ), "/demo", null, false ) ;
+			var url = kubernetes.ingressUrl( Application.testBuilder( ), "/demo", null, false ) ;
 
 			assertThat( url ).endsWith( "/demo" ) ;
 
@@ -1163,18 +1189,36 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 		}
 
 		@Test
-		public void verify_ingress_node_port_url ( )
+		void verify_ingress_node_port_url ( )
 			throws Exception {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			String url = kubernetes.nodePortUrl( Application.testBuilder( ),
-					KubernetesIntegration.INGRESS_NGINX_SERVICE,
+			var url = kubernetes.nodePortUrl(
+					Application.testBuilder( ),
+					K8.ingressService.val( ),
 					"$host", "/path", false ) ;
 
 			assertThat( url ).endsWith( "/path" ) ;
 
 			logger.info( "url: '{}'", url ) ;
+
+			var ingressPods = kubernetes.podsByLabelSelector(
+					K8.ingressNamespace.val( ),
+					K8.ingressControllerPodLabelSelector.val( ) ) ;
+
+			logger.debug( "ingressPods count:{} , listing: {}", CSAP.jsonPrint( ingressPods ) ) ;
+
+			var firstPod = ingressPods.path( 0 ) ;
+			var containers = firstPod.at( "/spec/containers" ) ;
+			logger.debug( "containers: {}", CSAP.jsonPrint( containers ) ) ;
+
+			var hostNetwork = firstPod.at( "/spec/hostNetwork" ).asBoolean( false ) ;
+			logger.info( "ingressPods count:{} , hostNetwork: {}",
+					ingressPods.size( ),
+					hostNetwork ) ;
+
+			assertThat( hostNetwork ).isTrue( ) ;
 
 		}
 	}
@@ -1236,14 +1280,20 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 			//
 			logger.info( CsapApplication.testHeader( "Deleting deployment" ) ) ;
 
-			JsonNode deleteResult = deployment_delete(
+			var deleteReport = deployment_delete(
 					definitionDeploymentResults.at( "/create-deployment/metadata/name" ).asText(
 							"no-name-in-create-results" ),
 					TEST_NAMESPACE ) ;
+			
+			logger.info( "deleteReport: {}", CSAP.jsonPrint( deleteReport ) ) ;
 
-			assertThat( deleteResult.at( "/delete-service/status" ).asText( ) )
+//			assertThat( deleteResult.at( "/delete-service/status" ).asText( ) )
+//					.as( "deleteResult" )
+//					.isEqualToIgnoringCase( "Success" ) ;
+
+			assertThat( deleteReport.at( "/delete-service/apiVersion" ).asText( ) )
 					.as( "deleteResult" )
-					.isEqualToIgnoringCase( "Success" ) ;
+					.isEqualToIgnoringCase( "v1" ) ;
 
 			ServiceInstance serviceInstance = build_service_from_definition(
 					deployName, TEST_NAMESPACE,
@@ -1287,6 +1337,14 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 					.as( "service deployed" )
 					.isFalse( ) ;
 
+			assertThat( definitionDeploymentResults.path( "create-ingress" ).isMissingNode( ) )
+					.as( "ingress deployed" )
+					.isFalse( ) ;
+
+			assertThat( definitionDeploymentResults.at( "/create-ingress/error" ).isMissingNode( ) )
+					.as( "no ingress errors" )
+					.isTrue( ) ;
+
 			assertThat( apiTester.wait_for_pod_running( containerName, TEST_NAMESPACE ) ).isTrue( ) ;
 
 			// if (true) return;
@@ -1300,15 +1358,19 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 							"no-name-in-create-results" ),
 					TEST_NAMESPACE ) ;
 
+			// client 14.0 not showing result
+//			assertThat( deleteResult.at( "/delete-service/status" ).asText( ) )
+//					.as( "deleteResult" )
+//					.isEqualToIgnoringCase( "Success" ) ;
 			assertThat( deleteResult.at( "/delete-service/status" ).asText( ) )
 					.as( "deleteResult" )
-					.isEqualToIgnoringCase( "Success" ) ;
+					.isEqualToIgnoringCase( "" ) ;
 
-			ServiceInstance serviceInstance = build_service_from_definition(
+			var serviceInstance = build_service_from_definition(
 					deployName, TEST_NAMESPACE,
 					test_definitions.at( "/verify-csap-test-app" ) ) ;
 
-			ObjectNode delete_pvc_results = kubernetes.specBuilder( ).persistentVolumeClaimDelete( serviceInstance ) ;
+			var delete_pvc_results = kubernetes.specBuilder( ).persistentVolumeClaimDelete( serviceInstance ) ;
 			logger.info( "delete_pvc_results: {} ", CSAP.jsonPrint( delete_pvc_results ) ) ;
 
 			JsonNode deleteClaimResults = kubernetes.specBuilder( )
@@ -1420,11 +1482,16 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 
 			assertThat( apiTester.wait_for_pod_running( deployName, TEST_NAMESPACE ) ).isTrue( ) ;
 
-			JsonNode deleteResult = deployment_delete( deployName, TEST_NAMESPACE ) ;
+			var deleteReport = deployment_delete( deployName, TEST_NAMESPACE ) ;
 
-			assertThat( deleteResult.at( "/delete-service/status" ).asText( ) )
+//			assertThat( deleteResult.at( "/delete-service/status" ).asText( ) )
+//					.as( "deleteResult" )
+//					.isEqualToIgnoringCase( "Success" ) ;
+			
+
+			assertThat( deleteReport.at( "/delete-service/apiVersion" ).asText( ) )
 					.as( "deleteResult" )
-					.isEqualToIgnoringCase( "Success" ) ;
+					.isEqualToIgnoringCase( "v1" ) ;
 
 		}
 
@@ -1486,7 +1553,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 		// .as( "environment variables" )
 		// .contains( "javaOptions" );
 
-		int replica_count_from_definition = serviceInstance.getDockerSettings( ).at( KubernetesJson.replicaCount
+		int replica_count_from_definition = serviceInstance.getDockerSettings( ).at( K8.replicaCount
 				.spath( ) ).asInt( 1 ) ;
 		assertThat( deployResult.at( "/spec/replicas" ).asInt( ) )
 				.as( "replica Count" )
@@ -1524,12 +1591,13 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 	private void deployment_create_api ( String name , String namespace )
 		throws Exception {
 
-		String image = test_definitions.at( "/verify-simple/" + DockerJson.imageName.json( ) ).asText( ) ;
+		String image = test_definitions.at( "/verify-simple/" + C7.imageName.val( ) ).asText( ) ;
 
-		String ports = test_definitions.at( "/verify-simple/" + DockerJson.portMappings.json( ) ).toString( ) ;
-		String environmentVariables = test_definitions.at( "/verify-simple/" + DockerJson.environmentVariables.json( ) )
+		String ports = test_definitions.at( "/verify-simple/" + C7.portMappings.val( ) ).toString( ) ;
+		String environmentVariables = test_definitions.at( "/verify-simple/" + C7.environmentVariables
+				.val( ) )
 				.toString( ) ;
-		String command = test_definitions.at( "/verify-simple/" + DockerJson.command.json( ) ).toString( ) ;
+		String command = test_definitions.at( "/verify-simple/" + C7.command.val( ) ).toString( ) ;
 		// String entry = kubernetesSimple.path( "entry" ).toString();
 
 		String k8Command = command ;
@@ -1544,7 +1612,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 		String nodeSelector = "" ;
 		String resources = "" ;
 		String annotations = "" ;
-		String labelsByType = test_definitions.at( "/verify-simple" + KubernetesJson.labelsByType.spath( ) )
+		String labelsByType = test_definitions.at( "/verify-simple" + K8.labelsByType.spath( ) )
 				.toString( ) ;
 		String readinessProbe = "" ;
 		String livenessProbe = "" ;
@@ -1562,7 +1630,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 				resources,
 				readinessProbe, livenessProbe,
 				replicaCount,
-				KubernetesJson.NODE_PORT.json( ),
+				K8.NODE_PORT.val( ),
 				ingressPath, ingressPort, ingressHost, ingressAnnotations,
 				k8Command, k8Args,
 				workingDirectory, network, restartPolicy,

@@ -47,7 +47,7 @@ public class Host_Alert_Processing extends CsapThinTests {
 
 		// hostAlertProcessor = new HostAlertProcessor( getApplication(),
 		// getApplication().getEventClient(), null ) ;
-		healthManager = new HealthManager( getApplication( ), getJsonMapper( ) ) ;
+		healthManager = new HealthManager( getCsapApis( ), getJsonMapper( ) ) ;
 
 		getApplication( ).getProjectLoader( ).setAllowLegacyNames( true ) ;
 

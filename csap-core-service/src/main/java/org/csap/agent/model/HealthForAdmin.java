@@ -6,7 +6,8 @@ import java.util.Objects ;
 import java.util.TreeMap ;
 import java.util.concurrent.atomic.AtomicInteger ;
 
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.services.HostKeys ;
 import org.csap.helpers.CSAP ;
 import org.slf4j.Logger ;
@@ -22,12 +23,12 @@ public class HealthForAdmin {
 
 	final Logger logger = LoggerFactory.getLogger( getClass( ) ) ;
 
-	Application application ;
+	CsapApis csapApis ;
 	ObjectMapper jsonMapper ;
 
-	public HealthForAdmin ( Application application, ObjectMapper jsonMapper ) {
+	public HealthForAdmin ( CsapApis csapApis, ObjectMapper jsonMapper ) {
 
-		this.application = application ;
+		this.csapApis = csapApis ;
 		this.jsonMapper = jsonMapper ;
 
 	}
@@ -49,8 +50,8 @@ public class HealthForAdmin {
 		JsonMappingException {
 
 		logger.debug( "clusterFilter: {}, lifeCycleHostList: {}", clusterFilter, lifeCycleHostList ) ;
-		long lastOpMills = application.getLastOpMillis( ) ;
-		service_summary.put( "lastOp", application.getLastOpMessage( ) ) ;
+		long lastOpMills = csapApis.application( ).getLastOpMillis( ) ;
+		service_summary.put( "lastOp", csapApis.application( ).getLastOpMessage( ) ) ;
 
 		int totalHosts = lifeCycleHostList.size( ) ;
 		AtomicInteger totalServicesActive = new AtomicInteger( 0 ) ;
@@ -60,7 +61,7 @@ public class HealthForAdmin {
 
 		if ( blocking ) {
 
-			application.getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
+			csapApis.application( ).getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
 
 		}
 
@@ -83,7 +84,7 @@ public class HealthForAdmin {
 			AtomicInteger hostServiceActive = new AtomicInteger( 0 ) ;
 			AtomicInteger hostServiceTotal = new AtomicInteger( 0 ) ;
 
-			ObjectNode agent_status = application.getHostStatusManager( ).getHostAsJson( host ) ;
+			ObjectNode agent_status = csapApis.application( ).getHostStatusManager( ).getHostAsJson( host ) ;
 
 			if ( agent_status != null ) {
 
@@ -111,7 +112,7 @@ public class HealthForAdmin {
 		}
 
 		if ( clusterSynchronizationMessages.length( ) > 0
-				&& clusterFilter.equals( application.getCsapHostEnvironmentName( ) ) ) {
+				&& clusterFilter.equals( csapApis.application( ).getCsapHostEnvironmentName( ) ) ) {
 
 			String error = "Found one or more services not in the cluster definition in localhost. Need to resync cluster ASAP: "
 					+ clusterSynchronizationMessages ;
@@ -152,7 +153,7 @@ public class HealthForAdmin {
 				.fieldNames( )
 				.forEachRemaining( serviceInstanceName -> {
 
-					if ( serviceInstanceName.startsWith( CsapCore.AGENT_NAME ) ) {
+					if ( serviceInstanceName.startsWith( CsapConstants.AGENT_NAME ) ) {
 
 						totalHostsActive.incrementAndGet( ) ;
 
@@ -172,7 +173,7 @@ public class HealthForAdmin {
 					}
 
 					ServiceInstance serviceWithConfiguration = //
-							application.getServiceInstance( serviceInstanceName, host, csapProject ) ;
+							csapApis.application( ).getServiceInstance( serviceInstanceName, host, csapProject ) ;
 
 					// Scripts are ignored from summarys
 					if ( serviceWithConfiguration != null
@@ -262,8 +263,8 @@ public class HealthForAdmin {
 												ObjectNode agent_status ,
 												ObjectNode active_services_all_hosts ,
 												TreeMap<String, Integer> serviceTotalCountMap ,
-												TreeMap<String, String> serviceTypeMap,
-												TreeMap<String, String> serviceRuntimeMap  ) {
+												TreeMap<String, String> serviceTypeMap ,
+												TreeMap<String, String> serviceRuntimeMap ) {
 		// logger.debug( "{} json: {}", host, agent_status ) ;
 
 		JsonNode unregisteredContainers = agent_status.path( HostKeys.unregisteredServices.jsonId ) ;
@@ -307,7 +308,7 @@ public class HealthForAdmin {
 		AtomicInteger totalServices = new AtomicInteger( 0 ) ;
 
 		TreeMap<String, List<ServiceInstance>> serviceName_instances = //
-				application.getProject( releaseFilter )
+				csapApis.application( ).getProject( releaseFilter )
 						.serviceInstancesInCurrentLifeByName( ) ;
 
 		serviceName_instances
@@ -323,7 +324,7 @@ public class HealthForAdmin {
 
 						serviceTypeMap.put( serviceName, firstServiceInstance.getServerUiIconType( ) ) ;
 
-						serviceRuntimeMap.put( serviceName, firstServiceInstance.getUiRuntime( )) ;
+						serviceRuntimeMap.put( serviceName, firstServiceInstance.getUiRuntime( ) ) ;
 
 					}
 
@@ -335,7 +336,7 @@ public class HealthForAdmin {
 
 					String serviceName = serviceInstance.getName( ) ;
 
-					if ( clusterFilter.equals( application.getCsapHostEnvironmentName( ) ) ) {
+					if ( clusterFilter.equals( csapApis.application( ).getCsapHostEnvironmentName( ) ) ) {
 
 						try {
 

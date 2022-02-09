@@ -21,6 +21,16 @@ csap-core:
   
   docker: 
     url: "tcp://localhost:4243"
+    
+  kubernetes:
+  
+    #
+    # testing only
+    #
+    #test-credential-url: "http://csap-dev20.***REMOVED***:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet"
+    test-credential-url: "http://csap-dev04.***REMOVED***:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet"
+#    test-credential-url: "http://csap-dev07.***REMOVED***:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet-ha"
+#    test-credential-url: "http://centos1.***REMOVED***:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet" 
   
   definition-folder: "src/main/resources/csap-templates/application-definition/"  # "../../dev-definition"
 

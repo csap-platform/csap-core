@@ -14,8 +14,8 @@ import java.util.stream.Collectors ;
 import org.apache.commons.io.FileUtils ;
 import org.csap.agent.Agent_context_loaded ;
 import org.csap.agent.CsapBareTest ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapTemplate ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.CsapTemplates ;
 import org.csap.agent.model.ProjectLoader ;
 import org.csap.agent.model.ProjectMigrator ;
 import org.csap.agent.model.ServiceAttributes ;
@@ -57,7 +57,7 @@ public class Default_Project extends CsapBareTest {
 
 		logger.info( CsapApplication.testHeader( ) ) ;
 
-		var defaultsFile = CsapTemplate.default_service_definitions.getFile( ) ;
+		var defaultsFile = CsapTemplates.default_service_definitions.getFile( ) ;
 
 		var services = getApplication( ).getProjectLoader( ).definition_file_reader( defaultsFile, false ) ;
 
@@ -70,7 +70,7 @@ public class Default_Project extends CsapBareTest {
 		logger.info( "Creating: updateTemplateFile {}", updateTemplateFile.getAbsolutePath( ) ) ;
 		FileUtils.write( updateTemplateFile, services.toString( ) ) ;
 
-		var defaultAgent = serviceTemplates.path( CsapCore.AGENT_NAME ) ;
+		var defaultAgent = serviceTemplates.path( CsapConstants.AGENT_NAME ) ;
 
 		logger.info( "csap-agent: {}", CSAP.jsonPrint( defaultAgent ) ) ;
 

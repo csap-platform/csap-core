@@ -17,6 +17,7 @@ import java.util.stream.Collectors ;
 import java.util.stream.Stream ;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory ;
+import org.csap.agent.CsapApis ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.ServiceBaseParser ;
@@ -49,7 +50,7 @@ public class ServiceJobRunner {
 
 	final private Logger logger = LoggerFactory.getLogger( getClass( ) ) ;
 
-	Application csapApplication ;
+	CsapApis csapApis ;
 
 	// wakes up and checks for jobs that are scheduled to be run
 	private ScheduledExecutorService jobTimerService ;
@@ -89,9 +90,9 @@ public class ServiceJobRunner {
 
 	}
 
-	public ServiceJobRunner ( Application csapApplication ) {
+	public ServiceJobRunner ( CsapApis csapApis ) {
 
-		this.csapApplication = csapApplication ;
+		this.csapApis = csapApis ;
 
 		if ( Application.isRunningOnDesktop( ) ) {
 
@@ -142,12 +143,12 @@ public class ServiceJobRunner {
 	// CSAP.ONE_SECOND_MS)
 	public void findAndRunScheduledJobs ( ) {
 
-		var timer = csapApplication.metrics( ).startTimer( ) ;
+		var timer = csapApis.metrics( ).startTimer( ) ;
 
 		try {
 
-			csapApplication.getActiveProject( )
-					.getServicesOnHost( csapApplication.getCsapHostName( ) )
+			csapApis.application( ).getActiveProject( )
+					.getServicesOnHost( csapApis.application( ).getCsapHostName( ) )
 					.filter( ServiceInstance::hasJobs )
 					.flatMap( this::activeServiceJobEntries )
 					.forEach( jobEntry -> {
@@ -162,7 +163,7 @@ public class ServiceJobRunner {
 
 		}
 
-		csapApplication.metrics( ).stopTimer( timer, SERVICE_JOB_ID + "all.script.checkForActive" ) ;
+		csapApis.metrics( ).stopTimer( timer, SERVICE_JOB_ID + "all.script.checkForActive" ) ;
 
 	}
 
@@ -224,7 +225,7 @@ public class ServiceJobRunner {
 
 		var environmentMatch = job.getEnvironmentFilters( ).stream( ).filter( envNameFilter -> {
 
-			return csapApplication.getCsapHostEnvironmentName( ).matches( envNameFilter ) ;
+			return csapApis.application( ).getCsapHostEnvironmentName( ).matches( envNameFilter ) ;
 
 		} ).findFirst( ) ;
 		return environmentMatch.isPresent( ) ;
@@ -235,7 +236,7 @@ public class ServiceJobRunner {
 
 		var hostFilterMatch = job.getHostFilters( ).stream( ).filter( hostFilter -> {
 
-			return csapApplication.getCsapHostName( ).matches( hostFilter ) ;
+			return csapApis.application( ).getCsapHostName( ).matches( hostFilter ) ;
 
 		} ).findFirst( ) ;
 		return hostFilterMatch.isPresent( ) ;
@@ -259,7 +260,7 @@ public class ServiceJobRunner {
 
 		if ( description.equals( "Log Rotation" ) ) {
 
-			jobResult = "Log Rotation: " + csapApplication.getOsManager( ).getLogRoller( ).rotate( serviceInstance ) ;
+			jobResult = "Log Rotation: " + csapApis.osManager( ).getLogRoller( ).rotate( serviceInstance ) ;
 
 		} else {
 
@@ -327,9 +328,9 @@ public class ServiceJobRunner {
 							String jobParameters ,
 							BufferedWriter outputWriter ) {
 
-		var allTimer = csapApplication.metrics( ).startTimer( ) ;
+		var allTimer = csapApis.metrics( ).startTimer( ) ;
 
-		var serviceTimer = csapApplication.metrics( ).startTimer( ) ;
+		var serviceTimer = csapApis.metrics( ).startTimer( ) ;
 
 		ServiceInstance serviceInstance = jobEntry.getValue( ) ;
 		ServiceBaseParser.ServiceJob job = jobEntry.getKey( ) ;
@@ -341,7 +342,7 @@ public class ServiceJobRunner {
 
 			if ( job.isDiskCleanJob( ) ) {
 
-				List<String> cleanLines = csapApplication.getOsManager( ).getOsCommands( )
+				List<String> cleanLines = csapApis.osManager( ).getOsCommands( )
 						.getServiceJobsDiskClean(
 								job.getPath( ),
 								job.getMaxDepth( ),
@@ -349,13 +350,13 @@ public class ServiceJobRunner {
 								job.isPruneByFolder( ),
 								job.isPruneEmptyFolders( ) ) ;
 
-				var timer = csapApplication.metrics( ).startTimer( ) ;
+				var timer = csapApis.metrics( ).startTimer( ) ;
 
 				jobResult = OsCommandRunner.trimHeader( cleanOsCommandRunner.runUsingDefaultUser(
 						"cleanServiceDisks" + serviceInstance.getServiceName_Port( ),
 						cleanLines ) ) ;
 
-				csapApplication.metrics( ).stopTimer( timer, SERVICE_JOB_ID + "script." + serviceInstance.getName( )
+				csapApis.metrics( ).stopTimer( timer, SERVICE_JOB_ID + "script." + serviceInstance.getName( )
 						+ ".diskClean" ) ;
 
 				jobResult = "\n Clean script: \n" + OsCommands.asScript( cleanLines ) + "\n\n Result:\n" + jobResult ;
@@ -364,14 +365,13 @@ public class ServiceJobRunner {
 
 			} else {
 
-				jobResult = csapApplication
-						.getOsManager( )
+				jobResult = csapApis.osManager( )
 						.getServiceManager( )
 						.runServiceJob( serviceInstance, job.getDescription( ), jobParameters, outputWriter ) ;
 
 			}
 
-			csapApplication.getEventClient( )
+			csapApis.events( )
 					.publishEvent( CsapEvents.CSAP_SYSTEM_SERVICE_CATEGORY + "/" + serviceInstance.getName( ) + "/job",
 							"Service Job: " + job.getDescription( ), jobResult ) ;
 
@@ -384,9 +384,9 @@ public class ServiceJobRunner {
 
 		}
 
-		csapApplication.metrics( ).stopTimer( allTimer, SERVICE_JOB_ID + "all.script.run" ) ;
+		csapApis.metrics( ).stopTimer( allTimer, SERVICE_JOB_ID + "all.script.run" ) ;
 
-		csapApplication.metrics( ).stopTimer( serviceTimer, SERVICE_JOB_ID + "script." + serviceInstance.getName( ) ) ;
+		csapApis.metrics( ).stopTimer( serviceTimer, SERVICE_JOB_ID + "script." + serviceInstance.getName( ) ) ;
 
 		return jobResult ;
 

@@ -22,9 +22,8 @@ import javax.servlet.http.HttpServletRequest ;
 import javax.servlet.http.HttpSession ;
 
 import org.apache.commons.lang3.StringUtils ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
-import org.csap.agent.container.kubernetes.KubernetesJson ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.container.kubernetes.K8 ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.ClusterType ;
 import org.csap.agent.model.ContainerState ;
@@ -57,7 +56,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode ;
  * @author someDeveloper
  */
 @Controller
-@RequestMapping ( value = CsapCoreService.EDIT_URL )
+@RequestMapping ( value = CsapConstants.EDIT_URL )
 @CsapDoc ( title = "CSAP Application Editor" , notes = {
 		"CSAP Application Editor provides ability to update/modify application definition, including "
 				+ "viewing/reviewing current configuration, changing service parameters, and more",
@@ -81,7 +80,7 @@ public class ApplicationEditor {
 	public String clusterDialog (
 									@RequestParam ( value = "clusterName" , required = false ) String clusterName ,
 									@RequestParam ( value = "lifeToEdit" , required = false ) String lifeToEdit ,
-									@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProjectName ,
+									@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProjectName ,
 									@RequestParam ( defaultValue = "false" ) boolean includeTemplates ,
 									ModelMap modelMap ,
 									HttpServletRequest request ,
@@ -293,7 +292,7 @@ public class ApplicationEditor {
 									ModelMap modelMap ,
 									HttpServletRequest request ,
 									@RequestParam ( value = "newService" , required = false ) String newService ,
-									@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProjectName ,
+									@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProjectName ,
 									@RequestParam ( defaultValue = "false" ) boolean includeTemplates ,
 									HttpSession session )
 		throws IOException {
@@ -349,7 +348,7 @@ public class ApplicationEditor {
 	@RequestMapping ( "/settingsDialog" )
 	public String settingsDialog (
 									@RequestParam ( value = "lifeToEdit" , required = false ) String lifeToEdit ,
-									@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProjectName ,
+									@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProjectName ,
 									ModelMap modelMap ,
 									HttpServletRequest request ,
 									HttpSession session )
@@ -382,7 +381,7 @@ public class ApplicationEditor {
 	@RequestMapping ( value = "/lifecycle" , method = RequestMethod.GET )
 	public String lifecycle (
 								@RequestParam ( value = "lifeToEdit" , required = false ) String lifeToEdit ,
-								@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProjectName ,
+								@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProjectName ,
 								@RequestParam ( defaultValue = "false" ) boolean includeTemplates ,
 								ModelMap modelMap ,
 								HttpServletRequest request ,
@@ -510,7 +509,7 @@ public class ApplicationEditor {
 						// clusterDefinition.path( DefinitionJson.clusterType.json()
 						// clusterProviderMap.put( clusterName, clusterJson.at(
 						// ClusterType.KUBERNETES.getJson() ).asText("") );
-						JsonNode masters = clusterDefinition.path( KubernetesJson.masters.json( ) ) ;
+						JsonNode masters = clusterDefinition.path( K8.masters.val( ) ) ;
 						logger.debug( "masters {}", masters ) ;
 
 						if ( masters.isArray( ) ) {
@@ -600,7 +599,7 @@ public class ApplicationEditor {
 	@GetMapping ( "/summary" )
 	public String applicationSummaryReport (
 												@RequestParam ( value = "emptyCache" , required = false ) String emptyCache ,
-												@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProjectName ,
+												@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProjectName ,
 												ModelMap modelMap ,
 												HttpSession session ) {
 

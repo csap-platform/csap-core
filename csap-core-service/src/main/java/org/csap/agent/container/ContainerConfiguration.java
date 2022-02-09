@@ -1,12 +1,11 @@
-package org.csap.agent ;
+package org.csap.agent.container ;
 
 import java.time.Duration ;
 
 import javax.cache.CacheManager ;
 import javax.inject.Inject ;
 
-import org.csap.agent.container.ContainerIntegration ;
-import org.csap.agent.model.Application ;
+import org.csap.agent.CsapApis ;
 import org.csap.agent.services.OsCommands ;
 import org.csap.helpers.CSAP ;
 import org.slf4j.Logger ;
@@ -16,6 +15,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty ;
 import org.springframework.boot.context.properties.EnableConfigurationProperties ;
 import org.springframework.context.annotation.Bean ;
 import org.springframework.context.annotation.Configuration ;
+import org.springframework.context.annotation.Lazy ;
 import org.springframework.context.annotation.Profile ;
 
 import com.fasterxml.jackson.databind.ObjectMapper ;
@@ -34,7 +34,7 @@ public class ContainerConfiguration {
 	final Logger logger = LoggerFactory.getLogger( getClass( ) ) ;
 
 	@Inject
-	private ContainerSettings docker ; // binds to yml property
+	private ContainerSettings settings ; // binds to yml property
 
 	@Autowired ( required = false )
 	private CacheManager cacheManager = null ;
@@ -45,13 +45,14 @@ public class ContainerConfiguration {
 	@Inject
 	private OsCommands osCommands ;
 
-	@Inject
-	private Application csapApp ;
+	@Lazy
+	@Autowired ( required = false )
+	private CsapApis csapApis ;
 
 	private DockerClient testClient = null ;
 
 	@Bean
-	public ContainerIntegration dockerHelper ( ) {
+	public ContainerIntegration containerIntegration ( ) {
 
 		ContainerIntegration helper = new ContainerIntegration( this, jsonMapper ) ;
 		return helper ;
@@ -68,7 +69,7 @@ public class ContainerConfiguration {
 
 		}
 
-		logger.info( docker.toString( ).replaceAll( ",", ",\n" ) ) ;
+		logger.info( settings.toString( ).replaceAll( ",", ",\n" ) ) ;
 
 		DockerClient client = null ;
 
@@ -79,7 +80,7 @@ public class ContainerConfiguration {
 			// wrapped to expose
 			//
 
-			var containerUrl = docker.getUrl( ) ;
+			var containerUrl = settings.getUrl( ) ;
 
 			DockerClientConfig dockerConfiguration = DefaultDockerClientConfig.createDefaultConfigBuilder( )
 					.withDockerHost( containerUrl )
@@ -89,8 +90,8 @@ public class ContainerConfiguration {
 					.dockerHost( dockerConfiguration.getDockerHost( ) )
 					.sslConfig( dockerConfiguration.getSSLConfig( ) )
 					.maxConnections( 100 )
-					.connectionTimeout( Duration.ofSeconds( docker.getConnectionTimeoutSeconds( ) ) )
-					.responseTimeout( Duration.ofSeconds( docker.getReadTimeoutSeconds( ) ) )
+					.connectionTimeout( Duration.ofSeconds( settings.getConnectionTimeoutSeconds( ) ) )
+					.responseTimeout( Duration.ofSeconds( settings.getReadTimeoutSeconds( ) ) )
 					.build( ) ;
 
 //			WrapperApacheDockerHttpClientImpl csapApacheClient = new WrapperApacheDockerHttpClientImpl(
@@ -143,27 +144,15 @@ public class ContainerConfiguration {
 
 	}
 
-	public Application getCsapApp ( ) {
+	public ContainerSettings getSettings ( ) {
 
-		return csapApp ;
-
-	}
-
-	public void setCsapApp ( Application csapApp ) {
-
-		this.csapApp = csapApp ;
+		return settings ;
 
 	}
 
-	public ContainerSettings getDocker ( ) {
+	public void setSettings ( ContainerSettings docker ) {
 
-		return docker ;
-
-	}
-
-	public void setDocker ( ContainerSettings docker ) {
-
-		this.docker = docker ;
+		this.settings = docker ;
 
 	}
 
@@ -212,6 +201,18 @@ public class ContainerConfiguration {
 	public void setCacheManager ( CacheManager cacheManager ) {
 
 		this.cacheManager = cacheManager ;
+
+	}
+
+	public CsapApis csapApis ( ) {
+
+		return csapApis ;
+
+	}
+
+	public void setCsapApis ( CsapApis csapApis ) {
+
+		this.csapApis = csapApis ;
 
 	}
 }

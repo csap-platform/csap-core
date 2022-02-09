@@ -15,9 +15,9 @@ import java.util.concurrent.ScheduledFuture ;
 import java.util.concurrent.TimeUnit ;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.integrations.CsapEvents ;
-import org.csap.agent.model.Application ;
 import org.csap.agent.model.ServiceBaseParser ;
 import org.csap.agent.model.ServiceInstance ;
 import org.csap.alerts.AlertFields ;
@@ -53,13 +53,14 @@ public class LogRollerRunnable {
 			.priority( Thread.NORM_PRIORITY )
 			.build( ) ;
 
-	ScheduledExecutorService scheduledExecutorService = Executors
+	ScheduledExecutorService logRollerExecutorService = Executors
 			.newScheduledThreadPool( 1, schedFactory ) ;
 
-	public LogRollerRunnable ( Application csapApp ) {
+	public LogRollerRunnable ( CsapApis csapApis ) {
 
-		this.csapApp = csapApp ;
-		long intervalMinutes = csapApp.rootProjectEnvSettings( ).getLogRotationMinutes( ) ;
+		this.csapApis = csapApis ;
+
+		long intervalMinutes = csapApis.application( ).rootProjectEnvSettings( ).getLogRotationMinutes( ) ;
 
 		// if ( Application.isRunningOnDesktop() ) {
 		// logger.warn( "Setting DESKTOP to seconds" );
@@ -70,7 +71,7 @@ public class LogRollerRunnable {
 				"Scheduling logrotates to be triggered every {} {}. Logs only rotated if size exceeds threshold (default is 10mb)",
 				intervalMinutes, logRotationTimeUnit ) ;
 
-		ScheduledFuture<?> jobHandle = scheduledExecutorService
+		ScheduledFuture<?> jobHandle = logRollerExecutorService
 				.scheduleAtFixedRate(
 						( ) -> executeLogRotateForAllServices( ),
 						initialDelayMinute,
@@ -80,18 +81,18 @@ public class LogRollerRunnable {
 	}
 
 	OsCommandRunner osCommandRunner = new OsCommandRunner( 60, 1, LogRollerRunnable.class.getName( ) ) ;
-	Application csapApp ;
+	CsapApis csapApis ;
 
 	/**
 	 * Kill off the spawned threads - triggered from ServiceRequests
 	 */
 	public void shutdown ( ) {
 
-		logger.warn( "Shutting down all jobs" ) ;
+		logger.info( "Shutting down all jobs" ) ;
 
 		try {
 
-			scheduledExecutorService.shutdown( ) ;
+			logRollerExecutorService.shutdown( ) ;
 
 		} catch ( Exception e ) {
 
@@ -122,14 +123,14 @@ public class LogRollerRunnable {
 
 		ArrayNode serviceArray = dailyReport.putArray( "summary" ) ;
 
-		var allServiceTimer = csapApp.metrics( ).startTimer( ) ;
+		var allServiceTimer = csapApis.metrics( ).startTimer( ) ;
 		logger.info( "Starting service log rotations" ) ;
 
 		// Generate the log configuration file
-		csapApp.getActiveProject( )
-				.getServicesOnHost( csapApp.getCsapHostName( ) )
-				.filter( CsapCore.not( ServiceInstance::is_files_only_package ) )
-				.filter( CsapCore.not( ServiceInstance::isRemoteCollection ) )
+		csapApis.application( ).getActiveProject( )
+				.getServicesOnHost( csapApis.application( ).getCsapHostName( ) )
+				.filter( CsapConstants.not( ServiceInstance::is_files_only_package ) )
+				.filter( CsapConstants.not( ServiceInstance::isRemoteCollection ) )
 				.map( this::generateDefaultRotateConfig )
 				.forEach( configurationResults::append ) ;
 
@@ -144,10 +145,10 @@ public class LogRollerRunnable {
 		previousLogConfigurationLength = configurationResults.length( ) ;
 
 		// Run the log rotation for each service
-		csapApp.getActiveProject( )
-				.getServicesOnHost( csapApp.getCsapHostName( ) )
-				.filter( CsapCore.not( ServiceInstance::is_files_only_package ) )
-				.filter( CsapCore.not( ServiceInstance::isRemoteCollection ) )
+		csapApis.application( ).getActiveProject( )
+				.getServicesOnHost( csapApis.application( ).getCsapHostName( ) )
+				.filter( CsapConstants.not( ServiceInstance::is_files_only_package ) )
+				.filter( CsapConstants.not( ServiceInstance::isRemoteCollection ) )
 				.map( service -> logRotateService( service, serviceArray, servicesWithLongRotations ) )
 				.forEach( rotationResults::append ) ;
 
@@ -159,19 +160,19 @@ public class LogRollerRunnable {
 
 		previousLogRotationLength = rotationResults.length( ) ;
 
-		var nanos = csapApp.metrics( ).stopTimer( allServiceTimer, LOG_ROLLER_ALL ) ;
-		csapApp.metrics( ).record( LOG_ROLLER_DAILY, nanos, TimeUnit.NANOSECONDS ) ;
+		var nanos = csapApis.metrics( ).stopTimer( allServiceTimer, LOG_ROLLER_ALL ) ;
+		csapApis.metrics( ).record( LOG_ROLLER_DAILY, nanos, TimeUnit.NANOSECONDS ) ;
 
 		int nowDay = ( Calendar.getInstance( ) ).get( Calendar.DAY_OF_WEEK ) ;
 
 		if ( _last_rotation_day != nowDay ) {
 			// Publish summary to event service
 
-			var dailyMeter = csapApp.metrics( ).find( LOG_ROLLER_DAILY ) ;
-			var report = csapApp.metrics( ).getMeterReport( ).buildMeterReport( dailyMeter, 0, false ) ;
+			var dailyMeter = csapApis.metrics( ).find( LOG_ROLLER_DAILY ) ;
+			var report = csapApis.metrics( ).getMeterReport( ).buildMeterReport( dailyMeter, 0, false ) ;
 
-			csapApp.metrics( ).getSimpleMeterRegistry( ).remove( dailyMeter ) ;
-			csapApp.metrics( ).record( LOG_ROLLER_DAILY, 1, TimeUnit.MILLISECONDS ) ;
+			csapApis.metrics( ).getSimpleMeterRegistry( ).remove( dailyMeter ) ;
+			csapApis.metrics( ).record( LOG_ROLLER_DAILY, 1, TimeUnit.MILLISECONDS ) ;
 
 			ObjectNode dailyServiceJson = dailyReport.putObject( "Total" ) ;
 			dailyServiceJson.put( "Count", report.path( AlertFields.count.json ).asLong( ) ) ;
@@ -181,7 +182,7 @@ public class LogRollerRunnable {
 			dailyServiceJson.put( "TotalSeconds",
 					Math.round( TimeUnit.MILLISECONDS.toSeconds( report.path( AlertFields.totalMs.json )
 							.asLong( ) ) ) ) ;
-			csapApp.getEventClient( ).publishEvent( CsapEvents.CSAP_REPORTS_CATEGORY + "/logRotate",
+			csapApis.events( ).publishEvent( CsapEvents.CSAP_REPORTS_CATEGORY + "/logRotate",
 					"Daily Summary", null, dailyReport ) ;
 
 		}
@@ -193,7 +194,7 @@ public class LogRollerRunnable {
 			logger.warn( "\n *** Services with rotations taking more then 3 seconds:\n {}",
 					servicesWithLongRotations ) ;
 
-			csapApp.getEventClient( ).publishEvent(
+			csapApis.events( ).publishEvent(
 					CsapEvents.CSAP_SYSTEM_CATEGORY + "/logrotate", "Service with rotations",
 					servicesWithLongRotations.toString( ) ) ;
 
@@ -296,7 +297,8 @@ public class LogRollerRunnable {
 
 			serviceLogRotateTimerMs = System.currentTimeMillis( ) - serviceLogRotateTimerMs ;
 
-			// var nanos = csapApp.metrics().stopTimer( serviceLogRotateTimerMs,
+			// var nanos = csapApis.application().metrics().stopTimer(
+			// serviceLogRotateTimerMs,
 			// LOG_ROLLER_SIMON_ID + serviceInstance.getServiceName() ) ;
 			var numSeconds = TimeUnit.MILLISECONDS.toSeconds( serviceLogRotateTimerMs ) ;
 
@@ -319,7 +321,7 @@ public class LogRollerRunnable {
 
 					if ( numSeconds > MINIMUM_LOG_ROTATE_SECONDS_TO_RECORD ) {
 
-						csapApp.metrics( ).record(
+						csapApis.metrics( ).record(
 								LOG_ROLLER_SIMON_ID + serviceInstance.getName( ),
 								numSeconds,
 								TimeUnit.SECONDS ) ;
@@ -335,14 +337,14 @@ public class LogRollerRunnable {
 
 				if ( _last_rotation_day != nowDay ) {
 
-					var meter = csapApp.metrics( ).find( LOG_ROLLER_SIMON_ID + serviceInstance.getName( ) ) ;
+					var meter = csapApis.metrics( ).find( LOG_ROLLER_SIMON_ID + serviceInstance.getName( ) ) ;
 
 					if ( meter != null ) {
 
-						var report = csapApp.metrics( ).getMeterReport( ).buildMeterReport( meter, 0, false ) ;
+						var report = csapApis.metrics( ).getMeterReport( ).buildMeterReport( meter, 0, false ) ;
 
-						csapApp.metrics( ).getSimpleMeterRegistry( ).remove( meter ) ;
-						csapApp.metrics( ).record( LOG_ROLLER_SIMON_ID + serviceInstance.getName( ), 1,
+						csapApis.metrics( ).getSimpleMeterRegistry( ).remove( meter ) ;
+						csapApis.metrics( ).record( LOG_ROLLER_SIMON_ID + serviceInstance.getName( ), 1,
 								TimeUnit.MILLISECONDS ) ;
 
 						ObjectNode dailyServiceJson = serviceArray.addObject( ) ;
@@ -477,10 +479,11 @@ public class LogRollerRunnable {
 
 				} ) ;
 
-				// csapApp.getEventClient()
+				// csapApis.application().getEventClient()
 				// .generateEvent( CsapEventClient.CSAP_SVC_CATEGORY + "/" +
 				// serviceInstance.getServiceName(),
-				// csapApp.lifeCycleSettings().getAgentUser(), "Updated log configuration file",
+				// csapApis.application().lifeCycleSettings().getAgentUser(), "Updated log
+				// configuration file",
 				// details.toString() );
 
 				progress.append( " updating configuration: " + logRotateConfigFile.getParentFile( ).toPath( ) ) ;

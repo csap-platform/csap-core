@@ -28,16 +28,15 @@ import javax.servlet.http.HttpServletResponse ;
 import javax.servlet.http.HttpSession ;
 
 import org.apache.commons.io.FileUtils ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
-import org.csap.agent.CsapTemplate ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.CsapTemplates ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.linux.OsCommandRunner ;
 import org.csap.agent.linux.OutputFileMgr ;
 import org.csap.agent.linux.TransferManager ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.ServiceInstance ;
-import org.csap.agent.services.OsManager ;
 import org.csap.agent.services.ServiceOsManager ;
 import org.csap.agent.stats.HostCollector ;
 import org.csap.agent.stats.OsSharedResourcesCollector ;
@@ -92,7 +91,7 @@ import io.micrometer.core.instrument.util.StringUtils ;
  *
  */
 @RestController
-@RequestMapping ( CsapCoreService.OS_URL )
+@RequestMapping ( CsapConstants.OS_URL )
 @CsapDoc ( title = "Host Operations" , notes = {
 		"Comprehensive set of OS commands, including ps, top, file transfer, and many others",
 		"<a class='csap-link' target='_blank' href='https://github.com/csap-platform/csap-core/wiki'>learn more</a>",
@@ -105,17 +104,16 @@ public class HostRequests {
 	ObjectMapper jacksonMapper = new ObjectMapper( ) ;
 
 	@Inject
-	public HostRequests ( Application csapApp, OsManager osManager,
+	public HostRequests (
+			CsapApis csapApis,
 			CsapEvents csapEventClient ) {
 
-		this.csapApp = csapApp ;
-		this.osManager = osManager ;
+		this.csapApis = csapApis ;
 		this.csapEventClient = csapEventClient ;
 
 	}
 
-	Application csapApp ;
-	OsManager osManager ;
+	CsapApis csapApis ;
 
 	@Autowired ( required = false )
 	CsapSecuritySettings securitySettings ;
@@ -127,7 +125,7 @@ public class HostRequests {
 	private String getSearchTemplate ( )
 		throws IOException {
 
-		String searchTemplate = FileUtils.readFileToString( CsapTemplate.search.getFile( ) )
+		String searchTemplate = FileUtils.readFileToString( CsapTemplates.search.getFile( ) )
 				.replaceAll(
 						"\\r\\n|\\r|\\n", System.getProperty( "line.separator" ) ) ;
 
@@ -179,7 +177,7 @@ public class HostRequests {
 
 		ObjectNode resultsJson = jacksonMapper.createObjectNode( ) ;
 
-		if ( ! csapApp.rootProjectEnvSettings( ).isEventPublishEnabled( ) ) {
+		if ( ! csapApis.application( ).rootProjectEnvSettings( ).isEventPublishEnabled( ) ) {
 
 			resultsJson.put( "info", "user preferences not available - event publishing is disabled" ) ;
 			logger.info(
@@ -198,7 +196,7 @@ public class HostRequests {
 
 		resultsJson.put( "userid", user ) ;
 
-		String restUrl = csapApp.rootProjectEnvSettings( )
+		String restUrl = csapApis.application( ).rootProjectEnvSettings( )
 				.getEventApiUrl( ) + "/latest?keepMostRecent=5&category="
 				+ CsapEvents.CSAP_USER_SETTINGS_CATEGORY + user ;
 
@@ -269,10 +267,10 @@ public class HostRequests {
 
 		}
 
-		File targetFile = csapApp.getRequestedFile( fromFolder, serviceName, false ) ;
+		File targetFile = csapApis.application( ).getRequestedFile( fromFolder, serviceName, false ) ;
 
 		logger.debug( "Target: {},  processing absolutePath: {}", targetFile.getAbsolutePath( ),
-				csapApp.getCsapWorkingFolder( )
+				csapApis.application( ).getCsapWorkingFolder( )
 						.getAbsolutePath( ) ) ;
 
 		if ( searchTarget.length( ) == 0 || searchTarget.indexOf( ';' ) != -1 ) {
@@ -292,7 +290,7 @@ public class HostRequests {
 
 			isFileInLogFolder = targetFile.getParentFile( )
 					.getAbsolutePath( )
-					.startsWith( csapApp.getLogDir( serviceName ).getAbsolutePath( ) ) ;
+					.startsWith( csapApis.application( ).getLogDir( serviceName ).getAbsolutePath( ) ) ;
 
 		}
 
@@ -311,7 +309,7 @@ public class HostRequests {
 			resultsNode.put( "error", "Invalid path " + fromFolder ) ;
 			logger.warn( "Target: {},  processing absolutePath: {}, isSearchAccessAllowed: {}",
 					targetFile.getAbsolutePath( ),
-					csapApp.getCsapWorkingFolder( ).getAbsolutePath( ),
+					csapApis.application( ).getCsapWorkingFolder( ).getAbsolutePath( ),
 					isSearchAccessAllowed ) ;
 			;
 			return resultsNode ;
@@ -390,7 +388,7 @@ public class HostRequests {
 
 		logger.debug( "search Script: {}", contents ) ;
 
-		String runUser = csapApp.getAgentRunUser( ) ;
+		String runUser = csapApis.application( ).getAgentRunUser( ) ;
 
 		if ( isUserAnAdmin ) {
 
@@ -399,8 +397,8 @@ public class HostRequests {
 
 		}
 
-		OutputFileMgr outputFm = new OutputFileMgr( csapApp.getScriptDir( ), scriptName ) ;
-		ObjectNode resultsNode = osManager.executeShellScriptClustered(
+		OutputFileMgr outputFm = new OutputFileMgr( csapApis.application( ).getScriptDir( ), scriptName ) ;
+		ObjectNode resultsNode = csapApis.osManager( ).executeShellScriptClustered(
 				securitySettings.getRoles( ).getUserIdFromContext( ),
 				timeoutSeconds, contents, runUser,
 				hosts,
@@ -417,7 +415,7 @@ public class HostRequests {
 
 			if ( searchTarget.equals( "desktop-sample" ) ) {
 
-				scriptResults.add( csapApp.check_for_stub( "", "linux/searchResults.txt" ) ) ;
+				scriptResults.add( csapApis.application( ).check_for_stub( "", "linux/searchResults.txt" ) ) ;
 
 			} else {
 
@@ -470,7 +468,7 @@ public class HostRequests {
 
 		}
 
-		String runUser = csapApp.getAgentRunUser( ) ;
+		String runUser = csapApis.application( ).getAgentRunUser( ) ;
 
 		if ( runAsRoot ) {
 
@@ -478,14 +476,14 @@ public class HostRequests {
 
 		}
 
-		OutputFileMgr outputFm = new OutputFileMgr( csapApp.getScriptDir( ), scriptName ) ;
-		ObjectNode resultsNode = osManager.executeShellScriptClustered(
+		OutputFileMgr outputFm = new OutputFileMgr( csapApis.application( ).getScriptDir( ), scriptName ) ;
+		ObjectNode resultsNode = csapApis.osManager( ).executeShellScriptClustered(
 				securitySettings.getRoles( ).getUserIdFromContext( ),
 				timeoutSeconds, contents, runUser,
 				hosts,
 				scriptName, outputFm ) ;
 
-		if ( csapApp.isDesktopProfileActiveOrSpringNull( ) ) {
+		if ( csapApis.application( ).isDesktopProfileActiveOrSpringNull( ) ) {
 
 			TimeUnit.SECONDS.sleep( 5 ) ;
 
@@ -507,8 +505,8 @@ public class HostRequests {
 									@RequestParam ( value = "timeoutSeconds" , required = false , defaultValue = "120" ) int timeoutSeconds )
 		throws IOException {
 
-		OutputFileMgr outputFm = new OutputFileMgr( csapApp.getScriptDir( ), scriptName ) ;
-		ObjectNode resultsNode = osManager.executeShellScriptClustered(
+		OutputFileMgr outputFm = new OutputFileMgr( csapApis.application( ).getScriptDir( ), scriptName ) ;
+		ObjectNode resultsNode = csapApis.osManager( ).executeShellScriptClustered(
 				securitySettings.getRoles( ).getUserIdFromContext( ),
 				timeoutSeconds, contents, chownUserid,
 				hosts,
@@ -525,7 +523,7 @@ public class HostRequests {
 	public boolean allMastersReady (
 										@RequestParam int numberExpected ) {
 
-		if ( csapApp.getKubernetesIntegration( ).areMinimumMastersReady( numberExpected ) ) {
+		if ( csapApis.kubernetes( ).areMinimumMastersReady( numberExpected ) ) {
 
 			return true ;
 
@@ -550,7 +548,7 @@ public class HostRequests {
 		String joinCommand = "not-authenticated" ;
 
 		boolean isAuthenticated = false ;
-		ServiceInstance kubletOnCurrentHost = csapApp.kubeletInstance( ) ;
+		ServiceInstance kubletOnCurrentHost = csapApis.application( ).kubeletInstance( ) ;
 
 		if ( kubletOnCurrentHost != null ) {
 
@@ -571,7 +569,7 @@ public class HostRequests {
 
 		if ( isAuthenticated ) {
 
-			joinCommand = osManager.getCachedKubernetesJoin( ).path( type ).asText( "not-found" ) ;
+			joinCommand = csapApis.osManager( ).getCachedKubernetesJoin( ).path( type ).asText( "not-found" ) ;
 
 		} else {
 
@@ -593,8 +591,8 @@ public class HostRequests {
 							HttpServletResponse response )
 		throws IOException {
 
-		File source = new File( csapApp.getDefinitionFolder( ), path ) ;
-		csapApp.getOsManager( ).buildAndWriteZip( response, source ) ;
+		File source = new File( csapApis.application( ).getDefinitionFolder( ), path ) ;
+		csapApis.osManager( ).buildAndWriteZip( response, source ) ;
 
 		return ;
 
@@ -616,7 +614,7 @@ public class HostRequests {
 		File source = new File( System.getProperty( "user.home" ), path ) ;
 
 		boolean isAuthenticated = false ;
-		ServiceInstance serviceInstance = csapApp.getServiceInstanceCurrentHost( service ) ;
+		ServiceInstance serviceInstance = csapApis.application( ).getServiceInstanceCurrentHost( service ) ;
 
 		if ( serviceInstance != null ) {
 
@@ -638,7 +636,7 @@ public class HostRequests {
 
 			logger.debug( "source: '{}' token: '{}'", source.getAbsolutePath( ), token ) ;
 
-			csapApp.getOsManager( ).buildAndWriteZip( response, source ) ;
+			csapApis.osManager( ).buildAndWriteZip( response, source ) ;
 
 		}
 
@@ -649,7 +647,7 @@ public class HostRequests {
 	@RequestMapping ( value = "/showRoles" , produces = MediaType.TEXT_PLAIN_VALUE )
 	public String showRoles ( HttpSession session ) {
 
-		csapApp.metricManager( ).clearResourceStats( ) ;
+		csapApis.application( ).metricManager( ).clearResourceStats( ) ;
 
 		StringBuilder results = new StringBuilder( ) ;
 
@@ -790,7 +788,7 @@ public class HostRequests {
 	public ObjectNode getDf ( )
 		throws IOException {
 
-		return osManager.getCachedFileSystemInfo( ) ;
+		return csapApis.osManager( ).getCachedFileSystemInfo( ) ;
 
 	}
 
@@ -798,7 +796,7 @@ public class HostRequests {
 	public ObjectNode networkReceiveAndTransmit ( )
 		throws IOException {
 
-		return osManager.networkReceiveAndTransmit( ) ;
+		return csapApis.osManager( ).networkReceiveAndTransmit( ) ;
 
 	}
 
@@ -809,14 +807,14 @@ public class HostRequests {
 
 		logger.debug( " Entered" ) ;
 
-		return csapApp.healthManager( ).build_host_status_using_cached_data( namespace ) ;
+		return csapApis.application( ).healthManager( ).build_host_status_using_cached_data( namespace ) ;
 
 	}
 
 	@GetMapping ( value = "/lastCollected" )
 	public ObjectNode getLastCollected ( ) {
 
-		return osManager.buildLatestCollectionReport( ) ;
+		return csapApis.osManager( ).buildLatestCollectionReport( ) ;
 
 	}
 
@@ -836,7 +834,8 @@ public class HostRequests {
 	//
 	// responseObject.putArray( "hosts" ) ;
 	//
-	// responseObject.putPOJO( "hosts", csapApp.getMutableHostsInActivePackage(
+	// responseObject.putPOJO( "hosts",
+	// csapApis.application().getMutableHostsInActivePackage(
 	// clusterName ) ) ;
 	//
 	// return responseObject ;
@@ -846,7 +845,7 @@ public class HostRequests {
 	public JsonNode getMem ( )
 		throws IOException {
 
-		return osManager.getCachedMemoryMetrics( ) ;
+		return csapApis.osManager( ).getCachedMemoryMetrics( ) ;
 
 	}
 
@@ -854,7 +853,7 @@ public class HostRequests {
 	public JsonNode diskActivity ( )
 		throws IOException {
 
-		return osManager.disk_reads_and_writes( ) ;
+		return csapApis.osManager( ).disk_reads_and_writes( ) ;
 
 	}
 
@@ -862,14 +861,14 @@ public class HostRequests {
 	public ObjectNode kernelLimits ( )
 		throws Exception {
 
-		return osManager.run_kernel_limits( ) ;
+		return csapApis.osManager( ).run_kernel_limits( ) ;
 
 	}
 
 	@GetMapping ( "/processes/all" )
 	public ObjectNode processesAll ( ) {
 
-		ObjectNode serviceMetricsJson = osManager.buildServiceStatsReportAndUpdateTopCpu( false ) ;
+		ObjectNode serviceMetricsJson = csapApis.osManager( ).buildServiceStatsReportAndUpdateTopCpu( false ) ;
 
 		Format tsFormater = new SimpleDateFormat( "HH:mm:ss" ) ;
 		// JsonNode rootNode = jacksonMapper.valueToTree(commandMap);
@@ -882,7 +881,7 @@ public class HostRequests {
 	@GetMapping ( "/processes/csap" )
 	public ObjectNode processesCsap ( ) {
 
-		ObjectNode osProcessReport = osManager.buildServiceStatsReportAndUpdateTopCpu( true ) ;
+		ObjectNode osProcessReport = csapApis.osManager( ).buildServiceStatsReportAndUpdateTopCpu( true ) ;
 
 		osProcessReport.put( "csapFiltered", true ) ;
 
@@ -897,7 +896,7 @@ public class HostRequests {
 	@GetMapping ( "/processes/top" )
 	public ObjectNode processesTop ( ) {
 
-		ObjectNode processInfo = osManager.runOsTopCommand( ) ;
+		ObjectNode processInfo = csapApis.osManager( ).runOsTopCommand( ) ;
 
 		Format tsFormater = new SimpleDateFormat( "HH:mm:ss" ) ;
 		// JsonNode rootNode = jacksonMapper.valueToTree(commandMap);
@@ -910,7 +909,7 @@ public class HostRequests {
 	@GetMapping ( "/processes/ps/collected" )
 	public ObjectNode processesLastCollected ( ) {
 
-		ObjectNode processInfo = osManager.latest_process_discovery_results( ) ;
+		ObjectNode processInfo = csapApis.osManager( ).latest_process_discovery_results( ) ;
 
 		Format tsFormater = new SimpleDateFormat( "HH:mm:ss" ) ;
 		// JsonNode rootNode = jacksonMapper.valueToTree(commandMap);
@@ -923,7 +922,7 @@ public class HostRequests {
 	@GetMapping ( "/process/report/{pid}" )
 	public ObjectNode processReport ( @PathVariable String pid ) {
 
-		return osManager.buildProcessReport( pid, "os-process" ) ;
+		return csapApis.osManager( ).buildProcessReport( pid, "os-process" ) ;
 
 	}
 
@@ -939,9 +938,9 @@ public class HostRequests {
 		response.setContentType( MediaType.APPLICATION_JSON_VALUE ) ;
 		String output = "\n Renice not support on non-root installs" ;
 
-		if ( csapApp.isRunningAsRoot( ) ) {
+		if ( csapApis.application( ).isRunningAsRoot( ) ) {
 
-			File scriptPath = csapApp.csapPlatformPath( "/bin/csap-renice.sh" ) ;
+			File scriptPath = csapApis.application( ).csapPlatformPath( "/bin/csap-renice.sh" ) ;
 			List<String> parmList = new ArrayList<String>( ) ;
 			// parmList.add("bash");
 			parmList.add( "/usr/bin/sudo" ) ;
@@ -962,7 +961,7 @@ public class HostRequests {
 		ObjectNode resultsNode = jacksonMapper.createObjectNode( ) ;
 		resultsNode.put( "results", output ) ;
 
-		osManager.resetAllCaches( ) ;
+		csapApis.osManager( ).resetAllCaches( ) ;
 
 		try {
 
@@ -985,16 +984,16 @@ public class HostRequests {
 
 	@RequestMapping ( value = HOST_INFO_URL , produces = MediaType.APPLICATION_JSON_VALUE )
 	public ObjectNode getHostOverview (
-										@RequestParam ( value = CsapCore.HOST_PARAM , required = false ) String host ,
+										@RequestParam ( value = CsapConstants.HOST_PARAM , required = false ) String host ,
 										HttpServletRequest request )
 		throws IOException {
 
-		if ( csapApp.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
-			if ( Application.isRunningOnDesktop( ) && host.equals( csapApp.getCsapHostName( ) ) ) {
+			if ( Application.isRunningOnDesktop( ) && host.equals( csapApis.application( ).getCsapHostName( ) ) ) {
 
 				logger.info( "Desktop testing: using default" ) ;
-				return osManager.getHostSummary( ) ;
+				return csapApis.osManager( ).getHostSummary( ) ;
 
 			}
 
@@ -1002,20 +1001,21 @@ public class HostRequests {
 
 			if ( host != null ) {
 
-				String url = csapApp.getAgentUrl( host, CsapCoreService.API_AGENT_URL + "/hostSummary", true ) ;
+				String url = csapApis.application( ).getAgentUrl( host, CsapConstants.API_AGENT_URL + "/hostSummary",
+						true ) ;
 				return csapEventsService.getForObject( url, ObjectNode.class ) ;
 
 			} else {
 
 				ObjectNode error = jacksonMapper.createObjectNode( ) ;
 				return error.put( "Error",
-						CsapCore.CONFIG_PARSE_ERROR + " - Failed to find hosts parameter" ) ;
+						CsapConstants.CONFIG_PARSE_ERROR + " - Failed to find hosts parameter" ) ;
 
 			}
 
 		}
 
-		return osManager.getHostSummary( ) ;
+		return csapApis.osManager( ).getHostSummary( ) ;
 
 	}
 
@@ -1118,7 +1118,7 @@ public class HostRequests {
 
 			}
 
-			String scriptOutput = osManager.getJournal( service, since, numberOfLines, reverse, json ) ;
+			String scriptOutput = csapApis.osManager( ).getJournal( service, since, numberOfLines, reverse, json ) ;
 
 			if ( json ) {
 
@@ -1128,7 +1128,7 @@ public class HostRequests {
 
 				for ( int i = 0; i < jsonLines.length; i++ ) {
 
-					response.getWriter( ).print( jsonLines[ i ] ) ;
+					response.getWriter( ).print( jsonLines[i] ) ;
 
 					if ( i != jsonLines.length - 1 ) {
 
@@ -1322,7 +1322,7 @@ public class HostRequests {
 		response.setContentType( "text/plain" ) ;
 
 		response.getWriter( )
-				.println( osManager.performMemoryProcessList( sortByNice, csapFilter, false ) ) ;
+				.println( csapApis.osManager( ).performMemoryProcessList( sortByNice, csapFilter, false ) ) ;
 
 	}
 
@@ -1388,7 +1388,7 @@ public class HostRequests {
 
 		}
 
-		for ( Integer sampleInterval : csapApp.rootProjectEnvSettings( )
+		for ( Integer sampleInterval : csapApis.application( ).rootProjectEnvSettings( )
 				.getMetricToSecondsMap( )
 				.get( collectorID ) ) {
 
@@ -1402,7 +1402,7 @@ public class HostRequests {
 
 	@GetMapping ( value = "/metricsData" , produces = MediaType.APPLICATION_JSON_VALUE )
 	public ObjectNode getMetricsData (
-										@RequestParam ( value = CsapCore.HOST_PARAM , required = false ) String[] hostNameArray ,
+										@RequestParam ( value = CsapConstants.HOST_PARAM , required = false ) String[] hostNameArray ,
 										@RequestParam ( value = "metricChoice" , required = false , defaultValue = "resource" ) String requestedMetricChoice ,
 										@RequestParam ( value = "id" , required = false , defaultValue = "resource" ) String historicalId ,
 										@RequestParam ( value = "numSamples" , required = false , defaultValue = "5" ) int numSamples ,
@@ -1445,28 +1445,31 @@ public class HostRequests {
 			switch ( collectorID ) {
 
 			case CsapApplication.COLLECTION_HOST:
-				secondsBetweenCollections = csapApp.metricManager( ).lastHostCollectionInterval( ) ;
+				secondsBetweenCollections = csapApis.application( ).metricManager( ).lastHostCollectionInterval( ) ;
 				if ( numberOfDays == -1 ) {
 
-					secondsBetweenCollections = csapApp.metricManager( ).firstHostCollectionInterval( ) ;
+					secondsBetweenCollections = csapApis.application( ).metricManager( )
+							.firstHostCollectionInterval( ) ;
 
 				}
 				break ;
 
 			case CsapApplication.COLLECTION_OS_PROCESS:
-				secondsBetweenCollections = csapApp.metricManager( ).lastServiceCollectionInterval( ) ;
+				secondsBetweenCollections = csapApis.application( ).metricManager( ).lastServiceCollectionInterval( ) ;
 				if ( numberOfDays == -1 ) {
 
-					secondsBetweenCollections = csapApp.metricManager( ).firstServiceCollectionInterval( ) ;
+					secondsBetweenCollections = csapApis.application( ).metricManager( )
+							.firstServiceCollectionInterval( ) ;
 
 				}
 				break ;
 
 			case CsapApplication.COLLECTION_APPLICATION:
-				secondsBetweenCollections = csapApp.metricManager( ).lastJavaCollectionInterval( ) ;
+				secondsBetweenCollections = csapApis.application( ).metricManager( ).lastJavaCollectionInterval( ) ;
 				if ( numberOfDays == -1 ) {
 
-					secondsBetweenCollections = csapApp.metricManager( ).firstJavaCollectionInterval( ) ;
+					secondsBetweenCollections = csapApis.application( ).metricManager( )
+							.firstJavaCollectionInterval( ) ;
 
 				}
 				break ;
@@ -1482,8 +1485,8 @@ public class HostRequests {
 		ObjectNode metricsReport = null ;
 
 		// We do not got remote if we are getting historical, or if local
-		if ( csapApp.isAdminProfile( )
-				&& ! ( Application.isRunningOnDesktop( ) && hostNameArray[ 0 ].equals( "localhost" ) ) ) {
+		if ( csapApis.application( ).isAdminProfile( )
+				&& ! ( Application.isRunningOnDesktop( ) && hostNameArray[0].equals( "localhost" ) ) ) {
 
 			logger.warn( "DEPRECATED - use analytics API" ) ;
 			ObjectNode err = jacksonMapper.createObjectNode( ) ;
@@ -1498,15 +1501,15 @@ public class HostRequests {
 			switch ( collectorID ) {
 
 			case CsapApplication.COLLECTION_HOST:
-				hostCollector = csapApp.metricManager( ).getOsSharedCollector( resourceTimer ) ;
+				hostCollector = csapApis.application( ).metricManager( ).getOsSharedCollector( resourceTimer ) ;
 				break ;
 
 			case CsapApplication.COLLECTION_OS_PROCESS:
-				hostCollector = csapApp.metricManager( ).getOsProcessCollector( resourceTimer ) ;
+				hostCollector = csapApis.application( ).metricManager( ).getOsProcessCollector( resourceTimer ) ;
 				break ;
 
 			case CsapApplication.COLLECTION_APPLICATION:
-				hostCollector = csapApp.metricManager( ).getServiceCollector( resourceTimer ) ;
+				hostCollector = csapApis.application( ).metricManager( ).getServiceCollector( resourceTimer ) ;
 				break ;
 
 			default:
@@ -1543,7 +1546,7 @@ public class HostRequests {
 
 			ArrayNode samplesArray = reportAttributes.putArray( "samplesAvailable" ) ;
 
-			for ( Integer sampleInterval : csapApp.rootProjectEnvSettings( )
+			for ( Integer sampleInterval : csapApis.application( ).rootProjectEnvSettings( )
 					.getMetricToSecondsMap( )
 					.get( collectorID ) ) {
 
@@ -1552,9 +1555,10 @@ public class HostRequests {
 			}
 
 			// add application services
-			var serviceNamesByType = csapApp.metricManager( ).getServiceCollector( resourceTimer )
+			var serviceNamesByType = csapApis.application( ).metricManager( ).getServiceCollector( resourceTimer )
 					.buildServicesAvailableReport( ) ;
-			serviceNamesByType.set( "os", csapApp.metricManager( ).getOsProcessCollector( resourceTimer )
+			serviceNamesByType.set( "os", csapApis.application( ).metricManager( ).getOsProcessCollector(
+					resourceTimer )
 					.buildServicesAvailableReport( ) ) ;
 			reportAttributes.set( "serviceNames", serviceNamesByType ) ;
 
@@ -1569,12 +1573,13 @@ public class HostRequests {
 					serviceNames, requestedMetricChoice, collectorID, resourceTimer, numberOfDays, numSamples,
 					dayOffset ) ;
 
-			if ( csapApp.isDesktopHost( ) && ! serviceNames.isEmpty( ) ) {
+			if ( csapApis.application( ).isDesktopHost( ) && ! serviceNames.isEmpty( ) ) {
 
 				try {
 
 					metricsReport = (ObjectNode) jacksonMapper
-							.readTree( csapApp.check_for_stub( "", "metrics/" + serviceNames.get( 0 ) + ".json" ) ) ;
+							.readTree( csapApis.application( ).check_for_stub( "", "metrics/" + serviceNames.get( 0 )
+									+ ".json" ) ) ;
 
 				} catch ( Exception e ) {
 
@@ -1601,7 +1606,7 @@ public class HostRequests {
 
 		response.setContentType( "text/plain" ) ;
 
-		OsSharedResourcesCollector statsRun = csapApp.metricManager( ).getOsSharedCollector( -1 ) ;
+		OsSharedResourcesCollector statsRun = csapApis.application( ).metricManager( ).getOsSharedCollector( -1 ) ;
 
 		response.getWriter( )
 				.print( statsRun.uploadMetricsNow( ) ) ;
@@ -1629,9 +1634,9 @@ public class HostRequests {
 
 		try {
 
-			String restUrl = csapApp.rootProjectEnvSettings( )
+			String restUrl = csapApis.application( ).rootProjectEnvSettings( )
 					.getMetricsUrl( ) + "/"
-					+ csapApp.getCsapHostName( ) ;
+					+ csapApis.application( ).getCsapHostName( ) ;
 			SimpleClientHttpRequestFactory simpleClientRequestFactory = new SimpleClientHttpRequestFactory( ) ;
 			simpleClientRequestFactory.setReadTimeout( 5000 ) ;
 			simpleClientRequestFactory.setConnectTimeout( 5000 ) ;
@@ -1720,7 +1725,7 @@ public class HostRequests {
 		descNode.put( "id", "dummy_99" ) ;
 		descNode.put( "metricName", "System Resource" ) ;
 		descNode.put( "description", "Contains usr,sys,io, and load level metrics" ) ;
-		descNode.put( "hostName", csapApp.getCsapHostName( ) ) ;
+		descNode.put( "hostName", csapApis.application( ).getCsapHostName( ) ) ;
 		descNode.put( "sampleInterval", 99 ) ;
 		descNode.put( "samplesRequested", requestedSampleSize ) ;
 		descNode.put( "samplesOffset", skipFirstItems ) ;
@@ -1768,7 +1773,7 @@ public class HostRequests {
 		response.setHeader( "Cache-Control", "no-cache" ) ;
 		response.setContentType( MediaType.APPLICATION_JSON_VALUE ) ;
 
-		OutputFileMgr outputFm = new OutputFileMgr( csapApp.getScriptDir( ),
+		OutputFileMgr outputFm = new OutputFileMgr( csapApis.application( ).getScriptDir( ),
 				securitySettings.getRoles( ).getUserIdFromContext( ) + "_delete" ) ;
 
 		File deleteTarget = new File( location ) ;
@@ -1776,7 +1781,7 @@ public class HostRequests {
 		// String htmlResult = "";
 		ObjectNode resultsNode = jacksonMapper.createObjectNode( ) ;
 
-		resultsNode.put( "scriptHost", csapApp.getCsapHostName( ) ) ;
+		resultsNode.put( "scriptHost", csapApis.application( ).getCsapHostName( ) ) ;
 		ArrayNode hostNode = resultsNode.putArray( "scriptOutput" ) ;
 
 		if ( ! deleteTarget.exists( ) ) {
@@ -1787,7 +1792,7 @@ public class HostRequests {
 
 		SimpleDateFormat df = new SimpleDateFormat( "MMM-d-HH-mm-ss" ) ;
 
-		String user = csapApp.getAgentRunUser( ) ;
+		String user = csapApis.application( ).getAgentRunUser( ) ;
 
 		if ( runAsRoot ) {
 
@@ -1796,7 +1801,7 @@ public class HostRequests {
 
 		}
 
-		resultsNode = osManager.executeShellScriptClustered(
+		resultsNode = csapApis.osManager( ).executeShellScriptClustered(
 				securitySettings.getRoles( ).getUserIdFromContext( ),
 				timeoutSeconds, "rm -rvf " + FileRequests.pathWithSpacesEscaped( deleteTarget ), user,
 				hosts,
@@ -1842,10 +1847,10 @@ public class HostRequests {
 				"Syncing: " + locationToZip + " extractDir: " + extractDir + " Hosts: "
 						+ hostList ) ;
 
-		resultsNode.put( "scriptHost", csapApp.getCsapHostName( ) ) ;
+		resultsNode.put( "scriptHost", csapApis.application( ).getCsapHostName( ) ) ;
 		ArrayNode hostNode = resultsNode.putArray( "scriptOutput" ) ;
 
-		File scriptDir = csapApp.getScriptDir( ) ;
+		File scriptDir = csapApis.application( ).getScriptDir( ) ;
 
 		if ( ! scriptDir.exists( ) ) {
 
@@ -1854,25 +1859,26 @@ public class HostRequests {
 
 		}
 
-		OutputFileMgr outputFm = new OutputFileMgr( csapApp.getScriptDir( ),
+		OutputFileMgr outputFm = new OutputFileMgr( csapApis.application( ).getScriptDir( ),
 				securitySettings.getRoles( ).getUserIdFromContext( ) + "_sync" ) ;
 
 		File zipLocation = new File( locationToZip ) ;
 		hostNode.add( "\n Source Location: " + zipLocation.getAbsolutePath( ) ) ;
 
-		// List<String> hostList = csapApp.getMutableHostsInActivePackage(
+		// List<String> hostList =
+		// csapApis.application().getMutableHostsInActivePackage(
 		// clusterName );
-		if ( hostList != null && hostList.contains( csapApp.getCsapHostName( ) ) ) {
+		if ( hostList != null && hostList.contains( csapApis.application( ).getCsapHostName( ) ) ) {
 
-			logger.debug( "Removing : {}", csapApp.getCsapHostName( ) ) ;
+			logger.debug( "Removing : {}", csapApis.application( ).getCsapHostName( ) ) ;
 			// always remove current host
-			hostList.remove( csapApp.getCsapHostName( ) ) ;
+			hostList.remove( csapApis.application( ).getCsapHostName( ) ) ;
 
 		}
 
 		resultsNode.set(
 				"otherHosts",
-				osManager.zipAndTransfer(
+				csapApis.osManager( ).zipAndTransfer(
 						securitySettings.getRoles( ).getUserIdFromContext( ),
 						timeoutSeconds, hostList,
 						locationToZip, extractDir, chownUserid,
@@ -1893,7 +1899,7 @@ public class HostRequests {
 											@RequestParam String extractDir ,
 											@RequestParam ( value = "skipExtract" , required = false ) boolean skipExtract ,
 											@RequestParam ( value = "overwriteTarget" , required = false , defaultValue = "false" ) boolean overwriteTarget ,
-											@RequestParam ( value = CsapCore.SERVICE_PORT_PARAM , required = false ) String svcName )
+											@RequestParam ( value = CsapConstants.SERVICE_PORT_PARAM , required = false ) String svcName )
 		throws IOException {
 
 		// Default is to place in processing folder. Push uploaded files
@@ -1907,14 +1913,14 @@ public class HostRequests {
 		String fileName = new File( uploadFilePath ).getName( ) ;
 		// Handle scenario where files are copied from a VM with alternate
 		// csap install folder
-		File targetExtractionDirectory = csapApp.getRequestedFile( extractDir, svcName, false ) ;
+		File targetExtractionDirectory = csapApis.application( ).getRequestedFile( extractDir, svcName, false ) ;
 
 		File extractFullTarget = new File( targetExtractionDirectory, fileName ) ;
 
 		String startTime = LocalDateTime.now( ).format( DateTimeFormatter.ofPattern( "HH:mm:ss MMM d" ) ) ;
 
 		ObjectNode results = jacksonMapper.createObjectNode( ) ;
-		OutputFileMgr outputFileManager = new OutputFileMgr( csapApp.getScriptDir( ),
+		OutputFileMgr outputFileManager = new OutputFileMgr( csapApis.application( ).getScriptDir( ),
 				securitySettings.getRoles( ).getUserIdFromContext( ) + "_upload" ) ;
 		outputFileManager.close( ) ;
 
@@ -1973,7 +1979,7 @@ public class HostRequests {
 									@RequestParam ( value = "skipExtract" , required = false ) boolean skipExtract ,
 									@RequestParam ( value = "deleteExisting" , required = false ) String deleteExisting ,
 									@RequestParam ( value = "timeoutSeconds" , required = false , defaultValue = "120" ) int timeoutSeconds ,
-									@RequestParam ( value = CsapCore.SERVICE_PORT_PARAM , required = false ) String svcName ,
+									@RequestParam ( value = CsapConstants.SERVICE_PORT_PARAM , required = false ) String svcName ,
 									@RequestParam ( value = "overwriteTarget" , required = false , defaultValue = "false" ) boolean overwriteTarget ,
 									HttpServletRequest request )
 		throws IOException {
@@ -1986,10 +1992,10 @@ public class HostRequests {
 
 		var uploadResultReport = jacksonMapper.createObjectNode( ) ;
 
-		var outputFileManager = new OutputFileMgr( csapApp.getScriptDir( ),
+		var outputFileManager = new OutputFileMgr( csapApis.application( ).getScriptDir( ),
 				securitySettings.getRoles( ).getUserIdFromContext( ) + "_upload" ) ;
 
-		uploadResultReport.put( "scriptHost", csapApp.getCsapHostName( ) ) ;
+		uploadResultReport.put( "scriptHost", csapApis.application( ).getCsapHostName( ) ) ;
 		var scriptOutputArray = uploadResultReport.putArray( "scriptOutput" ) ;
 
 		uploadResultReport.putArray( "otherHosts" ) ;
@@ -2009,7 +2015,8 @@ public class HostRequests {
 
 			// Handle scenario where files are copied from a VM with alternate
 			// csap install folder
-			File targetExtractionDirectory = csapApp.getRequestedFile( extractTargetToken, svcName, false ) ;
+			File targetExtractionDirectory = csapApis.application( ).getRequestedFile( extractTargetToken, svcName,
+					false ) ;
 
 			File extractFullTarget = new File( targetExtractionDirectory, multiPartFile.getOriginalFilename( ) ) ;
 
@@ -2043,7 +2050,7 @@ public class HostRequests {
 
 			} else {
 
-				String platformUpdateResults = osManager.updatePlatformCore(
+				String platformUpdateResults = csapApis.osManager( ).updatePlatformCore(
 						multiPartFile, targetExtractionDirectory.getAbsolutePath( ),
 						skipExtract, remoteServerName, chownUserid,
 						securitySettings.getRoles( ).getUserIdFromContext( ), deleteExisting, outputFileManager ) ;
@@ -2052,13 +2059,14 @@ public class HostRequests {
 
 				if ( hostList != null ) {
 
-					hostList.remove( csapApp.getCsapHostName( ) ) ;
+					hostList.remove( csapApis.application( ).getCsapHostName( ) ) ;
 
 					if ( hostList.size( ) != 0 ) {
 
 						if ( skipExtract ) {
 
-							TransferManager transferManager = new TransferManager( csapApp, timeoutSeconds,
+							TransferManager transferManager = new TransferManager(
+									csapApis, timeoutSeconds,
 									outputFileManager.getBufferedWriter( ) ) ;
 
 							if ( extractFullTarget.exists( ) ) {
@@ -2108,7 +2116,7 @@ public class HostRequests {
 		// hook for displaying results
 		ArrayNode otherHosts = (ArrayNode) uploadResultReport.get( "otherHosts" ) ;
 		ObjectNode hostResponse = otherHosts.addObject( ) ;
-		hostResponse.put( "host", csapApp.getCsapHostName( ) ) ;
+		hostResponse.put( "host", csapApis.application( ).getCsapHostName( ) ) ;
 
 		logger.info( "completed upload" ) ;
 		outputFileManager.opCompleted( ) ;

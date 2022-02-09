@@ -35,10 +35,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode ;
  * @author someDeveloper
  */
 
-public class CsapApis extends CsapBareTest {
+public class Rest_Service_Tests extends CsapBareTest {
 
 	File testDefinition = new File(
-			CsapApis.class.getResource( "application-agent.json" ).getPath( ) ) ;
+			Rest_Service_Tests.class.getResource( "application-agent.json" ).getPath( ) ) ;
 
 	ServiceOsManager serviceOsManager ;
 
@@ -51,8 +51,8 @@ public class CsapApis extends CsapBareTest {
 		throws Exception {
 
 		modelApi = new ModelApi( getApplication( ) ) ;
-		applicationApi = new ApplicationApi( getApplication( ), new CsapEvents( ), null ) ;
-		containerApi = new ContainerApi( getApplication( ), getJsonMapper( ) ) ;
+		applicationApi = new ApplicationApi( getCsapApis( ), new CsapEvents( ), null ) ;
+		containerApi = new ContainerApi( getCsapApis( ), getJsonMapper( ) ) ;
 
 		getApplication( ).setAgentRunHome( System.getProperty( "user.home" ) ) ;
 		getApplication( ).getProjectLoader( ).setAllowLegacyNames( true ) ;
@@ -62,7 +62,7 @@ public class CsapApis extends CsapBareTest {
 				.as( "No Errors or warnings" )
 				.isTrue( ) ;
 
-		serviceOsManager = new ServiceOsManager( getApplication( ) ) ;
+		serviceOsManager = new ServiceOsManager( getCsapApis( ) ) ;
 
 		CSAP.setLogToInfo( ProjectLoader.class.getName( ) ) ;
 

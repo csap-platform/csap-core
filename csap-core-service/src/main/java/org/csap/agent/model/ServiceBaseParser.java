@@ -20,13 +20,13 @@ import java.util.stream.Stream ;
 
 import org.apache.commons.lang3.StringUtils ;
 import org.apache.commons.lang3.text.WordUtils ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
-import org.csap.agent.CsapTemplate ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.CsapTemplates ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.container.ContainerIntegration ;
-import org.csap.agent.container.DockerJson ;
 import org.csap.agent.container.kubernetes.KubernetesIntegration ;
-import org.csap.agent.container.kubernetes.KubernetesJson ;
+import org.csap.agent.container.kubernetes.K8 ;
 import org.csap.agent.integrations.MetricsPublisher ;
 import org.csap.agent.linux.ServiceJobRunner ;
 import org.csap.agent.model.Application.FileToken ;
@@ -85,7 +85,7 @@ public class ServiceBaseParser extends ServiceBase {
 
 		// handle legacy migration
 		// unparsedDefinition =
-		// Application.getInstance().getProjectLoader().getProjectMigrator().migrateServiceVariables(
+		// CsapApis.getInstance().application().getProjectLoader().getProjectMigrator().migrateServiceVariables(
 		// unparsedDefinition ) ;
 
 		// logger.info( "input: {}", input );
@@ -93,13 +93,13 @@ public class ServiceBaseParser extends ServiceBase {
 		String input_with_variables_replaced = unparsedDefinition
 				.trim( )
 				.replaceAll(
-						Matcher.quoteReplacement( CsapCore.CSAP_DEF_PARAMETERS ),
+						Matcher.quoteReplacement( CsapConstants.CSAP_DEF_PARAMETERS ),
 						Matcher.quoteReplacement( getParameters( ) ) ) ;
 
 		input_with_variables_replaced = input_with_variables_replaced
 				.trim( )
 				.replaceAll(
-						Matcher.quoteReplacement( CsapCore.CSAP_DEF_REPLICA ),
+						Matcher.quoteReplacement( CsapConstants.CSAP_DEF_REPLICA ),
 						Matcher.quoteReplacement( getKubernetesReplicaCount( ).asText( "1" ) ) ) ;
 
 		if ( getKubernetesNamespace( ) != null ) {
@@ -107,7 +107,7 @@ public class ServiceBaseParser extends ServiceBase {
 			input_with_variables_replaced = input_with_variables_replaced
 					.trim( )
 					.replaceAll(
-							Matcher.quoteReplacement( CsapCore.CSAP_DEF_NAMESPACE ),
+							Matcher.quoteReplacement( CsapConstants.CSAP_DEF_NAMESPACE ),
 							Matcher.quoteReplacement( getKubernetesNamespace( ) ) ) ;
 
 		}
@@ -123,7 +123,7 @@ public class ServiceBaseParser extends ServiceBase {
 		input_with_variables_replaced = input_with_variables_replaced
 				.trim( )
 				.replaceAll(
-						Matcher.quoteReplacement( CsapCore.CSAP_DEF_IMAGE ),
+						Matcher.quoteReplacement( CsapConstants.CSAP_DEF_IMAGE ),
 						Matcher.quoteReplacement( dockerImage ) ) ;
 
 		var helmChartName = getHelmChartName( ) ;
@@ -137,19 +137,19 @@ public class ServiceBaseParser extends ServiceBase {
 		input_with_variables_replaced = input_with_variables_replaced
 				.trim( )
 				.replaceAll(
-						Matcher.quoteReplacement( CsapCore.CSAP_DEF_HELM_CHART_NAME ),
+						Matcher.quoteReplacement( CsapConstants.CSAP_DEF_HELM_CHART_NAME ),
 						Matcher.quoteReplacement( helmChartName ) ) ;
 
 		input_with_variables_replaced = input_with_variables_replaced
 				.trim( )
 				.replaceAll(
-						Matcher.quoteReplacement( CsapCore.CSAP_DEF_HELM_CHART_VERSION ),
+						Matcher.quoteReplacement( CsapConstants.CSAP_DEF_HELM_CHART_VERSION ),
 						Matcher.quoteReplacement( getHelmChartVersion( ) ) ) ;
 
 		input_with_variables_replaced = input_with_variables_replaced
 				.trim( )
 				.replaceAll(
-						Matcher.quoteReplacement( CsapCore.CSAP_DEF_HELM_CHART_REPO ),
+						Matcher.quoteReplacement( CsapConstants.CSAP_DEF_HELM_CHART_REPO ),
 						Matcher.quoteReplacement( getHelmChartRepo( ) ) ) ;
 
 		input_with_variables_replaced = resolveTemplateVariables( input_with_variables_replaced ) ;
@@ -282,7 +282,8 @@ public class ServiceBaseParser extends ServiceBase {
 
 		if ( vars != null ) {
 
-			JsonNode lifeJson = vars.at( "/lifecycle/" + Application.getInstance( ).getCsapHostEnvironmentName( ) ) ;
+			JsonNode lifeJson = vars.at( "/lifecycle/" + CsapApis.getInstance( ).application( )
+					.getCsapHostEnvironmentName( ) ) ;
 
 			if ( ! lifeJson.isMissingNode( ) && lifeJson.isObject( ) ) {
 
@@ -395,7 +396,8 @@ public class ServiceBaseParser extends ServiceBase {
 		public boolean isActive ( ) {
 
 			if ( lifecycles.equalsIgnoreCase( "all" ) ||
-					lifecycles.equalsIgnoreCase( Application.getInstance( ).getCsapHostEnvironmentName( ) ) ) {
+					lifecycles.equalsIgnoreCase( CsapApis.getInstance( ).application( )
+							.getCsapHostEnvironmentName( ) ) ) {
 
 				return true ;
 
@@ -403,9 +405,9 @@ public class ServiceBaseParser extends ServiceBase {
 
 			List<String> selectedLifes = Arrays.asList( getLifecycles( ).split( "," ) ) ;
 
-			logger.debug( "Application.getCurrentLifeCycle: {}", Application.getInstance( )
+			logger.debug( "Application.getCurrentLifeCycle: {}", CsapApis.getInstance( ).application( )
 					.getCsapHostEnvironmentName( ) ) ;
-			if ( selectedLifes.contains( Application.getInstance( ).getCsapHostEnvironmentName( ) ) )
+			if ( selectedLifes.contains( CsapApis.getInstance( ).application( ).getCsapHostEnvironmentName( ) ) )
 				return true ;
 
 			return false ;
@@ -669,7 +671,7 @@ public class ServiceBaseParser extends ServiceBase {
 
 				// Add Warnings
 				logger.error( "{} Failed parsing: {}", getName( ), CSAP.buildCsapStack( e ) ) ;
-				updateServiceParseResults( resultsBuffer, CsapCore.CONFIG_PARSE_WARN,
+				updateServiceParseResults( resultsBuffer, CsapConstants.CONFIG_PARSE_WARN,
 						getErrorHeader( ) + " not able to parse: " + ServiceAttributes.scheduledJobs.json( ) ) ;
 
 			}
@@ -700,7 +702,7 @@ public class ServiceBaseParser extends ServiceBase {
 
 	public JsonNode getDockerLocator ( ) {
 
-		return getAttributeOrMissing( ServiceAttributes.dockerSettings ).path( DockerJson.locator.json( ) ) ;
+		return getAttributeOrMissing( ServiceAttributes.dockerSettings ).path( C7.locator.val( ) ) ;
 
 	}
 
@@ -708,7 +710,7 @@ public class ServiceBaseParser extends ServiceBase {
 
 		return is_cluster_kubernetes( )
 				&& getAttributeOrMissing( ServiceAttributes.dockerSettings )
-						.path( KubernetesJson.namespaceMonitor.json( ) )
+						.path( K8.namespaceMonitor.val( ) )
 						.asBoolean( false ) ;
 
 	}
@@ -717,7 +719,7 @@ public class ServiceBaseParser extends ServiceBase {
 
 		return is_cluster_kubernetes( )
 				&& getAttributeOrMissing( ServiceAttributes.dockerSettings )
-						.path( DockerJson.aggregateContainers.json( ) )
+						.path( C7.aggregateContainers.val( ) )
 						.asBoolean( false ) ;
 
 	}
@@ -725,7 +727,7 @@ public class ServiceBaseParser extends ServiceBase {
 	@JsonIgnore
 	public JsonNode getKubernetesDeploymentSpecifications ( ) {
 
-		var deployFiles = getDockerSettingsOrMissing( ).path( DockerJson.deploymentFileNames.json( ) ) ;
+		var deployFiles = getDockerSettingsOrMissing( ).path( C7.deploymentFileNames.val( ) ) ;
 
 		//
 		// handle helm deploy injection
@@ -760,7 +762,7 @@ public class ServiceBaseParser extends ServiceBase {
 					&& deployFiles.isArray( ) ) {
 
 				( (ArrayNode) deployFiles ).add(
-						CsapTemplate.helmDeploy.getFile( ).getAbsolutePath( ) ) ;
+						CsapTemplates.helmDeploy.getFile( ).getAbsolutePath( ) ) ;
 
 			}
 
@@ -772,7 +774,7 @@ public class ServiceBaseParser extends ServiceBase {
 
 	public boolean isSkipSpecificationGeneration ( ) {
 
-		return getDockerSettingsOrMissing( ).path( DockerJson.isSkipSpecGeneration.json( ) ).asBoolean( ) ;
+		return getDockerSettingsOrMissing( ).path( C7.isSkipSpecGeneration.val( ) ).asBoolean( ) ;
 
 	}
 
@@ -780,9 +782,9 @@ public class ServiceBaseParser extends ServiceBase {
 
 		if ( isRunUsingDocker( ) ) {
 
-			if ( getDockerSettings( ) != null && getDockerSettings( ).has( DockerJson.runUser.json( ) ) ) {
+			if ( getDockerSettings( ) != null && getDockerSettings( ).has( C7.runUser.val( ) ) ) {
 
-				String user = getDockerSettings( ).get( DockerJson.runUser.json( ) ).asText( ) ;
+				String user = getDockerSettings( ).get( C7.runUser.val( ) ).asText( ) ;
 
 				if ( user.length( ) == 0 || user.startsWith( "0" ) ) {
 
@@ -802,7 +804,7 @@ public class ServiceBaseParser extends ServiceBase {
 
 		String matchString = getResolvedDisk( ) ;
 
-		if ( getDisk( ).equals( CsapCore.CSAP_DEF_WORKING ) &&
+		if ( getDisk( ).equals( CsapConstants.CSAP_DEF_WORKING ) &&
 				( is_docker_server( ) || isRunUsingDocker( ) ) ) {
 
 			matchString = getDockerContainerName( ) ;
@@ -842,12 +844,12 @@ public class ServiceBaseParser extends ServiceBase {
 
 		String duPathForService = resolveTemplateVariables( getDisk( ) ) ;
 
-		if ( duPathForService.contains( CsapCore.CSAP_VARIABLE_PREFIX ) ) {
+		if ( duPathForService.contains( CsapConstants.CSAP_VARIABLE_PREFIX ) ) {
 
 			// assuming env var
 			try {
 
-				duPathForService = Application.getInstance( ).resolveDefinitionVariables( duPathForService,
+				duPathForService = CsapApis.getInstance( ).application( ).resolveDefinitionVariables( duPathForService,
 						(ServiceInstance) this ) ;
 
 			} catch ( Exception e ) {
@@ -861,7 +863,7 @@ public class ServiceBaseParser extends ServiceBase {
 		if ( duPathForService.contains( "$" ) ) {
 
 			logger.warn( "{} Failed to resolve {}", getName( ), duPathForService ) ;
-			duPathForService = resolveTemplateVariables( CsapCore.CSAP_DEF_WORKING ) ;
+			duPathForService = resolveTemplateVariables( CsapConstants.CSAP_DEF_WORKING ) ;
 
 		}
 
@@ -893,9 +895,9 @@ public class ServiceBaseParser extends ServiceBase {
 		// String name = getServiceName_Port() ;
 		String name = getName( ) ;
 
-		if ( getDockerSettings( ) != null && getDockerSettings( ).has( DockerJson.containerName.json( ) ) ) {
+		if ( getDockerSettings( ) != null && getDockerSettings( ).has( C7.containerName.val( ) ) ) {
 
-			name = getDockerSettings( ).path( DockerJson.containerName.json( ) ).asText( ) ;
+			name = getDockerSettings( ).path( C7.containerName.val( ) ).asText( ) ;
 
 		}
 
@@ -906,9 +908,9 @@ public class ServiceBaseParser extends ServiceBase {
 
 	public String getDockerVersionCommand ( ) {
 
-		if ( getDockerSettings( ) != null && getDockerSettings( ).has( DockerJson.versionCommand.json( ) ) ) {
+		if ( getDockerSettings( ) != null && getDockerSettings( ).has( C7.versionCommand.val( ) ) ) {
 
-			return getDockerSettings( ).get( DockerJson.versionCommand.json( ) ).asText( ) ;
+			return getDockerSettings( ).get( C7.versionCommand.val( ) ).asText( ) ;
 
 		}
 
@@ -922,11 +924,11 @@ public class ServiceBaseParser extends ServiceBase {
 
 		if ( getDockerSettings( ) != null ) {
 
-			replicaCount = getDockerSettings( ).at( KubernetesJson.replicaCount.spath( ) ) ;
+			replicaCount = getDockerSettings( ).at( K8.replicaCount.spath( ) ) ;
 
 			if ( replicaCount.isMissingNode( ) ) {
 
-				replicaCount = getDockerSettings( ).path( DockerJson.containerCount.json( ) ) ;
+				replicaCount = getDockerSettings( ).path( C7.containerCount.val( ) ) ;
 
 			}
 
@@ -954,7 +956,7 @@ public class ServiceBaseParser extends ServiceBase {
 		if ( getDockerSettings( ) != null ) {
 
 			return ! getDockerSettings( )
-					.path( DockerJson.socketNamespace.json( ) ).asText( )
+					.path( C7.socketNamespace.val( ) ).asText( )
 					.equals( "global" ) ;
 
 		}
@@ -965,9 +967,9 @@ public class ServiceBaseParser extends ServiceBase {
 
 	public String getDockerImageName ( ) {
 
-		if ( getDockerSettings( ) != null && getDockerSettings( ).has( DockerJson.imageName.json( ) ) ) {
+		if ( getDockerSettings( ) != null && getDockerSettings( ).has( C7.imageName.val( ) ) ) {
 
-			return getDockerSettings( ).path( DockerJson.imageName.json( ) ).asText( ) ;
+			return getDockerSettings( ).path( C7.imageName.val( ) ).asText( ) ;
 
 		}
 
@@ -977,9 +979,9 @@ public class ServiceBaseParser extends ServiceBase {
 
 	public String getHelmChartName ( ) {
 
-		if ( getDockerSettings( ) != null && getDockerSettings( ).has( DockerJson.helmChartName.json( ) ) ) {
+		if ( getDockerSettings( ) != null && getDockerSettings( ).has( C7.helmChartName.val( ) ) ) {
 
-			return getDockerSettings( ).path( DockerJson.helmChartName.json( ) ).asText( ) ;
+			return getDockerSettings( ).path( C7.helmChartName.val( ) ).asText( ) ;
 
 		}
 
@@ -995,9 +997,9 @@ public class ServiceBaseParser extends ServiceBase {
 
 	public String getHelmChartVersion ( ) {
 
-		if ( getDockerSettings( ) != null && getDockerSettings( ).has( DockerJson.helmChartVersion.json( ) ) ) {
+		if ( getDockerSettings( ) != null && getDockerSettings( ).has( C7.helmChartVersion.val( ) ) ) {
 
-			return getDockerSettings( ).path( DockerJson.helmChartVersion.json( ) ).asText( ) ;
+			return getDockerSettings( ).path( C7.helmChartVersion.val( ) ).asText( ) ;
 
 		}
 
@@ -1007,16 +1009,15 @@ public class ServiceBaseParser extends ServiceBase {
 
 	public String getHelmChartRepo ( ) {
 
-		if ( getDockerSettings( ) != null && getDockerSettings( ).has( DockerJson.helmChartRepo.json( ) ) ) {
+		if ( getDockerSettings( ) != null && getDockerSettings( ).has( C7.helmChartRepo.val( ) ) ) {
 
-			return getDockerSettings( ).path( DockerJson.helmChartRepo.json( ) ).asText( ) ;
+			return getDockerSettings( ).path( C7.helmChartRepo.val( ) ).asText( ) ;
 
 		}
 
 		return "none" ;
 
 	}
-	
 
 	// URL or text
 	public String getReadme ( ) {
@@ -1032,8 +1033,6 @@ public class ServiceBaseParser extends ServiceBase {
 		return "" ;
 
 	}
-	
-
 
 	public boolean isReadmeConfigured ( ) {
 
@@ -1045,9 +1044,9 @@ public class ServiceBaseParser extends ServiceBase {
 
 		logger.debug( "image: {}", image ) ;
 
-		if ( getDockerSettings( ) != null && getDockerSettings( ).has( DockerJson.imageName.json( ) ) ) {
+		if ( getDockerSettings( ) != null && getDockerSettings( ).has( C7.imageName.val( ) ) ) {
 
-			getDockerSettings( ).put( DockerJson.imageName.json( ), image ) ;
+			getDockerSettings( ).put( C7.imageName.val( ), image ) ;
 
 		}
 
@@ -1109,19 +1108,19 @@ public class ServiceBaseParser extends ServiceBase {
 
 				if ( ! definitionAttributes.containsKey( ServiceAttributes.logJournalServices ) ) {
 
-					setLogJournalServices( "docker" ) ;
+					setLogJournalServices( C7.dockerService.val( ) ) ;
 
 				}
 
 				if ( ! definitionAttributes.containsKey( ServiceAttributes.serviceUrl ) ) {
 
-					setLogJournalServices( "docker" ) ;
+					setLogJournalServices( C7.dockerService.val( ) ) ;
 
 				}
 
 			}
 
-			if ( Application.getInstance( ).getKubernetesIntegration( ) != null
+			if ( CsapApis.getInstance( ).kubernetes( ) != null
 					&& ! definitionAttributes.containsKey( ServiceAttributes.serviceUrl ) ) {
 
 				if ( is_cluster_kubernetes( ) || getName( ).matches( KubernetesIntegration.getServicePattern( ) ) ) {
@@ -1139,7 +1138,7 @@ public class ServiceBaseParser extends ServiceBase {
 					CSAP.jsonPrint( definitionNode ),
 					CSAP.buildCsapStack( e ) ) ;
 
-			resultsBuffer.append( CsapCore.CONFIG_PARSE_ERROR
+			resultsBuffer.append( CsapConstants.CONFIG_PARSE_ERROR
 					+ getErrorHeader( )
 					+ " could not be parsed." ) ;
 
@@ -1200,7 +1199,7 @@ public class ServiceBaseParser extends ServiceBase {
 
 		}
 
-		if ( getName( ).equals( "etcd" ) && attribute.json( ).equals( "docker" ) ) {
+		if ( getName( ).equals( "etcd" ) && attribute.json( ).equals( C7.dockerService.val( ) ) ) {
 
 			logger.debug( "etcd adding: {}", attributeDefinition ) ;
 
@@ -1354,7 +1353,7 @@ public class ServiceBaseParser extends ServiceBase {
 			break ;
 
 		default:
-			updateServiceParseResults( resultsBuffer, CsapCore.CONFIG_PARSE_WARN,
+			updateServiceParseResults( resultsBuffer, CsapConstants.CONFIG_PARSE_WARN,
 					getErrorHeader( ) + "Unexpected attribute: " + attribute ) ;
 			break ;
 
@@ -1435,7 +1434,7 @@ public class ServiceBaseParser extends ServiceBase {
 
 			logger.debug( "{} Warning: Expected array for job scripts, but not found", getErrorHeader( ) ) ;
 
-			updateServiceParseResults( resultsBuffer, CsapCore.CONFIG_PARSE_WARN,
+			updateServiceParseResults( resultsBuffer, CsapConstants.CONFIG_PARSE_WARN,
 					getErrorHeader( ) + "Expected array for job scripts" ) ;
 
 		}
@@ -1482,7 +1481,7 @@ public class ServiceBaseParser extends ServiceBase {
 				LogRotation logRotation = jacksonMapper.treeToValue( logRotationConfig, LogRotation.class ) ;
 				String logPath = logRotation.getPath( ) ;
 				logPath = logPath.trim( ).replaceAll(
-						Matcher.quoteReplacement( CsapCore.CSAP_DEF_LOGS ),
+						Matcher.quoteReplacement( CsapConstants.CSAP_DEF_LOGS ),
 						getLogWorkingDirectory( ).getAbsolutePath( ) ) ;
 				logRotation.setPath( logPath ) ;
 				logger.debug( "{} loaded logRotation: {}",
@@ -1587,7 +1586,7 @@ public class ServiceBaseParser extends ServiceBase {
 		case serviceType:
 			updateServiceParseResults(
 					resultsBuffer,
-					CsapCore.CONFIG_PARSE_ERROR,
+					CsapConstants.CONFIG_PARSE_ERROR,
 					getErrorHeader( )
 							+ " Missing required attribute: '" + attribute.json( ) + "' description: " + attribute ) ;
 
@@ -1598,7 +1597,7 @@ public class ServiceBaseParser extends ServiceBase {
 
 				updateServiceParseResults(
 						resultsBuffer,
-						CsapCore.CONFIG_PARSE_WARN,
+						CsapConstants.CONFIG_PARSE_WARN,
 						getErrorHeader( )
 								+ " Missing Attribute: '" + attribute + "' It is strongly recommended to set" ) ;
 
@@ -1623,7 +1622,7 @@ public class ServiceBaseParser extends ServiceBase {
 		default:
 			updateServiceParseResults(
 					resultsBuffer,
-					CsapCore.CONFIG_PARSE_WARN,
+					CsapConstants.CONFIG_PARSE_WARN,
 					getErrorHeader( )
 							+ "Missing Attribute: " + attribute.json( ) + " description: " + attribute ) ;
 
@@ -1771,7 +1770,7 @@ public class ServiceBaseParser extends ServiceBase {
 			if ( StringUtils.isEmpty( httpSettings.path( ModelJson.httpCollectionUrl.jpath( ) ).asText( ) ) ) {
 
 				httpCollection = false ;
-				updateServiceParseResults( resultsBuf, CsapCore.CONFIG_PARSE_WARN,
+				updateServiceParseResults( resultsBuf, CsapConstants.CONFIG_PARSE_WARN,
 						getErrorHeader( )
 								+ "Invalid http configuration: Missing attribute: httpCollectionUrl" ) ;
 
@@ -1826,7 +1825,7 @@ public class ServiceBaseParser extends ServiceBase {
 			ObjectNode metricSettings = (ObjectNode) serviceMetersDefinition.get( name ) ;
 			metricSettings.put( "errors", true ) ;
 
-			updateServiceParseResults( resultsBuf, CsapCore.CONFIG_PARSE_WARN,
+			updateServiceParseResults( resultsBuf, CsapConstants.CONFIG_PARSE_WARN,
 					getErrorHeader( )
 							+ "Invalid attribute name: " + name
 							+ ", must be alphaNumeric only. Removing" ) ;
@@ -1853,7 +1852,7 @@ public class ServiceBaseParser extends ServiceBase {
 			// http checks
 			if ( ! metricSettings.has( "attribute" ) ) {
 
-				updateServiceParseResults( resultsBuf, CsapCore.CONFIG_PARSE_WARN,
+				updateServiceParseResults( resultsBuf, CsapConstants.CONFIG_PARSE_WARN,
 						getErrorHeader( )
 								+ metricId + " is missing attribute field (http collection)" ) ;
 
@@ -1869,7 +1868,7 @@ public class ServiceBaseParser extends ServiceBase {
 			// JMX checks
 			if ( metricSettings.has( "mbean" ) && ! metricSettings.has( "attribute" ) ) {
 
-				updateServiceParseResults( resultsBuf, CsapCore.CONFIG_PARSE_WARN,
+				updateServiceParseResults( resultsBuf, CsapConstants.CONFIG_PARSE_WARN,
 						getErrorHeader( )
 								+ metricId + " is missing attribute field (java collection)" ) ;
 
@@ -1893,7 +1892,7 @@ public class ServiceBaseParser extends ServiceBase {
 
 				if ( d == 0 ) {
 
-					updateServiceParseResults( resultsBuf, CsapCore.CONFIG_PARSE_WARN,
+					updateServiceParseResults( resultsBuf, CsapConstants.CONFIG_PARSE_WARN,
 							getErrorHeader( )
 									+ metricId
 									+ " Invalid divideBy attribute: " + metricSettings
@@ -1923,7 +1922,7 @@ public class ServiceBaseParser extends ServiceBase {
 				&& ! is_csap_api_server( ) && ! is_os_process_monitor( ) ) {
 
 			updateServiceParseResults(
-					resultsBuffer, CsapCore.CONFIG_PARSE_WARN,
+					resultsBuffer, CsapConstants.CONFIG_PARSE_WARN,
 					getErrorHeader( ) + "Unexpected: " + attributeText + " found: "
 							+ getRuntime( ) ) ;
 
@@ -1955,7 +1954,7 @@ public class ServiceBaseParser extends ServiceBase {
 
 			logger.error( "Invalid configuration: {}", remoteDefinition.toString( ) ) ;
 			updateServiceParseResults(
-					resultsBuf, CsapCore.CONFIG_PARSE_WARN,
+					resultsBuf, CsapConstants.CONFIG_PARSE_WARN,
 					getErrorHeader( )
 							+ "Invalid format for " + ServiceAttributes.remoteCollections
 							+ " expected: host and port, found: " + remoteCollectionsDefinition.toString( ) ) ;
@@ -1982,7 +1981,7 @@ public class ServiceBaseParser extends ServiceBase {
 			if ( getMavenId( ).split( ":" ).length != 4 ) {
 
 				updateServiceParseResults(
-						resultsBuf, CsapCore.CONFIG_PARSE_WARN,
+						resultsBuf, CsapConstants.CONFIG_PARSE_WARN,
 						getErrorHeader( )
 								+ "Invalid format for " + attributeText
 								+ " expected: group:artifact:version:type, found: " + getMavenId( ) ) ;
@@ -2087,7 +2086,8 @@ public class ServiceBaseParser extends ServiceBase {
 
 		if ( is_cluster_kubernetes( ) ) {
 
-			healthUrl = Application.getInstance( ).getAgentUrl( getHostName( ), "/csap/health?pod=" + podId ) ;
+			healthUrl = CsapApis.getInstance( ).application( ).getAgentUrl( getHostName( ), "/csap/health?pod="
+					+ podId ) ;
 
 		} else if ( isHttpHealthReportEnabled( ) ) {
 
@@ -2105,7 +2105,7 @@ public class ServiceBaseParser extends ServiceBase {
 				healthUrl = resolveRuntimeVariables( getHttpCollectionSettings( ).path( ModelJson.healthCollectionUrl
 						.jpath( ) ).asText( ) ) ;
 
-				if ( healthUrl.indexOf( '?' ) == -1 && healthUrl.contains( CsapCoreService.API_AGENT_URL
+				if ( healthUrl.indexOf( '?' ) == -1 && healthUrl.contains( CsapConstants.API_AGENT_URL
 						+ "/health" ) ) {
 
 					// helper for kubelet and docker health wrappers in AgentApi

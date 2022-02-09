@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap ;
 import java.util.concurrent.TimeUnit ;
 import java.util.regex.Matcher ;
 
+import org.csap.agent.CsapApis ;
 import org.csap.agent.model.Application ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
@@ -143,7 +144,8 @@ public class TopRunnable implements Runnable {
 
 					if ( Application.isRunningOnDesktop( ) ) {
 
-						var testData = Application.getInstance( ).check_for_stub( "", "linux/ps-top-results.txt" ) ;
+						var testData = CsapApis.getInstance( ).application( ).check_for_stub( "",
+								"linux/ps-top-results.txt" ) ;
 						stdOutAndErrReader = new BufferedReader( new StringReader( testData ) ) ;
 						logger.debug( CsapApplication.testHeader( testData ) ) ;
 
@@ -297,10 +299,10 @@ public class TopRunnable implements Runnable {
 		// }
 
 		// skip past headers
-		if ( ! isInteger( topOutputArray[ 0 ].trim( ) ) ) {
+		if ( ! isInteger( topOutputArray[0].trim( ) ) ) {
 
 			checkLineForVmCpu( topOutputArray ) ;
-			logger.debug( "Non Integer: {} ", topOutputArray[ 0 ] ) ;
+			logger.debug( "Non Integer: {} ", topOutputArray[0] ) ;
 
 			return ;
 
@@ -314,8 +316,8 @@ public class TopRunnable implements Runnable {
 
 		}
 
-		logger.debug( "Pushing: {} , cpu: {}", topOutputArray[ 0 ].trim( ), topOutputArray[ 8 ].trim( ) ) ;
-		pidToCpu.put( topOutputArray[ 0 ].trim( ), topOutputArray[ 8 ].trim( ) ) ;
+		logger.debug( "Pushing: {} , cpu: {}", topOutputArray[0].trim( ), topOutputArray[8].trim( ) ) ;
+		pidToCpu.put( topOutputArray[0].trim( ), topOutputArray[8].trim( ) ) ;
 
 		// lets run continuosly
 		// if (currTime - lastAccessTime > 30000) {
@@ -349,15 +351,15 @@ public class TopRunnable implements Runnable {
 	private void checkLineForVmCpu ( String[] topOutputArray ) {
 
 		// Hook for System/Usr cpu
-		if ( topOutputArray.length >= 1 && topOutputArray[ 0 ].contains( Matcher.quoteReplacement( "Cpu(s):" ) ) ) {
+		if ( topOutputArray.length >= 1 && topOutputArray[0].contains( Matcher.quoteReplacement( "Cpu(s):" ) ) ) {
 
 			float result = -1 ;
 
 			// %Cpu(s): 20.7 us, 10.7 sy, 0.0 ni, 98.6 id, 0.0 wa, 0.0 hi, 0.0 si, 0.0 st
 			try {
 
-				float usr = Float.parseFloat( topOutputArray[ 1 ] ) ;
-				float sys = Float.parseFloat( topOutputArray[ 3 ] ) ;
+				float usr = Float.parseFloat( topOutputArray[1] ) ;
+				float sys = Float.parseFloat( topOutputArray[3] ) ;
 				result = usr + sys ;
 
 			} catch ( Exception e ) {

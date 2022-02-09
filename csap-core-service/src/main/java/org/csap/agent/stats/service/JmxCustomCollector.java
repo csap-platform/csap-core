@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit ;
 import javax.management.MBeanServerConnection ;
 import javax.management.ObjectName ;
 
-import org.csap.agent.model.Application ;
+import org.csap.agent.CsapApis ;
 import org.csap.agent.model.ServiceAlertsEnum ;
 import org.csap.agent.stats.ServiceCollector ;
 import org.csap.helpers.CSAP ;
@@ -32,12 +32,14 @@ public class JmxCustomCollector {
 	private ObjectNode deltaLastCollected = jacksonMapper.createObjectNode( ) ;
 
 	private ServiceCollector serviceCollector ;
-	Application csapApp ;
 
-	public JmxCustomCollector ( ServiceCollector serviceCollector, Application csapApp ) {
+	CsapApis csapApis ;
+
+	public JmxCustomCollector ( ServiceCollector serviceCollector, CsapApis csapApis ) {
 
 		this.serviceCollector = serviceCollector ;
-		this.csapApp = csapApp ;
+
+		this.csapApis = csapApis ;
 
 	}
 
@@ -66,7 +68,7 @@ public class JmxCustomCollector {
 				.forEach( serviceMeter -> {
 
 					Object attributeCollected = 0 ;
-					var jmxAttributeTimer = csapApp.metrics( ).startTimer( ) ;
+					var jmxAttributeTimer = csapApis.metrics( ).startTimer( ) ;
 
 					boolean isCollectionSuccesful = false ;
 
@@ -98,12 +100,12 @@ public class JmxCustomCollector {
 						if ( ! serviceMeter.isIgnoreErrors( ) ) {
 
 							// SLA will monitor counts
-							csapApp.metrics( ).incrementCounter( "csap.collect-jmx.service.failures" ) ;
+							csapApis.metrics( ).incrementCounter( "csap.collect-jmx.service.failures" ) ;
 
-							csapApp.metrics( ).incrementCounter( "collect-jmx.service.failures."
+							csapApis.metrics( ).incrementCounter( "collect-jmx.service.failures."
 									+ collectionResults.getServiceInstance( ).getName( ) ) ;
 
-							csapApp.metrics( ).incrementCounter( "collect-jmx.service-failures." +
+							csapApis.metrics( ).incrementCounter( "collect-jmx.service-failures." +
 									collectionResults.getServiceInstance( ).getName( )
 									+ "-" + serviceMeter.getCollectionId( ) ) ;
 
@@ -197,7 +199,7 @@ public class JmxCustomCollector {
 							// for hearbeats, store the time IF it has passed
 							if ( resultLong == 1 ) {
 
-								var nanos = csapApp.metrics( ).stopTimer( jmxAttributeTimer,
+								var nanos = csapApis.metrics( ).stopTimer( jmxAttributeTimer,
 										"collect-jmx.service-attribute" ) ;
 								resultLong = TimeUnit.NANOSECONDS.toMillis( nanos ) ;
 
@@ -295,7 +297,7 @@ public class JmxCustomCollector {
 				version = jmxResults
 						.getServiceInstance( )
 						.getScmVersion( ) ;
-				version = version.split( " " )[ 0 ] ; // first word of
+				version = version.split( " " )[0] ; // first word of
 				// scm
 				// scmVersion=3.5.6-SNAPSHOT
 				// Source build

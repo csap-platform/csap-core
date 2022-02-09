@@ -27,7 +27,7 @@ import org.csap.agent.CsapThinNoProfile ;
 import org.csap.agent.container.kubernetes.ApiDirect ;
 import org.csap.agent.container.kubernetes.KubernetesIntegration ;
 import org.csap.agent.container.kubernetes.KubernetesIntegration.Propogation_Policy ;
-import org.csap.agent.container.kubernetes.KubernetesJson ;
+import org.csap.agent.container.kubernetes.K8 ;
 import org.csap.agent.services.ClassMatcher ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
@@ -68,17 +68,10 @@ import io.kubernetes.client.openapi.apis.AppsV1Api ;
 import io.kubernetes.client.openapi.apis.BatchV1Api ;
 import io.kubernetes.client.openapi.apis.BatchV1beta1Api ;
 import io.kubernetes.client.openapi.apis.CoreV1Api ;
-import io.kubernetes.client.openapi.apis.NetworkingV1beta1Api ;
+import io.kubernetes.client.openapi.apis.NetworkingV1Api ;
 import io.kubernetes.client.openapi.apis.StorageV1Api ;
 import io.kubernetes.client.openapi.apis.VersionApi ;
 import io.kubernetes.client.openapi.models.CoreV1Event ;
-import io.kubernetes.client.openapi.models.NetworkingV1beta1HTTPIngressPath ;
-import io.kubernetes.client.openapi.models.NetworkingV1beta1HTTPIngressRuleValue ;
-import io.kubernetes.client.openapi.models.NetworkingV1beta1Ingress ;
-import io.kubernetes.client.openapi.models.NetworkingV1beta1IngressBackend ;
-import io.kubernetes.client.openapi.models.NetworkingV1beta1IngressList ;
-import io.kubernetes.client.openapi.models.NetworkingV1beta1IngressRule ;
-import io.kubernetes.client.openapi.models.NetworkingV1beta1IngressSpec ;
 import io.kubernetes.client.openapi.models.V1Container ;
 import io.kubernetes.client.openapi.models.V1ContainerPort ;
 import io.kubernetes.client.openapi.models.V1DeleteOptions ;
@@ -88,7 +81,15 @@ import io.kubernetes.client.openapi.models.V1DeploymentSpec ;
 import io.kubernetes.client.openapi.models.V1EmptyDirVolumeSource ;
 import io.kubernetes.client.openapi.models.V1EnvVar ;
 import io.kubernetes.client.openapi.models.V1HTTPGetAction ;
+import io.kubernetes.client.openapi.models.V1HTTPIngressPath ;
+import io.kubernetes.client.openapi.models.V1HTTPIngressRuleValue ;
 import io.kubernetes.client.openapi.models.V1HostPathVolumeSource ;
+import io.kubernetes.client.openapi.models.V1Ingress ;
+import io.kubernetes.client.openapi.models.V1IngressBackend ;
+import io.kubernetes.client.openapi.models.V1IngressList ;
+import io.kubernetes.client.openapi.models.V1IngressRule ;
+import io.kubernetes.client.openapi.models.V1IngressServiceBackend ;
+import io.kubernetes.client.openapi.models.V1IngressSpec ;
 import io.kubernetes.client.openapi.models.V1Job ;
 import io.kubernetes.client.openapi.models.V1LabelSelector ;
 import io.kubernetes.client.openapi.models.V1Namespace ;
@@ -111,6 +112,7 @@ import io.kubernetes.client.openapi.models.V1ReplicaSet ;
 import io.kubernetes.client.openapi.models.V1ReplicaSetList ;
 import io.kubernetes.client.openapi.models.V1ResourceRequirements ;
 import io.kubernetes.client.openapi.models.V1Service ;
+import io.kubernetes.client.openapi.models.V1ServiceBackendPort ;
 import io.kubernetes.client.openapi.models.V1ServiceList ;
 import io.kubernetes.client.openapi.models.V1ServicePort ;
 import io.kubernetes.client.openapi.models.V1ServiceSpec ;
@@ -195,7 +197,7 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 	// static AppsV1beta2Api apiBeta2;
 
 	// static ExtensionsV1beta1Api apiBetaExtensions ;
-	static NetworkingV1beta1Api networkingApi ;
+	static NetworkingV1Api networkingApi ;
 
 	String JUNIT_NFS_VOLUME = "junit-nfs-volume" ;
 
@@ -277,7 +279,7 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 		apiV1 = new CoreV1Api( apiClient ) ;
 		// apiBeta2 = new AppsV1beta2Api( apiClient );
 
-		networkingApi = new NetworkingV1beta1Api( apiClient ) ;
+		networkingApi = new NetworkingV1Api( apiClient ) ;
 
 		apiApps = new AppsV1Api( apiClient ) ;
 
@@ -295,7 +297,9 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 		String pretty = null ;
 		String dryRun = null ;
 		String fieldManager = null ;
-		V1Namespace result = apiV1.createNamespace( body, pretty, dryRun, fieldManager ) ;
+
+		var result = apiV1.createNamespace( body, pretty, dryRun, fieldManager ) ;
+
 		return result ;
 
 	}
@@ -560,7 +564,7 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 
 		}
 
-		private void yaml_ingress_delete ( NetworkingV1beta1Ingress apiSpec ) {
+		private void yaml_ingress_delete ( V1Ingress apiSpec ) {
 
 			try {
 
@@ -579,9 +583,9 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 
 		}
 
-		private void yaml_ingress_create ( NetworkingV1beta1Ingress apiSpec ) {
+		private void yaml_ingress_create ( V1Ingress apiSpec ) {
 
-			NetworkingV1beta1Ingress ingressResponse = null ;
+			V1Ingress ingressResponse = null ;
 
 			try {
 
@@ -626,7 +630,7 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 
 			assertThat( serviceCreated ).isNotNull( ) ;
 			assertThat( serviceCreated.getSpec( ).getType( ) )
-					.isEqualTo( KubernetesJson.CLUSTER_IP.json( ) ) ;
+					.isEqualTo( K8.CLUSTER_IP.val( ) ) ;
 
 		}
 
@@ -1001,21 +1005,27 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 		private void service_delete ( String serviceName , String namespace )
 			throws Exception {
 
-			V1DeleteOptions body = new V1DeleteOptions( ) ;
+			var body = new V1DeleteOptions( ) ;
 
-			String pretty = "true" ;
+			String pretty = null ;
 			String dryRun = null ;
 			Boolean orphanDependents = null ;
+			
 			var propagationPolicy = Propogation_Policy.foreground.apiValue( ) ;
 
-			V1Status deleteResult = apiV1.deleteNamespacedService(
+			var deleteResult = apiV1.deleteNamespacedService(
 					serviceName, namespace, pretty,
 					dryRun, gracePeriodSeconds_0, orphanDependents, propagationPolicy, body ) ;
+			
 			logger.info( "delete result: {} ", deleteResult.toString( ) ) ;
-
+			
 			assertThat( deleteResult.getStatus( ) )
-					.as( "initial name spaces" )
-					.isEqualToIgnoringCase( "success" ) ;
+					.as( "status" )
+					.isNull( ); ;
+
+//			assertThat( deleteResult.getStatus( ) )
+//					.as( "initial name spaces" )
+//					.isEqualToIgnoringCase( "success" ) ;
 
 		}
 
@@ -1032,7 +1042,7 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 
 			V1ServiceSpec serviceSpec = new V1ServiceSpec( ) ;
 			serviceSpec.setSelector( deploymentSelector ) ;
-			serviceSpec.setType( KubernetesJson.NODE_PORT.json( ) ) ;
+			serviceSpec.setType( K8.NODE_PORT.val( ) ) ;
 			serviceCreateRequest.setSpec( serviceSpec ) ;
 
 			V1ServicePort servicePortSpec = new V1ServicePort( ) ;
@@ -1049,8 +1059,12 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 				String pretty = null ;
 				String fieldManager = null ;
 
-				V1Service exposedService = apiV1.createNamespacedService( namespace, serviceCreateRequest,
-						pretty, dryRun, fieldManager ) ;
+				V1Service exposedService = apiV1.createNamespacedService( 
+						namespace, 
+						serviceCreateRequest,
+						pretty, 
+						dryRun, 
+						fieldManager ) ;
 				logger.info( "exposedService: {} ", gsonWithExclusions.toJson( exposedService ) ) ;
 
 			} catch ( ApiException e ) {
@@ -1068,17 +1082,22 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 		public void ingress_create_and_delete ( )
 			throws Exception {
 
-			logger.info( CsapApplication.testHeader( "Creating deployment" ) ) ;
+			logger.info( CsapApplication.testHeader( ) ) ;
 
 			String deploymentName = "junit-test" ;
 			int port = 80 ;
 			String ingressPath = "/" ;
 			deploymentName = "demo" ;
 			port = 7080 ;
-			String ingress = ingress_create( deploymentName, TEST_NAMESPACE_NAME, port, ingressPath,
+
+			var ingressName = ingress_create( deploymentName, TEST_NAMESPACE_NAME, port, ingressPath,
 					getApplication( ).getHostUsingFqdn( "*" ) ) ;
 
-			ingress_delete( ingress, TEST_NAMESPACE_NAME ) ;
+			if ( StringUtils.isNotEmpty( ingressName ) ) {
+
+				ingress_delete( ingressName, TEST_NAMESPACE_NAME ) ;
+
+			}
 
 		}
 
@@ -1134,7 +1153,7 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 			// ) ;
 
 			//
-			NetworkingV1beta1Ingress ingressCreateRequest = new NetworkingV1beta1Ingress( ) ;
+			V1Ingress ingressCreateRequest = new V1Ingress( ) ;
 
 			V1ObjectMeta deployMetaData = buildMetaData( ingressName, namespace ) ;
 			// deployMetaData.setLabels( deploymentSelector );
@@ -1143,27 +1162,38 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 			annotations.put( "nginx.ingress.kubernetes.io/affinity", "cookie" ) ;
 			annotations.put( "nginx.ingress.kubernetes.io/session-cookie-name", "k8_route" ) ;
 			annotations.put( "nginx.ingress.kubernetes.io/session-cookie-hash", "sha1" ) ;
+			annotations.put( "nginx.ingress.kubernetes.io/use-regex", "true" ) ; // support host wild cards
 			deployMetaData.setAnnotations( annotations ) ;
 			ingressCreateRequest.setMetadata( deployMetaData ) ;
 
-			NetworkingV1beta1IngressSpec ingressSpec = new NetworkingV1beta1IngressSpec( ) ;
+			var ingressSpec = new V1IngressSpec( ) ;
 			ingressCreateRequest.setSpec( ingressSpec ) ;
+
+			//ingressSpec.setIngressClassName( "nginx" ) ;
 
 			// List<ExtensionsV1beta1IngressRule> rules = new ArrayList<>() ;
 
-			NetworkingV1beta1IngressRule ingress_rule = new NetworkingV1beta1IngressRule( ) ;
+			var ingress_rule = new V1IngressRule( ) ;
 
-			NetworkingV1beta1HTTPIngressRuleValue httpRouting = new NetworkingV1beta1HTTPIngressRuleValue( ) ;
+			var httpRouting = new V1HTTPIngressRuleValue( ) ;
 
 			// List<ExtensionsV1beta1HTTPIngressPath> ingressPaths = new ArrayList<>() ;
 
-			NetworkingV1beta1IngressBackend backend = new NetworkingV1beta1IngressBackend( ) ;
-			backend.setServiceName( serviceName ) ;
-			backend.setServicePort( new IntOrString( port ) ) ;
+			var backend = new V1IngressBackend( ) ;
+			//ingressSpec.setDefaultBackend( backend ) ;
 
-			NetworkingV1beta1HTTPIngressPath httpIngress = new NetworkingV1beta1HTTPIngressPath( ) ;
+			var backEndService = new V1IngressServiceBackend( ) ;
+			backend.setService( backEndService ) ;
+			backEndService.setName( serviceName ) ;
+			var bePort = new V1ServiceBackendPort( ) ;
+			bePort.setNumber( port ) ;
+			backEndService.setPort( bePort ) ;
+			// backEndService.setPort( new IntOrString( port ) ) ;
+
+			var httpIngress = new V1HTTPIngressPath( ) ;
 			httpIngress.backend( backend ) ;
 			httpIngress.setPath( ingressPath ) ;
+			httpIngress.setPathType( "ImplementationSpecific" ) ;
 
 			httpRouting.setPaths( Arrays.asList( httpIngress ) ) ;
 
@@ -1180,18 +1210,22 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 				String pretty = null ;
 				String fieldManager = null ;
 
-				NetworkingV1beta1Ingress ingressResponse = networkingApi.createNamespacedIngress( namespace,
+				var ingressResponse = networkingApi.createNamespacedIngress( namespace,
 						ingressCreateRequest,
 						pretty, dryRun, fieldManager ) ;
 
 				logger.info( "ingressResponse: {} ", gsonWithExclusions.toJson( ingressResponse ) ) ;
 
-			} catch ( ApiException e ) {
+			} catch ( Exception e ) {
 
 				logger.error( "Failed to create ingress: {}",
 						CSAP.buildCsapStack( e ), e ) ;
 
+				ingressName = null ;
+
 			}
+
+			assertThat( ingressName ).as( "ingress created successfully" ).isNotNull( ) ;
 
 			return ingressName ;
 
@@ -1208,7 +1242,7 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 		@Test
 		public void serviceTypes ( ) {
 
-			logger.info( "serviceTypes: {}", KubernetesJson.k8TypeList( ) ) ;
+			logger.info( "serviceTypes: {}", K8.k8TypeList( ) ) ;
 
 		}
 
@@ -1234,19 +1268,31 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 
 			deployment_create( deploymentName, TEST_NAMESPACE_NAME ) ;
 
-			String serviceName = service_create( deploymentName, TEST_NAMESPACE_NAME, 7081, 80 ) ;
+			var serviceName = service_create( deploymentName, TEST_NAMESPACE_NAME, 7081, 80 ) ;
 
-			String ingressName = //
+			var ingressName = //
 					ingress_create(
 							deploymentName,
 							TEST_NAMESPACE_NAME,
 							80,
 							"/", getApplication( ).getHostUsingFqdn( "*" ) ) ;
+			
+
+			
+			//
+			// Verify deploment done
+			//
+			
+			var deployments = deploymentNames( TEST_NAMESPACE_NAME ) ;
+			
+			logger.info( CsapApplication.highlightHeader( "deployments: {}" ), deployments ) ;
+			
+			
 
 			ingress_delete( ingressName, TEST_NAMESPACE_NAME ) ;
-			//
+			
 			service_delete( serviceName, TEST_NAMESPACE_NAME ) ;
-			//
+			
 			deployment_delete( deploymentName, TEST_NAMESPACE_NAME ) ;
 
 		}
@@ -1478,7 +1524,7 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 
 			assertThat( nsNames.toString( ) )
 					.as( "initial name spaces" )
-					.contains( "default", "kube-system" ) ;
+					.contains( "default", K8.systemNamespace.val( ) ) ;
 
 		}
 
@@ -1583,12 +1629,12 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 
 			logger.info( CsapApplication.testHeader( "Creating deployment" ) ) ;
 
-			NetworkingV1beta1IngressList ingressList = networkingApi.listIngressForAllNamespaces(
+			V1IngressList ingressList = networkingApi.listIngressForAllNamespaces(
 					null, null, null, null, null, null, null, null, null, null ) ;
 			logger.info( "ingressList details: {} ", gsonWithExclusions.toJson( ingressList ) ) ;
 			//
 			List<String> ingressNames = ingressList.getItems( ).stream( )
-					.map( NetworkingV1beta1Ingress::getMetadata )
+					.map( V1Ingress::getMetadata )
 					.map( V1ObjectMeta::getName )
 					.collect( Collectors.toList( ) ) ;
 
@@ -1857,11 +1903,11 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 
 						try {
 
-							var jsonSample = getApplication( ).metrics( ).startTimer( ) ;
+							var jsonSample = getCsapApis( ).metrics( ).startTimer( ) ;
 
 							var jsonPods = kubernetesDirect.getJson( "/api/v1/pods", apiClient, getJsonMapper( ) ) ;
 
-							var jsonNanos = getApplication( ).metrics( ).stopTimer( jsonSample, "rawSample" ) ;
+							var jsonNanos = getCsapApis( ).metrics( ).stopTimer( jsonSample, "rawSample" ) ;
 							var jsonMs = TimeUnit.NANOSECONDS.toMillis( jsonNanos ) ;
 
 							result.append( CSAP.pad( jsonPods.path( "items" ).size( ) + " pods" ) ) ;
@@ -1874,7 +1920,7 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 							//
 							//
 
-							var rawSample = getApplication( ).metrics( ).startTimer( ) ;
+							var rawSample = getCsapApis( ).metrics( ).startTimer( ) ;
 
 							var rawPods = kubernetesDirect.getRawResponse(
 									apiClient,
@@ -1889,7 +1935,7 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 								// var parsed = JsonPath.parse(rawPods).read(jsonExp, JsonNode.class) ;
 								var remainingItemCount = JsonPath.parse( rawPods ).read( jsonExp, Integer.class ) ;
 
-								var rawNanos = getApplication( ).metrics( ).stopTimer( rawSample, "rawSample" ) ;
+								var rawNanos = getCsapApis( ).metrics( ).stopTimer( rawSample, "rawSample" ) ;
 								var rawMs = TimeUnit.NANOSECONDS.toMillis( rawNanos ) ;
 
 								result.append( CSAP.pad( "rawMs: " + rawMs ) ) ;
@@ -1911,14 +1957,14 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 							//
 							//
 
-							var parsedSample = getApplication( ).metrics( ).startTimer( ) ;
+							var parsedSample = getCsapApis( ).metrics( ).startTimer( ) ;
 
 							var parsedPods = apiV1.listPodForAllNamespaces( null, null, null, null, null, null, null,
 									null,
 									null,
 									null ) ;
 
-							var parsedNanos = getApplication( ).metrics( ).stopTimer( parsedSample, "parsedSample" ) ;
+							var parsedNanos = getCsapApis( ).metrics( ).stopTimer( parsedSample, "parsedSample" ) ;
 							var kapiMs = TimeUnit.NANOSECONDS.toMillis( parsedNanos ) ;
 
 							result.append( CSAP.pad( "kapiMs: " + kapiMs ) ) ;
@@ -1959,7 +2005,8 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 					.contains( "kube-controller-manager-", "coredns-", "kube-proxy" ) ;
 
 			var limit = 5 ;
-			podList = apiV1.listNamespacedPod( "kube-system", null, null, null, null, null, limit, null, null, null,
+			podList = apiV1.listNamespacedPod( K8.systemNamespace.val( ), null, null, null, null, null, limit, null,
+					null, null,
 					null ) ;
 
 			var systemPodNames = podList.getItems( ).stream( )
@@ -1975,7 +2022,8 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 			// get single pod info
 			var podNameFieldSelector = "metadata.name=" + systemPodNames.get( 0 ) ;
 			logger.info( "Getting pod using selector: {}", podNameFieldSelector ) ;
-			var podFirstList = apiV1.listNamespacedPod( "kube-system", null, null, null, podNameFieldSelector, null,
+			var podFirstList = apiV1.listNamespacedPod( K8.systemNamespace.val( ), null, null, null,
+					podNameFieldSelector, null,
 					null, null, null, null, null ) ;
 
 			var firstPodReport = getJsonMapper( ).readTree(
@@ -2077,7 +2125,7 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 		private String mapEventName ( CoreV1Event event ) {
 
 			var name = event.getMetadata( ).getName( ) ;
-			var mappedName = name.split( Pattern.quote( "." ) )[ 0 ] ;
+			var mappedName = name.split( Pattern.quote( "." ) )[0] ;
 
 			var involveType = event.getInvolvedObject( ).getKind( ) ;
 
@@ -2288,7 +2336,7 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 
 							if ( logOutput.length( ) > 8000 ) {
 
-								logger.info( "Chunk: {}", logOutput.length( ) ) ;
+								logger.debug( "Chunk: {}", logOutput.length( ) ) ;
 								// logger.info( "Chunk: {}" , logOutput);
 								logOutput.delete( 0, logOutput.length( ) ) ;
 
@@ -2405,27 +2453,37 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 
 	public void namespace_delete ( String namespace ) {
 
-		logger.info( "Deleting: {} ", namespace ) ;
+		var currentNamespaces = namespaces( ) ;
+		logger.info( CSAP.buildDescription( "Deleting",
+				"namespace", namespace,
+				"currentNamespaces", currentNamespaces ) ) ;
 
 		V1DeleteOptions deleteOptions = new V1DeleteOptions( ) ;
 		deleteOptions.setPropagationPolicy( Propogation_Policy.foreground.apiValue( ) ) ;
+		var attempts = 0 ;
 
-		try {
+		if ( currentNamespaces.contains( namespace ) ) {
 
-			var deleteNamespaceResult = apiV1.deleteNamespace(
-					namespace, pretty_true, dryRun_null,
-					gracePeriodSeconds_0,
-					orphanDependents_null, propagationPolicy_foreground,
-					deleteOptions ) ;
-			logger.info( "deleteNamespaceResult: {}", deleteNamespaceResult ) ;
+			try {
 
-		} catch ( Exception e ) {
+				var deleteNamespaceResult = apiV1.deleteNamespace(
+						namespace, pretty_true, dryRun_null,
+						gracePeriodSeconds_0,
+						orphanDependents_null,
+						propagationPolicy_foreground,
+						deleteOptions ) ;
 
-			logger.error( "Known bug on delete: {}", CSAP.buildCsapStack( e ) ) ;
+				logger.info( "deleteNamespaceResult: {}", deleteNamespaceResult ) ;
+
+			} catch ( Exception e ) {
+
+				logger.error( "Happens if namespace not already created: {}", CSAP.buildCsapStack( e ) ) ;
+
+			}
+
+			attempts = waitForNamespaceDeletedComplete( namespace ) ;
 
 		}
-
-		var attempts = waitForNamespaceDeletedComplete( namespace ) ;
 
 		Assumptions.assumeTrue( attempts < maxTries ) ;
 
@@ -2486,10 +2544,12 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 	public void namespace_create ( String namespace , boolean waitForIt ) {
 
 		logger.info( "Creating: {} ", namespace ) ;
-		V1Namespace body = new V1Namespace( ) ;
-		V1ObjectMeta metadata = new V1ObjectMeta( ) ;
+
+		var nameSpaceRequest = new V1Namespace( ) ;
+		var metadata = new V1ObjectMeta( ) ;
+
 		metadata.setName( namespace ) ;
-		body.setMetadata( metadata ) ;
+		nameSpaceRequest.setMetadata( metadata ) ;
 
 		try {
 
@@ -2497,7 +2557,7 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 			String pretty = "true" ;
 			String dryRun = null ;
 
-			V1Namespace nameSpaceResult = create_namespace( body ) ;
+			V1Namespace nameSpaceResult = create_namespace( nameSpaceRequest ) ;
 
 			logger.debug( "nameSpaceResult: {}", nameSpaceResult ) ;
 

@@ -7,7 +7,7 @@ import java.util.concurrent.ScheduledFuture ;
 import java.util.concurrent.TimeUnit ;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory ;
-import org.csap.agent.model.Application ;
+import org.csap.agent.CsapApis ;
 import org.csap.agent.model.ServiceAlertsEnum ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
@@ -29,16 +29,16 @@ public class MetricsPublisher {
 
 	ScheduledFuture<?> publishServiceHandle ;
 
-	private Application csapApplication ;
+	private CsapApis csapApis ;
 	private ObjectNode metricsPublicationSettings ;
 
 	// ClassPathResource templateLocation = new
 	// ClassPathResource("nagiosResultTemplate.xml");
 	// String statusTemplate = "";
 
-	public MetricsPublisher ( Application manager, ObjectNode metricsPublicationSettings ) {
+	public MetricsPublisher ( CsapApis csapApis, ObjectNode metricsPublicationSettings ) {
 
-		this.csapApplication = manager ;
+		this.csapApis = csapApis ;
 		this.metricsPublicationSettings = metricsPublicationSettings ;
 
 		// seed defaults to System.currentTimeMillis(), which is generally good
@@ -80,7 +80,7 @@ public class MetricsPublisher {
 
 		if ( metricsPublicationSettings.path( "type" ).asText( ).equals( "nagios" ) ) {
 
-			lastResults = NagiosIntegration.publishHealthReport( metricsPublicationSettings, csapApplication,
+			lastResults = NagiosIntegration.publishHealthReport( metricsPublicationSettings, csapApis,
 					isIntegrationEnabled( ) ) ;
 
 		} else if ( metricsPublicationSettings.path( "type" ).asText( ).equals( "csap-health-report" )
@@ -132,9 +132,9 @@ public class MetricsPublisher {
 
 		try {
 
-			ObjectNode applicationStatus = csapApplication.healthManager( ).statusForAdminOrAgent(
+			ObjectNode applicationStatus = csapApis.application( ).healthManager( ).statusForAdminOrAgent(
 					ServiceAlertsEnum.ALERT_LEVEL, false ) ;
-			csapApplication.getEventClient( ).publishEvent( CSAP_HEALTH,
+			csapApis.events( ).publishEvent( CSAP_HEALTH,
 					"Health Data", null, applicationStatus ) ;
 
 		} catch ( Throwable e ) {

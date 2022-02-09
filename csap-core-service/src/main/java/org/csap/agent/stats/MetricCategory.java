@@ -56,7 +56,7 @@ public enum MetricCategory {
 			String id = realTimeMeter.get( "id" ).asText( ) ;
 			// logger.debug( "realTimeDef {}", realTimeDef );
 			String[] ids = id.split( "\\." ) ;
-			return MetricCategory.fromValue( ids[ 0 ] ) ;
+			return MetricCategory.fromValue( ids[0] ) ;
 
 		} else {
 
@@ -83,17 +83,17 @@ public enum MetricCategory {
 		switch ( this ) {
 
 		case java:
-			String[] attributes = ids[ 1 ].split( "_" ) ;
-			serviceName = attributes[ 1 ] ;
+			String[] attributes = ids[1].split( "_" ) ;
+			serviceName = attributes[1] ;
 			break ;
 
 		case osProcess:
-			String[] pattr = ids[ 1 ].split( "_" ) ;
-			serviceName = pattr[ 1 ] ;
+			String[] pattr = ids[1].split( "_" ) ;
+			serviceName = pattr[1] ;
 			break ;
 
 		case application:
-			serviceName = ids[ 1 ] ;
+			serviceName = ids[1] ;
 			break ;
 
 		}

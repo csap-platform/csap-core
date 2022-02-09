@@ -6,6 +6,7 @@ import java.util.HashMap ;
 import java.util.List ;
 import java.util.Map ;
 
+import org.csap.agent.CsapApis ;
 import org.csap.agent.integrations.MetricsPublisher ;
 import org.csap.agent.stats.OsProcessCollector ;
 import org.csap.agent.stats.OsSharedResourcesCollector ;
@@ -23,7 +24,7 @@ public class MetricManager {
 
 	final Logger logger = LoggerFactory.getLogger( getClass( ) ) ;
 
-	Application application ;
+	CsapApis csapApis ;
 	ObjectMapper jsonMapper ;
 
 	List<MetricsPublisher> publishers = new ArrayList<MetricsPublisher>( ) ;
@@ -31,9 +32,9 @@ public class MetricManager {
 	private Map<Integer, OsSharedResourcesCollector> osSharedResourceCollectorMap = new HashMap<Integer, OsSharedResourcesCollector>( ) ;
 	private Map<Integer, OsProcessCollector> osProcessCollectorMap = new HashMap<Integer, OsProcessCollector>( ) ;
 
-	public MetricManager ( Application application, ObjectMapper jsonMapper ) {
+	public MetricManager ( CsapApis csapApis, ObjectMapper jsonMapper ) {
 
-		this.application = application ;
+		this.csapApis = csapApis ;
 		this.jsonMapper = jsonMapper ;
 
 	}
@@ -52,34 +53,33 @@ public class MetricManager {
 
 		var message = "Kicking off background threads for jobs, logs, metricsToCsap and metricsPublish: \n {}" ;
 		logger.warn( message,
-				application.rootProjectEnvSettings( ).getMetricToSecondsMap( ) ) ;
+				csapApis.application( ).rootProjectEnvSettings( ).getMetricToSecondsMap( ) ) ;
 
-		if ( application.getOsManager( ) == null ) {
+		if ( csapApis.osManager( ) == null ) {
 
 			logger.warn( CsapApplication.testHeader( "os manager is null - skipping " ) ) ;
 			return ;
 
 		}
 
-		if ( application.rootProjectEnvSettings( )
+		if ( csapApis.application( ).rootProjectEnvSettings( )
 				.getMetricToSecondsMap( )
 				.get(
 						CsapApplication.COLLECTION_HOST ) != null ) {
 
 			collectorsStarted = true ;
-			Collections.sort( application.rootProjectEnvSettings( )
+			Collections.sort( csapApis.application( ).rootProjectEnvSettings( )
 					.getMetricToSecondsMap( )
 					.get(
 							CsapApplication.COLLECTION_HOST ) ) ;
 
 			boolean publishSummary = true ;
 
-			for ( Integer time : application.rootProjectEnvSettings( ).getMetricToSecondsMap( ).get(
+			for ( Integer time : csapApis.application( ).rootProjectEnvSettings( ).getMetricToSecondsMap( ).get(
 					CsapApplication.COLLECTION_HOST ) ) {
 
 				getOsSharedResourceCollectorMap( ).put( time,
-						new OsSharedResourcesCollector( application, application.getOsManager( ), time,
-								publishSummary ) ) ;
+						new OsSharedResourcesCollector( csapApis, time, publishSummary ) ) ;
 				publishSummary = false ;
 
 			}
@@ -93,24 +93,25 @@ public class MetricManager {
 
 		}
 
-		if ( application.rootProjectEnvSettings( )
+		if ( csapApis.application( ).rootProjectEnvSettings( )
 				.getMetricToSecondsMap( )
 				.get(
 						CsapApplication.COLLECTION_OS_PROCESS ) != null ) {
 
-			Collections.sort( application.rootProjectEnvSettings( )
+			Collections.sort( csapApis.application( ).rootProjectEnvSettings( )
 					.getMetricToSecondsMap( )
 					.get(
 							CsapApplication.COLLECTION_OS_PROCESS ) ) ;
 
 			boolean publishSummary = true ;
 
-			for ( Integer time : application.rootProjectEnvSettings( )
+			for ( Integer time : csapApis.application( ).rootProjectEnvSettings( )
 					.getMetricToSecondsMap( )
 					.get( CsapApplication.COLLECTION_OS_PROCESS ) ) {
 
 				getOsProcessCollectorMap( )
-						.put( time, new OsProcessCollector( application, application.getOsManager( ), time,
+						.put( time, new OsProcessCollector(
+								csapApis, time,
 								publishSummary ) ) ;
 				publishSummary = false ;
 
@@ -122,26 +123,25 @@ public class MetricManager {
 		// collections. Other intervals simply use the last
 		// collected
 		// result to avoid overwhelming connections.
-		if ( application.rootProjectEnvSettings( )
+		if ( csapApis.application( ).rootProjectEnvSettings( )
 				.getMetricToSecondsMap( )
 				.get(
 						CsapApplication.COLLECTION_APPLICATION ) != null ) {
 
-			Collections.sort( application.rootProjectEnvSettings( )
+			Collections.sort( csapApis.application( ).rootProjectEnvSettings( )
 					.getMetricToSecondsMap( )
 					.get(
 							CsapApplication.COLLECTION_APPLICATION ) ) ;
 
 			boolean publishSummary = true ;
 
-			for ( Integer time : application.rootProjectEnvSettings( )
+			for ( Integer time : csapApis.application( ).rootProjectEnvSettings( )
 					.getMetricToSecondsMap( )
 					.get( CsapApplication.COLLECTION_APPLICATION ) ) {
 
 				logger.debug( "Jmx Sorted items: {}", time ) ;
 
-				ServiceCollector applicationCollector = new ServiceCollector( application,
-						application.getOsManager( ), time, publishSummary ) ;
+				ServiceCollector applicationCollector = new ServiceCollector( csapApis, time, publishSummary ) ;
 
 				publishSummary = false ;
 				getApplicationCollectors( ).put( time, applicationCollector ) ;
@@ -150,19 +150,19 @@ public class MetricManager {
 
 		}
 
-		if ( application.rootProjectEnvSettings( ).isMetricsPublication( ) ) {
+		if ( csapApis.application( ).rootProjectEnvSettings( ).isMetricsPublication( ) ) {
 
-			for ( JsonNode item : application.rootProjectEnvSettings( )
+			for ( JsonNode item : csapApis.application( ).rootProjectEnvSettings( )
 					.getMetricsPublicationNode( ) ) {
 
-				publishers.add( new MetricsPublisher( application, (ObjectNode) item ) ) ;
+				publishers.add( new MetricsPublisher( csapApis, (ObjectNode) item ) ) ;
 
 			}
 
 		}
 
 		// Finally - Kick Off the top thread
-		application.getOsManager( ).startAgentResourceCollectors( ) ;
+		csapApis.osManager( ).startAgentResourceCollectors( ) ;
 
 	}
 
@@ -191,6 +191,8 @@ public class MetricManager {
 	public OsSharedResourcesCollector getOsSharedCollector (
 																Integer collectionInterval ) {
 
+		logger.debug( "collectionInterval: {}", collectionInterval ) ;
+
 		if ( collectionInterval.intValue( ) < 0 ) {
 
 			collectionInterval = firstHostCollectionInterval( ) ;
@@ -203,7 +205,12 @@ public class MetricManager {
 
 		} else {
 
-			logger.warn( "Requested collectionInterval not found: {}", collectionInterval ) ;
+			if ( collectionInterval != -1 ) {
+
+				logger.warn( "Requested collectionInterval not found: {}", collectionInterval ) ;
+
+			}
+
 			return getOsSharedResourceCollectorMap( ).get( firstHostCollectionInterval( ) ) ;
 
 		}
@@ -287,7 +294,7 @@ public class MetricManager {
 
 	public Integer firstJavaCollectionInterval ( ) {
 
-		return application.rootProjectEnvSettings( )
+		return csapApis.application( ).rootProjectEnvSettings( )
 				.getMetricToSecondsMap( )
 				.get( CsapApplication.COLLECTION_APPLICATION )
 				.get( 0 ) ;
@@ -296,10 +303,10 @@ public class MetricManager {
 
 	public Integer lastJavaCollectionInterval ( ) {
 
-		return application.rootProjectEnvSettings( )
+		return csapApis.application( ).rootProjectEnvSettings( )
 				.getMetricToSecondsMap( )
 				.get( CsapApplication.COLLECTION_APPLICATION )
-				.get( application.rootProjectEnvSettings( )
+				.get( csapApis.application( ).rootProjectEnvSettings( )
 						.getMetricToSecondsMap( )
 						.get( CsapApplication.COLLECTION_APPLICATION )
 						.size( )
@@ -309,10 +316,10 @@ public class MetricManager {
 
 	public Integer lastHostCollectionInterval ( ) {
 
-		return application.rootProjectEnvSettings( )
+		return csapApis.application( ).rootProjectEnvSettings( )
 				.getMetricToSecondsMap( )
 				.get( CsapApplication.COLLECTION_HOST )
-				.get( application.rootProjectEnvSettings( )
+				.get( csapApis.application( ).rootProjectEnvSettings( )
 						.getMetricToSecondsMap( )
 						.get( CsapApplication.COLLECTION_HOST )
 						.size( )
@@ -322,7 +329,7 @@ public class MetricManager {
 
 	public Integer firstServiceCollectionInterval ( ) {
 
-		return application.rootProjectEnvSettings( )
+		return csapApis.application( ).rootProjectEnvSettings( )
 				.getMetricToSecondsMap( )
 				.get( CsapApplication.COLLECTION_OS_PROCESS )
 				.get( 0 ) ;
@@ -331,10 +338,10 @@ public class MetricManager {
 
 	public Integer lastServiceCollectionInterval ( ) {
 
-		return application.rootProjectEnvSettings( )
+		return csapApis.application( ).rootProjectEnvSettings( )
 				.getMetricToSecondsMap( )
 				.get( CsapApplication.COLLECTION_OS_PROCESS )
-				.get( application.rootProjectEnvSettings( )
+				.get( csapApis.application( ).rootProjectEnvSettings( )
 						.getMetricToSecondsMap( )
 						.get( CsapApplication.COLLECTION_OS_PROCESS )
 						.size( )
@@ -354,7 +361,7 @@ public class MetricManager {
 
 		try {
 
-			return application.rootProjectEnvSettings( )
+			return csapApis.application( ).rootProjectEnvSettings( )
 					.getMetricToSecondsMap( )
 					.get( CsapApplication.COLLECTION_HOST )
 					.get( 0 ) ;
@@ -370,7 +377,7 @@ public class MetricManager {
 
 	public String getSysCpuLevel ( ) {
 
-		if ( application.isJunit( ) ) {
+		if ( csapApis.application( ).isJunit( ) ) {
 
 			return "-1" ;
 
@@ -393,7 +400,7 @@ public class MetricManager {
 
 	public String getUsrCpuLevel ( ) {
 
-		if ( application.isJunit( ) ) {
+		if ( csapApis.application( ).isJunit( ) ) {
 
 			return "-1" ;
 
@@ -421,7 +428,7 @@ public class MetricManager {
 	 */
 	public int getLatestCpuUsage ( ) {
 
-		if ( application.isJunit( ) ) {
+		if ( csapApis.application( ).isJunit( ) ) {
 
 			return -1 ;
 
@@ -444,7 +451,7 @@ public class MetricManager {
 
 	public double getLatestCpuLoad ( ) {
 
-		if ( application.isJunit( ) ) {
+		if ( csapApis.application( ).isJunit( ) ) {
 
 			return -1 ;
 
@@ -467,7 +474,7 @@ public class MetricManager {
 
 	public int getLatestIoWait ( ) {
 
-		if ( application.isJunit( ) ) {
+		if ( csapApis.application( ).isJunit( ) ) {
 
 			return -1 ;
 
@@ -507,11 +514,15 @@ public class MetricManager {
 
 	public void setSuspendCollection ( boolean suspendCollection ) {
 
+		logger.info( CsapApplication.testHeader( "suspendCollection: {}" ), suspendCollection ) ;
+
 		this.suspendCollection = suspendCollection ;
 
 	}
 
 	public void shutdown ( ) {
+
+		logger.info( CsapApplication.header( "Shutting down collectors" ) ) ;
 
 		try {
 
@@ -539,7 +550,6 @@ public class MetricManager {
 
 			}
 
-			application.getOsManager( ).shutDown( ) ;
 
 		} catch ( Exception e1 ) {
 
@@ -547,7 +557,7 @@ public class MetricManager {
 
 		}
 
-		logger.info( CsapApplication.header( "Triggering final uploads" ) ) ;
+		logger.info( CsapApplication.highlightHeader( "Triggering final uploads" ) ) ;
 
 		try {
 

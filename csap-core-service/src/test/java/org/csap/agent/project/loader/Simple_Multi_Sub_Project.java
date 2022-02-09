@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat ;
 import java.io.File ;
 
 import org.csap.agent.CsapBareTest ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.linux.ServiceJobRunner ;
 import org.csap.agent.model.EnvironmentSettings ;
 import org.csap.agent.model.Project ;
@@ -104,9 +104,9 @@ public class Simple_Multi_Sub_Project extends CsapBareTest {
 		logger.info( "jobs: {}", jobs ) ;
 
 		assertThat( jobs.toString( ) )
-				.doesNotContain( CsapCore.CSAP_DEF_NAME ) ;
+				.doesNotContain( CsapConstants.CSAP_DEF_NAME ) ;
 
-		ServiceJobRunner jobRunner = new ServiceJobRunner( getApplication( ) ) ;
+		ServiceJobRunner jobRunner = new ServiceJobRunner( getCsapApis( ) ) ;
 
 		var jobResults = jobRunner.runJobUsingDescription( simpleService2, jobs.get( 0 ).getDescription( ), null ) ;
 		logger.info( "jobResults: {}", jobResults ) ;
@@ -115,8 +115,8 @@ public class Simple_Multi_Sub_Project extends CsapBareTest {
 				.doesNotContain( "test1" )
 				.contains( "test4=test4" )
 				.contains( "test5=test5-overidden" )
-				.doesNotContain( CsapCore.CSAP_DEF_REPLICA )
-				.doesNotContain( CsapCore.CSAP_DEF_NAME ) ;
+				.doesNotContain( CsapConstants.CSAP_DEF_REPLICA )
+				.doesNotContain( CsapConstants.CSAP_DEF_NAME ) ;
 
 	}
 

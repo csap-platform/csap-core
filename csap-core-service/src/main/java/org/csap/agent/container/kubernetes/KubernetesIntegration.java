@@ -31,23 +31,21 @@ import javax.servlet.http.HttpServletResponse ;
 
 import org.apache.commons.io.FileUtils ;
 import org.apache.commons.lang3.StringUtils ;
-import org.csap.agent.KubernetesConfiguration ;
-import org.csap.agent.KubernetesSettings ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.container.ContainerIntegration ;
-import org.csap.agent.container.DockerJson ;
 import org.csap.agent.linux.ZipUtility ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.ContainerState ;
 import org.csap.agent.model.ServiceInstance ;
-import org.csap.agent.services.OsManager ;
 import org.csap.agent.services.OsProcessMapper ;
 import org.csap.agent.ui.explorer.KubernetesExplorer ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
 import org.csap.helpers.CsapSimpleCache ;
+import org.csap.integations.micrometer.CsapMeterUtilities ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
-import org.springframework.beans.factory.annotation.Autowired ;
 import org.springframework.boot.web.client.RestTemplateBuilder ;
 import org.springframework.http.HttpEntity ;
 import org.springframework.http.HttpHeaders ;
@@ -110,9 +108,6 @@ public class KubernetesIntegration {
 	public static final String SUMMARY_TIMER = CSAP_KUBERNETES_METER + "summary" ;
 
 	public static final String CSAP_DEF_INGRESS_HOST = "ingress_host" ;
-	public static final String CSAP_DEF_INGRESS_PORT = "ingress_port" ;
-
-	public static final String INGRESS_NGINX_SERVICE = "ingress-nginx" ;
 
 	static final Logger logger = LoggerFactory.getLogger( KubernetesIntegration.class ) ;
 	static final int gracePeriodSeconds = 0 ;
@@ -126,7 +121,7 @@ public class KubernetesIntegration {
 	// COMMON_SERVICE_NAME_PATTERN + "_8014" ;
 
 	private KubernetesSettings settings ;
-	private KubernetesConfiguration kubernetesConfig ;
+	private KubernetesConfiguration configuration ;
 	ApiDirect kubernetesDirect = new ApiDirect( ) ;
 
 	private ListingsBuilder listingsBuilder ;
@@ -141,7 +136,7 @@ public class KubernetesIntegration {
 			ObjectMapper jsonMapper ) {
 
 		this.settings = settings ;
-		this.kubernetesConfig = kubernetesConfig ;
+		this.configuration = kubernetesConfig ;
 		this.jsonMapper = jsonMapper ;
 
 		jsonExclusionMapper = new ObjectMapper( ) ;
@@ -232,6 +227,10 @@ public class KubernetesIntegration {
 					.build( ) ;
 			theApiClient.setHttpClient( httpClientclient ) ;
 
+		} else {
+
+			logger.warn( "Failed updating credentials" ) ;
+
 		}
 
 		return theApiClient ;
@@ -240,7 +239,7 @@ public class KubernetesIntegration {
 
 	public static String getDefaultUrl ( String host ) {
 
-		return "http://" + Application.getInstance( ).getHostUsingFqdn( host ) + ":8014/api/v1/namespaces" ;
+		return "http://" + CsapApis.getInstance( ).application( ).getHostUsingFqdn( host ) + ":8014/api/v1/namespaces" ;
 //		return "http://" + host + "." + domainName( ) + ":8014/api/v1/namespaces/kube-system/services/" ;
 
 	}
@@ -298,7 +297,7 @@ public class KubernetesIntegration {
 
 	void addApiPath ( JsonNode attributes , String apiType , V1ObjectMeta v1Meta ) {
 
-		( (ObjectNode) attributes ).put( KubernetesJson.apiPath.json( ),
+		( (ObjectNode) attributes ).put( K8.apiPath.val( ),
 				getSettings( ).getApiPath(
 						apiType,
 						v1Meta.getNamespace( ),
@@ -308,7 +307,7 @@ public class KubernetesIntegration {
 
 	void addApiPath ( JsonNode attributes , String apiType , Object... params ) {
 
-		( (ObjectNode) attributes ).put( KubernetesJson.apiPath.json( ),
+		( (ObjectNode) attributes ).put( K8.apiPath.val( ),
 				getSettings( ).getApiPath(
 						apiType,
 						params ) ) ;
@@ -317,7 +316,7 @@ public class KubernetesIntegration {
 
 	ApiClient apiClient ( ) {
 
-		return kubernetesConfig.apiClient( ) ;
+		return configuration.apiClient( ) ;
 
 	}
 
@@ -425,7 +424,7 @@ public class KubernetesIntegration {
 					podName, namespace, pretty, dryRun, gracePeriodSeconds, orphanDependents,
 					propagationPolicy, body ) ;
 
-			var deleteReport = listingsBuilder( ).buildResultReport( deleteResult ) ;
+			var deleteReport = listingsBuilder( ).serializeToJson( deleteResult ) ;
 			logger.info( "result: {} ", deleteReport ) ;
 
 			result = (ObjectNode) deleteReport ;
@@ -562,7 +561,7 @@ public class KubernetesIntegration {
 				if ( resolvedLocators.isObject( ) ) {
 
 					var servicePodMatchPattern = resolvedLocators
-							.path( DockerJson.podName.json( ) )
+							.path( C7.podName.val( ) )
 							.asText( ) ;
 
 					logger.info( "servicePodMatchPattern: {}", servicePodMatchPattern ) ;
@@ -680,10 +679,10 @@ public class KubernetesIntegration {
 						var containerReport = containerMetrics.addObject( ) ;
 						containerReport.put( "name", podContainerMetrics.path( "name" ).asText( ) ) ;
 
-						containerReport.put( KubernetesJson.cores.json( ), CSAP.roundIt(
+						containerReport.put( K8.cores.val( ), CSAP.roundIt(
 								metricsBuilder.metricsServerNormalizedCores( podContainerMetrics ),
 								2 ) ) ;
-						containerReport.put( KubernetesJson.memoryInMb.json( ),
+						containerReport.put( K8.memoryInMb.val( ),
 								metricsBuilder.metricsServerMemoryInMb( podContainerMetrics ) ) ;
 
 					} ) ;
@@ -700,13 +699,15 @@ public class KubernetesIntegration {
 
 	}
 
-	public JsonNode podsByLabel ( String namespace , String label ) {
+	// ref.
+	// https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+	public JsonNode podsByLabelSelector ( String namespace , String labelSelector ) {
 
 		var podReportByLabel = listingsBuilder( ).buildResourceReport(
 				"listNamespacedPod",
 				buildV1Api( ),
 				namespace,
-				label ) ;
+				labelSelector ) ;
 
 		return podReportByLabel.path( "items" ) ;
 
@@ -748,7 +749,7 @@ public class KubernetesIntegration {
 
 					ObjectNode podAmmendedReport = podListing.addObject( ) ;
 
-					podAmmendedReport.put( DockerJson.list_label.json( ),
+					podAmmendedReport.put( C7.list_label.val( ),
 							podReport.path( "metadata" ).path( "name" ).asText( ) ) ;
 
 					podAmmendedReport.put( "hostname",
@@ -766,14 +767,12 @@ public class KubernetesIntegration {
 
 	}
 
-	@Autowired ( required = false )
-	OsManager osManager ;
-
 	public String podHostName ( String hostIP ) {
 
-		if ( getSettings( ).isDnsLookup( ) && osManager != null ) {
+		if ( getSettings( ).isDnsLookup( )
+				&& configuration.getCsapApis( ).osManager( ) != null ) {
 
-			return osManager.ipToHostName( hostIP ) ;
+			return configuration.getCsapApis( ).osManager( ).ipToHostName( hostIP ) ;
 
 		} else {
 
@@ -838,7 +837,7 @@ public class KubernetesIntegration {
 
 	public enum Propogation_Policy {
 
-		orphan("orphan"), foreground("Foreground"), background("Background");
+		orphan( "orphan" ), foreground( "Foreground" ), background( "Background" );
 
 		private String value = "" ;
 
@@ -909,7 +908,7 @@ public class KubernetesIntegration {
 					serviceName, namespace, pretty,
 					dryRun, gracePeriodSeconds, orphanDependents, propagationPolicy, body ) ;
 
-			var deleteReport = listingsBuilder( ).buildResultReport( deleteResult ) ;
+			var deleteReport = listingsBuilder( ).serializeToJson( deleteResult ) ;
 			logger.info( "result: {} ", deleteReport ) ;
 			result = (ObjectNode) deleteReport ;
 
@@ -943,7 +942,7 @@ public class KubernetesIntegration {
 					serviceName, namespace, pretty,
 					dryRun, gracePeriodSeconds, orphanDependents, propagationPolicy, body ) ;
 
-			var deleteReport = listingsBuilder( ).buildResultReport( deleteResult ) ;
+			var deleteReport = listingsBuilder( ).serializeToJson( deleteResult ) ;
 			logger.info( "result: {} ", deleteReport ) ;
 
 			result = (ObjectNode) deleteReport ;
@@ -1055,7 +1054,7 @@ public class KubernetesIntegration {
 
 			logger.warn( "Failed checking if all masters were ready - verify kubelet available and initialized" ) ;
 			logger.debug( "Failed checking if all masters were ready: {}", CSAP.buildCsapStack( e ) ) ;
-			kubernetesConfig.buildApiClient( ) ;
+			configuration.buildApiClient( ) ;
 
 		}
 
@@ -1083,9 +1082,9 @@ public class KubernetesIntegration {
 			if ( ! isAllNamespaces( namespace ) ) {
 
 				ObjectNode item = namespaces.addObject( ) ;
-				var namespaceItem = api.readNamespace( namespace, null, null, null ) ;
+				var namespaceItem = api.readNamespace( namespace, ListingsBuilder.pretty_null ) ;
 
-				var nsReport = listingsBuilder( ).buildResultReport( namespaceItem ) ;
+				var nsReport = listingsBuilder( ).serializeToJson( namespaceItem ) ;
 				item.setAll( (ObjectNode) nsReport ) ;
 
 			} else {
@@ -1097,7 +1096,7 @@ public class KubernetesIntegration {
 
 							try {
 
-								var nsReport = listingsBuilder( ).buildResultReport( namespaceItem ) ;
+								var nsReport = listingsBuilder( ).serializeToJson( namespaceItem ) ;
 								item.setAll( (ObjectNode) nsReport ) ;
 
 							} catch ( Exception e ) {
@@ -1177,11 +1176,11 @@ public class KubernetesIntegration {
 			// Secrets are large - dynamically load
 			//
 			var secretFolder = configurationItems.addObject( ) ;
-			secretFolder.put( DockerJson.list_label.json( ), "Auth: Secrets" ) ;
+			secretFolder.put( C7.list_label.val( ), "Auth: Secrets" ) ;
 			secretFolder.put( "folder", true ) ;
 			secretFolder.put( "lazy", true ) ;
 			var secretAttributes = secretFolder.putObject( "attributes" ) ;
-			secretAttributes.put( DockerJson.list_folderUrl.json( ), "kubernetes/api/secrets" ) ;
+			secretAttributes.put( C7.list_folderUrl.val( ), "kubernetes/api/secrets" ) ;
 
 			//
 			// auth api calls
@@ -1225,18 +1224,18 @@ public class KubernetesIntegration {
 							listingsBuilder.buildResourceReport( "listClusterRoleBinding", authApi ) ) ) ;
 
 			var apiFolder = configurationItems.addObject( ) ;
-			apiFolder.put( DockerJson.list_label.json( ), "Api: Providers" ) ;
+			apiFolder.put( C7.list_label.val( ), "Api: Providers" ) ;
 			apiFolder.put( "folder", true ) ;
 			apiFolder.put( "lazy", true ) ;
 			var attributes = apiFolder.putObject( "attributes" ) ;
-			attributes.put( DockerJson.list_folderUrl.json( ), "kubernetes/api/providers" ) ;
+			attributes.put( C7.list_folderUrl.val( ), "kubernetes/api/providers" ) ;
 
 			var resourceFolder = configurationItems.addObject( ) ;
-			resourceFolder.put( DockerJson.list_label.json( ), "Api: Resources" ) ;
+			resourceFolder.put( C7.list_label.val( ), "Api: Resources" ) ;
 			resourceFolder.put( "folder", true ) ;
 			resourceFolder.put( "lazy", true ) ;
 			attributes = resourceFolder.putObject( "attributes" ) ;
-			attributes.put( DockerJson.list_folderUrl.json( ), "kubernetes/api/resources" ) ;
+			attributes.put( C7.list_folderUrl.val( ), "kubernetes/api/resources" ) ;
 
 		} catch ( Exception e ) {
 
@@ -1267,11 +1266,11 @@ public class KubernetesIntegration {
 
 						var apiItem = apis.addObject( ) ;
 						var apiName = group.at( "/name" ).asText( ) ;
-						apiItem.put( DockerJson.list_label.json( ), apiName ) ;
+						apiItem.put( C7.list_label.val( ), apiName ) ;
 						apiItem.put( "folder", true ) ;
 						apiItem.put( "lazy", true ) ;
 						var attributes = apiItem.putObject( "attributes" ) ;
-						attributes.put( DockerJson.list_folderUrl.json( ), "kubernetes/api/provider/resources" ) ;
+						attributes.put( C7.list_folderUrl.val( ), "kubernetes/api/provider/resources" ) ;
 
 						var navPath = group.at( "/preferredVersion/groupVersion" ).asText( ) ;
 
@@ -1362,7 +1361,8 @@ public class KubernetesIntegration {
 
 							var resourceItem = resources.addObject( ) ;
 							logger.warn( "Failed getting resources: {}", CSAP.buildCsapStack( e ) ) ;
-							resourceItem.put( DockerJson.error.json( ), "Failed getting resources for " + groupName ) ;
+							resourceItem.put( C7.error.val( ), "Failed getting resources for "
+									+ groupName ) ;
 
 						}
 
@@ -1393,11 +1393,11 @@ public class KubernetesIntegration {
 			// only root names displayed. eg. pod, not pod/status or pod/log
 			resourceItem = jsonMapper.createObjectNode( ) ;
 			// name is not unique
-			resourceItem.put( DockerJson.list_label.json( ), kind ) ;
+			resourceItem.put( C7.list_label.val( ), kind ) ;
 			resourceItem.put( "comment", groupVersion ) ;
 			resourceItem.put( "folder", true ) ;
 			resourceItem.put( "lazy", true ) ;
-			resourceItem.set( DockerJson.list_attributes.json( ), resource ) ;
+			resourceItem.set( C7.list_attributes.val( ), resource ) ;
 
 			boolean foundGets = resource.path( "verbs" ).toString( ).contains( "get" ) ;
 
@@ -1410,7 +1410,7 @@ public class KubernetesIntegration {
 				if ( addLinks ) {
 
 					// add optional link
-					( (ObjectNode) resource ).put( DockerJson.list_folderUrl.json( ), "kubernetes/api/resource" ) ;
+					( (ObjectNode) resource ).put( C7.list_folderUrl.val( ), "kubernetes/api/resource" ) ;
 
 					var path = groupVersion + "/" + name ;
 
@@ -1426,7 +1426,7 @@ public class KubernetesIntegration {
 
 					}
 
-					( (ObjectNode) resource ).put( DockerJson.list_folderPath.json( ), path ) ;
+					( (ObjectNode) resource ).put( C7.list_folderPath.val( ), path ) ;
 
 				}
 
@@ -1569,18 +1569,18 @@ public class KubernetesIntegration {
 					}
 
 					( (ObjectNode) itemDefinition ).put(
-							KubernetesJson.apiPath.json( ),
+							K8.apiPath.val( ),
 							apiPath + "/" + name ) ;
 
 				} else {
 
 					( (ObjectNode) itemDefinition ).put(
-							KubernetesJson.apiPath.json( ),
+							K8.apiPath.val( ),
 							apiPathWithUserNamespace + "/" + name ) ;
 
 				}
 
-				apiItem.put( DockerJson.list_label.json( ), uiLabel ) ;
+				apiItem.put( C7.list_label.val( ), uiLabel ) ;
 				apiItem.put( "folder", true ) ;
 				apiItem.put( "lazy", true ) ;
 				apiItem.set( "attributes", itemDefinition ) ;
@@ -1699,7 +1699,7 @@ public class KubernetesIntegration {
 			if ( eventList.getMetadata( ).getContinue( ) != null ) {
 
 				ObjectNode eventReport = eventListing.addObject( ) ;
-				eventReport.put( DockerJson.list_label.json( ), "ZZZZZ" ) ;
+				eventReport.put( C7.list_label.val( ), "ZZZZZ" ) ;
 				ObjectNode eventAttributes = jsonMapper.createObjectNode( ) ;
 
 				eventAttributes.put( "message", "Events limited to " + maxEventsFromServer + " events" ) ;
@@ -1707,7 +1707,7 @@ public class KubernetesIntegration {
 				String now = LocalDateTime.now( ).format( DateTimeFormatter.ofPattern( "MM:dd HH:mm:ss" ) ) ;
 				eventAttributes.put( "timeOfLatestEvent", now ) ;
 				eventAttributes.put( "continue", true ) ;
-				eventReport.set( DockerJson.list_attributes.json( ), eventAttributes ) ;
+				eventReport.set( C7.list_attributes.val( ), eventAttributes ) ;
 
 			}
 
@@ -1721,10 +1721,10 @@ public class KubernetesIntegration {
 
 						try {
 
-							var eventItemReport = listingsBuilder( ).buildResultReport( event ) ;
+							var eventItemReport = listingsBuilder( ).serializeToJson( event ) ;
 
 							ObjectNode attributes = jsonMapper.createObjectNode( ) ;
-							eventReport.set( DockerJson.list_attributes.json( ), attributes ) ;
+							eventReport.set( C7.list_attributes.val( ), attributes ) ;
 
 							logger.debug( "event: \n {}", CSAP.jsonPrint( eventItemReport ) ) ;
 
@@ -1757,15 +1757,15 @@ public class KubernetesIntegration {
 							if ( event.getLastTimestamp( ) != null ) {
 
 								latestOccurence = eventShortLocalDateTime( event.getLastTimestamp( ) ) ;
-								eventReport.put( DockerJson.list_label.json( ), latestOccurence ) ;
+								eventReport.put( C7.list_label.val( ), latestOccurence ) ;
 
 							} else if ( eventTime != null ) {
 
-								eventReport.put( DockerJson.list_label.json( ), eventTime ) ;
+								eventReport.put( C7.list_label.val( ), eventTime ) ;
 
 							} else {
 
-								eventReport.put( DockerJson.list_label.json( ), "ZZZ" ) ;
+								eventReport.put( C7.list_label.val( ), "ZZZ" ) ;
 
 							}
 
@@ -1997,7 +1997,7 @@ public class KubernetesIntegration {
 
 		try {
 
-			folderReport.put( DockerJson.list_label.json( ), label ) ;
+			folderReport.put( C7.list_label.val( ), label ) ;
 			folderReport.put( "folder", true ) ;
 			folderReport.put( "lazy", true ) ;
 
@@ -2005,7 +2005,7 @@ public class KubernetesIntegration {
 
 			if ( ! attributes.has( "items" ) ) {
 
-				folderReport.set( DockerJson.list_attributes.json( ), attributes ) ;
+				folderReport.set( C7.list_attributes.val( ), attributes ) ;
 
 			} else {
 
@@ -2022,14 +2022,14 @@ public class KubernetesIntegration {
 
 						uiLabel += "," + namespace ;
 
-						( (ObjectNode) itemDefinition ).put( KubernetesJson.apiPath.json( ),
+						( (ObjectNode) itemDefinition ).put( K8.apiPath.val( ),
 								getSettings( ).getApiPath(
 										apiKey,
 										namespace, name ) ) ;
 
 					} else {
 
-						( (ObjectNode) itemDefinition ).put( KubernetesJson.apiPath.json( ),
+						( (ObjectNode) itemDefinition ).put( K8.apiPath.val( ),
 								getSettings( ).getApiPath(
 										apiKey,
 										name ) ) ;
@@ -2040,7 +2040,7 @@ public class KubernetesIntegration {
 
 				} ) ;
 
-				folderReport.set( DockerJson.list_attributes.json( ), targetAttributes ) ;
+				folderReport.set( C7.list_attributes.val( ), targetAttributes ) ;
 
 			}
 
@@ -2088,8 +2088,8 @@ public class KubernetesIntegration {
 	public ObjectNode buildErrorResponse ( String description , Exception error_found ) {
 
 		ObjectNode result = jsonMapper.createObjectNode( ) ;
-		result.put( DockerJson.error.json( ), "" ) ;
-		result.put( DockerJson.errorReason.json( ), "" ) ;
+		result.put( C7.error.val( ), "" ) ;
+		result.put( C7.errorReason.val( ), "" ) ;
 		String reason = "Command not issued." ;
 
 		if ( error_found != null ) {
@@ -2149,8 +2149,8 @@ public class KubernetesIntegration {
 
 		}
 
-		result.put( DockerJson.error.json( ), description ) ;
-		result.put( DockerJson.errorReason.json( ), reason ) ;
+		result.put( C7.error.val( ), description ) ;
+		result.put( C7.errorReason.val( ), reason ) ;
 		logger.warn( "Kubernetes Command Failure: {}, {}", description, reason ) ;
 
 		return result ;
@@ -2184,7 +2184,7 @@ public class KubernetesIntegration {
 
 	public ObjectNode getCachedNodeHealthMetrics ( ) {
 
-		CsapSimpleCache metricsReportCache = cachedReports.get( KubernetesJson.report_metrics.json( ) ) ;
+		CsapSimpleCache metricsReportCache = cachedReports.get( K8.report_metrics.val( ) ) ;
 
 		if ( metricsReportCache == null ) {
 
@@ -2192,9 +2192,9 @@ public class KubernetesIntegration {
 					4,
 					TimeUnit.SECONDS,
 					this.getClass( ),
-					"kubernetes-report-" + KubernetesJson.report_metrics.json( ) ) ;
+					"kubernetes-report-" + K8.report_metrics.val( ) ) ;
 			metricsReportCache.expireNow( ) ;
-			cachedReports.put( KubernetesJson.report_metrics.json( ), metricsReportCache ) ;
+			cachedReports.put( K8.report_metrics.val( ), metricsReportCache ) ;
 
 		}
 
@@ -2214,9 +2214,9 @@ public class KubernetesIntegration {
 			//
 			// No HeartBeat = need to try to reconnect
 			//
-			if ( ! healthReport.path( "metrics" ).path( KubernetesJson.heartbeat.json( ) ).asBoolean( ) ) {
+			if ( ! healthReport.path( "metrics" ).path( K8.heartbeat.val( ) ).asBoolean( ) ) {
 
-				kubernetesConfig.buildApiClient( ) ;
+				configuration.buildApiClient( ) ;
 
 			}
 
@@ -2242,7 +2242,7 @@ public class KubernetesIntegration {
 			if ( getCsapApp( ).kubeletInstance( ).isKubernetesPrimaryMaster( ) ) {
 
 				// run event audits
-				CsapSimpleCache cachedEventAudit = cachedReports.get( KubernetesJson.report_events.json( ) ) ;
+				CsapSimpleCache cachedEventAudit = cachedReports.get( K8.report_events.val( ) ) ;
 
 				if ( cachedEventAudit == null ) {
 
@@ -2250,9 +2250,9 @@ public class KubernetesIntegration {
 							30,
 							TimeUnit.SECONDS,
 							this.getClass( ),
-							"kubernetes-report" + KubernetesJson.report_events.json( ) ) ;
+							"kubernetes-report" + K8.report_events.val( ) ) ;
 					cachedEventAudit.expireNow( ) ;
-					cachedReports.put( KubernetesJson.report_events.json( ), cachedEventAudit ) ;
+					cachedReports.put( K8.report_events.val( ), cachedEventAudit ) ;
 
 				}
 
@@ -2280,7 +2280,13 @@ public class KubernetesIntegration {
 
 	Application getCsapApp ( ) {
 
-		return kubernetesConfig.getCsapApp( ) ;
+		return configuration.getCsapApis( ).application( ) ;
+
+	}
+
+	CsapMeterUtilities metrics ( ) {
+
+		return configuration.getCsapApis( ).metrics( ) ;
 
 	}
 
@@ -2316,12 +2322,12 @@ public class KubernetesIntegration {
 
 		} else {
 
-			Timer.Sample summaryTimer = kubernetesConfig.getCsapApp( ).metrics( ).startTimer( ) ;
+			Timer.Sample summaryTimer = metrics( ).startTimer( ) ;
 			logger.debug( CsapApplication.header( "flushing cache" ) ) ;
 
 			ObjectNode summary = jsonMapper.createObjectNode( ) ;
 
-			summary.put( KubernetesJson.heartbeat.json( ), false ) ;
+			summary.put( K8.heartbeat.val( ), false ) ;
 			summary.put( "started", LocalDateTime.now( ).format( DateTimeFormatter.ofPattern( "HH:mm:ss" ) ) ) ;
 			summary.put( "completed-ms", "-" ) ;
 			summary.put( "version", "cert error: $HOME/.kube" ) ;
@@ -2353,7 +2359,7 @@ public class KubernetesIntegration {
 				summary.put( "replicaSetCount", listingsBuilder.replicaSetCount( namespace ) ) ;
 
 				var helmReleaseCount = 0 ;
-				var resultReport = Application.getInstance( ).getOsManager( ).helmCli(
+				var resultReport = CsapApis.getInstance( ).osManager( ).helmCli(
 						"list --all-namespaces --output json" ) ;
 				var report = resultReport.path( "result" ) ;
 
@@ -2373,17 +2379,17 @@ public class KubernetesIntegration {
 
 				String reason = CSAP.buildCsapStack( e ) ;
 				logger.warn( "Failure: {} {}", "failed to build summary", reason ) ;
-				kubernetesConfig.buildApiClient( ) ;
+				configuration.buildApiClient( ) ;
 
 			}
 
 			namespaceReportCache.reset( summary ) ;
 
-			var nanos = kubernetesConfig.getCsapApp( ).metrics( ).stopTimer( summaryTimer, SUMMARY_TIMER ) ;
+			var nanos = metrics( ).stopTimer( summaryTimer, SUMMARY_TIMER ) ;
 			var reportMs = TimeUnit.NANOSECONDS.toMillis( nanos ) ;
 			logger.debug( "\n\n Report completed for namespace: {}, {} ms", namespace, reportMs ) ;
 			summary.put( "completed-ms", reportMs ) ;
-			summary.put( KubernetesJson.heartbeat.json( ), true ) ;
+			summary.put( K8.heartbeat.val( ), true ) ;
 
 		}
 
@@ -2533,7 +2539,7 @@ public class KubernetesIntegration {
 			browserContent.print( CsapApplication.header( heading.toString( ) ) + "\n\n\n" ) ;
 			browserContent.flush( ) ;
 
-			var timer = kubernetesConfig.getCsapApp( ).metrics( ).startTimer( ) ;
+			var timer = metrics( ).startTimer( ) ;
 
 			try ( var podLogStream = streamNamespacedPodLog(
 					namespace,
@@ -2559,7 +2565,7 @@ public class KubernetesIntegration {
 
 					}
 
-				}, kubernetesConfig.getKubernetesSettings( ).getMaxSessionSeconds( ), TimeUnit.SECONDS ) ;
+				}, configuration.getKubernetesSettings( ).getMaxSessionSeconds( ), TimeUnit.SECONDS ) ;
 
 				byte[] buffer = new byte[1024 * 10] ;
 				int numBytesRead = 0 ;
@@ -2579,7 +2585,7 @@ public class KubernetesIntegration {
 
 			}
 
-			var logNanos = kubernetesConfig.getCsapApp( ).metrics( ).stopTimer( timer, CSAP_KUBERNETES_METER
+			var logNanos = metrics( ).stopTimer( timer, CSAP_KUBERNETES_METER
 					+ "logdownload" ) ;
 			var timeTaken = CSAP.timeUnitPresent( TimeUnit.NANOSECONDS.toMillis( logNanos ) ) ;
 
@@ -2608,9 +2614,9 @@ public class KubernetesIntegration {
 		throws ApiException ,
 		IOException {
 
-		ApiClient apiClient = kubernetesConfig.buildApiClient( ) ;
+		ApiClient apiClient = configuration.buildApiClient( ) ;
 		CoreV1Api api = new CoreV1Api( apiClient ) ;
-		apiClient.setReadTimeout( kubernetesConfig.getKubernetesSettings( ).getConnectionTimeOutInMs( ) ) ;
+		apiClient.setReadTimeout( configuration.getKubernetesSettings( ).getConnectionTimeOutInMs( ) ) ;
 
 		var follow = true ; // ?
 		var insecureSkipTLSVerifyBackend = true ;
@@ -2700,7 +2706,7 @@ public class KubernetesIntegration {
 					insecureSkipTLSVerifyBackend,
 					limitBytes, prettyPrint, previousTerminated, sinceSeconds, tailLines, timestamps ) ;
 
-			result.put( DockerJson.response_info.json( ), "View logs: " + containerName ) ;
+			result.put( C7.response_info.val( ), "View logs: " + containerName ) ;
 			// String logOutput =loggingCallback.toString() ;
 
 			// // Docker returns new empty line
@@ -2771,17 +2777,17 @@ public class KubernetesIntegration {
 
 	}
 
-	public String ingressUrl ( Application csapApp , String path , String ingressHost, boolean ssl ) {
+	public String ingressUrl ( Application csapApp , String path , String ingressHost , boolean ssl ) {
 
-		if ( StringUtils.isEmpty( ingressHost ) ) {
+		var ingressHostAndMaybePort = ingressHost ;
 
-			ingressHost = ingressHost( ) ; // default to first active ingressHost
+		if ( StringUtils.isEmpty( ingressHostAndMaybePort ) ) {
+
+			ingressHostAndMaybePort = findIngressHostAndMaybePort( ssl ) ; // default to first active ingressHost
 
 		}
 
-//		return nodePortUrl( csapApp, INGRESS_NGINX_SERVICE, ingressHost, path, false ) ;
-		// enable launch to ssl service
-		return nodePortUrl( csapApp, INGRESS_NGINX_SERVICE, ingressHost, path, ssl ) ;
+		return nodePortUrl( csapApp, K8.ingressService.val( ), ingressHostAndMaybePort, path, ssl ) ;
 
 	}
 
@@ -2804,10 +2810,13 @@ public class KubernetesIntegration {
 		var serviceNodePortFull = ":" + serviceNodePort ;
 
 		//
-		//  node port will be 0 if service does not exist
-		// 	eg. typically ingress deployment uses host networking (80 or 443)
+		// node port will be 0 if service does not exist
+		// eg. typically ingress deployment uses host networking (80 or 443)
 		//
-		if ( serviceNodePort == 0 ) {
+		if ( serviceNodePort == 0
+				||
+				( serviceName.equals( K8.ingressService.val( ) )
+						&& StringUtils.isNotEmpty( hostAndMaybePort ) ) ) {
 
 			serviceNodePortFull = "" ;
 
@@ -2820,9 +2829,11 @@ public class KubernetesIntegration {
 
 		}
 
+
+		logger.info( "location: {} serviceNodePortFull: {}", location, serviceNodePortFull ) ;
 		//
 		// replace agent http and https context with that from ingresshost
-		//  eg. :8011/path becomes :ingressport/path
+		// eg. :8011/path becomes :ingressport/path
 		var finalLocation = location.replaceAll(
 				Matcher.quoteReplacement( csapApp.getAgentEndpoint( ) ),
 				serviceNodePortFull ) ;
@@ -2831,6 +2842,8 @@ public class KubernetesIntegration {
 		finalLocation = finalLocation.replaceAll(
 				Matcher.quoteReplacement( csapApp.getAgentSslPortAndContext( ) ),
 				serviceNodePortFull ) ;
+
+		logger.info( "pre finalLocation: {}", finalLocation ) ;
 
 		if ( isSsl ) {
 
@@ -2845,6 +2858,8 @@ public class KubernetesIntegration {
 					"http:" ) ;
 
 		}
+
+		logger.info( "finalLocation: {}", finalLocation ) ;
 
 		return finalLocation ;
 
@@ -2912,39 +2927,51 @@ public class KubernetesIntegration {
 
 	}
 
-	private String ingressHost ( ) {
+	private String findIngressHostAndMaybePort ( boolean isSslRequested ) {
 
-		String ingressHost = "host-not-found" ;
+		var ingressHost = "host-not-found" ;
 
-		CoreV1Api api = buildV1Api( ) ;
+		var api = buildV1Api( ) ;
 
 		try {
 
-//			V1PodList podList = api.listNamespacedPod( "ingress-nginx", null, null, null, null, null, null, null, null, null ) ;
-
-			V1PodList podList = api.listNamespacedPod(
-					"ingress-nginx",
+			var podList = api.listNamespacedPod(
+					K8.ingressNamespace.val( ),
 					ListingsBuilder.pretty_null, ListingsBuilder.allowWatchBookmarks_null,
 					ListingsBuilder._continue_null,
-					ListingsBuilder.fieldSelector_null, ListingsBuilder.labelSelector_null,
+					ListingsBuilder.fieldSelector_null,
+					K8.ingressControllerPodLabelSelector.val( ),
 					ListingsBuilder.limit_max,
 					ListingsBuilder.resourceVersion_null, ListingsBuilder.resourceVersionMatch_null,
 					ListingsBuilder.timeoutSeconds_max,
 					ListingsBuilder.watch_null ) ;
 
-			Optional<String> theHost = podList.getItems( ).stream( )
+//			var podList = podsByLabelSelector(
+//					K8.ingressNamespace.val( ),
+//					K8.ingressLabel.val( ) ) ;
+
+			var theHostOptional = podList.getItems( ).stream( )
 					.map( pod -> {
 
-						String podName = pod.getMetadata( ).getName( ) ;
+						var phase = pod.getStatus( ).getPhase( ) ;
+						logger.info( "isSslRequested: {} Found pod: {}  phase: {} ",
+								isSslRequested,
+								pod.getMetadata( ).getName( ),
+								phase ) ;
 
-						logger.debug( "Found pod: {}", pod.getMetadata( ).getName( ) ) ;
+						var podReport = listingsBuilder( ).serializeToJson( pod ) ;
 
-						if ( podName.startsWith( "nginx-ingress-controller" ) ) {
+						if ( phase.equalsIgnoreCase( "Running" ) ) {
 
-							var hostName = podHostName( pod.getStatus( ).getHostIP( ) ) ;
+							logger.debug( "Running: {}", CSAP.jsonPrint( podReport ) ) ;
 
-							if ( pod.getSpec( ).getHostNetwork( ) ) {
+							var hostName = "" ;
 
+							// include port when host Network is used AND not 80 or 443
+							if ( pod.getSpec( ).getHostNetwork( ) != null
+									&& pod.getSpec( ).getHostNetwork( ) ) {
+
+								hostName = podHostName( pod.getStatus( ).getHostIP( ) ) ;
 								//
 								// Handle non standard host ports
 								//
@@ -2952,15 +2979,33 @@ public class KubernetesIntegration {
 
 								for ( var port : firstContainer.getPorts( ) ) {
 
-									if ( port.getName( ) != null
-											&& port.getName( ).equals( "http" ) ) {
+									var portName = port.getName( ) ;
 
-										var firstHttpPort = port.getHostPort( ) ;
+									logger.debug( "portName: {}", portName ) ;
 
-										if ( firstHttpPort != 80 ) {
+									if ( portName != null ) {
 
-											logger.info( "Non standard port for ingress: {}", firstHttpPort ) ;
-											hostName += ":" + firstHttpPort ;
+										if ( ! isSslRequested && portName.equals( "http" ) ) {
+
+											var hostPort = port.getHostPort( ) ;
+
+											if ( hostPort != 80 ) {
+
+												logger.info( "Non standard port for ingress: {}", hostPort ) ;
+												hostName += ":" + hostPort ;
+
+											}
+
+										} else if ( isSslRequested && portName.equals( "https" ) ) {
+
+											var hostPort = port.getHostPort( ) ;
+
+											if ( hostPort != 443 ) {
+
+												logger.info( "Non standard port for ingress: {}", hostPort ) ;
+												hostName += ":" + hostPort ;
+
+											}
 
 										}
 
@@ -2977,12 +3022,14 @@ public class KubernetesIntegration {
 						return "" ;
 
 					} )
-					.filter( StringUtils::isNoneEmpty )
+
+					.filter( StringUtils::isNotEmpty )
+
 					.findFirst( ) ;
 
-			if ( theHost.isPresent( ) ) {
+			if ( theHostOptional.isPresent( ) ) {
 
-				ingressHost = theHost.get( ) ;
+				ingressHost = theHostOptional.get( ) ;
 
 			}
 
@@ -2991,6 +3038,8 @@ public class KubernetesIntegration {
 			logger.error( "Failed to get service listing: {}", CSAP.buildCsapStack( e ) ) ;
 
 		}
+
+		logger.info( "ingressHost: {}", ingressHost ) ;
 
 		return ingressHost ;
 

@@ -9,6 +9,8 @@ import java.util.Arrays ;
 import java.util.List ;
 import java.util.stream.Stream ;
 
+import org.csap.agent.container.C7 ;
+
 /**
  *
  * @author someDeveloper
@@ -51,7 +53,7 @@ public enum ServiceAttributes {
 	deployTimeMinutes("deployTimeoutMinutes"),
 	//
 	//
-	dockerSettings("docker"), runUsingDocker("runUsingDocker"),
+	dockerSettings(C7.definitionSettings.val( )), runUsingDocker("runUsingDocker"),
 	//
 	// monitoring and performance
 	//

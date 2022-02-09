@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap ;
 import java.util.concurrent.Executors ;
 import java.util.concurrent.ScheduledExecutorService ;
 import java.util.concurrent.TimeUnit ;
+import java.util.concurrent.atomic.AtomicInteger ;
 import java.util.concurrent.locks.ReentrantLock ;
 import java.util.regex.Matcher ;
 import java.util.regex.Pattern ;
@@ -37,16 +38,16 @@ import java.util.stream.Collectors ;
 import java.util.stream.Stream ;
 import java.util.stream.StreamSupport ;
 
-import javax.inject.Inject ;
 import javax.servlet.ServletOutputStream ;
 import javax.servlet.http.HttpServletResponse ;
 
 import org.apache.commons.lang3.StringUtils ;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.container.ContainerProcess ;
-import org.csap.agent.container.DockerJson ;
 import org.csap.agent.container.kubernetes.KubernetesIntegration ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.linux.InfrastructureRunner ;
@@ -74,6 +75,7 @@ import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
 import org.springframework.beans.factory.annotation.Autowired ;
 import org.springframework.boot.context.properties.EnableConfigurationProperties ;
+import org.springframework.context.annotation.Lazy ;
 import org.springframework.http.MediaType ;
 import org.springframework.stereotype.Service ;
 import org.springframework.web.multipart.MultipartFile ;
@@ -94,6 +96,10 @@ public class OsManager {
 
 	public static final String CRIO_DELIMETER = "crio---" ;
 
+	@Lazy
+	@Autowired
+	ServiceOsManager serviceManager ;
+
 	private OsCommands osCommands ;
 
 	public static final String IO_UTIL_IN_PERCENT = "ioUtilInPercent" ;
@@ -107,8 +113,6 @@ public class OsManager {
 
 	private ObjectMapper jsonMapper = new ObjectMapper( ) ;
 
-	private Application csapApp ;
-
 	OsCommandRunner osCommandRunner = new OsCommandRunner( 120, 3, "OsMgr" ) ;
 	OsCommandRunner kuberernetesRunner = new OsCommandRunner( 60, 1, "kuberernetesRunner" ) ;
 
@@ -119,27 +123,18 @@ public class OsManager {
 	OsProcessMapper processMapper ;
 
 	@Autowired
-	public OsManager ( Application csapApp, OsCommands osCommands ) {
+	public OsManager ( OsCommands osCommands ) {
 
-		this.csapApp = csapApp ;
 		this.osCommands = osCommands ;
 
-		if ( csapApp != null ) {
-
-			processMapper = new OsProcessMapper( csapApp.getCsapWorkingFolder( ), csapApp.metrics( ) ) ;
-
-		} else {
-
-			logger.warn( "OsProcessMapper not initialized" ) ;
-
-		}
+		processMapper = new OsProcessMapper( ) ;
 
 	}
 
 	public void buildAndWriteZip ( HttpServletResponse response , File source )
 		throws IOException {
 
-		File workingFolder = csapApp.csapPlatformTemp( ) ;
+		File workingFolder = CsapApis.getInstance( ).application( ).csapPlatformTemp( ) ;
 
 		if ( ! workingFolder.exists( ) ) {
 
@@ -217,17 +212,6 @@ public class OsManager {
 
 	}
 
-	@Inject
-	ServiceOsManager serviceManager ;
-
-	public void setTestApp ( Application app ) {
-
-		csapApp = app ;
-		processMapper = new OsProcessMapper( csapApp.getCsapWorkingFolder( ), csapApp.metrics( ) ) ;
-		setLinuxLineFormat( ) ;
-
-	}
-
 	public void startAgentResourceCollectors ( ) {
 
 		StringBuilder startInfo = new StringBuilder( "Resource Collectors" ) ;
@@ -236,21 +220,23 @@ public class OsManager {
 		topStatsRunnable = new TopRunnable( topSeconds, osCommands.getSystemProcessMetrics( topSeconds ) ) ;
 		startInfo.append( CSAP.padLine( "linux top" ) + topSeconds + " seconds" ) ;
 
-		logRoller = new LogRollerRunnable( csapApp ) ;
-		startInfo.append( CSAP.padLine( "linux logrotate" ) + csapApp.rootProjectEnvSettings( ).getLogRotationMinutes( )
+		logRoller = new LogRollerRunnable( CsapApis.getInstance( ) ) ;
+		startInfo.append( CSAP.padLine( "linux logrotate" ) + CsapApis.getInstance( ).application( )
+				.rootProjectEnvSettings( ).getLogRotationMinutes( )
 				+ " minutes" ) ;
 
 		if ( jobRunner == null ) {
 
-			jobRunner = new ServiceJobRunner( csapApp ) ;
+			jobRunner = new ServiceJobRunner( CsapApis.getInstance( ) ) ;
 			startInfo.append( CSAP.padLine( "csap jobrunner" ) + "60 minutes" ) ;
 
 		}
 
-		infraRunner = new InfrastructureRunner( csapApp ) ;
+		infraRunner = new InfrastructureRunner( CsapApis.getInstance( ) ) ;
 
 		//
-		var diskCollectionMinutes = csapApp.rootProjectEnvSettings( ).getDuIntervalMins( ) ;
+		var diskCollectionMinutes = CsapApis.getInstance( ).application( ).rootProjectEnvSettings( )
+				.getDuIntervalMins( ) ;
 
 		if ( diskCollectionMinutes > 0 ) {
 
@@ -266,12 +252,12 @@ public class OsManager {
 
 		}
 
-		if ( csapApp.rootProjectEnvSettings( ).isLsofEnabled( ) ) {
+		if ( CsapApis.getInstance( ).application( ).rootProjectEnvSettings( ).isLsofEnabled( ) ) {
 
-			int lsofInterval = csapApp.rootProjectEnvSettings( )
+			int lsofInterval = CsapApis.getInstance( ).application( ).rootProjectEnvSettings( )
 					.getLsofIntervalMins( ) ;
 
-			serviceResourceRunnable = new ResourceCollector( csapApp, osCommandRunner ) ;
+			serviceResourceRunnable = new ResourceCollector( CsapApis.getInstance( ), osCommandRunner ) ;
 
 			intenseOsCommandExecutor.scheduleWithFixedDelay(
 					serviceResourceRunnable,
@@ -307,21 +293,23 @@ public class OsManager {
 
 	public void pingContainers ( ) {
 
-		if ( csapApp.isKubernetesInstalledAndActive( ) ) {
+		if ( CsapApis.getInstance( ).isKubernetesInstalledAndActive( ) ) {
 
-			csapApp.getKubernetesIntegration( ).buildKubernetesHealthReport( ) ;
+			CsapApis.getInstance( ).kubernetes( ).buildKubernetesHealthReport( ) ;
 
 		}
 
-		if ( csapApp.isDockerInstalledAndActive( ) ) {
+		if ( CsapApis.getInstance( ).isContainerProviderInstalledAndActive( ) ) {
 
-			csapApp.getDockerIntegration( ).getCachedSummaryReport( ) ;
+			CsapApis.getInstance( ).containerIntegration( ).getCachedSummaryReport( ) ;
 
 		}
 
 	}
 
 	public void shutDown ( ) {
+
+		logger.info( "shutting down osManager workers" ) ;
 
 		if ( topStatsRunnable != null ) {
 
@@ -332,6 +320,12 @@ public class OsManager {
 		if ( serviceResourceRunnable != null ) {
 
 			serviceResourceRunnable.shutDown( ) ;
+
+		}
+
+		if ( jobRunner != null ) {
+
+			jobRunner.shutdown( ) ;
 
 		}
 
@@ -350,13 +344,13 @@ public class OsManager {
 	private Integer getTopIntervalSeconds ( ) {
 
 		// Default is to poll every 1/2 of the service collection interval
-		if ( csapApp.rootProjectEnvSettings( )
+		if ( CsapApis.getInstance( ).application( ).rootProjectEnvSettings( )
 				.getMetricToSecondsMap( )
 				.size( ) == 0
-				|| ! csapApp.rootProjectEnvSettings( )
+				|| ! CsapApis.getInstance( ).application( ).rootProjectEnvSettings( )
 						.getMetricToSecondsMap( )
 						.containsKey( "service" )
-				|| csapApp.rootProjectEnvSettings( )
+				|| CsapApis.getInstance( ).application( ).rootProjectEnvSettings( )
 						.getMetricToSecondsMap( )
 						.get( "service" )
 						.size( ) == 0 ) {
@@ -365,7 +359,7 @@ public class OsManager {
 
 		}
 
-		return csapApp.rootProjectEnvSettings( )
+		return CsapApis.getInstance( ).application( ).rootProjectEnvSettings( )
 				.getMetricToSecondsMap( )
 				.get( "service" )
 				.get( 0 )
@@ -386,16 +380,25 @@ public class OsManager {
 
 	public void resetAllCaches ( ) {
 
-		logger.debug( "All caches reset" ) ;
+		logger.info( "== process,disk, and memory caches reset ==" ) ;
 
-		if ( diskStatisticsCache != null )
+		if ( diskStatisticsCache != null ) {
+
 			diskStatisticsCache.expireNow( ) ;
 
-		if ( processStatisticsCache != null )
+		}
+
+		if ( processStatisticsCache != null ) {
+
 			processStatisticsCache.expireNow( ) ;
 
-		if ( memoryStatisticsCache != null )
+		}
+
+		if ( memoryStatisticsCache != null ) {
+
 			memoryStatisticsCache.expireNow( ) ;
+
+		}
 
 		// du is long running - so it is scheduled in background
 		try {
@@ -492,7 +495,7 @@ public class OsManager {
 
 		if ( isCsapDefinitionProcessesOnly ) {
 
-			csapApp.servicesOnHost( )
+			CsapApis.getInstance( ).application( ).servicesOnHost( )
 					.map( serviceInstance -> {
 
 						// update top in date
@@ -575,7 +578,7 @@ public class OsManager {
 		} else if ( mpStatusLock.tryLock( ) ) {
 
 			logger.debug( "\n\n***** REFRESHING   cpuStatisticsCache   *******\n\n" ) ;
-			var timer = csapApp.metrics( ).startTimer( ) ;
+			var timer = CsapApis.getInstance( ).metrics( ).startTimer( ) ;
 
 			try {
 
@@ -591,7 +594,7 @@ public class OsManager {
 
 			}
 
-			csapApp.metrics( ).stopTimer( timer, COLLECT_OS + "cpu-metrics" ) ;
+			CsapApis.getInstance( ).metrics( ).stopTimer( timer, COLLECT_OS + "cpu-metrics" ) ;
 
 		}
 
@@ -608,7 +611,7 @@ public class OsManager {
 
 		mpResult = osCommandRunner.executeString( null, parmList ) ;
 
-		mpResult = csapApp.check_for_stub( mpResult, "linux/mpResults.txt" ) ;
+		mpResult = CsapApis.getInstance( ).application( ).check_for_stub( mpResult, "linux/mpResults.txt" ) ;
 
 		logger.debug( "mpResult: {}", mpResult ) ;
 
@@ -625,22 +628,22 @@ public class OsManager {
 
 		for ( int i = 0; i < mpLines.length; i++ ) {
 
-			String curline = mpLines[ i ].trim( ) ;
+			String curline = mpLines[i].trim( ) ;
 			String[] cols = curline.split( " " ) ;
 
-			if ( cols.length < 11 || cols[ 1 ].equalsIgnoreCase( "cpu" )
-					|| cols[ 0 ].startsWith( "_" ) ) {
+			if ( cols.length < 11 || cols[1].equalsIgnoreCase( "cpu" )
+					|| cols[0].startsWith( "_" ) ) {
 
 				logger.debug( "Skipping line: {}", curline ) ;
 				continue ;
 
 			}
 
-			String name = cols[ 1 ] ;
+			String name = cols[1] ;
 
 			ObjectNode cpuNode = mpNode.putObject( name ) ;
 
-			cpuNode.put( "time", cols[ 0 ] + cols[ 1 ] ) ;
+			cpuNode.put( "time", cols[0] + cols[1] ) ;
 
 			if ( ! name.equals( "all" ) ) {
 
@@ -649,15 +652,15 @@ public class OsManager {
 			}
 
 			cpuNode.put( "cpu", name ) ;
-			cpuNode.put( "puser", cols[ 2 ] ) ;
-			cpuNode.put( "pnice", cols[ 3 ] ) ;
-			cpuNode.put( "psys", cols[ 4 ] ) ;
-			cpuNode.put( "pio", cols[ 5 ] ) ;
-			cpuNode.put( "pirq", cols[ 6 ] ) ;
-			cpuNode.put( "psoft", cols[ 7 ] ) ;
-			cpuNode.put( "psteal", cols[ 8 ] ) ;
-			cpuNode.put( "pidle", cols[ 9 ] ) ;
-			cpuNode.put( "intr", cols[ 10 ] ) ;
+			cpuNode.put( "puser", cols[2] ) ;
+			cpuNode.put( "pnice", cols[3] ) ;
+			cpuNode.put( "psys", cols[4] ) ;
+			cpuNode.put( "pio", cols[5] ) ;
+			cpuNode.put( "pirq", cols[6] ) ;
+			cpuNode.put( "psoft", cols[7] ) ;
+			cpuNode.put( "psteal", cols[8] ) ;
+			cpuNode.put( "pidle", cols[9] ) ;
+			cpuNode.put( "intr", cols[10] ) ;
 
 		}
 
@@ -672,14 +675,19 @@ public class OsManager {
 		try {
 
 			setLinuxLineFormat( ) ;
-			processStatisticsCache.reset( csapApp.check_for_stub( "", "linux/ps-service-matching.txt" ) ) ;
+			processStatisticsCache.reset( CsapApis.getInstance( ).application( ).check_for_stub( "",
+					"linux/ps-service-matching.txt" ) ) ;
 
-			diskUsageForServicesCache = csapApp.check_for_stub( "", "linux/ps-service-disk.txt" ) ;
+			diskUsageForServicesCache = CsapApis.getInstance( ).application( ).check_for_stub( "",
+					"linux/ps-service-disk.txt" ) ;
 			// logger.debug( CsapApplication.testHeader( diskUsageForServicesCache ) ) ;
 
-			diskUsageForServicesCache += csapApp.check_for_stub( "", "linux/ps-system-disk.txt" ) ;
-			diskUsageForServicesCache += csapApp.check_for_stub( "", "linux/ps-docker-volumes.txt" ) ;
-			// diskUsageForServicesCache += csapApp.check_for_stub( "",
+			diskUsageForServicesCache += CsapApis.getInstance( ).application( ).check_for_stub( "",
+					"linux/ps-system-disk.txt" ) ;
+			diskUsageForServicesCache += CsapApis.getInstance( ).application( ).check_for_stub( "",
+					"linux/ps-docker-volumes.txt" ) ;
+			// diskUsageForServicesCache +=
+			// CsapApis.getInstance().application().check_for_stub( "",
 			// "linux/dfResults.txt" ) ;
 
 			diskUsageForServicesCache += collectDockerDiskUsage( ) ;
@@ -735,7 +743,7 @@ public class OsManager {
 
 			logger.debug( "roResult: {}", roResult ) ;
 
-			roResult = csapApp.check_for_stub( roResult, "linux/roResults.txt" ) ;
+			roResult = CsapApis.getInstance( ).application( ).check_for_stub( roResult, "linux/roResults.txt" ) ;
 
 			// if ( Application.isRunningOnDesktop() ) {
 			// roResult = Application.loadTestData( "linux/roResults.txt" ) ;
@@ -748,10 +756,10 @@ public class OsManager {
 
 			for ( int i = 0; i < roLines.length; i++ ) {
 
-				if ( roLines[ i ].trim( ).length( ) > 0
-						&& ! roLines[ i ].contains( OsCommandRunner.HEADER_TOKEN ) ) {
+				if ( roLines[i].trim( ).length( ) > 0
+						&& ! roLines[i].contains( OsCommandRunner.HEADER_TOKEN ) ) {
 
-					readOnlyResults.add( roLines[ i ].trim( ) ) ;
+					readOnlyResults.add( roLines[i].trim( ) ) ;
 
 				}
 
@@ -821,7 +829,7 @@ public class OsManager {
 
 			for ( int i = 0; i < whoLines.length; i++ ) {
 
-				String curline = whoLines[ i ].trim( ) ;
+				String curline = whoLines[i].trim( ) ;
 
 				String[] cols = curline.split( " " ) ;
 
@@ -844,22 +852,24 @@ public class OsManager {
 
 				if ( whoResults.size( ) == 0 ) {
 
-					csapApp.getActiveUsers( ).logSessionEnd( Application.SYS_USER,
+					CsapApis.getInstance( ).application( ).getActiveUsers( ).logSessionEnd( Application.SYS_USER,
 							"No host sessions found, last found:\n"
 									+ CSAP.jsonPrint( whoResultsCache ) ) ;
 
-					// csapApp.getEventClient().publishUserEvent( CsapEvents.CSAP_ACCESS_CATEGORY +
+					// CsapApis.getInstance().application().getEventClient().publishUserEvent(
+					// CsapEvents.CSAP_ACCESS_CATEGORY +
 					// "",
 					// Application.SYS_USER,
 					// "Host Session(s) Cleared", "Connections are no longer active:\n"
 					// + CSAP.jsonPrint( whoResultsCache ) ) ;
 				} else {
 
-					csapApp.getActiveUsers( ).logSessionStart( Application.SYS_USER,
+					CsapApis.getInstance( ).application( ).getActiveUsers( ).logSessionStart( Application.SYS_USER,
 							"Host Session(s) Changed:\n"
 									+ CSAP.jsonPrint( whoResults ) ) ;
 
-					// csapApp.getEventClient().publishUserEvent( CsapEvents.CSAP_ACCESS_CATEGORY,
+					// CsapApis.getInstance().application().getEventClient().publishUserEvent(
+					// CsapEvents.CSAP_ACCESS_CATEGORY,
 					// Application.SYS_USER,
 					// "Host Session(s) Changed", "Updated output of linux \"who\": \n"
 					// + CSAP.jsonPrint( whoResults ) ) ;
@@ -888,14 +898,15 @@ public class OsManager {
 		ObjectNode networkIO = jsonMapper.createObjectNode( ) ;
 
 		// ens192
-		String interfacePattern = csapApp.rootProjectEnvSettings( ).getPrimaryNetwork( ) ;
+		String interfacePattern = CsapApis.getInstance( ).application( ).rootProjectEnvSettings( )
+				.getPrimaryNetwork( ) ;
 
 		List<String> lines = osCommands.getSystemNetworkStats( interfacePattern ) ;
 
 		try {
 
 			String ioOutput = osCommandRunner.runUsingRootUser( "proc-net-dev", lines ) ;
-			ioOutput = csapApp.check_for_stub( ioOutput, "linux/proc-net-dev.txt" ) ;
+			ioOutput = CsapApis.getInstance( ).application( ).check_for_stub( ioOutput, "linux/proc-net-dev.txt" ) ;
 
 			// output' eth0: 757699260493 1264491650 0 6 0 0 0 176 756289173213
 			// 982166397 0 0 0 0 0 0'
@@ -911,20 +922,20 @@ public class OsManager {
 					networkIO.put( RECEIVE_MB,
 							twoDecimals.format(
 									networkIO.path( RECEIVE_MB ).asDouble( 0 )
-											+ Double.parseDouble( interfaceColumns[ 1 ] ) / CSAP.MB_FROM_BYTES ) ) ;
+											+ Double.parseDouble( interfaceColumns[1] ) / CSAP.MB_FROM_BYTES ) ) ;
 
 					networkIO.put( "readErrors",
 							networkIO.path( "readErrors" ).asInt( 0 )
-									+ Integer.parseInt( interfaceColumns[ 3 ] ) ) ;
+									+ Integer.parseInt( interfaceColumns[3] ) ) ;
 
 					networkIO.put( TRANSMIT_MB,
 							twoDecimals.format(
 									networkIO.path( TRANSMIT_MB ).asDouble( 0 )
-											+ Double.parseDouble( interfaceColumns[ 9 ] ) / CSAP.MB_FROM_BYTES ) ) ;
+											+ Double.parseDouble( interfaceColumns[9] ) / CSAP.MB_FROM_BYTES ) ) ;
 
 					networkIO.put( "transmitErrors",
 							networkIO.path( "transmitErrors" ).asInt( 0 )
-									+ Integer.parseInt( interfaceColumns[ 11 ] ) ) ;
+									+ Integer.parseInt( interfaceColumns[11] ) ) ;
 
 				} else {
 
@@ -1000,12 +1011,13 @@ public class OsManager {
 
 			// running as root to get access to all files on host.
 			commandOutput = osCommandRunner.runUsingRootUser(
-					csapApp.csapPlatformPath( KUBERNETES_NODE_SCRIPT ),
+					CsapApis.getInstance( ).application( ).csapPlatformPath( KUBERNETES_NODE_SCRIPT ),
 					null ) ;
 
 			logger.debug( "commandOutput: {}", commandOutput ) ;
 
-			commandOutput = csapApp.check_for_stub( commandOutput, "linux/kubernetes-describe-nodes.txt" ) ;
+			commandOutput = CsapApis.getInstance( ).application( ).check_for_stub( commandOutput,
+					"linux/kubernetes-describe-nodes.txt" ) ;
 			logger.debug( "trimmed results: {} ", commandOutput ) ;
 			String now = LocalDateTime.now( ).format( DateTimeFormatter.ofPattern( "HH:mm:ss" ) ) ;
 
@@ -1013,17 +1025,17 @@ public class OsManager {
 
 			Arrays.stream( nodeCommandLines )
 					.filter( StringUtils::isNotEmpty )
-					.map( line -> CsapCore.singleSpace( line ).split( " " ) )
+					.map( line -> CsapConstants.singleSpace( line ).split( " " ) )
 					.filter( columns -> columns.length <= 5 )
 					.forEach( columns -> {
 
-						switch ( columns[ 0 ] ) {
+						switch ( columns[0] ) {
 
 						case "Name:":
 							if ( columns.length == 2 ) {
 
-								nodeReports.put( "nodeName", columns[ 1 ] ) ;
-								nodeReports.putObject( columns[ 1 ] ) ;
+								nodeReports.put( "nodeName", columns[1] ) ;
+								nodeReports.putObject( columns[1] ) ;
 
 							}
 							break ;
@@ -1037,7 +1049,7 @@ public class OsManager {
 
 							if ( nodeReport.isObject( ) ) {
 
-								var sectionName = columns[ 0 ].split( ":" )[ 0 ] ;
+								var sectionName = columns[0].split( ":" )[0] ;
 								nodeReports.put( "sectionName", sectionName ) ;
 								var node = (ObjectNode) nodeReport ;
 								node.putObject( sectionName ) ;
@@ -1066,19 +1078,19 @@ public class OsManager {
 									if ( sectionReport.isObject( ) ) {
 
 										var section = (ObjectNode) sectionReport ;
-										var metricName = columns[ 0 ].split( ":" )[ 0 ] ;
+										var metricName = columns[0].split( ":" )[0] ;
 
 										if ( columns.length == 2 ) {
 
-											section.put( metricName, columns[ 1 ] ) ;
+											section.put( metricName, columns[1] ) ;
 
 										} else {
 
 											var metricReport = section.putObject( metricName ) ;
-											metricReport.put( "request", columns[ 1 ] ) ;
-											metricReport.put( "requestPercent", stripParens( columns[ 2 ] ) ) ;
-											metricReport.put( "limit", columns[ 3 ] ) ;
-											metricReport.put( "limitPercent", stripParens( columns[ 4 ] ) ) ;
+											metricReport.put( "request", columns[1] ) ;
+											metricReport.put( "requestPercent", stripParens( columns[2] ) ) ;
+											metricReport.put( "limit", columns[3] ) ;
+											metricReport.put( "limitPercent", stripParens( columns[4] ) ) ;
 
 										}
 
@@ -1166,12 +1178,14 @@ public class OsManager {
 		try {
 
 			// running as root to get access to all files on host.
-			statsResult = osCommandRunner.runUsingRootUser( csapApp.csapPlatformPath( SOCKETS_THREADS_FILES_SCRIPT ),
+			statsResult = osCommandRunner.runUsingRootUser( CsapApis.getInstance( ).application( ).csapPlatformPath(
+					SOCKETS_THREADS_FILES_SCRIPT ),
 					null ) ;
 
 			logger.debug( "statsResult: {}", statsResult ) ;
 
-			statsResult = csapApp.check_for_stub( statsResult, "linux/vmStatsRoot.txt" ) ;
+			statsResult = CsapApis.getInstance( ).application( ).check_for_stub( statsResult,
+					"linux/vmStatsRoot.txt" ) ;
 
 			statsResult = statsResult.substring( statsResult.indexOf( "openFiles:" ) ) ;
 			logger.debug( "trimmed results: {} ", statsResult ) ;
@@ -1184,14 +1198,14 @@ public class OsManager {
 
 			if ( cols.length == 16 ) {
 
-				updatedHostSummary.put( "openFiles", cols[ 1 ] ) ;
-				updatedHostSummary.put( "totalThreads", cols[ 3 ] ) ;
-				updatedHostSummary.put( "csapThreads", cols[ 5 ] ) ;
-				updatedHostSummary.put( "totalFileDescriptors", cols[ 7 ] ) ;
-				updatedHostSummary.put( "csapFileDescriptors", cols[ 9 ] ) ;
-				updatedHostSummary.put( "networkConns", cols[ 11 ] ) ;
-				updatedHostSummary.put( "networkWait", cols[ 13 ] ) ;
-				updatedHostSummary.put( "networkTimeWait", StringUtils.strip( cols[ 15 ], "\n" ) ) ;
+				updatedHostSummary.put( "openFiles", cols[1] ) ;
+				updatedHostSummary.put( "totalThreads", cols[3] ) ;
+				updatedHostSummary.put( "csapThreads", cols[5] ) ;
+				updatedHostSummary.put( "totalFileDescriptors", cols[7] ) ;
+				updatedHostSummary.put( "csapFileDescriptors", cols[9] ) ;
+				updatedHostSummary.put( "networkConns", cols[11] ) ;
+				updatedHostSummary.put( "networkWait", cols[13] ) ;
+				updatedHostSummary.put( "networkTimeWait", StringUtils.strip( cols[15], "\n" ) ) ;
 
 			} else {
 
@@ -1268,7 +1282,7 @@ public class OsManager {
 
 	public List<String> networkInterfaces ( ) {
 
-		var timer = csapApp.metrics( ).startTimer( ) ;
+		var timer = CsapApis.getInstance( ).metrics( ).startTimer( ) ;
 
 		logger.debug( "Entered " ) ;
 
@@ -1281,7 +1295,8 @@ public class OsManager {
 		try {
 
 			scriptOutput = osCommandRunner.runUsingRootUser( "system interface list", collectionScripts ) ;
-			scriptOutput = csapApp.check_for_stub( scriptOutput, "linux/network-devices.txt" ) ;
+			scriptOutput = CsapApis.getInstance( ).application( ).check_for_stub( scriptOutput,
+					"linux/network-devices.txt" ) ;
 			String[] serviceLines = scriptOutput.split( LINE_SEPARATOR ) ;
 
 			var mergedLines = new ArrayList<String>( ) ;
@@ -1314,7 +1329,7 @@ public class OsManager {
 
 		}
 
-		csapApp.metrics( ).stopTimer( timer, COLLECT_OS + "linux-devices-ip" ) ;
+		CsapApis.getInstance( ).metrics( ).stopTimer( timer, COLLECT_OS + "linux-devices-ip" ) ;
 
 		return networkDevices ;
 
@@ -1350,8 +1365,8 @@ public class OsManager {
 
 			String name = hostIP ;
 
-			if ( csapApp.isKubernetesInstalledAndActive( )
-					&& csapApp.getKubernetesIntegration( ).getSettings( ).isDnsLookup( ) ) {
+			if ( CsapApis.getInstance( ).isKubernetesInstalledAndActive( )
+					&& CsapApis.getInstance( ).kubernetes( ).getSettings( ).isDnsLookup( ) ) {
 
 				try {
 
@@ -1361,7 +1376,7 @@ public class OsManager {
 
 					if ( ! hostIP.equals( name ) ) {
 
-						name = hostSplit( name )[ 0 ] ;
+						name = hostSplit( name )[0] ;
 
 					} else {
 
@@ -1379,8 +1394,9 @@ public class OsManager {
 
 						if ( niAddress.isPresent( ) ) {
 
-							logger.info( "Found IP: {}, setting host to: {}", hostIP, csapApp.getCsapHostName( ) ) ;
-							name = csapApp.getCsapHostName( ) ;
+							logger.info( "Found IP: {}, setting host to: {}", hostIP, CsapApis.getInstance( )
+									.application( ).getCsapHostName( ) ) ;
+							name = CsapApis.getInstance( ).application( ).getCsapHostName( ) ;
 
 						}
 
@@ -1417,13 +1433,13 @@ public class OsManager {
 
 			if ( tokens.length == 2 ) {
 
-				resolvedHost = ipToHostName( tokens[ 0 ] ) + ":" + tokens[ 1 ] ;
+				resolvedHost = ipToHostName( tokens[0] ) + ":" + tokens[1] ;
 
 			}
 
 			if ( tokens.length == 5 ) {
 
-				resolvedHost = ipToHostName( tokens[ 3 ] ) + ":" + tokens[ 4 ] ;
+				resolvedHost = ipToHostName( tokens[3] ) + ":" + tokens[4] ;
 
 			}
 
@@ -1437,7 +1453,7 @@ public class OsManager {
 
 		ArrayNode portReport = jsonMapper.createArrayNode( ) ;
 
-		var timer = csapApp.metrics( ).startTimer( ) ;
+		var timer = CsapApis.getInstance( ).metrics( ).startTimer( ) ;
 		logger.debug( "Entered " ) ;
 
 		Map<String, ObjectNode> summaryReportCache = new HashMap<>( ) ;
@@ -1449,18 +1465,19 @@ public class OsManager {
 		try {
 
 			scriptOutput = osCommandRunner.runUsingRootUser( "ss-ports", collectionScripts ) ;
-			scriptOutput = csapApp.check_for_stub( scriptOutput, "linux/network-ports-connections.txt" ) ;
+			scriptOutput = CsapApis.getInstance( ).application( ).check_for_stub( scriptOutput,
+					"linux/network-ports-connections.txt" ) ;
 			String[] serviceLines = scriptOutput.split( LINE_SEPARATOR ) ;
 
 			Arrays.stream( serviceLines )
 					.filter( StringUtils::isNotEmpty )
 					.forEach( portLine -> {
 
-						String[] columns = CsapCore.singleSpace( portLine ).split( " ", 6 ) ;
+						String[] columns = CsapConstants.singleSpace( portLine ).split( " ", 6 ) ;
 
 						if ( columns.length == 6 ) {
 
-							var portId = columns[ 3 ] ;
+							var portId = columns[3] ;
 
 							try {
 
@@ -1468,7 +1485,7 @@ public class OsManager {
 
 								if ( labels.length > 1 ) {
 
-									portId = labels[ labels.length - 1 ] ;
+									portId = labels[labels.length - 1] ;
 
 								}
 
@@ -1478,14 +1495,14 @@ public class OsManager {
 
 							}
 
-							var peer = columns[ 4 ] ;
+							var peer = columns[4] ;
 
-							var processName = columns[ 5 ] ;
+							var processName = columns[5] ;
 							var users = processName.split( "\"", 3 ) ;
 
 							if ( users.length == 3 ) {
 
-								processName = users[ 1 ] ;
+								processName = users[1] ;
 
 							}
 
@@ -1535,16 +1552,16 @@ public class OsManager {
 
 							}
 
-							var details = columns[ 5 ] ;
+							var details = columns[5] ;
 							var pid = findFirstPidInSSDetails( details ) ;
 							portDetails.put( "csapNoSort", true ) ;
 							portDetails.put( "port", portId ) ;
 							portDetails.put( "pid", pid ) ;
 							portDetails.put( "processName", processName ) ;
-							portDetails.put( "state", columns[ 0 ] ) ;
-							portDetails.put( "recv-q", columns[ 1 ] ) ;
-							portDetails.put( "send-q", columns[ 2 ] ) ;
-							portDetails.put( "local", resolveSocketHost( columns[ 3 ] ) ) ;
+							portDetails.put( "state", columns[0] ) ;
+							portDetails.put( "recv-q", columns[1] ) ;
+							portDetails.put( "send-q", columns[2] ) ;
+							portDetails.put( "local", resolveSocketHost( columns[3] ) ) ;
 							portDetails.put( "peer", resolveSocketHost( peer ) ) ;
 							portDetails.put( "details", details ) ;
 
@@ -1560,7 +1577,7 @@ public class OsManager {
 
 		}
 
-		csapApp.metrics( ).stopTimer( timer, COLLECT_OS + "socket-connections" ) ;
+		CsapApis.getInstance( ).metrics( ).stopTimer( timer, COLLECT_OS + "socket-connections" ) ;
 
 		return portReport ;
 
@@ -1586,7 +1603,7 @@ public class OsManager {
 
 		ArrayNode portReport = jsonMapper.createArrayNode( ) ;
 
-		var timer = csapApp.metrics( ).startTimer( ) ;
+		var timer = CsapApis.getInstance( ).metrics( ).startTimer( ) ;
 		logger.debug( "Entered " ) ;
 
 		List<String> collectionScripts = osCommands.getSystemNetworkListenPorts( ) ;
@@ -1598,18 +1615,19 @@ public class OsManager {
 		try {
 
 			scriptOutput = osCommandRunner.runUsingRootUser( "ss-ports", collectionScripts ) ;
-			scriptOutput = csapApp.check_for_stub( scriptOutput, "linux/network-ports-listen.txt" ) ;
+			scriptOutput = CsapApis.getInstance( ).application( ).check_for_stub( scriptOutput,
+					"linux/network-ports-listen.txt" ) ;
 			String[] serviceLines = scriptOutput.split( LINE_SEPARATOR ) ;
 
 			Arrays.stream( serviceLines )
 					.filter( StringUtils::isNotEmpty )
 					.forEach( portLine -> {
 
-						String[] columns = CsapCore.singleSpace( portLine ).split( " ", 6 ) ;
+						String[] columns = CsapConstants.singleSpace( portLine ).split( " ", 6 ) ;
 
 						if ( columns.length == 6 ) {
 
-							var portId = columns[ 3 ] ;
+							var portId = columns[3] ;
 
 							try {
 
@@ -1617,7 +1635,7 @@ public class OsManager {
 
 								if ( labels.length > 1 ) {
 
-									portId = labels[ labels.length - 1 ] ;
+									portId = labels[labels.length - 1] ;
 
 								}
 
@@ -1657,17 +1675,17 @@ public class OsManager {
 
 							}
 
-							var details = columns[ 5 ] ;
+							var details = columns[5] ;
 							var pid = findFirstPidInSSDetails( details ) ;
 
 							portDetails.put( "csapNoSort", true ) ;
 							portDetails.put( "port", portId ) ;
 							portDetails.put( "pid", pid ) ;
-							portDetails.put( "state", columns[ 0 ] ) ;
-							portDetails.put( "recv-q", columns[ 1 ] ) ;
-							portDetails.put( "send-q", columns[ 2 ] ) ;
-							portDetails.put( "local", columns[ 3 ] ) ;
-							portDetails.put( "peer", columns[ 4 ] ) ;
+							portDetails.put( "state", columns[0] ) ;
+							portDetails.put( "recv-q", columns[1] ) ;
+							portDetails.put( "send-q", columns[2] ) ;
+							portDetails.put( "local", columns[3] ) ;
+							portDetails.put( "peer", columns[4] ) ;
 							portDetails.put( "details", details ) ;
 
 						}
@@ -1682,7 +1700,7 @@ public class OsManager {
 
 		}
 
-		csapApp.metrics( ).stopTimer( timer, COLLECT_OS + "socket-listeners" ) ;
+		CsapApis.getInstance( ).metrics( ).stopTimer( timer, COLLECT_OS + "socket-listeners" ) ;
 
 		return portReport ;
 
@@ -1692,7 +1710,7 @@ public class OsManager {
 
 	public List<String> getLinuxPackages ( ) {
 
-		var timer = csapApp.metrics( ).startTimer( ) ;
+		var timer = CsapApis.getInstance( ).metrics( ).startTimer( ) ;
 
 		logger.debug( "Entered " ) ;
 
@@ -1705,7 +1723,8 @@ public class OsManager {
 		try {
 
 			scriptOutput = osCommandRunner.runUsingRootUser( "system rpm list", lines ) ;
-			scriptOutput = csapApp.check_for_stub( scriptOutput, "linux/rpmResults.txt" ) ;
+			scriptOutput = CsapApis.getInstance( ).application( ).check_for_stub( scriptOutput,
+					"linux/rpmResults.txt" ) ;
 			String[] serviceLines = scriptOutput.split( LINE_SEPARATOR ) ;
 
 			linuxRpms = Arrays.stream( serviceLines )
@@ -1721,7 +1740,7 @@ public class OsManager {
 
 		}
 
-		csapApp.metrics( ).stopTimer( timer, COLLECT_OS + "linux-packages" ) ;
+		CsapApis.getInstance( ).metrics( ).stopTimer( timer, COLLECT_OS + "linux-packages" ) ;
 
 		return linuxRpms ;
 
@@ -1735,7 +1754,8 @@ public class OsManager {
 		String scriptOutput = "Failed to run" ;
 
 		scriptOutput = osCommandRunner.runUsingRootUser( commandFile, null ) ;
-		scriptOutput = csapApp.check_for_stub( scriptOutput, "linux/kubectl-dashboard.txt" ) ;
+		scriptOutput = CsapApis.getInstance( ).application( ).check_for_stub( scriptOutput,
+				"linux/kubectl-dashboard.txt" ) ;
 
 		return scriptOutput ;
 
@@ -1752,7 +1772,8 @@ public class OsManager {
 		try {
 
 			scriptOutput = osCommandRunner.runUsingRootUser( "mount-location", lines ) ;
-			scriptOutput = csapApp.check_for_stub( scriptOutput, "linux/disk-nfs-mount-location.txt" ) ;
+			scriptOutput = CsapApis.getInstance( ).application( ).check_for_stub( scriptOutput,
+					"linux/disk-nfs-mount-location.txt" ) ;
 
 		} catch ( IOException e ) {
 
@@ -1777,7 +1798,8 @@ public class OsManager {
 		try {
 
 			scriptOutput = osCommandRunner.runUsingRootUser( "system rpm info", lines ) ;
-			scriptOutput = csapApp.check_for_stub( scriptOutput, "linux/disk-nfs-mount-location.txt" ) ;
+			scriptOutput = CsapApis.getInstance( ).application( ).check_for_stub( scriptOutput,
+					"linux/disk-nfs-mount-location.txt" ) ;
 
 		} catch ( IOException e ) {
 
@@ -1794,7 +1816,7 @@ public class OsManager {
 
 	public List<String> getLinuxServices ( ) {
 
-		var timer = csapApp.metrics( ).startTimer( ) ;
+		var timer = CsapApis.getInstance( ).metrics( ).startTimer( ) ;
 		logger.debug( "Entered " ) ;
 
 		List<String> linuxSystemdServices = Arrays.asList( "none" ) ;
@@ -1806,7 +1828,8 @@ public class OsManager {
 		try {
 
 			scriptOutput = osCommandRunner.runUsingRootUser( "system services list", lines ) ;
-			scriptOutput = csapApp.check_for_stub( scriptOutput, "linux/systemctl-services.txt" ) ;
+			scriptOutput = CsapApis.getInstance( ).application( ).check_for_stub( scriptOutput,
+					"linux/systemctl-services.txt" ) ;
 			String[] serviceLines = scriptOutput.split( LINE_SEPARATOR ) ;
 
 			linuxSystemdServices = Arrays.stream( serviceLines )
@@ -1822,7 +1845,7 @@ public class OsManager {
 
 		}
 
-		csapApp.metrics( ).stopTimer( timer, COLLECT_OS + "linux-services" ) ;
+		CsapApis.getInstance( ).metrics( ).stopTimer( timer, COLLECT_OS + "linux-services" ) ;
 
 		return linuxSystemdServices ;
 
@@ -1840,7 +1863,8 @@ public class OsManager {
 		try {
 
 			scriptOutput = osCommandRunner.runUsingRootUser( "system services list", lines ) ;
-			scriptOutput = csapApp.check_for_stub( scriptOutput, "linux/systemctl-status.txt" ) ;
+			scriptOutput = CsapApis.getInstance( ).application( ).check_for_stub( scriptOutput,
+					"linux/systemctl-status.txt" ) ;
 
 		} catch ( IOException e ) {
 
@@ -1874,7 +1898,8 @@ public class OsManager {
 		try {
 
 			scriptOutput = osCommandRunner.runUsingDefaultUser( "system services list", lines ) ;
-			scriptOutput = csapApp.check_for_stub( scriptOutput, "linux/systemctl-status.txt" ) ;
+			scriptOutput = CsapApis.getInstance( ).application( ).check_for_stub( scriptOutput,
+					"linux/systemctl-status.txt" ) ;
 
 		} catch ( IOException e ) {
 
@@ -1926,7 +1951,7 @@ public class OsManager {
 
 		try {
 
-			File joinFile = new File( csapApp.kubeletInstance( ).getWorkingDirectory( ),
+			File joinFile = new File( CsapApis.getInstance( ).application( ).kubeletInstance( ).getWorkingDirectory( ),
 					"/scripts/cluster-join-commands.sh" ) ;
 
 			// String joinOutput = runFile( joinFile ) ;
@@ -1941,7 +1966,7 @@ public class OsManager {
 
 			String joinOutput = osCommandRunner.runUsingDefaultUser( "kubernetes-join-commands", scriptLines ) ;
 
-			joinOutput = csapApp.check_for_stub( joinOutput, "linux/kubeadm-join.txt" ) ;
+			joinOutput = CsapApis.getInstance( ).application( ).check_for_stub( joinOutput, "linux/kubeadm-join.txt" ) ;
 			//
 			logger.debug( "joinOutput: {}", joinOutput ) ;
 
@@ -1951,7 +1976,7 @@ public class OsManager {
 
 			for ( var line : joinOutputLines ) {
 
-				line = CsapCore.singleSpace( line ) ;
+				line = CsapConstants.singleSpace( line ) ;
 
 				if ( line.startsWith( "joinWorkerCommand" ) ) {
 
@@ -2025,7 +2050,7 @@ public class OsManager {
 
 			logger.debug( "criPsOutput: {}", criPsOutput ) ;
 
-			criPsOutput = csapApp.check_for_stub( criPsOutput, "crio/crictl-ps.json" ) ;
+			criPsOutput = CsapApis.getInstance( ).application( ).check_for_stub( criPsOutput, "crio/crictl-ps.json" ) ;
 
 			crioPsCache.reset( jsonMapper.readTree( criPsOutput ) ) ;
 
@@ -2076,9 +2101,8 @@ public class OsManager {
 			// run as root to pick up docker and kubelet filesystems
 			var criPidOutput = osCommandRunner.runUsingRootUser( "crio-pid-report", osCommands.getCriPidReport( ) ) ;
 
-			criPidOutput = csapApp.check_for_stub( criPidOutput, "crio/crio-pids.txt" ) ;
+			criPidOutput = CsapApis.getInstance( ).application( ).check_for_stub( criPidOutput, "crio/crio-pids.txt" ) ;
 			logger.debug( "criPidOutput: {}", criPidOutput ) ;
-			
 
 			var outputLines = OsCommandRunner.trimHeader( criPidOutput ).split( LINE_SEPARATOR ) ;
 
@@ -2091,7 +2115,7 @@ public class OsManager {
 					.filter( csvArray -> csvArray.length == 3 )
 					.forEach( csvArray -> {
 
-						var labelsRaw = csvArray[ 0 ] ;
+						var labelsRaw = csvArray[0] ;
 						var labelsSpaceSeparated = labelsRaw.substring( 4, labelsRaw.length( ) - 1 ) ;
 
 						var labelEntries = OsCommandRunner.trimHeader( labelsSpaceSeparated ).split( " " ) ;
@@ -2100,8 +2124,8 @@ public class OsManager {
 								.map( line -> line.split( ":" ) )
 								.filter( labelVal -> labelVal.length == 2 )
 								.collect( Collectors.toMap(
-										labelVal -> labelVal[ 0 ],
-										labelVal -> labelVal[ 1 ] ) ) ;
+										labelVal -> labelVal[0],
+										labelVal -> labelVal[1] ) ) ;
 
 						if ( labelReport.containsKey( "io.kubernetes.pod.name" ) ) {
 //
@@ -2124,8 +2148,8 @@ public class OsManager {
 
 							var item = pidReport.putObject( containerLabel ) ;
 							item.put( "name", containerLabel ) ;
-							item.put( "pid", csvArray[ 1 ] ) ;
-							item.put( "id", csvArray[ 2 ] ) ;
+							item.put( "pid", csvArray[1] ) ;
+							item.put( "id", csvArray[2] ) ;
 
 							labelReport.entrySet( ).stream( ).forEach( entry -> {
 
@@ -2139,8 +2163,6 @@ public class OsManager {
 
 			logger.debug( "pidReport: {}", pidReport ) ;
 			crioPidCache.reset( pidReport ) ;
-			
-
 
 		} catch ( Exception e ) {
 
@@ -2168,7 +2190,7 @@ public class OsManager {
 					"crio-inspect",
 					script ) ;
 
-			listing = csapApp.check_for_stub( criInspectOutput, "crio/crictl-ls.txt" ) ;
+			listing = CsapApis.getInstance( ).application( ).check_for_stub( criInspectOutput, "crio/crictl-ls.txt" ) ;
 
 		} catch ( Exception e ) {
 
@@ -2198,7 +2220,8 @@ public class OsManager {
 					"crio-inspect",
 					script ) ;
 
-			listing = csapApp.check_for_stub( criInspectOutput, "crio/crictl-inspect-calico.json" ) ;
+			listing = CsapApis.getInstance( ).application( ).check_for_stub( criInspectOutput,
+					"crio/crictl-inspect-calico.json" ) ;
 
 		} catch ( Exception e ) {
 
@@ -2210,84 +2233,6 @@ public class OsManager {
 		return listing ;
 
 	}
-
-//	public ObjectNode writeFileToContainer (
-//											String contents ,
-//											String containerName ,
-//											String pathToFile ,
-//											long maxEditSize ,
-//											int chunkSize ) {
-//
-//	ObjectNode resultReport = jsonMapper.createObjectNode( ) ;
-//
-//	logger.info( "Container: {}, path: {}, maxEditSize: {}", containerName, pathToFile, maxEditSize ) ;
-//	Optional<Container> matchContainer = findContainerByName( containerName ) ;
-//
-//	if ( matchContainer.isPresent( ) ) {
-//
-//		try {
-//
-//			var requestedFilePath = Paths.get( pathToFile ) ;
-//			var requestedFileParent = requestedFilePath.getParent( ).toString( ) ;
-//
-//			if ( File.separatorChar == '\\' ) {
-//
-//				logger.warn( "Windows Conversion: {}", requestedFileParent ) ;
-//				requestedFileParent = FilenameUtils.separatorsToUnix( requestedFilePath.getParent( ).toString( ) ) ;
-//
-//			}
-//
-//			//
-//			// Create a tar file
-//			//
-//			var tarFile = new File( Application.getInstance( ).getScriptDir( ), containerName + ".tar" ) ;
-//			var sourceFolder = new File( Application.getInstance( ).getScriptDir( ), containerName ) ;
-//			FileUtils.deleteQuietly( sourceFolder ) ;
-//			sourceFolder.mkdirs( ) ;
-//
-//			var tempFileToTarAndTransfer = new File( sourceFolder, requestedFilePath.getFileName( ).toString( ) ) ;
-//			FileUtils.write( tempFileToTarAndTransfer, contents ) ;
-//
-//			logger.debug( "Creating: {} for tar: {}", tempFileToTarAndTransfer, tarFile ) ;
-//
-//			try ( TarArchiveOutputStream tarOuputStream = getTarArchiveOutputStream( tarFile ) ) {
-//
-//				addToArchiveCompression( tarOuputStream, tempFileToTarAndTransfer, "." ) ;
-//
-//			}
-//
-//			//
-//			// transfer to docker host
-//			//
-//			try ( var tarInputStream = //
-//					new FileInputStream( tarFile ) ) {
-//
-//				dockerClient.copyArchiveToContainerCmd( matchContainer.get( ).getId( ) )
-////					.withHostResource( sourceFile.getAbsolutePath( ) )
-//						.withTarInputStream( tarInputStream )
-//						.withRemotePath( requestedFileParent )
-//						.exec( ) ;
-//
-//			}
-//
-//			resultReport.put( "success", "Updated container: " + containerName + " path: " + pathToFile ) ;
-//
-//		} catch ( Exception e ) {
-//
-//			logger.warn( "Failed writing file: {}", CSAP.buildCsapStack( e ) ) ;
-//			resultReport.put( "error", "Failed writing to container: " + e.getLocalizedMessage( ) ) ;
-//
-//		}
-//
-//	} else {
-//
-//		resultReport.put( "error", "Failed to locate container: " + containerName ) ;
-//
-//	}
-//
-//	return resultReport ;
-//
-//}
 
 	public ObjectNode getCrioInspect ( String id ) {
 
@@ -2303,7 +2248,8 @@ public class OsManager {
 
 			// logger.info( "criPsOutput: {}", criInspectOutput ) ;
 
-			criInspectOutput = csapApp.check_for_stub( criInspectOutput, "crio/crictl-inspect-calico.json" ) ;
+			criInspectOutput = CsapApis.getInstance( ).application( ).check_for_stub( criInspectOutput,
+					"crio/crictl-inspect-calico.json" ) ;
 
 			inspectReport = (ObjectNode) jsonMapper.readTree( criInspectOutput ) ;
 
@@ -2353,7 +2299,7 @@ public class OsManager {
 			// run as root to pick up docker and kubelet filesystems
 			String dfResult = osCommandRunner.runUsingRootUser( "df-collect", osCommands.getDiskUsageSystem( ) ) ;
 
-			dfResult = csapApp.check_for_stub( dfResult, "linux/df-run-as-root.txt" ) ;
+			dfResult = CsapApis.getInstance( ).application( ).check_for_stub( dfResult, "linux/df-run-as-root.txt" ) ;
 
 			logger.debug( "dfResult: {}", dfResult ) ;
 
@@ -2365,25 +2311,25 @@ public class OsManager {
 
 			for ( int i = 0; i < dfLines.length; i++ ) {
 
-				String curline = dfLines[ i ].trim( ) ;
+				String curline = dfLines[i].trim( ) ;
 				String[] cols = curline.split( " ", 7 ) ;
 
-				if ( cols.length < 7 || ! cols[ 6 ].startsWith( "/" ) ) {
+				if ( cols.length < 7 || ! cols[6].startsWith( "/" ) ) {
 
 					logger.debug( "Skipping line: {}", curline ) ;
 					continue ;
 
 				}
 
-				ObjectNode fsNode = svcToStatMap.putObject( cols[ 6 ] ) ;
+				ObjectNode fsNode = svcToStatMap.putObject( cols[6] ) ;
 
-				fsNode.put( "dev", cols[ 0 ] ) ;
-				fsNode.put( "type", cols[ 1 ] ) ;
-				fsNode.put( "sized", cols[ 2 ] ) ;
-				fsNode.put( "used", cols[ 3 ] ) ;
-				fsNode.put( "avail", cols[ 4 ] ) ;
-				fsNode.put( "usedp", cols[ 5 ] ) ;
-				fsNode.put( "mount", cols[ 6 ] ) ;
+				fsNode.put( "dev", cols[0] ) ;
+				fsNode.put( "type", cols[1] ) ;
+				fsNode.put( "sized", cols[2] ) ;
+				fsNode.put( "used", cols[3] ) ;
+				fsNode.put( "avail", cols[4] ) ;
+				fsNode.put( "usedp", cols[5] ) ;
+				fsNode.put( "mount", cols[6] ) ;
 				lastCount++ ;
 
 			}
@@ -2457,7 +2403,7 @@ public class OsManager {
 				new File( "." ), null, null, 600, 10,
 				null ) ;
 
-		dfResult = csapApp.check_for_stub( dfResult, "linux/df-about.txt" ) ;
+		dfResult = CsapApis.getInstance( ).application( ).check_for_stub( dfResult, "linux/df-about.txt" ) ;
 
 		logger.debug( "df commandResult: {} ", dfResult ) ;
 
@@ -2485,11 +2431,12 @@ public class OsManager {
 		// update services status if needed
 		checkForProcessStatusUpdate( ) ;
 
-		// var agent = csapApp.flexFindFirstInstance( "csap-agent" ) ;
+		// var agent = CsapApis.getInstance().application().flexFindFirstInstance(
+		// "csap-agent" ) ;
 		// logger.info( "agent rss: {}", agent.getDefaultContainer().getRssMemory() );
 
 		// updated service artifacts if needed
-		csapApp.updateServiceTimeStamps( ) ;
+		CsapApis.getInstance( ).application( ).updateServiceTimeStamps( ) ;
 
 		ObjectNode hostRuntime = jsonMapper.createObjectNode( ) ;
 
@@ -2503,11 +2450,12 @@ public class OsManager {
 
 		}
 
-		ObjectNode hostMetrics = csapApp.healthManager( ).build_host_status_using_cached_data( ) ;
+		ObjectNode hostMetrics = CsapApis.getInstance( ).application( ).healthManager( )
+				.build_host_status_using_cached_data( ) ;
 
 		try {
 
-			var hostCollector = csapApp.metricManager( ).getOsSharedCollector( ) ;
+			var hostCollector = CsapApis.getInstance( ).application( ).metricManager( ).getOsSharedCollector( ) ;
 
 			if ( hostCollector != null ) {
 
@@ -2577,7 +2525,7 @@ public class OsManager {
 
 			hostRuntime.set( HostKeys.lastCollected.jsonId, null ) ;
 
-			if ( csapApp.rootProjectEnvSettings( ).areMetricsConfigured( ) ) {
+			if ( CsapApis.getInstance( ).application( ).rootProjectEnvSettings( ).areMetricsConfigured( ) ) {
 
 				hostRuntime.set( HostKeys.lastCollected.jsonId, buildRealTimeCollectionReport( ) ) ;
 
@@ -2606,7 +2554,8 @@ public class OsManager {
 
 		logger.debug( "got here" ) ;
 
-		final int serviceSampleSize = csapApp.rootProjectEnvSettings( ).getLimitSamples( ) ;
+		final int serviceSampleSize = CsapApis.getInstance( ).application( ).rootProjectEnvSettings( )
+				.getLimitSamples( ) ;
 
 		ObjectNode cached_service_statistics = load_cached_service_statistics( serviceSampleSize ) ;
 
@@ -2614,8 +2563,8 @@ public class OsManager {
 		// cannot be used.
 
 		ObjectNode servicesJson = jsonMapper.createObjectNode( ) ;
-		csapApp.getActiveProject( )
-				.getServicesWithKubernetesFiltering( csapApp.getCsapHostName( ) )
+		CsapApis.getInstance( ).application( ).getActiveProject( )
+				.getServicesWithKubernetesFiltering( CsapApis.getInstance( ).application( ).getCsapHostName( ) )
 				.forEach( serviceInstance -> {
 
 					String serviceId = serviceInstance.getServiceName_Port( ) ;
@@ -2777,21 +2726,22 @@ public class OsManager {
 
 		ObjectNode cached_service_statistics = null ;
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! CsapApis.getInstance( ).application( ).isAdminProfile( ) ) {
 
 			OsProcessCollector osProcessCollector ;
 
-			if ( csapApp.isJunit( ) && csapApp.metricManager( ).getOsProcessCollector( -1 ) == null ) {
+			if ( CsapApis.getInstance( ).application( ).isJunit( ) && CsapApis.getInstance( ).application( )
+					.metricManager( ).getOsProcessCollector( -1 ) == null ) {
 
-				osProcessCollector = new OsProcessCollector( csapApp,
-						this, 30, false ) ;
+				osProcessCollector = new OsProcessCollector( CsapApis.getInstance( ), 30, false ) ;
 
 				logger.warn( "\n\n\n JUNIT DETECTED - injecting stubbed OsProcessCollector" ) ;
 
 				// osProcessCollector.testCollection();
 			} else {
 
-				osProcessCollector = csapApp.metricManager( ).getOsProcessCollector( -1 ) ;
+				osProcessCollector = CsapApis.getInstance( ).application( ).metricManager( ).getOsProcessCollector(
+						-1 ) ;
 
 			}
 
@@ -2813,8 +2763,9 @@ public class OsManager {
 
 		try {
 
-			ServiceCollector applicationCollector = csapApp.metricManager( ).getServiceCollector( csapApp
-					.metricManager( ).firstJavaCollectionInterval( ) ) ;
+			ServiceCollector applicationCollector = CsapApis.getInstance( ).application( ).metricManager( )
+					.getServiceCollector( CsapApis.getInstance( ).application( )
+							.metricManager( ).firstJavaCollectionInterval( ) ) ;
 
 			String[] serviceArray = {
 					service.getServiceName_Port( )
@@ -2841,10 +2792,12 @@ public class OsManager {
 
 		var collectionReport = jsonMapper.createObjectNode( ) ;
 
-		if ( ! csapApp.isAdminProfile( ) && csapApp.rootProjectEnvSettings( ).areMetricsConfigured( ) ) {
+		if ( ! CsapApis.getInstance( ).application( ).isAdminProfile( ) && CsapApis.getInstance( ).application( )
+				.rootProjectEnvSettings( ).areMetricsConfigured( ) ) {
 
-			OsSharedResourcesCollector osSharedCollector = csapApp.metricManager( ).getOsSharedCollector(
-					csapApp.metricManager( ).firstHostCollectionInterval( ) ) ;
+			OsSharedResourcesCollector osSharedCollector = CsapApis.getInstance( ).application( ).metricManager( )
+					.getOsSharedCollector(
+							CsapApis.getInstance( ).application( ).metricManager( ).firstHostCollectionInterval( ) ) ;
 
 			if ( osSharedCollector != null ) {
 
@@ -2857,8 +2810,9 @@ public class OsManager {
 
 			}
 
-			OsProcessCollector osProcessCollector = csapApp.metricManager( )
-					.getOsProcessCollector( csapApp.metricManager( ).firstServiceCollectionInterval( ) ) ;
+			OsProcessCollector osProcessCollector = CsapApis.getInstance( ).application( ).metricManager( )
+					.getOsProcessCollector( CsapApis.getInstance( ).application( ).metricManager( )
+							.firstServiceCollectionInterval( ) ) ;
 			// fullCollectionJson.set( MetricCategory.osProcess.json(),
 			// serviceCollector.getCSVdata(
 			// false, serviceNames, 1, 0 ).get( "data" ) );
@@ -2878,8 +2832,9 @@ public class OsManager {
 
 			}
 
-			ServiceCollector serviceCollector = csapApp.metricManager( )
-					.getServiceCollector( csapApp.metricManager( ).firstJavaCollectionInterval( ) ) ;
+			ServiceCollector serviceCollector = CsapApis.getInstance( ).application( ).metricManager( )
+					.getServiceCollector( CsapApis.getInstance( ).application( ).metricManager( )
+							.firstJavaCollectionInterval( ) ) ;
 
 			if ( serviceCollector != null ) {
 
@@ -2901,8 +2856,8 @@ public class OsManager {
 
 				ObjectNode serviceReports = collectionReport.putObject( MetricCategory.application.json( ) ) ;
 
-				csapApp.getActiveProject( )
-						.getServicesOnHost( csapApp.getCsapHostName( ) )
+				CsapApis.getInstance( ).application( ).getActiveProject( )
+						.getServicesOnHost( CsapApis.getInstance( ).application( ).getCsapHostName( ) )
 						.filter( ServiceInstance::hasServiceMeters )
 						.forEach( serviceInstance -> {
 
@@ -2942,7 +2897,7 @@ public class OsManager {
 
 		ObjectNode configCollection = jsonMapper.createObjectNode( ) ;
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! CsapApis.getInstance( ).application( ).isAdminProfile( ) ) {
 
 			ObjectNode latestCollectionReport = buildLatestCollectionReport( ) ;
 			logger.debug( "latestCollectionReport: {}", CSAP.jsonPrint( latestCollectionReport ) ) ;
@@ -2951,7 +2906,8 @@ public class OsManager {
 			ObjectNode processMeterReport = configCollection.putObject( MetricCategory.osProcess.json( ) ) ;
 			ObjectNode javaMeterReport = configCollection.putObject( MetricCategory.java.json( ) ) ;
 			ObjectNode applicationReport = configCollection.putObject( MetricCategory.application.json( ) ) ;
-			ArrayNode realTimeMeterDefinitions = csapApp.rootProjectEnvSettings( ).getRealTimeMeters( ) ;
+			ArrayNode realTimeMeterDefinitions = CsapApis.getInstance( ).application( ).rootProjectEnvSettings( )
+					.getRealTimeMeters( ) ;
 
 			for ( JsonNode realTimeMeterDefn : realTimeMeterDefinitions ) {
 
@@ -2962,8 +2918,8 @@ public class OsManager {
 
 					String id = realTimeMeterDefn.get( "id" ).asText( ) ;
 					String[] idComponents = id.split( Pattern.quote( "." ) ) ;
-					String category = idComponents[ 0 ] ;
-					String attribute = idComponents[ 1 ] ;
+					String category = idComponents[0] ;
+					String attribute = idComponents[1] ;
 					logger.debug( "collector: {}, attribute: {} ", category, attribute ) ;
 					// vm. process. jmxCommon. jmxCustom.Service.var
 					// process.topCpu_CsAgent
@@ -2980,17 +2936,20 @@ public class OsManager {
 
 						if ( attribute.equals( "cpu" ) ) {
 
-							int totalCpu = csapApp.metricManager( ).getLatestCpuUsage( ) ;
+							int totalCpu = CsapApis.getInstance( ).application( ).metricManager( )
+									.getLatestCpuUsage( ) ;
 							osSharedReport.put( "cpu", totalCpu ) ;
 
 						} else if ( attribute.equals( "coresActive" ) ) {
 
-							int totalCpu = csapApp.metricManager( ).getLatestCpuUsage( ) ;
+							int totalCpu = CsapApis.getInstance( ).application( ).metricManager( )
+									.getLatestCpuUsage( ) ;
 
-							double coresActive = totalCpu * csapApp.healthManager( ).getCpuCount( ) / 100D ;
+							double coresActive = totalCpu * CsapApis.getInstance( ).application( ).healthManager( )
+									.getCpuCount( ) / 100D ;
 							osSharedReport.put( "coresActive", CSAP.roundIt( coresActive, 2 ) ) ;
 //								osSharedReport.put( "cpu", totalCpu ) ;
-//								osSharedReport.put( "cores", csapApp.healthManager().getCpuCount() ) ;
+//								osSharedReport.put( "cores", CsapApis.getInstance().application().healthManager().getCpuCount() ) ;
 
 						} else {
 
@@ -3003,7 +2962,7 @@ public class OsManager {
 
 					case osProcess:
 						String csapId[] = attribute.split( "_" ) ;
-						String osStat = csapId[ 0 ] ;
+						String osStat = csapId[0] ;
 
 						addOsProcessMeterReport( serviceName, osStat,
 								latestCollectionReport.path( category ), attribute, processMeterReport ) ;
@@ -3013,7 +2972,7 @@ public class OsManager {
 					case java:
 						// jmxCommon.sessionsActive_test-k8s-csap-reference
 						String javaId[] = attribute.split( "_" ) ;
-						String javaStat = javaId[ 0 ] ;
+						String javaStat = javaId[0] ;
 
 						buildJavaMeterReport( serviceName, javaStat, attribute,
 								latestCollectionReport.path( category ),
@@ -3023,10 +2982,11 @@ public class OsManager {
 
 					case application:
 
-						attribute = idComponents[ 2 ] ;
+						attribute = idComponents[2] ;
 						String qualifiedName = attribute ;
 
-						ServiceInstance service = csapApp.flexFindFirstInstanceCurrentHost( serviceName ) ;
+						ServiceInstance service = CsapApis.getInstance( ).application( )
+								.flexFindFirstInstanceCurrentHost( serviceName ) ;
 						if ( service == null ) {
 
 							logger.debug( "Unable to locate: {}. Assumed not deployed on host {}", serviceName,
@@ -3124,7 +3084,8 @@ public class OsManager {
 
 		} else {
 
-			ServiceInstance serviceInstance = csapApp.findServiceByNameOnCurrentHost( javaServiceName ) ;
+			ServiceInstance serviceInstance = CsapApis.getInstance( ).application( ).findServiceByNameOnCurrentHost(
+					javaServiceName ) ;
 
 			if ( serviceInstance != null ) {
 
@@ -3214,7 +3175,8 @@ public class OsManager {
 				int allInstanceTotal = 0 ;
 
 				// kubernetes
-				ServiceInstance serviceInstance = csapApp.findServiceByNameOnCurrentHost( csapServiceName ) ;
+				ServiceInstance serviceInstance = CsapApis.getInstance( ).application( ).findServiceByNameOnCurrentHost(
+						csapServiceName ) ;
 
 				if ( serviceInstance != null && serviceInstance.is_cluster_kubernetes( ) ) {
 
@@ -3237,7 +3199,7 @@ public class OsManager {
 				}
 
 				// @formatter:off
-//				int			allInstanceTotal	= csapApp.getServicesOnHost().stream()
+//				int			allInstanceTotal	= CsapApis.getInstance().application().getServicesOnHost().stream()
 //					.filter( serviceinstance -> serviceinstance.getServiceName().matches( csapServiceName ) )
 //					.mapToInt( serviceinstance -> {
 //						
@@ -3290,7 +3252,7 @@ public class OsManager {
 	private void scheduleDiskUsageCollection ( ) {
 
 		// rawDuAndDfLinuxOutput = "";
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! CsapApis.getInstance( ).application( ).isAdminProfile( ) ) {
 
 			if ( ! intenseOsCommandExecutor.isShutdown( ) ) {
 
@@ -3334,7 +3296,7 @@ public class OsManager {
 
 	private void collect_disk_and_linux_package ( ) {
 
-		var diskAndPackageTimer = csapApp.metrics( ).startTimer( ) ;
+		var diskAndPackageTimer = CsapApis.getInstance( ).metrics( ).startTimer( ) ;
 		// Updates service count
 		getLinuxServices( ) ;
 
@@ -3347,7 +3309,7 @@ public class OsManager {
 		// Updates port count
 		// socketConnections() ;
 
-		var diskTimer = csapApp.metrics( ).startTimer( ) ;
+		var diskTimer = CsapApis.getInstance( ).metrics( ).startTimer( ) ;
 
 		logger.debug( "\n\n updating caches \n\n" ) ;
 
@@ -3358,7 +3320,7 @@ public class OsManager {
 			diskCollection = new StringBuilder( "\n" ) ;
 
 			// String[] diskUsageScript = diskUsageScriptTemplate.clone();
-			var servicePaths = csapApp
+			var servicePaths = CsapApis.getInstance( ).application( )
 					.servicesOnHost( )
 					.map( ServiceInstance::getDiskUsagePath )
 					.distinct( )
@@ -3379,8 +3341,10 @@ public class OsManager {
 			// Step 2 - collect disk usage use df output, services can specify
 			// device. Use default user to avoid seeing docker mounts
 			List<String> diskFileSystemScript = osCommands.getServiceDiskUsageDf( ) ;
-			diskCollection.append( osCommandRunner.runUsingDefaultUser( "service-disk-usage-df",
-					diskFileSystemScript ) ) ;
+			diskCollection.append(
+					osCommandRunner.runUsingDefaultUser(
+							"service-disk-usage-df",
+							diskFileSystemScript ) ) ;
 
 			// Step 3 - disk usage from docker
 			diskCollection.append( collectDockerDiskUsage( ) ) ;
@@ -3421,22 +3385,24 @@ public class OsManager {
 		// Collect docker container size
 		//
 
-		csapApp.metrics( ).stopTimer( diskTimer, COLLECT_OS + "service-folder-size" ) ;
+		CsapApis.getInstance( ).metrics( ).stopTimer( diskTimer, COLLECT_OS + "service-folder-size" ) ;
 
-		csapApp.metrics( ).stopTimer( diskAndPackageTimer, "csap." + COLLECT_OS + ".disk-and-devices" ) ;
+		CsapApis.getInstance( ).metrics( ).stopTimer( diskAndPackageTimer, "csap." + COLLECT_OS
+				+ ".disk-and-devices" ) ;
 
 	}
 
 	private String collectDockerDiskUsage ( ) {
 
-		if ( ! csapApp.isDockerInstalledAndActive( ) ) {
+		if ( ! CsapApis.getInstance( ).isContainerProviderInstalledAndActive( ) ) {
 
 			logger.debug( "Skipping docker collection because docker integration is disabled" ) ;
 			return "" ;
 
 		}
 
-		return csapApp.getDockerIntegration( ).collectContainersDiskUsage( csapApp ) ;
+		return CsapApis.getInstance( ).containerIntegration( ).collectContainersDiskUsage(
+				CsapApis.getInstance( ).application( ) ) ;
 
 	}
 
@@ -3450,18 +3416,21 @@ public class OsManager {
 
 	public void buildDockerPidMapping ( ) {
 
-		if ( csapApp.isDockerInstalledAndActive( ) || csapApp.isJunit( ) ) {
+		if ( CsapApis.getInstance( ).isContainerProviderInstalledAndActive( ) || CsapApis
+				.getInstance( ).application( ).isJunit( ) ) {
 
-			if ( csapApp.getDockerIntegration( ) != null ) {
+			if ( CsapApis.getInstance( ).containerIntegration( ) != null ) {
 
-				docker_containerProcesses = csapApp.getDockerIntegration( ).build_process_info_for_containers( ) ;
+				docker_containerProcesses = CsapApis.getInstance( ).containerIntegration( )
+						.build_process_info_for_containers( ) ;
 
 			}
 
 			if ( Application.isRunningOnDesktop( ) ) {
 
 				// dumped via HostDashboard, os process tab
-				String stubData = csapApp.check_for_stub( "", "linux/ps-docker-list.json" ) ;
+				String stubData = CsapApis.getInstance( ).application( ).check_for_stub( "",
+						"linux/ps-docker-list.json" ) ;
 
 				try {
 
@@ -3499,12 +3468,20 @@ public class OsManager {
 
 	}
 
+	public void expireAndUpdateProcessListing ( ) {
+
+		logger.info( CsapApplication.testHeader( ) ) ;
+		processStatisticsCache.expireNow( ) ;
+		checkForProcessStatusUpdate( ) ;
+
+	}
+
 	private volatile CsapSimpleCache processStatisticsCache = null ;
-	private volatile int processScanCount = 0 ;
+	AtomicInteger processScanCount = new AtomicInteger( 0 ) ;
 
-	private boolean isInit_ps_complete ( ) {
+	private boolean isProcessStatusInitialized ( ) {
 
-		return processScanCount >= 2 ;
+		return processScanCount.get( ) >= 2 ;
 
 	}
 
@@ -3512,8 +3489,13 @@ public class OsManager {
 															int maxSeconds ) {
 
 		logger.debug( CSAP.buildCsapStack( new Exception( "startup-stack-display" ) ) ) ;
-		if ( isInit_ps_complete( ) )
+
+		if ( isProcessStatusInitialized( ) ) {
+
 			return true ;
+
+		}
+
 		// possible race condition on initial lod
 		int attempts = 0 ;
 
@@ -3523,15 +3505,16 @@ public class OsManager {
 
 			try {
 
-				logger.info( "Waiting for initial process scan to complete: {} of {}",
-						attempts, maxSeconds ) ;
+				logger.info( "Waiting for {} of 3 process scans to complete: attempt {} of {}",
+						processScanCount.get( ),
+						attempts,
+						maxSeconds ) ;
 
 				TimeUnit.SECONDS.sleep( 2 ) ;
 
-				if ( ! isInit_ps_complete( ) ) {
+				if ( ! isProcessStatusInitialized( ) ) {
 
 					logger.info( "Triggering secondary ps scan to pickup docker container discovery" ) ;
-					processStatisticsCache.expireNow( ) ;
 					checkForProcessStatusUpdate( ) ;
 
 				}
@@ -3542,12 +3525,12 @@ public class OsManager {
 
 			}
 
-			if ( isInit_ps_complete( ) )
+			if ( isProcessStatusInitialized( ) )
 				break ;
 
 		}
 
-		return isInit_ps_complete( ) ;
+		return isProcessStatusInitialized( ) ;
 
 	}
 
@@ -3567,23 +3550,40 @@ public class OsManager {
 
 		}
 
-		if ( ! processStatisticsCache.isExpired( ) ) {
+		if ( ! isProcessStatusInitialized( ) ) {
 
-			logger.debug( "\n\n***** ReUsing  processStatisticsCache   *******\n\n" ) ;
+			logger.info( "process scanner not initialized, processScanCount: {}", processScanCount.get( ) ) ;
+
+		}
+ 
+		logger.debug( "process cache expired: {}", processStatisticsCache.isExpired( ) ) ;
+
+		if ( ! processStatisticsCache.isExpired( )
+				&& isProcessStatusInitialized( ) ) {
+
+			logger.debug( CsapApplication.highlightHeader( "using cached  processStatisticsCache" ) ) ;
 
 		} else if ( processStatusLock.tryLock( ) ) {
 
-			if ( processStatisticsCache.isExpired( ) ) {
-
-				logger.debug( "\n\n***** REFRESH  processStatisticsCache   *******\n\n" ) ;
-				var allStepsTimer = csapApp.metrics( ).startTimer( ) ;
+			if ( processStatisticsCache.isExpired( )
+					|| ! isProcessStatusInitialized( ) ) {
 
 				try {
 
-					csapApp.metrics( ).record( COLLECT_OS + "process-status", ( ) -> {
+					//
+					// Note - during initial startup - services may not be loaded yet
+					//
 
-						String ps_command_output = osCommandRunner.executeString( null, osCommands
-								.getProcessStatus( ) ) ;
+					logger.debug( CsapApplication.highlightHeader( "refreshing  processStatisticsCache" ) ) ;
+
+					var allStepsTimer = CsapApis.getInstance( ).metrics( ).startTimer( ) ;
+
+					CsapApis.getInstance( ).metrics( ).record( COLLECT_OS + "process-status", ( ) -> {
+
+						String ps_command_output = osCommandRunner.executeString(
+								null,
+								osCommands.getProcessStatus( ) ) ;
+
 						processStatisticsCache.reset( OsCommandRunner.trimHeader( ps_command_output ) ) ;
 
 					} ) ;
@@ -3594,44 +3594,54 @@ public class OsManager {
 
 					}
 
-					csapApp.metrics( ).record( COLLECT_OS + "process-details-docker", ( ) -> {
+					CsapApis.getInstance( ).metrics( ).record( COLLECT_OS + "process-details-docker",
+							( ) -> {
 
-						buildDockerPidMapping( ) ;
+								buildDockerPidMapping( ) ;
 
-					} ) ;
+							} ) ;
 
-					csapApp.metrics( ).record( OsProcessMapper.MAPPER_TIMER, ( ) -> {
+					if ( ! CsapApis.getInstance( ).application( ).isApplicationLoaded( ) ) {
 
-//						processMapper.process_find_wrapper(
-//								(String) processStatisticsCache.getCachedObject( ),
-//								diskUsageForServicesCache,
-//								getDockerContainerProcesses( ),
-//								csapApp.getServicesOnHost( ) ) ;
-						processMapper.process_find_all_service_matches(
-								csapApp.getServicesOnHost( ),
-								(String) processStatisticsCache.getCachedObject( ),
-								diskUsageForServicesCache,
-								getDockerContainerProcesses( ) ) ;
+						logger.warn( "application not loaded - deferring service mapping" ) ;
+						processStatisticsCache.expireNow( );
 
-					} ) ;
+					} else {
 
-					// get podIps and Update pod Ips
-					if ( csapApp.isKubernetesInstalledAndActive( ) ) {
+						CsapApis.getInstance( ).metrics( ).record( OsProcessMapper.MAPPER_TIMER, ( ) -> {
 
-						csapApp.metrics( ).record( COLLECT_OS + "process-map-pod-addresses", ( ) -> {
-
-							csapApp.getKubernetesIntegration( ).updatePodIps( csapApp ) ;
+							processMapper.process_find_all_service_matches(
+									CsapApis.getInstance( ).application( ).getServicesOnHost( ),
+									(String) processStatisticsCache.getCachedObject( ),
+									diskUsageForServicesCache,
+									getDockerContainerProcesses( ) ) ;
 
 						} ) ;
 
+						// get podIps and Update pod Ips
+						if ( CsapApis.getInstance( ).isKubernetesInstalledAndActive( ) ) {
+
+							CsapApis.getInstance( ).metrics( ).record( COLLECT_OS
+									+ "process-map-pod-addresses", ( ) -> {
+
+										CsapApis.getInstance( ).kubernetes( )
+												.updatePodIps( CsapApis.getInstance( ).application( ) ) ;
+
+									} ) ;
+
+						}
+
+						if ( ! isProcessStatusInitialized( ) ) {
+
+							//
+							processScanCount.getAndIncrement( ) ;
+
+						}
+
 					}
 
-					if ( ! isInit_ps_complete( ) ) {
-
-						//
-						processScanCount++ ;
-
-					}
+					CsapApis.getInstance( ).metrics( ).stopTimer( allStepsTimer, "csap." + COLLECT_OS
+							+ "process-to-model" ) ;
 
 				} catch ( Exception e ) {
 
@@ -3643,11 +3653,19 @@ public class OsManager {
 
 				}
 
-				csapApp.metrics( ).stopTimer( allStepsTimer, "csap." + COLLECT_OS + "process-to-model" ) ;
+			} else {
+
+				logger.info( "try lock not expired" ) ;
 
 			}
 
+		} else {
+
+			logger.info( "Failed to get lock" ) ;
+
 		}
+
+		logger.debug( "process cache expired: {}", processStatisticsCache.isExpired( ) ) ;
 
 	}
 
@@ -3674,7 +3692,7 @@ public class OsManager {
 		} else {
 
 			logger.debug( "\n\n***** REFRESHING   cpuStatisticsCache   *******\n\n" ) ;
-			var timer = csapApp.metrics( ).startTimer( ) ;
+			var timer = CsapApis.getInstance( ).metrics( ).startTimer( ) ;
 			var diskPercent = -1 ;
 			var dfOutput = "not-run" ;
 
@@ -3685,7 +3703,7 @@ public class OsManager {
 
 				logger.debug( "dfOutput: \n{}\n---", dfOutput ) ;
 
-				dfOutput = csapApp.check_for_stub( dfOutput, "linux/dfStaging.txt" ) ;
+				dfOutput = CsapApis.getInstance( ).application( ).check_for_stub( dfOutput, "linux/dfStaging.txt" ) ;
 
 				dfOutput = osCommandRunner.trimHeader( dfOutput ) ;
 				var lines = Arrays.stream( dfOutput.split( LINE_SEPARATOR ) )
@@ -3702,7 +3720,7 @@ public class OsManager {
 
 			}
 
-			csapApp.metrics( ).stopTimer( timer, COLLECT_OS + "csap-fs" ) ;
+			CsapApis.getInstance( ).metrics( ).stopTimer( timer, COLLECT_OS + "csap-fs" ) ;
 			csapFsCache.reset( diskPercent ) ;
 
 		}
@@ -3752,32 +3770,33 @@ public class OsManager {
 		// size or rss...switch to size as it is bigger for now
 
 		String psResult = osCommandRunner.executeString( null, psList ) ;
-		psResult = csapApp.check_for_stub( psResult, "linux/psMemory.txt" ) ;
+		psResult = CsapApis.getInstance( ).application( ).check_for_stub( psResult, "linux/psMemory.txt" ) ;
 
 		if ( sortByPriority ) {
 
-			psResult = csapApp.check_for_stub( psResult, "linux/psNice.txt" ) ;
+			psResult = CsapApis.getInstance( ).application( ).check_for_stub( psResult, "linux/psNice.txt" ) ;
 
 		}
 
 		String freeResult = osCommandRunner.executeString( FREE_LIST, new File( "." ) ) ;
 		freeResult += osCommandRunner.executeString( FREE_BY_M_LIST, new File( "." ) ) ;
-		freeResult = csapApp.check_for_stub( freeResult, "linux/freeResults.txt" ) ;
+		freeResult = CsapApis.getInstance( ).application( ).check_for_stub( freeResult, "linux/freeResults.txt" ) ;
 
 		// hook to display output nicely in browser
 		String[] psLines = psResult.split( LINE_SEPARATOR ) ;
 		StringBuilder psBuilder = new StringBuilder( ) ;
 
-		String currUser = csapApp.getAgentRunUser( ) ;
+		String currUser = CsapApis.getInstance( ).application( ).getAgentRunUser( ) ;
 
 		for ( int psIndex = 0; psIndex < psLines.length; psIndex++ ) {
 
-			String currLine = psLines[ psIndex ].trim( ) ;
+			String currLine = psLines[psIndex].trim( ) ;
 			String nameToken = "csapProcessId=" ;
 
 			int nameStart = currLine.indexOf( nameToken ) ;
 			int headerStart = currLine.indexOf( "RSS" ) ;
-			int processingStart = currLine.indexOf( csapApp.getCsapWorkingFolder( ).getAbsolutePath( ) ) ;
+			int processingStart = currLine.indexOf( CsapApis.getInstance( ).application( ).getCsapWorkingFolder( )
+					.getAbsolutePath( ) ) ;
 
 			if ( Application.isRunningOnDesktop( ) ) {
 
@@ -3896,7 +3915,7 @@ public class OsManager {
 
 				logger.debug( "\n\n***** REFRESHING   ioStatisticsCache   *******\n\n" ) ;
 
-				var timer = csapApp.metrics( ).startTimer( ) ;
+				var timer = CsapApis.getInstance( ).metrics( ).startTimer( ) ;
 
 				try {
 
@@ -3913,7 +3932,8 @@ public class OsManager {
 
 				}
 
-				csapApp.metrics( ).stopTimer( timer, COLLECT_OS + "device-read-write-rate" ) ;
+				CsapApis.getInstance( ).metrics( ).stopTimer( timer, COLLECT_OS
+						+ "device-read-write-rate" ) ;
 
 			}
 
@@ -3939,7 +3959,8 @@ public class OsManager {
 			// iostatOutput = osCommandRunner.runUsingDefaultUser( "iostat_dm",
 			// diskTestScript );
 			iostatOutput = osCommandRunner.executeString( null, osCommands.getSystemDiskWithRateOnly( ) ) ;
-			iostatOutput = csapApp.check_for_stub( iostatOutput, "linux/ioStatResults.txt" ) ;
+			iostatOutput = CsapApis.getInstance( ).application( ).check_for_stub( iostatOutput,
+					"linux/ioStatResults.txt" ) ;
 
 			// Device: tps MB_read/s MB_wrtn/s MB_read MB_wrtn
 
@@ -3959,21 +3980,22 @@ public class OsManager {
 
 			for ( int i = 0; i < iostatLines.length; i++ ) {
 
-				String curline = CsapCore.singleSpace( iostatLines[ i ] ) ;
+				String curline = CsapConstants.singleSpace( iostatLines[i] ) ;
 
 				logger.debug( "Processing line: {}", curline ) ;
 
 				if ( curline != null
 						&& ! curline.isEmpty( )
-						&& curline.matches( csapApp.rootProjectEnvSettings( ).getIostatDeviceFilter( ) ) ) {
+						&& curline.matches( CsapApis.getInstance( ).application( ).rootProjectEnvSettings( )
+								.getIostatDeviceFilter( ) ) ) {
 
 					filteredLines.add( curline ) ;
 					String[] fields = curline.split( " " ) ;
 
 					if ( fields.length == 6 ) {
 
-						totalDiskReadMb += Integer.parseInt( fields[ 4 ] ) ;
-						totalDiskWriteMb += Integer.parseInt( fields[ 5 ] ) ;
+						totalDiskReadMb += Integer.parseInt( fields[4] ) ;
+						totalDiskWriteMb += Integer.parseInt( fields[5] ) ;
 
 					}
 
@@ -4076,7 +4098,7 @@ public class OsManager {
 
 				logger.debug( "\n\n***** REFRESHING   diskUtilizationCache   *******\n\n" ) ;
 
-				var timer = csapApp.metrics( ).startTimer( ) ;
+				var timer = CsapApis.getInstance( ).metrics( ).startTimer( ) ;
 
 				try {
 
@@ -4093,7 +4115,8 @@ public class OsManager {
 
 				}
 
-				csapApp.metrics( ).stopTimer( timer, COLLECT_OS + "device-utilization-rate" ) ;
+				CsapApis.getInstance( ).metrics( ).stopTimer( timer, COLLECT_OS
+						+ "device-utilization-rate" ) ;
 
 			}
 
@@ -4117,7 +4140,8 @@ public class OsManager {
 					"iostat_dx",
 					diskUtilizationScript ) ;
 
-			iostatDiskUtilOutput = csapApp.check_for_stub( iostatDiskUtilOutput, "linux/iostat-with-util.txt" ) ;
+			iostatDiskUtilOutput = CsapApis.getInstance( ).application( ).check_for_stub( iostatDiskUtilOutput,
+					"linux/iostat-with-util.txt" ) ;
 
 			// Device: tps MB_read/s MB_wrtn/s MB_read MB_wrtn
 
@@ -4137,14 +4161,15 @@ public class OsManager {
 
 			for ( int i = 0; i < iostatLines.length; i++ ) {
 
-				String singleSpacedLine = CsapCore.singleSpace( iostatLines[ i ] ) ;
+				String singleSpacedLine = CsapConstants.singleSpace( iostatLines[i] ) ;
 
 				logger.debug( "Processing line: {}", singleSpacedLine ) ;
 
 				if ( singleSpacedLine != null
 						&& ! singleSpacedLine.isEmpty( )
 						&& singleSpacedLine.matches(
-								csapApp.rootProjectEnvSettings( ).getIostatDeviceFilter( ) ) ) {
+								CsapApis.getInstance( ).application( ).rootProjectEnvSettings( )
+										.getIostatDeviceFilter( ) ) ) {
 
 					filteredLines.add( singleSpacedLine ) ;
 					String[] fields = singleSpacedLine.split( " " ) ;
@@ -4152,12 +4177,12 @@ public class OsManager {
 					if ( fields.length == 2 ) {
 
 						// centos 7
-						String device = fields[ 0 ] ;
+						String device = fields[0] ;
 						int utilPercentage = -1 ;
 
 						try {
 
-							utilPercentage = Math.round( Float.parseFloat( fields[ 1 ] ) ) ;
+							utilPercentage = Math.round( Float.parseFloat( fields[1] ) ) ;
 
 						} catch ( Exception e ) {
 
@@ -4294,11 +4319,11 @@ public class OsManager {
 
 		List<String> parmList = Arrays.asList( "bash", "-c", "free -m" ) ;
 		String freeResult = osCommandRunner.executeString( parmList, new File( "." ) ) ;
-		freeResult = csapApp.check_for_stub( freeResult, "linux/freeResults.txt" ) ;
+		freeResult = CsapApis.getInstance( ).application( ).check_for_stub( freeResult, "linux/freeResults.txt" ) ;
 
 		parmList = Arrays.asList( "bash", "-c", "swapon -s " ) ;
 		String swapResult = osCommandRunner.executeString( parmList, new File( "." ) ) ;
-		swapResult = csapApp.check_for_stub( swapResult, "linux/swapResults.txt" ) ;
+		swapResult = CsapApis.getInstance( ).application( ).check_for_stub( swapResult, "linux/swapResults.txt" ) ;
 
 		try {
 
@@ -4326,22 +4351,22 @@ public class OsManager {
 
 			for ( int i = 0; i < memLines.length; i++ ) {
 
-				if ( memLines[ i ].contains( "Mem:" ) ) {
+				if ( memLines[i].contains( "Mem:" ) ) {
 
 					memResults.put( RAM,
-							CsapCore.singleSpace( memLines[ i ] ).split( " " ) ) ;
+							CsapConstants.singleSpace( memLines[i] ).split( " " ) ) ;
 
 					// default buffer to use RAM line. centos
-					memResults.put( BUFFER, CsapCore.singleSpace( memLines[ i ] ).split( " " ) ) ;
+					memResults.put( BUFFER, CsapConstants.singleSpace( memLines[i] ).split( " " ) ) ;
 
-				} else if ( memLines[ i ].contains( "cache:" ) ) {
+				} else if ( memLines[i].contains( "cache:" ) ) {
 
-					memResults.put( BUFFER, CsapCore.singleSpace( memLines[ i ] )
+					memResults.put( BUFFER, CsapConstants.singleSpace( memLines[i] )
 							.split( " " ) ) ;
 
-				} else if ( memLines[ i ].contains( "Swap:" ) ) {
+				} else if ( memLines[i].contains( "Swap:" ) ) {
 
-					memResults.put( SWAP, CsapCore.singleSpace( memLines[ i ] )
+					memResults.put( SWAP, CsapConstants.singleSpace( memLines[i] )
 							.split( " " ) ) ;
 
 				}
@@ -4370,16 +4395,16 @@ public class OsManager {
 					String swapPer = "" ;
 					// added host below for the simple view which needs to track
 					// it
-					String[] columns = CsapCore.singleSpace( line ).split( " " ) ;
+					String[] columns = CsapConstants.singleSpace( line ).split( " " ) ;
 
-					if ( columns.length == 5 && columns[ 0 ].startsWith( "/" ) ) {
+					if ( columns.length == 5 && columns[0].startsWith( "/" ) ) {
 
 						swapPer = "" ;
 
 						try {
 
-							float j = Float.parseFloat( columns[ 3 ] ) ;
-							float k = Float.parseFloat( columns[ 2 ] ) ;
+							float j = Float.parseFloat( columns[3] ) ;
+							float k = Float.parseFloat( columns[2] ) ;
 							swapPer = Integer.valueOf( Math.round( j / k * 100 ) ).toString( ) ;
 
 						} catch ( Exception e ) {
@@ -4387,11 +4412,11 @@ public class OsManager {
 							// ignore
 						}
 
-						swapList.add( columns[ 0 ] ) ;
-						swapList.add( columns[ 1 ] ) ;
+						swapList.add( columns[0] ) ;
+						swapList.add( columns[1] ) ;
 						swapList.add( swapPer ) ;
-						swapList.add( columns[ 3 ] + " / " + columns[ 2 ] ) ;
-						swapList.add( columns[ 4 ] ) ;
+						swapList.add( columns[3] + " / " + columns[2] ) ;
+						swapList.add( columns[4] ) ;
 						memResults.put( "swapon" + i++,
 								swapList.toArray( new String[swapList.size( )] ) ) ;
 
@@ -4462,7 +4487,8 @@ public class OsManager {
 		// target location
 		// Note the subFolder MUST be different from original source folder, or
 		// files could get overwritten
-		File platformTempFolder = new File( csapApp.csapPlatformTemp( ), "/csap-agent-transfer-manager/" ) ;
+		File platformTempFolder = new File( CsapApis.getInstance( ).application( ).csapPlatformTemp( ),
+				"/csap-agent-transfer-manager/" ) ;
 
 		if ( ! platformTempFolder.exists( ) ) {
 
@@ -4520,8 +4546,8 @@ public class OsManager {
 
 			logger.error( "multiPartFile.transferTo : {} {}", tempExtractLocation, CSAP.buildCsapStack( e ) ) ;
 
-			return "\n== " + CsapCore.CONFIG_PARSE_ERROR
-					+ " on multipart file transfer on Host " + csapApp.getCsapHostName( )
+			return "\n== " + CsapConstants.CONFIG_PARSE_ERROR
+					+ " on multipart file transfer on Host " + CsapApis.getInstance( ).application( ).getCsapHostName( )
 					+ ":" + e.getMessage( ) ;
 
 		}
@@ -4539,7 +4565,7 @@ public class OsManager {
 
 					File desktopTransferFolder = new File( extractTarget, "csap-desktop-transfer" ) ;
 
-					if ( csapApp.isJunit( ) ) {
+					if ( CsapApis.getInstance( ).application( ).isJunit( ) ) {
 
 						desktopTransferFolder = extractTarget ;
 
@@ -4558,7 +4584,7 @@ public class OsManager {
 
 			} else {
 
-				results.append( "\n== " + CsapCore.CONFIG_PARSE_ERROR
+				results.append( "\n== " + CsapConstants.CONFIG_PARSE_ERROR
 						+ " Windows extract target exists and is a file: "
 						+ extractTarget.getAbsolutePath( ) ) ;
 
@@ -4575,7 +4601,7 @@ public class OsManager {
 
 			var parmList = List.of( "echo skipping transfer" ) ;
 
-			if ( csapApp.isJunit( ) ) {
+			if ( CsapApis.getInstance( ).application( ).isJunit( ) ) {
 
 				logger.info( CsapApplication.testHeader( "junit: skipping FS updates" ) ) ;
 
@@ -4584,7 +4610,7 @@ public class OsManager {
 				// backup existing
 				if ( deleteExisting != null ) {
 
-					csapApp.move_to_csap_saved_folder( extractTarget, results ) ;
+					CsapApis.getInstance( ).application( ).move_to_csap_saved_folder( extractTarget, results ) ;
 
 				}
 
@@ -4592,18 +4618,20 @@ public class OsManager {
 				// ALWAYS use CSAP user if files are extracted
 				String user = chownUserid ;
 
-				if ( extractTargetPath.startsWith( csapApp.getAgentRunHome( ) ) ) {
+				if ( extractTargetPath.startsWith( CsapApis.getInstance( ).application( ).getAgentRunHome( ) ) ) {
 
-					user = csapApp.getAgentRunUser( ) ;
-					logger.info( "Specified directory starts with: {}, userid will be set to: {}", csapApp
+					user = CsapApis.getInstance( ).application( ).getAgentRunUser( ) ;
+					logger.info( "Specified directory starts with: {}, userid will be set to: {}", CsapApis
+							.getInstance( ).application( )
 							.getAgentRunHome( ), user ) ;
 
 				}
 
-				File scriptPath = csapApp.csapPlatformPath( "/bin/csap-unzip-as-root.sh" ) ;
+				File scriptPath = CsapApis.getInstance( ).application( ).csapPlatformPath(
+						"/bin/csap-unzip-as-root.sh" ) ;
 				parmList = new ArrayList<String>( ) ;
 
-				if ( csapApp.isRunningAsRoot( ) ) {
+				if ( CsapApis.getInstance( ).application( ).isRunningAsRoot( ) ) {
 
 					parmList.add( "/usr/bin/sudo" ) ;
 					parmList.add( scriptPath.getAbsolutePath( ) ) ;
@@ -4645,14 +4673,15 @@ public class OsManager {
 
 		}
 
-		csapApp.getEventClient( ).publishUserEvent( CsapEvents.CSAP_SYSTEM_CATEGORY + "/fileUpload", auditUser,
+		CsapApis.getInstance( ).events( ).publishUserEvent( CsapEvents.CSAP_SYSTEM_CATEGORY
+				+ "/fileUpload", auditUser,
 				multiPartFile.getOriginalFilename( ), results.toString( ) ) ;
 
 		return results.toString( ) ;
 
 	}
 
-	public static String MISSING_PARAM_HACK = CsapCore.CONFIG_PARSE_ERROR + "-BlankParamFound" ;
+	public static String MISSING_PARAM_HACK = CsapConstants.CONFIG_PARSE_ERROR + "-BlankParamFound" ;
 
 	/**
 	 * Note that cluster can be none, in which case command is only run on current
@@ -4680,13 +4709,13 @@ public class OsManager {
 		List<String> hostList = new ArrayList<>( Arrays.asList( hosts ) ) ;
 
 		ObjectNode resultsNode = jsonMapper.createObjectNode( ) ;
-		resultsNode.put( "scriptHost", csapApp.getCsapHostName( ) ) ;
+		resultsNode.put( "scriptHost", CsapApis.getInstance( ).application( ).getCsapHostName( ) ) ;
 		ArrayNode hostNode = resultsNode.putArray( "scriptOutput" ) ;
 
 		logger.info( "scriptName: {}, apiUser: {} ,  chownUserid: {} , hosts: {}",
 				scriptName, apiUser, chownUserid, hostList ) ;
 
-		File scriptDir = csapApp.getScriptDir( ) ;
+		File scriptDir = CsapApis.getInstance( ).application( ).getScriptDir( ) ;
 
 		if ( ! scriptDir.exists( ) ) {
 
@@ -4717,7 +4746,7 @@ public class OsManager {
 
 		logger.info( scriptName ) ;
 
-		csapApp.getEventClient( ).publishUserEvent(
+		CsapApis.getInstance( ).events( ).publishUserEvent(
 				CsapEvents.CSAP_OS_CATEGORY + "/execute",
 				apiUser, executableScript.getName( ),
 				scriptSummary + "\n\nscript: \n" + contents ) ;
@@ -4737,7 +4766,7 @@ public class OsManager {
 
 			}
 
-			hostNode.add( csapApp.getCsapHostName( ) + ":" + " Script copied" ) ;
+			hostNode.add( CsapApis.getInstance( ).application( ).getCsapHostName( ) + ":" + " Script copied" ) ;
 
 		} else {
 
@@ -4747,7 +4776,8 @@ public class OsManager {
 
 		resultsNode.set( "otherHosts",
 				zipAndTransfer( apiUser, timeoutSeconds, hostList,
-						executableScript.getAbsolutePath( ), CsapCore.SAME_LOCATION, chownUserid, outputFm, null ) ) ;
+						executableScript.getAbsolutePath( ), CsapConstants.SAME_LOCATION, chownUserid, outputFm,
+						null ) ) ;
 
 		return resultsNode ;
 
@@ -4792,8 +4822,10 @@ public class OsManager {
 		// return "No Additional Synchronization required";
 		// logger.info("locationToZip" + locationToZip);
 
-		var transferManager = new TransferManager( csapApp, timeOutSeconds, outputFm
-				.getBufferedWriter( ) ) ;
+		var transferManager = new TransferManager(
+				CsapApis.getInstance( ),
+				timeOutSeconds,
+				outputFm.getBufferedWriter( ) ) ;
 
 		if ( deleteExisting != null ) {
 
@@ -4805,7 +4837,7 @@ public class OsManager {
 
 		var targetFolder = new File( extractDir ) ;
 
-		if ( extractDir.equalsIgnoreCase( CsapCore.SAME_LOCATION ) ) {
+		if ( extractDir.equalsIgnoreCase( CsapConstants.SAME_LOCATION ) ) {
 
 			targetFolder = zipLocation ;
 
@@ -4819,7 +4851,7 @@ public class OsManager {
 		}
 
 		var result = "Specified Location does not exist: " + locationToZip + " on host: "
-				+ csapApp.getCsapHostName( ) ;
+				+ CsapApis.getInstance( ).application( ).getCsapHostName( ) ;
 
 		if ( zipLocation.exists( ) ) {
 
@@ -4881,7 +4913,7 @@ public class OsManager {
 
 			}
 
-			scriptOutput = csapApp.check_for_stub( scriptOutput, stubResultFile ) ;
+			scriptOutput = CsapApis.getInstance( ).application( ).check_for_stub( scriptOutput, stubResultFile ) ;
 
 			// trim header
 			var deleteStart = scriptOutput.indexOf( outputDelimeter ) ;
@@ -4915,7 +4947,8 @@ public class OsManager {
 
 	public String systemStatus ( ) {
 
-		List<String> lines = osCommands.getSystemServiceListing( csapApp.getCsapInstallFolder( ).getAbsolutePath( ) ) ;
+		List<String> lines = osCommands.getSystemServiceListing( CsapApis.getInstance( ).application( )
+				.getCsapInstallFolder( ).getAbsolutePath( ) ) ;
 
 		String scriptOutput = "Failed to run" ;
 
@@ -4923,7 +4956,8 @@ public class OsManager {
 
 			scriptOutput = osCommandRunner.runUsingRootUser( "OsManagerProcessTree", lines ) ;
 
-			scriptOutput = csapApp.check_for_stub( scriptOutput, "linux/systemctl-status.txt" ) ;
+			scriptOutput = CsapApis.getInstance( ).application( ).check_for_stub( scriptOutput,
+					"linux/systemctl-status.txt" ) ;
 
 			logger.debug( "output from: {}  , \n{}", lines, scriptOutput ) ;
 
@@ -4950,7 +4984,7 @@ public class OsManager {
 
 		reportText += CsapApplication.header( "Process trees" ) + runProcessTree( pid, description ) ;
 
-		processReport.put( DockerJson.response_plain_text.json( ), reportText ) ;
+		processReport.put( C7.response_plain_text.val( ), reportText ) ;
 
 		return processReport ;
 
@@ -5039,8 +5073,8 @@ public class OsManager {
 			scriptOutput = osCommandRunner.runUsingRootUser( "on-demand-top",
 					Arrays.asList( lines ) ) ;
 
-			results.put( DockerJson.response_plain_text.json( ), scriptOutput ) ;
-			logger.debug( "output from: {}  , \n{}", lines[ 1 ], scriptOutput ) ;
+			results.put( C7.response_plain_text.val( ), scriptOutput ) ;
+			logger.debug( "output from: {}  , \n{}", lines[1], scriptOutput ) ;
 
 		} catch ( IOException e ) {
 
@@ -5065,7 +5099,8 @@ public class OsManager {
 					"#!/bin/bash",
 					sourceCommonFunctions( ),
 					"export minimumExpirationDays=" + numDays,
-					csapApp.csapPlatformPath( "bin/csap-check-certificates.sh" ).getAbsolutePath( ),
+					CsapApis.getInstance( ).application( ).csapPlatformPath( "bin/csap-check-certificates.sh" )
+							.getAbsolutePath( ),
 					"" ) ;
 
 			String scriptOutput = "Failed to run" ;
@@ -5089,7 +5124,7 @@ public class OsManager {
 
 								if ( cols.length == 2 ) {
 
-									return Integer.parseInt( cols[ 1 ] ) ;
+									return Integer.parseInt( cols[1] ) ;
 
 								}
 
@@ -5110,7 +5145,8 @@ public class OsManager {
 
 				}
 
-				// scriptOutput = csapApp.check_for_stub( scriptOutput,
+				// scriptOutput = CsapApis.getInstance().application().check_for_stub(
+				// scriptOutput,
 				// "linux/systemctl-status.txt" ) ;
 
 				logger.debug( "output from: {}  , \n{}", script, scriptOutput ) ;
@@ -5138,9 +5174,10 @@ public class OsManager {
 
 		try {
 
-			List<String> lines = Files.readAllLines( csapApp.csapPlatformPath( "bin/admin-show-limits.sh" )
+			List<String> lines = Files.readAllLines( CsapApis.getInstance( ).application( ).csapPlatformPath(
+					"bin/admin-show-limits.sh" )
 					.toPath( ) ) ;
-			results.put( DockerJson.response_plain_text.json( ),
+			results.put( C7.response_plain_text.val( ),
 					osCommandRunner.runUsingRootUser( "adminlimits", lines ) ) ;
 
 		} catch ( Exception e ) {
@@ -5148,7 +5185,7 @@ public class OsManager {
 			logger.info( "Failed to run run_kernel_limits: {}",
 					CSAP.buildCsapStack( e ) ) ;
 
-			results.put( DockerJson.response_plain_text.json( ), CSAP.buildCsapStack( e ) ) ;
+			results.put( C7.response_plain_text.val( ), CSAP.buildCsapStack( e ) ) ;
 
 		}
 
@@ -5160,7 +5197,7 @@ public class OsManager {
 
 		ObjectNode results = jsonMapper.createObjectNode( ) ;
 
-		results.put( DockerJson.response_plain_text.json( ),
+		results.put( C7.response_plain_text.val( ),
 				processMapper.getLatestProcessSummary( )
 						+ "\n\n" + CsapApplication.LINE
 						+ "\n\n linux ps output: \n\n"
@@ -5205,11 +5242,12 @@ public class OsManager {
 
 		ObjectNode results = jsonMapper.createObjectNode( ) ;
 
-		var containerService = csapApp.findFirstServiceInstanceInLifecycle( "docker" ) ;
+		var containerService = CsapApis.getInstance( ).application( ).findFirstServiceInstanceInLifecycle(
+				C7.dockerService.val( ) ) ;
 
-		if ( csapApp.isCrioInstalledAndActive( ) ) {
+		if ( CsapApis.getInstance( ).isCrioInstalledAndActive( ) ) {
 
-			containerService = csapApp.findFirstServiceInstanceInLifecycle( "crio" ) ;
+			containerService = CsapApis.getInstance( ).application( ).findFirstServiceInstanceInLifecycle( "crio" ) ;
 
 		}
 
@@ -5223,7 +5261,7 @@ public class OsManager {
 
 		var cleanScript = List.of( "echo no container available" ) ;
 
-		if ( csapApp.isCrioInstalledAndActive( ) ) {
+		if ( CsapApis.getInstance( ).isCrioInstalledAndActive( ) ) {
 
 			var crioWorking = containerService
 					.getWorkingDirectory( )
@@ -5258,10 +5296,10 @@ public class OsManager {
 		try {
 
 			String cleanOutput = osCommandRunner.runUsingDefaultUser( "docker-image-clean", cleanScript ) ;
-			// cleanOutput = csapApp.check_for_stub( ioOutput,
+			// cleanOutput = CsapApis.getInstance().application().check_for_stub( ioOutput,
 			// "linux/proc-net-dev.txt" );
 
-			results.put( DockerJson.response_plain_text.json( ), cleanOutput ) ;
+			results.put( C7.response_plain_text.val( ), cleanOutput ) ;
 
 		} catch ( IOException e ) {
 
@@ -5295,10 +5333,10 @@ public class OsManager {
 		try {
 
 			String cleanOutput = osCommandRunner.runUsingRootUser( "docker-image-clean", killScript ) ;
-			// cleanOutput = csapApp.check_for_stub( ioOutput,
+			// cleanOutput = CsapApis.getInstance().application().check_for_stub( ioOutput,
 			// "linux/proc-net-dev.txt" );
 
-			results.put( DockerJson.response_plain_text.json( ), cleanOutput ) ;
+			results.put( C7.response_plain_text.val( ), cleanOutput ) ;
 
 		} catch ( IOException e ) {
 
@@ -5315,7 +5353,8 @@ public class OsManager {
 
 	public String sourceCommonFunctions ( ) {
 
-		return "source " + csapApp.csapPlatformPath( "bin/csap-environment.sh" ).getAbsolutePath( ) ;
+		return "source " + CsapApis.getInstance( ).application( ).csapPlatformPath( "bin/csap-environment.sh" )
+				.getAbsolutePath( ) ;
 
 	}
 
@@ -5348,7 +5387,7 @@ public class OsManager {
 	public ObjectNode kubernetesShell (
 										String operation ,
 										File commandScript ,
-										DockerJson responseType ) {
+										C7 responseType ) {
 
 		var results = jsonMapper.createObjectNode( ) ;
 
@@ -5371,7 +5410,7 @@ public class OsManager {
 
 		}
 
-		results.put( responseType.json( ), commandResults ) ;
+		results.put( responseType.val( ), commandResults ) ;
 
 		return results ;
 
@@ -5387,7 +5426,8 @@ public class OsManager {
 
 		if ( helmCliFile == null ) {
 
-			helmCliFile = new File( csapApp.getCsapInstallFolder( ), "/bin/" + HELM_COMMAND ) ;
+			helmCliFile = new File( CsapApis.getInstance( ).application( ).getCsapInstallFolder( ), "/bin/"
+					+ HELM_COMMAND ) ;
 
 		}
 
@@ -5402,25 +5442,30 @@ public class OsManager {
 		results.put( "command", parmList.toString( ) ) ;
 
 		var commandResults = OsCommandRunner.trimHeader(
-				kuberernetesRunner.executeString( parmList, csapApp.getCsapSavedFolder( ) ) ) ;
+				kuberernetesRunner.executeString( parmList, CsapApis.getInstance( ).application( )
+						.getCsapSavedFolder( ) ) ) ;
 
-		if ( csapApp.isDesktopHost( ) ) {
+		if ( CsapApis.getInstance( ).application( ).isDesktopHost( ) ) {
 
 			if ( command.contains( "repo list" ) ) {
 
-				commandResults = csapApp.check_for_stub( commandResults, "helm/repos.json" ) ;
+				commandResults = CsapApis.getInstance( ).application( ).check_for_stub( commandResults,
+						"helm/repos.json" ) ;
 
 			} else if ( command.contains( "search" ) ) {
 
-				commandResults = csapApp.check_for_stub( commandResults, "helm/repo-search.json" ) ;
+				commandResults = CsapApis.getInstance( ).application( ).check_for_stub( commandResults,
+						"helm/repo-search.json" ) ;
 
 			} else if ( command.contains( "list" ) ) {
 
-				commandResults = csapApp.check_for_stub( commandResults, "helm/releases.json" ) ;
+				commandResults = CsapApis.getInstance( ).application( ).check_for_stub( commandResults,
+						"helm/releases.json" ) ;
 
 			} else {
 
-				commandResults = csapApp.check_for_stub( commandResults, "helm/status.json" ) ;
+				commandResults = CsapApis.getInstance( ).application( ).check_for_stub( commandResults,
+						"helm/status.json" ) ;
 
 			}
 
@@ -5447,30 +5492,33 @@ public class OsManager {
 
 	public ObjectNode kubernetesCli (
 										String command ,
-										DockerJson responseType ) {
+										C7 responseType ) {
 
 		ObjectNode results = jsonMapper.createObjectNode( ) ;
 
 		List<String> parmList = List.of( "bash", "-c", KubernetesIntegration.CLI_COMMAND + " " + command ) ;
 
 		var commandResults = OsCommandRunner.trimHeader(
-				kuberernetesRunner.executeString( parmList, csapApp.getCsapSavedFolder( ) ) ) ;
+				kuberernetesRunner.executeString( parmList, CsapApis.getInstance( ).application( )
+						.getCsapSavedFolder( ) ) ) ;
 
-		if ( csapApp.isDesktopHost( ) ) {
+		if ( CsapApis.getInstance( ).application( ).isDesktopHost( ) ) {
 
 			if ( command.contains( "get -o=yaml" ) ) {
 
-				commandResults = csapApp.check_for_stub( commandResults, "linux/pod-get.yml" ) ;
+				commandResults = CsapApis.getInstance( ).application( ).check_for_stub( commandResults,
+						"linux/pod-get.yml" ) ;
 
 			} else {
 
-				commandResults = csapApp.check_for_stub( commandResults, "linux/pod-describe.txt" ) ;
+				commandResults = CsapApis.getInstance( ).application( ).check_for_stub( commandResults,
+						"linux/pod-describe.txt" ) ;
 
 			}
 
 		}
 
-		results.put( responseType.json( ), commandResults ) ;
+		results.put( responseType.val( ), commandResults ) ;
 
 		return results ;
 
@@ -5478,16 +5526,17 @@ public class OsManager {
 
 	public ObjectNode dockerCli (
 									String command ,
-									DockerJson responseType ) {
+									C7 responseType ) {
 
 		ObjectNode results = jsonMapper.createObjectNode( ) ;
 
 		List<String> parmList = List.of( "bash", "-c", ContainerIntegration.CLI_COMMAND + " " + command ) ;
 
 		results.put(
-				responseType.json( ),
+				responseType.val( ),
 				OsCommandRunner.trimHeader(
-						kuberernetesRunner.executeString( parmList, csapApp.getCsapSavedFolder( ) ) ) ) ;
+						kuberernetesRunner.executeString( parmList, CsapApis.getInstance( ).application( )
+								.getCsapSavedFolder( ) ) ) ) ;
 
 		return results ;
 

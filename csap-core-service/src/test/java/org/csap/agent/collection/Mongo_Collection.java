@@ -34,8 +34,8 @@ public class Mongo_Collection extends CsapThinTests {
 				.isTrue( ) ;
 
 		getApplication( ).metricManager( ).startCollectorsForJunit( ) ;
-		getApplication( ).getOsManager( ).checkForProcessStatusUpdate( ) ;
-		getApplication( ).getOsManager( ).wait_for_initial_process_status_scan( 3 ) ;
+		getOsManager( ).checkForProcessStatusUpdate( ) ;
+		getOsManager( ).wait_for_initial_process_status_scan( 3 ) ;
 
 	}
 
@@ -46,8 +46,7 @@ public class Mongo_Collection extends CsapThinTests {
 		logger.info( CsapApplication.testHeader( ) ) ;
 
 		// csapApp.shutdown();
-		ServiceCollector serviceCollector = new ServiceCollector( getApplication( ),
-				getApplication( ).getOsManager( ), 30, false ) ;
+		ServiceCollector serviceCollector = new ServiceCollector( getCsapApis( ), 30, false ) ;
 
 		serviceCollector.shutdown( ) ;
 
@@ -84,8 +83,7 @@ public class Mongo_Collection extends CsapThinTests {
 		logger.info( CsapApplication.testHeader( ) ) ;
 
 		// csapApp.shutdown();
-		ServiceCollector applicationCollector = new ServiceCollector( getApplication( ),
-				getApplication( ).getOsManager( ), 30, false ) ;
+		ServiceCollector applicationCollector = new ServiceCollector( getCsapApis( ), 30, false ) ;
 
 		applicationCollector.shutdown( ) ;
 

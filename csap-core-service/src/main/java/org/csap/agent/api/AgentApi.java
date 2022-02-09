@@ -24,16 +24,15 @@ import javax.servlet.http.HttpServletResponse ;
 
 import org.apache.commons.lang3.StringUtils ;
 import org.csap.CsapMonitor ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.container.kubernetes.KubernetesIntegration ;
-import org.csap.agent.container.kubernetes.KubernetesJson ;
+import org.csap.agent.container.kubernetes.K8 ;
 import org.csap.agent.container.kubernetes.SpecBuilder ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.linux.OsCommandRunner ;
 import org.csap.agent.linux.OutputFileMgr ;
-import org.csap.agent.model.ActiveUsers ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.HealthManager ;
 import org.csap.agent.model.ServiceAlertsEnum ;
@@ -48,7 +47,8 @@ import org.csap.agent.ui.rest.FileRequests ;
 import org.csap.docs.CsapDoc ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
-import org.csap.integations.CsapMicroMeter ;
+import org.csap.integations.micrometer.CsapMicroMeter ;
+import org.csap.integations.micrometer.MeterReport ;
 import org.csap.security.SpringAuthCachingFilter ;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor ;
 import org.slf4j.Logger ;
@@ -82,7 +82,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode ;
 @Profile ( "agent" )
 @RestController
 @CsapMonitor ( prefix = "api.agent" )
-@RequestMapping ( CsapCoreService.API_AGENT_URL )
+@RequestMapping ( CsapConstants.API_AGENT_URL )
 @CsapDoc ( title = "/api/agent/*: apis for querying data collected by management agent." , type = CsapDoc.PUBLIC , notes = {
 		"CSAP Performance APis provide access to the runtime data. This includes everything from the state "
 				+ "of the host resources (disk/cpu/memory), java (heap, threads), and service custom metrics",
@@ -103,12 +103,13 @@ public class AgentApi {
 
 	// Spring Injected
 
-	private Application csapApp ;
+	private CsapApis csapApis = null ;
 
 	@Autowired
-	public AgentApi ( Application csapApp ) {
+	public AgentApi (
+			CsapApis csapApis ) {
 
-		this.csapApp = csapApp ;
+		this.csapApis = csapApis ;
 
 	}
 
@@ -125,13 +126,14 @@ public class AgentApi {
 	@GetMapping ( "/health" )
 	public ObjectNode health (
 								@RequestParam ( defaultValue = "1.0" ) double alertLevel ,
-								@RequestParam ( value = CsapCore.PROJECT_PARAMETER , defaultValue = Application.ALL_PACKAGES ) String csapProject )
+								@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , defaultValue = Application.ALL_PACKAGES ) String csapProject )
 		throws Exception {
 
 		ObjectNode healthJson = jacksonMapper.createObjectNode( ) ;
 
-		ObjectNode healthReport = csapApp.healthManager( ).build_health_report( ServiceAlertsEnum.ALERT_LEVEL, false,
-				csapApp.getProject( csapProject ) ) ;
+		ObjectNode healthReport = csapApis.application( ).healthManager( ).build_health_report(
+				ServiceAlertsEnum.ALERT_LEVEL, false,
+				csapApis.application( ).getProject( csapProject ) ) ;
 
 		if ( healthReport.path( HealthManager.HEALTH_SUMMARY ).size( ) == 0 ) {
 
@@ -153,7 +155,7 @@ public class AgentApi {
 	CsapMicroMeter.HealthReport kubernetesHealthReport = new CsapMicroMeter.HealthReport( null, jacksonMapper ) ;
 
 	@Inject
-	CsapMicroMeter.MeterReport meterReport ;
+	MeterReport meterReport ;
 
 	@CsapDoc ( notes = {
 			"Health of kubernetes, return a complete JSON status object",
@@ -169,7 +171,7 @@ public class AgentApi {
 
 		logger.debug( "csapui: {}", csapui ) ;
 
-		if ( ! csapApp.isKubernetesInstalledAndActive( ) ) {
+		if ( ! csapApis.isKubernetesInstalledAndActive( ) ) {
 
 			var report = jacksonMapper.createObjectNode( ) ;
 			report.put( "installed-and-active", false ) ;
@@ -180,22 +182,22 @@ public class AgentApi {
 		var kubernetesPerformanceReport = jacksonMapper.createObjectNode( ) ;
 		var healthReport = kubernetesPerformanceReport.putObject( CsapMicroMeter.HealthReport.Report.name.json ) ;
 
-		var reportKey = KubernetesJson.report_metrics.json( ) ;
+		var reportKey = K8.report_metrics.val( ) ;
 
-		if ( csapApp.kubeletInstance( ).isKubernetesMaster( ) ) {
+		if ( csapApis.application( ).kubeletInstance( ).isKubernetesMaster( ) ) {
 
-			reportKey = KubernetesJson.report_namespace_all.json( ) ;
+			reportKey = K8.report_namespace_all.val( ) ;
 
 		}
 
 		if ( csapui ) {
 
 			logger.info( "csapui set - refreshing report data" ) ;
-			csapApp.getKubernetesIntegration( ).buildKubernetesHealthReport( ) ;
+			csapApis.kubernetes( ).buildKubernetesHealthReport( ) ;
 
 		}
 
-		var nodeReport = csapApp.getKubernetesIntegration( ).getCachedReport( reportKey ) ;
+		var nodeReport = csapApis.kubernetes( ).getCachedReport( reportKey ) ;
 
 		logger.debug( "type: {} nodeReport {}", reportKey, CSAP.jsonPrint( nodeReport ) ) ;
 
@@ -206,14 +208,14 @@ public class AgentApi {
 		ObjectNode timers = kubernetesPerformanceReport.putObject( "timers" ) ;
 		meterReport.addMicroMeter(
 				timers,
-				csapApp.metrics( ).find( KubernetesIntegration.SUMMARY_TIMER ),
+				csapApis.metrics( ).find( KubernetesIntegration.SUMMARY_TIMER ),
 				"summary",
 				1,
 				false ) ;
 
 		meterReport.addMicroMeter(
 				timers,
-				csapApp.metrics( ).find( SpecBuilder.DEPLOY_TIMER ),
+				csapApis.metrics( ).find( SpecBuilder.DEPLOY_TIMER ),
 				"deploy",
 				1,
 				false ) ;
@@ -229,8 +231,8 @@ public class AgentApi {
 
 		} else {
 
-			if ( nodeReport.has( KubernetesJson.heartbeat.json( ) )
-					&& ! nodeReport.path( KubernetesJson.heartbeat.json( ) ).asBoolean( ) ) {
+			if ( nodeReport.has( K8.heartbeat.val( ) )
+					&& ! nodeReport.path( K8.heartbeat.val( ) ).asBoolean( ) ) {
 
 				httpHealthErrors.add( kubernetesHealthReport.buildError(
 						"health",
@@ -239,7 +241,7 @@ public class AgentApi {
 
 			}
 
-			if ( ! nodeReport.path( "metrics" ).path( KubernetesJson.heartbeat.json( ) ).asBoolean( ) ) {
+			if ( ! nodeReport.path( "metrics" ).path( K8.heartbeat.val( ) ).asBoolean( ) ) {
 
 				httpHealthErrors.add( kubernetesHealthReport.buildError(
 						"health",
@@ -257,7 +259,7 @@ public class AgentApi {
 
 			}
 
-			if ( csapApp.kubeletInstance( ).isKubernetesMaster( ) ) {
+			if ( csapApis.application( ).kubeletInstance( ).isKubernetesMaster( ) ) {
 
 				// clear cache every night
 				int nowDayOfYear = LocalDate.now( ).getDayOfYear( ) ;
@@ -265,9 +267,11 @@ public class AgentApi {
 				if ( nowDayOfYear != lastKubernetesMasterCertCheckDay ) {
 
 					logger.info( "Running master certificate checks" ) ;
-					var maxDaysBeforeAlerting = csapApp.environmentSettings( ).getKubernetesCertMinimumDays( ) ;
-					var fewestDaysToExpiration = csapApp.getOsManager( ).kubernetes_certs_expiration_days(
-							maxDaysBeforeAlerting ) ;
+					var maxDaysBeforeAlerting = csapApis.application( ).environmentSettings( )
+							.getKubernetesCertMinimumDays( ) ;
+					var fewestDaysToExpiration = csapApis.osManager( )
+							.kubernetes_certs_expiration_days(
+									maxDaysBeforeAlerting ) ;
 
 					if ( fewestDaysToExpiration < maxDaysBeforeAlerting ) {
 
@@ -288,12 +292,12 @@ public class AgentApi {
 
 			}
 
-			if ( csapApp.kubeletInstance( ).isKubernetesPrimaryMaster( ) ) {
+			if ( csapApis.application( ).kubeletInstance( ).isKubernetesPrimaryMaster( ) ) {
 
 				// extended health checks ONLY on primary master
-				var eventCountReports = csapApp.getKubernetesIntegration( ).getCachedReport(
-						KubernetesJson.report_events
-								.json( ) ) ;
+				var eventCountReports = csapApis.kubernetes( ).getCachedReport(
+						K8.report_events
+								.val( ) ) ;
 
 				if ( eventCountReports != null
 						&& ! eventCountReports.isEmpty( ) ) {
@@ -350,20 +354,20 @@ public class AgentApi {
 		throws Exception {
 
 		ObjectNode dockerReport = jacksonMapper.createObjectNode( ) ;
-		JsonNode dockerSummary = csapApp.getDockerIntegration( ).getCachedSummaryReport( ) ;
+		JsonNode dockerSummary = csapApis.containerIntegration( ).getCachedSummaryReport( ) ;
 		dockerReport.set( "report", dockerSummary ) ;
 
 		ObjectNode timers = dockerReport.putObject( "timers" ) ;
 		meterReport.addMicroMeter(
 				timers,
-				csapApp.metrics( ).find( ContainerIntegration.SUMMARY_TIMER ),
+				csapApis.metrics( ).find( ContainerIntegration.SUMMARY_TIMER ),
 				"summary",
 				1,
 				false ) ;
 
 		meterReport.addMicroMeter(
 				timers,
-				csapApp.metrics( ).find( ContainerIntegration.DEPLOY_TIMER ),
+				csapApis.metrics( ).find( ContainerIntegration.DEPLOY_TIMER ),
 				"deploy",
 				1,
 				false ) ;
@@ -381,32 +385,33 @@ public class AgentApi {
 			var collectedContainerCount = dockerSummary.path( "containerCount" ).asInt( 9999 ) ;
 			var collectedVolumeCount = dockerSummary.path( "volumeCount" ).asInt( 9999 ) ;
 
-			if ( collectedImageCount > csapApp.environmentSettings( ).getDockerMaxImages( ) ) {
+			if ( collectedImageCount > csapApis.application( ).environmentSettings( ).getDockerMaxImages( ) ) {
 
 				var maxImageAlert = dockerHealthReport.buildError( "docker-max-images", "application",
 						"max images exceeded" ) ;
 				maxImageAlert.put( "current", collectedImageCount ) ;
-				maxImageAlert.put( "max", csapApp.environmentSettings( ).getDockerMaxImages( ) ) ;
+				maxImageAlert.put( "max", csapApis.application( ).environmentSettings( ).getDockerMaxImages( ) ) ;
 				httpHealthErrors.add( maxImageAlert ) ;
 
 			}
 
-			if ( collectedContainerCount > csapApp.environmentSettings( ).getDockerMaxContainers( ) ) {
+			if ( collectedContainerCount > csapApis.application( ).environmentSettings( ).getDockerMaxContainers( ) ) {
 
 				var maxContainerAlert = dockerHealthReport.buildError( "docker-max-containers", "application",
 						"max containers exceeded" ) ;
 				maxContainerAlert.put( "current", collectedContainerCount ) ;
-				maxContainerAlert.put( "max", csapApp.environmentSettings( ).getDockerMaxContainers( ) ) ;
+				maxContainerAlert.put( "max", csapApis.application( ).environmentSettings( )
+						.getDockerMaxContainers( ) ) ;
 				httpHealthErrors.add( maxContainerAlert ) ;
 
 			}
 
-			if ( collectedVolumeCount > csapApp.environmentSettings( ).getDockerMaxVolumes( ) ) {
+			if ( collectedVolumeCount > csapApis.application( ).environmentSettings( ).getDockerMaxVolumes( ) ) {
 
 				var maxVolumeAlert = dockerHealthReport.buildError( "docker-max-volumes", "application",
 						"max volumes exceeded" ) ;
 				maxVolumeAlert.put( "current", collectedVolumeCount ) ;
-				maxVolumeAlert.put( "max", csapApp.environmentSettings( ).getDockerMaxVolumes( ) ) ;
+				maxVolumeAlert.put( "max", csapApis.application( ).environmentSettings( ).getDockerMaxVolumes( ) ) ;
 				httpHealthErrors.add( maxVolumeAlert ) ;
 
 			}
@@ -464,12 +469,12 @@ public class AgentApi {
 		JsonMappingException ,
 		IOException {
 
-		return activeUsers.getActive( ) ;
+		return csapApis.application( ).getActiveUsers( ).getActive( ) ;
 
 	}
 
-	@Inject
-	ActiveUsers activeUsers ;
+//	@Inject
+//	ActiveUsers activeUsers ;
 
 	@CsapDoc ( notes = {
 			"Summary status of host"
@@ -484,13 +489,14 @@ public class AgentApi {
 
 		ObjectNode healthJson = jacksonMapper.createObjectNode( ) ;
 
-		if ( csapApp.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			healthJson.put( "error", "vmHealth is only enabled on csap-agent urls." ) ;
 
 		} else {
 
-			healthJson = csapApp.healthManager( ).statusForAdminOrAgent( ServiceAlertsEnum.ALERT_LEVEL, true ) ;
+			healthJson = csapApis.application( ).healthManager( ).statusForAdminOrAgent( ServiceAlertsEnum.ALERT_LEVEL,
+					true ) ;
 
 		}
 
@@ -509,14 +515,14 @@ public class AgentApi {
 
 		ObjectNode diskInfo = jacksonMapper.createObjectNode( ) ;
 
-		if ( csapApp.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			diskInfo.put( "error",
 					"Disk Usage is only enabled on csap-agent urls. Use /admin/api/hosts, then /csap-agent/api/diskUsage on host.  CSAP Command Runner UI can be used to run on all VMS at same time." ) ;
 
 		} else {
 
-			diskInfo.set( csapApp.getCsapHostName( ), osManager.getCachedFileSystemInfo( ) ) ;
+			diskInfo.set( csapApis.application( ).getCsapHostName( ), osManager.getCachedFileSystemInfo( ) ) ;
 
 		}
 
@@ -527,7 +533,7 @@ public class AgentApi {
 	@CsapDoc ( notes = {
 			"Service Runtime on host",
 	} , linkTests = {
-			CsapCore.AGENT_NAME,
+			CsapConstants.AGENT_NAME,
 			"List"
 	} , linkGetParams = {
 			"serviceName=csap-agent"
@@ -538,9 +544,9 @@ public class AgentApi {
 
 		ObjectNode serviceInfo = jacksonMapper.createObjectNode( ) ;
 
-		ServiceInstance service = csapApp.findServiceByNameOnCurrentHost( serviceName ) ;
+		ServiceInstance service = csapApis.application( ).findServiceByNameOnCurrentHost( serviceName ) ;
 
-		if ( csapApp.isAdminProfile( ) || service == null ) {
+		if ( csapApis.application( ).isAdminProfile( ) || service == null ) {
 
 			serviceInfo.put( "error",
 					"Disk Usage is only enabled on csap-agent urls. Use /admin/api/hosts, then /csap-agent/api/diskUsage on host.  CSAP Command Runner UI can be used to run on all VMS at same time." ) ;
@@ -562,7 +568,7 @@ public class AgentApi {
 	@CsapDoc ( notes = {
 			"Service definition on hosts",
 	} , linkTests = {
-			CsapCore.AGENT_NAME,
+			CsapConstants.AGENT_NAME,
 			"List"
 	} , linkGetParams = {
 			"serviceName=csap-agent"
@@ -573,9 +579,9 @@ public class AgentApi {
 
 		ObjectNode serviceInfo = jacksonMapper.createObjectNode( ) ;
 
-		ServiceInstance service = csapApp.findServiceByNameOnCurrentHost( serviceName ) ;
+		ServiceInstance service = csapApis.application( ).findServiceByNameOnCurrentHost( serviceName ) ;
 
-		if ( csapApp.isAdminProfile( ) || service == null ) {
+		if ( csapApis.application( ).isAdminProfile( ) || service == null ) {
 
 			serviceInfo.put( "error",
 					"Disk Usage is only enabled on csap-agent urls. Use /admin/api/hosts, then /csap-agent/api/diskUsage on host.  CSAP Command Runner UI can be used to run on all VMS at same time." ) ;
@@ -636,7 +642,8 @@ public class AgentApi {
 									@RequestParam ( defaultValue = "false" ) boolean ssl )
 		throws Exception {
 
-		String location = csapApp.getKubernetesIntegration( ).nodePortUrl( csapApp, kubernetesService, "$host", "",
+		String location = csapApis.kubernetes( ).nodePortUrl( csapApis.application( ), kubernetesService,
+				"$host", "",
 				ssl ) ;
 		ObjectNode result = jacksonMapper.createObjectNode( ) ;
 		result.put( "url", location ) ;
@@ -724,7 +731,7 @@ public class AgentApi {
 	} )
 	public JsonNode collectionAppRaw ( ) {
 
-		var rawData = csapApp.metricManager( ).getServiceCollector( -1 ).getServiceToAppMetrics( ) ;
+		var rawData = csapApis.application( ).metricManager( ).getServiceCollector( -1 ).getServiceToAppMetrics( ) ;
 
 		return jacksonMapper.convertValue(
 				rawData,
@@ -762,7 +769,7 @@ public class AgentApi {
 
 		ObjectNode metricsJson = jacksonMapper.createObjectNode( ) ;
 
-		if ( csapApp.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			metricsJson.put( "error",
 					"Metrics api is only available from Node Agent instances. Vm Name: csap-agent" ) ;
@@ -773,28 +780,30 @@ public class AgentApi {
 
 			case "resource":
 
-				OsSharedResourcesCollector vmStatsRunnable = csapApp.metricManager( ).getOsSharedCollector( Integer
-						.parseInt( interval ) ) ;
+				OsSharedResourcesCollector vmStatsRunnable = csapApis.application( ).metricManager( )
+						.getOsSharedCollector( Integer
+								.parseInt( interval ) ) ;
 				metricsJson = vmStatsRunnable.buildCollectionReport( false, null, number, 0 ) ;
 				break ;
 
 			case "service":
-				OsProcessCollector svcStats = csapApp.metricManager( ).getOsProcessCollector( Integer
+				OsProcessCollector svcStats = csapApis.application( ).metricManager( ).getOsProcessCollector( Integer
 						.parseInt( interval ) ) ;
 				// metricsJson = svcStats.getAllCSVdata( number, 0 );
 				metricsJson = svcStats.getCollection( number, 0, services ) ;
 				break ;
 
 			case "jmx":
-				ServiceCollector serviceCollector = csapApp.metricManager( ).getServiceCollector( Integer.parseInt(
-						interval ) ) ;
+				ServiceCollector serviceCollector = csapApis.application( ).metricManager( ).getServiceCollector(
+						Integer.parseInt(
+								interval ) ) ;
 				metricsJson = serviceCollector.getJavaCollection( number, 0, services ) ;
 				break ;
 
 			case "app":
 
 				// not working?
-				ServiceCollector appCollector = csapApp.metricManager( ).getServiceCollector( Integer
+				ServiceCollector appCollector = csapApis.application( ).metricManager( ).getServiceCollector( Integer
 						.parseInt( interval ) ) ;
 				// metricsJson = appCollector.getAllCSVdata( number, 0 );
 				metricsJson = appCollector.getApplicationCollection( number, 0, services ) ;
@@ -846,13 +855,13 @@ public class AgentApi {
 				apiUserid, scriptName, scriptUserid ) ;
 
 		String[] hosts = {
-				csapApp.getCsapHostName( )
+				csapApis.application( ).getCsapHostName( )
 		} ;
 		String fullName = scriptName + LocalDateTime.now( ).format( DateTimeFormatter.ofPattern( "MMM.d-HH.mm" ) ) ;
-		OutputFileMgr outputFm = new OutputFileMgr( csapApp.getScriptDir( ), fullName ) ;
+		OutputFileMgr outputFm = new OutputFileMgr( csapApis.application( ).getScriptDir( ), fullName ) ;
 
 		ObjectNode apiResponse = jacksonMapper.createObjectNode( ) ;
-		apiResponse.put( "scriptOutput", csapApp.getScriptDir( ).getAbsolutePath( ) +
+		apiResponse.put( "scriptOutput", csapApis.application( ).getScriptDir( ).getAbsolutePath( ) +
 				"/xfer_" + scriptName + ".log" ) ;
 
 		ObjectNode runResponse = osManager.executeShellScriptClustered(
@@ -1142,7 +1151,7 @@ public class AgentApi {
 		// pass
 
 		if ( ! doEncrypt ||
-				( csapApp.isRunningOnDesktop( ) && csapApp.isAdminProfile( ) ) ) {
+				( csapApis.application( ).isRunningOnDesktop( ) && csapApis.application( ).isAdminProfile( ) ) ) {
 
 			sourcePassword = scmPass ;
 
@@ -1187,7 +1196,7 @@ public class AgentApi {
 
 		response.put( "info", "add service name to url" ) ;
 		response.set( "availableServices", jacksonMapper.convertValue(
-				csapApp.getAllPackages( ).getServiceNamesInLifecycle( ),
+				csapApis.application( ).getAllPackages( ).getServiceNamesInLifecycle( ),
 				ArrayNode.class ) ) ;
 		return response ;
 
@@ -1218,7 +1227,7 @@ public class AgentApi {
 
 		ArrayList<String> names = new ArrayList<String>( ) ;
 
-		File working = csapApp.getLogDir( serviceName_port ) ;
+		File working = csapApis.application( ).getLogDir( serviceName_port ) ;
 
 		if ( working != null && working.exists( ) ) {
 
@@ -1272,8 +1281,8 @@ public class AgentApi {
 										@RequestParam ( defaultValue = "0" ) int dockerLineCount ,
 										@RequestParam ( defaultValue = "0" ) String dockerSince ,
 										@RequestParam ( value = "bufferSize" , required = true ) long bufferSize ,
-										@RequestParam ( value = CsapCore.HOST_PARAM , required = false ) String hostName ,
-										@RequestParam ( value = CsapCore.SERVICE_NOPORT_PARAM , required = false ) String serviceName ,
+										@RequestParam ( value = CsapConstants.HOST_PARAM , required = false ) String hostName ,
+										@RequestParam ( value = CsapConstants.SERVICE_NOPORT_PARAM , required = false ) String serviceName ,
 										@RequestParam ( value = "isLogFile" , required = false , defaultValue = "false" ) boolean isLogFile ,
 										@RequestParam ( value = FileRequests.LOG_FILE_OFFSET_PARAM , required = false , defaultValue = "-1" ) long offsetLong ,
 										String apiUser ,
@@ -1325,7 +1334,7 @@ public class AgentApi {
 
 		logger.info( "{} Downloading {} file: {}", userid, serviceName, fileName ) ;
 
-		var serviceInstance = csapApp.flexFindFirstInstanceCurrentHost( serviceName ) ;
+		var serviceInstance = csapApis.application( ).flexFindFirstInstanceCurrentHost( serviceName ) ;
 		FileSystemResource theFile ;
 
 		if ( serviceInstance != null ) {
@@ -1362,7 +1371,7 @@ public class AgentApi {
 			"Log File output filtered by specified filter, processed using grep command",
 			"Note: agent api only"
 	} , linkTests = {
-			CsapCore.AGENT_ID
+			CsapConstants.AGENT_ID
 	} , linkPostParams = {
 			USERID_PASS_PARAMS
 					+ "serviceName_port=csap-agent,fileName=warnings.log,filter=Error"
@@ -1380,7 +1389,7 @@ public class AgentApi {
 
 		StringBuilder results = new StringBuilder( "Filter: " + filter + "\n\n" ) ;
 		// Hook since tomcat chokes on urlencoded /
-		File logFileRequested = new File( csapApp.getLogDir( serviceName_port ) + "/"
+		File logFileRequested = new File( csapApis.application( ).getLogDir( serviceName_port ) + "/"
 				+ fileName.replaceAll( "_slash_", "/" ) ) ;
 
 		if ( ! logFileRequested.exists( ) ) {
@@ -1396,7 +1405,7 @@ public class AgentApi {
 		OsCommandRunner osCommandRunner = new OsCommandRunner( 10, 3, "Api" ) ;
 
 		results.append( osCommandRunner
-				.executeString( parmList, csapApp.getCsapInstallFolder( ),
+				.executeString( parmList, csapApis.application( ).getCsapInstallFolder( ),
 						null, null, 20, 2, null ) ) ;
 
 		logger.debug( "Result: {}", results ) ;
@@ -1427,7 +1436,7 @@ public class AgentApi {
 		logger.info( "{} Downloading {} file: {}", userid, serviceName, fileName ) ;
 
 		// Hook since tomcat chokes on urlencoded /
-		File serviceFile = new File( csapApp.getCsapWorkingSubFolder( serviceName ) + "/"
+		File serviceFile = new File( csapApis.application( ).getCsapWorkingSubFolder( serviceName ) + "/"
 				+ fileName.replaceAll( "_slash_", "/" ) ) ;
 
 		if ( ! serviceFile.exists( ) ) {
@@ -1492,7 +1501,7 @@ public class AgentApi {
 			// full paths are not passed when syncing elements between hosts.
 			extractDir = extractDir.replaceAll(
 					Application.FileToken.PLATFORM.value,
-					csapApp.getInstallationFolderAsString( ) ) ;
+					csapApis.application( ).getInstallationFolderAsString( ) ) ;
 
 		}
 
@@ -1518,7 +1527,7 @@ public class AgentApi {
 				"File System Update", details ) ;
 
 		ObjectNode jsonObjectResponse = jacksonMapper.createObjectNode( ) ;
-		jsonObjectResponse.put( "host", csapApp.getCsapHostName( ) ) ;
+		jsonObjectResponse.put( "host", csapApis.application( ).getCsapHostName( ) ) ;
 
 		ArrayNode coreArray = jsonObjectResponse.putArray( CORE_RESULTS ) ;
 
@@ -1528,7 +1537,8 @@ public class AgentApi {
 
 		try {
 
-			var outputFileManager = new OutputFileMgr( csapApp.getScriptDir( ), userid + "_platformUpdate" ) ;
+			var outputFileManager = new OutputFileMgr( csapApis.application( ).getScriptDir( ), userid
+					+ "_platformUpdate" ) ;
 			coreResults = osManger.updatePlatformCore( multiPartFile, extractDir, false,
 					servletRemoteHost,
 					chownUserid,
@@ -1540,8 +1550,8 @@ public class AgentApi {
 		} catch ( Exception e1 ) {
 
 			logger.error( "Failed updating Platform core", e1 ) ;
-			coreArray.add( "**" + CsapCore.CONFIG_PARSE_ERROR + " Host "
-					+ csapApp.getCsapHostName( )
+			coreArray.add( "**" + CsapConstants.CONFIG_PARSE_ERROR + " Host "
+					+ csapApis.application( ).getCsapHostName( )
 					+ " failed updating core: "
 					+ e1.getMessage( ) ) ;
 
@@ -1551,16 +1561,17 @@ public class AgentApi {
 
 		coreArray.add( coreResults ) ;
 
-		var scriptPathAllOs = csapApp.stripWindowsPaths( csapApp.getScriptDir( ).getAbsolutePath( ) ) ;
+		var scriptPathAllOs = csapApis.application( ).stripWindowsPaths( csapApis.application( ).getScriptDir( )
+				.getAbsolutePath( ) ) ;
 
 		logger.debug( "extractDir: {} \n scriptPathAllOs: {}", extractDir, scriptPathAllOs ) ;
 
-		if ( extractDir.equals( csapApp.getDefinitionFolder( )
+		if ( extractDir.equals( csapApis.application( ).getDefinitionFolder( )
 				.getAbsolutePath( ) ) ) {
 
 			coreArray.add( "Triggering Reload" ) ;
 			logger.info( " Extract to cluster definition detected,  triggering a reload " ) ;
-			csapApp.run_application_scan( ) ;
+			csapApis.application( ).run_application_scan( ) ;
 
 		} else if ( extractDir.startsWith( scriptPathAllOs ) ) {
 
@@ -1591,16 +1602,16 @@ public class AgentApi {
 
 					Map<String, String> environmentVariables = null ;
 
-					if ( csapApp.rootProjectEnvSettings( ).isVsphereConfigured( ) ) {
+					if ( csapApis.application( ).rootProjectEnvSettings( ).isVsphereConfigured( ) ) {
 
-						environmentVariables = csapApp.environmentSettings( ).getVsphereEnv( ) ;
+						environmentVariables = csapApis.application( ).environmentSettings( ).getVsphereEnv( ) ;
 
 					}
 
-					var scriptOutput = new OutputFileMgr( csapApp.getScriptDir( ), PROGRESS_PREFIX
+					var scriptOutput = new OutputFileMgr( csapApis.application( ).getScriptDir( ), PROGRESS_PREFIX
 							+ scriptName ) ;
 
-					if ( csapApp.isJunit( ) ) {
+					if ( csapApis.application( ).isJunit( ) ) {
 
 						logger.info( CsapApplication.testHeader( "junit: skipping FS script run" ) ) ;
 						scriptResults = "junit - skipping script execute " + scriptToRun ;
@@ -1612,16 +1623,17 @@ public class AgentApi {
 								chownUserid,
 								scriptToRun,
 								scriptOutput,
-								csapApp.getAgentRunUser( ),
+								csapApis.application( ).getAgentRunUser( ),
 								environmentVariables ) ;
 
 					}
 
 					scriptOutput.close( ) ;
 
-					if ( csapApp.isDesktopHost( ) ) {
+					if ( csapApis.application( ).isDesktopHost( ) ) {
 
-						scriptResults += "\n\n sample-script-output.txt \n\n" + csapApp.check_for_stub( "",
+						scriptResults += "\n\n sample-script-output.txt \n\n" + csapApis.application( ).check_for_stub(
+								"",
 								"linux/sample-script-output.txt" ) ;
 
 					}
@@ -1636,7 +1648,7 @@ public class AgentApi {
 
 				if ( scriptResults.length( ) > maxReturned ) {
 
-					String header = CsapCore.CONFIG_PARSE_WARN
+					String header = CsapConstants.CONFIG_PARSE_WARN
 							+ " Output was truncated; click on download button to view full output\n\n" ;
 
 					scriptResults = header + scriptResults.substring( scriptResults.length( ) - maxReturned ) ;
@@ -1748,7 +1760,7 @@ public class AgentApi {
 						hostsToCopyTo,
 						uploadFile.getAbsolutePath( ),
 						uploadFile.getParentFile( ).getAbsolutePath( ),
-						csapApp.getAgentRunUser( ), userid,
+						csapApis.application( ).getAgentRunUser( ), userid,
 						null ) ;
 				resultJson.put( "syncResult", syncResult ) ;
 
@@ -1775,20 +1787,21 @@ public class AgentApi {
 
 		if ( uploadLocation.contains( "$STAGING" ) ) {
 
-			uploadLocation = uploadLocation.replace( "$STAGING", csapApp.getCsapInstallFolder( ).getCanonicalPath( ) ) ;
+			uploadLocation = uploadLocation.replace( "$STAGING", csapApis.application( ).getCsapInstallFolder( )
+					.getCanonicalPath( ) ) ;
 
 		}
 
 		if ( uploadLocation.contains( "$PROCESSING" ) ) {
 
-			uploadLocation = uploadLocation.replace( "$PROCESSING", csapApp.getCsapWorkingFolder( )
+			uploadLocation = uploadLocation.replace( "$PROCESSING", csapApis.application( ).getCsapWorkingFolder( )
 					.getCanonicalPath( ) ) ;
 
 		}
 
 		if ( uploadLocation.contains( "$DEPLOY_FOLDER" ) ) {
 
-			uploadLocation = uploadLocation.replace( "$DEPLOY_FOLDER", csapApp.getCsapPackageFolder( )
+			uploadLocation = uploadLocation.replace( "$DEPLOY_FOLDER", csapApis.application( ).getCsapPackageFolder( )
 					.getCanonicalPath( ) ) ;
 
 		}
@@ -1844,7 +1857,7 @@ public class AgentApi {
 
 			}
 
-			uploadLocation = uploadLocation.replace( "$DEPLOY_FOLDER", csapApp.getCsapPackageFolder( )
+			uploadLocation = uploadLocation.replace( "$DEPLOY_FOLDER", csapApis.application( ).getCsapPackageFolder( )
 					.getCanonicalPath( ) ) ;
 
 			csapEventClient.publishUserEvent( CsapEvents.CSAP_USER_SERVICE_CATEGORY + "/" + serviceName_port,
@@ -1873,7 +1886,7 @@ public class AgentApi {
 			resultJson.put( "success", true ) ;
 
 			File versionFile = serviceManager.createVersionFile(
-					csapApp.getDeployVersionFile( serviceInstance ),
+					csapApis.application( ).getDeployVersionFile( serviceInstance ),
 					version, userid, "API Upload" ) ;
 
 			resultJson.put( "versionFileCreated", versionFile.getAbsolutePath( ) ) ;
@@ -1912,7 +1925,7 @@ public class AgentApi {
 	private ServiceInstance findServiceOnCurrentHost ( String serviceName_port )
 		throws IOException {
 
-		ServiceInstance instance = csapApp.getServiceInstanceCurrentHost( serviceName_port ) ;
+		ServiceInstance instance = csapApis.application( ).getServiceInstanceCurrentHost( serviceName_port ) ;
 
 		if ( instance == null ) {
 
@@ -1939,10 +1952,10 @@ public class AgentApi {
 
 			var rootPath = Paths.get( "/root" ) ;
 
-			if ( csapApp.isDesktopHost( ) ) {
+			if ( csapApis.application( ).isDesktopHost( ) ) {
 
 				rootPath = Paths.get( System.getProperty( "user.home" ) ) ;
-				csapApp.getAgentRunUser( ) ;
+				csapApis.application( ).getAgentRunUser( ) ;
 
 			}
 
@@ -1965,7 +1978,7 @@ public class AgentApi {
 
 				sourceFile = hostFiles.get( 0 ) ;
 
-				csapApp.getOsManager( ).buildAndWriteZip( response, sourceFile ) ;
+				csapApis.osManager( ).buildAndWriteZip( response, sourceFile ) ;
 
 			} catch ( Exception e ) {
 
@@ -1999,13 +2012,13 @@ public class AgentApi {
 
 		var startEventTime = 0l ;
 
-		String restUrl = csapApp.rootProjectEnvSettings( ).getEventApiUrl( ) + "/latest"
-				+ "?life=" + csapApp.getCsapHostEnvironmentName( )
+		String restUrl = csapApis.application( ).rootProjectEnvSettings( ).getEventApiUrl( ) + "/latest"
+				+ "?life=" + csapApis.application( ).getCsapHostEnvironmentName( )
 				+ "&host=" + hostname
-				+ "&appId=" + csapApp.rootProjectEnvSettings( ).getEventDataUser( )
+				+ "&appId=" + csapApis.application( ).rootProjectEnvSettings( ).getEventDataUser( )
 				+ "&category=" + category ;
 
-		if ( ! csapApp.rootProjectEnvSettings( ).isEventPublishEnabled( ) ) {
+		if ( ! csapApis.application( ).rootProjectEnvSettings( ).isEventPublishEnabled( ) ) {
 
 			return 0l ;
 
@@ -2057,9 +2070,9 @@ public class AgentApi {
 
 		var result = "Event Posted to events services" ;
 
-		var instance = csapApp.findServiceByNameOnCurrentHost( service ) ;
+		var instance = csapApis.application( ).findServiceByNameOnCurrentHost( service ) ;
 
-		if ( instance != null && csapApp.rootProjectEnvSettings( ).isEventPublishEnabled( ) ) {
+		if ( instance != null && csapApis.application( ).rootProjectEnvSettings( ).isEventPublishEnabled( ) ) {
 
 			csapEventClient.publishEvent( CsapEvents.CSAP_USER_SERVICE_CATEGORY + "/" + instance.getName( ) + "/api",
 					summary, "generate via agentapi" ) ;

@@ -8,9 +8,8 @@ import java.util.concurrent.ScheduledExecutorService ;
 import java.util.concurrent.TimeUnit ;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory ;
+import org.csap.agent.CsapApis ;
 import org.csap.agent.integrations.CsapEvents ;
-import org.csap.agent.model.Application ;
-import org.csap.agent.services.OsManager ;
 import org.csap.helpers.CSAP ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
@@ -43,37 +42,25 @@ public abstract class HostCollector {
 
 	protected int publicationInterval ;
 
-	protected Application csapApplication = null ;
-
-	public Application getCsapApplication ( ) {
-
-		return csapApplication ;
-
-	}
+	protected CsapApis csapApis = null ;
 
 	// convert to minutes
 	public final static int TIME_ZONE_OFFSET = TimeZone.getDefault( ).getRawOffset( ) / 1000 / 60 / 60 ;
 
-	public void setManager ( Application app ) {
-
-		this.csapApplication = app ;
-
-	}
-
-	protected OsManager osManager ;
-
 	protected int collectionIntervalSeconds ;
 
-	public HostCollector ( Application manager, OsManager osManager,
+	public HostCollector ( CsapApis csapApis,
 			int intervalSeconds, boolean publishSummaryAndPerformHeartBeat ) {
 
-		this.inMemoryCacheSize = manager.rootProjectEnvSettings( ).getInMemoryCacheSize( ) ;
+		this.inMemoryCacheSize = csapApis.application( ).rootProjectEnvSettings( ).getInMemoryCacheSize( ) ;
 
 		this.collectionIntervalSeconds = intervalSeconds ;
-		this.csapApplication = manager ;
-		this.osManager = osManager ;
+
+		this.csapApis = csapApis ;
+
 		this.publishSummaryAndPerformHeartBeat = publishSummaryAndPerformHeartBeat ;
-		this.publicationInterval = manager.rootProjectEnvSettings( ).getMetricsUploadSeconds( intervalSeconds ) ;
+		this.publicationInterval = csapApis.application( ).rootProjectEnvSettings( ).getMetricsUploadSeconds(
+				intervalSeconds ) ;
 		this.SIZE_OF_REPORT_CACHE = 24 * 60 * 60 / publicationInterval ;
 		double pubHours = publicationInterval / 3600.0 ;
 		double collectMinutes = intervalSeconds / 60.0 ;
@@ -446,12 +433,12 @@ public abstract class HostCollector {
 			ObjectNode summaryReport = jacksonMapper.createObjectNode( ) ;
 			summaryReport.set( "summary", buildSummaryReport( isSecondary ) ) ;
 
-			csapApplication.getEventClient( ).publishEvent( CsapEvents.CSAP_REPORTS_CATEGORY + "/" + source + "/daily",
+			csapApis.events( ).publishEvent( CsapEvents.CSAP_REPORTS_CATEGORY + "/" + source + "/daily",
 					"Summary Report",
 					null,
 					summaryReport ) ;
 
-			// if ( csapApplication.isJunit() ) {
+			// if ( csapApis.application().isJunit() ) {
 			// logger.info( "source: {}, summaryReport: {}", source, CSAP.jsonPrint(
 			// summaryReport ) ) ;
 			// }
@@ -472,7 +459,8 @@ public abstract class HostCollector {
 
 		if ( summary24HourCache.size( ) == 0 ) {
 
-			csapApplication.loadCollectionCacheFromDisk( summary24HourCache, this.getClass( ).getSimpleName( ) ) ;
+			csapApis.application( ).loadCollectionCacheFromDisk( summary24HourCache, this.getClass( )
+					.getSimpleName( ) ) ;
 
 		}
 
@@ -483,9 +471,10 @@ public abstract class HostCollector {
 		if ( summary24HourCache.size( ) > SIZE_OF_REPORT_CACHE )
 			summary24HourCache.remove( summary24HourCache.size( ) - 1 ) ;
 
-		if ( csapApplication.isShutdown( ) ) {
+		if ( csapApis.isShutdown( ) ) {
 
-			csapApplication.flushCollectionCacheToDisk( summary24HourCache, this.getClass( ).getSimpleName( ) ) ;
+			csapApis.application( ).flushCollectionCacheToDisk( summary24HourCache, this.getClass( )
+					.getSimpleName( ) ) ;
 
 		}
 
@@ -500,7 +489,7 @@ public abstract class HostCollector {
 
 		if ( summary24HourApplicationCache.size( ) == 0 ) {
 
-			csapApplication.loadCollectionCacheFromDisk( summary24HourApplicationCache, this.getClass( )
+			csapApis.application( ).loadCollectionCacheFromDisk( summary24HourApplicationCache, this.getClass( )
 					.getSimpleName( )
 					+ "_Secondary" ) ;
 
@@ -517,10 +506,11 @@ public abstract class HostCollector {
 
 		}
 
-		if ( csapApplication.isShutdown( ) ) {
+		if ( csapApis.isShutdown( ) ) {
 
-			csapApplication.flushCollectionCacheToDisk( summary24HourApplicationCache, this.getClass( ).getSimpleName( )
-					+ "_Secondary" ) ;
+			csapApis.application( )
+					.flushCollectionCacheToDisk( summary24HourApplicationCache, this.getClass( ).getSimpleName( )
+							+ "_Secondary" ) ;
 
 		}
 

@@ -28,9 +28,9 @@ import java.util.regex.Pattern ;
 import java.util.stream.Collectors ;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory ;
-import org.csap.agent.CsapCoreService ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.api.AgentApi ;
-import org.csap.agent.model.Application ;
 import org.csap.agent.model.ContainerState ;
 import org.csap.agent.model.Project ;
 import org.csap.agent.model.ServiceInstance ;
@@ -43,7 +43,7 @@ import org.csap.alerts.AlertInstance ;
 import org.csap.alerts.AlertInstance.AlertItem ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapSimpleCache ;
-import org.csap.integations.CsapMicroMeter ;
+import org.csap.integations.micrometer.CsapMicroMeter ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
 import org.springframework.web.client.RestTemplate ;
@@ -73,7 +73,7 @@ public class HostStatusManager {
 	private static final String ERROR_KEY = "error" ;
 	final Logger logger = LoggerFactory.getLogger( HostStatusManager.class ) ;
 
-	Application csapApp = null ;
+	CsapApis csapApis ;
 	private ObjectMapper jsonMapper = new ObjectMapper( ) ;
 
 	/**
@@ -100,27 +100,27 @@ public class HostStatusManager {
 	private CsapSimpleCache alertThrottleTimer ;
 
 	public HostStatusManager (
-			Application csapApplication,
+			CsapApis csapApis,
 			int numberOfThreads,
 			ArrayList<String> hostsToQuery ) {
 
-		this.csapApp = csapApplication ;
+		this.csapApis = csapApis ;
 
-		csapApp.loadCollectionCacheFromDisk( getAlertHistory( ), this.getClass( ).getSimpleName( ) ) ;
+		csapApis.application( ).loadCollectionCacheFromDisk( getAlertHistory( ), this.getClass( ).getSimpleName( ) ) ;
 
 		alertThrottleTimer = CsapSimpleCache.builder(
-				csapApplication.getCsapCoreService( ).getAlerts( ).getThrottle( ).getFrequency( ),
+				csapApis.application( ).getCsapCoreService( ).getAlerts( ).getThrottle( ).getFrequency( ),
 				CSAP.parseTimeUnit(
-						csapApplication.getCsapCoreService( ).getAlerts( ).getThrottle( ).getTimeUnit( ),
+						csapApis.application( ).getCsapCoreService( ).getAlerts( ).getThrottle( ).getTimeUnit( ),
 						TimeUnit.HOURS ),
 				HostStatusManager.class,
 				"Global Alert Throttle" ) ;
 
 		logger.warn(
 				"csap-agent monitoring \n\t thread count: {} \n\t connectionTimeout: {} \n\t Host Count: {} \n\t Hosts: {} \n\n\t alert definitions: {}",
-				numberOfThreads, csapApplication.rootProjectEnvSettings( ).getAdminToAgentTimeoutSeconds( ),
+				numberOfThreads, csapApis.application( ).rootProjectEnvSettings( ).getAdminToAgentTimeoutSeconds( ),
 				hostsToQuery.size( ), hostsToQuery,
-				csapApplication.getCsapCoreService( ).getAlerts( ) ) ;
+				csapApis.application( ).getCsapCoreService( ).getAlerts( ) ) ;
 
 		BasicThreadFactory statusFactory = new BasicThreadFactory.Builder( )
 				.namingPattern( "CsapHostStatus-%d" )
@@ -157,7 +157,7 @@ public class HostStatusManager {
 				.scheduleWithFixedDelay(
 						( ) -> runScheduledRefreshes( ),
 						initialDelaySeconds,
-						csapApp.getHostRefreshIntervalSeconds( ),
+						csapApis.application( ).getHostRefreshIntervalSeconds( ),
 						TimeUnit.SECONDS ) ;
 
 	}
@@ -167,12 +167,13 @@ public class HostStatusManager {
 	 *
 	 * @param testHostResponse
 	 */
-	public HostStatusManager ( String stubResponseFilePath, Application csapApplication ) {
+	public HostStatusManager ( String stubResponseFilePath, CsapApis csapApis ) {
 
 		logger.warn( "\n ************** Running in Stub Mode: {} \n", stubResponseFilePath ) ;
 		this.isTest = true ;
 		this.stubResponseFilePath = stubResponseFilePath ;
-		this.csapApp = csapApplication ;
+
+		this.csapApis = csapApis ;
 
 		// initRestTemplate( 1 );
 	}
@@ -185,7 +186,7 @@ public class HostStatusManager {
 		try {
 
 			var hostReports = jsonMapper.readValue(
-					csapApp.check_for_stub( "", stubResponseFilePath ),
+					csapApis.application( ).check_for_stub( "", stubResponseFilePath ),
 					ObjectNode.class ) ;
 
 			CSAP.jsonStream( hostReports )
@@ -225,7 +226,7 @@ public class HostStatusManager {
 
 		}
 
-		csapApp.flushCollectionCacheToDisk( getAllAlerts( ), this.getClass( ).getSimpleName( ) ) ;
+		csapApis.application( ).flushCollectionCacheToDisk( getAllAlerts( ), this.getClass( ).getSimpleName( ) ) ;
 
 	}
 
@@ -331,7 +332,7 @@ public class HostStatusManager {
 
 		Set<String> kubernetesRunningServices = new HashSet<>( ) ;
 
-		List<String> kubernetesAllServices = csapApp.getActiveProject( ).getAllPackagesModel( )
+		List<String> kubernetesAllServices = csapApis.application( ).getActiveProject( ).getAllPackagesModel( )
 				.getServiceConfigStreamInCurrentLC( )
 				.flatMap( serviceInstancesEntry -> serviceInstancesEntry.getValue( ).stream( ) )
 				.filter( ServiceInstance::is_cluster_kubernetes )
@@ -444,7 +445,8 @@ public class HostStatusManager {
 							hostFilteredRuntime.set( "services", servicesFiltered ) ;
 							servicesCollected.fieldNames( ).forEachRemaining( servicePortName -> {
 
-								var filterInstance = csapApp.findFirstServiceInstanceInLifecycle( serviceFilter ) ;
+								var filterInstance = csapApis.application( ).findFirstServiceInstanceInLifecycle(
+										serviceFilter ) ;
 								var filterMatchByName = false ;
 
 								if ( filterInstance != null ) {
@@ -577,9 +579,9 @@ public class HostStatusManager {
 					}
 
 					hostBacklog.put( "total-backlog", totalBacklog ) ;
-//					hostBacklog.put( "host-details", csapApp.getAgentUrl( host, "/api/agent/service/jobs" ) ) ;
+//					hostBacklog.put( "host-details", csapApis.application( ).getAgentUrl( host, "/api/agent/service/jobs" ) ) ;
 
-					hostBacklog.put( "host-details", apiPath + csapApp.hostShortName( host ) ) ;
+					hostBacklog.put( "host-details", apiPath + csapApis.application( ).hostShortName( host ) ) ;
 
 				} ) ;
 
@@ -616,8 +618,8 @@ public class HostStatusManager {
 			var meterReport = (ObjectNode) meterReportDefinition ;
 			String id = meterReport.path( "id" ).asText( ) ;
 			String[] idParts = id.split( Pattern.quote( "." ) ) ;
-			String collector = idParts[ 0 ] ;
-			String attribute = idParts[ 1 ] ;
+			String collector = idParts[0] ;
+			String attribute = idParts[1] ;
 			double hostTotal = 0 ;
 			meterReport.put( MetricCategory.hostCount.json( ), 0 ) ;
 
@@ -650,14 +652,14 @@ public class HostStatusManager {
 				} else {
 
 					// jmx custom / application metrics have nested data.
-					String serviceName = idParts[ 1 ] ;
-					final String serviceAttribute = idParts[ 2 ] ;
+					String serviceName = idParts[1] ;
+					final String serviceAttribute = idParts[2] ;
 
 					var appHosts = new ArrayList<>( environmentHosts ) ;
 
 					if ( id.startsWith( "application.kubelet" ) ) {
 
-						var podReportnames = csapApp.rootProjectEnvSettings( ).getKubernetesMeters( ) ;
+						var podReportnames = csapApis.application( ).rootProjectEnvSettings( ).getKubernetesMeters( ) ;
 
 						if ( podReportnames.isArray( ) ) {
 
@@ -667,17 +669,20 @@ public class HostStatusManager {
 									.map( JsonNode::asText )
 									.filter( podName -> {
 
-										if ( id.endsWith( csapApp.getProjectLoader( ).podTotalCountName( podName ) ) ) {
-
-											return true ;
-
-										} else if ( id.endsWith( csapApp.getProjectLoader( ).podCoreName(
+										if ( id.endsWith( csapApis.application( ).getProjectLoader( ).podTotalCountName(
 												podName ) ) ) {
 
 											return true ;
 
-										} else if ( id.endsWith( csapApp.getProjectLoader( ).podMemoryName(
-												podName ) ) ) {
+										} else if ( id.endsWith( csapApis.application( ).getProjectLoader( )
+												.podCoreName(
+														podName ) ) ) {
+
+											return true ;
+
+										} else if ( id.endsWith( csapApis.application( ).getProjectLoader( )
+												.podMemoryName(
+														podName ) ) ) {
 
 											return true ;
 
@@ -887,7 +892,7 @@ public class HostStatusManager {
 			}
 
 			hostResponse = jsonMapper.readValue(
-					csapApp.check_for_stub( "", stubResponseFilePath ),
+					csapApis.application( ).check_for_stub( "", stubResponseFilePath ),
 					ObjectNode.class ) ;
 
 			if ( hostResponse.path( hostName ).isObject( ) ) {
@@ -974,8 +979,9 @@ public class HostStatusManager {
 
 	public ObjectNode buildCollectionSummaryReport ( Project model ) {
 
-		return csapApp.healthManager( ).buildCollectionSummaryReport( hostsRuntime( model.getHostsCurrentLc( ) ), model
-				.getName( ) ) ;
+		return csapApis.application( ).healthManager( ).buildCollectionSummaryReport( hostsRuntime( model
+				.getHostsCurrentLc( ) ), model
+						.getName( ) ) ;
 
 	}
 
@@ -1115,19 +1121,20 @@ public class HostStatusManager {
 		@Override
 		public AgentStatus call ( ) {
 
-			var hostTimer = csapApp.metrics( ).startTimer( ) ;
+			var hostTimer = csapApis.metrics( ).startTimer( ) ;
 
 			String jsonResponse = "{\"error\": \"Reason: Initialization in Progress: "
 					+ host + "\"}" ;
 			// always use pooled connection
 
-			RestTemplate pooledRest = csapApp.getAgentPooledConnection( 1, csapApp.rootProjectEnvSettings( )
+			RestTemplate pooledRest = csapApis.application( ).getAgentPooledConnection( 1, csapApis.application( )
+					.rootProjectEnvSettings( )
 					.getAdminToAgentTimeoutSeconds( ) ) ;
 
 			jsonResponse = queryAgentStatus( pooledRest ) ;
 
-			var nanos = csapApp.metrics( ).stopTimer( hostTimer, PERFORMANCE_ID + "." + host ) ;
-			csapApp.metrics( ).record( PERFORMANCE_ID, nanos, TimeUnit.NANOSECONDS ) ;
+			var nanos = csapApis.metrics( ).stopTimer( hostTimer, PERFORMANCE_ID + "." + host ) ;
+			csapApis.metrics( ).record( PERFORMANCE_ID, nanos, TimeUnit.NANOSECONDS ) ;
 
 			logger.trace( "{} pool: {} \n response: {}", host, pooledRest, jsonResponse ) ;
 			return new AgentStatus( host, jsonResponse ) ;
@@ -1147,9 +1154,9 @@ public class HostStatusManager {
 
 			String jsonResponse ;
 
-			String statusUrl = csapApp.getAgentUrl(
+			String statusUrl = csapApis.application( ).getAgentUrl(
 					host,
-					CsapCoreService.API_AGENT_URL + AgentApi.RUNTIME_URL + "?",
+					CsapConstants.API_AGENT_URL + AgentApi.RUNTIME_URL + "?",
 					true ) ;
 
 			if ( resetCache ) {
@@ -1302,7 +1309,7 @@ public class HostStatusManager {
 					// We just got results, so do a full interval
 
 					if ( ! isTest )
-						restartHostRefreshTimer( csapApp.getHostRefreshIntervalSeconds( ) ) ;
+						restartHostRefreshTimer( csapApis.application( ).getHostRefreshIntervalSeconds( ) ) ;
 
 				}
 
@@ -1359,8 +1366,8 @@ public class HostStatusManager {
 
 						if ( hostRuntimeStatus.has( ERROR_KEY ) ) {
 
-							csapApp.metrics( ).incrementCounter( PERFORMANCE_ID + ".errors" ) ;
-							csapApp.metrics( ).incrementCounter( PERFORMANCE_ID + ".errors-" + agentStatus
+							csapApis.metrics( ).incrementCounter( PERFORMANCE_ID + ".errors" ) ;
+							csapApis.metrics( ).incrementCounter( PERFORMANCE_ID + ".errors-" + agentStatus
 									.getHost( ) ) ;
 
 						}
@@ -1470,20 +1477,24 @@ public class HostStatusManager {
 		logger.debug( "history size: {} throttle size: {} ", getAlertHistory( ).size( ), getAlertsThrottled( )
 				.size( ) ) ;
 
-		while ( getAlertHistory( ).size( ) > csapApp.getCsapCoreService( ).getAlerts( ).getRememberCount( ) ) {
+		while ( getAlertHistory( ).size( ) > csapApis.application( ).getCsapCoreService( ).getAlerts( )
+				.getRememberCount( ) ) {
 
 			getAlertHistory( ).remove( 0 ) ;
 
 		}
 
-		if ( getAlertsThrottled( ).size( ) > ( csapApp.getCsapCoreService( ).getAlerts( ).getRememberCount( ) * .1 ) ) {
+		if ( getAlertsThrottled( ).size( ) > ( csapApis.application( ).getCsapCoreService( ).getAlerts( )
+				.getRememberCount( ) * .1 ) ) {
 
 			logger.error( "Excessive alerts happening each hour: {}, allowed is 10% of backlog: {}",
-					getAlertsThrottled( ).size( ), csapApp.getCsapCoreService( ).getAlerts( ).getRememberCount( ) ) ;
+					getAlertsThrottled( ).size( ), csapApis.application( ).getCsapCoreService( ).getAlerts( )
+							.getRememberCount( ) ) ;
 
 		}
 
-		while ( getAlertsThrottled( ).size( ) > ( csapApp.getCsapCoreService( ).getAlerts( ).getRememberCount( )
+		while ( getAlertsThrottled( ).size( ) > ( csapApis.application( ).getCsapCoreService( ).getAlerts( )
+				.getRememberCount( )
 				* .1 ) ) {
 
 			getAlertsThrottled( ).remove( 0 ) ;
@@ -1547,7 +1558,7 @@ public class HostStatusManager {
 
 					try {
 
-						ServiceInstance serviceInstance = csapApp.getServiceInstanceAnyPackage(
+						ServiceInstance serviceInstance = csapApis.application( ).getServiceInstanceAnyPackage(
 								runtimeInstance.getServiceName_Port( ), runtimeInstance.getHostName( ) ) ;
 
 						if ( serviceInstance != null ) {
@@ -1659,7 +1670,7 @@ public class HostStatusManager {
 
 			}
 
-			if ( matchCount >= csapApp.getCsapCoreService( ).getAlerts( ).getThrottle( ).getCount( ) ) {
+			if ( matchCount >= csapApis.application( ).getCsapCoreService( ).getAlerts( ).getThrottle( ).getCount( ) ) {
 
 				// update the count
 				int oldCount = getAlertsThrottled( )

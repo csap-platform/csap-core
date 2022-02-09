@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat ;
 
 import java.io.File ;
 
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.ServiceAttributes ;
 import org.csap.agent.model.ServiceBaseParser ;
@@ -190,7 +190,7 @@ public class Service_Parsing_Warnings {
 	@Test
 	public void verify_agent_attributes ( ) {
 
-		ServiceInstance agentInstance = csapApp.serviceNameToAllInstances( ).get( CsapCore.AGENT_NAME ).get( 0 ) ;
+		ServiceInstance agentInstance = csapApp.serviceNameToAllInstances( ).get( CsapConstants.AGENT_NAME ).get( 0 ) ;
 
 		assertThat( agentInstance.is_springboot_server( ) )
 				.as( "server override" )

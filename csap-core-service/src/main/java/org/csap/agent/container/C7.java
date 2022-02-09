@@ -1,12 +1,19 @@
 package org.csap.agent.container ;
 
-public enum DockerJson {
+
+
+// C - o - n- t - a - i - n - e -r types
+public enum C7 {
+
+	dockerService("docker"), podmanService("podman-system-service"),
+
+	definitionSettings("docker"),
 
 	containerName("containerName"), imageName("image"),
 
 	helmChartName("helm-chart-name"), helmChartVersion("helm-chart-version"), helmChartRepo("helm-chart-repo"),
 
-	socketNamespace("socketNamespace"),
+	socketNamespace("socketNamespace"), kubernetesNamespace( "kubernetesNamespace" ), 
 
 	// processMatching
 	k8ContainerSuffix("-container"),
@@ -69,7 +76,7 @@ public enum DockerJson {
 
 	private String key ;
 
-	public String json ( ) {
+	public String val ( ) {
 
 		return key ;
 
@@ -81,7 +88,7 @@ public enum DockerJson {
 
 	}
 
-	private DockerJson ( String key ) {
+	private C7 ( String key ) {
 
 		this.key = key ;
 

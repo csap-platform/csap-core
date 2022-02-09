@@ -14,9 +14,10 @@ import java.util.stream.Stream ;
 
 import org.apache.commons.lang3.StringUtils ;
 import org.apache.commons.lang3.text.WordUtils ;
-import org.csap.agent.container.DockerJson ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.container.kubernetes.KubernetesIntegration ;
-import org.csap.agent.container.kubernetes.KubernetesJson ;
+import org.csap.agent.container.kubernetes.K8 ;
 import org.csap.agent.services.HostKeys ;
 import org.csap.agent.stats.OsProcessEnum ;
 import org.csap.helpers.CSAP ;
@@ -252,7 +253,7 @@ public class ServiceInstance extends ServiceBaseParser {
 
 		}
 
-		var kubernetesMasterHostNames = runtimeStatus.path( KubernetesJson.kubernetesMasterHostNames.json( ) ) ;
+		var kubernetesMasterHostNames = runtimeStatus.path( K8.kubernetesMasterHostNames.val( ) ) ;
 
 		if ( kubernetesMasterHostNames.isArray( ) ) {
 
@@ -299,7 +300,7 @@ public class ServiceInstance extends ServiceBaseParser {
 
 		ObjectNode serviceResources = jacksonMapper.convertValue( container, ObjectNode.class ) ;
 
-		if ( Application.getInstance( ).isAgentProfile( ) ) {
+		if ( CsapApis.getInstance( ).application( ).isAgentProfile( ) ) {
 
 			// handle rssMemory mapping to MB
 			serviceResources.put( OsProcessEnum.rssMemory.value,
@@ -329,12 +330,12 @@ public class ServiceInstance extends ServiceBaseParser {
 
 		if ( resolvedContainerLocator == null ) {
 
-			var settings = getDockerSettingsOrMissing( ).path( DockerJson.locator.json( ) ) ;
+			var settings = getDockerSettingsOrMissing( ).path( C7.locator.val( ) ) ;
 			resolvedContainerLocator = settings ;
 
 			if ( settings.isObject( ) ) {
 
-				var rawLocator = Application.getInstance( ).resolveDefinitionVariables(
+				var rawLocator = CsapApis.getInstance( ).application( ).resolveDefinitionVariables(
 						settings.toString( ), this ) ;
 
 				try {
@@ -407,7 +408,7 @@ public class ServiceInstance extends ServiceBaseParser {
 
 		if ( getKubernetesMasterHostNames( ) != null ) {
 
-			runStatus.set( KubernetesJson.kubernetesMasterHostNames.json( ), getKubernetesMasterHostNames( ) ) ;
+			runStatus.set( K8.kubernetesMasterHostNames.val( ), getKubernetesMasterHostNames( ) ) ;
 
 		}
 
@@ -544,13 +545,13 @@ public class ServiceInstance extends ServiceBaseParser {
 
 		if ( s.length == 4 ) {
 
-			containerOrPodMatchName = s[ 0 ] ;
-			if ( StringUtils.isNotEmpty( s[ 1 ] ) )
-				containerName = s[ 1 ] ;
-			if ( StringUtils.isNotEmpty( s[ 2 ] ) )
-				podName = s[ 2 ] ;
-			if ( StringUtils.isNotEmpty( s[ 3 ] ) )
-				podNameSpace = s[ 3 ] ;
+			containerOrPodMatchName = s[0] ;
+			if ( StringUtils.isNotEmpty( s[1] ) )
+				containerName = s[1] ;
+			if ( StringUtils.isNotEmpty( s[2] ) )
+				podName = s[2] ;
+			if ( StringUtils.isNotEmpty( s[3] ) )
+				podNameSpace = s[3] ;
 
 		}
 
@@ -564,7 +565,7 @@ public class ServiceInstance extends ServiceBaseParser {
 		}
 
 		unregisteredInstance.setName( csapServiceName ) ;
-		unregisteredInstance.setLifecycle( Application.getInstance( ).getCsapHostEnvironmentName( ) ) ;
+		unregisteredInstance.setLifecycle( CsapApis.getInstance( ).application( ).getCsapHostEnvironmentName( ) ) ;
 		unregisteredInstance.setHostName( host ) ;
 		unregisteredInstance.setProcessRuntime( ProcessRuntime.unregistered.getId( ) ) ;
 		unregisteredInstance.setProcessFilter( "dummy" ) ;

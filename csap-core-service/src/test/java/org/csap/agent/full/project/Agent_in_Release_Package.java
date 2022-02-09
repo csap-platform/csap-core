@@ -13,7 +13,8 @@ import javax.inject.Inject ;
 
 import org.apache.commons.io.FileUtils ;
 import org.csap.agent.CsapBareTest ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.integrations.HttpdIntegration ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.ServiceAlertsEnum ;
@@ -158,12 +159,12 @@ public class Agent_in_Release_Package {
 						"Supporting Sample A" ) ;
 
 		assertThat(
-				csapApp.serviceNameToAllInstances( ).get( CsapCore.AGENT_NAME ) )
+				csapApp.serviceNameToAllInstances( ).get( CsapConstants.AGENT_NAME ) )
 						.as( "CsAgents instances found" )
 						.hasSize( 3 ) ;
 
 		assertThat(
-				csapApp.getActiveProject( ).getServiceInstances( CsapCore.AGENT_NAME ).count( ) )
+				csapApp.getActiveProject( ).getServiceInstances( CsapConstants.AGENT_NAME ).count( ) )
 						.as( "CsAgents instances in active model and lifecycle" )
 						.isEqualTo( 3 ) ;
 
@@ -212,7 +213,7 @@ public class Agent_in_Release_Package {
 						"partition-cluster-B" ) ;
 
 		assertThat(
-				csapApp.getServiceInstanceCurrentHost( CsapCore.AGENT_ID ).getMavenRepo( ) )
+				csapApp.getServiceInstanceCurrentHost( CsapConstants.AGENT_ID ).getMavenRepo( ) )
 						.as( "CsAgent Maven Repo" )
 						.isEqualTo(
 								"https://repo.maven.apache.org/maven2/" ) ;
@@ -228,10 +229,10 @@ public class Agent_in_Release_Package {
 
 		// no docker definition in release package - it is inherited from parent
 		logger.info( "All docker instances: {}",
-				csapApp.serviceNameToAllInstances( ).get( "docker" ) ) ;
+				csapApp.serviceNameToAllInstances( ).get( C7.dockerService.val( ) ) ) ;
 
 		assertThat(
-				csapApp.serviceNameToAllInstances( ).get( "docker" ) )
+				csapApp.serviceNameToAllInstances( ).get( C7.dockerService.val( ) ) )
 						.as( "docker instances found" )
 						.hasSize( 1 ) ;
 
@@ -250,7 +251,7 @@ public class Agent_in_Release_Package {
 		logger.info( CsapApplication.testHeader( ) ) ;
 
 		assertThat(
-				csapApp.serviceNameToAllInstances( ).get( "docker" ) )
+				csapApp.serviceNameToAllInstances( ).get( C7.dockerService.val( ) ) )
 						.as( "docker instances found" )
 						.hasSize( 1 ) ;
 
@@ -268,14 +269,14 @@ public class Agent_in_Release_Package {
 
 		assertThat(
 				csapApp.getRootProject( ).getAllPackagesModel( )
-						.serviceInstancesInCurrentLifeByName( ).get( "docker" ) )
+						.serviceInstancesInCurrentLifeByName( ).get( C7.dockerService.val( ) ) )
 								.as( "Service count in all packages" )
 								.hasSize( 4 ) ;
 
 		// resolve all instances in all packages.
 		List<String> dockerHosts = csapApp
 				.getRootProject( ).getAllPackagesModel( )
-				.getServiceInstances( "docker" )
+				.getServiceInstances( C7.dockerService.val( ) )
 				.map( serviceInstance -> serviceInstance.getHostName( ) )
 				.collect( Collectors.toList( ) ) ;
 
@@ -294,10 +295,10 @@ public class Agent_in_Release_Package {
 				csapApp.getRootProject( ).getServiceToAllInstancesMap( ).keySet( ) )
 						.as( "Services in root model" )
 						.hasSize( 9 )
-						.contains( CsapCore.AGENT_NAME,
+						.contains( CsapConstants.AGENT_NAME,
 								"postgres",
 								"CsspSample",
-								"docker",
+								C7.dockerService.val( ),
 								"FactorySample",
 								"ServletSample",
 								"httpd",

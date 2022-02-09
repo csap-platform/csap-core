@@ -293,7 +293,7 @@
 					"kube-proxy",
 					"kube-scheduler",
 					"metrics-server",
-					"nginx-ingress-controller",
+					"ingress-nginx",
 					"kubernetes-dashboard"
 				]
 			},

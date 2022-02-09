@@ -70,12 +70,6 @@ csap-core:
       # /apis/storage.k8s.io
       #
       storageclasses: /apis/storage.k8s.io/v1/storageclasses/{0}
-    #
-    # testing only
-    #
-    test-credential-url: "http://csap-dev04.***REMOVED***:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet"
-#    test-credential-url: "http://csap-dev07.***REMOVED***:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet-ha"
-#    test-credential-url: "http://centos1.***REMOVED***:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet"
 #  
       
 #    config-file: "~/csap/kube/config"

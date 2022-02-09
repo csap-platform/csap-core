@@ -35,8 +35,8 @@ import org.apache.commons.io.IOUtils ;
 import org.apache.commons.io.LineIterator ;
 import org.apache.commons.lang3.StringUtils ;
 import org.csap.agent.CsapThinTests ;
-import org.csap.agent.ContainerSettings ;
 import org.csap.agent.container.ContainerIntegration ;
+import org.csap.agent.container.ContainerSettings ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
 import org.junit.jupiter.api.Assumptions ;
@@ -174,7 +174,7 @@ public class ContainerApiTests extends CsapThinTests {
 //				5,
 //				Timeout.ofSeconds( 10 ),
 //				Timeout.ofSeconds( 10 ) ) ;
-		
+
 		var csapApacheClient = new ApacheDockerHttpClient.Builder( )
 				.dockerHost( dockerConfiguration.getDockerHost( ) )
 				.sslConfig( dockerConfiguration.getSSLConfig( ) )
@@ -182,7 +182,6 @@ public class ContainerApiTests extends CsapThinTests {
 				.connectionTimeout( Duration.ofSeconds( docker.getConnectionTimeoutSeconds( ) ) )
 				.responseTimeout( Duration.ofSeconds( docker.getReadTimeoutSeconds( ) ) )
 				.build( ) ;
-
 
 		DockerClient localClient = null ;
 

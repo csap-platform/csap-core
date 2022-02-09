@@ -4,21 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat ;
 import static org.assertj.core.api.Assertions.contentOf ;
 
 import java.io.File ;
-import java.io.IOException ;
 
 import org.apache.commons.io.FileUtils ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.CsapThinTests ;
 import org.csap.agent.integrations.HttpdIntegration ;
 import org.csap.agent.model.ServiceInstance ;
 import org.csap.helpers.CsapApplication ;
 import org.junit.jupiter.api.BeforeAll ;
 import org.junit.jupiter.api.Test ;
-import org.junit.jupiter.api.TestInstance ;
-
-import com.fasterxml.jackson.core.JsonProcessingException ;
-
-@TestInstance ( TestInstance.Lifecycle.PER_CLASS )
 
 class Csap_Web_Server_Integation_Test extends CsapThinTests {
 	HttpdIntegration getHttpdConfig ( ) {
@@ -44,9 +38,7 @@ class Csap_Web_Server_Integation_Test extends CsapThinTests {
 	 *
 	 */
 	@Test
-	void verify_web_server_files_updated_from_model ( )
-		throws JsonProcessingException ,
-		IOException {
+	void verify_web_server_files_updated_from_model ( ) throws Exception {
 
 		logger.info( CsapApplication.testHeader( ) ) ;
 
@@ -67,12 +59,12 @@ class Csap_Web_Server_Integation_Test extends CsapThinTests {
 				.as( "lifecycles" )
 				.isEqualTo( 6 ) ;
 
-		assertThat( getApplication( ).serviceNameToAllInstances( ).get( CsapCore.AGENT_NAME ).size( ) )
+		assertThat( getApplication( ).serviceNameToAllInstances( ).get( CsapConstants.AGENT_NAME ).size( ) )
 				.as( "agents allocated" )
 				.isEqualTo( 4 ) ;
 
 		// New instance meta data
-		ServiceInstance csAgentInstance = getApplication( ).getServiceInstanceAnyPackage( CsapCore.AGENT_ID ) ;
+		ServiceInstance csAgentInstance = getApplication( ).getServiceInstanceAnyPackage( CsapConstants.AGENT_ID ) ;
 
 		assertThat( csAgentInstance.getOsProcessPriority( ) )
 				.as( "OS priority" )

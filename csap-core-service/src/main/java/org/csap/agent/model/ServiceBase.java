@@ -6,7 +6,8 @@ import java.util.regex.Pattern ;
 
 import org.apache.commons.lang3.StringUtils ;
 import org.apache.commons.lang3.text.WordUtils ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.integrations.HttpdIntegration ;
 import org.csap.agent.integrations.VersionControl ;
 import org.csap.agent.ui.editor.ServiceResources ;
@@ -46,7 +47,7 @@ public abstract class ServiceBase {
 
 	public File getWorkingDirectory ( ) {
 
-		return Application.getInstance( ).getCsapWorkingSubFolder( getName( ) ) ;
+		return CsapApis.getInstance( ).application( ).getCsapWorkingSubFolder( getName( ) ) ;
 
 	}
 
@@ -707,37 +708,39 @@ public abstract class ServiceBase {
 
 		try {
 
-			result = result.replaceAll( Matcher.quoteReplacement( CsapCore.CSAP_BASE ),
-					Application.getInstance( ).getInstallationFolderAsString( ) ) ;
+			result = result.replaceAll( Matcher.quoteReplacement( CsapConstants.CSAP_BASE ),
+					CsapApis.getInstance( ).application( ).getInstallationFolderAsString( ) ) ;
 
-			result = result.replaceAll( Matcher.quoteReplacement( CsapCore.CSAP_WORKING ),
-					Application.getInstance( ).getCsapWorkingFolder( ).getAbsolutePath( ) ) ;
-
-			result = result.replaceAll(
-					Matcher.quoteReplacement( CsapCore.CSAP_AGENT_URL ),
-					Matcher.quoteReplacement( Application.getInstance( ).getAgentUrl( getHostName( ), "" ) ) ) ;
+			result = result.replaceAll( Matcher.quoteReplacement( CsapConstants.CSAP_WORKING ),
+					CsapApis.getInstance( ).application( ).getCsapWorkingFolder( ).getAbsolutePath( ) ) ;
 
 			result = result.replaceAll(
-					Matcher.quoteReplacement( CsapCore.K8_DASHBOARD ),
-					Matcher.quoteReplacement( Application.getInstance( ).getAgentUrl( getHostName( ),
+					Matcher.quoteReplacement( CsapConstants.CSAP_AGENT_URL ),
+					Matcher.quoteReplacement( CsapApis.getInstance( ).application( ).getAgentUrl( getHostName( ),
+							"" ) ) ) ;
+
+			result = result.replaceAll(
+					Matcher.quoteReplacement( CsapConstants.K8_DASHBOARD ),
+					Matcher.quoteReplacement( CsapApis.getInstance( ).application( ).getAgentUrl( getHostName( ),
 							"/location/dashboard" ) ) ) ;
 
 			result = result.replaceAll(
-					Matcher.quoteReplacement( CsapCore.K8_NODE_PORT ),
-					Matcher.quoteReplacement( Application.getInstance( ).getAgentUrl( getHostName( ),
+					Matcher.quoteReplacement( CsapConstants.K8_NODE_PORT ),
+					Matcher.quoteReplacement( CsapApis.getInstance( ).application( ).getAgentUrl( getHostName( ),
 							"/location/nodeport" ) ) ) ;
 
 			result = result.replaceAll(
-					Matcher.quoteReplacement( CsapCore.K8_INGRESS ),
-					Matcher.quoteReplacement( Application.getInstance( ).getAgentUrl( getHostName( ),
+					Matcher.quoteReplacement( CsapConstants.K8_INGRESS ),
+					Matcher.quoteReplacement( CsapApis.getInstance( ).application( ).getAgentUrl( getHostName( ),
 							"/location/ingress" ) ) ) ;
 
-			if ( Application.getInstance( ).isKubernetesInstalledAndActive( ) && is_cluster_kubernetes( ) ) {
+			if ( CsapApis.getInstance( ).isKubernetesInstalledAndActive( ) && is_cluster_kubernetes( ) ) {
 
-				var kubeletWorking = Application.getInstance( )
-						.getCsapWorkingSubFolder( Application.getInstance( ).kubeletInstance( ).getName( ) ) ;
+				var kubeletWorking = CsapApis.getInstance( ).application( )
+						.getCsapWorkingSubFolder( CsapApis.getInstance( ).application( ).kubeletInstance( )
+								.getName( ) ) ;
 				result = result.replaceAll(
-						Matcher.quoteReplacement( CsapCore.K8_CONFIG ),
+						Matcher.quoteReplacement( CsapConstants.K8_CONFIG ),
 						Matcher.quoteReplacement( kubeletWorking.getAbsolutePath( ) + "/configuration" ) ) ;
 
 			}
@@ -748,31 +751,36 @@ public abstract class ServiceBase {
 
 		}
 
-		result = result.replaceAll( Matcher.quoteReplacement( CsapCore.CSAP_DEF_FQDN_HOST ),
-				Application.getInstance( ).getHostUsingFqdn( getHostName( ) ) ) ;
+		result = result.replaceAll( Matcher.quoteReplacement( CsapConstants.CSAP_DEF_FQDN_HOST ),
+				CsapApis.getInstance( ).application( ).getHostUsingFqdn( getHostName( ) ) ) ;
 
-		result = result.replaceAll( Matcher.quoteReplacement( CsapCore.CSAP_DEF_HOST ), getHostName( ) ) ;
+		result = result.replaceAll( Matcher.quoteReplacement( CsapConstants.CSAP_DEF_HOST ), getHostName( ) ) ;
 
-		result = result.replaceAll( Matcher.quoteReplacement( CsapCore.CSAP_ENV ),
-				Application.getInstance( ).getCsapHostEnvironmentName( ) ) ;
+		result = result.replaceAll( Matcher.quoteReplacement( CsapConstants.CSAP_ENV ),
+				CsapApis.getInstance( ).application( ).getCsapHostEnvironmentName( ) ) ;
 
-		result = result.replaceAll( Matcher.quoteReplacement( CsapCore.SERVICE_ENV ), getPlatformLifecycle( ) ) ;
+		result = result.replaceAll( Matcher.quoteReplacement( CsapConstants.SERVICE_ENV ), getPlatformLifecycle( ) ) ;
 
 		if ( ! getPort( ).endsWith( "x" ) ) {
 
-			result = result.replaceAll( Pattern.quote( CsapCore.CSAP_DEF_PORT + "+1" ), addToString( getPort( ), 1 ) ) ;
-			result = result.replaceAll( Pattern.quote( CsapCore.CSAP_DEF_PORT + "+2" ), addToString( getPort( ), 2 ) ) ;
-			result = result.replaceAll( Pattern.quote( CsapCore.CSAP_DEF_PORT + "+3" ), addToString( getPort( ), 3 ) ) ;
-			result = result.replaceAll( Pattern.quote( CsapCore.CSAP_DEF_PORT + "+4" ), addToString( getPort( ), 4 ) ) ;
-			result = result.replaceAll( Pattern.quote( CsapCore.CSAP_DEF_PORT + "+5" ), addToString( getPort( ), 5 ) ) ;
+			result = result.replaceAll( Pattern.quote( CsapConstants.CSAP_DEF_PORT + "+1" ), addToString( getPort( ),
+					1 ) ) ;
+			result = result.replaceAll( Pattern.quote( CsapConstants.CSAP_DEF_PORT + "+2" ), addToString( getPort( ),
+					2 ) ) ;
+			result = result.replaceAll( Pattern.quote( CsapConstants.CSAP_DEF_PORT + "+3" ), addToString( getPort( ),
+					3 ) ) ;
+			result = result.replaceAll( Pattern.quote( CsapConstants.CSAP_DEF_PORT + "+4" ), addToString( getPort( ),
+					4 ) ) ;
+			result = result.replaceAll( Pattern.quote( CsapConstants.CSAP_DEF_PORT + "+5" ), addToString( getPort( ),
+					5 ) ) ;
 
 		}
 
 		// MUST be done afterwards
-		result = result.replaceAll( Matcher.quoteReplacement( CsapCore.CSAP_DEF_PORT ), getPort( ) ) ;
-		result = result.replaceAll( Matcher.quoteReplacement( CsapCore.CSAP_DEF_NAME ), getName( ) ) ;
+		result = result.replaceAll( Matcher.quoteReplacement( CsapConstants.CSAP_DEF_PORT ), getPort( ) ) ;
+		result = result.replaceAll( Matcher.quoteReplacement( CsapConstants.CSAP_DEF_NAME ), getName( ) ) ;
 
-		result = result.replaceAll( Matcher.quoteReplacement( CsapCore.CSAP_DEF_AJP_PORT ), getAjpPort( ) ) ;
+		result = result.replaceAll( Matcher.quoteReplacement( CsapConstants.CSAP_DEF_AJP_PORT ), getAjpPort( ) ) ;
 
 		if ( isJavaJmxCollectionEnabled( ) ) {
 
@@ -784,11 +792,13 @@ public abstract class ServiceBase {
 
 		}
 
-		result = result.replaceAll( Matcher.quoteReplacement( CsapCore.CSAP_DEF_JMX_PORT ), getJmxPort( ) ) ;
+		result = result.replaceAll( Matcher.quoteReplacement( CsapConstants.CSAP_DEF_JMX_PORT ), getJmxPort( ) ) ;
 
-		result = result.replaceAll( Matcher.quoteReplacement( CsapCore.CSAP_DEF_INSTANCE ), getServiceName_Port( ) ) ;
+		result = result.replaceAll( Matcher.quoteReplacement( CsapConstants.CSAP_DEF_INSTANCE ),
+				getServiceName_Port( ) ) ;
 
-		var serviceWorkingFolder = Application.getInstance( ).getCsapWorkingSubFolder( getName( ) ).getAbsolutePath( ) ;
+		var serviceWorkingFolder = CsapApis.getInstance( ).application( ).getCsapWorkingSubFolder( getName( ) )
+				.getAbsolutePath( ) ;
 
 		if ( Application.isRunningOnDesktop( ) ) {
 
@@ -796,9 +806,9 @@ public abstract class ServiceBase {
 
 		}
 
-		result = result.replaceAll( Matcher.quoteReplacement( CsapCore.CSAP_DEF_WORKING ), serviceWorkingFolder ) ;
+		result = result.replaceAll( Matcher.quoteReplacement( CsapConstants.CSAP_DEF_WORKING ), serviceWorkingFolder ) ;
 
-		result = result.replaceAll( Matcher.quoteReplacement( CsapCore.CSAP_DEF_CONTEXT ), getContext( ) ) ;
+		result = result.replaceAll( Matcher.quoteReplacement( CsapConstants.CSAP_DEF_CONTEXT ), getContext( ) ) ;
 
 		var resourceFolder = ServiceResources.serviceResourceFolder( getName( ) ).getAbsolutePath( ) ;
 
@@ -808,7 +818,7 @@ public abstract class ServiceBase {
 
 		}
 
-		result = result.replaceAll( Matcher.quoteReplacement( CsapCore.CSAP_DEF_RESOURCE ), resourceFolder ) ;
+		result = result.replaceAll( Matcher.quoteReplacement( CsapConstants.CSAP_DEF_RESOURCE ), resourceFolder ) ;
 
 		return result ;
 
@@ -946,8 +956,8 @@ public abstract class ServiceBase {
 
 		if ( StringUtils.isEmpty( mavenRepo ) ) {
 
-			logger.debug( "info: {}", Application.getInstance( ).rootProjectEnvSettings( ) ) ;
-			return Application.getInstance( ).rootProjectEnvSettings( ).getMavenRepositoryUrl( ) ;
+			logger.debug( "info: {}", CsapApis.getInstance( ).application( ).rootProjectEnvSettings( ) ) ;
+			return CsapApis.getInstance( ).application( ).rootProjectEnvSettings( ).getMavenRepositoryUrl( ) ;
 
 		}
 
@@ -1356,11 +1366,11 @@ public abstract class ServiceBase {
 
 	public String getUrl ( ) {
 
-		if ( url.contains( CsapCore.CSAP_VARIABLE_PREFIX ) ) {
+		if ( url.contains( CsapConstants.CSAP_VARIABLE_PREFIX ) ) {
 
 			// lazy instance based on late configuration of namespace in project loader
 			logger.trace( "{} url: {}", getName( ), url ) ;
-			url = Application.getInstance( ).resolveDefinitionVariables( url, (ServiceInstance) this ) ;
+			url = CsapApis.getInstance( ).application( ).resolveDefinitionVariables( url, (ServiceInstance) this ) ;
 
 		}
 
@@ -1387,7 +1397,7 @@ public abstract class ServiceBase {
 
 		if ( ( clusterType.equals( ClusterType.SHARED_NOTHING ) )
 				&& ! getName( ).equalsIgnoreCase(
-						CsapCore.AGENT_NAME ) ) {
+						CsapConstants.AGENT_NAME ) ) {
 
 			return true ;
 
@@ -1401,7 +1411,7 @@ public abstract class ServiceBase {
 
 		if ( ( clusterType.equals( ClusterType.MULTI_SHARED_NOTHING ) )
 				&& ! getName( ).equalsIgnoreCase(
-						CsapCore.AGENT_NAME ) ) {
+						CsapConstants.AGENT_NAME ) ) {
 
 			return true ;
 
@@ -1482,7 +1492,7 @@ public abstract class ServiceBase {
 
 		if ( disk.length( ) == 0 ) {
 
-			return CsapCore.CSAP_DEF_WORKING ;
+			return CsapConstants.CSAP_DEF_WORKING ;
 
 		}
 

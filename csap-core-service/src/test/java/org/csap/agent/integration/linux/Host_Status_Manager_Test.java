@@ -9,7 +9,7 @@ import java.util.ArrayList ;
 import java.util.Arrays ;
 import java.util.List ;
 
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.CsapThinTests ;
 import org.csap.agent.linux.HostStatusManager ;
 import org.csap.agent.model.ContainerState ;
@@ -96,35 +96,36 @@ public class Host_Status_Manager_Test extends CsapThinTests {
 
 		logger.info( CsapApplication.testHeader( ) ) ;
 
-		HostStatusManager testHostStatusManager = new HostStatusManager( "admin/host-status-scorecard-test.json",
-				getApplication( ) ) ;
+		HostStatusManager testHostStatusManager = new HostStatusManager(
+				"admin/host-status-scorecard-test.json",
+				getCsapApis( ) ) ;
 		testHostStatusManager.loadStubbedHostResponses( ) ;
 		getApplication( ).setHostStatusManager( testHostStatusManager ) ;
 
 		ObjectNode agentFirstReport = testHostStatusManager.serviceCollectionReport( List.of( "csap-dev04" ),
-				CsapCore.AGENT_ID, null ) ;
+				CsapConstants.AGENT_ID, null ) ;
 
 		logger.info( "agentFirstReport: {}", CSAP.jsonPrint( agentFirstReport ) ) ;
 
-		assertThat( agentFirstReport.at( "/csap-dev04/services/" + CsapCore.AGENT_ID + "/serverType" ).asText( ) )
+		assertThat( agentFirstReport.at( "/csap-dev04/services/" + CsapConstants.AGENT_ID + "/serverType" ).asText( ) )
 				.isEqualTo( "SpringBoot" ) ;
 
-		ObjectNode agentAttributeReport = testHostStatusManager.serviceCollectionReport( null, CsapCore.AGENT_ID,
+		ObjectNode agentAttributeReport = testHostStatusManager.serviceCollectionReport( null, CsapConstants.AGENT_ID,
 				ContainerState.DEPLOYED_ARTIFACTS ) ;
 
 		logger.info( "agentAttributeReport: {}", CSAP.jsonPrint( agentAttributeReport ) ) ;
 
-		assertThat( agentAttributeReport.at( "/csap-dev09/services/" + CsapCore.AGENT_ID + "/"
+		assertThat( agentAttributeReport.at( "/csap-dev09/services/" + CsapConstants.AGENT_ID + "/"
 				+ ContainerState.DEPLOYED_ARTIFACTS + "/0" )
 				.asText( ) )
 						.isEqualTo( "2.0.9" ) ;
 
 		ObjectNode globalReport = testHostStatusManager.serviceCollectionReport( null, null, null ) ;
 		logger.info( "globalReport: {}", CSAP.jsonPrint( globalReport.at( "/csap-dev09/services/"
-				+ CsapCore.AGENT_ID ) ) ) ;
+				+ CsapConstants.AGENT_ID ) ) ) ;
 
 		assertThat(
-				globalReport.at( "/csap-dev09/services/" + CsapCore.AGENT_ID + "/containers/0/"
+				globalReport.at( "/csap-dev09/services/" + CsapConstants.AGENT_ID + "/containers/0/"
 						+ ContainerState.DEPLOYED_ARTIFACTS ).asText( ) )
 								.isEqualTo( "2.0.9" ) ;
 
@@ -138,7 +139,7 @@ public class Host_Status_Manager_Test extends CsapThinTests {
 		logger.info( CsapApplication.testHeader( ) ) ;
 
 		HostStatusManager testHostStatusManager = new HostStatusManager( "admin/host-status-scorecard-test.json",
-				getApplication( ) ) ;
+				getCsapApis( ) ) ;
 		testHostStatusManager.loadStubbedHostResponses( ) ;
 		getApplication( ).setHostStatusManager( testHostStatusManager ) ;
 
@@ -162,7 +163,7 @@ public class Host_Status_Manager_Test extends CsapThinTests {
 		logger.info( CsapApplication.testHeader( ) ) ;
 
 		HostStatusManager testHostStatusManager = new HostStatusManager( "admin/host-status-scorecard-test.json",
-				getApplication( ) ) ;
+				getCsapApis( ) ) ;
 		getApplication( ).setHostStatusManager( testHostStatusManager ) ;
 		testHostStatusManager.loadStubbedHostResponses( ) ;
 
@@ -192,7 +193,7 @@ public class Host_Status_Manager_Test extends CsapThinTests {
 		// testAdminHost1 ) ) ;
 		var testHosts = new ArrayList<>( Arrays.asList( "csap-dev01.***REMOVED***" ) ) ;
 
-		HostStatusManager hostStatusManager = new HostStatusManager( getApplication( ), 2, testHosts ) ;
+		HostStatusManager hostStatusManager = new HostStatusManager( getCsapApis( ), 2, testHosts ) ;
 
 		CSAP.setLogToDebug( HostStatusManager.class.getName( ) ) ;
 
@@ -231,7 +232,7 @@ public class Host_Status_Manager_Test extends CsapThinTests {
 
 		ArrayList<String> hostList = new ArrayList<>( Arrays.asList( testAdminHost1, testAdminHost1 ) ) ;
 
-		HostStatusManager testStatus = new HostStatusManager( getApplication( ), 2, hostList ) ;
+		HostStatusManager testStatus = new HostStatusManager( getCsapApis( ), 2, hostList ) ;
 
 		testStatus.refreshAndWaitForComplete( null ) ;
 		CSAP.setLogToDebug( HostStatusManager.class.getName( ) ) ;
@@ -256,7 +257,7 @@ public class Host_Status_Manager_Test extends CsapThinTests {
 
 		ArrayList<String> hostList = new ArrayList<>( Arrays.asList( testAdminHost1, testAdminHost1 ) ) ;
 
-		HostStatusManager hostStatusManager = new HostStatusManager( getApplication( ), 2, hostList ) ;
+		HostStatusManager hostStatusManager = new HostStatusManager( getCsapApis( ), 2, hostList ) ;
 
 		CSAP.setLogToDebug( HostStatusManager.class.getName( ) ) ;
 		hostStatusManager.refreshAndWaitForComplete( null ) ;

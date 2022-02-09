@@ -1,12 +1,11 @@
-package org.csap.agent ;
+package org.csap.agent.container.kubernetes ;
 
 import java.io.File ;
 import java.util.concurrent.TimeUnit ;
 
 import javax.inject.Inject ;
 
-import org.csap.agent.container.kubernetes.KubernetesIntegration ;
-import org.csap.agent.model.Application ;
+import org.csap.agent.CsapApis ;
 import org.csap.helpers.CSAP ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
@@ -15,6 +14,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty ;
 import org.springframework.boot.context.properties.EnableConfigurationProperties ;
 import org.springframework.context.annotation.Bean ;
 import org.springframework.context.annotation.Configuration ;
+import org.springframework.context.annotation.Lazy ;
 import org.springframework.context.annotation.Profile ;
 
 import com.fasterxml.jackson.databind.ObjectMapper ;
@@ -38,8 +38,10 @@ public class KubernetesConfiguration {
 	@Inject
 	private ObjectMapper jsonMapper ;
 
+	// private Application csapApp ;
+	@Lazy
 	@Autowired ( required = false )
-	private Application csapApp ;
+	CsapApis csapApis ;
 
 	@Bean
 	public KubernetesIntegration kubernetesIntegration ( ) {
@@ -81,6 +83,7 @@ public class KubernetesConfiguration {
 		try {
 
 			File configFile = new File( kubernetesSettings.getConfigFile( ) ) ;
+			logger.debug("loading configuration: {}", configFile) ;
 
 			if ( ! configFile.exists( ) ) {
 
@@ -91,7 +94,7 @@ public class KubernetesConfiguration {
 
 			}
 
-			logger.info( kubernetesSettings.toString( ).replaceAll( ",", ",\n\t" ) ) ;
+			logger.info( kubernetesSettings.toString( ) ) ;
 
 			kubernetesApiPooledClient = Config.fromConfig( kubernetesSettings.getConfigFile( ) ) ;
 
@@ -135,15 +138,15 @@ public class KubernetesConfiguration {
 
 	}
 
-	public Application getCsapApp ( ) {
+	public CsapApis getCsapApis ( ) {
 
-		return csapApp ;
+		return csapApis ;
 
 	}
 
-	public void setCsapApp ( Application csapApp ) {
+	public void setCsapApi ( CsapApis csapApis ) {
 
-		this.csapApp = csapApp ;
+		this.csapApis = csapApis ;
 
 	}
 

@@ -11,8 +11,9 @@ import java.io.File ;
 import java.util.List ;
 
 import org.csap.agent.CsapBareTest ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapServices ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.TestServices ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.linux.ServiceJobRunner ;
 import org.csap.agent.model.ProcessRuntime ;
 import org.csap.agent.model.Project ;
@@ -88,11 +89,11 @@ class Default_Application extends CsapBareTest {
 								"dev:kubernetes-system",
 								"dev:namespace-monitors" ) ;
 
-		assertThat( getApplication( ).getServiceInstanceCurrentHost( CsapServices.agent.idWithPort( ) ) )
+		assertThat( getApplication( ).getServiceInstanceCurrentHost( TestServices.agent.idWithPort( ) ) )
 				.isNotNull( ) ;
 
-		assertThat( getApplication( ).getServiceInstanceCurrentHost( CsapServices.agent.idWithPort( ) ).toString( ) )
-				.isEqualTo( CsapCore.AGENT_NAME + "_8011 on host: localhost cluster: base-os containers: 0" ) ;
+		assertThat( getApplication( ).getServiceInstanceCurrentHost( TestServices.agent.idWithPort( ) ).toString( ) )
+				.isEqualTo( CsapConstants.AGENT_NAME + "_8011 on host: localhost cluster: base-os containers: 1" ) ;
 
 	}
 
@@ -144,50 +145,50 @@ class Default_Application extends CsapBareTest {
 		// Core
 		//
 
-		assertThat( service( CsapServices.agent.id( ) ).getProcessRuntime( ) ).isEqualTo( ProcessRuntime.springboot ) ;
+		assertThat( service( TestServices.agent.id( ) ).getProcessRuntime( ) ).isEqualTo( ProcessRuntime.springboot ) ;
 
-		assertThat( service( CsapServices.admin.id( ) ).getProcessRuntime( ) ).isEqualTo( ProcessRuntime.springboot ) ;
+		assertThat( service( TestServices.admin.id( ) ).getProcessRuntime( ) ).isEqualTo( ProcessRuntime.springboot ) ;
 
-		assertThat( service( CsapServices.linux.id( ) ).getProcessRuntime( ) ).isEqualTo( ProcessRuntime.csap_api ) ;
+		assertThat( service( TestServices.linux.id( ) ).getProcessRuntime( ) ).isEqualTo( ProcessRuntime.csap_api ) ;
 
-		assertThat( service( CsapServices.java.id( ) ).getProcessRuntime( ) ).isEqualTo( ProcessRuntime.csap_api ) ;
+		assertThat( service( TestServices.java.id( ) ).getProcessRuntime( ) ).isEqualTo( ProcessRuntime.csap_api ) ;
 
 		//
 		// docker
 		//
-		assertThat( service( CsapServices.docker.id( ) ).getProcessRuntime( ) ).isEqualTo( ProcessRuntime.csap_api ) ;
+		assertThat( service( TestServices.docker.id( ) ).getProcessRuntime( ) ).isEqualTo( ProcessRuntime.csap_api ) ;
 
-		assertThat( service( CsapServices.dockerDemo.id( ) ).getProcessRuntime( ) ).isEqualTo( ProcessRuntime.docker ) ;
-		assertThat( service( CsapServices.dockerDemo.id( ) ).is_cluster_kubernetes( ) ).isFalse( ) ;
+		assertThat( service( TestServices.dockerDemo.id( ) ).getProcessRuntime( ) ).isEqualTo( ProcessRuntime.docker ) ;
+		assertThat( service( TestServices.dockerDemo.id( ) ).is_cluster_kubernetes( ) ).isFalse( ) ;
 
 		//
 		// kubernetes
 		//
-		assertThat( service( CsapServices.calicoNode.id( ) ).getProcessRuntime( ) ).isEqualTo( ProcessRuntime.os ) ;
+		assertThat( service( TestServices.calicoNode.id( ) ).getProcessRuntime( ) ).isEqualTo( ProcessRuntime.os ) ;
 
-		assertThat( service( CsapServices.csap_verify.id( ) ).getProcessRuntime( ) ).isEqualTo(
+		assertThat( service( TestServices.csap_verify.id( ) ).getProcessRuntime( ) ).isEqualTo(
 				ProcessRuntime.springboot ) ;
 
-		assertThat( service( CsapServices.kubelet.id( ) ).getProcessRuntime( ) ).isEqualTo( ProcessRuntime.csap_api ) ;
+		assertThat( service( TestServices.kubelet.id( ) ).getProcessRuntime( ) ).isEqualTo( ProcessRuntime.csap_api ) ;
 
-		assertThat( service( CsapServices.calicoNode.id( ) ).getProcessRuntime( ) ).isEqualTo( ProcessRuntime.os ) ;
+		assertThat( service( TestServices.calicoNode.id( ) ).getProcessRuntime( ) ).isEqualTo( ProcessRuntime.os ) ;
 
-		assertThat( service( CsapServices.kubernetesDashboard.id( ) ).getProcessRuntime( ) ).isEqualTo(
+		assertThat( service( TestServices.kubernetesDashboard.id( ) ).getProcessRuntime( ) ).isEqualTo(
 				ProcessRuntime.docker ) ;
-		assertThat( service( CsapServices.kubernetesDashboard.id( ) ).is_cluster_kubernetes( ) ).isTrue( ) ;
+		assertThat( service( TestServices.kubernetesDashboard.id( ) ).is_cluster_kubernetes( ) ).isTrue( ) ;
 
 		//
 		// tomcat
 		//
-		assertThat( service( CsapServices.tomcat.id( ) ).getProcessRuntime( ) ).isEqualTo( ProcessRuntime.csap_api ) ;
-		assertThat( service( CsapServices.tomcatDemo.id( ) ).getProcessRuntime( ) )
+		assertThat( service( TestServices.tomcat.id( ) ).getProcessRuntime( ) ).isEqualTo( ProcessRuntime.csap_api ) ;
+		assertThat( service( TestServices.tomcatDemo.id( ) ).getProcessRuntime( ) )
 				.isEqualTo( ProcessRuntime.tomcat9 ) ;
 		//
 		// os monitor mpstat
 		//
-		assertThat( service( CsapServices.mpMonitor.id( ) ).getProcessRuntime( ) ).isEqualTo( ProcessRuntime.os ) ;
-		assertThat( service( CsapServices.mpMonitor.id( ) ).getAppDirectory( ) ).isEqualTo( "/dev" ) ;
-		assertThat( service( CsapServices.mpMonitor.id( ) ).getPropDirectory( ) ).isEqualTo( "/aaa" ) ;
+		assertThat( service( TestServices.mpMonitor.id( ) ).getProcessRuntime( ) ).isEqualTo( ProcessRuntime.os ) ;
+		assertThat( service( TestServices.mpMonitor.id( ) ).getAppDirectory( ) ).isEqualTo( "/dev" ) ;
+		assertThat( service( TestServices.mpMonitor.id( ) ).getPropDirectory( ) ).isEqualTo( "/aaa" ) ;
 
 	}
 
@@ -196,9 +197,9 @@ class Default_Application extends CsapBareTest {
 
 		logger.info( CsapApplication.testHeader( ) ) ;
 
-		ServiceInstance nginxInstance = service( "nginx-ingress-controller" ) ;
+		var nginxInstance = service( "ingress-nginx" ) ;
 
-		logger.info( "nginx-ingress-controller: \n\t{} \n\t jobs: {}", nginxInstance, nginxInstance.getJobs( ) ) ;
+		logger.info( "service: \n\t{} \n\t jobs: {}", nginxInstance, nginxInstance.getJobs( ) ) ;
 
 		assertThat( nginxInstance.getJobs( ).size( ) )
 				.as( "number of jobs" )
@@ -206,7 +207,7 @@ class Default_Application extends CsapBareTest {
 
 		var firstScript = nginxInstance.getJobs( ).get( 0 ).getScript( ) ;
 
-		assertThat( nginxInstance.getJobs( ).toString( ).contains( CsapCore.CSAP_VARIABLE_PREFIX ) )
+		assertThat( nginxInstance.getJobs( ).toString( ).contains( CsapConstants.CSAP_VARIABLE_PREFIX ) )
 				.as( "job variables resolved" )
 				.isFalse( ) ;
 
@@ -219,7 +220,7 @@ class Default_Application extends CsapBareTest {
 
 		logger.info( CsapApplication.testHeader( ) ) ;
 
-		ServiceInstance agentInstance = service( CsapCore.AGENT_NAME ) ;
+		ServiceInstance agentInstance = service( CsapConstants.AGENT_NAME ) ;
 
 		var jobs = agentInstance.getJobsDefinition( ) ;
 
@@ -257,7 +258,8 @@ class Default_Application extends CsapBareTest {
 
 		logger.info( CsapApplication.testHeader( ) ) ;
 
-		ServiceInstance dockerInstance = getApplication( ).findServiceByNameOnCurrentHost( "docker" ) ;
+		ServiceInstance dockerInstance = getApplication( ).findServiceByNameOnCurrentHost( C7.dockerService
+				.val( ) ) ;
 
 		logger.info( "dockerInstance: \n\t{} \n\t jobs: {}", dockerInstance, dockerInstance.getJobs( ).get( 0 ) ) ;
 
@@ -277,7 +279,7 @@ class Default_Application extends CsapBareTest {
 				.hasSize( 1 )
 				.contains( "dev.*" ) ;
 
-		ServiceJobRunner jobRunner = new ServiceJobRunner( getApplication( ) ) ;
+		ServiceJobRunner jobRunner = new ServiceJobRunner( getCsapApis( ) ) ;
 
 		dockerJob.setFrequency( ServiceJobRunner.Event.hourly.json( ) ) ;
 

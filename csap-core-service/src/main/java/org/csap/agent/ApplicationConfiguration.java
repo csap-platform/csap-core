@@ -11,7 +11,8 @@ import org.aspectj.lang.annotation.Around ;
 import org.aspectj.lang.annotation.Aspect ;
 import org.aspectj.lang.annotation.Pointcut ;
 import org.csap.CsapBootApplication ;
-import org.csap.agent.model.Application ;
+import org.csap.agent.container.ContainerConfiguration ;
+import org.csap.agent.container.kubernetes.KubernetesConfiguration ;
 import org.csap.agent.ui.explorer.CrioExplorer ;
 import org.csap.agent.ui.explorer.KubernetesExplorer ;
 import org.csap.agent.ui.explorer.OsExplorer ;
@@ -20,18 +21,17 @@ import org.csap.agent.ui.rest.FileRequests ;
 import org.csap.agent.ui.rest.HostRequests ;
 import org.csap.agent.ui.rest.ServiceRequests ;
 import org.csap.agent.ui.rest.TrendCache ;
-import org.csap.agent.ui.windows.HostPortal ;
 import org.csap.alerts.AlertSettings ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
+import org.csap.helpers.CsapMvc ;
 import org.csap.helpers.CsapRestTemplateFactory ;
 import org.csap.integations.CsapEncryptionConfiguration ;
 import org.csap.integations.CsapInformation ;
-import org.csap.integations.CsapMicroMeter ;
 import org.csap.integations.CsapSecurityConfiguration ;
 import org.csap.integations.CsapWebServerConfig ;
+import org.csap.integations.micrometer.CsapMeterUtilities ;
 import org.csap.security.config.CsapSecurityRoles ;
-import org.csap.security.config.CsapSecuritySettings ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
 import org.springframework.beans.factory.annotation.Autowired ;
@@ -39,6 +39,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty ;
 import org.springframework.boot.context.properties.ConfigurationProperties ;
 import org.springframework.cache.interceptor.KeyGenerator ;
 import org.springframework.context.annotation.Bean ;
+import org.springframework.context.annotation.Configuration ;
 import org.springframework.context.annotation.Import ;
 import org.springframework.core.task.TaskExecutor ;
 import org.springframework.http.HttpMethod ;
@@ -48,21 +49,28 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.scheduling.TaskScheduler ;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor ;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler ;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity ;
 import org.springframework.web.client.RestTemplate ;
 import org.springframework.web.servlet.config.annotation.CorsRegistry ;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry ;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer ;
-import org.springframework.web.servlet.resource.VersionResourceResolver ;
 
 @CsapBootApplication
 @ConfigurationProperties ( prefix = "csap-core" )
-@Import ( CsapSecuritySettings.class )
+
+@Import ( {
+		ContainerConfiguration.class,
+		KubernetesConfiguration.class
+} )
+
 @Aspect
-public class CsapCoreService implements WebMvcConfigurer {
+//
+// Note: @applicationConfiguration is referenced in *.html
+//
+@Configuration ( "applicationConfiguration" )
+public class ApplicationConfiguration implements WebMvcConfigurer {
 
 	final Logger logger = LoggerFactory.getLogger( getClass( ) ) ;
-
-	final static public String CONFIGURATION_PREFIX = "csap-core" ;
 
 	//
 	// Primary configuration attributes
@@ -108,12 +116,12 @@ public class CsapCoreService implements WebMvcConfigurer {
 	CsapInformation csapInformation ;
 
 	@Autowired
-	CsapMicroMeter.Utilities meterUtilities ;
+	CsapMeterUtilities meterUtilities ;
 
 	CsapWebServerConfig csapWebServer ;
 	CsapEncryptionConfiguration csapEncrypt ;
 
-	public CsapCoreService ( CsapWebServerConfig csapWebServer, CsapEncryptionConfiguration csapEncrypt ) {
+	public ApplicationConfiguration ( CsapWebServerConfig csapWebServer, CsapEncryptionConfiguration csapEncrypt ) {
 
 		this.csapWebServer = csapWebServer ;
 		this.csapEncrypt = csapEncrypt ;
@@ -126,57 +134,10 @@ public class CsapCoreService implements WebMvcConfigurer {
 
 	}
 
-	// Security
-	// must be synced with ehcache.xml
-	public final static String TIMEOUT_CACHE_60s = "CacheWith60SecondEviction" ;
-
-	// URLs
-	public final static String BASE_URL = "/" ;
-	public final static String TEST_URL = BASE_URL + "test" ;
-	public final static String METER_URL = BASE_URL + "MeterActivity" ;
-	public final static String APP_BROWSER_URL = BASE_URL + "app-browser" ;
-	public final static String MAINHOSTS_URL = BASE_URL + "hosts" ;
-	public final static String CLUSTERBROWSER_URL = BASE_URL + "clusterDialog" ;
-	public final static String ADMIN_URL = BASE_URL + "admin" ;
-	public final static String EDIT_URL = BASE_URL + "edit" ;
-	public final static String SCREEN_URL = BASE_URL + "viewScreencast" ;
-
-	public final static String DEFINITION_URL = BASE_URL + "definition" ;
-	public final static String ENCODE_URL = "/properties/encode" ;
-	public final static String ENCODE_FULL_URL = DEFINITION_URL + ENCODE_URL ;
-	public final static String NOTIFY_URL = "/notify" ;
-	public final static String NOTIFY_FULL_URL = DEFINITION_URL + NOTIFY_URL ;
-	public final static String DECODE_URL = "/properties/decode" ;
-
-	public final static String SERVICE_URL = BASE_URL + "service" ;
-	public final static String FILE_URL = BASE_URL + "file" ;
-	public final static String FILE_MANAGER_URL = FILE_URL + FileRequests.FILE_MANAGER ;
-	public final static String OS_URL = BASE_URL + "os" ;
-	public final static String API_URL = BASE_URL + "api" ;
-	public final static String API_AGENT_URL = API_URL + "/agent" ;
-	public final static String API_MODEL_URL = API_URL + "/model" ;
-	public final static String API_CONTAINER_URL = API_URL + "/container" ;
-	public final static String API_APPLICATION_URL = API_URL + "/application" ;
-	public final static String JSP_VIEW = "/view/" ;
-
-	public final static Map<String, String> viewConstants = Map.of(
-			//
-			"ALL_PACKAGES", Application.ALL_PACKAGES,
-			"ADMIN_NAME", CsapCore.ADMIN_NAME,
-			"AGENT_NAME", CsapCore.AGENT_NAME,
-			"AGENT_ID", CsapCore.AGENT_ID,
-			"SERVICE_URL", SERVICE_URL,
-			"COMMAND_SCREEN_URL", HostPortal.COMMAND_SCREEN_URL,
-			"DEFINITION_URL", DEFINITION_URL,
-			"FILE_MANAGER_URL", FILE_MANAGER_URL,
-			"EDIT_URL", EDIT_URL
-	//
-	) ;
-
 	public static void main ( String[] args ) {
 
 		// CSAP sets up shared profiles
-		CsapApplication.run( CsapCoreService.class, args ) ;
+		CsapApplication.run( ApplicationConfiguration.class, args ) ;
 
 		// SpringApplication.run( CsapCoreService.class, args );..
 	}
@@ -266,19 +227,17 @@ public class CsapCoreService implements WebMvcConfigurer {
 	public TaskScheduler taskScheduler ( ) {
 
 		ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler( ) ;
-		scheduler.setThreadNamePrefix( CsapCoreService.class.getSimpleName( ) + "Scheduler" ) ;
+		scheduler.setThreadNamePrefix( ApplicationConfiguration.class.getSimpleName( ) + "Scheduler" ) ;
 		scheduler.setPoolSize( 2 ) ;
 		return scheduler ;
 
 	}
 
-	final public static String HEALTH_EXECUTOR = "CsapHealthExecutor" ;
-
-	@Bean ( HEALTH_EXECUTOR )
+	@Bean ( CsapConstants.HEALTH_EXECUTOR )
 	public TaskExecutor taskExecutor ( ) {
 
 		ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor( ) ;
-		taskExecutor.setThreadNamePrefix( CsapCoreService.class.getSimpleName( ) + "@Async" ) ;
+		taskExecutor.setThreadNamePrefix( ApplicationConfiguration.class.getSimpleName( ) + "@Async" ) ;
 		taskExecutor.setMaxPoolSize( 5 ) ;
 		taskExecutor.setQueueCapacity( 300 ) ;
 		taskExecutor.afterPropertiesSet( ) ;
@@ -286,47 +245,11 @@ public class CsapCoreService implements WebMvcConfigurer {
 
 	}
 
-	private int ONE_YEAR_SECONDS = 60 * 60 * 24 * 365 ;
-
-	// https://spring.io/blog/2014/07/24/spring-framework-4-1-handling-static-web-resources
-	// http://www.mscharhag.com/spring/resource-versioning-with-spring-mvc
 	@Override
 	public void addResourceHandlers ( ResourceHandlerRegistry registry ) {
 
-		// if ( Application.isRunningOnDesktop() ) { // NOT initialized prior to
-		// start
-		if ( isRunningOnDesktop( ) ) {
-
-			logger.warn( CsapApplication.testHeader( "Desktop detected: Caching DISABLED" ) ) ;
-			return ; // when disabled in yaml
-			// ONE_YEAR_SECONDS = 0;
-			// return;
-
-		} else {
-
-			logger.info( "Web caching enabled" ) ;
-
-		}
-
-		// String version = csapInformation.getVersion(); // this is fixed
-		// version from definition
-		// // find actual version? or use snap?
-		// if ( version.toLowerCase().contains( "snapshot" ) ) {
-		// version = "snap" + System.currentTimeMillis();
-		// }
-		String version = "start" + System.currentTimeMillis( ) ;
-		VersionResourceResolver versionResolver = new VersionResourceResolver( )
-				.addFixedVersionStrategy( version,
-						"/**/modules/**/*.js" ) // requriesjs uses relative paths
-				.addContentVersionStrategy( "/**" ) ;
-
-		// A Handler With Versioning - note images in css files need to be
-		// resolved.
-		registry.addResourceHandler( "/**/*.js", "/**/*.css", "/**/*.png", "/**/*.gif", "/**/*.jpg" )
-				.addResourceLocations( "classpath:/static/", "classpath:/public/" )
-				.setCachePeriod( ONE_YEAR_SECONDS )
-				.resourceChain( true )
-				.addResolver( versionResolver ) ;
+		// add common cache policies
+		CsapMvc.addResourceHandlers( registry ) ;
 
 	}
 
@@ -334,9 +257,14 @@ public class CsapCoreService implements WebMvcConfigurer {
 	@ConditionalOnProperty ( "csap.security.enabled" )
 	public CsapSecurityConfiguration.CustomHttpSecurity mySecurityPolicy ( ) {
 
-		// spring.resources.cache-period should almost always be set as well
-		// @formatter:off
-		CsapSecurityConfiguration.CustomHttpSecurity mySecurity = ( httpSecurity -> {
+		return new MyCustomSecurityPolicy( ) ;
+
+	}
+
+	public static class MyCustomSecurityPolicy implements CsapSecurityConfiguration.CustomHttpSecurity {
+
+		@Override
+		public void configure ( HttpSecurity httpSecurity ) throws Exception {
 
 			httpSecurity
 
@@ -347,8 +275,8 @@ public class CsapCoreService implements WebMvcConfigurer {
 					.requireCsrfProtectionMatcher(
 							CsapSecurityConfiguration.buildRequestMatcher(
 									"/login*",
-									FILE_URL + FileRequests.SAVE_URL,
-									OS_URL + HostRequests.EXECUTE_URL ) )
+									CsapConstants.FILE_URL + FileRequests.SAVE_URL,
+									CsapConstants.OS_URL + HostRequests.EXECUTE_URL ) )
 					.and( )
 
 					.authorizeRequests( )
@@ -364,7 +292,7 @@ public class CsapCoreService implements WebMvcConfigurer {
 
 					//
 					// Api access is protected at application level if needed
-					.antMatchers( API_URL + "/**" )
+					.antMatchers( CsapConstants.API_URL + "/**" )
 					.permitAll( ) // Disable security on public assets
 
 					//
@@ -372,47 +300,47 @@ public class CsapCoreService implements WebMvcConfigurer {
 					//
 					.antMatchers( HttpMethod.GET,
 
-							FILE_URL + FileRequests.FILE_REMOTE_MONITOR,
+							CsapConstants.FILE_URL + FileRequests.FILE_REMOTE_MONITOR,
 
 							CrioExplorer.CRIO_URL + "/**",
 
-							APP_BROWSER_URL + ApplicationBrowser.POD_RESOURCE_URL,
-							APP_BROWSER_URL + ApplicationBrowser.POD_LOG_URL,
-							APP_BROWSER_URL + ApplicationBrowser.POD_REPORT_URL,
-							APP_BROWSER_URL + ApplicationBrowser.NODE_REPORT_URL,
-							APP_BROWSER_URL + ApplicationBrowser.REALTIME_REPORT_URL,
-							APP_BROWSER_URL + ApplicationBrowser.HELM_INFO_URL,
-							APP_BROWSER_URL + ApplicationBrowser.VOLUME_REPORT_URL,
-							APP_BROWSER_URL + ApplicationBrowser.CSAP_EVENT_REPORT_URL,
-							APP_BROWSER_URL + ApplicationBrowser.KUBERNETES_EVENT_REPORT_URL,
+							CsapConstants.APP_BROWSER_URL + ApplicationBrowser.POD_RESOURCE_URL,
+							CsapConstants.APP_BROWSER_URL + ApplicationBrowser.POD_LOG_URL,
+							CsapConstants.APP_BROWSER_URL + ApplicationBrowser.POD_REPORT_URL,
+							CsapConstants.APP_BROWSER_URL + ApplicationBrowser.NODE_REPORT_URL,
+							CsapConstants.APP_BROWSER_URL + ApplicationBrowser.REALTIME_REPORT_URL,
+							CsapConstants.APP_BROWSER_URL + ApplicationBrowser.HELM_INFO_URL,
+							CsapConstants.APP_BROWSER_URL + ApplicationBrowser.VOLUME_REPORT_URL,
+							CsapConstants.APP_BROWSER_URL + ApplicationBrowser.CSAP_EVENT_REPORT_URL,
+							CsapConstants.APP_BROWSER_URL + ApplicationBrowser.KUBERNETES_EVENT_REPORT_URL,
 							KubernetesExplorer.EXPLORER_URL + "/kubernetes/cli/info/**" )
 					.permitAll( ) // Disable security on public listing
 
 					//
 					// Service Deployment
 					//
-					.antMatchers( SERVICE_URL + ServiceRequests.REBUILD_URL )
+					.antMatchers( CsapConstants.SERVICE_URL + ServiceRequests.REBUILD_URL )
 					.access( CsapSecurityRoles.hasAny( CsapSecurityRoles.Access.build ) )
 
 					//
 					// admin actions
 					//
-					.antMatchers( SERVICE_URL + "/reImage",
-							SERVICE_URL + ServiceRequests.START_URL,
-							SERVICE_URL + "/stopServer",
-							SERVICE_URL + ServiceRequests.KILL_URL,
-							SERVICE_URL + ServiceRequests.GENERATE_APACHE_MAPPINGS,
-							SERVICE_URL + "/httpd",
-							SERVICE_URL + "/modjk",
-							SERVICE_URL + "/status",
-							SERVICE_URL + "/uploadArtifact",
-							SERVICE_URL + "/jmeter" )
+					.antMatchers( CsapConstants.SERVICE_URL + "/reImage",
+							CsapConstants.SERVICE_URL + ServiceRequests.START_URL,
+							CsapConstants.SERVICE_URL + "/stopServer",
+							CsapConstants.SERVICE_URL + ServiceRequests.KILL_URL,
+							CsapConstants.SERVICE_URL + ServiceRequests.GENERATE_APACHE_MAPPINGS,
+							CsapConstants.SERVICE_URL + "/httpd",
+							CsapConstants.SERVICE_URL + "/modjk",
+							CsapConstants.SERVICE_URL + "/status",
+							CsapConstants.SERVICE_URL + "/uploadArtifact",
+							CsapConstants.SERVICE_URL + "/jmeter" )
 					.access( CsapSecurityRoles.hasAny( CsapSecurityRoles.Access.admin ) )
 
 					//
 					// Definition Management
 					//
-					.antMatchers( HttpMethod.GET, DEFINITION_URL + "/**" )
+					.antMatchers( HttpMethod.GET, CsapConstants.DEFINITION_URL + "/**" )
 					.authenticated( )
 
 					//
@@ -423,47 +351,47 @@ public class CsapCoreService implements WebMvcConfigurer {
 							+ CsapSecurityRoles.hasAny( CsapSecurityRoles.Access.infra ) )
 					//
 					// encoding properties
-					.antMatchers( HttpMethod.POST, ENCODE_FULL_URL )
+					.antMatchers( HttpMethod.POST, CsapConstants.ENCODE_FULL_URL )
 					.access( CsapSecurityRoles.hasAny( CsapSecurityRoles.Access.admin )
 							+ " OR "
 							+ CsapSecurityRoles.hasAny( CsapSecurityRoles.Access.infra ) )
 
 					//
 					// notify when non admin
-					.antMatchers( HttpMethod.POST, NOTIFY_FULL_URL )
+					.antMatchers( HttpMethod.POST, CsapConstants.NOTIFY_FULL_URL )
 					.access( CsapSecurityRoles.hasAny( CsapSecurityRoles.Access.admin ) )
 
 					//
 					// Updating Application Definition
-					.antMatchers( HttpMethod.POST, DEFINITION_URL + "/**" )
+					.antMatchers( HttpMethod.POST, CsapConstants.DEFINITION_URL + "/**" )
 					.access( CsapSecurityRoles.hasAny( CsapSecurityRoles.Access.infra ) )
 
 					//
 					// Agent operations protected at app level using host membership
 					//
 					.antMatchers(
-							CsapCoreService.SERVICE_URL + "/query/**",
-							OS_URL + HostRequests.HOST_INFO_URL,
-							OS_URL + HostRequests.DEFINITION_ZIP_URL,
-							OS_URL + HostRequests.JOIN_URL,
-							OS_URL + HostRequests.MASTERS_READY_URL,
-							OS_URL + HostRequests.FOLDER_ZIP_URL )
+							CsapConstants.SERVICE_URL + "/query/**",
+							CsapConstants.OS_URL + HostRequests.HOST_INFO_URL,
+							CsapConstants.OS_URL + HostRequests.DEFINITION_ZIP_URL,
+							CsapConstants.OS_URL + HostRequests.JOIN_URL,
+							CsapConstants.OS_URL + HostRequests.MASTERS_READY_URL,
+							CsapConstants.OS_URL + HostRequests.FOLDER_ZIP_URL )
 					.permitAll( ) // Disable security on public assets
 
 					//
 					//
 					// VM actions OS_URL + "/command", EDIT_URL + "/**",
 					.antMatchers(
-							FILE_MANAGER_URL,
-							FILE_URL + FileRequests.EDIT_URL,
-							FILE_URL + FileRequests.SAVE_URL,
-							FILE_URL + FileRequests.FILE_SYSTEM_URL,
-							OS_URL + "/syncFiles",
-							OS_URL + "/hostAdmin",
-							OS_URL + "/delete",
-							OS_URL + "/checkFsThroughput",
-							OS_URL + "/killPid",
-							OS_URL + HostRequests.EXECUTE_URL )
+							CsapConstants.FILE_MANAGER_URL,
+							CsapConstants.FILE_URL + FileRequests.EDIT_URL,
+							CsapConstants.FILE_URL + FileRequests.SAVE_URL,
+							CsapConstants.FILE_URL + FileRequests.FILE_SYSTEM_URL,
+							CsapConstants.OS_URL + "/syncFiles",
+							CsapConstants.OS_URL + "/hostAdmin",
+							CsapConstants.OS_URL + "/delete",
+							CsapConstants.OS_URL + "/checkFsThroughput",
+							CsapConstants.OS_URL + "/killPid",
+							CsapConstants.OS_URL + HostRequests.EXECUTE_URL )
 					.access( CsapSecurityRoles.hasAny( CsapSecurityRoles.Access.admin ) )
 
 					// anything else
@@ -472,10 +400,7 @@ public class CsapCoreService implements WebMvcConfigurer {
 							+ " OR "
 							+ CsapSecurityRoles.hasAny( CsapSecurityRoles.Access.admin ) ) ;
 
-		} ) ;
-
-		// @formatter:on
-		return mySecurity ;
+		}
 
 	}
 

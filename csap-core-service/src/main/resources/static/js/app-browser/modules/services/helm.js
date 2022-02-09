@@ -144,8 +144,11 @@ define( [ "services/instances", "browser/utils", "ace/ace", "ace/ext-modelist" ]
 
     function updateEditor( itemReport, menuPath ) {
 
-        if ( menuPath === "helm-values" ) {
+        if ( menuPath === "helm-values" 
+                && itemReport["response-yaml"] ) {
+            
             _helmValuesEditor.getSession().setValue( itemReport["response-yaml"] ) ;
+            
         } else {
             
             console.log( `itemReport: `, itemReport) ;

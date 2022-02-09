@@ -12,6 +12,7 @@ import java.util.List ;
 import java.util.Random ;
 import java.util.stream.IntStream ;
 
+import org.csap.agent.CsapApis ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.services.OsManager ;
@@ -92,12 +93,11 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 	}
 
 	public OsSharedResourcesCollector (
-			Application csapApplication,
-			OsManager osManager,
+			CsapApis csapApis,
 			int intervalSeconds,
 			boolean publishSummary ) {
 
-		super( csapApplication, osManager, intervalSeconds, publishSummary ) ;
+		super( csapApis, intervalSeconds, publishSummary ) ;
 
 		openFiles = new int[getInMemoryCacheSize( )] ;
 		totalThreads = new int[getInMemoryCacheSize( )] ;
@@ -124,7 +124,7 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 		networkReceived = new double[getInMemoryCacheSize( )] ;
 		networkTransmited = new double[getInMemoryCacheSize( )] ;
 
-		// deviceUtilizationReport = osManager.device_utilization();
+		// deviceUtilizationReport = csapApis.osManager( ).device_utilization();
 		deviceUtilization = new int[MAX_DEVICES][getInMemoryCacheSize( )] ;
 
 		collectionMs = new long[getInMemoryCacheSize( )] ;
@@ -134,41 +134,41 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 
 		// Initialize values so that UI can display without waiting for first
 		// interval to occur
-		openFiles[ 0 ] = -1 ;
-		totalThreads[ 0 ] = -1 ;
-		csapThreads[ 0 ] = -1 ;
-		totalFileDescriptors[ 0 ] = -1 ;
-		csapFileDescriptors[ 0 ] = -1 ;
+		openFiles[0] = -1 ;
+		totalThreads[0] = -1 ;
+		csapThreads[0] = -1 ;
+		totalFileDescriptors[0] = -1 ;
+		csapFileDescriptors[0] = -1 ;
 
-		networkConns[ 0 ] = -1 ;
-		networkWait[ 0 ] = -1 ;
-		networkTimeWait[ 0 ] = -1 ;
+		networkConns[0] = -1 ;
+		networkWait[0] = -1 ;
+		networkTimeWait[0] = -1 ;
 
-		usrCpuLevel[ 0 ] = -1 ;
-		memoryAvailableLessCache[ 0 ] = -1 ;
-		memoryBufferCache[ 0 ] = -1 ;
-		sysCpuLevel[ 0 ] = -1 ;
-		ioLevel[ 0 ] = -1 ;
-		loadLevel[ 0 ] = 0 ;
+		usrCpuLevel[0] = -1 ;
+		memoryAvailableLessCache[0] = -1 ;
+		memoryBufferCache[0] = -1 ;
+		sysCpuLevel[0] = -1 ;
+		ioLevel[0] = -1 ;
+		loadLevel[0] = 0 ;
 
-		diskTestTime[ 0 ] = 0 ;
-		cpuTestTime[ 0 ] = 0 ;
+		diskTestTime[0] = 0 ;
+		cpuTestTime[0] = 0 ;
 
-		ioReads[ 0 ] = 0 ;
-		ioWrites[ 0 ] = 0 ;
+		ioReads[0] = 0 ;
+		ioWrites[0] = 0 ;
 
-		networkReceived[ 0 ] = 0 ;
-		networkTransmited[ 0 ] = 0 ;
+		networkReceived[0] = 0 ;
+		networkTransmited[0] = 0 ;
 
 		IntStream.range( 0, MAX_DEVICES - 1 )
 				.forEach( item -> {
 
-					deviceUtilization[ item ][ 0 ] = 0 ;
+					deviceUtilization[item][0] = 0 ;
 
 				} ) ;
 		;
 
-		collectionMs[ 0 ] = new Date( ).getTime( ) ;
+		collectionMs[0] = new Date( ).getTime( ) ;
 
 		setLastAddedElementIndex( 0 ) ;
 
@@ -176,7 +176,7 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 		// hack for for windows
 		if ( Application.isRunningOnDesktop( ) ) {
 
-			buildTestData( osManager, intervalSeconds ) ;
+			buildTestData( csapApis.osManager( ), intervalSeconds ) ;
 
 		}
 
@@ -190,7 +190,7 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 	public void buildTestData ( OsManager osManager , int intervalSeconds ) {
 
 		logger.info( CsapApplication.testHeader( "Generating test data." ) ) ;
-		osManager.wait_for_initial_process_status_scan( 10 ) ;
+		csapApis.osManager( ).wait_for_initial_process_status_scan( 10 ) ;
 
 		long currMs = System.currentTimeMillis( ) ;
 		int collectionIndex = 0 ;
@@ -198,66 +198,68 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 
 		while ( collectionIndex < getInMemoryCacheSize( ) ) {
 
-			usrCpuLevel[ collectionIndex ] = rg.nextInt( 100 ) ;
+			usrCpuLevel[collectionIndex] = rg.nextInt( 100 ) ;
 
 			// memLevel[i] = rg.nextInt(2000);
 			// bufLevel[i] = rg.nextInt(8000);
 			try {
 
-				openFiles[ collectionIndex ] = osManager.getHostSummaryItem( "openFiles" ) ;
-				totalThreads[ collectionIndex ] = osManager.getHostSummaryItem( "totalThreads" ) ;
-				csapThreads[ collectionIndex ] = osManager.getHostSummaryItem( "csapThreads" ) ;
-				totalFileDescriptors[ collectionIndex ] = osManager.getHostSummaryItem( "totalFileDescriptors" ) ;
-				csapFileDescriptors[ collectionIndex ] = osManager.getHostSummaryItem( "csapFileDescriptors" ) ;
-				networkConns[ collectionIndex ] = osManager.getHostSummaryItem( "networkConns" ) ;
-				networkWait[ collectionIndex ] = osManager.getHostSummaryItem( "networkWait" ) ;
-				networkTimeWait[ collectionIndex ] = osManager.getHostSummaryItem( "networkTimeWait" ) ;
+				openFiles[collectionIndex] = csapApis.osManager( ).getHostSummaryItem( "openFiles" ) ;
+				totalThreads[collectionIndex] = csapApis.osManager( ).getHostSummaryItem( "totalThreads" ) ;
+				csapThreads[collectionIndex] = csapApis.osManager( ).getHostSummaryItem( "csapThreads" ) ;
+				totalFileDescriptors[collectionIndex] = csapApis.osManager( ).getHostSummaryItem(
+						"totalFileDescriptors" ) ;
+				csapFileDescriptors[collectionIndex] = csapApis.osManager( ).getHostSummaryItem(
+						"csapFileDescriptors" ) ;
+				networkConns[collectionIndex] = csapApis.osManager( ).getHostSummaryItem( "networkConns" ) ;
+				networkWait[collectionIndex] = csapApis.osManager( ).getHostSummaryItem( "networkWait" ) ;
+				networkTimeWait[collectionIndex] = csapApis.osManager( ).getHostSummaryItem( "networkTimeWait" ) ;
 
-				memoryAvailableLessCache[ collectionIndex ] = osManager.getMemoryCacheSize( ) ;
+				memoryAvailableLessCache[collectionIndex] = csapApis.osManager( ).getMemoryCacheSize( ) ;
 
-				memoryBufferCache[ collectionIndex ] = osManager.getMemoryAvailbleLessCache( ) ;
+				memoryBufferCache[collectionIndex] = csapApis.osManager( ).getMemoryAvailbleLessCache( ) ;
 
 			} catch ( Exception e ) {
 
 				logger.error( "Failed parsing memory json: \n"
-						+ osManager.getCachedMemoryMetrics( ),
+						+ csapApis.osManager( ).getCachedMemoryMetrics( ),
 						e ) ;
-				memoryAvailableLessCache[ collectionIndex ] = -1 ;
-				memoryBufferCache[ collectionIndex ] = -1 ;
-				openFiles[ collectionIndex ] = -1 ;
-				totalThreads[ collectionIndex ] = -1 ;
-				csapThreads[ collectionIndex ] = -1 ;
-				totalFileDescriptors[ collectionIndex ] = -1 ;
-				csapFileDescriptors[ collectionIndex ] = -1 ;
-				networkConns[ collectionIndex ] = -1 ;
-				networkWait[ collectionIndex ] = -1 ;
-				networkTimeWait[ collectionIndex ] = -1 ;
+				memoryAvailableLessCache[collectionIndex] = -1 ;
+				memoryBufferCache[collectionIndex] = -1 ;
+				openFiles[collectionIndex] = -1 ;
+				totalThreads[collectionIndex] = -1 ;
+				csapThreads[collectionIndex] = -1 ;
+				totalFileDescriptors[collectionIndex] = -1 ;
+				csapFileDescriptors[collectionIndex] = -1 ;
+				networkConns[collectionIndex] = -1 ;
+				networkWait[collectionIndex] = -1 ;
+				networkTimeWait[collectionIndex] = -1 ;
 
 			}
 
-			cpuTestTime[ collectionIndex ] = rg.nextInt( 6 ) + 1.1 ;
-			diskTestTime[ collectionIndex ] = rg.nextInt( DISK_TEST_IO_MAX ) + 1.1 ;
+			cpuTestTime[collectionIndex] = rg.nextInt( 6 ) + 1.1 ;
+			diskTestTime[collectionIndex] = rg.nextInt( DISK_TEST_IO_MAX ) + 1.1 ;
 
-			ioReads[ collectionIndex ] = rg.nextInt( DISK_TEST_IO_MAX ) ;
-			ioWrites[ collectionIndex ] = rg.nextInt( DISK_TEST_IO_MAX ) ;
+			ioReads[collectionIndex] = rg.nextInt( DISK_TEST_IO_MAX ) ;
+			ioWrites[collectionIndex] = rg.nextInt( DISK_TEST_IO_MAX ) ;
 
-			networkReceived[ collectionIndex ] = rg.nextInt( DISK_TEST_IO_MAX ) ;
-			networkTransmited[ collectionIndex ] = rg.nextInt( DISK_TEST_IO_MAX ) ;
+			networkReceived[collectionIndex] = rg.nextInt( DISK_TEST_IO_MAX ) ;
+			networkTransmited[collectionIndex] = rg.nextInt( DISK_TEST_IO_MAX ) ;
 
-			deviceUtilizationReport = osManager.device_utilization( ) ;
+			deviceUtilizationReport = csapApis.osManager( ).device_utilization( ) ;
 
 			for ( int deviceIndex = 0; deviceIndex < MAX_DEVICES && deviceIndex < deviceUtilizationReport
 					.size( ); deviceIndex++ ) {
 
-				deviceUtilization[ deviceIndex ][ collectionIndex ] = rg.nextInt( DISK_TEST_IO_MAX ) ;
+				deviceUtilization[deviceIndex][collectionIndex] = rg.nextInt( DISK_TEST_IO_MAX ) ;
 
 			}
 
-			sysCpuLevel[ collectionIndex ] = rg.nextInt( 100 ) ;
-			ioLevel[ collectionIndex ] = rg.nextInt( 100 ) ;
-			loadLevel[ collectionIndex ] = Double
+			sysCpuLevel[collectionIndex] = rg.nextInt( 100 ) ;
+			ioLevel[collectionIndex] = rg.nextInt( 100 ) ;
+			loadLevel[collectionIndex] = Double
 					.valueOf( decimalFormat2Places.format( rg.nextDouble( ) * 4 ) ) ;
-			collectionMs[ collectionIndex ] = currMs
+			collectionMs[collectionIndex] = currMs
 					- ( ( getInMemoryCacheSize( ) - collectionIndex ) * intervalSeconds * 1000 ) ;
 			collectionIndex++ ;
 
@@ -507,84 +509,84 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 
 			try {
 
-				collectionMs[ nextIndex ] = new Date( ).getTime( ) ;
+				collectionMs[nextIndex] = new Date( ).getTime( ) ;
 
-				usrCpuLevel[ nextIndex ] = Math.round( Float
-						.parseFloat( mpStatColumns[ 0 ] ) ) ;
-				sysCpuLevel[ nextIndex ] = Math.round( Float
-						.parseFloat( mpStatColumns[ 2 ] ) ) ;
-				ioLevel[ nextIndex ] = Math.round( Float
-						.parseFloat( mpStatColumns[ 3 ] ) ) ;
+				usrCpuLevel[nextIndex] = Math.round( Float
+						.parseFloat( mpStatColumns[0] ) ) ;
+				sysCpuLevel[nextIndex] = Math.round( Float
+						.parseFloat( mpStatColumns[2] ) ) ;
+				ioLevel[nextIndex] = Math.round( Float
+						.parseFloat( mpStatColumns[3] ) ) ;
 				// collectionMs[ nextIndex ] = System.currentTimeMillis() ;
 
-				openFiles[ nextIndex ] = osManager.getHostSummaryItem( "openFiles" ) ;
-				totalThreads[ nextIndex ] = osManager.getHostSummaryItem( "totalThreads" ) ;
-				csapThreads[ nextIndex ] = osManager.getHostSummaryItem( "csapThreads" ) ;
-				totalFileDescriptors[ nextIndex ] = osManager.getHostSummaryItem( "totalFileDescriptors" ) ;
-				csapFileDescriptors[ nextIndex ] = osManager.getHostSummaryItem( "csapFileDescriptors" ) ;
-				networkConns[ nextIndex ] = osManager.getHostSummaryItem( "networkConns" ) ;
-				networkWait[ nextIndex ] = osManager.getHostSummaryItem( "networkWait" ) ;
-				networkTimeWait[ nextIndex ] = osManager.getHostSummaryItem( "networkTimeWait" ) ;
+				openFiles[nextIndex] = csapApis.osManager( ).getHostSummaryItem( "openFiles" ) ;
+				totalThreads[nextIndex] = csapApis.osManager( ).getHostSummaryItem( "totalThreads" ) ;
+				csapThreads[nextIndex] = csapApis.osManager( ).getHostSummaryItem( "csapThreads" ) ;
+				totalFileDescriptors[nextIndex] = csapApis.osManager( ).getHostSummaryItem( "totalFileDescriptors" ) ;
+				csapFileDescriptors[nextIndex] = csapApis.osManager( ).getHostSummaryItem( "csapFileDescriptors" ) ;
+				networkConns[nextIndex] = csapApis.osManager( ).getHostSummaryItem( "networkConns" ) ;
+				networkWait[nextIndex] = csapApis.osManager( ).getHostSummaryItem( "networkWait" ) ;
+				networkTimeWait[nextIndex] = csapApis.osManager( ).getHostSummaryItem( "networkTimeWait" ) ;
 
-				diskTestTime[ nextIndex ] = Double.valueOf( decimalFormat2Places
-						.format( osManager.getInfraRunner( ).getLastDiskTimeInSeconds( ) ) ) ;
+				diskTestTime[nextIndex] = Double.valueOf( decimalFormat2Places
+						.format( csapApis.osManager( ).getInfraRunner( ).getLastDiskTimeInSeconds( ) ) ) ;
 
-				cpuTestTime[ nextIndex ] = Double.valueOf( decimalFormat2Places
-						.format( osManager.getInfraRunner( ).getLastCpuTimeInSeconds( ) ) ) ;
+				cpuTestTime[nextIndex] = Double.valueOf( decimalFormat2Places
+						.format( csapApis.osManager( ).getInfraRunner( ).getLastCpuTimeInSeconds( ) ) ) ;
 
 				buildIoStatDeltaReport( nextIndex ) ;
 
 				buildNetworkDeltaReport( nextIndex ) ;
 
-				deviceUtilizationReport = osManager.device_utilization( ) ;
+				deviceUtilizationReport = csapApis.osManager( ).device_utilization( ) ;
 
 				for ( int j = 0; j < MAX_DEVICES && j < deviceUtilizationReport.size( ); j++ ) {
 
-					deviceUtilization[ j ][ nextIndex ] = deviceUtilizationReport.get( j ).get( "percentCapacity" )
+					deviceUtilization[j][nextIndex] = deviceUtilizationReport.get( j ).get( "percentCapacity" )
 							.asInt(
 									-1 ) ;
 
 				}
 
 				// aggregate memory
-				memoryAvailableLessCache[ nextIndex ] = osManager.getMemoryAvailbleLessCache( ) ;
+				memoryAvailableLessCache[nextIndex] = csapApis.osManager( ).getMemoryAvailbleLessCache( ) ;
 
 				checkForLowMemoryEventGeneration( nextIndex ) ;
-				// + osManager.getMem().get("ram").get(5).asInt()
-				// + osManager.getMem().get("ram").get(3)
+				// + csapApis.osManager( ).getMem().get("ram").get(5).asInt()
+				// + csapApis.osManager( ).getMem().get("ram").get(3)
 				// .asInt();
 
-				memoryBufferCache[ nextIndex ] = osManager.getMemoryCacheSize( ) ;
+				memoryBufferCache[nextIndex] = csapApis.osManager( ).getMemoryCacheSize( ) ;
 
-				loadLevel[ nextIndex ] = Double.valueOf( decimalFormat2Places
+				loadLevel[nextIndex] = Double.valueOf( decimalFormat2Places
 						.format( osStats.getSystemLoadAverage( ) ) ) ;
 
 			} catch ( Exception e ) {
 
 				logger.error( "Failed parsing OS stats: {}",
 						CSAP.buildCsapStack( e ) ) ;
-				memoryAvailableLessCache[ nextIndex ] = -1 ;
-				memoryBufferCache[ nextIndex ] = -1 ;
-				openFiles[ nextIndex ] = -1 ;
-				totalThreads[ nextIndex ] = -1 ;
-				csapThreads[ nextIndex ] = -1 ;
-				totalFileDescriptors[ nextIndex ] = -1 ;
-				csapFileDescriptors[ nextIndex ] = -1 ;
-				networkConns[ nextIndex ] = -1 ;
-				networkWait[ nextIndex ] = -1 ;
-				networkTimeWait[ nextIndex ] = -1 ;
-				diskTestTime[ nextIndex ] = 0 ;
-				cpuTestTime[ nextIndex ] = 0 ;
+				memoryAvailableLessCache[nextIndex] = -1 ;
+				memoryBufferCache[nextIndex] = -1 ;
+				openFiles[nextIndex] = -1 ;
+				totalThreads[nextIndex] = -1 ;
+				csapThreads[nextIndex] = -1 ;
+				totalFileDescriptors[nextIndex] = -1 ;
+				csapFileDescriptors[nextIndex] = -1 ;
+				networkConns[nextIndex] = -1 ;
+				networkWait[nextIndex] = -1 ;
+				networkTimeWait[nextIndex] = -1 ;
+				diskTestTime[nextIndex] = 0 ;
+				cpuTestTime[nextIndex] = 0 ;
 
-				ioReads[ nextIndex ] = 0 ;
-				ioWrites[ nextIndex ] = 0 ;
+				ioReads[nextIndex] = 0 ;
+				ioWrites[nextIndex] = 0 ;
 
-				networkReceived[ nextIndex ] = 0 ;
-				networkTransmited[ nextIndex ] = 0 ;
+				networkReceived[nextIndex] = 0 ;
+				networkTransmited[nextIndex] = 0 ;
 
 				for ( int j = 0; j < MAX_DEVICES && j < deviceUtilizationReport.size( ); j++ ) {
 
-					deviceUtilization[ j ][ nextIndex ] = 0 ;
+					deviceUtilization[j][nextIndex] = 0 ;
 
 				}
 
@@ -613,7 +615,7 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 		int ioReadChange = 0 ;
 		int ioWriteChange = 0 ;
 
-		JsonNode latestDiskActivity = osManager.diskReport( ) ;
+		JsonNode latestDiskActivity = csapApis.osManager( ).diskReport( ) ;
 
 		if ( previousDiskActivity != null ) {
 
@@ -628,8 +630,8 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 		}
 
 		previousDiskActivity = latestDiskActivity ;
-		ioReads[ nextIndex ] = ioReadChange ;
-		ioWrites[ nextIndex ] = ioWriteChange ;
+		ioReads[nextIndex] = ioReadChange ;
+		ioWrites[nextIndex] = ioWriteChange ;
 
 	}
 
@@ -643,7 +645,7 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 		// DeltaReports for disk read and writes
 		double networkReadChange = 0 ;
 		double networkTransmitChange = 0 ;
-		JsonNode latestNetworkActivity = osManager.networkReceiveAndTransmit( ) ;
+		JsonNode latestNetworkActivity = csapApis.osManager( ).networkReceiveAndTransmit( ) ;
 
 		if ( previousNetworkActivity != null ) {
 
@@ -657,41 +659,41 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 		}
 
 		previousNetworkActivity = latestNetworkActivity ;
-		networkReceived[ nextIndex ] = CSAP.roundIt( networkReadChange, 2 ) ;
-		networkTransmited[ nextIndex ] = CSAP.roundIt( networkTransmitChange, 2 ) ;
+		networkReceived[nextIndex] = CSAP.roundIt( networkReadChange, 2 ) ;
+		networkTransmited[nextIndex] = CSAP.roundIt( networkTransmitChange, 2 ) ;
 
 	}
 
 	private void checkForLowMemoryEventGeneration ( int nextIndex ) {
 
 		// selectively enabled
-		if ( collectionIntervalSeconds == csapApplication
+		if ( collectionIntervalSeconds == csapApis.application( )
 				.rootProjectEnvSettings( )
 				.getPsDumpInterval( )
-				&& allowPsDebug < csapApplication
+				&& allowPsDebug < csapApis.application( )
 						.rootProjectEnvSettings( )
 						.getPsDumpCount( )
-				&& memoryAvailableLessCache[ nextIndex ] < csapApplication
+				&& memoryAvailableLessCache[nextIndex] < csapApis.application( )
 						.rootProjectEnvSettings( )
 						.getPsDumpLowMemoryInMb( ) ) {
 
 			// logger.warn("Low memory" + memLevel[nextIndex]);
 			allowPsDebug++ ;
 
-			String psOutput = osManager.performMemoryProcessList( false, false, true ) ;
+			String psOutput = csapApis.osManager( ).performMemoryProcessList( false, false, true ) ;
 
 			ObjectNode memoryWarning = jacksonMapper.createObjectNode( ) ;
-			memoryWarning.put( "currentFree", memoryAvailableLessCache[ nextIndex ] ) ;
-			memoryWarning.put( "configuredMinimum", csapApplication
+			memoryWarning.put( "currentFree", memoryAvailableLessCache[nextIndex] ) ;
+			memoryWarning.put( "configuredMinimum", csapApis.application( )
 					.rootProjectEnvSettings( )
 					.getPsDumpLowMemoryInMb( ) ) ;
 			memoryWarning.put( "csapText", psOutput ) ;
 
-			csapApplication.getEventClient( ).publishEvent(
+			csapApis.events( ).publishEvent(
 					CsapEvents.CSAP_SYSTEM_CATEGORY + "/memory/low",
-					memoryAvailableLessCache[ nextIndex ] + " Remaining", null, memoryWarning ) ;
+					memoryAvailableLessCache[nextIndex] + " Remaining", null, memoryWarning ) ;
 
-			logger.warn( "Low memory detected on VM, refer to events log: " + memoryAvailableLessCache[ nextIndex ]
+			logger.warn( "Low memory detected on VM, refer to events log: " + memoryAvailableLessCache[nextIndex]
 					+ " MB remaining." ) ;
 
 		}
@@ -718,13 +720,13 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 				vmCorrellationAttributes.put( "id", CsapApplication.COLLECTION_HOST + "_"
 						+ collectionIntervalSeconds ) ;
 				vmCorrellationAttributes.put( "source", VM_METRICS_EVENT + collectionIntervalSeconds ) ;
-				vmCorrellationAttributes.put( "hostName", csapApplication.getCsapHostShortname( ) ) ;
+				vmCorrellationAttributes.put( "hostName", csapApis.application( ).getCsapHostShortname( ) ) ;
 
 				// full upload. We could make call to event service to see if
 				// they match...for now we do on restarts
-				logger.info( "Uploading VM attributes, count: {}", iterationsBetweenUploads ) ;
+				logger.info( "Uploading host attributes, count: {}", iterationsBetweenUploads ) ;
 
-				csapApplication.getEventClient( ).publishEvent( VM_METRICS_EVENT + collectionIntervalSeconds
+				csapApis.events( ).publishEvent( VM_METRICS_EVENT + collectionIntervalSeconds
 						+ "/attributes", "Modified",
 						null,
 						latestAttributeReport ) ;
@@ -734,7 +736,7 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 			// Send normalized data
 			metricSample.set( "attributes", vmCorrellationAttributes ) ;
 
-			csapApplication.getEventClient( ).publishEvent( VM_METRICS_EVENT + collectionIntervalSeconds + "/data",
+			csapApis.events( ).publishEvent( VM_METRICS_EVENT + collectionIntervalSeconds + "/data",
 					"Upload", null,
 					metricSample ) ;
 
@@ -757,62 +759,62 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 	public String getUsrCpuLevel ( ) {
 
 		// logger.info("currIndex:" + lastAddedElementIndex) ;
-		return Integer.toString( usrCpuLevel[ getLastAddedElementIndex( ) ] ) ;
+		return Integer.toString( usrCpuLevel[getLastAddedElementIndex( )] ) ;
 
 	}
 
 	public String getSysCpuLevel ( ) {
 
 		// logger.info("currIndex:" + lastAddedElementIndex) ;
-		return Integer.toString( sysCpuLevel[ getLastAddedElementIndex( ) ] ) ;
+		return Integer.toString( sysCpuLevel[getLastAddedElementIndex( )] ) ;
 
 	}
 
 	public int latestNetworkConnections ( ) {
 
-		return networkConns[ getLastAddedElementIndex( ) ] ;
+		return networkConns[getLastAddedElementIndex( )] ;
 
 	}
 
 	public int latestNetworkWait ( ) {
 
-		return networkWait[ getLastAddedElementIndex( ) ] ;
+		return networkWait[getLastAddedElementIndex( )] ;
 
 	}
 
 	public int latestNetworkTimeWait ( ) {
 
-		return networkTimeWait[ getLastAddedElementIndex( ) ] ;
+		return networkTimeWait[getLastAddedElementIndex( )] ;
 
 	}
 
 	public double latestNetworkReceived ( ) {
 
-		return networkReceived[ getLastAddedElementIndex( ) ] ;
+		return networkReceived[getLastAddedElementIndex( )] ;
 
 	}
 
 	public double latestNetworkTransmitted ( ) {
 
-		return networkTransmited[ getLastAddedElementIndex( ) ] ;
+		return networkTransmited[getLastAddedElementIndex( )] ;
 
 	}
 
 	public int getLatestCpu ( ) {
 
-		return usrCpuLevel[ getLastAddedElementIndex( ) ] + sysCpuLevel[ getLastAddedElementIndex( ) ] ;
+		return usrCpuLevel[getLastAddedElementIndex( )] + sysCpuLevel[getLastAddedElementIndex( )] ;
 
 	}
 
 	public double getLatestLoad ( ) {
 
-		return loadLevel[ getLastAddedElementIndex( ) ] ;
+		return loadLevel[getLastAddedElementIndex( )] ;
 
 	}
 
 	public int getLatestIoWait ( ) {
 
-		return ioLevel[ getLastAddedElementIndex( ) ] ;
+		return ioLevel[getLastAddedElementIndex( )] ;
 
 	}
 
@@ -822,7 +824,7 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 
 		for ( int i = 0; i < collectionMs.length; i++ ) {
 
-			collectionMs[ i ] = 0 ;
+			collectionMs[i] = 0 ;
 
 		}
 
@@ -836,7 +838,7 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 												int skipFirstItems ,
 												String... customArgs ) {
 
-		var timer = csapApplication.metrics( ).startTimer( ) ;
+		var timer = csapApis.metrics( ).startTimer( ) ;
 
 		// logger.info("numSamples: " + numSamples + " skipFirstItems: " +
 		// skipFirstItems ) ;
@@ -919,14 +921,14 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 
 		for ( int j = 0; j < MAX_DEVICES && j < deviceUtilizationReport.size( ); j++ ) {
 
-			totalDeviceUtil[ j ] = 0 ;
+			totalDeviceUtil[j] = 0 ;
 
 		}
 
 		int numberOfSamples = 0 ;
 
-		while ( ( collectionMs[ i ] <= collectionMs[ getLastAddedElementIndex( ) ] )
-				&& ( collectionMs[ i ] != 0 )
+		while ( ( collectionMs[i] <= collectionMs[getLastAddedElementIndex( )] )
+				&& ( collectionMs[i] != 0 )
 				&& ( curSampleCount < requestedSampleSize ) ) {
 
 			// logger.info("Adding Element " + i + " collectionMs[i] " +
@@ -941,87 +943,87 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 
 				// long offset = collectionMs[i]-timeZoneMinutesFromGmt*60000 ;
 				numberOfSamples++ ;
-				timestamps.add( Long.toString( collectionMs[ i ] ) ) ;
+				timestamps.add( Long.toString( collectionMs[i] ) ) ;
 
-				usrArray.add( usrCpuLevel[ i ] ) ;
-				totalUsrCpu += usrCpuLevel[ i ] ;
+				usrArray.add( usrCpuLevel[i] ) ;
+				totalUsrCpu += usrCpuLevel[i] ;
 
-				sysArray.add( sysCpuLevel[ i ] ) ;
-				totalSysCpu += sysCpuLevel[ i ] ;
+				sysArray.add( sysCpuLevel[i] ) ;
+				totalSysCpu += sysCpuLevel[i] ;
 
 				// High CPU or load means we should look very closely
-				if ( ( usrCpuLevel[ i ] + sysCpuLevel[ i ] ) > 60 || loadLevel[ i ] > osStats
+				if ( ( usrCpuLevel[i] + sysCpuLevel[i] ) > 60 || loadLevel[i] > osStats
 						.getAvailableProcessors( ) ) {
 
 					alertsCount++ ;
 
 				}
 
-				memArray.add( memoryAvailableLessCache[ i ] ) ;
-				totalMemFree += memoryAvailableLessCache[ i ] ;
+				memArray.add( memoryAvailableLessCache[i] ) ;
+				totalMemFree += memoryAvailableLessCache[i] ;
 
-				bufArray.add( memoryBufferCache[ i ] ) ;
-				totalBufFree += memoryBufferCache[ i ] ;
+				bufArray.add( memoryBufferCache[i] ) ;
+				totalBufFree += memoryBufferCache[i] ;
 
-				ioArray.add( ioLevel[ i ] ) ;
-				totalIo += ioLevel[ i ] ;
+				ioArray.add( ioLevel[i] ) ;
+				totalIo += ioLevel[i] ;
 
-				loadArray.add( loadLevel[ i ] ) ;
-				totalLoad += loadLevel[ i ] ;
+				loadArray.add( loadLevel[i] ) ;
+				totalLoad += loadLevel[i] ;
 
-				if ( loadLevel[ i ] == -1 ) {
+				if ( loadLevel[i] == -1 ) {
 
 					totalLoad += 1 ;
 
 				}
 
-				openFilesArray.add( openFiles[ i ] ) ;
-				totalFiles += openFiles[ i ] ;
+				openFilesArray.add( openFiles[i] ) ;
+				totalFiles += openFiles[i] ;
 
-				totalThreadsArray.add( totalThreads[ i ] ) ;
-				threadsTotal += totalThreads[ i ] ;
+				totalThreadsArray.add( totalThreads[i] ) ;
+				threadsTotal += totalThreads[i] ;
 
-				csapThreadsArray.add( csapThreads[ i ] ) ;
-				csapThreadsTotal += csapThreads[ i ] ;
+				csapThreadsArray.add( csapThreads[i] ) ;
+				csapThreadsTotal += csapThreads[i] ;
 
-				totalFileDescriptorsArray.add( totalFileDescriptors[ i ] ) ;
-				fdTotal += totalFileDescriptors[ i ] ;
+				totalFileDescriptorsArray.add( totalFileDescriptors[i] ) ;
+				fdTotal += totalFileDescriptors[i] ;
 
-				csapFileDescriptorsArray.add( csapFileDescriptors[ i ] ) ;
-				csapFdTotal += csapFileDescriptors[ i ] ;
+				csapFileDescriptorsArray.add( csapFileDescriptors[i] ) ;
+				csapFdTotal += csapFileDescriptors[i] ;
 
-				networkConnsArray.add( networkConns[ i ] ) ;
-				socketTotal += networkConns[ i ] ;
+				networkConnsArray.add( networkConns[i] ) ;
+				socketTotal += networkConns[i] ;
 
-				networkWaitArray.add( networkWait[ i ] ) ;
-				socketWaitTotal += networkWait[ i ] ;
+				networkWaitArray.add( networkWait[i] ) ;
+				socketWaitTotal += networkWait[i] ;
 
-				networkTimeWaitArray.add( networkTimeWait[ i ] ) ;
-				socketTimeWaitTotal += networkTimeWait[ i ] ;
+				networkTimeWaitArray.add( networkTimeWait[i] ) ;
+				socketTimeWaitTotal += networkTimeWait[i] ;
 
-				diskTestArray.add( diskTestTime[ i ] ) ;
-				totalDiskTestTime += diskTestTime[ i ] ;
+				diskTestArray.add( diskTestTime[i] ) ;
+				totalDiskTestTime += diskTestTime[i] ;
 
-				cpuTestArray.add( cpuTestTime[ i ] ) ;
-				totalCpuTestTime += cpuTestTime[ i ] ;
+				cpuTestArray.add( cpuTestTime[i] ) ;
+				totalCpuTestTime += cpuTestTime[i] ;
 
-				ioReadArray.add( ioReads[ i ] ) ;
-				totalIoReads += ioReads[ i ] ;
+				ioReadArray.add( ioReads[i] ) ;
+				totalIoReads += ioReads[i] ;
 
-				ioWriteArray.add( ioWrites[ i ] ) ;
-				totalIoWrites += ioWrites[ i ] ;
+				ioWriteArray.add( ioWrites[i] ) ;
+				totalIoWrites += ioWrites[i] ;
 
-				networkReceivedArray.add( networkReceived[ i ] ) ;
-				totalNetworkReceived += networkReceived[ i ] ;
+				networkReceivedArray.add( networkReceived[i] ) ;
+				totalNetworkReceived += networkReceived[i] ;
 
-				networkTransmittedArray.add( networkTransmited[ i ] ) ;
-				totalNetworkTransmitted += networkTransmited[ i ] ;
+				networkTransmittedArray.add( networkTransmited[i] ) ;
+				totalNetworkTransmitted += networkTransmited[i] ;
 
 				for ( int j = 0; j < MAX_DEVICES && j < deviceUtilizationReport.size( ); j++ ) {
 
 					ArrayNode curArray = (ArrayNode) dataSection.get( getIoUtilGraphKey( j ) ) ;
-					curArray.add( deviceUtilization[ j ][ i ] ) ;
-					totalDeviceUtil[ j ] = totalDeviceUtil[ j ] + deviceUtilization[ j ][ i ] ;
+					curArray.add( deviceUtilization[j][i] ) ;
+					totalDeviceUtil[j] = totalDeviceUtil[j] + deviceUtilization[j][i] ;
 
 				}
 
@@ -1094,14 +1096,14 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 
 		for ( int j = 0; j < MAX_DEVICES && j < deviceUtilizationReport.size( ); j++ ) {
 
-			summaryReport.put( "total" + getIoUtilGraphKey( j ), totalDeviceUtil[ j ] ) ;
+			summaryReport.put( "total" + getIoUtilGraphKey( j ), totalDeviceUtil[j] ) ;
 
 		}
 
 		addSummary( summaryReport, isUpdateSummary ) ;
 		// }
 
-		csapApplication.metrics( ).stopTimer( timer, "collect.os-shared.build-report" ) ;
+		csapApis.metrics( ).stopTimer( timer, "collect.os-shared.build-report" ) ;
 
 		return rootNode ;
 
@@ -1154,8 +1156,8 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 
 	public int eventCount ( ) {
 
-		int count = getCsapApplication( ).getEventClient( ).getNumberPublished( ) - lastCount ;
-		lastCount = getCsapApplication( ).getEventClient( ).getNumberPublished( ) ;
+		int count = csapApis.events( ).getNumberPublished( ) - lastCount ;
+		lastCount = csapApis.events( ).getNumberPublished( ) ;
 		return count ;
 
 	}
@@ -1169,7 +1171,7 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 		var attributeReport = jacksonMapper.createObjectNode( ) ;
 
 		attributeReport.put( "id", CsapApplication.COLLECTION_HOST + "_" + collectionIntervalSeconds ) ;
-		attributeReport.put( "hostName", csapApplication.getCsapHostShortname( ) ) ;
+		attributeReport.put( "hostName", csapApis.application( ).getCsapHostShortname( ) ) ;
 		attributeReport.put( "metricName", "System Resource" ) ;
 		attributeReport.put( "timezone", TIME_ZONE_OFFSET ) ;
 		attributeReport.put( "description",
@@ -1211,7 +1213,7 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 
 		if ( deviceUtilizationReport == null ) {
 
-			deviceUtilizationReport = osManager.device_utilization( ) ;
+			deviceUtilizationReport = csapApis.osManager( ).device_utilization( ) ;
 
 		}
 

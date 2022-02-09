@@ -41,7 +41,7 @@ import java.util.stream.StreamSupport ;
 import org.apache.commons.io.FileUtils ;
 import org.apache.commons.io.FilenameUtils ;
 import org.csap.agent.model.ProjectLoader ;
-import org.csap.agent.project.loader.CsapApis ;
+import org.csap.agent.project.loader.Rest_Service_Tests ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
 import org.csap.helpers.CsapRestTemplateFactory ;
@@ -168,7 +168,7 @@ public class NonCsapTests {
 		logger.info( CsapApplication.testHeader( ) ) ;
 
 		var jobYamlFile = new File(
-				CsapApis.class.getResource(
+				Rest_Service_Tests.class.getResource(
 						"create-rni-job.yaml" )
 						.getPath( ) ) ;
 		var jobYamlContent = FileUtils.readFileToString( jobYamlFile ) ;
@@ -668,7 +668,7 @@ public class NonCsapTests {
 
 				} ) ;
 
-		logger.info( "fileNode: {}", CsapCore.jsonPrint( jsonMapper, fileNode ) ) ;
+		logger.info( "fileNode: {}", CsapConstants.jsonPrint( jsonMapper, fileNode ) ) ;
 
 		// logger.info( "Missing item: {}",
 		// jacksonMapper.createObjectNode().get( "missing" ).asText("") );
@@ -1063,7 +1063,7 @@ public class NonCsapTests {
 
 		if ( users.length == 3 ) {
 
-			descLine = users[ 1 ] ;
+			descLine = users[1] ;
 
 		}
 
@@ -1124,7 +1124,7 @@ public class NonCsapTests {
 			// (double-quote, backslash etc)
 			int[] esc = CharacterEscapes.standardAsciiEscapesForJSON( ) ;
 			// esc['/'] = CharacterEscapes.ESCAPE_STANDARD ;
-			esc[ '/' ] = CharacterEscapes.ESCAPE_CUSTOM ;
+			esc['/'] = CharacterEscapes.ESCAPE_CUSTOM ;
 			asciiEscapes = esc ;
 
 		}

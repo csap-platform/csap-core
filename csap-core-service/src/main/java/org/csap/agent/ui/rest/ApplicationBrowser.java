@@ -30,11 +30,11 @@ import org.apache.commons.lang3.StringUtils ;
 import org.commonmark.ext.gfm.tables.TablesExtension ;
 import org.commonmark.parser.Parser ;
 import org.commonmark.renderer.html.HtmlRenderer ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
-import org.csap.agent.CsapTemplate ;
-import org.csap.agent.container.DockerJson ;
-import org.csap.agent.container.kubernetes.KubernetesJson ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.CsapTemplates ;
+import org.csap.agent.container.C7 ;
+import org.csap.agent.container.kubernetes.K8 ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.linux.OsCommandRunner ;
 import org.csap.agent.model.Application ;
@@ -83,20 +83,23 @@ import com.fasterxml.jackson.databind.node.ArrayNode ;
 import com.fasterxml.jackson.databind.node.ObjectNode ;
 
 @RestController
-@RequestMapping ( CsapCoreService.APP_BROWSER_URL )
+@RequestMapping ( CsapConstants.APP_BROWSER_URL )
 public class ApplicationBrowser {
 
 	final Logger logger = LoggerFactory.getLogger( getClass( ) ) ;
 
-	Application application ;
+	CsapApis csapApis ;
 	ObjectMapper jsonMapper ;
 	CsapInformation csapInformation ;
 	CorePortals corePortals ;
 
-	public ApplicationBrowser ( Application application, ObjectMapper jsonMapper, CsapInformation csapInformation,
+	public ApplicationBrowser (
+			CsapApis csapApis,
+			ObjectMapper jsonMapper,
+			CsapInformation csapInformation,
 			CorePortals corePortals ) {
 
-		this.application = application ;
+		this.csapApis = csapApis ;
 		this.jsonMapper = jsonMapper ;
 		this.csapInformation = csapInformation ;
 		this.corePortals = corePortals ;
@@ -115,7 +118,7 @@ public class ApplicationBrowser {
 												HttpServletRequest request ,
 												HttpSession session ,
 												String layout ,
-												@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProjectName ,
+												@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProjectName ,
 												@CookieValue ( value = PREFERENCES_COOKIE , required = false ) String preferences ) {
 
 		ModelAndView mav = new ModelAndView( "app-browser/browser-main" ) ;
@@ -124,7 +127,7 @@ public class ApplicationBrowser {
 
 		if ( StringUtils.isEmpty( csapProjectName ) ) {
 
-			activeProject = application.getActiveProjectName( ) ;
+			activeProject = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
@@ -147,9 +150,9 @@ public class ApplicationBrowser {
 
 		}
 
-		mav.getModelMap( ).addAttribute( "agentProfile", application.isAgentProfile( ) ) ;
+		mav.getModelMap( ).addAttribute( "agentProfile", csapApis.application( ).isAgentProfile( ) ) ;
 
-		if ( application.isAgentProfile( ) ) {
+		if ( csapApis.application( ).isAgentProfile( ) ) {
 
 			// only used while browser is loading - then preferences.js sets based on
 			// criteria
@@ -161,7 +164,7 @@ public class ApplicationBrowser {
 
 			}
 
-			if ( application.isCrioInstalledAndActive( ) ) {
+			if ( csapApis.isCrioInstalledAndActive( ) ) {
 
 				mav.getModelMap( ).addAttribute( "crio", true ) ;
 
@@ -169,12 +172,12 @@ public class ApplicationBrowser {
 
 		}
 
-		var newSession = application.getActiveUsers( ).addTrail( "ApplicationBrowser" ) ;
+		var newSession = csapApis.application( ).getActiveUsers( ).addTrail( "ApplicationBrowser" ) ;
 
 		if ( newSession ) {
 
-			application.getEventClient( ).publishUserEvent(
-					CsapEvents.CSAP_UI_CATEGORY + CsapCoreService.APP_BROWSER_URL,
+			csapApis.events( ).publishUserEvent(
+					CsapEvents.CSAP_UI_CATEGORY + CsapConstants.APP_BROWSER_URL,
 					CsapUser.currentUsersID( ), "portal accessed", "" ) ;
 
 		}
@@ -186,24 +189,24 @@ public class ApplicationBrowser {
 		mav.getModelMap( ).addAttribute( "theme", theme ) ;
 		mav.getModelMap( ).addAttribute( "preferences", userPrefs ) ;
 
-		var deployedArtifact = application.getLocalAgent( ).getDefaultContainer( )
+		var deployedArtifact = csapApis.application( ).getLocalAgent( ).getDefaultContainer( )
 				.getDeployedArtifacts( ) ;
 
-		if ( application.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			if ( StringUtils.isEmpty( adminVersion ) ) {
 
 				// need to use version for host
-				var adminOnHost = application.findServiceByNameOnCurrentHost( CsapCore.ADMIN_NAME ) ;
+				var adminOnHost = csapApis.application( ).findServiceByNameOnCurrentHost( CsapConstants.ADMIN_NAME ) ;
 
 				if ( adminOnHost == null ) {
 
-					logger.warn( "Did not find {} on host: {}", CsapCore.ADMIN_NAME, application
-							.getServicesOnHost( ) ) ;
+					logger.warn( "Did not find {} on host: {}", CsapConstants.ADMIN_NAME,
+							csapApis.application( ).getServicesOnHost( ) ) ;
 
 				} else {
 
-					var adminReport = application.getHostStatusManager( ).serviceCollectionReport(
+					var adminReport = csapApis.application( ).getHostStatusManager( ).serviceCollectionReport(
 							List.of( adminOnHost.getHostName( ) ),
 							adminOnHost.getServiceName_Port( ),
 							null ) ;
@@ -247,25 +250,27 @@ public class ApplicationBrowser {
 
 		if ( request.getScheme( ).equals( "http" ) ) {
 
-			secureUrl = application.getCsapCoreService( ).getCsapWebServer( ).getSecureUrl( request ) ;
+			secureUrl = csapApis.application( ).getCsapCoreService( ).getCsapWebServer( ).getSecureUrl( request ) ;
 
 		}
 
 		mav.getModelMap( ).addAttribute( "secureUrl", secureUrl ) ;
 
 		mav.getModelMap( ).addAttribute( "activeProject", activeProject ) ;
-		mav.getModelMap( ).addAttribute( "applicationName", application.getName( ) ) ;
-		mav.getModelMap( ).addAttribute( "projectNames", application.getPackageNames( ) ) ;
+		mav.getModelMap( ).addAttribute( "applicationName", csapApis.application( ).getName( ) ) ;
+		mav.getModelMap( ).addAttribute( "projectNames", csapApis.application( ).getPackageNames( ) ) ;
 
-		mav.getModelMap( ).addAttribute( "analyticsUrl", application.rootProjectEnvSettings( ).getAnalyticsUiUrl( )
-				+ "?life=" + application.getCsapHostEnvironmentName( ) ) ;
+		mav.getModelMap( ).addAttribute( "analyticsUrl", csapApis.application( ).rootProjectEnvSettings( )
+				.getAnalyticsUiUrl( )
+				+ "?life=" + csapApis.application( ).getCsapHostEnvironmentName( ) ) ;
 
-		var sortedPackages = application.getRootProject( ).releasePackagesRootFirst( )
+		var sortedPackages = csapApis.application( ).getRootProject( ).releasePackagesRootFirst( )
 				.collect( Collectors.toList( ) ) ;
 
 		mav.getModelMap( ).addAttribute( "sortedPackages", sortedPackages ) ;
 
-		mav.getModelMap( ).addAttribute( "applicationId", application.rootProjectEnvSettings( ).getEventDataUser( ) ) ;
+		mav.getModelMap( ).addAttribute( "applicationId", csapApis.application( ).rootProjectEnvSettings( )
+				.getEventDataUser( ) ) ;
 
 		setCommonAttributes( mav.getModelMap( ), session ) ;
 
@@ -276,9 +281,9 @@ public class ApplicationBrowser {
 		var isSimulateLiveEnv = true ;
 		mav.getModelMap( ).addAttribute( "isSimulateLiveEnv", isSimulateLiveEnv ) ;
 
-		if ( isSimulateLiveEnv && application.isDesktopHost( ) ) {
+		if ( isSimulateLiveEnv && csapApis.application( ).isDesktopHost( ) ) {
 
-			if ( application.isAgentProfile( ) ) {
+			if ( csapApis.application( ).isAgentProfile( ) ) {
 
 				var testHost = (String) session.getAttribute( TESTHOST ) ;
 
@@ -296,7 +301,7 @@ public class ApplicationBrowser {
 
 				mav.getModelMap( ).addAttribute( "analyticsUrl",
 						"http://localhost.***REMOVED***:8021/csap-admin/os/performance"
-								+ "?life=" + application.getCsapHostEnvironmentName( ) ) ;
+								+ "?life=" + csapApis.application( ).getCsapHostEnvironmentName( ) ) ;
 
 			}
 
@@ -329,11 +334,11 @@ public class ApplicationBrowser {
 
 		if ( title == null ) {
 
-			title = application.getName( ) ;
+			title = csapApis.application( ).getName( ) ;
 
-			if ( application.isAgentProfile( ) ) {
+			if ( csapApis.application( ).isAgentProfile( ) ) {
 
-				title = application.getCsapHostName( ) + "-" + title ;
+				title = csapApis.application( ).getCsapHostName( ) + "-" + title ;
 
 			}
 
@@ -342,7 +347,7 @@ public class ApplicationBrowser {
 		modelMap.addAttribute( "pageTitle", title ) ;
 
 		modelMap.addAttribute( "toolsMap", csapInformation.buildToolsMap( ) ) ;
-		modelMap.addAttribute( "helpMap", application.getHelpMenuMap( ) ) ;
+		modelMap.addAttribute( "helpMap", csapApis.application( ).getHelpMenuMap( ) ) ;
 
 		try {
 
@@ -374,34 +379,37 @@ public class ApplicationBrowser {
 
 		}
 
-		modelMap.addAttribute( "environmentSettings", application.environmentSettings( ) ) ;
-		modelMap.addAttribute( "HISTORY_URL", application.environmentSettings( ).getHistoryUiUrl( ) ) ;
-		modelMap.addAttribute( "METRICS_URL", application.rootProjectEnvSettings( ).getEventMetricsUrl( ) ) ;
+		modelMap.addAttribute( "environmentSettings", csapApis.application( ).environmentSettings( ) ) ;
+		modelMap.addAttribute( "HISTORY_URL", csapApis.application( ).environmentSettings( ).getHistoryUiUrl( ) ) ;
+		modelMap.addAttribute( "METRICS_URL", csapApis.application( ).rootProjectEnvSettings( )
+				.getEventMetricsUrl( ) ) ;
 
 		// editor
-		modelMap.addAttribute( "applicationBranch", application.getSourceBranch( ) ) ;
-		modelMap.addAttribute( "addHostUrl", application.getRootProject( ).getInfraAddHost( ) ) ;
+		modelMap.addAttribute( "applicationBranch", csapApis.application( ).getSourceBranch( ) ) ;
+		modelMap.addAttribute( "addHostUrl", csapApis.application( ).getRootProject( ).getInfraAddHost( ) ) ;
 
 		// Host Dashboard
 		modelMap.addAttribute( "explorerUrl", OsExplorer.EXPLORER_URL ) ;
 
-		modelMap.addAttribute( "activityUrl", application.rootProjectEnvSettings( ).getHostActivityUrl( ) ) ;
-		modelMap.addAttribute( "healthUrl", application.rootProjectEnvSettings( ).getHostHealthUrl( ) ) ;
+		modelMap.addAttribute( "activityUrl", csapApis.application( ).rootProjectEnvSettings( )
+				.getHostActivityUrl( ) ) ;
+		modelMap.addAttribute( "healthUrl", csapApis.application( ).rootProjectEnvSettings( ).getHostHealthUrl( ) ) ;
 
-		modelMap.addAttribute( "vsphereEnabled", application.rootProjectEnvSettings( ).isVsphereConfigured( ) ) ;
+		modelMap.addAttribute( "vsphereEnabled", csapApis.application( ).rootProjectEnvSettings( )
+				.isVsphereConfigured( ) ) ;
 
-		if ( application.isDockerInstalledAndActive( ) ) {
+		if ( csapApis.isContainerProviderInstalledAndActive( ) ) {
 
-			modelMap.addAttribute( "containerUrl", application.getDockerIntegration( ).getSettings( ).getUrl( ) ) ;
-			modelMap.addAttribute( "dockerRepository", application.getDockerIntegration( ).getSettings( )
+			modelMap.addAttribute( "containerUrl", csapApis.containerIntegration( ).getSettings( ).getUrl( ) ) ;
+			modelMap.addAttribute( "dockerRepository", csapApis.containerIntegration( ).getSettings( )
 					.getTemplateRepository( ) ) ;
-			modelMap.addAttribute( "referenceImages", application.getDockerUiDefaultImages( ) ) ;
+			modelMap.addAttribute( "referenceImages", csapApis.application( ).getDockerUiDefaultImages( ) ) ;
 
 		}
 
-		if ( application.isKubernetesInstalledAndActive( ) ) {
+		if ( csapApis.isKubernetesInstalledAndActive( ) ) {
 
-			ServiceInstance kubernetesInstance = application.kubeletInstance( ) ;
+			ServiceInstance kubernetesInstance = csapApis.application( ).kubeletInstance( ) ;
 
 			var urls = kubernetesInstance.getUrl( ).split( "," ) ;
 			var apiUrl = urls[0] ;
@@ -413,8 +421,8 @@ public class ApplicationBrowser {
 			}
 
 			modelMap.addAttribute( "kubernetesApiUrl", apiUrl ) ;
-			modelMap.addAttribute( "kubernetesNamespaces", application.getKubernetesIntegration( ).nameSpaces( ) ) ;
-			modelMap.addAttribute( "kubernetesServiceTypes", KubernetesJson.k8TypeList( ) ) ;
+			modelMap.addAttribute( "kubernetesNamespaces", csapApis.kubernetes( ).nameSpaces( ) ) ;
+			modelMap.addAttribute( "kubernetesServiceTypes", K8.k8TypeList( ) ) ;
 
 		}
 
@@ -466,7 +474,7 @@ public class ApplicationBrowser {
 
 		}
 
-		File requestedFileOrFolder = application.getRequestedFile( fromFolder, serviceName_port, false ) ;
+		File requestedFileOrFolder = csapApis.application( ).getRequestedFile( fromFolder, serviceName_port, false ) ;
 		String defaultLocation = requestedFileOrFolder.getAbsolutePath( ) ;
 
 		if ( location != null ) {
@@ -499,25 +507,25 @@ public class ApplicationBrowser {
 		//
 		// CSAP command runner
 		//
-		configReport.put( "csapEnvFile", application.csapPlatformPath( "bin/csap-environment.sh" )
+		configReport.put( "csapEnvFile", csapApis.application( ).csapPlatformPath( "bin/csap-environment.sh" )
 				.getAbsolutePath( ) ) ;
 		configReport.put( "userid", CsapUser.currentUsersID( ) ) ;
-		configReport.put( "scriptBase", application.getScriptToken( ) ) ;
-		configReport.set( "clusterHostsMap", application.buildClusterByPackageInActiveLifecycleReport( ) ) ;
+		configReport.put( "scriptBase", csapApis.application( ).getScriptToken( ) ) ;
+		configReport.set( "clusterHostsMap", csapApis.application( ).buildClusterByPackageInActiveLifecycleReport( ) ) ;
 		configReport.set( "allHosts",
-				jsonMapper.convertValue( application.getAllHostsInAllPackagesInCurrentLifecycle( ),
+				jsonMapper.convertValue( csapApis.application( ).getAllHostsInAllPackagesInCurrentLifecycle( ),
 						ArrayNode.class ) ) ;
 		configReport.set( "allHosts",
-				jsonMapper.convertValue( application.getAllHostsInAllPackagesInCurrentLifecycle( ),
+				jsonMapper.convertValue( csapApis.application( ).getAllHostsInAllPackagesInCurrentLifecycle( ),
 						ArrayNode.class ) ) ;
 
-		var serviceOnHost = application.findServiceByNameOnCurrentHost( serviceName_port ) ;
+		var serviceOnHost = csapApis.application( ).findServiceByNameOnCurrentHost( serviceName_port ) ;
 
 		if ( serviceOnHost != null ) {
 
 			configReport.set( "serviceHosts",
 					jsonMapper.convertValue(
-							application.getActiveProject( ).findHostsForService( serviceOnHost.getName( ) ),
+							csapApis.application( ).getActiveProject( ).findHostsForService( serviceOnHost.getName( ) ),
 							ArrayNode.class ) ) ;
 
 		} else {
@@ -565,7 +573,7 @@ public class ApplicationBrowser {
 
 		ArrayNode templates = jsonMapper.createArrayNode( ) ;
 
-		File scriptsFolder = CsapTemplate.shell_scripts.getFile( ) ;
+		File scriptsFolder = CsapTemplates.shell_scripts.getFile( ) ;
 
 		if ( scriptsFolder.exists( ) && scriptsFolder.isDirectory( ) ) {
 
@@ -621,7 +629,7 @@ public class ApplicationBrowser {
 
 		}
 
-		File scriptFolder = new File( application.getDefinitionFolder( ), "scripts" ) ;
+		File scriptFolder = new File( csapApis.application( ).getDefinitionFolder( ), "scripts" ) ;
 
 		/*
 		 * @see #OsCommandRunner for wrapper invokation
@@ -650,7 +658,7 @@ public class ApplicationBrowser {
 	@GetMapping ( "/trend/definition" )
 	public JsonNode trendingDefinition ( ) {
 
-		return application.environmentSettings( ).getTrendingConfig( ) ;
+		return csapApis.application( ).environmentSettings( ).getTrendingConfig( ) ;
 
 	}
 
@@ -665,9 +673,9 @@ public class ApplicationBrowser {
 
 		var infoReport = jsonMapper.createObjectNode( ) ;
 
-		if ( application.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
-			var allHostReport = application.healthManager( ).build_host_report( project ) ;
+			var allHostReport = csapApis.application( ).healthManager( ).build_host_report( project ) ;
 
 			var kubernetesHostOptional = CSAP.jsonStream( allHostReport )
 					.filter( hostReport -> hostReport.findParent( "kubernetes" ) != null )
@@ -685,13 +693,13 @@ public class ApplicationBrowser {
 				urlVariables.set( "chart", chart ) ;
 				urlVariables.set( "showAll", Boolean.toString( showAll ) ) ;
 
-				String url = CsapCoreService.APP_BROWSER_URL + HELM_INFO_URL ;
+				String url = CsapConstants.APP_BROWSER_URL + HELM_INFO_URL ;
 				List<String> hosts = new ArrayList<>( ) ;
 				hosts.add( hostName ) ;
 
 				logger.debug( "hitting: {}, hosts: {}, urlVariables: {} ", url, hosts, urlVariables ) ;
 
-				JsonNode remoteCall = application.getOsManager( ).getServiceManager( ).remoteAgentsGet(
+				JsonNode remoteCall = csapApis.osManager( ).getServiceManager( ).remoteAgentsGet(
 						hosts,
 						url,
 						urlVariables ) ;
@@ -708,7 +716,7 @@ public class ApplicationBrowser {
 
 		}
 
-		var serviceInstance = application.findServiceByNameOnCurrentHost( chart ) ;
+		var serviceInstance = csapApis.application( ).findServiceByNameOnCurrentHost( chart ) ;
 
 		if ( serviceInstance != null
 				&& serviceInstance.isHelmConfigured( ) ) {
@@ -733,18 +741,18 @@ public class ApplicationBrowser {
 
 		logger.info( helmCommand ) ;
 
-		var cliResults = application.getOsManager( ).cli( helmCommand ) ;
+		var cliResults = csapApis.osManager( ).cli( helmCommand ) ;
 
 		if ( command.equals( "helm-readme" ) ) {
 
 			cliResults = convertMarkdownToHtml( cliResults, "helm" ) ;
 
-			infoReport.put( DockerJson.response_html.json( ), cliResults ) ;
+			infoReport.put( C7.response_html.val( ), cliResults ) ;
 			infoReport.put( "source", "helm show readme" ) ;
 
 		} else {
 
-			infoReport.put( DockerJson.response_yaml.json( ), cliResults ) ;
+			infoReport.put( C7.response_yaml.val( ), cliResults ) ;
 
 		}
 
@@ -758,7 +766,7 @@ public class ApplicationBrowser {
 		var parser = Parser.builder( ).extensions( extensions ).build( ) ;
 		var document = parser.parse( cliResults ) ;
 		var renderer = HtmlRenderer.builder( ).extensions( extensions ).build( ) ;
-		
+
 		cliResults = renderer.render( document ) ;
 
 		cliResults = cliResults.replaceAll( "a href", "a target=_blank href" ) ;
@@ -790,7 +798,7 @@ public class ApplicationBrowser {
 
 			var restTemplate = new RestTemplate( ) ;
 
-			var readme = application.findFirstServiceInstanceInLifecycle( name ).getReadme( ) ;
+			var readme = csapApis.application( ).findFirstServiceInstanceInLifecycle( name ).getReadme( ) ;
 
 			if ( readme.startsWith( "http" ) ) {
 
@@ -809,7 +817,7 @@ public class ApplicationBrowser {
 
 		}
 
-		readMeReport.put( DockerJson.response_html.json( ), convertMarkdownToHtml( readMeMarkDown, readMeSource ) ) ;
+		readMeReport.put( C7.response_html.val( ), convertMarkdownToHtml( readMeMarkDown, readMeSource ) ) ;
 		readMeReport.put( "source", readMeSource ) ;
 
 		return readMeReport ;
@@ -828,19 +836,19 @@ public class ApplicationBrowser {
 
 		if ( StringUtils.isEmpty( project ) ) {
 
-			project = application.getActiveProjectName( ) ;
+			project = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
-		if ( application.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			if ( blocking ) {
 
-				application.getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
+				csapApis.application( ).getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
 
 			}
 
-			var allHostReport = application.healthManager( ).build_host_report( project ) ;
+			var allHostReport = csapApis.application( ).healthManager( ).build_host_report( project ) ;
 
 			var kubernetesHostOptional = CSAP.jsonStream( allHostReport )
 					.filter( hostReport -> hostReport.findParent( "kubernetes" ) != null )
@@ -855,13 +863,13 @@ public class ApplicationBrowser {
 				urlVariables.set( "apiUser", CsapUser.currentUsersID( ) ) ;
 				urlVariables.set( "project", project ) ;
 
-				String url = CsapCoreService.APP_BROWSER_URL + REALTIME_REPORT_URL ;
+				String url = CsapConstants.APP_BROWSER_URL + REALTIME_REPORT_URL ;
 				List<String> hosts = new ArrayList<>( ) ;
 				hosts.add( hostName ) ;
 
 				logger.debug( "hitting: {}, hosts: {}, urlVariables: {} ", url, hosts, urlVariables ) ;
 
-				JsonNode remoteCall = application.getOsManager( ).getServiceManager( ).remoteAgentsGet(
+				JsonNode remoteCall = csapApis.osManager( ).getServiceManager( ).remoteAgentsGet(
 						hosts,
 						url,
 						urlVariables ) ;
@@ -877,9 +885,9 @@ public class ApplicationBrowser {
 
 		}
 
-		if ( application.isKubernetesInstalledAndActive( ) ) {
+		if ( csapApis.isKubernetesInstalledAndActive( ) ) {
 
-			kubernetesMetricsReport = application.getKubernetesIntegration( ).metricsBuilder( ).cachedKubeletReport( ) ;
+			kubernetesMetricsReport = csapApis.kubernetes( ).metricsBuilder( ).cachedKubeletReport( ) ;
 
 		}
 
@@ -900,19 +908,19 @@ public class ApplicationBrowser {
 
 		if ( StringUtils.isEmpty( project ) ) {
 
-			project = application.getActiveProjectName( ) ;
+			project = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
-		if ( application.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			if ( blocking ) {
 
-				application.getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
+				csapApis.application( ).getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
 
 			}
 
-			var allHostReport = application.healthManager( ).build_host_report( project ) ;
+			var allHostReport = csapApis.application( ).healthManager( ).build_host_report( project ) ;
 
 			var kubernetesHostOptional = CSAP.jsonStream( allHostReport )
 					.filter( hostReport -> hostReport.findParent( "kubernetes" ) != null )
@@ -926,13 +934,13 @@ public class ApplicationBrowser {
 
 				urlVariables.set( "apiUser", CsapUser.currentUsersID( ) ) ;
 
-				String url = CsapCoreService.APP_BROWSER_URL + VOLUME_REPORT_URL ;
+				String url = CsapConstants.APP_BROWSER_URL + VOLUME_REPORT_URL ;
 				List<String> hosts = new ArrayList<>( ) ;
 				hosts.add( hostName ) ;
 
 				logger.info( "hitting: {}, hosts: {}, urlVariables: {} ", url, hosts, urlVariables ) ;
 
-				JsonNode remoteCall = application.getOsManager( ).getServiceManager( ).remoteAgentsGet(
+				JsonNode remoteCall = csapApis.osManager( ).getServiceManager( ).remoteAgentsGet(
 						hosts,
 						url,
 						urlVariables ) ;
@@ -948,7 +956,7 @@ public class ApplicationBrowser {
 
 		}
 
-		if ( application.isKubernetesInstalledAndActive( ) ) {
+		if ( csapApis.isKubernetesInstalledAndActive( ) ) {
 
 			var userName = CsapUser.currentUsersID( ) ;
 
@@ -958,16 +966,16 @@ public class ApplicationBrowser {
 
 			}
 
-			if ( application.getActiveUsers( ).addTrail( userName, "browser-volume-report" ) ) {
+			if ( csapApis.application( ).getActiveUsers( ).addTrail( userName, "browser-volume-report" ) ) {
 
-				application.getEventClient( ).publishUserEvent(
+				csapApis.events( ).publishUserEvent(
 						CsapEvents.CSAP_OS_CATEGORY + "/accessed",
 						userName,
 						"browser-volume-report", "" ) ;
 
 			}
 
-			volumeReport = application.getKubernetesIntegration( ).reportsBuilder( ).volumeReport( ) ;
+			volumeReport = csapApis.kubernetes( ).reportsBuilder( ).volumeReport( ) ;
 
 		} else {
 
@@ -991,19 +999,19 @@ public class ApplicationBrowser {
 
 		if ( StringUtils.isEmpty( project ) ) {
 
-			project = application.getActiveProjectName( ) ;
+			project = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
-		if ( application.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			if ( blocking ) {
 
-				application.getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
+				csapApis.application( ).getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
 
 			}
 
-			var allHostReport = application.healthManager( ).build_host_report( project ) ;
+			var allHostReport = csapApis.application( ).healthManager( ).build_host_report( project ) ;
 
 			var kubernetesHostOptional = CSAP.jsonStream( allHostReport )
 					.filter( hostReport -> hostReport.findParent( "kubernetes" ) != null )
@@ -1017,13 +1025,13 @@ public class ApplicationBrowser {
 
 				urlVariables.set( "apiUser", CsapUser.currentUsersID( ) ) ;
 
-				String url = CsapCoreService.APP_BROWSER_URL + NODE_REPORT_URL ;
+				String url = CsapConstants.APP_BROWSER_URL + NODE_REPORT_URL ;
 				List<String> hosts = new ArrayList<>( ) ;
 				hosts.add( hostName ) ;
 
 				logger.info( "hitting: {}, hosts: {}, urlVariables: {} ", url, hosts, urlVariables ) ;
 
-				JsonNode remoteCall = application.getOsManager( ).getServiceManager( ).remoteAgentsGet(
+				JsonNode remoteCall = csapApis.osManager( ).getServiceManager( ).remoteAgentsGet(
 						hosts,
 						url,
 						urlVariables ) ;
@@ -1039,7 +1047,7 @@ public class ApplicationBrowser {
 
 		}
 
-		if ( application.isKubernetesInstalledAndActive( ) ) {
+		if ( csapApis.isKubernetesInstalledAndActive( ) ) {
 
 			var userName = CsapUser.currentUsersID( ) ;
 
@@ -1049,16 +1057,16 @@ public class ApplicationBrowser {
 
 			}
 
-			if ( application.getActiveUsers( ).addTrail( userName, "browser-pod-report" ) ) {
+			if ( csapApis.application( ).getActiveUsers( ).addTrail( userName, "browser-pod-report" ) ) {
 
-				application.getEventClient( ).publishUserEvent(
+				csapApis.events( ).publishUserEvent(
 						CsapEvents.CSAP_OS_CATEGORY + "/accessed",
 						userName,
 						"browser-node-report", "" ) ;
 
 			}
 
-			nodeReport = application.getKubernetesIntegration( ).reportsBuilder( ).nodeReports( ) ;
+			nodeReport = csapApis.kubernetes( ).reportsBuilder( ).nodeReports( ) ;
 
 		} else {
 
@@ -1087,19 +1095,19 @@ public class ApplicationBrowser {
 
 		if ( StringUtils.isEmpty( project ) ) {
 
-			project = application.getActiveProjectName( ) ;
+			project = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
-		if ( application.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			if ( blocking ) {
 
-				application.getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
+				csapApis.application( ).getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
 
 			}
 
-			var allHostReport = application.healthManager( ).build_host_report( project ) ;
+			var allHostReport = csapApis.application( ).healthManager( ).build_host_report( project ) ;
 
 			var kubernetesHostOptional = CSAP.jsonStream( allHostReport )
 					.filter( hostReport -> hostReport.findParent( "kubernetes" ) != null )
@@ -1119,13 +1127,13 @@ public class ApplicationBrowser {
 				urlVariables.set( "since", Integer.toString( since ) ) ;
 				urlVariables.set( "apiUser", CsapUser.currentUsersID( ) ) ;
 
-				String url = CsapCoreService.APP_BROWSER_URL + POD_LOG_URL ;
+				String url = CsapConstants.APP_BROWSER_URL + POD_LOG_URL ;
 				List<String> hosts = new ArrayList<>( ) ;
 				hosts.add( hostName ) ;
 
 				logger.debug( "hitting: {}, hosts: {}, urlVariables: {} ", url, hosts, urlVariables ) ;
 
-				JsonNode remoteCall = application.getOsManager( ).getServiceManager( ).remoteAgentsGet(
+				JsonNode remoteCall = csapApis.osManager( ).getServiceManager( ).remoteAgentsGet(
 						hosts,
 						url,
 						urlVariables ) ;
@@ -1141,7 +1149,7 @@ public class ApplicationBrowser {
 
 		}
 
-		if ( application.isKubernetesInstalledAndActive( ) ) {
+		if ( csapApis.isKubernetesInstalledAndActive( ) ) {
 
 			var userName = CsapUser.currentUsersID( ) ;
 
@@ -1151,16 +1159,16 @@ public class ApplicationBrowser {
 
 			}
 
-			if ( application.getActiveUsers( ).addTrail( userName, "browser-pod-report" ) ) {
+			if ( csapApis.application( ).getActiveUsers( ).addTrail( userName, "browser-pod-report" ) ) {
 
-				application.getEventClient( ).publishUserEvent(
+				csapApis.events( ).publishUserEvent(
 						CsapEvents.CSAP_OS_CATEGORY + "/accessed",
 						userName,
 						"browser-pod-report", "" ) ;
 
 			}
 
-			podLogReport = application.getKubernetesIntegration( ).podContainerTail(
+			podLogReport = csapApis.kubernetes( ).podContainerTail(
 					namespace, podName, containerName,
 					previousTerminated, numberOfLines, since ) ;
 
@@ -1187,19 +1195,19 @@ public class ApplicationBrowser {
 
 		if ( StringUtils.isEmpty( project ) ) {
 
-			project = application.getActiveProjectName( ) ;
+			project = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
-		if ( application.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			if ( blocking ) {
 
-				application.getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
+				csapApis.application( ).getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
 
 			}
 
-			var allHostReport = application.healthManager( ).build_host_report( project ) ;
+			var allHostReport = csapApis.application( ).healthManager( ).build_host_report( project ) ;
 
 			var kubernetesHostOptional = CSAP.jsonStream( allHostReport )
 					.filter( hostReport -> hostReport.findParent( "kubernetes" ) != null )
@@ -1215,13 +1223,13 @@ public class ApplicationBrowser {
 				urlVariables.set( "apiUser", CsapUser.currentUsersID( ) ) ;
 				urlVariables.set( "podName", podName ) ;
 
-				String url = CsapCoreService.APP_BROWSER_URL + POD_REPORT_URL ;
+				String url = CsapConstants.APP_BROWSER_URL + POD_REPORT_URL ;
 				List<String> hosts = new ArrayList<>( ) ;
 				hosts.add( hostName ) ;
 
 				logger.info( "hitting: {}, hosts: {}, urlVariables: {} ", url, hosts, urlVariables ) ;
 
-				JsonNode remoteCall = application.getOsManager( ).getServiceManager( ).remoteAgentsGet(
+				JsonNode remoteCall = csapApis.osManager( ).getServiceManager( ).remoteAgentsGet(
 						hosts,
 						url,
 						urlVariables ) ;
@@ -1237,7 +1245,7 @@ public class ApplicationBrowser {
 
 		}
 
-		if ( application.isKubernetesInstalledAndActive( ) ) {
+		if ( csapApis.isKubernetesInstalledAndActive( ) ) {
 
 			var userName = CsapUser.currentUsersID( ) ;
 
@@ -1247,9 +1255,9 @@ public class ApplicationBrowser {
 
 			}
 
-			if ( application.getActiveUsers( ).addTrail( userName, "browser-pod-report" ) ) {
+			if ( csapApis.application( ).getActiveUsers( ).addTrail( userName, "browser-pod-report" ) ) {
 
-				application.getEventClient( ).publishUserEvent(
+				csapApis.events( ).publishUserEvent(
 						CsapEvents.CSAP_OS_CATEGORY + "/accessed",
 						userName,
 						"browser-pod-report", "" ) ;
@@ -1258,7 +1266,7 @@ public class ApplicationBrowser {
 
 			if ( StringUtils.isEmpty( podName ) ) {
 
-				podNamespaceReport = application.getKubernetesIntegration( ).reportsBuilder( ).podSummaryReport(
+				podNamespaceReport = csapApis.kubernetes( ).reportsBuilder( ).podSummaryReport(
 						namespace, null ) ;
 
 			} else {
@@ -1266,7 +1274,7 @@ public class ApplicationBrowser {
 				//
 				// Used on kubernetes summary view to view pod container information
 				//
-				podNamespaceReport = application.getKubernetesIntegration( ).podContainerMetricsReport( namespace,
+				podNamespaceReport = csapApis.kubernetes( ).podContainerMetricsReport( namespace,
 						podName ) ;
 
 			}
@@ -1297,19 +1305,19 @@ public class ApplicationBrowser {
 
 		if ( StringUtils.isEmpty( project ) ) {
 
-			project = application.getActiveProjectName( ) ;
+			project = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
-		if ( blocking && application.isAdminProfile( ) ) {
+		if ( blocking && csapApis.application( ).isAdminProfile( ) ) {
 
-			application.getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
+			csapApis.application( ).getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
 
 		}
 
-		if ( application.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
-			var allHostReport = application.healthManager( ).build_host_report( project ) ;
+			var allHostReport = csapApis.application( ).healthManager( ).build_host_report( project ) ;
 
 			// logger.info( "hostReport: {}", CSAP.jsonPrint( allHostReport ) );
 
@@ -1327,13 +1335,13 @@ public class ApplicationBrowser {
 				urlVariables.set( "namespace", kubernetesNamespace ) ;
 				urlVariables.set( "apiUser", CsapUser.currentUsersID( ) ) ;
 
-				String url = CsapCoreService.APP_BROWSER_URL + POD_RESOURCE_URL ;
+				String url = CsapConstants.APP_BROWSER_URL + POD_RESOURCE_URL ;
 				List<String> hosts = new ArrayList<>( ) ;
 				hosts.add( hostName ) ;
 
 				logger.info( "hitting: {}, hosts: {}, urlVariables: {} ", url, hosts, urlVariables ) ;
 
-				JsonNode remoteCall = application.getOsManager( ).getServiceManager( ).remoteAgentsGet(
+				JsonNode remoteCall = csapApis.osManager( ).getServiceManager( ).remoteAgentsGet(
 						hosts,
 						url,
 						urlVariables ) ;
@@ -1349,17 +1357,17 @@ public class ApplicationBrowser {
 
 		}
 
-		if ( application.isKubernetesInstalledAndActive( ) ) {
+		if ( csapApis.isKubernetesInstalledAndActive( ) ) {
 
-			namespaceReport = application.getKubernetesIntegration( ).reportsBuilder( ).podNamespaceSummaryReport(
+			namespaceReport = csapApis.kubernetes( ).reportsBuilder( ).podNamespaceSummaryReport(
 					kubernetesNamespace ) ;
 
 		} else {
 
 			logger.debug( "Kubernetes not running service: {} current host: {}, mapping: {}",
-					application.getKubernetesIntegration( ).getDiscoveredServiceName( ),
-					application.getCsapHostName( ),
-					application.getActiveProject( ).getHostToServicesMap( ) ) ;
+					csapApis.kubernetes( ).getDiscoveredServiceName( ),
+					csapApis.application( ).getCsapHostName( ),
+					csapApis.application( ).getActiveProject( ).getHostToServicesMap( ) ) ;
 
 		}
 
@@ -1375,17 +1383,17 @@ public class ApplicationBrowser {
 
 		if ( StringUtils.isEmpty( project ) ) {
 
-			project = application.getActiveProjectName( ) ;
+			project = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
-		if ( blocking && application.isAdminProfile( ) ) {
+		if ( blocking && csapApis.application( ).isAdminProfile( ) ) {
 
-			application.getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
+			csapApis.application( ).getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
 
 		}
 
-		return application.healthManager( ).build_host_report( project ) ;
+		return csapApis.application( ).healthManager( ).build_host_report( project ) ;
 
 	}
 
@@ -1399,7 +1407,7 @@ public class ApplicationBrowser {
 		demoLauncher.put( "label", "CSAP Analytics" ) ;
 		demoLauncher.put( "description", "Launches CSAP Performance Portal" ) ;
 
-		launchers.addAll( application.environmentSettings( ).getQuickLaunchers( ) ) ;
+		launchers.addAll( csapApis.application( ).environmentSettings( ).getQuickLaunchers( ) ) ;
 
 		return launchers ;
 
@@ -1408,7 +1416,7 @@ public class ApplicationBrowser {
 	@GetMapping ( "/logParsers" )
 	public ArrayNode logParsers ( ) throws Exception {
 
-		return application.environmentSettings( ).getLogParsers( ) ;
+		return csapApis.application( ).environmentSettings( ).getLogParsers( ) ;
 
 	}
 
@@ -1423,8 +1431,9 @@ public class ApplicationBrowser {
 
 		if ( serviceName.equals( "csap-analytics" ) ) {
 
-			location = application.rootProjectEnvSettings( ).getAnalyticsUiUrl( ) + "?life=" + application
-					.getCsapHostEnvironmentName( ) ;
+			location = csapApis.application( ).rootProjectEnvSettings( ).getAnalyticsUiUrl( )
+					+ "?life="
+					+ csapApis.application( ).getCsapHostEnvironmentName( ) ;
 
 		}
 
@@ -1437,7 +1446,7 @@ public class ApplicationBrowser {
 
 			location = instances.at( "/0/launchUrl" ).asText( ) ;
 
-			if ( application.isDesktopHost( ) ) {
+			if ( csapApis.application( ).isDesktopHost( ) ) {
 
 				var optionalLaunch = CSAP.jsonStream( instances )
 						.filter( instance -> ! instance.path( "host" ).asText( ).equals( "localhost" ) )
@@ -1457,7 +1466,7 @@ public class ApplicationBrowser {
 
 		if ( location == null ) {
 
-			var firstInstance = application.findFirstServiceInstanceInLifecycle( serviceName ) ;
+			var firstInstance = csapApis.application( ).findFirstServiceInstanceInLifecycle( serviceName ) ;
 
 			if ( firstInstance == null ) {
 
@@ -1487,7 +1496,7 @@ public class ApplicationBrowser {
 					"default package", "releasePackageExample"
 			} , //
 			linkGetParams = {
-					"blocking=true", CsapCore.PROJECT_PARAMETER + "=projectName,blocking=true"
+					"blocking=true", CsapConstants.PROJECT_PARAMETER + "=projectName,blocking=true"
 			} , //
 			produces = {
 					MediaType.APPLICATION_JSON_VALUE
@@ -1495,18 +1504,18 @@ public class ApplicationBrowser {
 	public ObjectNode service_instances (
 											boolean blocking ,
 											String name ,
-											@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProject )
+											@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProject )
 		throws Exception {
 
-		if ( blocking && application.isAdminProfile( ) ) {
+		if ( blocking && csapApis.application( ).isAdminProfile( ) ) {
 
-			application.getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
+			csapApis.application( ).getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
 
 		}
 
 		if ( csapProject == null ) {
 
-			csapProject = application.getActiveProjectName( ) ;
+			csapProject = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
@@ -1514,7 +1523,7 @@ public class ApplicationBrowser {
 		servicesReport.put( "host-time",
 				LocalDateTime.now( ).format( DateTimeFormatter.ofPattern( "MMM.d-HH.mm.ss" ) ) ) ;
 
-		var serviceInstances = application.serviceInstancesByName(
+		var serviceInstances = csapApis.application( ).serviceInstancesByName(
 				csapProject,
 				name ) ;
 
@@ -1523,31 +1532,31 @@ public class ApplicationBrowser {
 
 			// handle unregistered services
 
-			if ( application.isAdminProfile( ) ) {
+			if ( csapApis.application( ).isAdminProfile( ) ) {
 
-				var hostsInProject = application
+				var hostsInProject = csapApis.application( )
 						.getProject( csapProject )
 						.getHostsInActiveLifecycleStream( )
 						.collect( Collectors.toList( ) ) ;
 
 				logger.debug( "csapProject: {} hostsInProject: {}", csapProject, hostsInProject ) ;
 
-				serviceInstances = application
+				serviceInstances = csapApis.application( )
 						.getProject( csapProject )
 						.getHostsInActiveLifecycleStream( )
-						.map( application.getHostStatusManager( )::findUnregisteredServices )
+						.map( csapApis.application( ).getHostStatusManager( )::findUnregisteredServices )
 						.flatMap( List::stream )
 						.collect( Collectors.toList( ) ) ;
 
 			} else {
 
-				var unregisteredContainers = application.getOsManager( ).findUnregisteredContainerNames( ) ;
+				var unregisteredContainers = csapApis.osManager( ).findUnregisteredContainerNames( ) ;
 
 				serviceInstances = unregisteredContainers.stream( )
 						.map( serviceName -> {
 
 							return ServiceInstance.buildUnregistered(
-									application.getCsapHostName( ),
+									csapApis.application( ).getCsapHostName( ),
 									serviceName ) ;
 
 						} )
@@ -1587,14 +1596,15 @@ public class ApplicationBrowser {
 			servicesReport.put( "readme", firstInstance.isReadmeConfigured( ) ) ;
 			servicesReport.put( "javaCollection", firstInstance.isJavaCollectionEnabled( ) ) ;
 
-			var alertReport = application.healthManager( ).buildServiceAlertReport( csapProject, name ) ;
+			var alertReport = csapApis.application( ).healthManager( ).buildServiceAlertReport( csapProject, name ) ;
 			servicesReport.set( "alertReport", alertReport ) ;
 
 			servicesReport.set( "performanceConfiguration", firstInstance.getPerformanceConfiguration( ) ) ;
 			servicesReport.set( "javaLabels", JmxCommonEnum.graphLabels( ) ) ;
 			servicesReport.set( "jobs", firstInstance.getJobsDefinition( ) ) ;
 			servicesReport.set( "serviceLimits",
-					ServiceAlertsEnum.getAdminUiLimits( firstInstance, application.rootProjectEnvSettings( ) ) ) ;
+					ServiceAlertsEnum.getAdminUiLimits( firstInstance, csapApis.application( )
+							.rootProjectEnvSettings( ) ) ) ;
 			servicesReport.put( "parameters", firstInstance.getParameters( ) ) ;
 			servicesReport.set( "dockerSettings", firstInstance.getDockerSettings( ) ) ;
 
@@ -1617,14 +1627,15 @@ public class ApplicationBrowser {
 
 			for ( var serviceInstance : serviceInstances ) {
 
-				if ( application.isAgentProfile( )
-						&& ! serviceInstance.getHostName( ).equals( application.getCsapHostName( ) ) ) {
+				if ( csapApis.application( ).isAgentProfile( )
+						&& ! serviceInstance.getHostName( ).equals( csapApis.application( ).getCsapHostName( ) ) ) {
 
 					continue ; // only show current host service instances
 
 				}
 
-				var serviceContainers = application.healthManager( ).buildServiceRuntimes( serviceInstance ) ;
+				var serviceContainers = csapApis.application( ).healthManager( ).buildServiceRuntimes(
+						serviceInstance ) ;
 				allServiceContainers.addAll( serviceContainers ) ;
 				logger.debug( "allServiceContainers: {}, serviceContainers: {}", allServiceContainers.size( ),
 						serviceContainers.size( ) ) ;
@@ -1658,7 +1669,7 @@ public class ApplicationBrowser {
 
 		ObjectNode healthSettings = jsonMapper.createObjectNode( ) ;
 
-		AlertSettings alertSettings = application.getCsapCoreService( ).getAlerts( ) ;
+		AlertSettings alertSettings = csapApis.application( ).getCsapCoreService( ).getAlerts( ) ;
 		HashMap<String, String> settings = new HashMap<>( ) ;
 		settings.put( "Health Report Interval", alertSettings.getReport( ).getIntervalSeconds( ) + " seconds" ) ;
 		settings.put( "Maximum items to store", alertSettings.getRememberCount( ) + "" ) ;
@@ -1667,7 +1678,8 @@ public class ApplicationBrowser {
 
 		healthSettings.set( "settings", jsonMapper.convertValue( settings, ObjectNode.class ) ) ;
 
-		Map<String, Map<String, String>> healthUrlsByService = application.healthManager( ).buildHealthUrls( ) ;
+		Map<String, Map<String, String>> healthUrlsByService = csapApis.application( ).healthManager( )
+				.buildHealthUrls( ) ;
 
 		healthSettings.set( "healthUrlsByServiceByInstance", jsonMapper.convertValue( healthUrlsByService,
 				ObjectNode.class ) ) ;
@@ -1683,14 +1695,14 @@ public class ApplicationBrowser {
 					"default package", "releasePackageExample"
 			} , //
 			linkGetParams = {
-					"blocking=true", CsapCore.PROJECT_PARAMETER + "=projectName,blocking=true"
+					"blocking=true", CsapConstants.PROJECT_PARAMETER + "=projectName,blocking=true"
 			} , //
 			produces = {
 					MediaType.APPLICATION_JSON_VALUE
 			} )
 	public ObjectNode service_summary (
 										boolean blocking ,
-										@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProject ,
+										@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProject ,
 										String cluster ,
 										HttpSession session )
 		throws Exception {
@@ -1702,13 +1714,13 @@ public class ApplicationBrowser {
 
 		if ( StringUtils.isEmpty( csapProject ) ) {
 
-			csapProject = application.getActiveProjectName( ) ;
+			csapProject = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
-		Project requestedProject = application.getProject( csapProject ) ;
+		Project requestedProject = csapApis.application( ).getProject( csapProject ) ;
 
-		var healthReport = application.healthManager( ).build_health_report(
+		var healthReport = csapApis.application( ).healthManager( ).build_health_report(
 				ServiceAlertsEnum.ALERT_LEVEL, true,
 				requestedProject ) ;
 
@@ -1728,11 +1740,12 @@ public class ApplicationBrowser {
 				} ) ;
 
 		// legacy serviceRequest support
-		var legacyFilter = application.getCsapHostEnvironmentName( ) ;
+		var legacyFilter = csapApis.application( ).getCsapHostEnvironmentName( ) ;
 
 		if ( StringUtils.isNotEmpty( cluster ) ) {
 
-			legacyFilter = application.getCsapHostEnvironmentName( ) + ProjectLoader.ENVIRONMENT_CLUSTER_DELIMITER
+			legacyFilter = csapApis.application( ).getCsapHostEnvironmentName( )
+					+ ProjectLoader.ENVIRONMENT_CLUSTER_DELIMITER
 					+ cluster ;
 
 		}
@@ -1761,35 +1774,35 @@ public class ApplicationBrowser {
 		var serviceTypeMap = new TreeMap<String, String>( ) ;
 		var serviceRuntimeMap = new TreeMap<String, String>( ) ;
 
-		if ( application.isAgentProfile( ) ) {
+		if ( csapApis.application( ).isAgentProfile( ) ) {
 
-			application.getOsManager( ).checkForProcessStatusUpdate( ) ;
+			csapApis.osManager( ).checkForProcessStatusUpdate( ) ;
 
 			ObjectNode hostMapNode = servicesReport.putObject( HostKeys.host_status.json( ) ) ;
 
-			application.healthManager( ).agent( ).service_summary(
+			csapApis.application( ).healthManager( ).agent( ).service_summary(
 					servicesReport, blocking, legacyFilter, activeServicesReport,
 					serviceTotalCountMap,
 					serviceTypeMap, serviceRuntimeMap,
 					hostMapNode ) ;
 
 			servicesReport.set( "users",
-					application.getActiveUsers( ).updateUserAccessAndReturnAllActive(
+					csapApis.application( ).getActiveUsers( ).updateUserAccessAndReturnAllActive(
 							securitySettings.getRoles( ).getUserIdFromContext( ),
 							true ) ) ;
 
-			servicesReport.put( "lastOp", application.getLastOpMessage( ) ) ;
+			servicesReport.put( "lastOp", csapApis.application( ).getLastOpMessage( ) ) ;
 
 		} else {
 
-			application.healthManager( ).admin( ).service_summary(
+			csapApis.application( ).healthManager( ).admin( ).service_summary(
 					servicesReport, blocking,
 					csapProject, legacyFilter,
 					environmentHosts, activeServicesReport, serviceTotalCountMap,
 					serviceTypeMap, serviceRuntimeMap,
 					null ) ;
 
-			application.getActiveUsers( ).updateUserAccessAndReturnAllActive(
+			csapApis.application( ).getActiveUsers( ).updateUserAccessAndReturnAllActive(
 					securitySettings.getRoles( ).getUserIdFromContext( ),
 					true ) ;
 
@@ -1803,7 +1816,7 @@ public class ApplicationBrowser {
 		serviceTotalCountMap.keySet( ).stream( )
 				.forEach( serviceName -> {
 
-					var serviceInstance = application.findFirstServiceInstanceInLifecycle( serviceName ) ;
+					var serviceInstance = csapApis.application( ).findFirstServiceInstanceInLifecycle( serviceName ) ;
 
 					if ( serviceInstance != null ) {
 
@@ -1838,7 +1851,7 @@ public class ApplicationBrowser {
 
 		if ( StringUtils.isEmpty( project ) ) {
 
-			project = application.getActiveProjectName( ) ;
+			project = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
@@ -1850,25 +1863,25 @@ public class ApplicationBrowser {
 		// ArrayList<String> lifeCycleHostList = csapApp
 		// .getLifeCycleToHostMap().get(clusterFilter);
 
-		Project requestedProject = application.getProject( project ) ;
+		Project requestedProject = csapApis.application( ).getProject( project ) ;
 
-		if ( blocking && application.isAdminProfile( ) ) {
+		if ( blocking && csapApis.application( ).isAdminProfile( ) ) {
 
-			application.getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
+			csapApis.application( ).getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
 
 		}
 
-		var statusReport = application.healthManager( ).build_host_summary_report( project ) ;
+		var statusReport = csapApis.application( ).healthManager( ).build_host_summary_report( project ) ;
 
 		var includeKubernetesCheck = false ;
 
-		if ( application.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			includeKubernetesCheck = true ; // detects k8s crashed processes
 
 		}
 
-		var healthReport = application.healthManager( ).build_health_report(
+		var healthReport = csapApis.application( ).healthManager( ).build_health_report(
 				ServiceAlertsEnum.ALERT_LEVEL, includeKubernetesCheck,
 				requestedProject ) ;
 
@@ -1887,13 +1900,13 @@ public class ApplicationBrowser {
 
 				} ) ;
 
-		if ( application.isAgentProfile( ) ) {
+		if ( csapApis.application( ).isAgentProfile( ) ) {
 
 			try {
 
-				application.healthManager( ).addCpuMetrics( statusReport ) ;
-				var interval = application.metricManager( ).firstHostCollectionInterval( ) ;
-				var servicesOnHost = application.metricManager( ).getOsProcessCollector( interval )
+				csapApis.application( ).healthManager( ).addCpuMetrics( statusReport ) ;
+				var interval = csapApis.application( ).metricManager( ).firstHostCollectionInterval( ) ;
+				var servicesOnHost = csapApis.application( ).metricManager( ).getOsProcessCollector( interval )
 						.buildServicesAvailableReport( ) ;
 				// statusReport.set( "serviceNames", servicesOnHost ) ;
 
@@ -1906,7 +1919,8 @@ public class ApplicationBrowser {
 								serviceOsCollectId -> serviceOsCollectId,
 								serviceOsCollectId -> {
 
-									var service = application.flexFindFirstInstanceCurrentHost( serviceOsCollectId ) ;
+									var service = csapApis.application( ).flexFindFirstInstanceCurrentHost(
+											serviceOsCollectId ) ;
 
 									if ( service != null ) {
 
@@ -1921,10 +1935,10 @@ public class ApplicationBrowser {
 								( ) -> new TreeMap<String, String>( String.CASE_INSENSITIVE_ORDER ) ) ) ;
 
 				statusReport.set( "serviceIdMapping", jsonMapper.convertValue( serviceIdMapping, ObjectNode.class ) ) ;
-				// application.flexFindFirstInstance( svcName_port_or_name ) ;
+				// csapApis.application().flexFindFirstInstance( svcName_port_or_name ) ;
 
 				statusReport.set( "servicesWithHealth",
-						jsonMapper.convertValue( application.healthManager( ).getHealthServiceIds( ),
+						jsonMapper.convertValue( csapApis.application( ).healthManager( ).getHealthServiceIds( ),
 								ArrayNode.class ) ) ;
 
 			} catch ( Exception e ) {
@@ -1936,27 +1950,27 @@ public class ApplicationBrowser {
 		}
 
 		statusReport.set( "users",
-				application.getActiveUsers( ).updateUserAccessAndReturnAllActive(
+				csapApis.application( ).getActiveUsers( ).updateUserAccessAndReturnAllActive(
 						securitySettings.getRoles( ).getUserIdFromContext( ),
 						true ) ) ;
 
-		statusReport.put( "kubernetes-master", requestedProject.getKubernetesMasterHost( application
-				.getCsapHostEnvironmentName( ) ) ) ;
+		statusReport.put( "kubernetes-master", requestedProject.getKubernetesMasterHost(
+				csapApis.application( ).getCsapHostEnvironmentName( ) ) ) ;
 
 		statusReport.put( "kubernetes-service",
 				requestedProject.getKubernetesServiceName(
-						application.getCsapHostEnvironmentName( ) ) ) ;
+						csapApis.application( ).getCsapHostEnvironmentName( ) ) ) ;
 
-		var containerService = "docker" ;
+		var containerService = C7.dockerService.val( ) ;
 
-		if ( application.findFirstServiceInstanceInLifecycle( "podman-system-service" ) != null ) {
+		if ( csapApis.application( ).findFirstServiceInstanceInLifecycle( "podman-system-service" ) != null ) {
 
 			containerService = "podman-system-service" ;
 
 		}
 
-		if ( application.findFirstServiceInstanceInLifecycle( containerService ) == null
-				&& application.findFirstServiceInstanceInLifecycle( "docker-monitor" ) != null ) {
+		if ( csapApis.application( ).findFirstServiceInstanceInLifecycle( containerService ) == null
+				&& csapApis.application( ).findFirstServiceInstanceInLifecycle( "docker-monitor" ) != null ) {
 
 			containerService = "docker-monitor" ;
 
@@ -1976,7 +1990,7 @@ public class ApplicationBrowser {
 
 	@GetMapping ( CSAP_EVENT_REPORT_URL )
 	public JsonNode csapEvents (
-									@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProject ,
+									@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProject ,
 									@RequestParam ( defaultValue = "100" ) int count ,
 									@RequestParam ( defaultValue = CsapEvents.CSAP_UI_CATEGORY
 											+ "/*" ) String category ,
@@ -1987,13 +2001,13 @@ public class ApplicationBrowser {
 
 		if ( StringUtils.isEmpty( csapProject ) ) {
 
-			csapProject = application.getActiveProjectName( ) ;
+			csapProject = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
 		var projectParam = ",project=" + csapProject ;
 
-		if ( csapProject.equals( CsapCore.ALL_PACKAGES ) ) {
+		if ( csapProject.equals( CsapConstants.ALL_PACKAGES ) ) {
 
 			projectParam = "" ;
 
@@ -2017,7 +2031,7 @@ public class ApplicationBrowser {
 
 		ObjectNode eventReport = jsonMapper.createObjectNode( ) ;
 
-		var projectSettings = application.rootProjectEnvSettings( ) ;
+		var projectSettings = csapApis.application( ).rootProjectEnvSettings( ) ;
 
 		if ( count > 2000 ) {
 
@@ -2027,7 +2041,7 @@ public class ApplicationBrowser {
 
 		var filteredEvents = eventReport.putArray( "events" ) ;
 
-		if ( ! application.rootProjectEnvSettings( ).isEventPublishEnabled( ) ) {
+		if ( ! csapApis.application( ).rootProjectEnvSettings( ).isEventPublishEnabled( ) ) {
 
 			logger.info( "Stubbing out data for trends - add csap events services" ) ;
 			eventReport.put( "count", "disabled" ) ;
@@ -2043,7 +2057,7 @@ public class ApplicationBrowser {
 
 			var appId = projectSettings.getEventDataUser( ) ;
 
-			if ( application.isRunningOnDesktop( ) ) {
+			if ( csapApis.application( ).isRunningOnDesktop( ) ) {
 
 				appId = "SensusCsap" ;
 
@@ -2051,7 +2065,7 @@ public class ApplicationBrowser {
 
 			var searchTextParam = "appId=" + appId
 					+ projectParam
-					+ ",lifecycle=" + application.getCsapHostEnvironmentName( )
+					+ ",lifecycle=" + csapApis.application( ).getCsapHostEnvironmentName( )
 					+ ",simpleSearchText=" + category
 					+ ",isDataRequired=false"
 					+ fromParam
@@ -2137,12 +2151,12 @@ public class ApplicationBrowser {
 
 	@GetMapping ( KUBERNETES_EVENT_REPORT_URL )
 	public JsonNode kubernetesEvents (
-										@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false ) String csapProject ,
+										@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false ) String csapProject ,
 										@RequestParam ( defaultValue = "100" ) int count ) {
 
 		if ( StringUtils.isEmpty( csapProject ) ) {
 
-			csapProject = application.getActiveProjectName( ) ;
+			csapProject = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
@@ -2156,12 +2170,13 @@ public class ApplicationBrowser {
 
 		var filteredEvents = eventReport.putArray( "events" ) ;
 
-		if ( application.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 			// if ( blocking ) {
-			// application.getHostStatusManager().refreshAndWaitForComplete( null ) ;
+			// csapApis.application().getHostStatusManager().refreshAndWaitForComplete( null
+			// ) ;
 			// }
 
-			var allHostReport = application.healthManager( ).build_host_report( csapProject ) ;
+			var allHostReport = csapApis.application( ).healthManager( ).build_host_report( csapProject ) ;
 
 			var kubernetesHostOptional = CSAP.jsonStream( allHostReport )
 					.filter( hostReport -> hostReport.findParent( "kubernetes" ) != null )
@@ -2176,13 +2191,13 @@ public class ApplicationBrowser {
 				urlVariables.set( "apiUser", CsapUser.currentUsersID( ) ) ;
 				urlVariables.set( "count", Integer.toString( count ) ) ;
 
-				String url = CsapCoreService.APP_BROWSER_URL + KUBERNETES_EVENT_REPORT_URL ;
+				String url = CsapConstants.APP_BROWSER_URL + KUBERNETES_EVENT_REPORT_URL ;
 				List<String> hosts = new ArrayList<>( ) ;
 				hosts.add( hostName ) ;
 				eventReport.put( "source", url ) ;
 				logger.debug( "hitting: {}, hosts: {}, urlVariables: {} ", url, hosts, urlVariables ) ;
 
-				JsonNode remoteCall = application.getOsManager( ).getServiceManager( ).remoteAgentsGet(
+				JsonNode remoteCall = csapApis.osManager( ).getServiceManager( ).remoteAgentsGet(
 						hosts,
 						url,
 						urlVariables ) ;
@@ -2198,7 +2213,7 @@ public class ApplicationBrowser {
 
 		}
 
-		if ( application.isKubernetesInstalledAndActive( ) ) {
+		if ( csapApis.isKubernetesInstalledAndActive( ) ) {
 
 			buildKubernetesEvents( filteredEvents, count ) ;
 
@@ -2210,7 +2225,7 @@ public class ApplicationBrowser {
 
 	private void buildKubernetesEvents ( ArrayNode filteredEvents , int maxEvents ) {
 
-		var eventReport = application.getKubernetesIntegration( ).reportsBuilder( ).eventReport( null, maxEvents ) ;
+		var eventReport = csapApis.kubernetes( ).reportsBuilder( ).eventReport( null, maxEvents ) ;
 		String today = LocalDateTime.now( ).format( DateTimeFormatter.ofPattern( "MM/dd" ) ) ;
 		logger.debug( "today: {}", today ) ;
 		// String this_year = LocalDateTime.now().format( DateTimeFormatter.ofPattern(
@@ -2270,7 +2285,7 @@ public class ApplicationBrowser {
 						event.set( "namespace", rawEvent.path( "namespace" ) ) ;
 						event.set( "kind", rawEvent.path( "kind" ) ) ;
 						event.set( "type", rawEvent.path( "type" ) ) ;
-						event.set( KubernetesJson.apiPath.json( ), rawEvent.path( KubernetesJson.apiPath.json( ) ) ) ;
+						event.set( K8.apiPath.val( ), rawEvent.path( K8.apiPath.val( ) ) ) ;
 
 					} ) ;
 			;
@@ -2282,7 +2297,7 @@ public class ApplicationBrowser {
 	@GetMapping ( value = "/event" )
 	public ObjectNode get_event ( String id ) {
 
-		var projectSettings = application.rootProjectEnvSettings( ) ;
+		var projectSettings = csapApis.application( ).rootProjectEnvSettings( ) ;
 
 		String eventUrl = projectSettings.getEventQueryUrl( )
 				+ "/getById?id=" + id ;

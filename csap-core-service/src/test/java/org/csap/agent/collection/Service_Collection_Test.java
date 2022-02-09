@@ -7,9 +7,9 @@ import java.util.ArrayList ;
 import java.util.List ;
 import java.util.Set ;
 
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.CsapThinTests ;
-import org.csap.agent.container.DockerJson ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.model.ModelJson ;
 import org.csap.agent.model.ServiceInstance ;
 import org.csap.agent.services.HostKeys ;
@@ -24,7 +24,7 @@ import org.csap.agent.stats.service.JmxCollector ;
 import org.csap.agent.stats.service.JmxCustomCollector ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
-import org.csap.integations.CsapMicroMeter.HealthReport.Report ;
+import org.csap.integations.micrometer.CsapMicroMeter.HealthReport.Report ;
 import org.junit.jupiter.api.Assumptions ;
 import org.junit.jupiter.api.BeforeAll ;
 import org.junit.jupiter.api.BeforeEach ;
@@ -59,16 +59,16 @@ public class Service_Collection_Test extends CsapThinTests {
 						.isTrue( ) ;
 
 		getApplication( ).metricManager( ).startCollectorsForJunit( ) ;
-		getApplication( ).getOsManager( ).checkForProcessStatusUpdate( ) ;
-		getApplication( ).getOsManager( ).wait_for_initial_process_status_scan( 3 ) ;
+		getOsManager( ).checkForProcessStatusUpdate( ) ;
+		getOsManager( ).wait_for_initial_process_status_scan( 3 ) ;
 
 		assertThat( getApplication( ).isBootstrapComplete( ) ).isTrue( ) ;
 
 		assertThat( getApplication( ).getServiceInstanceCurrentHost( testService ) ).isNotNull( ) ;
 
 		logger.debug( "latest discovery: {}",
-				getApplication( ).getOsManager( ).latest_process_discovery_results( ).path(
-						DockerJson.response_plain_text.json( ) ).asText( ) ) ;
+				getOsManager( ).latest_process_discovery_results( ).path(
+						C7.response_plain_text.val( ) ).asText( ) ) ;
 
 	}
 
@@ -119,7 +119,7 @@ public class Service_Collection_Test extends CsapThinTests {
 			ServiceInstance targetService = getApplication( ).getServiceInstanceCurrentHost( testService ) ;
 
 			String[] targetServices = {
-					CsapCore.AGENT_NAME, testK8Monitor, testK8Docker_CollectionId1, testK8Docker_CollectionId2,
+					CsapConstants.AGENT_NAME, testK8Monitor, testK8Docker_CollectionId1, testK8Docker_CollectionId2,
 					targetService.getName( )
 			} ;
 
@@ -151,7 +151,7 @@ public class Service_Collection_Test extends CsapThinTests {
 					.as( "/data/timeStamp/0" )
 					.isGreaterThanOrEqualTo( now ) ;
 
-			assertThat( os_collection.at( "/data/threadCount_" + CsapCore.AGENT_NAME + "/0" ).asInt( ) )
+			assertThat( os_collection.at( "/data/threadCount_" + CsapConstants.AGENT_NAME + "/0" ).asInt( ) )
 					.as( "threadCount_CsAgent" )
 					.isGreaterThan( 90 ) ;
 
@@ -173,17 +173,18 @@ public class Service_Collection_Test extends CsapThinTests {
 			//
 			// Verify osManger runtime
 			//
-			JsonNode runtimeReport = getApplication( ).getOsManager( ).getHostRuntime( ) ;
+			JsonNode runtimeReport = getOsManager( ).getHostRuntime( ) ;
 			logger.info( "agent status: {}",
-					CSAP.jsonPrint( runtimeReport.at( HostKeys.servicesJsonPath( CsapCore.AGENT_ID ) ) ) ) ;
+					CSAP.jsonPrint( runtimeReport.at( HostKeys.servicesJsonPath( CsapConstants.AGENT_ID ) ) ) ) ;
 
-			var agentThreadPath = HostKeys.serviceMetricJsonPath( CsapCore.AGENT_ID, 0, OsProcessEnum.THREAD_COUNT ) ;
+			var agentThreadPath = HostKeys.serviceMetricJsonPath( CsapConstants.AGENT_ID, 0,
+					OsProcessEnum.THREAD_COUNT ) ;
 			assertThat( runtimeReport.at( agentThreadPath ).intValue( ) )
 					.as( agentThreadPath )
 					.isEqualTo( 107 ) ;
 
 			var agentNumSamplesPath = HostKeys.serviceMetricJsonPath(
-					CsapCore.AGENT_ID, 0,
+					CsapConstants.AGENT_ID, 0,
 					HostKeys.numberSamplesAveraged.jsonId ) ;
 			assertThat( runtimeReport.at( agentNumSamplesPath ).intValue( ) )
 					.as( agentNumSamplesPath )
@@ -215,7 +216,7 @@ public class Service_Collection_Test extends CsapThinTests {
 
 	}
 
-	// @Disabled
+	//@Disabled
 	@Nested
 	@TestInstance ( TestInstance.Lifecycle.PER_CLASS )
 	class JMX_Collection {
@@ -256,7 +257,7 @@ public class Service_Collection_Test extends CsapThinTests {
 
 			var javaReportData = javaGraphReportWithCustomAdded.path( "data" ) ;
 
-			var applicationGraphReport = javaGraphReportWithCustomAdded.path( "custom" + services[ 0 ] ) ;
+			var applicationGraphReport = javaGraphReportWithCustomAdded.path( "custom" + services[0] ) ;
 			var applicationData = applicationGraphReport.path( "data" ) ;
 			;
 
@@ -289,9 +290,9 @@ public class Service_Collection_Test extends CsapThinTests {
 			} ;
 			ObjectNode javaAndApplicationReport = performJavaCommonAndCustomCollection( services, testDbHost ) ;
 
-			var applicationGraphReport = (ObjectNode) javaAndApplicationReport.get( "custom" + services[ 0 ] ) ;
+			var applicationGraphReport = (ObjectNode) javaAndApplicationReport.get( "custom" + services[0] ) ;
 
-			logger.info( "collected: \n {}", CsapCore.jsonPrint( getJsonMapper( ), javaAndApplicationReport ) ) ;
+			logger.info( "collected: \n {}", CsapConstants.jsonPrint( getJsonMapper( ), javaAndApplicationReport ) ) ;
 
 			// ensure non tomcat jvms skip jmx reporting of tomcat only attributes.
 			assertThat( javaAndApplicationReport.at( "/attributes/graphs/httpKbytesReceived" ).fieldNames( )
@@ -328,8 +329,7 @@ public class Service_Collection_Test extends CsapThinTests {
 
 			// csapApp.shutdown();
 			ServiceCollector serviceCollector = new ServiceCollector(
-					getApplication( ),
-					getApplication( ).getOsManager( ), 30, true ) ;
+					getCsapApis( ), 30, true ) ;
 
 			// This will trigger a remote procedure call
 			serviceCollector.shutdown( ) ;
@@ -381,8 +381,7 @@ public class Service_Collection_Test extends CsapThinTests {
 		private ObjectNode performJavaCollection ( String[] services , String host , boolean isCustom ) {
 
 			// csapApp.shutdown();
-			ServiceCollector serviceCollector = new ServiceCollector( getApplication( ),
-					getApplication( ).getOsManager( ), 30, false ) ;
+			ServiceCollector serviceCollector = new ServiceCollector( getCsapApis( ), 30, false ) ;
 
 			getApplication( ).metricManager( ).setFirstServiceCollector( serviceCollector ) ;
 
@@ -436,8 +435,7 @@ public class Service_Collection_Test extends CsapThinTests {
 			logger.info( CsapApplication.testHeader( ) ) ;
 
 			// csapApp.shutdown();
-			ServiceCollector serviceCollector = new ServiceCollector( getApplication( ),
-					getApplication( ).getOsManager( ), 30, false ) ;
+			ServiceCollector serviceCollector = new ServiceCollector( getCsapApis( ), 30, false ) ;
 
 			// shutdown to keep logs reasonable to trace during test.
 			serviceCollector.shutdown( ) ;
@@ -446,7 +444,7 @@ public class Service_Collection_Test extends CsapThinTests {
 			serviceCollector.setTestServiceTimeout( 75, testService, 999 ) ;
 			serviceCollector.testJmxCollection( testDbHost ) ;
 			String[] services = {
-					CsapCore.AGENT_ID, testService
+					CsapConstants.AGENT_ID, testService
 			} ;
 			ObjectNode results = serviceCollector.buildCollectionReport( false, services, 999, 0 ) ;
 
@@ -479,8 +477,7 @@ public class Service_Collection_Test extends CsapThinTests {
 			logger.info( CsapApplication.testHeader( ) ) ;
 
 			// csapApp.shutdown();
-			ServiceCollector jmxRunnable = new ServiceCollector( getApplication( ),
-					getApplication( ).getOsManager( ), 30, false ) ;
+			ServiceCollector jmxRunnable = new ServiceCollector( getCsapApis( ), 30, false ) ;
 
 			// shutdown to keep logs reasonable to trace during test.
 			jmxRunnable.shutdown( ) ;
@@ -489,7 +486,7 @@ public class Service_Collection_Test extends CsapThinTests {
 			jmxRunnable.setTestServiceTimeout( 75, testService, 3 ) ;
 			jmxRunnable.testJmxCollection( testDbHost ) ;
 			String[] services = {
-					CsapCore.AGENT_ID, testService
+					CsapConstants.AGENT_ID, testService
 			} ;
 			ObjectNode results = jmxRunnable.buildCollectionReport( false, services, 999, 0 ) ;
 
@@ -513,7 +510,7 @@ public class Service_Collection_Test extends CsapThinTests {
 					} ) ;
 			assertThat( servicesAvailable )
 					.as( "servicesAvailable" )
-					.contains( "activemq", CsapCore.AGENT_ID, testService ) ;
+					.contains( "activemq", CsapConstants.AGENT_ID, testService ) ;
 
 		}
 
@@ -602,7 +599,7 @@ public class Service_Collection_Test extends CsapThinTests {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			var agentInstance = getApplication( ).flexFindFirstInstanceCurrentHost( CsapCore.AGENT_NAME ) ;
+			var agentInstance = getApplication( ).flexFindFirstInstanceCurrentHost( CsapConstants.AGENT_NAME ) ;
 
 			var agentUrl = agentInstance.resolveRuntimeVariables(
 					agentInstance.getHttpCollectionSettings( ).path( ModelJson.httpCollectionUrl.jpath( ) )
@@ -610,11 +607,11 @@ public class Service_Collection_Test extends CsapThinTests {
 			logger.info( "agent collection url: {}", agentUrl ) ;
 
 			assertThat( agentUrl )
-					.contains( CsapCore.DEFAULT_DOMAIN ) ;
+					.contains( CsapConstants.DEFAULT_DOMAIN ) ;
 
 			CSAP.setLogToInfo( HttpCollector.class.getName( ) ) ;
 			// CSAP.setLogToDebug( ServiceCollector.class.getName() ) ;
-			var serviceCollector = new ServiceCollector( getApplication( ), getApplication( ).getOsManager( ), 30,
+			var serviceCollector = new ServiceCollector( getCsapApis( ), 30,
 					false ) ;
 			serviceCollector.shutdown( ) ;
 			serviceCollector.testHttpCollection( 10000 ) ;
@@ -652,7 +649,7 @@ public class Service_Collection_Test extends CsapThinTests {
 			logger.info( "agentJavaData: \n {}", CSAP.jsonPrint( agentJavaData ) ) ;
 
 			assertThat(
-					agentJavaData.at( "/jvmThreadCount_" + CsapCore.AGENT_NAME + "/0" ).asLong( ) )
+					agentJavaData.at( "/jvmThreadCount_" + CsapConstants.AGENT_NAME + "/0" ).asLong( ) )
 							.as( "jvm thread count" )
 							.isGreaterThan( 10 ) ;
 
@@ -679,7 +676,7 @@ public class Service_Collection_Test extends CsapThinTests {
 			CSAP.setLogToInfo( ServiceCollector.class.getName( ) ) ;
 
 			ObjectNode latestPublishReport = serviceCollector.getLatestApplicationMetricsPublished( ) ;
-			logger.info( CsapApplication.testHeader( "latestPublishReport: \n {}" ), CsapCore.jsonPrint(
+			logger.info( CsapApplication.testHeader( "latestPublishReport: \n {}" ), CsapConstants.jsonPrint(
 					latestPublishReport ) ) ;
 
 		}
@@ -694,8 +691,7 @@ public class Service_Collection_Test extends CsapThinTests {
 //			CSAP.setLogToDebug( ServiceCollector.class.getName( ) ) ;
 
 			var serviceCollector = new ServiceCollector(
-					getApplication( ),
-					getApplication( ).getOsManager( ),
+					getCsapApis( ),
 					30,
 					false ) ;
 
@@ -708,7 +704,7 @@ public class Service_Collection_Test extends CsapThinTests {
 			var serviceGraphs = serviceCollector.buildCollectionReport( false, services, 999, 0,
 					"CustomJmxIsBeingUsed" ) ;
 
-			logger.info( "serviceGraphs: \n {}", CsapCore.jsonPrint( getJsonMapper( ), serviceGraphs ) ) ;
+			logger.info( "serviceGraphs: \n {}", CsapConstants.jsonPrint( getJsonMapper( ), serviceGraphs ) ) ;
 
 			assertThat(
 					serviceGraphs.at( "/attributes/id" ).asText( ) )
@@ -815,7 +811,7 @@ public class Service_Collection_Test extends CsapThinTests {
 			osProcessCollector.testCollection( ) ;
 			CSAP.setLogToInfo( OsProcessCollector.class.getName( ) ) ;
 
-			var serviceCollector = new ServiceCollector( getApplication( ), getApplication( ).getOsManager( ), 30,
+			var serviceCollector = new ServiceCollector( getCsapApis( ), 30,
 					false ) ;
 			serviceCollector.shutdown( ) ;
 			serviceCollector.testHttpCollection( 10000 ) ;
@@ -824,7 +820,7 @@ public class Service_Collection_Test extends CsapThinTests {
 			getApplication( ).metricManager( ).setFirstOsProcessCollector( osProcessCollector ) ;
 
 			CSAP.setLogToInfo( OsManager.class.getName( ) ) ;
-			ObjectNode realTimeReport = getApplication( ).getOsManager( ).buildRealTimeCollectionReport( ) ;
+			ObjectNode realTimeReport = getOsManager( ).buildRealTimeCollectionReport( ) ;
 			CSAP.setLogToInfo( OsManager.class.getName( ) ) ;
 
 			logger.info( "realTimeReport: {}", CSAP.jsonPrint( realTimeReport ) ) ;
@@ -839,14 +835,14 @@ public class Service_Collection_Test extends CsapThinTests {
 			assertThat(
 					realTimeReport
 							.path( MetricCategory.osProcess.json( ) )
-							.path( OsProcessEnum.topCpu + "_" + CsapCore.AGENT_NAME )
+							.path( OsProcessEnum.topCpu + "_" + CsapConstants.AGENT_NAME )
 							.asInt( ) )
 									.isEqualTo( 9 ) ;
 
 			assertThat(
 					realTimeReport
 							.path( MetricCategory.application.json( ) )
-							.path( CsapCore.AGENT_NAME )
+							.path( CsapConstants.AGENT_NAME )
 							.path( "AdminPingsMeanMs" )
 							.asInt( -1 ) )
 									.isGreaterThanOrEqualTo( 0 ) ;
@@ -870,8 +866,7 @@ public class Service_Collection_Test extends CsapThinTests {
 			//
 			// Perform a collection
 			//
-			ServiceCollector serviceCollector = new ServiceCollector( getApplication( ),
-					getApplication( ).getOsManager( ), 30, true ) ;
+			ServiceCollector serviceCollector = new ServiceCollector( getCsapApis( ), 30, true ) ;
 			serviceCollector.shutdown( ) ;
 			serviceCollector.testHttpCollection( 500 ) ;
 
@@ -903,7 +898,7 @@ public class Service_Collection_Test extends CsapThinTests {
 			assertThat( appUploadResult.contains( "Exception" ) ).isFalse( ) ;
 
 			ObjectNode lastSummaryReport = serviceCollector.get_lastCustomServiceSummary( ) ;
-			logger.info( "lastServiceSummary: \n {}", CsapCore.jsonPrint( lastSummaryReport ) ) ;
+			logger.info( "lastServiceSummary: \n {}", CsapConstants.jsonPrint( lastSummaryReport ) ) ;
 
 			assertThat(
 					lastSummaryReport.at( "/" + testK8DockerName + "/HttpRequests" ).asInt( ) )
@@ -942,7 +937,7 @@ public class Service_Collection_Test extends CsapThinTests {
 			//
 
 			ObjectNode latestPublishReport = serviceCollector.getLatestApplicationMetricsPublished( ) ;
-			logger.info( CsapApplication.testHeader( "latestPublishReport: \n {}" ), CsapCore.jsonPrint(
+			logger.info( CsapApplication.testHeader( "latestPublishReport: \n {}" ), CsapConstants.jsonPrint(
 					latestPublishReport ) ) ;
 
 			assertThat(
@@ -994,8 +989,7 @@ public class Service_Collection_Test extends CsapThinTests {
 			logger.info( CsapApplication.testHeader( ) ) ;
 
 			// csapApp.shutdown();
-			ServiceCollector applicationCollector = new ServiceCollector( getApplication( ), getApplication( )
-					.getOsManager( ), 30, false ) ;
+			ServiceCollector applicationCollector = new ServiceCollector( getCsapApis( ), 30, false ) ;
 
 			// This will trigger a remote procedure call
 			applicationCollector.shutdown( ) ;
@@ -1013,7 +1007,7 @@ public class Service_Collection_Test extends CsapThinTests {
 					"CustomJmxIsBeingUsed" ) ;
 
 			logger.info( "Results: \n {}",
-					CsapCore.jsonPrint( getJsonMapper( ), httpStatistics ) ) ;
+					CsapConstants.jsonPrint( getJsonMapper( ), httpStatistics ) ) ;
 
 			assertThat(
 					httpStatistics.at( "/data/activeConnections/0" ).asInt( ) )
@@ -1032,8 +1026,7 @@ public class Service_Collection_Test extends CsapThinTests {
 			logger.info( CsapApplication.testHeader( ) ) ;
 
 			// csapApp.shutdown();
-			ServiceCollector applicationCollector = new ServiceCollector( getApplication( ), getApplication( )
-					.getOsManager( ), 30, false ) ;
+			ServiceCollector applicationCollector = new ServiceCollector( getCsapApis( ), 30, false ) ;
 
 			// This will trigger a remote procedure call
 			applicationCollector.shutdown( ) ;
@@ -1051,7 +1044,7 @@ public class Service_Collection_Test extends CsapThinTests {
 					"CustomJmxIsBeingUsed" ) ;
 
 			logger.info( "Results: \n {}",
-					CsapCore.jsonPrint( getJsonMapper( ), httpStatistics ) ) ;
+					CsapConstants.jsonPrint( getJsonMapper( ), httpStatistics ) ) ;
 
 			assertThat(
 					httpStatistics.at( "/data/IdleWorkers/0" ).asInt( ) )
@@ -1080,8 +1073,7 @@ public class Service_Collection_Test extends CsapThinTests {
 			logger.info( CsapApplication.testHeader( ) ) ;
 
 			// csapApp.shutdown();
-			ServiceCollector applicationCollector = new ServiceCollector( getApplication( ), getApplication( )
-					.getOsManager( ), 30, false ) ;
+			ServiceCollector applicationCollector = new ServiceCollector( getCsapApis( ), 30, false ) ;
 
 			// This will trigger a remote procedure call
 			applicationCollector.shutdown( ) ;

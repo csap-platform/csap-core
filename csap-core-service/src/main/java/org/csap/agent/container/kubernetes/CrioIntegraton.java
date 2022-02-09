@@ -9,10 +9,10 @@ import java.util.stream.Collectors ;
 
 import javax.servlet.http.HttpServletResponse ;
 
+import org.csap.agent.CsapApis ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.container.ContainerProcess ;
-import org.csap.agent.container.DockerJson ;
-import org.csap.agent.model.Application ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
 import org.slf4j.Logger ;
@@ -29,12 +29,12 @@ public class CrioIntegraton {
 	final Logger logger = LoggerFactory.getLogger( this.getClass( ) ) ;
 
 	ObjectMapper jsonMapper ;
-	Application csapApp ;
+	CsapApis csapApis ;
 
-	public CrioIntegraton ( ObjectMapper jsonMapper, Application csapApp ) {
+	public CrioIntegraton ( CsapApis csapApis, ObjectMapper jsonMapper ) {
 
 		this.jsonMapper = jsonMapper ;
-		this.csapApp = csapApp ;
+		this.csapApis = csapApis ;
 
 	}
 
@@ -42,7 +42,7 @@ public class CrioIntegraton {
 
 	public List<String> containerNames ( ) {
 
-		var pidReport = Application.getInstance( ).getOsManager( ).getCachedCrioPidReport( ) ;
+		var pidReport = csapApis.osManager( ).getCachedCrioPidReport( ) ;
 
 		var names = CSAP.asStreamHandleNulls( pidReport ).collect( Collectors.toList( ) ) ;
 
@@ -67,11 +67,11 @@ public class CrioIntegraton {
 
 	public String listFiles ( String containerName , String path ) {
 
-		var pidReport = Application.getInstance( ).getOsManager( ).getCachedCrioPidReport( ) ;
+		var pidReport = csapApis.osManager( ).getCachedCrioPidReport( ) ;
 
 		logger.debug( "looking up {} in {} ", containerName, pidReport ) ;
 
-		return Application.getInstance( ).getOsManager( )
+		return csapApis.osManager( )
 				.buildCrioFileListing(
 						pidReport.path( containerName ).path( "id" ).asText( "missing-id" ),
 						path ) ;
@@ -88,11 +88,11 @@ public class CrioIntegraton {
 
 		logger.info( "Container: {}, path: {}, maxEditSize: {}", containerName, path, maxEditSize ) ;
 
-		var pidReport = Application.getInstance( ).getOsManager( ).getCachedCrioPidReport( ) ;
+		var pidReport = csapApis.osManager( ).getCachedCrioPidReport( ) ;
 
 		logger.debug( "looking up {} in {} ", containerName, pidReport ) ;
 
-		var fileContents = Application.getInstance( ).getOsManager( )
+		var fileContents = csapApis.osManager( )
 				.getCrioFileContents(
 						pidReport.path( containerName ).path( "id" ).asText( "missing-id" ),
 						path,
@@ -135,7 +135,7 @@ public class CrioIntegraton {
 
 		logger.info( "Container: {}, path: {}, maxEditSize: {}", containerName, pathToFile, maxEditSize ) ;
 
-		var pidReport = Application.getInstance( ).getOsManager( ).getCachedCrioPidReport( ) ;
+		var pidReport = csapApis.osManager( ).getCachedCrioPidReport( ) ;
 
 		logger.debug( "looking up {} in {} ", containerName, pidReport ) ;
 
@@ -153,7 +153,7 @@ public class CrioIntegraton {
 
 		var containers = jsonMapper.createArrayNode( ) ;
 
-		var psCliReport = Application.getInstance( ).getOsManager( ).getCachedCrioPs( ) ;
+		var psCliReport = csapApis.osManager( ).getCachedCrioPs( ) ;
 
 		try {
 
@@ -203,7 +203,7 @@ public class CrioIntegraton {
 			if ( containers.size( ) == 0 ) {
 
 				ObjectNode item = containerListing.addObject( ) ;
-				item.put( DockerJson.error.json( ), "No containers defined" ) ;
+				item.put( C7.error.val( ), "No containers defined" ) ;
 
 			}
 
@@ -220,11 +220,11 @@ public class CrioIntegraton {
 	public List<ContainerProcess> buildContainerProcesses ( ) {
 
 		List<ContainerProcess> containerProcesses ;
-		var pidReport = Application.getInstance( ).getOsManager( ).getCachedCrioPidReport( ) ;
+		var pidReport = csapApis.osManager( ).getCachedCrioPidReport( ) ;
 
 		logger.debug( "pidReport: {}", pidReport ) ;
 
-//		var crioContainers = Application.getInstance( ).crio( ).containers( ) ;
+//		var crioContainers = csapApis.application( ).crio( ).containers( ) ;
 //		containerProcesses = CSAP.jsonStream( crioContainers )
 		containerProcesses = CSAP.asStreamHandleNulls( pidReport )
 				.map( pidReportId -> {
@@ -249,13 +249,13 @@ public class CrioIntegraton {
 					process.setPodNamespace( podReport.path( "io.kubernetes.pod.namespace" ).asText(
 							"namespace-not-found" ) ) ;
 
-					var podTimer = csapApp.metrics( ).startTimer( ) ;
+					var podTimer = csapApis.metrics( ).startTimer( ) ;
 
 					// Very slow - instead use pidListing
-					// var details = Application.getInstance( ).crio( ).containerInspect(
+					// var details = csapApis.application( ).crio( ).containerInspect(
 					// container.path( "id").asText( ) ) ;
 
-					csapApp.metrics( ).stopTimer( podTimer, "collect-container.pids."
+					csapApis.metrics( ).stopTimer( podTimer, "collect-container.pids."
 							+ process.getPodName( ) ) ;
 
 					return process ;
@@ -270,8 +270,7 @@ public class CrioIntegraton {
 
 	public ObjectNode containerInspect ( String id ) {
 
-		var containerReport = Application.getInstance( )
-				.getOsManager( )
+		var containerReport = csapApis.osManager( )
 				.getCrioInspect( id ) ;
 
 		return containerReport ;
@@ -287,7 +286,7 @@ public class CrioIntegraton {
 		logger.warn( "Failure: {} {}", description, reason ) ;
 		logger.debug( "detailed stack", failureExeption ) ;
 
-		result.put( DockerJson.error.json( ), description ) ;
+		result.put( C7.error.val( ), description ) ;
 
 		String uiMessage = failureExeption.getMessage( ) ;
 
@@ -307,7 +306,7 @@ public class CrioIntegraton {
 
 		}
 
-		result.put( DockerJson.errorReason.json( ), uiMessage + ". Reference: " + failureExeption.getClass( )
+		result.put( C7.errorReason.val( ), uiMessage + ". Reference: " + failureExeption.getClass( )
 				.getSimpleName( ) ) ;
 		return result ;
 
@@ -332,7 +331,7 @@ public class CrioIntegraton {
 
 		}
 
-		var dockerHost = csapApp.getDockerHost( ) ;
+		var dockerHost = csapApis.containerHostConfigured( ) ;
 		var url = "http://" + dockerHost + ":8011" + resource + "?" + params ;
 
 		logger.debug( " hitting: {} ", url ) ;
@@ -363,9 +362,9 @@ public class CrioIntegraton {
 
 		ArrayNode listing = jsonMapper.createArrayNode( ) ;
 		ObjectNode item = listing.addObject( ) ;
-		item.put( DockerJson.list_label.json( ), DockerJson.error.json( ) + "CRIO not configured" ) ;
+		item.put( C7.list_label.val( ), C7.error.val( ) + "CRIO not configured" ) ;
 		item.put( "folder", false ) ;
-		item.put( DockerJson.error.json( ), "CRIO not configured" ) ;
+		item.put( C7.error.val( ), "CRIO not configured" ) ;
 		return listing ;
 
 	}

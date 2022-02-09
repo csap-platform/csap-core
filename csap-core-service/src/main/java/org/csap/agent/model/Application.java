@@ -9,7 +9,6 @@ import java.io.StringWriter ;
 import java.lang.reflect.Method ;
 import java.net.InetAddress ;
 import java.net.URI ;
-import java.net.URISyntaxException ;
 import java.net.URL ;
 import java.net.URLClassLoader ;
 import java.net.UnknownHostException ;
@@ -18,7 +17,6 @@ import java.nio.file.Files ;
 import java.nio.file.Path ;
 import java.nio.file.StandardOpenOption ;
 import java.text.DateFormat ;
-import java.text.DecimalFormat ;
 import java.text.SimpleDateFormat ;
 import java.time.LocalDateTime ;
 import java.time.format.DateTimeFormatter ;
@@ -48,7 +46,6 @@ import java.util.stream.Collectors ;
 import java.util.stream.IntStream ;
 import java.util.stream.Stream ;
 
-import javax.annotation.PreDestroy ;
 import javax.inject.Inject ;
 import javax.servlet.http.HttpServletResponse ;
 
@@ -56,14 +53,15 @@ import org.apache.commons.io.FileUtils ;
 import org.apache.commons.io.filefilter.FileFilterUtils ;
 import org.apache.commons.lang3.StringUtils ;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
-import org.csap.agent.CsapTemplate ;
-import org.csap.agent.KubernetesConfiguration ;
-import org.csap.agent.KubernetesSettings ;
+import org.csap.agent.ApplicationConfiguration ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.CsapTemplates ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.container.ContainerIntegration ;
-import org.csap.agent.container.kubernetes.CrioIntegraton ;
+import org.csap.agent.container.kubernetes.KubernetesConfiguration ;
 import org.csap.agent.container.kubernetes.KubernetesIntegration ;
+import org.csap.agent.container.kubernetes.KubernetesSettings ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.integrations.HttpdIntegration ;
 import org.csap.agent.linux.HostInfo ;
@@ -79,8 +77,10 @@ import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
 import org.csap.helpers.CsapRestTemplateFactory ;
 import org.csap.integations.CsapInformation ;
-import org.csap.integations.CsapMicroMeter ;
+import org.csap.integations.CsapWebServerConfig ;
 import org.csap.integations.CsapWebSettings ;
+import org.csap.integations.micrometer.CsapMeterUtilities ;
+import org.csap.integations.micrometer.MeterReport ;
 import org.csap.security.CsapSecurityRestFilter ;
 import org.csap.security.CsapUser ;
 import org.csap.security.config.CsapSecuritySettings ;
@@ -90,7 +90,7 @@ import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
 import org.springframework.beans.factory.annotation.Autowired ;
 import org.springframework.beans.factory.annotation.Value ;
-import org.springframework.context.event.ContextClosedEvent ;
+import org.springframework.context.annotation.Lazy ;
 import org.springframework.context.event.ContextRefreshedEvent ;
 import org.springframework.context.event.EventListener ;
 import org.springframework.core.annotation.Order ;
@@ -137,7 +137,6 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry ;
 public class Application {
 
 	final Logger logger = LoggerFactory.getLogger( getClass( ) ) ;
-	private static Application _instance = null ;
 
 	ScoreReport scoreReport ;
 
@@ -151,10 +150,7 @@ public class Application {
 	HealthManager healthManager = null ;
 	MetricManager metricManager = null ;
 
-	CrioIntegraton crioIntegraton = null ;
-
 	CsapSecuritySettings securitySettings ;
-	CsapMicroMeter.Utilities metricUtilities ;
 	StandardPBEStringEncryptor encryptor ;
 
 	public static final String DESKTOP_STUB_HOST = "csap-dev01.***REMOVED***" ;
@@ -169,7 +165,7 @@ public class Application {
 	private File rootDefinitionFile ;
 	private File csapBuildFolder ;
 
-	private CsapCoreService csapCoreService ;
+	private ApplicationConfiguration csapCoreService ;
 
 	private boolean adminMode = false ;
 
@@ -178,30 +174,29 @@ public class Application {
 	private boolean autoReload = true ;
 	private boolean skipScanAndActivate = false ;
 
-	//
-	// WARNING: spring injections are STRONGLY ordered: do not reorder without
-	// extensive testing
-	//
-	@Inject
 	private ActiveUsers activeUsers ;
+
+	@Lazy
+	@Autowired
+	private CsapApis csapApis ;
+
+//	public CsapApis apiServices ( ) {
+//
+//		return csapApis ;
+//
+//	}
 
 	@Autowired
 	public Application (
-			CsapMicroMeter.Utilities metricUtilities,
 			CsapSecuritySettings securitySettings,
-			CsapCoreService csapCoreService,
+			ApplicationConfiguration csapCoreService,
 			StandardPBEStringEncryptor encryptor ) {
 
 		this.csapCoreService = csapCoreService ;
 		this.securitySettings = securitySettings ;
 		this.encryptor = encryptor ;
-		this.metricUtilities = metricUtilities ;
 
-		_instance = this ;
-
-		scoreReport = new ScoreReport( this, jacksonMapper ) ;
-
-		crioIntegraton = new CrioIntegraton( jacksonMapper, this ) ;
+		// crioIntegraton = new CrioIntegraton( jacksonMapper, this ) ;
 
 		logger.info(
 				CSAP.buildDescription(
@@ -212,7 +207,7 @@ public class Application {
 						"hostFqdn", getHostFqdn( ),
 						"csapName", System.getenv( "csapName" ),
 						"csapHttpPort", System.getProperty( "csapHttpPort" ),
-						"isCrioInstalledAndActive", isCrioInstalledAndActive( ),
+						// "isCrioInstalledAndActive", isCrioInstalledAndActive( ),
 						"csapLife", System.getProperty( "csapLife" ) ) ) ;
 
 		csapInstallFolder = new File( csapCoreService.getInstallationFolder( ) ) ;
@@ -222,12 +217,12 @@ public class Application {
 
 		try {
 
-			template = (ObjectNode) jacksonMapper.readTree( CsapTemplate.edit_service.getFile( ) ) ;
+			template = (ObjectNode) jacksonMapper.readTree( CsapTemplates.edit_service.getFile( ) ) ;
 
 		} catch ( Exception e ) {
 
 			String reason = CSAP.buildCsapStack( e ) ;
-			logger.warn( "Failed parsing {}, {}", CsapTemplate.edit_service.getFile( ), reason ) ;
+			logger.warn( "Failed parsing {}, {}", CsapTemplates.edit_service.getFile( ), reason ) ;
 
 		}
 
@@ -235,25 +230,10 @@ public class Application {
 
 	}
 
-	public static Application getInstance ( ) { // used rarely - prefer injection
-
-		return _instance ;
-
-	}
-
 	//
 	// WARNING: spring injections are STRONGLY ordered: do not reorder without
 	// extensive testing
 	//
-
-	@Autowired ( required = false )
-	private KubernetesIntegration kubernetesIntegration = null ;
-
-	@Autowired ( required = false )
-	ContainerIntegration dockerIntegration = null ;
-
-	@Inject
-	private OsManager osManager ;
 
 	//
 	// WARNING: spring injections are STRONGLY ordered: do not reorder without
@@ -274,42 +254,40 @@ public class Application {
 	//
 	static public Application testBuilder ( ) {
 
-		var csapCore = new CsapCoreService( null, null ) ;
+		var csapInfo = new CsapInformation( ) ;
 
-		var theApp = new Application( null, null, csapCore, null ) ;
+		var webSettings = new CsapWebSettings( null, csapInfo ) ;
 
-		theApp.scoreReport = new ScoreReport( theApp, theApp.jacksonMapper ) ;
-		theApp.projectLoader = new ProjectLoader( theApp ) ;
-		theApp.healthManager = new HealthManager( theApp, theApp.jacksonMapper ) ;
-		theApp.metricManager = new MetricManager( theApp, theApp.jacksonMapper ) ;
-		theApp.crioIntegraton = new CrioIntegraton( theApp.jacksonMapper, theApp ) ;
+		var csapWeb = new CsapWebServerConfig( webSettings ) ;
+
+		var csapCore = new ApplicationConfiguration( csapWeb, null ) ;
+
+		var metricUtilities = new CsapMeterUtilities( new SimpleMeterRegistry( ) ) ;
+		metricUtilities.set_self_for_junit( metricUtilities ) ;
+		var meterReport = new MeterReport( metricUtilities.getSimpleMeterRegistry( ) ) ;
+		metricUtilities.setMeterReport( meterReport ) ;
+
+		var theApp = new Application( null, csapCore, null ) ;
+
+		var osManager = new OsManager( new OsCommands( ) ) ;
+		theApp.csapApis = new CsapApis( theApp, osManager, metricUtilities, new CsapEvents( ) ) ;
+
+		theApp.projectLoader = new ProjectLoader( theApp.csapApis ) ;
+		theApp.healthManager = new HealthManager( theApp.csapApis, theApp.jacksonMapper ) ;
+		theApp.metricManager = new MetricManager( theApp.csapApis, theApp.jacksonMapper ) ;
 
 		theApp.restTemplateFactory = new CsapRestTemplateFactory( null, null ) ;
 
-//		theApp.getCsapCoreService( ). ;
-
-		theApp.setEventClient( new CsapEvents( ) ) ;
-
-		var metricUtilities = new CsapMicroMeter.Utilities( ) ;
-		metricUtilities.set_self_for_junit( metricUtilities ) ;
-		metricUtilities.setSimpleMeterRegistry( new SimpleMeterRegistry( ) ) ;
-		var meterReport = new CsapMicroMeter.MeterReport( metricUtilities.getSimpleMeterRegistry( ) ) ;
-		metricUtilities.setMeterReport( meterReport ) ;
-		theApp.metricUtilities = metricUtilities ;
-
 		var kubConfig = new KubernetesConfiguration( ) ;
-		kubConfig.setCsapApp( theApp ) ;
+		kubConfig.setCsapApi( theApp.csapApis ) ;
 
-		theApp.kubernetesIntegration = new KubernetesIntegration(
+		theApp.csapApis.setKubernetesIntegration( new KubernetesIntegration(
 				new KubernetesSettings( ),
 				kubConfig,
-				new ObjectMapper( ) ) ;
+				new ObjectMapper( ) ) ) ;
 
-		var osManager = new OsManager( theApp, new OsCommands( ) ) ;
-		var serviceManager = new ServiceOsManager( theApp ) ;
-		serviceManager.setOsManager( osManager ) ;
+		var serviceManager = new ServiceOsManager( theApp.csapApis ) ;
 		osManager.setServiceManager( serviceManager ) ;
-		theApp.osManager = osManager ;
 
 		theApp.setSkipScanAndActivate( true ) ;
 		theApp.setAutoReload( false ) ;
@@ -323,18 +301,22 @@ public class Application {
 	//
 	public Application ( OsManager osManager ) {
 
-		this( null, null, new CsapCoreService( null, null ), null ) ;
+		this(
+				null,
+				new ApplicationConfiguration( null, null ),
+				null ) ;
+
 		// testBuilder() ;
 		logger.info( CsapApplication.testHeader( "Using stubbed OsManager, KubernetesIntegration" ) ) ;
 
-		this.osManager = osManager ;
-		activeUsers = new ActiveUsers( null, this, null ) ;
 		var testMapper = new ObjectMapper( ) ;
 
-		kubernetesIntegration = new KubernetesIntegration(
+		csapApis = new CsapApis( this, osManager, null, new CsapEvents( ) ) ;
+
+		csapApis.setKubernetesIntegration( new KubernetesIntegration(
 				new KubernetesSettings( ),
 				new KubernetesConfiguration( ),
-				testMapper ) ;
+				testMapper ) ) ;
 
 		// var dockerConfiguration = new DockerConfiguration() ;
 		// dockerConfiguration.setDocker( new DockerSettings() );
@@ -353,12 +335,18 @@ public class Application {
 	@EventListener ( {
 			ContextRefreshedEvent.class
 	} )
-	@Order ( CsapCore.CSAP_MODEL_LOAD_ORDER )
+	@Order ( CsapConstants.CSAP_MODEL_LOAD_ORDER )
 	public void initialize ( ) {
 
-		projectLoader = new ProjectLoader( this ) ;
-		healthManager = new HealthManager( this, jacksonMapper ) ;
-		metricManager = new MetricManager( this, jacksonMapper ) ;
+		logger.info( CsapApplication.highlightHeader( "Initializing Application" ) ) ;
+
+		activeUsers = new ActiveUsers( csapApis, securitySettings ) ;
+
+		httpdIntegration = new HttpdIntegration( csapApis ) ;
+		scoreReport = new ScoreReport( csapApis, jacksonMapper ) ;
+		projectLoader = new ProjectLoader( csapApis ) ;
+		healthManager = new HealthManager( csapApis, jacksonMapper ) ;
+		metricManager = new MetricManager( csapApis, jacksonMapper ) ;
 
 		rootDefinitionFile = new File(
 				csapInstallFolder + "/" + CsapApplication.DEFINITION_FOLDER_NAME + "/"
@@ -368,14 +356,16 @@ public class Application {
 
 			setDeveloperMode( true ) ;
 
-			if ( metricUtilities == null ) {
+			if ( csapApis.metrics( ) == null ) {
 
 				logger.warn( CsapApplication.testHeader( "Building Meter Utilities" ) ) ;
-				metricUtilities = new CsapMicroMeter.Utilities( ) ;
+				var metricUtilities = new CsapMeterUtilities( new SimpleMeterRegistry( ) ) ;
 				metricUtilities.set_self_for_junit( metricUtilities ) ;
-				metricUtilities.setSimpleMeterRegistry( new SimpleMeterRegistry( ) ) ;
-				var meterReport = new CsapMicroMeter.MeterReport( metricUtilities.getSimpleMeterRegistry( ) ) ;
+				// metricUtilities.setSimpleMeterRegistry( new SimpleMeterRegistry( ) ) ;
+				var meterReport = new MeterReport( metricUtilities.getSimpleMeterRegistry( ) ) ;
 				metricUtilities.setMeterReport( meterReport ) ;
+
+				csapApis.setMetricUtilities( metricUtilities ) ;
 
 			}
 
@@ -456,7 +446,7 @@ public class Application {
 					"working folder - platform", csapWorkingFolder,
 					"agent endpoint", getAgentEndpoint( ),
 					"agent url", getAgentUrl( "some-host", "/some-command" ),
-					
+
 					CsapApplication.CSAP_INSTALL_VARIABLE, csapInstallFolder,
 					"csapFqdn", System.getenv( "csapFqdn" ),
 					"Definition", rootDefinitionFile,
@@ -481,7 +471,9 @@ public class Application {
 
 		try {
 
-			if ( isAutoReload( ) && ( csapEventClient != null ) ) {
+//			if ( isAutoReload( ) && ( csapEventClient != null ) ) {
+			if ( isAutoReload( )
+					&& csapApis.events( ) != null ) {
 
 				run_application_scan( ) ;
 
@@ -497,7 +489,7 @@ public class Application {
 
 		}
 
-		logger.info( "Initialization complete" ) ;
+		logger.info( CsapApplication.highlightHeader( "Application Initialization Complete" ) ) ;
 
 	}
 
@@ -630,7 +622,7 @@ public class Application {
 	public void checkNamespaces ( ) {
 
 		if ( isAgentProfile( )
-				&& ! isKubernetesInstalledAndActive( ) ) {
+				&& ! csapApis.isKubernetesInstalledAndActive( ) ) {
 
 			return ;
 
@@ -679,7 +671,7 @@ public class Application {
 
 		}
 
-		return host.split( Pattern.quote( "." ) )[ 0 ] ;
+		return host.split( Pattern.quote( "." ) )[0] ;
 
 	}
 
@@ -712,19 +704,20 @@ public class Application {
 
 			}
 
-			if ( resolvedVariables.contains( CsapCore.CSAP_LEGACY_PREFIX ) ) {
+			if ( resolvedVariables.contains( CsapConstants.CSAP_LEGACY_PREFIX ) ) {
 
 				logger.debug( CsapApplication.header( "Triggering legacy migrations - resolve asap: \n {}" ),
 						sourceWithVariables ) ;
-				metricUtilities.incrementCounter( "Application.service.legacy-variables." + serviceInstance
-						.getName( ) ) ;
+				csapApis.metrics( ).incrementCounter(
+						"Application.service.legacy-variables."
+								+ serviceInstance.getName( ) ) ;
 
 			}
 
 //		if ( ! resolvedVariables.contains( CsapCore.CSAP_VARIABLE_PREFIX ) ) {
 //		if ( ! byPassLegacy
 //				&& resolvedVariables.contains( CsapCore.CSAP_LEGACY_PREFIX ) ) {
-			if ( ! byPassLegacy && ! resolvedVariables.contains( CsapCore.CSAP_VARIABLE_PREFIX ) ) {
+			if ( ! byPassLegacy && ! resolvedVariables.contains( CsapConstants.CSAP_VARIABLE_PREFIX ) ) {
 
 				// RNI: legacy configuration still includes CSAP_LEGACY_PREFIX on generated
 				// specs
@@ -737,7 +730,7 @@ public class Application {
 
 		for ( var i = 0; i < MAX_RESOLUTION_ATTEMPTS; i++ ) {
 
-			if ( resolvedVariables.contains( CsapCore.CSAP_VARIABLE_PREFIX ) ) {
+			if ( resolvedVariables.contains( CsapConstants.CSAP_VARIABLE_PREFIX ) ) {
 
 				resolvedVariables = resolveOnePassVariables( serviceInstance, resolvedVariables ) ;
 
@@ -749,7 +742,7 @@ public class Application {
 
 		}
 
-		if ( resolvedVariables.contains( CsapCore.CSAP_VARIABLE_PREFIX ) ) {
+		if ( resolvedVariables.contains( CsapConstants.CSAP_VARIABLE_PREFIX ) ) {
 
 			logger.warn( "Excceeded maximum resolution attempts: {}, {}", MAX_RESOLUTION_ATTEMPTS,
 					sourceWithVariables ) ;
@@ -772,7 +765,7 @@ public class Application {
 		BufferedWriter stringWriter = new BufferedWriter( sw ) ;
 
 		var replaceUserVariables = false ;
-		getOsManager( ).getServiceManager( ).addServiceEnvironment( serviceInstance, environmentVariables,
+		csapApis.osManager( ).getServiceManager( ).addServiceEnvironment( serviceInstance, environmentVariables,
 				replaceUserVariables, stringWriter ) ;
 
 		logger.debug( "Checking {} for variables {}", definition, environmentVariables ) ;
@@ -784,14 +777,14 @@ public class Application {
 
 			var value = environmentVariables.get( variableName ) ;
 
-			if ( variableName.startsWith( CsapCore.CSAP_VARIABLE_PREFIX ) && variableName.length( ) > 2 ) {
+			if ( variableName.startsWith( CsapConstants.CSAP_VARIABLE_PREFIX ) && variableName.length( ) > 2 ) {
 
 				definition = definition.replaceAll(
 						Matcher.quoteReplacement( variableName ),
 						Matcher.quoteReplacement( value ) ) ;
 
 			} else if ( ! csapCoreService.isDefinitionStrictMode( )
-					&& variableName.startsWith( CsapCore.CSAP_USER_PREFIX ) ) {
+					&& variableName.startsWith( CsapConstants.CSAP_USER_PREFIX ) ) {
 
 				var fullKey = "$" + variableName ;
 
@@ -854,11 +847,19 @@ public class Application {
 
 				try {
 
-					KubernetesIntegration.buildAndCacheDesktopCredentials(
-							logger,
-							getKubernetesIntegration( ).getSettings( ).getTestCredentialUrl( ),
-							extractDir ) ;
-					latestKubernetesCredentials = true ;
+					if ( csapApis.kubernetes( ) != null ) {
+
+						KubernetesIntegration.buildAndCacheDesktopCredentials(
+								logger,
+								csapApis.kubernetes( ).getSettings( ).getTestCredentialUrl( ),
+								extractDir ) ;
+						latestKubernetesCredentials = true ;
+
+					} else {
+
+						logger.warn( "Kubernetes configuration not loaded" ) ;
+
+					}
 
 				} catch ( Exception e ) {
 
@@ -906,13 +907,13 @@ public class Application {
 	 */
 
 	public enum FileToken {
-		PLATFORM("__platform__"),
-		WORKING("__working__"),
-		PROPERTY("__props__"),
-		HOME("__home__"),
-		ROOT("__root__"),
-		DOCKER("__docker__"),
-		JOURNAL("__journal__");
+		PLATFORM( "__platform__" ),
+		WORKING( "__working__" ),
+		PROPERTY( "__props__" ),
+		HOME( "__home__" ),
+		ROOT( "__root__" ),
+		DOCKER( "__docker__" ),
+		JOURNAL( "__journal__" );
 
 		public String value ;
 
@@ -945,7 +946,7 @@ public class Application {
 
 	public synchronized File getCsapWorkingTempFolder ( ) {
 
-		File processingTemp = new File( csapWorkingFolder, CsapCore.AGENT_NAME + "-temp" ) ;
+		File processingTemp = new File( csapWorkingFolder, CsapConstants.AGENT_NAME + "-temp" ) ;
 
 		if ( isRunningOnDesktop( ) ) {
 
@@ -1039,7 +1040,7 @@ public class Application {
 
 	public File getCsapWorkingSubFolder ( String serviceName ) {
 
-		if ( isRunningOnDesktop( ) && serviceName.equals( CsapCore.AGENT_NAME ) ) {
+		if ( isRunningOnDesktop( ) && serviceName.equals( CsapConstants.AGENT_NAME ) ) {
 
 			return getCsapWorkingFolder( ) ;
 
@@ -1121,7 +1122,7 @@ public class Application {
 
 	}
 
-	private HttpdIntegration httpdIntegration = new HttpdIntegration( this ) ;
+	private HttpdIntegration httpdIntegration ;
 
 	public HttpdIntegration getHttpdIntegration ( ) {
 
@@ -1252,7 +1253,7 @@ public class Application {
 
 	public String getAdminSslPortAndContext ( ) {
 
-		var admin = findFirstServiceInstanceInLifecycle( CsapCore.ADMIN_NAME ) ;
+		var admin = findFirstServiceInstanceInLifecycle( CsapConstants.ADMIN_NAME ) ;
 
 		var adminPort = Integer.parseInt( admin.getPort( ) ) + CsapWebSettings.SSL_PORT_OFFSET ;
 		var sslEndpoint = ":" + adminPort + "/" + admin.getContext( ) ;
@@ -1273,7 +1274,7 @@ public class Application {
 
 		if ( springEnvironment == null ) {
 
-			var defaultPattern = "http://CSAP_HOST." + CsapCore.DEFAULT_DOMAIN + getAgentEndpoint( ) ;
+			var defaultPattern = "http://CSAP_HOST." + CsapConstants.DEFAULT_DOMAIN + getAgentEndpoint( ) ;
 
 			if ( printPatternWarning ) {
 
@@ -1365,7 +1366,7 @@ public class Application {
 		if ( ! host.equals( hostShortName( host ) ) ) {
 
 			logger.debug( "Using qualified host: {}", host ) ;
-			appUrl = "http://" + host + ":" + appUrl.split( ":" )[ 2 ] ;
+			appUrl = "http://" + host + ":" + appUrl.split( ":" )[2] ;
 
 		}
 
@@ -1445,7 +1446,7 @@ public class Application {
 			if ( ! host.equals( hostShortName( host ) ) ) {
 
 				logger.debug( "Using qualified host: {}", host ) ;
-				url = "http://" + host + ":" + url.split( ":" )[ 2 ] ;
+				url = "http://" + host + ":" + url.split( ":" )[2] ;
 
 			}
 
@@ -1783,7 +1784,7 @@ public class Application {
 	 */
 	public void updateServiceTimeStamps ( ) {
 
-		if ( isAgentProfile( ) && getOsManager( ) != null ) {
+		if ( isAgentProfile( ) && csapApis.osManager( ) != null ) {
 
 			var millisSince = System.currentTimeMillis( ) - lastKubernetesFileSystemScanMillis ;
 
@@ -1802,6 +1803,8 @@ public class Application {
 
 	}
 
+	String serviceDebugName = null ;
+
 	public void activateProject ( Project rootProject ) {
 
 		if ( isSkipScanAndActivate( ) ) {
@@ -1811,9 +1814,7 @@ public class Application {
 
 		}
 
-		getOsManager( ).resetAllCaches( ) ;
-
-		getEventClient( ).initialize( rootProjectEnvSettings( ), getActiveProjectName( ) ) ;
+		csapApis.events( ).initialize( rootProjectEnvSettings( ), getActiveProjectName( ) ) ;
 
 		// Trigger the httpdWorkers for load balancing
 		if ( rootProject.getServiceToAllInstancesMap( ).isEmpty( ) ) {
@@ -1905,6 +1906,12 @@ public class Application {
 
 		if ( springEnvironment != null ) {
 
+			//
+			// reset singleton to current application since non-spring junits will be
+			// creating new instances
+			//
+			CsapApis.setInstance( csapApis ) ;
+
 			// setting up for junits running in spring context
 			updateApplicationVariables( ) ;
 
@@ -1926,8 +1933,9 @@ public class Application {
 
 		lastParseResults = projectLoader.process( isTest, definitionFile ) ;
 		applicationLoadedAtMillis = System.currentTimeMillis( ) ;
+		csapApis.osManager( ).resetAllCaches( ) ;
 
-		int errorIndex = lastParseResults.indexOf( CsapCore.CONFIG_PARSE_ERROR ) ;
+		int errorIndex = lastParseResults.indexOf( CsapConstants.CONFIG_PARSE_ERROR ) ;
 
 		if ( errorIndex >= 0 ) {
 
@@ -1940,13 +1948,13 @@ public class Application {
 
 		if ( springEnvironment != null && ! isAdminProfile( ) ) {
 
-			getOsManager( ).wait_for_initial_process_status_scan( 30 ) ;
+			csapApis.osManager( ).wait_for_initial_process_status_scan( 30 ) ;
 			metricManager( ).startCollectorsForJunit( ) ;
 
 		}
 
 		setBootstrapComplete( ) ;
-		int warnIndex = lastParseResults.indexOf( CsapCore.CONFIG_PARSE_WARN ) ;
+		int warnIndex = lastParseResults.indexOf( CsapConstants.CONFIG_PARSE_WARN ) ;
 
 		if ( warnIndex >= 0 ) {
 
@@ -2057,16 +2065,16 @@ public class Application {
 
 			if ( ( parsingResultsBuffer != null ) ) {
 
-				if ( parsingResultsBuffer.indexOf( CsapCore.CONFIG_PARSE_WARN ) != -1 ) {
+				if ( parsingResultsBuffer.indexOf( CsapConstants.CONFIG_PARSE_WARN ) != -1 ) {
 
-					updateOutputWithLimitedInfo( CsapCore.CONFIG_PARSE_WARN, 25, outputManager,
+					updateOutputWithLimitedInfo( CsapConstants.CONFIG_PARSE_WARN, 25, outputManager,
 							parsingResultsBuffer, parseWarnings ) ;
 
 				}
 
-				if ( parsingResultsBuffer.indexOf( CsapCore.CONFIG_PARSE_ERROR ) != -1 ) {
+				if ( parsingResultsBuffer.indexOf( CsapConstants.CONFIG_PARSE_ERROR ) != -1 ) {
 
-					updateOutputWithLimitedInfo( CsapCore.CONFIG_PARSE_ERROR, 25, outputManager,
+					updateOutputWithLimitedInfo( CsapConstants.CONFIG_PARSE_ERROR, 25, outputManager,
 							parsingResultsBuffer, parseErrors ) ;
 
 				}
@@ -2074,7 +2082,7 @@ public class Application {
 			}
 
 			if ( ( parsingResultsBuffer != null )
-					&& parsingResultsBuffer.indexOf( CsapCore.CONFIG_PARSE_ERROR ) == -1 ) {
+					&& parsingResultsBuffer.indexOf( CsapConstants.CONFIG_PARSE_ERROR ) == -1 ) {
 
 				parsingReport.put( "success", true ) ;
 
@@ -2089,7 +2097,7 @@ public class Application {
 					outputManager
 							.print( "\n\n============= Found Semantic Errors !! ====================\n"
 									+ "Filtered output for :"
-									+ CsapCore.CONFIG_PARSE_ERROR ) ;
+									+ CsapConstants.CONFIG_PARSE_ERROR ) ;
 
 				}
 
@@ -2234,7 +2242,7 @@ public class Application {
 
 				if ( ! isAdminProfile( ) ) {
 
-					hostCollectedNode = (ObjectNode) osManager.getHostRuntime( ) ;
+					hostCollectedNode = (ObjectNode) csapApis.osManager( ).getHostRuntime( ) ;
 
 				} else {
 
@@ -2329,7 +2337,7 @@ public class Application {
 
 					if ( filesInFolder.length == 1 ) {
 
-						version.append( filesInFolder[ 0 ].getName( ) ) ;
+						version.append( filesInFolder[0].getName( ) ) ;
 
 					} else {
 
@@ -2422,7 +2430,7 @@ public class Application {
 												ContainerState container ,
 												StringBuilder version ) {
 
-		String dockerVersion = "docker" ;
+		String dockerVersion = C7.definitionSettings.val( ) ;
 
 		if ( instance.getDockerImageName( ).contains( ":" ) ) {
 
@@ -2430,7 +2438,7 @@ public class Application {
 
 			if ( imageName.length >= 1 ) {
 
-				dockerVersion = imageName[ 1 ] ;
+				dockerVersion = imageName[1] ;
 
 			} else {
 
@@ -2441,11 +2449,11 @@ public class Application {
 		}
 
 		logger.debug( "docker active: {}, {} version command: {}",
-				isDockerInstalledAndActive( ),
+				csapApis.isContainerProviderInstalledAndActive( ),
 				instance.getName( ),
 				instance.getDockerVersionCommand( ) ) ;
 
-		if ( isDockerInstalledAndActive( ) &&
+		if ( csapApis.isContainerProviderInstalledAndActive( ) &&
 				instance.getDockerVersionCommand( ) != null ) {
 
 			if ( container.getContainerName( ).equals( "default" ) ) {
@@ -2455,7 +2463,7 @@ public class Application {
 
 			} else {
 
-				String versionOutput = dockerIntegration.containerCommand(
+				String versionOutput = csapApis.containerIntegration( ).containerCommand(
 						container.getContainerName( ),
 						"bash", "-c",
 						instance.getDockerVersionCommand( ) ) ;
@@ -2720,9 +2728,9 @@ public class Application {
 			}
 
 			// update jobs based on settings
-			if ( getOsManager( ) != null && getOsManager( ).getInfraRunner( ) != null ) {
+			if ( csapApis.osManager( ) != null && csapApis.osManager( ).getInfraRunner( ) != null ) {
 
-				getOsManager( ).getInfraRunner( ).scheduleInfrastructure( ) ;
+				csapApis.osManager( ).getInfraRunner( ).scheduleInfrastructure( ) ;
 
 			}
 
@@ -2763,8 +2771,11 @@ public class Application {
 
 			applicationLoadedAtMillis = System.currentTimeMillis( ) ;
 
+			csapApis.osManager( ).resetAllCaches( ) ;
+
 			var reloadSummary = latestReloadInfo( ) ;
-			csapEventClient.publishEvent(
+
+			csapApis.events( ).publishEvent(
 					CsapEvents.CSAP_SYSTEM_CATEGORY + "/model/reload", "Reloaded Cluster",
 					reloadSummary, null ) ;
 
@@ -2776,7 +2787,7 @@ public class Application {
 					"path", applicationDefinition( ).getAbsolutePath( ),
 					"error", CSAP.buildCsapStack( e ) ) ) ;
 
-			csapEventClient.publishEvent( CsapCore.AGENT_NAME,
+			csapApis.events( ).publishEvent( CsapConstants.AGENT_NAME,
 					" parsing: " + applicationDefinition( ).getAbsolutePath( ), "Parse Failure", e ) ;
 
 		}
@@ -2848,19 +2859,18 @@ public class Application {
 					csapCoreService.getSslCertificatePass( ) ) ;
 
 		}
-		
+
 		var latestTimeoutSeconds = rootProjectEnvSettings( ).getAdminToAgentTimeoutSeconds( ) ;
-		
-		var needToReloadAgentConnections = latestHostCount != previousHostCount 
-				|| previousHostTimeoutSeconds !=  latestTimeoutSeconds;
-		
+
+		var needToReloadAgentConnections = latestHostCount != previousHostCount
+				|| previousHostTimeoutSeconds != latestTimeoutSeconds ;
+
 		logger.info( CSAP.buildDescription( "Agent Connection Pool",
-				"needToReloadAgentConnections", needToReloadAgentConnections, 
+				"needToReloadAgentConnections", needToReloadAgentConnections,
 				"latestHostCount", latestHostCount,
 				"previousHostCount", previousHostCount,
-				"latestTimeoutSeconds", latestTimeoutSeconds, 
-				"previousHostTimeoutSeconds", previousHostTimeoutSeconds
-				) );
+				"latestTimeoutSeconds", latestTimeoutSeconds,
+				"previousHostTimeoutSeconds", previousHostTimeoutSeconds ) ) ;
 
 		if ( needToReloadAgentConnections ) {
 
@@ -3089,7 +3099,7 @@ public class Application {
 						getCsapHostEnvironmentName( ) ) ) ;
 
 		_hostStatusManager = new HostStatusManager(
-				this,
+				csapApis,
 				rootProjectEnvSettings( ).getNumberWorkerThreads( ),
 				allHostsInAllPackages ) ;
 
@@ -3217,28 +3227,28 @@ public class Application {
 
 //		osManager.checkForProcessStatusUpdate( ) ;
 
-		var timer = metrics( ).startTimer( ) ;
+		var timer = csapApis.metrics( ).startTimer( ) ;
 
 		getActiveProject( )
 				.getServicesOnHost( getCsapHostName( ) )
 				.filter( ServiceInstance::isFileSystemScanRequired )
 				.forEach( this::scanServiceFolderForArtifacts ) ;
 
-		metrics( ).stopTimer( timer, "csap.service.scan" ) ;
+		csapApis.metrics( ).stopTimer( timer, "csap.service.scan" ) ;
 
 	}
 
 	private void scanServiceFolderForArtifacts (
 													ServiceInstance instanceConfig ) {
 
-		var timer = metrics( ).startTimer( ) ;
+		var timer = csapApis.metrics( ).startTimer( ) ;
 
 		if ( instanceConfig.is_cluster_kubernetes( ) ) {
 			// k8s version info is store on master: service is inactive, but info is
 			// available.
 
 		} else if ( instanceConfig.is_docker_server( ) &&
-				( ( ! isDockerInstalledAndActive( ) )
+				( ( ! csapApis.isContainerProviderInstalledAndActive( ) )
 						|| ! instanceConfig.getDefaultContainer( ).isRunning( ) ) ) {
 
 			logger.debug( "{} Delaying docker scan until status is started", instanceConfig.getName( ) ) ;
@@ -3253,7 +3263,7 @@ public class Application {
 
 		instanceConfig.setFileSystemScanRequired( false ) ;
 
-		metrics( ).stopTimer( timer, PERFORMANCE_ID + "service.scan." + instanceConfig.getName( ) ) ;
+		csapApis.metrics( ).stopTimer( timer, PERFORMANCE_ID + "service.scan." + instanceConfig.getName( ) ) ;
 
 	}
 
@@ -3311,7 +3321,7 @@ public class Application {
 
 	public File getAgentWebDir ( ) {
 
-		File libDir = getLibraryFolder( getServiceInstanceCurrentHost( CsapCore.AGENT_ID ) ) ;
+		File libDir = getLibraryFolder( getServiceInstanceCurrentHost( CsapConstants.AGENT_ID ) ) ;
 
 		File agentWebDir = new File( libDir.getParentFile( ), "classes/static/htmlViewer" ) ;
 
@@ -3586,7 +3596,7 @@ public class Application {
 	// Determines when to reload application definition
 	//
 	private long sumOfDefinitionTimestamps = -1 ;
-	private long applicationLoadedAtMillis = 0 ;
+	volatile private long applicationLoadedAtMillis = 0 ;
 
 	public String lastOp = "0::csap restarted" ;
 
@@ -3594,31 +3604,12 @@ public class Application {
 
 	private long lastKubernetesFileSystemScanMillis = 0 ;
 
-	@Inject
-	CsapEvents csapEventClient ;
-
 	private SimpleDateFormat df = new SimpleDateFormat( "E MMM d,  HH:mm" ) ;
 
 	private String motdMessage = "Last restart: "
 			+ df.format( new Date( ) ) ;
 
 	OsCommandRunner osCommandRunner = new OsCommandRunner( 90, 3, "CapMgr" ) ; // apachectl
-	// should be
-	// very fast
-
-	// will match servlet at least.
-
-	public OsManager getOsManager ( ) {
-
-		return osManager ;
-
-	}
-
-	// final OperatingSystemMXBean osStats =
-	// ManagementFactory.getOperatingSystemMXBean();
-
-	// final OperatingSystemMXBean osStats =
-	// ManagementFactory.getOperatingSystemMXBean() ;
 
 	ScheduledFuture<?> applicationScheduler = null ;
 
@@ -4001,97 +3992,6 @@ public class Application {
 
 	}
 
-	DecimalFormat percentFormat = new DecimalFormat( "#.#%" ) ;
-
-	String getPercent (
-						double num ) {
-
-		// logger.info( "num: {}", num );
-		return percentFormat.format( num ) ;
-
-	}
-
-	public boolean isCrioInstalledAndActive ( ) {
-
-		if ( isJunit( )
-				|| ( isDesktopHost( )
-						&& getDockerIntegration( ).getSettings( ).getUrl( ).contains( "podman" ) ) ) {
-
-			return true ;
-
-		}
-
-		return is_service_running( "crio" ) ;
-
-	}
-
-	public String getDockerHost ( ) throws URISyntaxException {
-
-		var containerUrl = getDockerIntegration( ).getSettings( ).getUrl( ) ;
-		var uri = new URI( containerUrl ) ;
-		var dockerHost = uri.getHost( ) ;
-		return dockerHost ;
-
-	}
-
-	public CrioIntegraton crio ( ) {
-
-		return crioIntegraton ;
-
-	}
-
-	private File crioConf = new File( "/etc/crio/crio.conf" ) ;
-
-	private File podManStorage = new File( "/var/lib/containers" ) ;
-
-	private File dockerSocket = new File( "/var/run/docker.sock" ) ;
-
-	public boolean isDockerInstalledAndActive ( ) {
-
-		if ( dockerIntegration == null
-				|| dockerIntegration.getDockerClient( ) == null
-				|| isDockerDeployInProgress ) {
-
-			return false ;
-
-		}
-
-		if ( is_service_running( "docker" )
-				|| is_service_running( "podman-system-service" ) ) {
-
-			return true ;
-
-		}
-
-		// docker started outside of csap instance: agent in container or agent in
-		// monitor mode
-		if ( dockerSocket.exists( )
-				&& dockerSocket.canRead( )
-				&& dockerSocket.canWrite( ) ) {
-
-			logger.debug( "found dockerd running" ) ;
-			return true ;
-
-		}
-
-		return false ;
-
-	}
-
-	boolean isDockerDeployInProgress = false ;
-
-	public boolean isDockerDeployInProgress ( ) {
-
-		return isDockerDeployInProgress ;
-
-	}
-
-	public void setDockerDeployInProgress ( boolean isDockerDeployInProgress ) {
-
-		this.isDockerDeployInProgress = isDockerDeployInProgress ;
-
-	}
-
 	public boolean is_service_running (
 										String serviceName ) {
 
@@ -4100,39 +4000,6 @@ public class Application {
 		// logger.info( "dockerInstance: {}", dockerInstance.toString() );
 
 		return ( instance != null && instance.getDefaultContainer( ).isRunning( ) ) ;
-
-	}
-
-	public boolean isKubernetesInstalledAndActive ( ) {
-
-		if ( ! isApplicationLoaded( ) ) {
-
-			return false ;
-
-		}
-
-		if ( isAgentProfile( ) ) {
-
-			if ( kubernetesIntegration == null ) {
-
-				return false ;
-
-			} else if ( crioConf.exists( ) ) {
-
-				// no op
-			} else if ( ! isDockerInstalledAndActive( ) ) {
-
-				return false ;
-
-			}
-
-			return is_service_running( kubernetesIntegration.getDiscoveredServiceName( ) ) ;
-
-		} else {
-
-			return false ;
-
-		}
 
 	}
 
@@ -4235,19 +4102,6 @@ public class Application {
 
 	}
 
-	public CsapEvents getEventClient ( ) {
-
-		return csapEventClient ;
-
-	}
-
-	public void setEventClient (
-									CsapEvents client ) {
-
-		this.csapEventClient = client ;
-
-	}
-
 	public String getMotdMessage ( ) {
 
 		return motdMessage ;
@@ -4329,7 +4183,7 @@ public class Application {
 
 		}
 
-		if ( isRunningOnDesktop( ) && serviceFlexId.equals( CsapCore.AGENT_ID ) ) {
+		if ( isRunningOnDesktop( ) && serviceFlexId.equals( CsapConstants.AGENT_ID ) ) {
 
 			propFile = new File( getCsapWorkingFolder( ) + "/../../src/main/resources" ) ;
 
@@ -4386,7 +4240,7 @@ public class Application {
 	public int getMaxDeploySecondsForService ( String serviceNamePort ) {
 
 		// in case port is added
-		String serviceName = serviceNamePort.split( "_" )[ 0 ] ;
+		String serviceName = serviceNamePort.split( "_" )[0] ;
 
 		OptionalInt largestTimeout = getAllPackages( ).getServiceInstances( serviceName )
 				.mapToInt( ServiceInstance::getDeployTimeOutSeconds )
@@ -4419,8 +4273,8 @@ public class Application {
 
 		}
 
-		String svcName = serviceDescription[ 0 ] ;
-		String port = serviceDescription[ 1 ] ;
+		String svcName = serviceDescription[0] ;
+		String port = serviceDescription[1] ;
 		ArrayList<ServiceInstance> instanceList = getRootProject( )
 				.getAllPackagesModel( )
 				.getServiceToAllInstancesMap( )
@@ -4463,8 +4317,8 @@ public class Application {
 
 		}
 
-		String svcName = svc[ 0 ] ;
-		String port = svc[ 1 ] ;
+		String svcName = svc[0] ;
+		String port = svc[1] ;
 		ArrayList<ServiceInstance> instanceList = getProject( releasePackage )
 				.getServiceToAllInstancesMap( )
 				.get(
@@ -4496,7 +4350,13 @@ public class Application {
 	public ServiceInstance getServiceInstanceCurrentHost (
 															String svcName_port ) {
 
-		return getServiceInstance( svcName_port, getCsapHostName( ), getActiveProjectName( ) ) ;
+		if ( StringUtils.isNotEmpty( svcName_port ) ) {
+
+			return getServiceInstance( svcName_port, getCsapHostName( ), getActiveProjectName( ) ) ;
+
+		}
+
+		return null ;
 
 	}
 
@@ -4559,7 +4419,7 @@ public class Application {
 
 		String[] serviceDescription = serviceName.split( "_", 2 ) ;
 
-		String svcName = serviceDescription[ 0 ] ;
+		String svcName = serviceDescription[0] ;
 		// String port = serviceDescription[1] ;
 		var instanceList = targetModel
 				.getServicesListOnHost( hostname ) ;
@@ -4617,7 +4477,7 @@ public class Application {
 
 	public ServiceInstance getLocalAgent ( ) {
 
-		return findServiceByNameOnCurrentHost( CsapCore.AGENT_NAME ) ;
+		return findServiceByNameOnCurrentHost( CsapConstants.AGENT_NAME ) ;
 
 	}
 
@@ -4674,7 +4534,7 @@ public class Application {
 	public TreeMap<String, HashSet<String>> getServiceToArtifactMap (
 																		Project model ) {
 
-		var timer = metrics( ).startTimer( ) ;
+		var timer = csapApis.metrics( ).startTimer( ) ;
 
 		if ( getHostStatusManager( ) == null ) {
 
@@ -4753,7 +4613,7 @@ public class Application {
 
 		serviceToArtifactMap = working_serviceToVersionMap ;
 
-		metrics( ).stopTimer( timer, PERFORMANCE_ID + "service.artifactMap" ) ;
+		csapApis.metrics( ).stopTimer( timer, PERFORMANCE_ID + "service.artifactMap" ) ;
 		return serviceToArtifactMap ;
 
 	}
@@ -4777,7 +4637,8 @@ public class Application {
 
 		} catch ( Exception ex ) {
 
-			Application.getInstance( ).logger.warn( "Failed when checking {}", path.getAbsolutePath( ), ex ) ;
+			CsapApis.getInstance( ).application( ).logger.warn( "Failed when checking {}", path.getAbsolutePath( ),
+					ex ) ;
 
 		}
 
@@ -4892,7 +4753,7 @@ public class Application {
 	 */
 	public ObjectNode servicePerformanceLabels ( ) {
 
-		var timer = metrics( ).startTimer( ) ;
+		var timer = csapApis.metrics( ).startTimer( ) ;
 
 		ObjectNode serviceAttributesMap = jacksonMapper.createObjectNode( ) ;
 
@@ -5006,7 +4867,7 @@ public class Application {
 			// getServiceDefinition( serviceName );
 		} ) ;
 
-		metrics( ).stopTimer( timer, PERFORMANCE_ID + "service.performanceLabels" ) ;
+		csapApis.metrics( ).stopTimer( timer, PERFORMANCE_ID + "service.performanceLabels" ) ;
 
 		return serviceAttributesMap ;
 
@@ -5121,40 +4982,7 @@ public class Application {
 
 	}
 
-	/**
-	 * Kill off the spawned threads - triggered from ServiceRequests
-	 */
-	private boolean shutdown = false ;
-
-	public boolean isShutdown ( ) {
-
-		return shutdown ;
-
-	}
-
-	@EventListener ( {
-			ContextClosedEvent.class
-	} )
-	public void onSpringShutdownEvent (
-										ContextClosedEvent event ) {
-
-		logger.warn( "Receive Spring ContextClosedEvent" ) ;
-		// shutdown();
-
-	}
-
-	volatile boolean shutdownInProgress ;
-
-	public boolean isShutdownInProgress ( ) {
-
-		return shutdownInProgress ;
-
-	}
-
-	@PreDestroy
 	public void shutdown ( ) {
-
-		shutdownInProgress = true ;
 
 		logger.info( CsapApplication.header( "shutting down application" ) ) ;
 
@@ -5178,9 +5006,6 @@ public class Application {
 			_hostStatusManager = null ;
 
 		}
-
-		getEventClient( ).flushEvents( ) ;
-		this.shutdown = true ;
 
 	}
 
@@ -5268,10 +5093,10 @@ public class Application {
 			// (double-quote, backslash etc)
 			int[] esc = CharacterEscapes.standardAsciiEscapesForJSON( ) ;
 			// and force escaping of a few others:
-			esc[ '<' ] = CharacterEscapes.ESCAPE_STANDARD ;
-			esc[ '>' ] = CharacterEscapes.ESCAPE_STANDARD ;
-			esc[ '&' ] = CharacterEscapes.ESCAPE_STANDARD ;
-			esc[ '\'' ] = CharacterEscapes.ESCAPE_STANDARD ;
+			esc['<'] = CharacterEscapes.ESCAPE_STANDARD ;
+			esc['>'] = CharacterEscapes.ESCAPE_STANDARD ;
+			esc['&'] = CharacterEscapes.ESCAPE_STANDARD ;
+			esc['\''] = CharacterEscapes.ESCAPE_STANDARD ;
 			asciiEscapes = esc ;
 
 		}
@@ -5311,7 +5136,7 @@ public class Application {
 
 		}
 
-		if ( serviceName.equals( CsapCore.AGENT_NAME ) ) {
+		if ( serviceName.equals( CsapConstants.AGENT_NAME ) ) {
 
 			hostModel = getRootProject( ) ;
 
@@ -5494,7 +5319,7 @@ public class Application {
 		if ( isRunningOnDesktop( )
 				&& ! targetFile.exists( )
 				&& StringUtils.isNotEmpty( serviceFlexId )
-				&& serviceFlexId.equals( CsapCore.AGENT_NAME )
+				&& serviceFlexId.equals( CsapConstants.AGENT_NAME )
 				&& fromFolder.contains( serviceFlexId ) ) {
 
 			var nameOffset = fromFolder.indexOf( serviceFlexId ) + serviceFlexId.length( ) + 1 ;
@@ -5557,14 +5382,14 @@ public class Application {
 
 	}
 
-	public CsapCoreService getCsapCoreService ( ) {
+	public ApplicationConfiguration getCsapCoreService ( ) {
 
 		return csapCoreService ;
 
 	}
 
 	public void setCsapCoreService (
-										CsapCoreService agentService ) {
+										ApplicationConfiguration agentService ) {
 
 		this.csapCoreService = agentService ;
 
@@ -5718,13 +5543,13 @@ public class Application {
 
 	public File getAutoStartDisabledFile ( ) {
 
-		return new File( getAgentRunHome( ) + "/" + CsapCore.AUTO_START_DISABLED_FILE ) ;
+		return new File( getAgentRunHome( ) + "/" + CsapConstants.AUTO_START_DISABLED_FILE ) ;
 
 	}
 
 	public File getAutoPlayFile ( ) {
 
-		return new File( getAgentRunHome( ) + "/" + CsapCore.AUTO_PLAY_FILE ) ;
+		return new File( getAgentRunHome( ) + "/" + CsapConstants.AUTO_PLAY_FILE ) ;
 
 	}
 
@@ -5777,19 +5602,6 @@ public class Application {
 
 	}
 
-	public ContainerIntegration getDockerIntegration ( ) {
-
-		return dockerIntegration ;
-
-	}
-
-	public void setDockerIntegration (
-										ContainerIntegration dockerHelper ) {
-
-		this.dockerIntegration = dockerHelper ;
-
-	}
-
 	public CsapSecuritySettings getSecuritySettings ( ) {
 
 		return securitySettings ;
@@ -5810,21 +5622,9 @@ public class Application {
 
 	}
 
-	public KubernetesIntegration getKubernetesIntegration ( ) {
-
-		return kubernetesIntegration ;
-
-	}
-
 	public ServiceInstance kubeletInstance ( ) {
 
-		if ( getKubernetesIntegration( ) != null ) {
-
-			return findServiceByNameOnCurrentHost( getKubernetesIntegration( ).getDiscoveredServiceName( ) ) ;
-
-		}
-
-		return null ;
+		return findServiceByNameOnCurrentHost( csapApis.kubernetes( ).getDiscoveredServiceName( ) ) ;
 
 	}
 
@@ -5891,9 +5691,9 @@ public class Application {
 				locationUrl,
 				agentWebDirSetup ) ;
 
-		csapEventClient.publishUserEvent( CsapEvents.CSAP_OS_CATEGORY + "/file/htmlViewer",
+		csapApis.events( ).publishUserEvent( CsapEvents.CSAP_OS_CATEGORY + "/file/htmlViewer",
 				CsapUser.currentUsersID( ),
-				csapEventClient.fileName( targetFile, 100 ),
+				csapApis.events( ).fileName( targetFile, 100 ),
 				targetFile.getAbsolutePath( ) ) ;
 
 		String linkedContent = "**CSAP INJECTED: Use browser:" +
@@ -5904,18 +5704,6 @@ public class Application {
 		response.setHeader( "Location", locationUrl ) ;
 		response.setStatus( 302 ) ;
 		response.getWriter( ).println( linkedContent.getBytes( ) ) ;
-
-	}
-
-	public CsapMicroMeter.Utilities metrics ( ) {
-
-		return metricUtilities ;
-
-	}
-
-	public void setMetricUtilities ( CsapMicroMeter.Utilities metricUtilities ) {
-
-		this.metricUtilities = metricUtilities ;
 
 	}
 
@@ -5996,9 +5784,10 @@ public class Application {
 
 		var templateRepo = "docker.io" ;
 
-		if ( isDockerInstalledAndActive( ) ) {
+		if ( csapApis.isContainerProviderInstalledAndActive( ) ) {
 
-			templateRepo = getDockerIntegration( ).getDockerConfig( ).getDocker( ).getTemplateRepository( ) ;
+			templateRepo = csapApis.containerIntegration( ).getDockerConfig( ).getSettings( )
+					.getTemplateRepository( ) ;
 
 		}
 
@@ -6010,7 +5799,7 @@ public class Application {
 			if ( StringUtils.isNotEmpty( imageName ) ) {
 
 				imageName = dockerSettings.path( "image" ).asText( ).replaceAll(
-						Matcher.quoteReplacement( CsapCore.DOCKER_REPOSITORY ),
+						Matcher.quoteReplacement( CsapConstants.DOCKER_REPOSITORY ),
 						Matcher.quoteReplacement( templateRepo ) ) ;
 
 				dockerSettings.put( "image", imageName ) ;
@@ -6024,7 +5813,7 @@ public class Application {
 			if ( StringUtils.isNoneEmpty( imageName ) ) {
 
 				imageName = serviceTemplate.path( "image" ).asText( ).replaceAll(
-						Matcher.quoteReplacement( CsapCore.DOCKER_REPOSITORY ),
+						Matcher.quoteReplacement( CsapConstants.DOCKER_REPOSITORY ),
 						Matcher.quoteReplacement( templateRepo ) ) ;
 
 				serviceTemplate.put( "image", imageName ) ;
@@ -6044,7 +5833,7 @@ public class Application {
 		switch ( key ) {
 
 		case "DEFINITION_URL":
-			urlPath = CsapCoreService.DEFINITION_URL ;
+			urlPath = CsapConstants.DEFINITION_URL ;
 			break ;
 
 		case "EXPLORER_URL":
@@ -6052,11 +5841,11 @@ public class Application {
 			break ;
 
 		case "FILE_URL":
-			urlPath = CsapCoreService.FILE_URL ;
+			urlPath = CsapConstants.FILE_URL ;
 			break ;
 
 		case "OS_URL":
-			urlPath = CsapCoreService.OS_URL ;
+			urlPath = CsapConstants.OS_URL ;
 			break ;
 
 		default:
@@ -6065,6 +5854,18 @@ public class Application {
 		}
 
 		return urlPath ;
+
+	}
+
+	public String getServiceDebugName ( ) {
+
+		return serviceDebugName ;
+
+	}
+
+	public void setServiceDebugName ( String serviceDebugName ) {
+
+		this.serviceDebugName = serviceDebugName ;
 
 	}
 

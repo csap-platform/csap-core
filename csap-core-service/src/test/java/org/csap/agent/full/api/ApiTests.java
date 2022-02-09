@@ -14,17 +14,17 @@ import javax.inject.Inject ;
 
 import org.apache.commons.io.FileUtils ;
 import org.csap.agent.Agent_context_loaded ;
+import org.csap.agent.CsapApis ;
 import org.csap.agent.CsapBareTest ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.api.AgentApi ;
 import org.csap.agent.api.ApplicationApi ;
-import org.csap.agent.container.kubernetes.KubernetesJson ;
+import org.csap.agent.container.kubernetes.K8 ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.HealthManager ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
-import org.csap.integations.CsapMicroMeter ;
+import org.csap.integations.micrometer.CsapMicroMeter ;
 import org.csap.security.config.CsapSecuritySettings ;
 import org.junit.jupiter.api.Assumptions ;
 import org.junit.jupiter.api.BeforeAll ;
@@ -48,6 +48,7 @@ import com.fasterxml.jackson.databind.ObjectMapper ;
 import com.fasterxml.jackson.databind.node.ObjectNode ;
 
 @Tag ( "full" )
+@Tag ( "my-state" )
 @CsapBareTest.Agent_Full
 class ApiTests {
 
@@ -65,6 +66,9 @@ class ApiTests {
 
 	@Inject
 	Application csapApp ;
+
+	@Inject
+	CsapApis csapApis ;
 
 	@Inject
 	AgentApi agentApi ;
@@ -157,7 +161,7 @@ class ApiTests {
 
 				// mock does much validation.....
 				ResultActions resultActions = mockMvc.perform(
-						get( CsapCoreService.API_MODEL_URL + "/clusters" )
+						get( CsapConstants.API_MODEL_URL + "/clusters" )
 								.accept( MediaType.APPLICATION_JSON ) ) ;
 
 				// But you could do full parsing of the Json result if needed
@@ -212,7 +216,7 @@ class ApiTests {
 
 			logger.info( "Waiting for processStatusUpdate to complete" ) ;
 			// First update with process data
-			csapApp.getOsManager( ).checkForProcessStatusUpdate( ) ;
+			csapApis.osManager( ).checkForProcessStatusUpdate( ) ;
 
 		}
 
@@ -270,20 +274,21 @@ class ApiTests {
 
 			var summaryReport = healthAndSummaryReport.path( "report" ) ;
 
-			assertThat( summaryReport.path( KubernetesJson.heartbeat.json( ) ).asBoolean( ) ).isTrue( ) ;
+			assertThat( summaryReport.path( K8.heartbeat.val( ) ).asBoolean( ) ).isTrue( ) ;
 
 			var nodeMetrics = summaryReport.path( "metrics" ).path( "current" ) ;
 			var foundVersion = nodeMetrics.path( "version" ).asText( ) ;
 
 			logger.info( "foundVersion: {}", foundVersion ) ;
-			assertThat( foundVersion.startsWith( "v1.21." )
+			assertThat( foundVersion.startsWith( "v1.23." )
+					|| foundVersion.startsWith( "v1.21." )
 					|| foundVersion.startsWith( "v1.20." )
 					|| foundVersion.startsWith( "v1.19." )
 					|| foundVersion.startsWith( "v1.18." )
 					|| foundVersion.startsWith( "v1.16." ) )
 							.isTrue( ) ;
 
-			assertThat( nodeMetrics.path( KubernetesJson.memoryGb.json( ) ).asDouble( ) ).isGreaterThan( 7 ) ;
+			assertThat( nodeMetrics.path( K8.memoryGb.val( ) ).asDouble( ) ).isGreaterThan( 7 ) ;
 
 			// assertThat( //
 			// kubernetesHealth.path( CsapMicroMeter.HealthReport.Report.name.json )
@@ -342,14 +347,14 @@ class ApiTests {
 
 			// update with JMX data
 			// ServiceCollector serviceCollection = new ServiceCollector( csapApp,
-			// csapApp.getOsManager(), 30, false );
+			// csapApis.osManager(), 30, false );
 			// serviceCollection.shutdown();
 			// serviceCollection.testJmxCollection( "csap-dev01" );
 
 			var agentHealth = agentApi.health( 1.0, Application.ALL_PACKAGES ) ;
 
 			// Print it out for generating tests using jackson
-			logger.info( "Health: {}", CsapCore.jsonPrint( jacksonMapper, agentHealth ) ) ;
+			logger.info( "Health: {}", CsapConstants.jsonPrint( jacksonMapper, agentHealth ) ) ;
 
 			assertThat( agentHealth.at( "/Healthy" ).asBoolean( ) )
 					.isFalse( ) ;

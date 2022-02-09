@@ -4,8 +4,7 @@ import javax.servlet.http.HttpServletRequest ;
 
 import org.apache.commons.logging.Log ;
 import org.apache.commons.logging.LogFactory ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.model.Application ;
 import org.springframework.beans.factory.annotation.Autowired ;
 import org.springframework.web.bind.annotation.RequestMapping ;
@@ -15,7 +14,7 @@ import org.springframework.web.servlet.ModelAndView ;
 import org.springframework.web.servlet.view.RedirectView ;
 
 @RestController
-@RequestMapping ( CsapCoreService.BASE_URL )
+@RequestMapping ( CsapConstants.BASE_URL )
 public class Redirects {
 
 	protected final Log logger = LogFactory.getLog( getClass( ) ) ;
@@ -32,7 +31,8 @@ public class Redirects {
 		redirectView.setContextRelative( false ) ;
 		redirectView.setPropagateQueryParams( true ) ;
 		redirectView
-				.setUrl( csapApp.rootProjectEnvSettings( ).getCsapAnalyticsServerRootUrl( ) + "/" + CsapCore.ADMIN_NAME
+				.setUrl( csapApp.rootProjectEnvSettings( ).getCsapAnalyticsServerRootUrl( ) + "/"
+						+ CsapConstants.ADMIN_NAME
 						+ "/viewScreencast" ) ;
 		ModelAndView mav = new ModelAndView( redirectView ) ;
 
@@ -91,7 +91,7 @@ public class Redirects {
 
 	}
 
-	@RequestMapping ( CsapCoreService.MAINHOSTS_URL )
+	@RequestMapping ( CsapConstants.MAINHOSTS_URL )
 	public ModelAndView hostsLegacy ( ) {
 
 		return new ModelAndView( "redirect:/app-browser#hosts-tab,cpu" ) ;

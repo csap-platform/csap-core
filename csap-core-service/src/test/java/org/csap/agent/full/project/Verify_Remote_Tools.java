@@ -56,7 +56,7 @@ public class Verify_Remote_Tools extends CsapThinTests {
 						.getPath( ) ) ;
 
 		getApplication( ).setJvmInManagerMode( true ) ;
-		HostStatusManager testStatus = new HostStatusManager( "CsAgent_Host_Response.json", getApplication( ) ) ;
+		HostStatusManager testStatus = new HostStatusManager( "CsAgent_Host_Response.json", getCsapApis( ) ) ;
 		getApplication( ).setHostStatusManager( testStatus ) ;
 
 		assertThat( getApplication( ).loadCleanForJunits( false, csapApplicationDefinition ) )

@@ -20,12 +20,12 @@ import javax.servlet.http.HttpServletResponse ;
 import org.apache.commons.io.FileUtils ;
 import org.apache.commons.lang3.StringUtils ;
 import org.csap.CsapMonitor ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
-import org.csap.agent.CsapTemplate ;
-import org.csap.agent.container.DockerJson ;
+import org.csap.agent.ApplicationConfiguration ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.CsapTemplates ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.integrations.CsapEvents ;
-import org.csap.agent.model.ActiveUsers ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.HealthManager ;
 import org.csap.agent.model.Project ;
@@ -68,7 +68,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode ;
 @RestController
 @CsapMonitor ( prefix = "api.application" )
 @RequestMapping ( {
-		CsapCoreService.API_URL + "/application"
+		CsapConstants.API_URL + "/application"
 } )
 @CsapDoc ( title = "/api/application/*: apis for querying data aggregated across all hosts." , type = CsapDoc.PUBLIC , notes = {
 		"CSAP Application Performance APis provide access to the runtime data aggregated across all hosts.",
@@ -89,12 +89,12 @@ public class ApplicationApi {
 
 	ServiceCommands serviceCommands ;
 
-	private Application csapApp ;
+	private CsapApis csapApis ;
 	private ObjectNode managerError ;
 
-	public ApplicationApi ( Application application, CsapEvents csapEventClient, ServiceCommands serviceCommands ) {
+	public ApplicationApi ( CsapApis csapApis, CsapEvents csapEventClient, ServiceCommands serviceCommands ) {
 
-		this.csapApp = application ;
+		this.csapApis = csapApis ;
 		this.csapEventClient = csapEventClient ;
 		this.serviceCommands = serviceCommands ;
 
@@ -115,12 +115,12 @@ public class ApplicationApi {
 			"definition validate"
 	} , linkPostParams = {
 			USERID_PASS_PARAMS
-					+ "definition=useCurrent," + CsapCore.PROJECT_PARAMETER + "=useCurrent"
+					+ "definition=useCurrent," + CsapConstants.PROJECT_PARAMETER + "=useCurrent"
 	} )
 	@PostMapping ( value = "/definition/validate" )
 	public ObjectNode definitionValidate (
 											@RequestParam ( "definition" ) String definition ,
-											@RequestParam ( value = CsapCore.PROJECT_PARAMETER ) String csapProjectName ,
+											@RequestParam ( value = CsapConstants.PROJECT_PARAMETER ) String csapProjectName ,
 											@RequestParam ( SpringAuthCachingFilter.USERID ) String userid ,
 											@RequestParam ( SpringAuthCachingFilter.PASSWORD ) String inputPass )
 		throws Exception {
@@ -129,19 +129,19 @@ public class ApplicationApi {
 
 		if ( definition.equals( "useCurrent" ) ) {
 
-			definition = csapApp.getRootProject( ).getSourceDefinition( ).toString( ) ;
+			definition = csapApis.application( ).getRootProject( ).getSourceDefinition( ).toString( ) ;
 
 		}
 
 		if ( csapProjectName.equals( "useCurrent" ) ) {
 
-			csapProjectName = csapApp.getRootProject( ).getName( ) ;
+			csapProjectName = csapApis.application( ).getRootProject( ).getName( ) ;
 
 		}
 
 		logger.debug( "{} model contains: {}", csapProjectName, definition ) ;
 
-		return csapApp.checkDefinitionForParsingIssues( definition, csapProjectName ) ;
+		return csapApis.application( ).checkDefinitionForParsingIssues( definition, csapProjectName ) ;
 
 	}
 
@@ -169,7 +169,7 @@ public class ApplicationApi {
 
 		String results = definitionRequests
 				.application_reload( userid, inputPass, branch, "HostCommand" )
-				.get( DockerJson.response_plain_text.json( ) )
+				.get( C7.response_plain_text.val( ) )
 				.asText( ) ;
 
 		return results ;
@@ -200,22 +200,23 @@ public class ApplicationApi {
 	public ObjectNode health (
 								@RequestParam ( defaultValue = "0.99" ) double alertLevel ,
 								@RequestParam ( defaultValue = "true" ) boolean details ,
-								@RequestParam ( value = CsapCore.PROJECT_PARAMETER , defaultValue = Application.ALL_PACKAGES ) String csapProjectName )
+								@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , defaultValue = Application.ALL_PACKAGES ) String csapProjectName )
 		throws Exception {
 
 		ObjectNode healthJson = jacksonMapper.createObjectNode( ) ;
 
-		Project requestedPackage = csapApp.getProject( csapProjectName ) ;
+		Project requestedPackage = csapApis.application( ).getProject( csapProjectName ) ;
 
 		var includeKubernetesCheck = false ;
 
-		if ( csapApp.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			includeKubernetesCheck = true ; // detects k8s crashed processes
 
 		}
 
-		ObjectNode reportNode = csapApp.healthManager( ).build_health_report( alertLevel, includeKubernetesCheck,
+		ObjectNode reportNode = csapApis.application( ).healthManager( ).build_health_report( alertLevel,
+				includeKubernetesCheck,
 				requestedPackage ) ;
 
 		if ( reportNode.path( "summary" ).size( ) == 0 ) {
@@ -248,7 +249,7 @@ public class ApplicationApi {
 
 		response.put( "info", "add service name to url" ) ;
 		response.set( "availableServices", jacksonMapper.convertValue(
-				csapApp.getActiveProject( ).getAllPackagesModel( ).getServiceNamesInLifecycle( ),
+				csapApis.application( ).getActiveProject( ).getAllPackagesModel( ).getServiceNamesInLifecycle( ),
 				ArrayNode.class ) ) ;
 		return response ;
 
@@ -260,7 +261,7 @@ public class ApplicationApi {
 
 		response.put( "info", "invalid project: " + specifiedPackage ) ;
 		response.set( "projects", jacksonMapper.convertValue(
-				csapApp.getPackageNames( ),
+				csapApis.application( ).getPackageNames( ),
 				ArrayNode.class ) ) ;
 		return response ;
 
@@ -272,16 +273,16 @@ public class ApplicationApi {
 	} )
 	@GetMapping ( value = "/health/reports" )
 	public JsonNode serviceHealthReports (
-											@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false , defaultValue = Application.ALL_PACKAGES ) String csapProjectName )
+											@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false , defaultValue = Application.ALL_PACKAGES ) String csapProjectName )
 		throws Exception {
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
 			return managerError ;
 
 		}
 
-		return csapApp.getHostStatusManager( ).getAllAlerts( ) ;
+		return csapApis.application( ).getHostStatusManager( ).getAllAlerts( ) ;
 
 	}
 
@@ -299,30 +300,31 @@ public class ApplicationApi {
 	@GetMapping ( value = "/collection" )
 	public JsonNode collection (
 									@RequestParam ( defaultValue = "true" ) boolean summary ,
-									@RequestParam ( value = CsapCore.PROJECT_PARAMETER , defaultValue = Application.ALL_PACKAGES ) String csapProjectName )
+									@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , defaultValue = Application.ALL_PACKAGES ) String csapProjectName )
 		throws Exception {
 
-		if ( ! csapApp.getPackageNames( ).contains( csapProjectName )
+		if ( ! csapApis.application( ).getPackageNames( ).contains( csapProjectName )
 				&& ! csapProjectName.equals( Application.ALL_PACKAGES ) ) {
 
 			return getAllPackages( csapProjectName ) ;
 
 		}
 
-		Project model = csapApp.getProject( csapProjectName ) ;
+		Project model = csapApis.application( ).getProject( csapProjectName ) ;
 
-		if ( csapApp.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			if ( summary ) {
 
 //				var x = jacksonMapper.createObjectNode( ) ;
 //				x.get( "missing" ).asBoolean( ) ; //cause exception
-				return csapApp.getHostStatusManager( ).buildCollectionSummaryReport( model ) ;
+				return csapApis.application( ).getHostStatusManager( ).buildCollectionSummaryReport( model ) ;
 
 			} else {
 
-				Map<String, ObjectNode> runtimeSummary = csapApp.getHostStatusManager( ).hostsRuntime( model
-						.getHostsCurrentLc( ) ) ;
+				Map<String, ObjectNode> runtimeSummary = csapApis.application( ).getHostStatusManager( ).hostsRuntime(
+						model
+								.getHostsCurrentLc( ) ) ;
 				return jacksonMapper.convertValue( runtimeSummary, ObjectNode.class ) ;
 
 			}
@@ -330,12 +332,13 @@ public class ApplicationApi {
 		} else {
 
 			Map<String, ObjectNode> hostToAgentReport = new HashMap<>( ) ;
-			hostToAgentReport.put( csapApp.getCsapHostName( ), (ObjectNode) csapApp.getOsManager( )
+			hostToAgentReport.put( csapApis.application( ).getCsapHostName( ), (ObjectNode) csapApis.osManager( )
 					.getHostRuntime( ) ) ;
 
 			if ( summary ) {
 
-				return csapApp.healthManager( ).buildCollectionSummaryReport( hostToAgentReport, csapProjectName ) ;
+				return csapApis.application( ).healthManager( ).buildCollectionSummaryReport( hostToAgentReport,
+						csapProjectName ) ;
 
 			} else {
 
@@ -364,13 +367,13 @@ public class ApplicationApi {
 	@GetMapping ( value = "/deployment/backlog" )
 	public JsonNode deploymentBacklog (
 										HttpServletRequest request ,
-										@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false , defaultValue = Application.ALL_PACKAGES ) String csapProjectName ,
+										@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false , defaultValue = Application.ALL_PACKAGES ) String csapProjectName ,
 										boolean isTotal )
 		throws Exception {
 
 		var summary = jacksonMapper.createObjectNode( ) ;
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
 			var agentBacklog = serviceManager.getJobStatus( ) ;
 
@@ -387,23 +390,24 @@ public class ApplicationApi {
 
 		}
 
-		if ( ! csapApp.getPackageNames( ).contains( csapProjectName )
+		if ( ! csapApis.application( ).getPackageNames( ).contains( csapProjectName )
 				&& ! csapProjectName.equals( Application.ALL_PACKAGES ) ) {
 
 			return getAllPackages( csapProjectName ) ;
 
 		}
 
-		Project model = csapApp.getProject( csapProjectName ) ;
-		var adminBacklogReport = csapApp.getHostStatusManager( ).hostsBacklog( model.getHostsCurrentLc( ), request
-				.getContextPath( ) + "/api/application/service/jobs/" ) ;
+		Project model = csapApis.application( ).getProject( csapProjectName ) ;
+		var adminBacklogReport = csapApis.application( ).getHostStatusManager( ).hostsBacklog( model
+				.getHostsCurrentLc( ), request
+						.getContextPath( ) + "/api/application/service/jobs/" ) ;
 
 		JsonNode result ;
 
 		if ( isTotal ) {
 
 			// force update to get latest count
-			csapApp.getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
+			csapApis.application( ).getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
 			var totalBacklogCount = CSAP.jsonStream( adminBacklogReport )
 					.map( hostReport -> (ObjectNode) hostReport )
 					.mapToInt( hostReport -> hostReport.path( "total-backlog" ).asInt( ) )
@@ -433,7 +437,7 @@ public class ApplicationApi {
 		JsonNode hostJobReport ;
 		;
 
-		if ( csapApp.isAdminProfile( ) ) {
+		if ( csapApis.application( ).isAdminProfile( ) ) {
 
 			var requestParameters = new LinkedMultiValueMap<String, String>( ) ;
 			var hostJobReports = serviceManager.remoteAgentsGet( List.of( host ), "/api/agent/service/jobs",
@@ -480,25 +484,25 @@ public class ApplicationApi {
 	} )
 	@GetMapping ( value = "/collection/hosts" )
 	public JsonNode collectionHosts (
-										@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false , defaultValue = Application.ALL_PACKAGES ) String csapProjectName )
+										@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false , defaultValue = Application.ALL_PACKAGES ) String csapProjectName )
 		throws Exception {
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
 			return managerError ;
 
 		}
 
-		if ( ! csapApp.getPackageNames( ).contains( csapProjectName )
+		if ( ! csapApis.application( ).getPackageNames( ).contains( csapProjectName )
 				&& ! csapProjectName.equals( Application.ALL_PACKAGES ) ) {
 
 			return getAllPackages( csapProjectName ) ;
 
 		}
 
-		Project model = csapApp.getProject( csapProjectName ) ;
+		Project model = csapApis.application( ).getProject( csapProjectName ) ;
 
-		Map<String, ObjectNode> runtimeSummary = csapApp.getHostStatusManager( ).hostsInfo( model
+		Map<String, ObjectNode> runtimeSummary = csapApis.application( ).getHostStatusManager( ).hostsInfo( model
 				.getHostsCurrentLc( ) ) ;
 
 		return jacksonMapper.convertValue( runtimeSummary, ObjectNode.class ) ;
@@ -518,25 +522,26 @@ public class ApplicationApi {
 	} )
 	@GetMapping ( value = SERVICES_COLLECTION_URI )
 	public JsonNode collectionHostsServices (
-												@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false , defaultValue = Application.ALL_PACKAGES ) String csapProjectName )
+												@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false , defaultValue = Application.ALL_PACKAGES ) String csapProjectName )
 		throws Exception {
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
 			return managerError ;
 
 		}
 
-		if ( ! csapApp.getPackageNames( ).contains( csapProjectName )
+		if ( ! csapApis.application( ).getPackageNames( ).contains( csapProjectName )
 				&& ! csapProjectName.equals( Application.ALL_PACKAGES ) ) {
 
 			return getAllPackages( csapProjectName ) ;
 
 		}
 
-		Project model = csapApp.getProject( csapProjectName ) ;
+		Project model = csapApis.application( ).getProject( csapProjectName ) ;
 
-		return csapApp.getHostStatusManager( ).serviceCollectionReport( model.getHostsCurrentLc( ), null, null ) ;
+		return csapApis.application( ).getHostStatusManager( ).serviceCollectionReport( model.getHostsCurrentLc( ),
+				null, null ) ;
 
 	}
 
@@ -553,25 +558,25 @@ public class ApplicationApi {
 	@GetMapping ( value = "/collection/hosts/services/{serviceNameFilter}" )
 	public JsonNode collectionHostsServicesFiltered (
 														@PathVariable ( "serviceNameFilter" ) String serviceNameFilter ,
-														@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false , defaultValue = Application.ALL_PACKAGES ) String csapProjectName )
+														@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false , defaultValue = Application.ALL_PACKAGES ) String csapProjectName )
 		throws Exception {
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
 			return managerError ;
 
 		}
 
-		if ( ! csapApp.getPackageNames( ).contains( csapProjectName )
+		if ( ! csapApis.application( ).getPackageNames( ).contains( csapProjectName )
 				&& ! csapProjectName.equals( Application.ALL_PACKAGES ) ) {
 
 			return getAllPackages( csapProjectName ) ;
 
 		}
 
-		Project model = csapApp.getProject( csapProjectName ) ;
+		Project model = csapApis.application( ).getProject( csapProjectName ) ;
 
-		return csapApp.getHostStatusManager( ).serviceCollectionReport( model.getHostsCurrentLc( ),
+		return csapApis.application( ).getHostStatusManager( ).serviceCollectionReport( model.getHostsCurrentLc( ),
 				serviceNameFilter,
 				null ) ;
 
@@ -593,25 +598,25 @@ public class ApplicationApi {
 	public JsonNode collectionHostsServicesAttributeFiltered (
 																@PathVariable ( "serviceNameFilter" ) String serviceNameFilter ,
 																@PathVariable ( "attributeName" ) String attributeName ,
-																@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false , defaultValue = Application.ALL_PACKAGES ) String csapProjectName )
+																@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false , defaultValue = Application.ALL_PACKAGES ) String csapProjectName )
 		throws Exception {
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
 			return managerError ;
 
 		}
 
-		if ( ! csapApp.getPackageNames( ).contains( csapProjectName )
+		if ( ! csapApis.application( ).getPackageNames( ).contains( csapProjectName )
 				&& ! csapProjectName.equals( Application.ALL_PACKAGES ) ) {
 
 			return getAllPackages( csapProjectName ) ;
 
 		}
 
-		Project model = csapApp.getProject( csapProjectName ) ;
+		Project model = csapApis.application( ).getProject( csapProjectName ) ;
 
-		return csapApp.getHostStatusManager( ).serviceCollectionReport( model.getHostsCurrentLc( ),
+		return csapApis.application( ).getHostStatusManager( ).serviceCollectionReport( model.getHostsCurrentLc( ),
 				serviceNameFilter,
 				attributeName ) ;
 
@@ -633,31 +638,32 @@ public class ApplicationApi {
 	public long servicesRunning (
 									@PathVariable ( "serviceNameFilter" ) String serviceNameFilter ,
 									boolean blocking ,
-									@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false , defaultValue = Application.ALL_PACKAGES ) String csapProjectName )
+									@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false , defaultValue = Application.ALL_PACKAGES ) String csapProjectName )
 		throws Exception {
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
 			return -1 ;
 
 		}
 
-		if ( ! csapApp.getPackageNames( ).contains( csapProjectName )
+		if ( ! csapApis.application( ).getPackageNames( ).contains( csapProjectName )
 				&& ! csapProjectName.equals( Application.ALL_PACKAGES ) ) {
 
 			return -1 ;
 
 		}
 
-		Project requestedProject = csapApp.getProject( csapProjectName ) ;
+		Project requestedProject = csapApis.application( ).getProject( csapProjectName ) ;
 
 		if ( blocking ) {
 
-			csapApp.getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
+			csapApis.application( ).getHostStatusManager( ).refreshAndWaitForComplete( null ) ;
 
 		}
 
-		var report = csapApp.getHostStatusManager( ).serviceCollectionReport( requestedProject.getHostsCurrentLc( ),
+		var report = csapApis.application( ).getHostStatusManager( ).serviceCollectionReport( requestedProject
+				.getHostsCurrentLc( ),
 				serviceNameFilter,
 				"running" ) ;
 
@@ -673,7 +679,7 @@ public class ApplicationApi {
 	}
 
 	@Autowired
-	CsapCoreService coreService ;
+	ApplicationConfiguration coreService ;
 
 	@GetMapping ( "/scorecard/versions" )
 	public JsonNode scoreCardVersions ( ) {
@@ -682,7 +688,7 @@ public class ApplicationApi {
 
 		scoreCardVersions.put( "csap", coreService.getMinVersionCsap( ) ) ;
 		scoreCardVersions.put( "kubelet", coreService.getMinVersionKubelet( ) ) ;
-		scoreCardVersions.put( "docker", coreService.getMinVersionDocker( ) ) ;
+		scoreCardVersions.put( C7.definitionSettings.val( ), coreService.getMinVersionDocker( ) ) ;
 
 		return scoreCardVersions ;
 
@@ -699,25 +705,25 @@ public class ApplicationApi {
 	} )
 	@GetMapping ( value = "/collection/hosts/cpu" )
 	public JsonNode collectionHostsCpu (
-											@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false , defaultValue = Application.ALL_PACKAGES ) String csapProjectName )
+											@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false , defaultValue = Application.ALL_PACKAGES ) String csapProjectName )
 		throws Exception {
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
 			return managerError ;
 
 		}
 
-		if ( ! csapApp.getPackageNames( ).contains( csapProjectName )
+		if ( ! csapApis.application( ).getPackageNames( ).contains( csapProjectName )
 				&& ! csapProjectName.equals( Application.ALL_PACKAGES ) ) {
 
 			return getAllPackages( csapProjectName ) ;
 
 		}
 
-		Project model = csapApp.getProject( csapProjectName ) ;
+		Project model = csapApis.application( ).getProject( csapProjectName ) ;
 
-		Map<String, ObjectNode> runtimeSummary = csapApp.getHostStatusManager( ).hostsCpuInfo( model
+		Map<String, ObjectNode> runtimeSummary = csapApis.application( ).getHostStatusManager( ).hostsCpuInfo( model
 				.getHostsCurrentLc( ) ) ;
 
 		return jacksonMapper.convertValue( runtimeSummary, ObjectNode.class ) ;
@@ -735,16 +741,16 @@ public class ApplicationApi {
 	} )
 	@GetMapping ( value = "/realTimeMeters" )
 	public JsonNode realTimeMeters (
-										@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false , defaultValue = Application.ALL_PACKAGES ) String csapProjectName )
+										@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false , defaultValue = Application.ALL_PACKAGES ) String csapProjectName )
 		throws Exception {
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
 			return managerError ;
 
 		}
 
-		if ( ! csapApp.getPackageNames( ).contains( csapProjectName )
+		if ( ! csapApis.application( ).getPackageNames( ).contains( csapProjectName )
 				&& ! csapProjectName.equals( Application.ALL_PACKAGES ) ) {
 
 			return getAllPackages( csapProjectName ) ;
@@ -753,10 +759,10 @@ public class ApplicationApi {
 
 		ArrayNode metersJson = jacksonMapper.createArrayNode( ) ;
 
-		metersJson = csapApp.rootProjectEnvSettings( ).getRealTimeMeters( ).deepCopy( ) ;
-		Project model = csapApp.getProject( csapProjectName ) ;
+		metersJson = csapApis.application( ).rootProjectEnvSettings( ).getRealTimeMeters( ).deepCopy( ) ;
+		Project model = csapApis.application( ).getProject( csapProjectName ) ;
 
-		csapApp.getHostStatusManager( ).updateRealTimeMeters( metersJson, model.getHostsCurrentLc( ),
+		csapApis.application( ).getHostStatusManager( ).updateRealTimeMeters( metersJson, model.getHostsCurrentLc( ),
 				null ) ;
 
 		return metersJson ;
@@ -764,7 +770,7 @@ public class ApplicationApi {
 	}
 
 	@CsapDoc ( notes = "Retrieves the url with the lowest cpu load, but is in service" , linkTests = {
-			CsapCore.AGENT_NAME,
+			CsapConstants.AGENT_NAME,
 			"list"
 	} , linkGetParams = {
 			"serviceName=csap-agent"
@@ -773,7 +779,7 @@ public class ApplicationApi {
 	public JsonNode serviceUrlWithLowLoad (
 											@PathVariable ( "serviceName" ) String serviceName ) {
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
 			return managerError ;
 
@@ -790,7 +796,7 @@ public class ApplicationApi {
 	}
 
 	@CsapDoc ( notes = "Retrieves the url with the lowest cpu usage, but is in service" , linkTests = {
-			CsapCore.AGENT_NAME,
+			CsapConstants.AGENT_NAME,
 			"list"
 	} , linkGetParams = {
 			"serviceName=csap-agent"
@@ -799,7 +805,7 @@ public class ApplicationApi {
 	public JsonNode serviceUrlWithLowCpu (
 											@PathVariable ( "serviceName" ) String serviceName ) {
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
 			return managerError ;
 
@@ -823,7 +829,7 @@ public class ApplicationApi {
 			"For specified service, retrieves urls for active instances",
 			"Lowest CPU load, and lowest CPU activity urls will also be noted "
 	} , linkTests = {
-			CsapCore.AGENT_NAME,
+			CsapConstants.AGENT_NAME,
 			"list"
 	} , linkGetParams = {
 			"serviceName=csap-agent"
@@ -832,7 +838,7 @@ public class ApplicationApi {
 	public JsonNode serviceUrlsWithLowItems (
 												@PathVariable ( "serviceName" ) String serviceName ) {
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
 			return managerError ;
 
@@ -857,7 +863,7 @@ public class ApplicationApi {
 			"get service urls for the specified service that are marked as running.",
 			"Optional Parameter: project may be specified to filter results. Default is all packages"
 	} , linkTests = {
-			CsapCore.AGENT_NAME,
+			CsapConstants.AGENT_NAME,
 			"csap-agent with project",
 			"list services"
 	} , linkGetParams = {
@@ -867,9 +873,9 @@ public class ApplicationApi {
 	@GetMapping ( value = "/service/urls/active/{serviceName}" )
 	public JsonNode serviceUrlsFilteredByActiveState (
 														@PathVariable ( "serviceName" ) String serviceName ,
-														@RequestParam ( value = CsapCore.PROJECT_PARAMETER , required = false , defaultValue = Application.ALL_PACKAGES ) String csapProjectName ) {
+														@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , required = false , defaultValue = Application.ALL_PACKAGES ) String csapProjectName ) {
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
 			return managerError ;
 
@@ -881,14 +887,14 @@ public class ApplicationApi {
 
 		}
 
-		if ( ! csapApp.getPackageNames( ).contains( csapProjectName )
+		if ( ! csapApis.application( ).getPackageNames( ).contains( csapProjectName )
 				&& ! csapProjectName.equals( Application.ALL_PACKAGES ) ) {
 
 			return getAllPackages( csapProjectName ) ;
 
 		}
 
-		List<String> urls = csapApp
+		List<String> urls = csapApis.application( )
 				.getActiveServiceInstances( csapProjectName, serviceName )
 				.map( serviceInstance -> serviceInstance.getUrl( ) )
 				.collect( Collectors.toList( ) ) ;
@@ -900,9 +906,9 @@ public class ApplicationApi {
 	//
 	private ObjectNode urlByLowestResource ( String serviceName , String attributePath ) {
 
-		List<String> hosts = csapApp
+		List<String> hosts = csapApis.application( )
 				.getServiceInstances( Application.ALL_PACKAGES, serviceName )
-				.filter( csapApp::isRunningInLatestCollection )
+				.filter( csapApis.application( )::isRunningInLatestCollection )
 				.map( serviceInstance -> serviceInstance.getHostName( ) )
 				.collect( Collectors.toList( ) ) ;
 
@@ -915,9 +921,9 @@ public class ApplicationApi {
 
 		logger.debug( "{} with service running", hosts ) ;
 
-		String lowHost = csapApp.findHostWithLowestAttribute( hosts, attributePath ) ;
+		String lowHost = csapApis.application( ).findHostWithLowestAttribute( hosts, attributePath ) ;
 
-		String lowUrl = csapApp
+		String lowUrl = csapApis.application( )
 				.getServiceInstances( Application.ALL_PACKAGES, serviceName )
 				.filter( serviceInstance -> serviceInstance.getHostName( ).equals( lowHost ) )
 				.findFirst( )
@@ -964,7 +970,7 @@ public class ApplicationApi {
 		ObjectNode userInfo ;
 		// userInfo = findUsingLdap( userid, full, userInfo ) ;
 
-		String restUrl = csapApp.rootProjectEnvSettings( )
+		String restUrl = csapApis.application( ).rootProjectEnvSettings( )
 				.getEventApiUrl( ) + "/latest?&category="
 				+ CsapEvents.CSAP_ACCESS_CATEGORY + "/" + userid ;
 
@@ -1111,15 +1117,15 @@ public class ApplicationApi {
 	// look for all hosts with matching cluster name
 	private List<String> findHosts ( String projectName , String simpleClusterName , ServiceInstance serviceInstance ) {
 
-		// String cluster = csapApp.getCsapHostEnvironmentName() +
+		// String cluster = csapApis.application().getCsapHostEnvironmentName() +
 		// ProjectLoader.ENVIRONMENT_CLUSTER_DELIMITER + simpleClusterName ;
 
-		List<String> hosts = csapApp.getProject( projectName )
+		List<String> hosts = csapApis.application( ).getProject( projectName )
 				.getClustersToHostMapInCurrentLifecycle( )
 				.get( simpleClusterName ) ;
 
 		logger.debug( "{} serviceName_port: {}, \n {}", serviceInstance.toSummaryString( ), hosts,
-				csapApp.getProject( projectName ).getLifeClusterToHostMap( ) ) ;
+				csapApis.application( ).getProject( projectName ).getLifeClusterToHostMap( ) ) ;
 
 		if ( serviceInstance.is_cluster_kubernetes( ) ) {
 
@@ -1163,7 +1169,7 @@ public class ApplicationApi {
 		csapEventClient.publishUserEvent( CsapEvents.CSAP_OS_CATEGORY + "/autoplay",
 				userid, "API: autoplay", "" ) ;
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
 			return managerError ;
 
@@ -1171,14 +1177,14 @@ public class ApplicationApi {
 
 		if ( StringUtils.isEmpty( content ) || content.equals( "demo" ) ) {
 
-			content = Application.readFile( CsapTemplate.demoAutoPlay.getFile( ) ) ;
+			content = Application.readFile( CsapTemplates.demoAutoPlay.getFile( ) ) ;
 
 		}
 
 		ObjectNode security = (ObjectNode) request
 				.getAttribute( SpringAuthCachingFilter.SEC_RESPONSE_ATTRIBUTE ) ;
 
-		var tempFolder = csapApp.csapPlatformTemp( ) ;
+		var tempFolder = csapApis.application( ).csapPlatformTemp( ) ;
 		var tempAutoPlay = new File( tempFolder, userid + "-auto-play.yaml" ) ;
 		FileUtils.writeStringToFile( tempAutoPlay, content ) ;
 
@@ -1186,7 +1192,7 @@ public class ApplicationApi {
 
 		if ( Application.isRunningOnDesktop( ) ) {
 
-			filePath = csapApp.stripWindowsPaths( filePath ) ;
+			filePath = csapApis.application( ).stripWindowsPaths( filePath ) ;
 
 		}
 
@@ -1197,9 +1203,11 @@ public class ApplicationApi {
 		// wait for reloads on all hosts
 		// try {
 		// TimeUnit.SECONDS.sleep( 2 );
-		// csapApp.getHostStatusManager().refreshAndWaitForComplete( null ) ;
+		// csapApis.application().getHostStatusManager().refreshAndWaitForComplete( null
+		// ) ;
 		// TimeUnit.SECONDS.sleep( 2 );
-		// csapApp.getHostStatusManager().refreshAndWaitForComplete( null ) ;
+		// csapApis.application().getHostStatusManager().refreshAndWaitForComplete( null
+		// ) ;
 		// } catch ( Exception e ) {
 		// logger.warn( "Failed to refresh host statuses" );
 		// }
@@ -1228,7 +1236,7 @@ public class ApplicationApi {
 									boolean apiStop ,
 									@RequestParam ( "serviceName" ) String serviceName ,
 									@RequestParam ( defaultValue = "" ) String cluster ,
-									@RequestParam ( value = CsapCore.PROJECT_PARAMETER , defaultValue = "" ) String project ,
+									@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , defaultValue = "" ) String project ,
 									@RequestParam ( defaultValue = "" ) String clean ,
 									@RequestParam ( defaultValue = "" ) String keepLogs ,
 									@RequestParam ( SpringAuthCachingFilter.USERID ) String userid ,
@@ -1241,7 +1249,7 @@ public class ApplicationApi {
 		csapEventClient.publishUserEvent( CsapEvents.CSAP_USER_SERVICE_CATEGORY + "/" + serviceName,
 				userid, "API: stop", "Cluster: " + cluster + " clean:" + clean ) ;
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
 			return managerError ;
 
@@ -1249,7 +1257,7 @@ public class ApplicationApi {
 
 		if ( StringUtils.isEmpty( project ) ) {
 
-			project = csapApp.getActiveProjectName( ) ;
+			project = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
@@ -1257,7 +1265,7 @@ public class ApplicationApi {
 				.getAttribute( SpringAuthCachingFilter.SEC_RESPONSE_ATTRIBUTE ) ;
 
 		ObjectNode stopResultReport = jacksonMapper.createObjectNode( ) ;
-		var serviceInstances = csapApp.serviceInstancesByName( project, serviceName ) ;
+		var serviceInstances = csapApis.application( ).serviceInstancesByName( project, serviceName ) ;
 
 		if ( serviceInstances == null ) {
 
@@ -1304,7 +1312,8 @@ public class ApplicationApi {
 								"cluster did not resolve to any hosts: " + cluster ) ;
 
 				stopResultReport
-						.set( "available", csapApp.buildClusterReportForAllPackagesInActiveLifecycle( ) ) ;
+						.set( "available", csapApis.application( )
+								.buildClusterReportForAllPackagesInActiveLifecycle( ) ) ;
 
 			}
 
@@ -1335,7 +1344,7 @@ public class ApplicationApi {
 	public ObjectNode serviceStart (
 										@RequestParam ( "serviceName" ) String serviceName ,
 										@RequestParam ( defaultValue = "" ) String cluster ,
-										@RequestParam ( value = CsapCore.PROJECT_PARAMETER , defaultValue = "" ) String project ,
+										@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , defaultValue = "" ) String project ,
 
 										@RequestParam ( required = false ) String commandArguments ,
 										@RequestParam ( required = false ) String hotDeploy ,
@@ -1350,7 +1359,7 @@ public class ApplicationApi {
 		JsonMappingException ,
 		IOException {
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
 			return managerError ;
 
@@ -1358,7 +1367,7 @@ public class ApplicationApi {
 
 		if ( StringUtils.isEmpty( project ) ) {
 
-			project = csapApp.getActiveProjectName( ) ;
+			project = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
@@ -1369,7 +1378,7 @@ public class ApplicationApi {
 
 		ObjectNode startResult = jacksonMapper.createObjectNode( ) ;
 
-		var serviceInstances = csapApp.serviceInstancesByName( project, serviceName ) ;
+		var serviceInstances = csapApis.application( ).serviceInstancesByName( project, serviceName ) ;
 
 		if ( serviceInstances == null ) {
 
@@ -1406,7 +1415,8 @@ public class ApplicationApi {
 								"cluster did not resolve to any hosts: " + cluster ) ;
 
 				startResult
-						.set( "available", csapApp.buildClusterReportForAllPackagesInActiveLifecycle( ) ) ;
+						.set( "available", csapApis.application( )
+								.buildClusterReportForAllPackagesInActiveLifecycle( ) ) ;
 
 			}
 
@@ -1442,7 +1452,7 @@ public class ApplicationApi {
 	public ObjectNode serviceDeploy (
 										@RequestParam ( "serviceName" ) String serviceName ,
 										@RequestParam ( defaultValue = "" ) String cluster ,
-										@RequestParam ( value = CsapCore.PROJECT_PARAMETER , defaultValue = "" ) String project ,
+										@RequestParam ( value = CsapConstants.PROJECT_PARAMETER , defaultValue = "" ) String project ,
 
 										@RequestParam ( defaultValue = ServiceOsManager.MAVEN_DEFAULT_BUILD ) String mavenId ,
 										@RequestParam ( defaultValue = "false" ) boolean performStart ,
@@ -1458,7 +1468,7 @@ public class ApplicationApi {
 				apiUserid, "API: deploy", "Cluster: " + cluster + " performStart" + performStart + " Maven: "
 						+ mavenId ) ;
 
-		if ( ! csapApp.isAdminProfile( ) ) {
+		if ( ! csapApis.application( ).isAdminProfile( ) ) {
 
 			return managerError ;
 
@@ -1466,7 +1476,7 @@ public class ApplicationApi {
 
 		if ( StringUtils.isEmpty( project ) ) {
 
-			project = csapApp.getActiveProjectName( ) ;
+			project = csapApis.application( ).getActiveProjectName( ) ;
 
 		}
 
@@ -1474,7 +1484,7 @@ public class ApplicationApi {
 
 		if ( StringUtils.isEmpty( cluster ) ) {
 
-			var serviceInstance = csapApp.findFirstServiceInstanceInLifecycle( serviceName ) ;
+			var serviceInstance = csapApis.application( ).findFirstServiceInstanceInLifecycle( serviceName ) ;
 
 			if ( serviceInstance != null ) {
 
@@ -1492,7 +1502,7 @@ public class ApplicationApi {
 
 		}
 
-		var serviceInstances = csapApp.serviceInstancesByName( project, serviceName ) ;
+		var serviceInstances = csapApis.application( ).serviceInstancesByName( project, serviceName ) ;
 
 		if ( serviceInstances == null ) {
 
@@ -1544,7 +1554,8 @@ public class ApplicationApi {
 								"cluster did not resolve to any hosts: " + cluster ) ;
 
 				deployStatus
-						.set( "available", csapApp.buildClusterReportForAllPackagesInActiveLifecycle( ) ) ;
+						.set( "available", csapApis.application( )
+								.buildClusterReportForAllPackagesInActiveLifecycle( ) ) ;
 
 			}
 
@@ -1562,9 +1573,6 @@ public class ApplicationApi {
 
 	}
 
-	@Inject
-	ActiveUsers activeUsers ;
-
 	@CsapDoc ( notes = {
 			"Uses active in past 60 minutes"
 	} , linkTests = "default" )
@@ -1574,7 +1582,7 @@ public class ApplicationApi {
 		JsonMappingException ,
 		IOException {
 
-		return activeUsers.allAdminUsers( ) ;
+		return csapApis.application( ).getActiveUsers( ).allAdminUsers( ) ;
 
 	}
 }

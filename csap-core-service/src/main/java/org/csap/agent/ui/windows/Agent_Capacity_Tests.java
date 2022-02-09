@@ -11,8 +11,8 @@ import javax.inject.Inject ;
 import javax.servlet.http.HttpServletResponse ;
 
 import org.apache.commons.lang3.text.WordUtils ;
-import org.csap.agent.CsapCoreService ;
-import org.csap.agent.CsapTemplate ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.CsapTemplates ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.integrations.MetricsPublisher ;
 import org.csap.agent.model.Application ;
@@ -44,7 +44,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode ;
  */
 @Controller
 @ConditionalOnProperty ( "myServiceConfiguration.test.enabled" )
-@RequestMapping ( CsapCoreService.TEST_URL )
+@RequestMapping ( CsapConstants.TEST_URL )
 public class Agent_Capacity_Tests {
 
 	final Logger logger = LoggerFactory.getLogger( getClass( ) ) ;
@@ -178,11 +178,11 @@ public class Agent_Capacity_Tests {
 	public void publishRandomEvent ( int numRandomDays , int numRandomHosts , String summary )
 		throws Exception {
 
-		String life = lifecycles[ javaRandom.nextInt( lifecycles.length ) ] ;
+		String life = lifecycles[javaRandom.nextInt( lifecycles.length )] ;
 		// seed defaults to System.currentTimeMillis(), which is generally good
 		// enough to spread upload requests
 
-		String appId = appIds[ javaRandom.nextInt( appIds.length ) ] ;
+		String appId = appIds[javaRandom.nextInt( appIds.length )] ;
 		String pass = "5Rzsdzt5dHARBQjZlcmgLiIpwFhY+37C" ;
 
 		// random day/hour/15 minute interval
@@ -203,7 +203,7 @@ public class Agent_Capacity_Tests {
 
 		String hostName = appId + "_" + life + javaRandom.nextInt( numRandomHosts ) ;
 
-		String category = categories[ javaRandom.nextInt( categories.length ) ] ;
+		String category = categories[javaRandom.nextInt( categories.length )] ;
 		ObjectNode meta = null ;
 		ObjectNode data = null ;
 
@@ -223,7 +223,7 @@ public class Agent_Capacity_Tests {
 
 				try {
 
-					File testFile = CsapTemplate.test_host_status_collection.getFile( ) ;
+					File testFile = CsapTemplates.test_host_status_collection.getFile( ) ;
 					logger.info( "loading  testFile: " + testFile.getAbsolutePath( ) ) ;
 					vmStatusData = (ObjectNode) jacksonMapper.readTree( testFile ) ;
 
@@ -245,15 +245,15 @@ public class Agent_Capacity_Tests {
 
 				try {
 
-					File testFile = CsapTemplate.test_host_collection.getFile( ) ;
+					File testFile = CsapTemplates.test_host_collection.getFile( ) ;
 					logger.info( "loading  testFile: " + testFile.getAbsolutePath( ) ) ;
 					vmTestData = (ObjectNode) jacksonMapper.readTree( testFile ) ;
 
-					testFile = CsapTemplate.test_service_os_collection.getFile( ) ;
+					testFile = CsapTemplates.test_service_os_collection.getFile( ) ;
 					logger.info( "loading  testFile: " + testFile.getAbsolutePath( ) ) ;
 					serviceTestData = (ObjectNode) jacksonMapper.readTree( testFile ) ;
 
-					testFile = CsapTemplate.test_service_jmx_collection.getFile( ) ;
+					testFile = CsapTemplates.test_service_jmx_collection.getFile( ) ;
 					logger.info( "loading  testFile: " + testFile.getAbsolutePath( ) ) ;
 					jmxTestData = (ObjectNode) jacksonMapper.readTree( testFile ) ;
 

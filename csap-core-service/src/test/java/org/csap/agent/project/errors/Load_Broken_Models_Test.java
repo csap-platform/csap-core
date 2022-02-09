@@ -8,7 +8,7 @@ import java.util.regex.Pattern ;
 
 import org.csap.agent.Agent_context_loaded ;
 import org.csap.agent.CsapBareTest ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.model.ProjectLoader ;
 import org.csap.helpers.CsapApplication ;
 import org.junit.jupiter.api.BeforeAll ;
@@ -45,8 +45,8 @@ class Load_Broken_Models_Test extends CsapBareTest {
 		assertThat(
 				getApplication( ).getProjectLoader( ).process( true, csapApplicationDefinition ).toString( ) )
 						.as( "Warning messages" )
-						.contains( CsapCore.CONFIG_PARSE_WARN )
-						.doesNotContain( CsapCore.CONFIG_PARSE_ERROR )
+						.contains( CsapConstants.CONFIG_PARSE_WARN )
+						.doesNotContain( CsapConstants.CONFIG_PARSE_ERROR )
 						.matches( multiple_releases_pattern )
 						.contains( "it must be unique" ) ;
 
@@ -90,8 +90,8 @@ class Load_Broken_Models_Test extends CsapBareTest {
 
 		assertThat( parseResults.toString( ) )
 				.as( "MISSING_SERVICE_MESSAGE" )
-				.contains( CsapCore.CONFIG_PARSE_WARN )
-				.contains( CsapCore.MISSING_SERVICE_MESSAGE ) ;
+				.contains( CsapConstants.CONFIG_PARSE_WARN )
+				.contains( CsapConstants.MISSING_SERVICE_MESSAGE ) ;
 
 		// assertThatThrownBy( () -> {
 		// getApplication().getParser().load( true, csapApplicationDefinition ) ;
@@ -118,7 +118,7 @@ class Load_Broken_Models_Test extends CsapBareTest {
 
 		assertThat( parsingResults.toString( ) )
 				.as( "Duplicate ports parse message" )
-				.contains( CsapCore.CONFIG_PARSE_WARN )
+				.contains( CsapConstants.CONFIG_PARSE_WARN )
 				.contains( ProjectLoader.WARNING_DUPLICATE_HOST_PORT ) ;
 
 	}
@@ -140,7 +140,7 @@ class Load_Broken_Models_Test extends CsapBareTest {
 		logger.info( parsingResults.toString( ) ) ;
 
 		assertThat( parsingResults.toString( ) )
-				.contains( CsapCore.CONFIG_PARSE_WARN )
+				.contains( CsapConstants.CONFIG_PARSE_WARN )
 				.contains( "Missing required attribute" ) ;
 
 		assertThat( getApplication( ).findServiceByNameOnCurrentHost( "csap-simple-service" ) ).isNull( ) ;
@@ -162,7 +162,7 @@ class Load_Broken_Models_Test extends CsapBareTest {
 
 		assertThat( parsingResults.toString( ) )
 				.as( "Duplicate ports parse message" )
-				.contains( CsapCore.CONFIG_PARSE_WARN )
+				.contains( CsapConstants.CONFIG_PARSE_WARN )
 				.contains( ProjectLoader.ERROR_INVALID_CHARACTERS ) ;
 
 		// assertThatThrownBy( () -> {

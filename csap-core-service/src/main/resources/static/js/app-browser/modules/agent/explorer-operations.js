@@ -385,6 +385,10 @@ define( explorerSources, function ( utils, podLogs, explorerProgress, hostOperat
             $( this ).val( "load" ) ;
 
             let templateTextLoader = function ( content ) {
+                
+                console.log( `loading editor with retreived template`)
+                content = content.replaceAll( "$$service-fqdn-host", utils.getHostFqdn() ) ;
+                
                 // $( "#yaml-editor-container" ).val( content ) ;
                 _yamlEditor.getSession().setValue( content, -1 ) ;
                 $yamlFolderCheck.trigger( "change" ) ;

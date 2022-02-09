@@ -20,7 +20,7 @@ public class CrioTests extends CsapBareTest {
 	@BeforeAll
 	void beforeAll ( ) {
 
-		crio = new CrioIntegraton( getJsonMapper( ), getApplication( ) ) ;
+		crio = new CrioIntegraton( getCsapApis( ), getJsonMapper( ) ) ;
 		getApplication( ).initialize( ) ;
 
 	}

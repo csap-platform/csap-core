@@ -194,7 +194,7 @@ define( [ "editor/json-forms" ], function ( jsonForms ) {
                         //console.log( ` missing sortvalue: ${valueToSort} in ${ $(table).attr("id")  }`);
                         valueToSort = "" ;
                     }
-                    
+
 //                    if ( $cell.closest( `table`).attr(`id`) === `processTable`) {
 //                        
 //                        console.log( ` valueToSort: ${valueToSort}` ) ;
@@ -251,7 +251,7 @@ define( [ "editor/json-forms" ], function ( jsonForms ) {
             let $cell = jQuery( '<td/>', {
                 class: "numeric",
 //                "data-sortvalue": memoryInBytes,
-                text: displayValue 
+                text: displayValue
 //                text:  memoryInBytes
             } ) ;
 
@@ -535,6 +535,21 @@ define( [ "editor/json-forms" ], function ( jsonForms ) {
             return CSAP_HOST_NAME ;
         },
 
+        getHostFqdn: function () {
+            let host = CSAP_HOST_NAME ;
+
+            try {
+                let url = AGENT_URL_PATTERN.replace( /CSAP_HOST/g, CSAP_HOST_NAME ) ;
+                let thost = url.substring( url.indexOf( "//" ) + 2 ) ;
+                thost = thost.split( ":" )[0] ;
+                host = thost ;
+            } catch ( e ) {
+                console.log( "Failed to build host", e ) ;
+            }
+
+            return host ;
+        },
+
         getEnvironment: function () {
             return HOST_ENVIRONMENT_NAME ;
         },
@@ -577,7 +592,7 @@ define( [ "editor/json-forms" ], function ( jsonForms ) {
             return OS_URL ;
         },
 
-        confirmDialog( title, okFunction, okLabel = "ok", message="proceed or cancel",  cancelFunction, cancelLabel = "cancel" ) {
+        confirmDialog( title, okFunction, okLabel = "ok", message = "proceed or cancel", cancelFunction, cancelLabel = "cancel" ) {
 
             if ( !cancelFunction ) {
                 cancelFunction = function () {
@@ -1341,7 +1356,7 @@ define( [ "editor/json-forms" ], function ( jsonForms ) {
 
 
             if ( includeFilter.length > 0 ) {
-                $filterInput.addClass("modified") ;
+                $filterInput.addClass( "modified" ) ;
                 $clearButton.show() ;
                 $tableRows.hide() ;
                 let filterEntries = includeFilter.split( "," ) ;
@@ -1357,7 +1372,7 @@ define( [ "editor/json-forms" ], function ( jsonForms ) {
 
             } else {
                 $tableRows.show() ;
-                $filterInput.removeClass("modified") ;
+                $filterInput.removeClass( "modified" ) ;
                 $clearButton.hide() ;
             }
 

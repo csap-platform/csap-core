@@ -2,6 +2,7 @@ package org.csap.agent.model ;
 
 import java.util.Arrays ;
 
+import org.csap.agent.container.C7 ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
 
@@ -16,7 +17,7 @@ public enum ProcessRuntime {
 	tomcat9("tomcat9.x", "Tomcat", "images/tomcatLarge.png"),
 
 	script("script", "", "/images/32x32/newFolder.png"),
-	docker("docker", "", "images/32x32/computer.png"),
+	docker(C7.definitionSettings.val( ), "", "images/32x32/computer.png"),
 
 	unregistered("unregistered", "", "images/32x32/computer.png"),
 

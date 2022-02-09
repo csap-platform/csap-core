@@ -20,11 +20,12 @@ import javax.servlet.http.HttpSession ;
 
 import org.apache.commons.io.FileUtils ;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.model.Application ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
-import org.csap.integations.CsapMicroMeter ;
+import org.csap.integations.micrometer.CsapMeterUtilities ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
 
@@ -148,7 +149,7 @@ public class OsCommandRunner {
 
 		String name = short_desc.replaceAll( " ", "_" ).replaceAll( "-", "_" ) ;
 
-		File scriptWithPermissions = Application.getInstance( ).csapPlatformPath(
+		File scriptWithPermissions = CsapApis.getInstance( ).application( ).csapPlatformPath(
 				"/temp/" + name + "-" + System.currentTimeMillis( ) + ".sh" ) ;
 
 		scriptWithPermissions.getParentFile( ).mkdirs( ) ;
@@ -171,7 +172,7 @@ public class OsCommandRunner {
 		var scriptOutput = "\n" + executeString(
 				parmList,
 				envVars,
-				Application.getInstance( ).getCsapWorkingTempFolder( ), null, null,
+				CsapApis.getInstance( ).application( ).getCsapWorkingTempFolder( ), null, null,
 				this.defaultHungProcessIntervalInSeconds,
 				this.defaultHungProcessMaxIterations, outputWriter ) ;
 
@@ -202,7 +203,7 @@ public class OsCommandRunner {
 
 		String name = short_desc.replaceAll( " ", "_" ).replaceAll( "-", "_" ) ;
 
-		File scriptWithPermissions = Application.getInstance( ).csapPlatformPath(
+		File scriptWithPermissions = CsapApis.getInstance( ).application( ).csapPlatformPath(
 				"/temp/" + name + "-" + System.currentTimeMillis( ) + ".sh" ) ;
 
 		logger.debug( "scriptWithPermissions: {}, ", scriptWithPermissions.getAbsolutePath( ) ) ;
@@ -252,10 +253,10 @@ public class OsCommandRunner {
 	 */
 	public String runUsingRootUser ( File targetFile , OutputFileMgr outputFm ) {
 
-		File scriptPath = Application.getInstance( ).csapPlatformPath( ROOT_SCRIPT ) ;
+		File scriptPath = CsapApis.getInstance( ).application( ).csapPlatformPath( ROOT_SCRIPT ) ;
 		List<String> parmList = new ArrayList<String>( ) ;
 
-		if ( Application.getInstance( ).isRunningAsRoot( ) ) {
+		if ( CsapApis.getInstance( ).application( ).isRunningAsRoot( ) ) {
 
 			parmList.add( "/usr/bin/sudo" ) ;
 			parmList.add( scriptPath.getAbsolutePath( ) ) ;
@@ -299,7 +300,7 @@ public class OsCommandRunner {
 
 		File cancelFile = new File( targetFile.getAbsolutePath( ) + CANCEL_SUFFIX ) ;
 
-		File runAsRootScript = Application.getInstance( ).csapPlatformPath( "bin/csap-run-as-root.sh" ) ;
+		File runAsRootScript = CsapApis.getInstance( ).application( ).csapPlatformPath( "bin/csap-run-as-root.sh" ) ;
 		List<String> parmList = new ArrayList<String>( ) ;
 
 		var theLogger = LoggerFactory.getLogger( Application.class ) ;
@@ -329,7 +330,7 @@ public class OsCommandRunner {
 				var pythonWrapper = new File( targetFile.getParent( ), "wrapper-" + targetFile.getName( ) ) ;
 				var lines = List.of(
 						"#!/bin/bash",
-						Application.getInstance( ).getOsManager( ).sourceCommonFunctions( ),
+						CsapApis.getInstance( ).osManager( ).sourceCommonFunctions( ),
 						"run_python --version",
 						"run_python " + targetFile.getAbsolutePath( ) ) ;
 				theLogger.info( "created: {} to run: {}", pythonWrapper.getAbsolutePath( ), lines ) ;
@@ -349,7 +350,7 @@ public class OsCommandRunner {
 				var pythonWrapper = new File( targetFile.getParent( ), "wrapper-" + targetFile.getName( ) ) ;
 				var lines = List.of(
 						"#!/bin/bash",
-						Application.getInstance( ).getOsManager( ).sourceCommonFunctions( ),
+						CsapApis.getInstance( ).osManager( ).sourceCommonFunctions( ),
 						"run_perl --version",
 						"run_perl " + targetFile.getAbsolutePath( ) ) ;
 				theLogger.info( "created: {} to run: {}", pythonWrapper.getAbsolutePath( ), lines ) ;
@@ -364,7 +365,7 @@ public class OsCommandRunner {
 
 		}
 
-		if ( Application.getInstance( ).isRunningAsRoot( )
+		if ( CsapApis.getInstance( ).application( ).isRunningAsRoot( )
 				&& ! chownUserid.equals( agentRunUser ) ) {
 
 			// run using root - then sudo if needed to specified user
@@ -404,7 +405,7 @@ public class OsCommandRunner {
 		String scriptOutput = localRunner.executeString(
 				parmList,
 				environmentVariables,
-				Application.getInstance( ).getCsapWorkingTempFolder( ),
+				CsapApis.getInstance( ).application( ).getCsapWorkingTempFolder( ),
 				null,
 				null,
 				localRunner.defaultHungProcessIntervalInSeconds,
@@ -532,7 +533,8 @@ public class OsCommandRunner {
 				// process.exitValue() ; // will throw exception if it is still
 				// open
 				List<String> parmList = new ArrayList<String>( ) ;
-				File scriptPath = Application.getInstance( ).csapPlatformPath( "/bin/admin-kill-scripts.sh" ) ;
+				File scriptPath = CsapApis.getInstance( ).application( ).csapPlatformPath(
+						"/bin/admin-kill-scripts.sh" ) ;
 				File workingDir = scriptPath.getParentFile( ).getParentFile( ) ;
 
 				parmList.add( "bash" ) ;
@@ -556,7 +558,7 @@ public class OsCommandRunner {
 
 		return executeString(
 				params,
-				Application.getInstance( ).getCsapWorkingTempFolder( ), null, null,
+				CsapApis.getInstance( ).application( ).getCsapWorkingTempFolder( ), null, null,
 				this.defaultHungProcessIntervalInSeconds,
 				this.defaultHungProcessMaxIterations, outputWriter ) ;
 
@@ -566,7 +568,7 @@ public class OsCommandRunner {
 
 		var results = executeString(
 				params,
-				Application.getInstance( ).getCsapWorkingTempFolder( ), null, null,
+				CsapApis.getInstance( ).application( ).getCsapWorkingTempFolder( ), null, null,
 				this.defaultHungProcessIntervalInSeconds,
 				this.defaultHungProcessMaxIterations, null ) ;
 
@@ -699,11 +701,11 @@ public class OsCommandRunner {
 		}
 
 		Timer.Sample allButServiceJobsTimer = null ;
-		var osCommandsSample = CsapMicroMeter.Utilities.supportForNonSpringConsumers( ).startTimer( ) ;
+		var osCommandsSample = CsapMeterUtilities.supportForNonSpringConsumers( ).startTimer( ) ;
 
 		if ( ! commandName.contains( ServiceJobRunner.SERVICE_JOB_ID ) ) {
 
-			allButServiceJobsTimer = CsapMicroMeter.Utilities.supportForNonSpringConsumers( ).startTimer( ) ;
+			allButServiceJobsTimer = CsapMeterUtilities.supportForNonSpringConsumers( ).startTimer( ) ;
 
 		}
 
@@ -727,9 +729,9 @@ public class OsCommandRunner {
 		// }
 
 		// Some commands are directly invoked - with no environment
-		processBuilderEnvVars.put( "AGENT_ENDPOINT", Application.getInstance( ).getAgentEndpoint( ) ) ;
-		processBuilderEnvVars.put( "AGENT_NAME", CsapCore.AGENT_NAME ) ;
-		processBuilderEnvVars.put( "AGENT_ID", CsapCore.AGENT_ID ) ;
+		processBuilderEnvVars.put( "AGENT_ENDPOINT", CsapApis.getInstance( ).application( ).getAgentEndpoint( ) ) ;
+		processBuilderEnvVars.put( "AGENT_NAME", CsapConstants.AGENT_NAME ) ;
+		processBuilderEnvVars.put( "AGENT_ID", CsapConstants.AGENT_ID ) ;
 
 		if ( environmentVariables == null ) {
 
@@ -777,7 +779,7 @@ public class OsCommandRunner {
 		// Note that __Result is used for string filtering in JSPs. Do NOT
 		// change.
 		StringBuffer results = new StringBuffer( "Executing OS command on host "
-				+ Application.getInstance( ).getCsapHostName( ) + ":" + summary + HEADER_TOKEN
+				+ CsapApis.getInstance( ).application( ).getCsapHostName( ) + ":" + summary + HEADER_TOKEN
 				+ System.getProperty( "line.separator" ) + System.getProperty( "line.separator" ) ) ;
 
 		CheckForHungProcess checkForHungProcess = new CheckForHungProcess(
@@ -822,11 +824,12 @@ public class OsCommandRunner {
 				results.append( System.getProperty( "line.separator" ) ) ;
 
 				// hook so that restarts do no kill them selves
-				if ( s.indexOf( "XXXYYYZZZ_AdminController" ) != -1 ) {
+				if ( s.contains( CsapConstants.TRIGGER_SHUTDOWN )
+						|| s.contains( CsapConstants.TRIGGER_SHUTDOWN_LEGACY ) ) {
 
 					logger.info(
 							"Found terminate flag in script output: {}. Issueing processHandle.destroy() to kill script if it has not already exited",
-							"XXXYYYZZZ_AdminController" ) ;
+							CsapConstants.TRIGGER_SHUTDOWN ) ;
 					processHandle.destroy( ) ;
 					break ;
 
@@ -850,7 +853,7 @@ public class OsCommandRunner {
 
 			if ( checkForHungProcess.isWasTerminated( ) ) {
 
-				results.append( CsapCore.CONFIG_PARSE_ERROR
+				results.append( CsapConstants.CONFIG_PARSE_ERROR
 						+ " == Aborted processing due to either inactivity or max processing time limit exceeded\n"
 						+ " You could try again assuming lengthy build was due to staging jars from maven." ) ;
 
@@ -986,11 +989,11 @@ public class OsCommandRunner {
 
 	private void stopTimers ( String commandName , Timer.Sample allButServiceJobsTimer , Sample osCommandsSample ) {
 
-		String timerName = "os-commands." + commandName.split( "-" )[ 0 ] ;
+		String timerName = "os-commands." + commandName.split( "-" )[0] ;
 
 		if ( allButServiceJobsTimer != null ) {
 
-			CsapMicroMeter.Utilities.supportForNonSpringConsumers( ).stopTimer( allButServiceJobsTimer,
+			CsapMeterUtilities.supportForNonSpringConsumers( ).stopTimer( allButServiceJobsTimer,
 					"csap.os-commands" ) ;
 
 		} else {
@@ -999,7 +1002,7 @@ public class OsCommandRunner {
 
 		}
 
-		CsapMicroMeter.Utilities.supportForNonSpringConsumers( ).stopTimer( osCommandsSample, timerName ) ;
+		CsapMeterUtilities.supportForNonSpringConsumers( ).stopTimer( osCommandsSample, timerName ) ;
 
 	}
 

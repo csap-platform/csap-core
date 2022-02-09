@@ -12,9 +12,8 @@ import javax.inject.Inject ;
 import org.apache.commons.io.FileUtils ;
 import org.csap.agent.Agent_context_loaded ;
 import org.csap.agent.CsapBareTest ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
-import org.csap.agent.container.DockerJson ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.integrations.VersionControl ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.ui.editor.DefinitionRequests ;
@@ -116,7 +115,7 @@ class Application_Editing {
 			logger.info( contents ) ;
 			// mock does much validation.....
 			ResultActions resultActions = mockMvc.perform(
-					post( CsapCoreService.ENCODE_FULL_URL )
+					post( CsapConstants.ENCODE_FULL_URL )
 							.param( "propertyFileContents", contents )
 							.accept( MediaType.APPLICATION_JSON ) ) ;
 
@@ -166,7 +165,7 @@ class Application_Editing {
 			logger.info( contents ) ;
 			// mock does much validation.....
 			ResultActions resultActions = mockMvc.perform(
-					post( CsapCoreService.ENCODE_FULL_URL )
+					post( CsapConstants.ENCODE_FULL_URL )
 							.param( "propertyFileContents", contents )
 							.accept( MediaType.APPLICATION_JSON ) ) ;
 
@@ -209,8 +208,8 @@ class Application_Editing {
 
 			// mock does much validation.....
 			ResultActions resultActions = mockMvc.perform(
-					post( CsapCoreService.DEFINITION_URL + "/validateDefinition" )
-							.param( CsapCore.PROJECT_PARAMETER, "SampleDefaultPackage" )
+					post( CsapConstants.DEFINITION_URL + "/validateDefinition" )
+							.param( CsapConstants.PROJECT_PARAMETER, "SampleDefaultPackage" )
 							.param( "updatedConfig",
 									FileUtils.readFileToString( csapApplicationDefinition ) )
 							.accept( MediaType.APPLICATION_JSON ) ) ;
@@ -266,8 +265,8 @@ class Application_Editing {
 
 			// mock does much validation.....
 			ResultActions resultActions = mockMvc.perform(
-					post( CsapCoreService.DEFINITION_URL + "/validateDefinition" )
-							.param( CsapCore.PROJECT_PARAMETER, "SampleDefaultPackage" )
+					post( CsapConstants.DEFINITION_URL + "/validateDefinition" )
+							.param( CsapConstants.PROJECT_PARAMETER, "SampleDefaultPackage" )
 							.param( "updatedConfig",
 									FileUtils.readFileToString( csapApplicationDefinition ) )
 							.accept( MediaType.APPLICATION_JSON ) ) ;
@@ -323,8 +322,8 @@ class Application_Editing {
 
 			// mock does much validation.....
 			ResultActions resultActions = mockMvc.perform(
-					post( CsapCoreService.DEFINITION_URL + "/validateDefinition" )
-							.param( CsapCore.PROJECT_PARAMETER, "SampleDefaultPackage" )
+					post( CsapConstants.DEFINITION_URL + "/validateDefinition" )
+							.param( CsapConstants.PROJECT_PARAMETER, "SampleDefaultPackage" )
 							.param( "updatedConfig",
 									FileUtils.readFileToString( csapApplicationDefinition ) )
 							.accept( MediaType.APPLICATION_JSON ) ) ;
@@ -377,14 +376,14 @@ class Application_Editing {
 
 			csapApp.configureForDefinitionOperationsTest( missingJvmProjectFile ) ;
 
-			logger.info( CsapApplication.header( "http path: {}  file: {}" ), CsapCoreService.DEFINITION_URL
+			logger.info( CsapApplication.header( "http path: {}  file: {}" ), CsapConstants.DEFINITION_URL
 					+ "/validateDefinition",
 					missingJvmProjectFile.getAbsolutePath( ) ) ;
 
 			// mock does much validation.....
 			ResultActions resultActions = mockMvc.perform(
-					post( CsapCoreService.DEFINITION_URL + "/validateDefinition" )
-							.param( CsapCore.PROJECT_PARAMETER, "SampleDefaultPackage" )
+					post( CsapConstants.DEFINITION_URL + "/validateDefinition" )
+							.param( CsapConstants.PROJECT_PARAMETER, "SampleDefaultPackage" )
 							.param( "updatedConfig",
 									FileUtils.readFileToString( missingJvmProjectFile ) )
 							.accept( MediaType.APPLICATION_JSON ) ) ;
@@ -430,7 +429,7 @@ class Application_Editing {
 
 			csapApp.configureForDefinitionOperationsTest( csapApplicationDefinition ) ;
 
-			String applyUrl = CsapCoreService.DEFINITION_URL + DefinitionRequests.APPICATION_APPLY ;
+			String applyUrl = CsapConstants.DEFINITION_URL + DefinitionRequests.APPICATION_APPLY ;
 
 			logger.info( CsapApplication.TC_HEAD + "ui test: {} : \n {}", applyUrl, csapApplicationDefinition ) ;
 
@@ -443,7 +442,7 @@ class Application_Editing {
 							.param( "scmPass", "" )
 							.param( "scmUserid", "peterUser" )
 							.param( "serviceName", "HostCommand" )
-							.param( CsapCore.PROJECT_PARAMETER, "SampleDefaultPackage" )
+							.param( CsapConstants.PROJECT_PARAMETER, "SampleDefaultPackage" )
 							.param( "updatedConfig",
 									FileUtils.readFileToString( csapApplicationDefinition ) )
 							.accept( MediaType.APPLICATION_JSON ) ) ;
@@ -457,13 +456,13 @@ class Application_Editing {
 							.getResponse( )
 							.getContentAsString( ) ) ;
 
-			String applyResult = responseJsonNode.get( DockerJson.response_plain_text.json( ) ).asText( ) ;
+			String applyResult = responseJsonNode.get( C7.response_plain_text.val( ) ).asText( ) ;
 
 			logger.info( "UI Response: \n {}", applyResult ) ;
 
 			assertThat( applyResult )
 					.as( "Response has no errors" )
-					.doesNotContain( CsapCore.CONFIG_PARSE_ERROR )
+					.doesNotContain( CsapConstants.CONFIG_PARSE_ERROR )
 					.contains( DefinitionRequests.EMAIL_DISABLED ) ;
 
 			File copiedPackage = new File( csapApp.getDefinitionFolder( ), "test_application_model.json" ) ;
@@ -492,14 +491,14 @@ class Application_Editing {
 
 			// Hit the endpoint
 			ResultActions resultActions = mockMvc.perform(
-					post( CsapCoreService.DEFINITION_URL + DefinitionRequests.APPICATION_APPLY )
+					post( CsapConstants.DEFINITION_URL + DefinitionRequests.APPICATION_APPLY )
 							.param( "applyButNoCheckin", "true" )
 							.param( "hostName", "localhost" )
 							.param( "scmBranch", "trunk" )
 							.param( "scmPass", "" )
 							.param( "scmUserid", "peterUser" )
 							.param( "serviceName", "HostCommand" )
-							.param( CsapCore.PROJECT_PARAMETER, "SampleDefaultPackage" )
+							.param( CsapConstants.PROJECT_PARAMETER, "SampleDefaultPackage" )
 							.param( "updatedConfig",
 									FileUtils.readFileToString( csapApplicationDefinition ) )
 							.accept( MediaType.APPLICATION_JSON ) ) ;
@@ -512,11 +511,11 @@ class Application_Editing {
 							.getResponse( )
 							.getContentAsString( ) ) ;
 
-			String opResult = responseJsonNode.get( DockerJson.response_plain_text.json( ) ).asText( ) ;
+			String opResult = responseJsonNode.get( C7.response_plain_text.val( ) ).asText( ) ;
 
 			logger.info( "result: {}", opResult ) ;
 
-			Assertions.assertTrue( opResult.indexOf( CsapCore.CONFIG_PARSE_ERROR ) >= 0 ) ;
+			Assertions.assertTrue( opResult.indexOf( CsapConstants.CONFIG_PARSE_ERROR ) >= 0 ) ;
 
 			// On junits, cluster reloads are placed in test folder, and packages
 			// are
@@ -556,14 +555,14 @@ class Application_Editing {
 
 			// mock does much validation.....
 			ResultActions resultActions = mockMvc.perform(
-					post( CsapCoreService.DEFINITION_URL + DefinitionRequests.APPICATION_APPLY )
+					post( CsapConstants.DEFINITION_URL + DefinitionRequests.APPICATION_APPLY )
 							.param( "applyButNoCheckin", "true" )
 							.param( "hostName", "localhost" )
 							.param( "scmBranch", "trunk" )
 							.param( "scmPass", "" )
 							.param( "scmUserid", "peterUser" )
 							.param( "serviceName", "HostCommand" )
-							.param( CsapCore.PROJECT_PARAMETER, "SampleDefaultPackage" )
+							.param( CsapConstants.PROJECT_PARAMETER, "SampleDefaultPackage" )
 							.param( "updatedConfig", FileUtils.readFileToString( configFile ) )
 							.accept( MediaType.APPLICATION_JSON ) ) ;
 
@@ -575,12 +574,12 @@ class Application_Editing {
 							.getResponse( )
 							.getContentAsString( ) ) ;
 
-			String opResult = responseJsonNode.get( DockerJson.response_plain_text.json( ) ).asText( ) ;
+			String opResult = responseJsonNode.get( C7.response_plain_text.val( ) ).asText( ) ;
 
 			logger.info( "result:\n {}", opResult ) ;
 
 			Assertions.assertTrue(
-					opResult.indexOf( CsapCore.CONFIG_PARSE_ERROR ) == -1 ) ;
+					opResult.indexOf( CsapConstants.CONFIG_PARSE_ERROR ) == -1 ) ;
 
 			// On junits, cluster reloads are placed in test folder, and packages
 			// are
@@ -632,14 +631,14 @@ class Application_Editing {
 
 			// mock does much validation.....
 			ResultActions resultActions = mockMvc.perform(
-					post( CsapCoreService.DEFINITION_URL + DefinitionRequests.APPICATION_CHECKIN )
+					post( CsapConstants.DEFINITION_URL + DefinitionRequests.APPICATION_CHECKIN )
 							.param( "applyButNoCheckin", "false" )
 							.param( "hostName", "localhost" )
 							.param( "scmBranch", "trunk" )
 							.param( "scmPass", pass )
 							.param( "scmUserid", user )
 							.param( "serviceName", "HostCommand" )
-							.param( CsapCore.PROJECT_PARAMETER, "SampleDefaultPackage" )
+							.param( CsapConstants.PROJECT_PARAMETER, "SampleDefaultPackage" )
 							.param( "updatedConfig",
 									FileUtils.readFileToString( csapApplicationDefinition ) )
 							.accept( MediaType.APPLICATION_JSON ) ) ;
@@ -652,13 +651,13 @@ class Application_Editing {
 							.getResponse( )
 							.getContentAsString( ) ) ;
 
-			String opResult = responseJsonNode.get( DockerJson.response_plain_text.json( ) ).asText( ) ;
+			String opResult = responseJsonNode.get( C7.response_plain_text.val( ) ).asText( ) ;
 
 			logger.info( "result: {} ", opResult ) ;
 
 			assertThat( opResult )
 					.as( "Result Message has no errors" )
-					.doesNotContain( CsapCore.CONFIG_PARSE_ERROR ) ;
+					.doesNotContain( CsapConstants.CONFIG_PARSE_ERROR ) ;
 
 			assertThat( opResult )
 					.as( "Ensure skip message is present" )
@@ -702,14 +701,14 @@ class Application_Editing {
 
 			// mock does much validation.....
 			ResultActions resultActions = mockMvc.perform(
-					post( CsapCoreService.DEFINITION_URL + DefinitionRequests.APPLICATION_RELOAD )
+					post( CsapConstants.DEFINITION_URL + DefinitionRequests.APPLICATION_RELOAD )
 							.param( "applyButNoCheckin", "false" )
 							.param( "hostName", "localhost" )
 							.param( "scmBranch", "trunk" )
 							.param( "scmPass", pass )
 							.param( "scmUserid", user )
 							.param( "serviceName", "HostCommand" )
-							.param( CsapCore.PROJECT_PARAMETER, "SampleDefaultPackage" )
+							.param( CsapConstants.PROJECT_PARAMETER, "SampleDefaultPackage" )
 							.accept( MediaType.TEXT_PLAIN_VALUE ) ) ;
 
 			String result = resultActions
@@ -723,7 +722,7 @@ class Application_Editing {
 
 			assertThat( result )
 					.as( "Result Message has no errors" )
-					.doesNotContain( CsapCore.CONFIG_PARSE_ERROR ) ;
+					.doesNotContain( CsapConstants.CONFIG_PARSE_ERROR ) ;
 
 			assertThat( result )
 					.as( "Reload success messages" )
@@ -776,14 +775,14 @@ class Application_Editing {
 
 			// mock does much validation.....
 			ResultActions resultActions = mockMvc.perform(
-					post( CsapCoreService.DEFINITION_URL + DefinitionRequests.APPICATION_APPLY )
+					post( CsapConstants.DEFINITION_URL + DefinitionRequests.APPICATION_APPLY )
 							.param( "applyButNoCheckin", "true" )
 							.param( "hostName", "localhost" )
 							.param( "scmBranch", "trunk" )
 							.param( "scmPass", "" )
 							.param( "scmUserid", "peterUser" )
 							.param( "serviceName", "HostCommand" )
-							.param( CsapCore.PROJECT_PARAMETER, "SampleDefaultPackage" )
+							.param( CsapConstants.PROJECT_PARAMETER, "SampleDefaultPackage" )
 							.param( "updatedConfig",
 									FileUtils.readFileToString( csapApplicationDefinition ) )
 							.accept( MediaType.APPLICATION_JSON ) ) ;
@@ -796,13 +795,13 @@ class Application_Editing {
 							.getResponse( )
 							.getContentAsString( ) ) ;
 
-			String opResult = responseJsonNode.get( DockerJson.response_plain_text.json( ) ).asText( ) ;
+			String opResult = responseJsonNode.get( C7.response_plain_text.val( ) ).asText( ) ;
 
 			logger.info( "apply result text:\n {}", opResult ) ;
 
 			assertThat( opResult )
 					.as( "Definition does not contain errors" )
-					.doesNotContain( CsapCore.CONFIG_PARSE_ERROR ) ;
+					.doesNotContain( CsapConstants.CONFIG_PARSE_ERROR ) ;
 
 			assertThat( releaseFileGenerated.exists( ) )
 					.as( "new release file created from template" )
@@ -841,14 +840,14 @@ class Application_Editing {
 
 			// mock does much validation.....
 			ResultActions resultActions = mockMvc.perform(
-					post( CsapCoreService.DEFINITION_URL + DefinitionRequests.APPICATION_APPLY )
+					post( CsapConstants.DEFINITION_URL + DefinitionRequests.APPICATION_APPLY )
 							.param( "applyButNoCheckin", "true" )
 							.param( "hostName", "localhost" )
 							.param( "scmBranch", "trunk" )
 							.param( "scmPass", "" )
 							.param( "scmUserid", "peterUser" )
 							.param( "serviceName", "HostCommand" )
-							.param( CsapCore.PROJECT_PARAMETER, "SampleDefaultPackage" )
+							.param( CsapConstants.PROJECT_PARAMETER, "SampleDefaultPackage" )
 							.param( "updatedConfig",
 									FileUtils.readFileToString( csapApplicationDefinition ) )
 							.accept( MediaType.APPLICATION_JSON ) ) ;
@@ -861,12 +860,12 @@ class Application_Editing {
 							.getResponse( )
 							.getContentAsString( ) ) ;
 
-			String opResult = responseJsonNode.get( DockerJson.response_plain_text.json( ) ).asText( ) ;
+			String opResult = responseJsonNode.get( C7.response_plain_text.val( ) ).asText( ) ;
 
 			logger.info( "result: {}", opResult ) ;
 
 			Assertions.assertTrue(
-					opResult.indexOf( CsapCore.CONFIG_PARSE_ERROR ) != -1 ) ;
+					opResult.indexOf( CsapConstants.CONFIG_PARSE_ERROR ) != -1 ) ;
 
 		}
 
@@ -886,14 +885,14 @@ class Application_Editing {
 
 			// mock does much validation.....
 			ResultActions resultActions = mockMvc.perform(
-					post( CsapCoreService.DEFINITION_URL + DefinitionRequests.APPICATION_APPLY )
+					post( CsapConstants.DEFINITION_URL + DefinitionRequests.APPICATION_APPLY )
 							.param( "applyButNoCheckin", "true" )
 							.param( "hostName", "localhost" )
 							.param( "scmBranch", "trunk" )
 							.param( "scmPass", "" )
 							.param( "scmUserid", "peterUser" )
 							.param( "serviceName", "HostCommand" )
-							.param( CsapCore.PROJECT_PARAMETER, "SampleDefaultPackage" )
+							.param( CsapConstants.PROJECT_PARAMETER, "SampleDefaultPackage" )
 							.param( "updatedConfig",
 									FileUtils.readFileToString( csapApplicationDefinition ) )
 							.accept( MediaType.APPLICATION_JSON ) ) ;
@@ -906,12 +905,12 @@ class Application_Editing {
 							.getResponse( )
 							.getContentAsString( ) ) ;
 
-			String opResult = responseJsonNode.get( DockerJson.response_plain_text.json( ) ).asText( ) ;
+			String opResult = responseJsonNode.get( C7.response_plain_text.val( ) ).asText( ) ;
 
 			logger.info( "result: {}", opResult ) ;
 
 			Assertions.assertTrue(
-					opResult.indexOf( CsapCore.MISSING_SERVICE_MESSAGE ) != -1 ) ;
+					opResult.indexOf( CsapConstants.MISSING_SERVICE_MESSAGE ) != -1 ) ;
 
 		}
 	}
@@ -943,14 +942,14 @@ class Application_Editing {
 
 			// mock does much validation.....
 			ResultActions resultActions = mockMvc.perform(
-					post( CsapCoreService.DEFINITION_URL + DefinitionRequests.APPICATION_APPLY )
+					post( CsapConstants.DEFINITION_URL + DefinitionRequests.APPICATION_APPLY )
 							.param( "applyButNoCheckin", "true" )
 							.param( "hostName", "localhost" )
 							.param( "scmBranch", "trunk" )
 							.param( "scmPass", "" )
 							.param( "scmUserid", "peterUser" )
 							.param( "serviceName", "HostCommand" )
-							.param( CsapCore.PROJECT_PARAMETER, "Supporting Sample A" )
+							.param( CsapConstants.PROJECT_PARAMETER, "Supporting Sample A" )
 							.param( "updatedConfig",
 									FileUtils.readFileToString( updatedReleasePackage ) )
 							.accept( MediaType.APPLICATION_JSON ) ) ;
@@ -963,13 +962,13 @@ class Application_Editing {
 							.getResponse( )
 							.getContentAsString( ) ) ;
 
-			String opResult = responseJsonNode.get( DockerJson.response_plain_text.json( ) ).asText( ) ;
+			String opResult = responseJsonNode.get( C7.response_plain_text.val( ) ).asText( ) ;
 
 			logger.info( "result:\n {}", opResult ) ;
 
 			assertThat( opResult )
 					.as( "no errors found" )
-					.doesNotContain( CsapCore.CONFIG_PARSE_ERROR ) ;
+					.doesNotContain( CsapConstants.CONFIG_PARSE_ERROR ) ;
 
 			// On junits, cluster reloads are placed in test folder, and packages
 			// are

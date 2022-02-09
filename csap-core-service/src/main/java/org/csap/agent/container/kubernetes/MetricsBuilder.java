@@ -10,8 +10,8 @@ import java.util.concurrent.locks.ReentrantLock ;
 import java.util.stream.Collectors ;
 
 import org.apache.commons.lang3.StringUtils ;
-import org.csap.agent.container.DockerJson ;
-import org.csap.agent.model.Application ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.container.C7 ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
 import org.csap.helpers.CsapSimpleCache ;
@@ -76,13 +76,13 @@ public class MetricsBuilder {
 
 	public ObjectNode nodeSummaryHealthMetrics ( ) {
 
-		Timer.Sample summaryTimer = kubernetes.getCsapApp( ).metrics( ).startTimer( ) ;
+		Timer.Sample summaryTimer = kubernetes.metrics( ).startTimer( ) ;
 
 		// summary.set( "metrics", metrics( ) ) ;
 		var fullReport = jsonMapper.createObjectNode( ) ;
 		var metricsReport = fullReport.putObject( "metrics" ) ;
 
-		metricsReport.put( KubernetesJson.heartbeat.json( ), false ) ;
+		metricsReport.put( K8.heartbeat.val( ), false ) ;
 		metricsReport.put( "started", LocalDateTime.now( ).format( DateTimeFormatter.ofPattern( "HH:mm:ss" ) ) ) ;
 		metricsReport.put( "completed-ms", "-" ) ;
 
@@ -138,7 +138,7 @@ public class MetricsBuilder {
 							.map( JsonNode::asText )
 							.collect( Collectors.toList( ) ) ;
 
-					metricsReport.set( KubernetesJson.containers.json( ),
+					metricsReport.set( K8.containers.val( ),
 							buildContainerMetrics( null,
 									containersToCollect ) ) ;
 
@@ -146,7 +146,7 @@ public class MetricsBuilder {
 
 			}
 
-			metricsReport.put( KubernetesJson.heartbeat.json( ), true ) ;
+			metricsReport.put( K8.heartbeat.val( ), true ) ;
 
 			logger.debug( "fullReport {}", CSAP.jsonPrint( fullReport ) ) ;
 
@@ -159,7 +159,7 @@ public class MetricsBuilder {
 
 		}
 
-		var nanos = kubernetes.getCsapApp( ).metrics( ).stopTimer( summaryTimer, SUMMARY_TIMER
+		var nanos = kubernetes.metrics( ).stopTimer( summaryTimer, SUMMARY_TIMER
 				+ ".metrics" ) ;
 		var reportMs = TimeUnit.NANOSECONDS.toMillis( nanos ) ;
 		logger.debug( "\n\n Report completed: {}, {} ms", reportMs ) ;
@@ -214,7 +214,7 @@ public class MetricsBuilder {
 		} else if ( metricsUpdateLock.tryLock( ) ) {
 
 			logger.debug( "\n\n***** REFRESHING   metricsCache   *******\n\n" ) ;
-			var timer = kubernetes.getCsapApp( ).metrics( ).startTimer( ) ;
+			var timer = kubernetes.metrics( ).startTimer( ) ;
 
 			try {
 
@@ -230,7 +230,7 @@ public class MetricsBuilder {
 
 			}
 
-			kubernetes.getCsapApp( ).metrics( ).stopTimer( timer, METRICS_TIMER ) ;
+			kubernetes.metrics( ).stopTimer( timer, METRICS_TIMER ) ;
 
 		}
 
@@ -262,17 +262,22 @@ public class MetricsBuilder {
 			//
 			// metrics server report is run only if metrics server is running
 			//
-			var metricsServerPods = kubernetes.podsByLabel( "kube-system", "k8s-app=metrics-server" ) ;
+//			var metricsServerPods = kubernetes.podsByLabel( KubernetesJson.systemNamespace.json( ), "k8s-app=metrics-server" ) ;
+			// helm support
+			var metricsServerPods = kubernetes.podsByLabelSelector( K8.systemNamespace.val( ), K8.metricsServerLabel.val( ) ) ;
 
-//			if ( metricsServerPods.size( ) == 0 ) {
-//
+			if ( metricsServerPods.size( ) == 0 ) {
+
+				// legacy for csap21.x deployments
+				metricsServerPods = kubernetes.podsByLabelSelector( K8.systemNamespace.val( ), "k8s-app=metrics-server" ) ;
+
 //				metricsServerPods = kubernetes.podsByLabel( 
 //						PROMETHEUS_ADAPTER_LABEL_NAMESPACE,
 //						PROMETHEUS_ADAPTER_LABEL ) ;
-//
-//			}
 
-			logger.debug( "metricsServerPods: {}", metricsServerPods.size( ) ) ;
+			}
+
+			logger.info( "metricsServerPods: {}", metricsServerPods.size( ) ) ;
 
 			if ( metricsServerPods.size( ) > 0 ) {
 
@@ -318,7 +323,7 @@ public class MetricsBuilder {
 			} else {
 
 				metricsReport = jsonMapper.createObjectNode( ) ;
-				metricsReport.put( DockerJson.error.json( ), "Failed to find metrics-server or promethesius adapter"
+				metricsReport.put( C7.error.val( ), "Failed to find metrics-server or promethesius adapter"
 						+ " condition Ready = true" ) ;
 
 			}
@@ -355,13 +360,13 @@ public class MetricsBuilder {
 
 						var stats = nodeReport.putObject( nodeName ) ;
 
-						stats.put( KubernetesJson.cores.json( ), CSAP.roundIt(
+						stats.put( K8.cores.val( ), CSAP.roundIt(
 								metricsServerNormalizedCores( node ),
 								2 ) ) ;
 
-						stats.put( KubernetesJson.memoryGb.json( ), memoryMbToGb( metricsServerMemoryInMb( node ) ) ) ;
-						stats.put( KubernetesJson.podsRunning.json( ), podCountForHost( nodeName, "==Running" ) ) ;
-						stats.put( KubernetesJson.podsNotRunning.json( ), podCountForHost( nodeName, "!=Running" ) ) ;
+						stats.put( K8.memoryGb.val( ), memoryMbToGb( metricsServerMemoryInMb( node ) ) ) ;
+						stats.put( K8.podsRunning.val( ), podCountForHost( nodeName, "==Running" ) ) ;
+						stats.put( K8.podsNotRunning.val( ), podCountForHost( nodeName, "!=Running" ) ) ;
 
 					}
 
@@ -426,7 +431,7 @@ public class MetricsBuilder {
 
 		if ( filterHost == null ) {
 
-			filterHost = Application.getInstance( ).getCsapHostName( ) + ".*" ;
+			filterHost = CsapApis.getInstance( ).application( ).getCsapHostName( ) + ".*" ;
 
 		}
 
@@ -523,7 +528,7 @@ public class MetricsBuilder {
 		var containerToCount = new HashMap<String, Integer>( ) ;
 
 		CSAP.jsonStream( metricsServerPods.path( "items" ) )
-				.flatMap( pod -> CSAP.jsonStream( pod.path( KubernetesJson.containers.json( ) ) ) )
+				.flatMap( pod -> CSAP.jsonStream( pod.path( K8.containers.val( ) ) ) )
 				.forEach( podContainer -> {
 
 					var containerName = podContainer.path( "name" ).asText( ) ;
@@ -545,12 +550,12 @@ public class MetricsBuilder {
 		containerToCount.keySet( ).stream( ).forEach( containerName -> {
 
 			var containerReport = containerReports.putObject( containerName ) ;
-			containerReport.put( KubernetesJson.containerCount.json( ), containerToCount.get( containerName ) ) ;
-			containerReport.put( KubernetesJson.cores.json( ),
+			containerReport.put( K8.containerCount.val( ), containerToCount.get( containerName ) ) ;
+			containerReport.put( K8.cores.val( ),
 					CSAP.roundIt(
 							containerToCores.get( containerName ),
 							2 ) ) ;
-			containerReport.put( KubernetesJson.memoryInMb.json( ), containerToMemory.get( containerName ) ) ;
+			containerReport.put( K8.memoryInMb.val( ), containerToMemory.get( containerName ) ) ;
 
 		} ) ;
 
@@ -564,21 +569,21 @@ public class MetricsBuilder {
 		var metricsReport = jsonMapper.createObjectNode( ) ;
 
 		// placeholders for ordering in output
-		metricsReport.putObject( KubernetesJson.nodes.json( ) ) ;
-		metricsReport.putObject( KubernetesJson.containers.json( ) ) ;
+		metricsReport.putObject( K8.nodes.val( ) ) ;
+		metricsReport.putObject( K8.containers.val( ) ) ;
 
 		var containerNamespaceSummary = metricsReport.putArray( "containerNamespace" ) ;
 		var namespaceSummary = metricsReport.putObject( "namespaces" ) ;
-		var podStats = metricsReport.putObject( KubernetesJson.pods.json( ) ) ;
+		var podStats = metricsReport.putObject( K8.pods.val( ) ) ;
 
-		metricsReport.set( KubernetesJson.nodes.json( ), nodeReport( null ) ) ;
+		metricsReport.set( K8.nodes.val( ), nodeReport( null ) ) ;
 
 		JsonNode metricsServerPods = kubernetesDirect.getJson( "/apis/metrics.k8s.io/v1beta1/pods",
 				kubernetes.apiClient( ),
 				jsonMapper ) ;
 		logger.debug( "podMetrics: {} ", CSAP.jsonPrint( metricsServerPods ) ) ;
 
-		metricsReport.set( KubernetesJson.containers.json( ), buildContainerMetrics( metricsServerPods, null ) ) ;
+		metricsReport.set( K8.containers.val( ), buildContainerMetrics( metricsServerPods, null ) ) ;
 
 		//
 		// Namespace Summary Metrics
@@ -597,7 +602,7 @@ public class MetricsBuilder {
 
 			namespaceToPods.merge( podNamespace, 1, Integer::sum ) ;
 
-			CSAP.jsonStream( pod.path( KubernetesJson.containers.json( ) ) ).forEach( podContainer -> {
+			CSAP.jsonStream( pod.path( K8.containers.val( ) ) ).forEach( podContainer -> {
 
 				namespaceToContainers.merge( podNamespace, 1, Integer::sum ) ;
 
@@ -614,13 +619,13 @@ public class MetricsBuilder {
 		namespaceToPods.keySet( ).stream( ).forEach( namespace -> {
 
 			var namespaceReport = namespaceSummary.putObject( namespace ) ;
-			namespaceReport.put( KubernetesJson.pods.json( ), namespaceToPods.get( namespace ) ) ;
-			namespaceReport.put( KubernetesJson.containerCount.json( ), namespaceToContainers.get( namespace ) ) ;
-			namespaceReport.put( KubernetesJson.cores.json( ),
+			namespaceReport.put( K8.pods.val( ), namespaceToPods.get( namespace ) ) ;
+			namespaceReport.put( K8.containerCount.val( ), namespaceToContainers.get( namespace ) ) ;
+			namespaceReport.put( K8.cores.val( ),
 					CSAP.roundIt(
 							namespaceToCores.get( namespace ),
 							2 ) ) ;
-			namespaceReport.put( KubernetesJson.memoryInMb.json( ), namespaceToMemory.get( namespace ) ) ;
+			namespaceReport.put( K8.memoryInMb.val( ), namespaceToMemory.get( namespace ) ) ;
 
 		} ) ;
 
@@ -644,11 +649,11 @@ public class MetricsBuilder {
 			var podNamespace = pod.at( "/metadata/namespace" ).asText( ) ;
 			var podReport = podStats.putObject( podName ) ;
 			podReport.put( "namespace", podNamespace ) ;
-			podReport.put( KubernetesJson.cores.json( ), 0.0 ) ;
-			podReport.put( KubernetesJson.memoryInMb.json( ), 0 ) ;
-			var podContainerNames = podReport.putArray( KubernetesJson.containers.json( ) ) ;
+			podReport.put( K8.cores.val( ), 0.0 ) ;
+			podReport.put( K8.memoryInMb.val( ), 0 ) ;
+			var podContainerNames = podReport.putArray( K8.containers.val( ) ) ;
 
-			var podContainers = pod.path( KubernetesJson.containers.json( ) ) ;
+			var podContainers = pod.path( K8.containers.val( ) ) ;
 
 			if ( podContainers.isArray( ) ) {
 
@@ -675,8 +680,8 @@ public class MetricsBuilder {
 
 				}
 
-				podReport.put( KubernetesJson.cores.json( ), CSAP.roundIt( coreTotal, 2 ) ) ;
-				podReport.put( KubernetesJson.memoryInMb.json( ), memoryTotal ) ;
+				podReport.put( K8.cores.val( ), CSAP.roundIt( coreTotal, 2 ) ) ;
+				podReport.put( K8.memoryInMb.val( ), memoryTotal ) ;
 
 			}
 
@@ -688,12 +693,12 @@ public class MetricsBuilder {
 			var containerNsReport = containerNamespaceSummary.addObject( ) ;
 			containerNsReport.put( "name", containerNsToContainer.get( containerNs ) ) ;
 			containerNsReport.put( "namespace", containerNsToNs.get( containerNs ) ) ;
-			containerNsReport.put( KubernetesJson.containerCount.json( ), containerNsToContainers.get( containerNs ) ) ;
-			containerNsReport.put( KubernetesJson.cores.json( ),
+			containerNsReport.put( K8.containerCount.val( ), containerNsToContainers.get( containerNs ) ) ;
+			containerNsReport.put( K8.cores.val( ),
 					CSAP.roundIt(
 							containerNsToCores.get( containerNs ),
 							2 ) ) ;
-			containerNsReport.put( KubernetesJson.memoryInMb.json( ), containerNsToMemory.get( containerNs ) ) ;
+			containerNsReport.put( K8.memoryInMb.val( ), containerNsToMemory.get( containerNs ) ) ;
 
 		} ) ;
 
@@ -703,21 +708,21 @@ public class MetricsBuilder {
 
 	double metricsServerNormalizedCores ( JsonNode metricsServerContainer ) {
 
-		var cpuWithKubernetesUnits = metricsServerContainer.at( "/usage/" + KubernetesJson.formatCpu.json( ) )
+		var cpuWithKubernetesUnits = metricsServerContainer.at( "/usage/" + K8.formatCpu.val( ) )
 				.asText( ) ;
-		var cpuAsCore = metricsServerContainer.at( "/usage/" + KubernetesJson.formatCpu.json( ) ).asDouble( 0.0 ) ;
+		var cpuAsCore = metricsServerContainer.at( "/usage/" + K8.formatCpu.val( ) ).asDouble( 0.0 ) ;
 
 		if ( cpuWithKubernetesUnits.endsWith( "n" ) ) {
 
-			cpuAsCore = Long.parseLong( cpuWithKubernetesUnits.split( "n" )[ 0 ] ) / CORE_UNIT_FROM_N ;
+			cpuAsCore = Long.parseLong( cpuWithKubernetesUnits.split( "n" )[0] ) / CORE_UNIT_FROM_N ;
 
 		} else if ( cpuWithKubernetesUnits.endsWith( "m" ) ) {
 
-			cpuAsCore = Long.parseLong( cpuWithKubernetesUnits.split( "m" )[ 0 ] ) / CORE_UNIT_FROM_M ;
+			cpuAsCore = Long.parseLong( cpuWithKubernetesUnits.split( "m" )[0] ) / CORE_UNIT_FROM_M ;
 
 		} else if ( cpuWithKubernetesUnits.endsWith( "u" ) ) {
 
-			cpuAsCore = Long.parseLong( cpuWithKubernetesUnits.split( "u" )[ 0 ] ) / CORE_UNIT_FROM_U ;
+			cpuAsCore = Long.parseLong( cpuWithKubernetesUnits.split( "u" )[0] ) / CORE_UNIT_FROM_U ;
 
 		}
 
@@ -732,15 +737,15 @@ public class MetricsBuilder {
 
 		if ( memoryWithKubernetesUnits.endsWith( "Ki" ) ) {
 
-			memoryInMb = Long.parseLong( memoryWithKubernetesUnits.split( "Ki" )[ 0 ] ) / 1024 ;
+			memoryInMb = Long.parseLong( memoryWithKubernetesUnits.split( "Ki" )[0] ) / 1024 ;
 
 		} else if ( memoryWithKubernetesUnits.endsWith( "Mi" ) ) {
 
-			memoryInMb = Long.parseLong( memoryWithKubernetesUnits.split( "Mi" )[ 0 ] ) ;
+			memoryInMb = Long.parseLong( memoryWithKubernetesUnits.split( "Mi" )[0] ) ;
 
 		} else if ( memoryWithKubernetesUnits.endsWith( "Gi" ) ) {
 
-			memoryInMb = Long.parseLong( memoryWithKubernetesUnits.split( "Gi" )[ 0 ] ) ;
+			memoryInMb = Long.parseLong( memoryWithKubernetesUnits.split( "Gi" )[0] ) ;
 
 		} else {
 

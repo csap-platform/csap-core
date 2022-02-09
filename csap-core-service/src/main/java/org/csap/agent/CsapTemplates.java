@@ -7,7 +7,7 @@ import org.csap.helpers.CSAP ;
 import org.slf4j.LoggerFactory ;
 import org.springframework.core.io.ClassPathResource ;
 
-public enum CsapTemplate {
+public enum CsapTemplates {
 	shell_scripts("shell-scripts"),
 
 	kubernetes_yaml("kubernetes-yaml"),
@@ -32,7 +32,7 @@ public enum CsapTemplate {
 	ClassPathResource theResource ;
 	String key ;
 
-	private CsapTemplate ( String path ) {
+	private CsapTemplates ( String path ) {
 
 		key = path ;
 		theResource = new ClassPathResource( "csap-templates/" + path ) ;
@@ -53,7 +53,7 @@ public enum CsapTemplate {
 
 		} catch ( IOException e ) {
 
-			LoggerFactory.getLogger( CsapTemplate.class ).warn( "Failed loading: {}, {}", theResource, CSAP
+			LoggerFactory.getLogger( CsapTemplates.class ).warn( "Failed loading: {}, {}", theResource, CSAP
 					.buildCsapStack( e ) ) ;
 
 		}

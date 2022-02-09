@@ -11,9 +11,10 @@ import java.util.stream.Collectors ;
 
 import javax.inject.Inject ;
 
+import org.csap.agent.CsapApis ;
 import org.csap.agent.CsapBareTest ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.CsapCoreService ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.container.kubernetes.K8 ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.HealthForAgent ;
 import org.csap.agent.model.ProcessRuntime ;
@@ -62,6 +63,9 @@ class Agent_ApplicationBrowser {
 	Application csapApp ;
 
 	@Inject
+	CsapApis csapApis ;
+
+	@Inject
 	ServiceRequests serviceRequests ;
 
 	@Inject
@@ -83,9 +87,9 @@ class Agent_ApplicationBrowser {
 		StringBuilder parsingResults = csapApp.getLastTestParseResults( ) ;
 		logger.debug( "parsing results: {}", parsingResults.toString( ) ) ;
 
-		csapApp.getOsManager( ).wait_for_initial_process_status_scan( 3 ) ;
-		csapApp.getOsManager( ).resetAllCaches( ) ;
-		csapApp.getOsManager( ).checkForProcessStatusUpdate( ) ;
+		csapApis.osManager( ).wait_for_initial_process_status_scan( 3 ) ;
+		csapApis.osManager( ).resetAllCaches( ) ;
+		csapApis.osManager( ).checkForProcessStatusUpdate( ) ;
 
 	}
 
@@ -156,11 +160,11 @@ class Agent_ApplicationBrowser {
 		// mock does much validation.....
 		ResultActions resultActions = mockMvc.perform(
 
-				get( CsapCoreService.FILE_MANAGER_URL )
+				get( CsapConstants.FILE_MANAGER_URL )
 
 						.with( CsapBareTest.csapMockUser( ) )
 
-						.param( "serviceName", CsapCore.AGENT_NAME )
+						.param( "serviceName", CsapConstants.AGENT_NAME )
 
 						.accept( MediaType.TEXT_PLAIN ) ) ;
 
@@ -210,11 +214,11 @@ class Agent_ApplicationBrowser {
 		// mock does much validation.....
 		ResultActions resultActions = mockMvc.perform(
 
-				get( CsapCoreService.FILE_URL + FileRequests.FILE_MONITOR )
+				get( CsapConstants.FILE_URL + FileRequests.FILE_MONITOR )
 
 						.with( CsapBareTest.csapMockUser( ) )
 
-						.param( "serviceName", CsapCore.AGENT_NAME )
+						.param( "serviceName", CsapConstants.AGENT_NAME )
 
 						.accept( MediaType.TEXT_PLAIN ) ) ;
 
@@ -364,7 +368,7 @@ class Agent_ApplicationBrowser {
 		logger.info( CsapApplication.testHeader( ) ) ;
 
 		var systemNamespaceMonitor = csapApp.findServiceByNameOnCurrentHost(
-				csapApp.getProjectLoader( ).getNsMonitorName( "kube-system" ) ) ;
+				csapApp.getProjectLoader( ).getNsMonitorName( K8.systemNamespace.val( ) ) ) ;
 		logger.info( "{} resources: {}", systemNamespaceMonitor.toSummaryString( ), systemNamespaceMonitor
 				.getContainerStatusList( ) ) ;
 
@@ -499,7 +503,7 @@ class Agent_ApplicationBrowser {
 
 		logger.info( CsapApplication.testHeader( ) ) ;
 
-		var agentInstance = csapApp.getServiceInstanceCurrentHost( CsapCore.AGENT_ID ) ;
+		var agentInstance = csapApp.getServiceInstanceCurrentHost( CsapConstants.AGENT_ID ) ;
 		logger.info( "csapTestService resources: {}", agentInstance.getContainerStatusList( ) ) ;
 
 		assertThat( agentInstance.getContainerStatusList( ).size( ) )

@@ -82,7 +82,7 @@ metadata:
   
 spec:
   rules:
-  - host: YOURHOST.***REMOVED***
+  - host: $$service-fqdn-host
     http:
       paths:
         - path: /demo-route-1/?(.*)

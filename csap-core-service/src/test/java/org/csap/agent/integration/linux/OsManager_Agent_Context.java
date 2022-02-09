@@ -8,14 +8,14 @@ import java.io.IOException ;
 import javax.inject.Inject ;
 
 import org.csap.agent.CsapBareTest ;
-import org.csap.agent.CsapCore ;
-import org.csap.agent.container.DockerJson ;
+import org.csap.agent.CsapConstants ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.ContainerState ;
-import org.csap.agent.model.ServiceInstance ;
 import org.csap.agent.services.OsManager ;
 import org.csap.helpers.CSAP ;
 import org.csap.helpers.CsapApplication ;
+import org.junit.jupiter.api.AfterAll ;
 import org.junit.jupiter.api.BeforeAll ;
 import org.junit.jupiter.api.Test ;
 import org.slf4j.Logger ;
@@ -47,11 +47,35 @@ public class OsManager_Agent_Context {
 
 		csapApp.getProjectLoader( ).setAllowLegacyNames( true ) ;
 
+		csapApp.metricManager( ).setSuspendCollection( false ) ;
+
 		assertThat( csapApp.loadDefinitionForJunits( false, csapApplicationDefinition ) )
 				.as( "No Errors or warnings" )
 				.isTrue( ) ;
 
-		osManager.wait_for_initial_process_status_scan( 3 ) ;
+		var csapTestService = csapApp.getServiceInstanceCurrentHost( "k8s-csap-test" ) ;
+		assertThat( csapTestService ).as( "k8s-csap-test template loaded" ).isNotNull( ) ;
+
+		osManager.wait_for_initial_process_status_scan( 10 ) ;
+
+		CSAP.setLogToDebug( OsManager.class.getName( ) ) ;
+
+		// csapApp.setServiceDebugName( "k8s-csap-test" );
+		osManager.expireAndUpdateProcessListing( ) ;
+
+		CSAP.setLogToInfo( OsManager.class.getName( ) ) ;
+
+		logger.info( CsapApplication.testHeader( "completed" ) ) ;
+
+	}
+
+	@AfterAll
+	void afterAll ( )
+		throws Exception {
+
+		logger.info( CsapApplication.testHeader( "Cleaning up thin tests" ) ) ;
+
+		csapApp.metricManager( ).setSuspendCollection( true ) ;
 
 	}
 
@@ -81,7 +105,7 @@ public class OsManager_Agent_Context {
 
 		logger.info( CsapApplication.testHeader( ) ) ;
 
-		var agentInstance = csapApp.getServiceInstanceCurrentHost( CsapCore.AGENT_ID ) ;
+		var agentInstance = csapApp.getServiceInstanceCurrentHost( CsapConstants.AGENT_ID ) ;
 
 		osManager.buildServiceStatsReportAndUpdateTopCpu( true ) ;
 		osManager.getServiceResourceRunnable( ).testFullCollection( ) ;
@@ -117,8 +141,6 @@ public class OsManager_Agent_Context {
 		throws JsonProcessingException ,
 		IOException {
 
-		osManager.checkForProcessStatusUpdate( ) ;
-
 		JsonNode serviceRuntime = osManager.buildServiceStatsReportAndUpdateTopCpu( true ).at( "/ps/nginx" ) ;
 
 		logger.info( "{} {}", CsapApplication.header( "Test: nginx runtime" ), CSAP.jsonPrint( serviceRuntime ) ) ;
@@ -149,7 +171,10 @@ public class OsManager_Agent_Context {
 	@Test
 	public void verify_process_discovery_summary ( ) {
 
-		JsonNode summary = osManager.latest_process_discovery_results( ).get( DockerJson.response_plain_text.json( ) ) ;
+		logger.info( CsapApplication.testHeader( ) ) ;
+
+		JsonNode summary = osManager.latest_process_discovery_results( ).get( C7.response_plain_text
+				.val( ) ) ;
 
 		logger.debug( "Discovered Containers: {}", summary.asText( ) ) ;
 
@@ -164,9 +189,12 @@ public class OsManager_Agent_Context {
 		throws JsonProcessingException ,
 		IOException {
 
+		logger.info( CsapApplication.testHeader( ) ) ;
+
 		JsonNode runtimeStatus = osManager.getHostRuntime( ) ;
 
-		logger.info( "Host Runtime Services: {}", CSAP.jsonPrint( runtimeStatus.get( "services" ) ) ) ;
+		logger.info( "Host Runtime Services: {}", CSAP.jsonPrint( runtimeStatus.get( "services" ).at(
+				"/services/k8s-api-server" ) ) ) ;
 
 		assertThat( runtimeStatus.at( "/services/k8s-api-server" ) )
 				.as( "k8s-api-server is running" )
@@ -186,13 +214,13 @@ public class OsManager_Agent_Context {
 		throws JsonProcessingException ,
 		IOException {
 
-		osManager.checkForProcessStatusUpdate( ) ;
+		logger.info( CsapApplication.testHeader( ) ) ;
 
 		// logger.info( "lastCollection pid mappings: {}" ,
 		// osManager.getLatestProcessSummary() );
 
 		JsonNode agentCollection = osManager.buildServiceStatsReportAndUpdateTopCpu( true ).at( "/ps/"
-				+ CsapCore.AGENT_NAME ) ;
+				+ CsapConstants.AGENT_NAME ) ;
 
 		logger.info( "CsAgent Runtime: {}",
 				CSAP.jsonPrint( agentCollection ) ) ;
@@ -210,14 +238,15 @@ public class OsManager_Agent_Context {
 
 	@Test
 	public void verify_host_runtime_collection ( )
-		throws JsonProcessingException ,
-		IOException {
+		throws Exception {
+
+		logger.info( CsapApplication.testHeader( ) ) ;
 
 		JsonNode runtimeStatus = osManager.getHostRuntime( ) ;
 
-		logger.info( "Host Runtime: {}", CSAP.jsonPrint( runtimeStatus ) ) ;
+		logger.info( "Host Runtime: {}", CSAP.jsonPrint( runtimeStatus.path( "hostStats" ) ) ) ;
 
-		JsonNode hostStats = runtimeStatus.get( "hostStats" ) ;
+		JsonNode hostStats = runtimeStatus.path( "hostStats" ) ;
 
 		assertThat( hostStats.at( "/cpuCount" ).asInt( ) )
 				.as( "cpuCount" )
@@ -232,18 +261,22 @@ public class OsManager_Agent_Context {
 
 	@Test
 	public void verify_host_status_with_multiple_container_services ( )
-		throws JsonProcessingException ,
-		IOException {
+		throws Exception {
 
-		JsonNode runtimeStatus = osManager.getHostRuntime( ) ;
+		logger.info( CsapApplication.testHeader( ) ) ;
+
+		var runtimeStatus = osManager.getHostRuntime( ) ;
 		logger.debug( "Host Runtime: {}", CSAP.jsonPrint( runtimeStatus ) ) ;
 
-		ServiceInstance csapTestService = csapApp.getServiceInstanceCurrentHost( "k8s-csap-test_0" ) ;
+		var csapTestService = csapApp.getServiceInstanceCurrentHost( "k8s-csap-test" ) ;
+
+		logger.info( CsapApplication.testHeader( "{}" ), csapTestService.getDefaultContainer( ) ) ;
+
 		assertThat( csapTestService.getContainerStatusList( ).size( ) )
 				.as( "container count" )
 				.isEqualTo( 2 ) ;
 
-		JsonNode csapTestStatus = runtimeStatus.at( "/services/" + csapTestService.getServiceName_Port( ) ) ;
+		var csapTestStatus = runtimeStatus.at( "/services/" + csapTestService.getServiceName_Port( ) ) ;
 		logger.info( "csapTestStatus: {}", CSAP.jsonPrint( csapTestStatus ) ) ;
 
 		// assertThat( csapTestStatus.at( "/cpuCount" ).asInt() )

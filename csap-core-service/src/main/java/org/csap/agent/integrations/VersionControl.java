@@ -10,7 +10,7 @@ import java.util.List ;
 import javax.servlet.http.HttpSession ;
 
 import org.apache.commons.io.FileUtils ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.linux.OsCommandRunner ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.ServiceInstance ;
@@ -151,7 +151,7 @@ public class VersionControl {
 		// ciFiles[0] = jsConfigFile;
 
 		// This will update ALL files found in config directory
-		commitFileArray[ 0 ] = applicationFolder ;
+		commitFileArray[0] = applicationFolder ;
 
 		if ( releasePackageFile.canRead( ) ) {
 
@@ -311,7 +311,7 @@ public class VersionControl {
 		results.append( osCommandRunner.executeString( parmList, workingDir2,
 				null, null, 60, 1, outputWriter ) ) ;
 
-		if ( results.indexOf( CsapCore.CONFIG_PARSE_ERROR ) != -1 ) {
+		if ( results.indexOf( CsapConstants.CONFIG_PARSE_ERROR ) != -1 ) {
 
 			logger.error( "Found Errors in command execution: " + parmList
 					+ "\n results: " + results ) ;
@@ -548,7 +548,6 @@ public class VersionControl {
 			FileUtils.deleteQuietly( outputFolder ) ;
 
 		}
-		
 
 		var loadedMessage = CsapApplication.highlightHeader( "Performing git clone: " + inputUrl ) ;
 

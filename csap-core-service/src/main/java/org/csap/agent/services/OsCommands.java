@@ -5,10 +5,10 @@ import java.util.List ;
 import java.util.regex.Matcher ;
 import java.util.stream.Collectors ;
 
-import org.csap.agent.CsapCoreService ;
+import org.csap.agent.CsapConstants ;
 import org.springframework.boot.context.properties.ConfigurationProperties ;
 
-@ConfigurationProperties ( CsapCoreService.CONFIGURATION_PREFIX + ".os-commands" )
+@ConfigurationProperties ( CsapConstants.CONFIGURATION_PREFIX + ".os-commands" )
 public class OsCommands {
 
 	private static List<String> NOT_INITIALIZED = Arrays.asList( "Not", "Initialized" ) ;

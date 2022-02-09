@@ -13,12 +13,12 @@ import java.util.concurrent.atomic.AtomicInteger ;
 import java.util.stream.Collectors ;
 
 import org.csap.agent.CsapThinTests ;
-import org.csap.agent.ContainerConfiguration ;
-import org.csap.agent.ContainerSettings ;
+import org.csap.agent.container.ContainerConfiguration ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.container.ContainerIntegration ;
 import org.csap.agent.container.ContainerProcess ;
-import org.csap.agent.container.DockerJson ;
-import org.csap.agent.container.kubernetes.KubernetesJson ;
+import org.csap.agent.container.ContainerSettings ;
+import org.csap.agent.container.kubernetes.K8 ;
 import org.csap.agent.model.ServiceAttributes ;
 import org.csap.agent.model.ServiceInstance ;
 import org.csap.helpers.CSAP ;
@@ -135,12 +135,13 @@ class ContainerCsapTests extends CsapThinTests {
 
 		// csapDocker = new DockerIntegration( docker, dockerClient, getJsonMapper(),
 		// null ) ;
-		ContainerConfiguration dockerConfig = new ContainerConfiguration( ) ;
-		dockerConfig.setDocker( docker ) ;
-		dockerConfig.setCsapApp( getApplication( ) ) ;
-		dockerConfig.setTestClient( dockerClient ) ;
-		csapDocker = new ContainerIntegration( dockerConfig, getJsonMapper( ) ) ;
-		Assumptions.assumeTrue( csapDocker.getCachedSummaryReport( ).path( KubernetesJson.heartbeat.json( ) ).asBoolean( ) ) ;
+		ContainerConfiguration configuration = new ContainerConfiguration( ) ;
+		configuration.setSettings( docker ) ;
+		configuration.setCsapApis( getCsapApis( ) ) ;
+		configuration.setTestClient( dockerClient ) ;
+		csapDocker = new ContainerIntegration( configuration, getJsonMapper( ) ) ;
+		Assumptions.assumeTrue( csapDocker.getCachedSummaryReport( ).path( K8.heartbeat.val( ) )
+				.asBoolean( ) ) ;
 
 	}
 
@@ -174,7 +175,7 @@ class ContainerCsapTests extends CsapThinTests {
 		logger.info( "dockerSummery:  \n {}",
 				CSAP.jsonPrint( dockerSummery ) ) ;
 
-		assertThat( dockerSummery.get( KubernetesJson.heartbeat.json( ) ).asBoolean( ) )
+		assertThat( dockerSummery.get( K8.heartbeat.val( ) ).asBoolean( ) )
 				.as( "No errors in listing" )
 				.isTrue( ) ;
 
@@ -328,7 +329,7 @@ class ContainerCsapTests extends CsapThinTests {
 				CSAP.jsonPrint(
 						optionalImage.get( )
 								.get(
-										DockerJson.list_label.json( ) ) ) ) ;
+										C7.list_label.val( ) ) ) ) ;
 
 		assertThat( optionalImage.isPresent( ) )
 				.as( "Found busybox" )
@@ -339,7 +340,7 @@ class ContainerCsapTests extends CsapThinTests {
 
 		removeResults = csapDocker.imageRemove( true, null, BUSY_BOX ) ;
 		logger.info( "busybox: \n {}", CSAP.jsonPrint( removeResults ) ) ;
-		assertThat( removeResults.has( DockerJson.error.json( ) ) )
+		assertThat( removeResults.has( C7.error.val( ) ) )
 				.as( "Found busybox" )
 				.isFalse( ) ;
 
@@ -359,7 +360,7 @@ class ContainerCsapTests extends CsapThinTests {
 				.filter( imageJson -> {
 
 					return imageJson.get(
-							DockerJson.list_label.json( ) ).asText( )
+							C7.list_label.val( ) ).asText( )
 							// ignore leading source which may be ommitted
 							.contains( ContainerIntegration.simpleImageName( BUSY_BOX ) ) ;
 
@@ -382,14 +383,14 @@ class ContainerCsapTests extends CsapThinTests {
 		CSAP.setLogToInfo( ContainerIntegration.class.getName( ) ) ;
 
 		logger.info( "Image pulled: {}", CSAP.jsonPrint( pullResults ) ) ;
-		assertThat( pullResults.path( DockerJson.error.json( ) ).asBoolean( ) ).as( "no errors during pull" )
+		assertThat( pullResults.path( C7.error.val( ) ).asBoolean( ) ).as( "no errors during pull" )
 				.isFalse( ) ;
 
 		ObjectNode imageInfo = csapDocker.imageInfo( pullResults.path( "image" ).asText( ) ) ;
 
 		logger.info( "Image pulled: {}", CSAP.jsonPrint( imageInfo ) ) ;
 
-		assertThat( imageInfo.has( DockerJson.error.json( ) ) ).as( "no errors during pull" ).isFalse( ) ;
+		assertThat( imageInfo.has( C7.error.val( ) ) ).as( "no errors during pull" ).isFalse( ) ;
 		assertThat( imageInfo.path( "Config" ).isObject( ) ).as( "Found cofiguration" ).isTrue( ) ;
 
 		ServiceInstance service = new ServiceInstance( ) ;
@@ -412,7 +413,8 @@ class ContainerCsapTests extends CsapThinTests {
 
 		logger.info( "createAndStartResults: \n {}", CSAP.jsonPrint( createAndStartResults ) ) ;
 
-		assertThat( createAndStartResults.has( DockerJson.error.json( ) ) ).as( "no errors during deploy" ).isFalse( ) ;
+		assertThat( createAndStartResults.has( C7.error.val( ) ) ).as( "no errors during deploy" )
+				.isFalse( ) ;
 
 		// assertThat( createAndStartResults.at( "/startResults/state/Running"
 		// ).asBoolean() )
@@ -448,7 +450,7 @@ class ContainerCsapTests extends CsapThinTests {
 		Optional<Container> container = csapDocker.findContainerUsingLabel( searchLabel, kubernetes_service ) ;
 		Assumptions.assumeTrue( container.isPresent( ) ) ;
 
-		ObjectNode tailResults = csapDocker.containerTail( null, container.get( ).getNames( )[ 0 ], 10, 1 ) ;
+		ObjectNode tailResults = csapDocker.containerTail( null, container.get( ).getNames( )[0], 10, 1 ) ;
 
 		logger.info( "tailResults: \n {}", CSAP.jsonPrint( tailResults ) ) ;
 
@@ -486,7 +488,7 @@ class ContainerCsapTests extends CsapThinTests {
 
 		logger.info( "results: \n {}", CSAP.jsonPrint( results ) ) ;
 
-		assertThat( results.has( DockerJson.error.json( ) ) ).as( "no errors during deploy" ).isFalse( ) ;
+		assertThat( results.has( C7.error.val( ) ) ).as( "no errors during deploy" ).isFalse( ) ;
 
 		assertThat( results.at( "/startResults/state/Running" ).asBoolean( ) )
 				.as( "no errors during deploy" )
@@ -501,7 +503,7 @@ class ContainerCsapTests extends CsapThinTests {
 				service.getDockerContainerPath( ),
 				true ) ;
 
-		assertThat( removeResults.has( DockerJson.error.json( ) ) ).as( "no errors during deploy" ).isFalse( ) ;
+		assertThat( removeResults.has( C7.error.val( ) ) ).as( "no errors during deploy" ).isFalse( ) ;
 
 		logger.info( "Remove results: \n {}",
 				CSAP.jsonPrint( removeResults ) ) ;
@@ -513,7 +515,7 @@ class ContainerCsapTests extends CsapThinTests {
 		throws Exception {
 
 		String volumes = CSAP.jsonStream( csapDocker.volumeList( ) )
-				.map( network -> network.path( DockerJson.list_label.json( ) ).asText( ) )
+				.map( network -> network.path( C7.list_label.val( ) ).asText( ) )
 				.collect( Collectors.joining( "\n" ) ) ;
 
 		logger.info( "Current volume list: {}", volumes ) ;
@@ -525,11 +527,11 @@ class ContainerCsapTests extends CsapThinTests {
 				false ) ;
 		logger.info( "Invalid path response: \n {}", CSAP.jsonPrint( errorCreateResponse ) ) ;
 
-		assertThat( errorCreateResponse.has( DockerJson.error.json( ) ) )
+		assertThat( errorCreateResponse.has( C7.error.val( ) ) )
 				.as( "Failed to add invalid volume" )
 				.isTrue( ) ;
 
-		assertThat( errorCreateResponse.get( DockerJson.errorReason.json( ) ).asText( ) )
+		assertThat( errorCreateResponse.get( C7.errorReason.val( ) ).asText( ) )
 				.as( "Failed to add invalid volume" )
 				.contains( "BadRequestException", "includes invalid characters for a local volume name" ) ;
 
@@ -547,7 +549,7 @@ class ContainerCsapTests extends CsapThinTests {
 		throws Exception {
 
 		String volumes = CSAP.jsonStream( csapDocker.volumeList( ) )
-				.map( network -> network.path( DockerJson.list_label.json( ) ).asText( ) )
+				.map( network -> network.path( C7.list_label.val( ) ).asText( ) )
 				.collect( Collectors.joining( "\n" ) ) ;
 
 		logger.info( "Current volume list: {}", volumes ) ;
@@ -561,22 +563,22 @@ class ContainerCsapTests extends CsapThinTests {
 		volCreateResponse = csapDocker.volumeCreate( VOLUME_TEST, "local", true ) ;
 		logger.info( "volCreateResponse: \n {}", CSAP.jsonPrint( volCreateResponse ) ) ;
 
-		assertThat( volCreateResponse.has( DockerJson.response_info.json( ) ) )
+		assertThat( volCreateResponse.has( C7.response_info.val( ) ) )
 				.as( "Volume skipped" )
 				.isTrue( ) ;
 
-		assertThat( volCreateResponse.get( DockerJson.response_info.json( ) ).asText( ) )
+		assertThat( volCreateResponse.get( C7.response_info.val( ) ).asText( ) )
 				.as( "Volume skipped" )
 				.isEqualTo( ContainerIntegration.SKIPPING_VOLUME_CREATE ) ;
 
 		ObjectNode volDeleteResponse = csapDocker.volumeDelete( VOLUME_TEST ) ;
 		logger.info( "volDeleteResponse: \n {}", CSAP.jsonPrint( volDeleteResponse ) ) ;
 
-		assertThat( volDeleteResponse.has( DockerJson.response_volume_list.json( ) ) )
+		assertThat( volDeleteResponse.has( C7.response_volume_list.val( ) ) )
 				.as( "Volume delete list of remaining volumes" )
 				.isTrue( ) ;
 
-		assertThat( volDeleteResponse.get( DockerJson.response_volume_list.json( ) ).toString( ) )
+		assertThat( volDeleteResponse.get( C7.response_volume_list.val( ) ).toString( ) )
 				.as( "Volume  list of remaining volumes" )
 				.doesNotContain( VOLUME_TEST ) ;
 
@@ -595,8 +597,8 @@ class ContainerCsapTests extends CsapThinTests {
 		String networks = CSAP.jsonStream( csapDocker.networkList( ) )
 				.map( ( network ) -> {
 
-					return network.path( DockerJson.list_label.json( ) ).asText( ) +
-							", Scope:" + network.at( "/" + DockerJson.list_attributes.json( ) + "/Scope" ).asText( ) ;
+					return network.path( C7.list_label.val( ) ).asText( ) +
+							", Scope:" + network.at( "/" + C7.list_attributes.val( ) + "/Scope" ).asText( ) ;
 
 				} )
 				.collect( Collectors.joining( "\t" ) ) ;
@@ -615,7 +617,7 @@ class ContainerCsapTests extends CsapThinTests {
 		ObjectNode networkCreateSkippedResponse = (ObjectNode) csapDocker.networkCreate( NETWORK_TEST, "bridge",
 				true ) ;
 		logger.info( "diskCreateResponse: \n {}", CSAP.jsonPrint( network_created_response ) ) ;
-		assertThat( networkCreateSkippedResponse.get( DockerJson.response_info.json( ) ).asText( ) )
+		assertThat( networkCreateSkippedResponse.get( C7.response_info.val( ) ).asText( ) )
 				.as( "network skipped" )
 				.isEqualTo( ContainerIntegration.SKIPPING_NETWORK_CREATE ) ;
 
@@ -665,21 +667,21 @@ class ContainerCsapTests extends CsapThinTests {
 		logger.info( "Remove container results: \n {} \n\n Remove Volume results:\n {}",
 				CSAP.jsonPrint( removeContainerResults ), CSAP.jsonPrint( removeVolumeResults ) ) ;
 
-		assertThat( removeVolumeResults.has( DockerJson.error.json( ) ) )
+		assertThat( removeVolumeResults.has( C7.error.val( ) ) )
 				.as( "no errors during volme remove" )
 				.isFalse( ) ;
 
 		String networks = CSAP.jsonStream( csapDocker.networkList( ) )
-				.map( network -> network.get( DockerJson.list_label.json( ) ).asText( ) )
+				.map( network -> network.get( C7.list_label.val( ) ).asText( ) )
 				.collect( Collectors.joining( "\n" ) ) ;
 
 		logger.info( "networks: {}", networks ) ;
 
 		ObjectNode results = csapDocker.containerCreateAndStart(
 				service,
-				(ObjectNode) dockerDefinitionWithCreates.get( "docker" ) ) ;
+				(ObjectNode) dockerDefinitionWithCreates.get( C7.definitionSettings.val( ) ) ) ;
 
-		assertThat( results.has( DockerJson.error.json( ) ) ).as( "no errors during deploy" ).isFalse( ) ;
+		assertThat( results.has( C7.error.val( ) ) ).as( "no errors during deploy" ).isFalse( ) ;
 
 		logger.info( "startResults: \n {}", CSAP.jsonPrint( results.at( "/startResults/state" ) ) ) ;
 
@@ -688,17 +690,17 @@ class ContainerCsapTests extends CsapThinTests {
 				.isTrue( ) ;
 
 		logger.info( "/volumeResults results: \n {}",
-				CSAP.jsonPrint( results.get( DockerJson.response_volume_create.json( ) ) ) ) ;
+				CSAP.jsonPrint( results.get( C7.response_volume_create.val( ) ) ) ) ;
 
 		assertThat( results.get(
-				DockerJson.response_volume_create.json( ) )
-				.at( "/" + DockerJson.create_persistent.json( ) + "/1/Mountpoint" )
+				C7.response_volume_create.val( ) )
+				.at( "/" + C7.create_persistent.val( ) + "/1/Mountpoint" )
 				.asText( ) )
 						.as( "Mountpoint created" )
 						.contains( "/volumes/junit-host-volume/_data" ) ;
 
 		logger.info( "/network results: \n {}",
-				CSAP.jsonPrint( results.get( DockerJson.response_network_create.json( ) ) ) ) ;
+				CSAP.jsonPrint( results.get( C7.response_network_create.val( ) ) ) ) ;
 
 	}
 
@@ -715,7 +717,7 @@ class ContainerCsapTests extends CsapThinTests {
 
 		logger.info( "loaded template: \n {}", CSAP.jsonPrint( nginxDefinition ) ) ;
 
-		csapDocker.imagePull( nginxDockerDef.get( DockerJson.imageName.json( ) ).asText( ), null, 60, 3 ) ;
+		csapDocker.imagePull( nginxDockerDef.get( C7.imageName.val( ) ).asText( ), null, 60, 3 ) ;
 
 		ServiceInstance service = new ServiceInstance( ) ;
 
@@ -736,12 +738,12 @@ class ContainerCsapTests extends CsapThinTests {
 
 		logger.info( "removeVolumeResults: {}", CSAP.jsonPrint( removeVolumeResults ) ) ;
 
-		assertThat( removeVolumeResults.has( DockerJson.error.json( ) ) )
+		assertThat( removeVolumeResults.has( C7.error.val( ) ) )
 				.as( "no errors during volme remove" )
 				.isFalse( ) ;
 
 		String networks = CSAP.jsonStream( csapDocker.networkList( ) )
-				.map( network -> network.get( DockerJson.list_label.json( ) ).asText( ) )
+				.map( network -> network.get( C7.list_label.val( ) ).asText( ) )
 				.collect( Collectors.joining( "\t" ) ) ;
 
 		logger.info( "networks: {}", networks ) ;
@@ -753,7 +755,7 @@ class ContainerCsapTests extends CsapThinTests {
 		logger.info( "containerCreateAndStart: \n {}",
 				CSAP.jsonPrint( container_results.at( "/startResults/state" ) ) ) ;
 
-		assertThat( container_results.has( DockerJson.error.json( ) ) )
+		assertThat( container_results.has( C7.error.val( ) ) )
 				.as( "no errors during deploy" )
 				.isFalse( ) ;
 
@@ -761,17 +763,17 @@ class ContainerCsapTests extends CsapThinTests {
 				.as( "no errors during deploy" )
 				.isTrue( ) ;
 
-		JsonNode volumeResults = container_results.get( DockerJson.response_volume_create.json( ) ) ;
+		JsonNode volumeResults = container_results.get( C7.response_volume_create.val( ) ) ;
 		logger.info( "/volumeResults: \n {}",
 				CSAP.jsonPrint( volumeResults ) ) ;
 
 		assertThat(
-				volumeResults.at( "/" + DockerJson.create_persistent.json( ) + "/0/Mountpoint" ).asText( ) )
+				volumeResults.at( "/" + C7.create_persistent.val( ) + "/0/Mountpoint" ).asText( ) )
 						.as( "Mountpoint created" )
 						.contains( "/var/lib/docker/volumes/nginx-demo-volume/_data" ) ;
 
 		logger.info( "/network results: \n {}",
-				CSAP.jsonPrint( container_results.get( DockerJson.response_network_create.json( ) ) ) ) ;
+				CSAP.jsonPrint( container_results.get( C7.response_network_create.val( ) ) ) ) ;
 
 		JsonNode finalRemoveResults = csapDocker.containerRemove(
 				null,

@@ -5,11 +5,16 @@
  */
 package org.csap.agent ;
 
+import java.util.Map ;
 import java.util.function.Predicate ;
 import java.util.stream.Stream ;
 import java.util.stream.StreamSupport ;
 
 import org.apache.commons.lang3.StringUtils ;
+import org.csap.agent.model.Application ;
+import org.csap.agent.ui.rest.FileRequests ;
+import org.csap.agent.ui.windows.HostPortal ;
+import org.springframework.stereotype.Service ;
 
 import com.fasterxml.jackson.core.JsonProcessingException ;
 import com.fasterxml.jackson.databind.JsonNode ;
@@ -22,7 +27,9 @@ import com.fasterxml.jackson.databind.ObjectMapper ;
  * 
  * @author someDeveloper
  */
-public class CsapCore {
+
+@Service // handle for use in thymeleaf views
+public class CsapConstants {
 
 	public static final int CSAP_MODEL_LOAD_ORDER = 1 ;
 	public static final int CSAP_SERVICE_STATE_LOAD_ORDER = 2 ;
@@ -36,10 +43,57 @@ public class CsapCore {
 	public static final String CONFIG_PARSE_ERROR = "__ERROR: " ;
 	public static final String CONFIG_PARSE_WARN = "__WARN: " ;
 	public static final String MISSING_SERVICE_MESSAGE = "Did not find service. " ;
+	final static public String CONFIGURATION_PREFIX = "csap-core" ;
+	// Security
+	// must be synced with ehcache.xml
+	public final static String TIMEOUT_CACHE_60s = "CacheWith60SecondEviction" ;
+	// URLs
+	public final static String BASE_URL = "/" ;
+	public final static String TEST_URL = BASE_URL + "test" ;
+	public final static String METER_URL = BASE_URL + "MeterActivity" ;
+	public final static String APP_BROWSER_URL = BASE_URL + "app-browser" ;
+	public final static String MAINHOSTS_URL = BASE_URL + "hosts" ;
+	public final static String CLUSTERBROWSER_URL = BASE_URL + "clusterDialog" ;
+	public final static String ADMIN_URL = BASE_URL + "admin" ;
+	public final static String EDIT_URL = BASE_URL + "edit" ;
+	public final static String SCREEN_URL = BASE_URL + "viewScreencast" ;
+	public final static String DEFINITION_URL = BASE_URL + "definition" ;
+	public final static String ENCODE_URL = "/properties/encode" ;
+	public final static String ENCODE_FULL_URL = DEFINITION_URL + ENCODE_URL ;
+	public final static String NOTIFY_URL = "/notify" ;
+	public final static String NOTIFY_FULL_URL = DEFINITION_URL + NOTIFY_URL ;
+	public final static String DECODE_URL = "/properties/decode" ;
+	public final static String SERVICE_URL = BASE_URL + "service" ;
+	public final static String FILE_URL = BASE_URL + "file" ;
+	public final static String FILE_MANAGER_URL = FILE_URL + FileRequests.FILE_MANAGER ;
+	public final static String OS_URL = BASE_URL + "os" ;
+	public final static String API_URL = BASE_URL + "api" ;
+	public final static String API_AGENT_URL = API_URL + "/agent" ;
+	public final static String API_MODEL_URL = API_URL + "/model" ;
+	public final static String API_CONTAINER_URL = API_URL + "/container" ;
+	public final static String API_APPLICATION_URL = API_URL + "/application" ;
+	public final static String JSP_VIEW = "/view/" ;
+	public final static Map<String, String> viewConstants = Map.of(
+			//
+			"ALL_PACKAGES", Application.ALL_PACKAGES,
+			"ADMIN_NAME", CsapConstants.ADMIN_NAME,
+			"AGENT_NAME", CsapConstants.AGENT_NAME,
+			"AGENT_ID", CsapConstants.AGENT_ID,
+			"SERVICE_URL", SERVICE_URL,
+			"COMMAND_SCREEN_URL", HostPortal.COMMAND_SCREEN_URL,
+			"DEFINITION_URL", DEFINITION_URL,
+			"FILE_MANAGER_URL", FILE_MANAGER_URL,
+			"EDIT_URL", EDIT_URL
+	//
+	) ;
+	final public static String HEALTH_EXECUTOR = "CsapHealthExecutor" ;
 
-	private CsapCore ( ) {
+	private CsapConstants ( ) {
 
 	}; // constants
+
+	public static final String TRIGGER_SHUTDOWN = "-csap-abort-script-io-" ;
+	public static final String TRIGGER_SHUTDOWN_LEGACY = "XXXYYYZZZ_AdminController" ;
 
 	public static final String EVENTS_STUB_FOLDER = "event-stub/" ;
 	public static final String EVENTS_DISABLED = "events-disabled" ;
@@ -173,9 +227,9 @@ public class CsapCore {
 
 		var sizeWithUnits = size + " bytes" ;
 
-		if ( size > CsapCore.MB_FROM_BYTES ) {
+		if ( size > CsapConstants.MB_FROM_BYTES ) {
 
-			var mb = size / CsapCore.MB_FROM_BYTES ;
+			var mb = size / CsapConstants.MB_FROM_BYTES ;
 			sizeWithUnits = mb + " MB" ;
 
 			if ( mb > 1024 ) {

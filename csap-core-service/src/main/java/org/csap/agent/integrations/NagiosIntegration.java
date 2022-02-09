@@ -16,7 +16,8 @@ import org.apache.http.conn.ssl.TrustSelfSignedStrategy ;
 import org.apache.http.impl.client.CloseableHttpClient ;
 import org.apache.http.impl.client.HttpClients ;
 import org.apache.http.ssl.SSLContextBuilder ;
-import org.csap.agent.CsapTemplate ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.CsapTemplates ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.Project ;
 import org.csap.agent.model.ProjectLoader ;
@@ -87,12 +88,12 @@ public class NagiosIntegration {
 		StringBuilder nagiosHostServiceDefinition = new StringBuilder( ) ;
 
 		String modelShortName = model.getName( ).replaceAll( " ", "_" ) + "_"
-				+ Application.getInstance( ).getCsapHostEnvironmentName( ) ;
+				+ CsapApis.getInstance( ).application( ).getCsapHostEnvironmentName( ) ;
 
 		int i = 1 ;
 		StringBuilder hostMembers = new StringBuilder( ) ;
 
-		for ( String host : model.getHostsForEnvironment( Application.getInstance( )
+		for ( String host : model.getHostsForEnvironment( CsapApis.getInstance( ).application( )
 				.getCsapHostEnvironmentName( ) ) ) {
 
 			if ( host.equals( "localhost" ) )
@@ -201,9 +202,9 @@ public class NagiosIntegration {
 		try {
 
 			// load template file and replace EOL characters "\\r|\\n"
-			nagiosConfigTemplate = FileUtils.readFileToString( CsapTemplate.nagios_config.getFile( ) ).replaceAll(
+			nagiosConfigTemplate = FileUtils.readFileToString( CsapTemplates.nagios_config.getFile( ) ).replaceAll(
 					"\\r\\n|\\r|\\n", System.getProperty( "line.separator" ) ) ;
-			nagiosResultTemplate = FileUtils.readFileToString( CsapTemplate.nagios_result.getFile( ) ).replaceAll(
+			nagiosResultTemplate = FileUtils.readFileToString( CsapTemplates.nagios_result.getFile( ) ).replaceAll(
 					"\\r\\n|\\r|\\n", System.getProperty( "line.separator" ) ) ;
 
 		} catch ( IOException e ) {
@@ -296,7 +297,7 @@ public class NagiosIntegration {
 
 	static public String publishHealthReport (
 												ObjectNode definitionNode ,
-												Application csapApp ,
+												CsapApis csapApis ,
 												boolean isIntegrationEnabled ) {
 
 		String restUrl = definitionNode.get( "url" ).asText( ) ;
@@ -313,7 +314,7 @@ public class NagiosIntegration {
 		double alertLevel = ServiceAlertsEnum.ALERT_LEVEL ;
 		if ( definitionNode.has( "alertLevel" ) )
 			alertLevel = definitionNode.get( "alertLevel" ).asDouble( ServiceAlertsEnum.ALERT_LEVEL ) ;
-		ObjectNode vmStatus = csapApp.healthManager( ).statusForAdminOrAgent( alertLevel, false ) ;
+		ObjectNode vmStatus = csapApis.application( ).healthManager( ).statusForAdminOrAgent( alertLevel, false ) ;
 
 		JsonNode servicesNode = vmStatus.get( "services" ) ;
 		JsonNode stateNode = null ;
@@ -350,20 +351,20 @@ public class NagiosIntegration {
 
 				case "memory":
 					output += " Free Memory: "
-							+ csapApp.getOsManager( ).getMemoryAvailbleLessCache( ) ;
+							+ csapApis.osManager( ).getMemoryAvailbleLessCache( ) ;
 					;
 					break ;
 
 				case "cpuLoad":
-					output += " Total CPU: " + csapApp.getOsManager( ).getHostTotalTopCpu( )
+					output += " Total CPU: " + csapApis.osManager( ).getHostTotalTopCpu( )
 							+ "% OS: "
-							+ csapApp.getOsManager( ).getHostSummary( ).get( "redhat" ).asText( )
+							+ csapApis.osManager( ).getHostSummary( ).get( "redhat" ).asText( )
 							+ " Uptime: "
-							+ csapApp.getOsManager( ).getHostSummary( ).get( "uptime" ).asText( ) ;
+							+ csapApis.osManager( ).getHostSummary( ).get( "uptime" ).asText( ) ;
 					break ;
 
 				case "disk":
-					for ( JsonNode item : csapApp.getOsManager( ).getCachedFileSystemInfo( ) ) {
+					for ( JsonNode item : csapApis.osManager( ).getCachedFileSystemInfo( ) ) {
 
 						output += item.get( "mount" ).asText( ) + ":" + item.get( "usedp" ).asText( )
 								+ ",   " ;
@@ -398,11 +399,11 @@ public class NagiosIntegration {
 
 				// nagios has problems with ; we hack by nesting styles
 				output = "<a style=\"font-weight: bold\" href=\""
-						+ csapApp.rootProjectEnvSettings( ).getLoadbalancerUrl( )
+						+ csapApis.application( ).rootProjectEnvSettings( ).getLoadbalancerUrl( )
 						+ "\" target=\"_blank\"><span style=\"color:green\"> CSAP Console:  </span></a>"
 						+ output + "|" ;
 
-				String hostName = Application.getInstance( ).getCsapHostName( ) ;
+				String hostName = CsapApis.getInstance( ).application( ).getCsapHostName( ) ;
 				if ( Application.isRunningOnDesktop( ) )
 					hostName = "csap-dev01" ;
 				nagiosRequest

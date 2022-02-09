@@ -13,9 +13,11 @@ import java.util.stream.Collectors ;
 
 import javax.inject.Inject ;
 
+import org.csap.agent.CsapApis ;
 import org.csap.agent.CsapBareTest ;
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.api.ApplicationApi ;
+import org.csap.agent.container.kubernetes.K8 ;
 import org.csap.agent.linux.HostStatusManager ;
 import org.csap.agent.model.Application ;
 import org.csap.agent.model.ServiceAlertsEnum ;
@@ -61,6 +63,9 @@ class Admin_ApplicationBrowser {
 	Application csapApp ;
 
 	@Inject
+	CsapApis csapApis ;
+
+	@Inject
 	ApplicationApi applicationApi ;
 
 	@Inject
@@ -81,7 +86,7 @@ class Admin_ApplicationBrowser {
 
 		csapApp.getProjectLoader( ).setAllowLegacyNames( true ) ;
 
-		HostStatusManager testHostStatusManager = new HostStatusManager( "agent/runtime-host-k8.json", csapApp ) ;
+		HostStatusManager testHostStatusManager = new HostStatusManager( "agent/runtime-host-k8.json", csapApis ) ;
 		csapApp.setHostStatusManager( testHostStatusManager ) ;
 
 		csapApp.setJvmInManagerMode( true ) ;
@@ -95,10 +100,10 @@ class Admin_ApplicationBrowser {
 		StringBuilder parsingResults = csapApp.getLastTestParseResults( ) ;
 		logger.debug( "parsing results: {}", parsingResults.toString( ) ) ;
 
-		csapApp.getOsManager( ).wait_for_initial_process_status_scan( 3 ) ;
+		csapApis.osManager( ).wait_for_initial_process_status_scan( 3 ) ;
 
-		csapApp.getOsManager( ).resetAllCaches( ) ;
-		csapApp.getOsManager( ).checkForProcessStatusUpdate( ) ;
+		csapApis.osManager( ).resetAllCaches( ) ;
+		csapApis.osManager( ).checkForProcessStatusUpdate( ) ;
 
 	}
 
@@ -171,7 +176,7 @@ class Admin_ApplicationBrowser {
 		logger.info( CsapApplication.testHeader( ) ) ;
 
 		var systemNamespaceMonitor = csapApp.findServiceByNameOnCurrentHost(
-				csapApp.getProjectLoader( ).getNsMonitorName( "kube-system" ) ) ;
+				csapApp.getProjectLoader( ).getNsMonitorName( K8.systemNamespace.val( ) ) ) ;
 
 		assertThat( systemNamespaceMonitor ).isNotNull( ) ;
 
@@ -181,7 +186,7 @@ class Admin_ApplicationBrowser {
 		var namespaces = csapApp.getProjectLoader( ).namespaceMonitors( csapApp.getActiveProjectName( ) ) ;
 
 		logger.info( "namespaces: {}", namespaces ) ;
-		assertThat( namespaces ).contains( "default", "kube-system", "csap-test" ) ;
+		assertThat( namespaces ).contains( "default", K8.systemNamespace.val( ), "csap-test" ) ;
 
 	}
 
@@ -452,7 +457,7 @@ class Admin_ApplicationBrowser {
 
 		logger.info( "Host: {}, servicesOnHost: {}", csapApp.getCsapHostName( ), servicesOnHost ) ;
 
-		ServiceInstance agentInstance = csapApp.getServiceInstanceCurrentHost( CsapCore.AGENT_ID ) ;
+		ServiceInstance agentInstance = csapApp.getServiceInstanceCurrentHost( CsapConstants.AGENT_ID ) ;
 
 		logger.info( "agentInstance status: {}", agentInstance.getContainerStatusList( ) ) ;
 
@@ -480,7 +485,7 @@ class Admin_ApplicationBrowser {
 				.isEqualTo( 107 ) ;
 
 		assertThat( instanceReport.at( "/instances/0/serviceName" ).asText( ) )
-				.isEqualTo( CsapCore.AGENT_NAME ) ;
+				.isEqualTo( CsapConstants.AGENT_NAME ) ;
 
 		assertThat( instanceReport.at( "/instances/0/deployedArtifacts" ).asText( ) )
 				.isEqualTo( "testing.1.2.3" ) ;

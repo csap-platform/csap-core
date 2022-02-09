@@ -6,9 +6,9 @@ import java.util.Arrays ;
 import java.util.concurrent.TimeUnit ;
 import java.util.stream.Collectors ;
 
-import org.csap.agent.container.DockerJson ;
+import org.csap.agent.CsapApis ;
+import org.csap.agent.container.C7 ;
 import org.csap.agent.container.kubernetes.KubernetesIntegration.Propogation_Policy ;
-import org.csap.agent.model.Application ;
 import org.csap.helpers.CSAP ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
@@ -31,7 +31,7 @@ import io.kubernetes.client.openapi.apis.AppsV1Api ;
 import io.kubernetes.client.openapi.apis.BatchV1Api ;
 import io.kubernetes.client.openapi.apis.BatchV1beta1Api ;
 import io.kubernetes.client.openapi.apis.CoreV1Api ;
-import io.kubernetes.client.openapi.apis.NetworkingV1beta1Api ;
+import io.kubernetes.client.openapi.apis.NetworkingV1Api ;
 
 public class ListingsBuilder {
 
@@ -47,7 +47,7 @@ public class ListingsBuilder {
 //
 //	}
 
-	public JsonNode buildResultReport ( Object apiResults ) {
+	public JsonNode serializeToJson ( Object apiResults ) {
 
 		JsonNode report = MissingNode.getInstance( ) ;
 
@@ -269,7 +269,7 @@ public class ListingsBuilder {
 	public int ingressCount ( String namespace ) {
 
 		return countResourceItems( "listIngressForAllNamespaces", "listNamespacedIngress",
-				new NetworkingV1beta1Api(
+				new NetworkingV1Api(
 						kubernetes.apiClient( ) ), namespace ) ;
 
 	}
@@ -281,7 +281,7 @@ public class ListingsBuilder {
 				"ingresses",
 				"listIngressForAllNamespaces",
 				"listNamespacedIngress",
-				new NetworkingV1beta1Api( kubernetes.apiClient( ) ),
+				new NetworkingV1Api( kubernetes.apiClient( ) ),
 				namespace ) ;
 
 	}
@@ -426,10 +426,10 @@ public class ListingsBuilder {
 
 		}
 
-		var timer = Application.getInstance( ).metrics( ).startTimer( ) ;
+		var timer = CsapApis.getInstance( ).metrics( ).startTimer( ) ;
 		var resourceReport = buildResourceReport( methodToInvoke, api, namespace, limit_for_count,
 				fieldSelector_null, labelSelector_null ) ;
-		var nanos = Application.getInstance( ).metrics( ).stopTimer( timer, CSAP_KUBERNETES_METER
+		var nanos = CsapApis.getInstance( ).metrics( ).stopTimer( timer, CSAP_KUBERNETES_METER
 				+ "resource.count" ) ;
 
 		logger.debug( "method: {}      duration: {}ms", methodToInvoke, TimeUnit.NANOSECONDS.toMillis( nanos ) ) ;
@@ -498,12 +498,12 @@ public class ListingsBuilder {
 
 					}
 
-					item.put( DockerJson.list_label.json( ), label ) ;
+					item.put( C7.list_label.val( ), label ) ;
 
 					item.put( "folder", true ) ;
 					item.put( "lazy", true ) ;
 
-					item.set( DockerJson.list_attributes.json( ), resourceDetailReport ) ;
+					item.set( C7.list_attributes.val( ), resourceDetailReport ) ;
 
 					kubernetes.addApiPath( resourceDetailReport,
 							apiKey,
@@ -531,7 +531,7 @@ public class ListingsBuilder {
 
 		}
 
-		var timer = Application.getInstance( ).metrics( ).startTimer( ) ;
+		var timer = CsapApis.getInstance( ).metrics( ).startTimer( ) ;
 
 		var resourceReport = buildResourceReport(
 				methodToInvoke,
@@ -541,7 +541,7 @@ public class ListingsBuilder {
 				fieldSelector,
 				labelSelector_null ) ;
 
-		var nanos = Application.getInstance( ).metrics( ).stopTimer( timer,
+		var nanos = CsapApis.getInstance( ).metrics( ).stopTimer( timer,
 				CSAP_KUBERNETES_METER + "resource.report" ) ;
 
 		logger.debug( "method: {}      duration: {}ms", methodToInvoke, TimeUnit.NANOSECONDS.toMillis( nanos ) ) ;
@@ -579,6 +579,8 @@ public class ListingsBuilder {
 	 * Reflection is preferred: - time as a percentage of procedure call is very
 	 * small - provider api refactorings are frequent - normalization ensures
 	 * consistency and ease of migrations
+	 * 
+	 * labels: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 	 */
 	public ObjectNode buildResourceReport (
 											String methodName ,
@@ -626,9 +628,9 @@ public class ListingsBuilder {
 
 				} else if ( isAllNamespaces( namespace ) ) {
 
-					logger.debug( "param 0 type: '{}'", apiMethod.getParameters( )[ 0 ].getType( ) ) ;
+					logger.debug( "param 0 type: '{}'", apiMethod.getParameters( )[0].getType( ) ) ;
 
-					if ( apiMethod.getParameters( )[ 0 ].getType( ) == String.class ) {
+					if ( apiMethod.getParameters( )[0].getType( ) == String.class ) {
 
 						// non namespace query
 						listing = apiMethod.invoke( api,
@@ -678,7 +680,10 @@ public class ListingsBuilder {
 
 		} catch ( Exception e ) {
 
-			logger.warn( "Failed invoking: {} {}", methodName, CSAP.buildCsapStack( e ) ) ;
+			logger.warn( "Failed invoking: {} in {} Error: {}", 
+					methodName, 
+					allMethods, 
+					CSAP.buildCsapStack( e ) ) ;
 			listingReport = kubernetes.buildErrorResponse( "Failed to retrieve listing", e ) ;
 
 		}

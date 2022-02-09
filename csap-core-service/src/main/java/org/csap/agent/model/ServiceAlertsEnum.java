@@ -13,15 +13,15 @@ import java.util.Map ;
 import java.util.concurrent.atomic.AtomicInteger ;
 import java.util.stream.Collectors ;
 
-import org.csap.agent.CsapCore ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.services.HostKeys ;
 import org.csap.agent.stats.OsProcessEnum ;
 import org.csap.agent.stats.service.JmxCommonEnum ;
 import org.csap.alerts.AlertFields ;
 import org.csap.alerts.AlertInstance ;
 import org.csap.helpers.CSAP ;
-import org.csap.integations.CsapMicroMeter ;
-import org.csap.integations.CsapMicroMeter.HealthReport.Report ;
+import org.csap.integations.micrometer.CsapMicroMeter ;
+import org.csap.integations.micrometer.CsapMicroMeter.HealthReport.Report ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
 
@@ -107,7 +107,7 @@ public enum ServiceAlertsEnum {
 					+ collected + "Kb/s, Alert threshold: " + maxAllowed ) ;
 
 			if ( serviceDefinition.getName( )
-					.equals( CsapCore.AGENT_NAME ) ) {
+					.equals( CsapConstants.AGENT_NAME ) ) {
 
 				alertMessage.append( " (log rotation, deployment)" ) ;
 

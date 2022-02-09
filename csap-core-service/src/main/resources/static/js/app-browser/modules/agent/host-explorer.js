@@ -19,7 +19,7 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
     const $explorerTree = $( "#dockerTree", $agentExplorerTab ) ;
     const $explorerHeader = $( "header.related", $agentExplorerTab ) ;
     const $cliRunner = $( "select#cli-runner", $explorerHeader ) ;
-    
+
     let _explorerTree ; // fancy tree object
     let _explorerTreeScollPosition ;
 
@@ -80,31 +80,31 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
         console.log( "Initializing tree" ) ;
 
         utils.registerForNavChanges( navigationListener ) ;
-        
-        
+
+
 
         $cliRunner.change( function () {
-            
+
             console.log( `cli-header` ) ;
             hostOps.commandRunner( $( this ) ) ;
 
-            let firstOption = $cliRunner.children(":first").attr( "value")  ;
-            setTimeout( function() {
-                
-                $cliRunner.val(  firstOption ) ;
-                $("input.cliRunner-combobox-input", $cliRunner.parent() ).val(  firstOption ) ;
-            }, 500)
-             
+            let firstOption = $cliRunner.children( ":first" ).attr( "value" ) ;
+            setTimeout( function () {
+
+                $cliRunner.val( firstOption ) ;
+                $( "input.cliRunner-combobox-input", $cliRunner.parent() ).val( firstOption ) ;
+            }, 500 )
+
             return false ;
         } )
-        
+
         $( "button.csap-search", $explorerHeader ).click( function () {
-            
-            $(this).css(`opacity`, "0") ;
+
+            $( this ).css( `opacity`, "0" ) ;
             buildCommandCombo() ;
-            $("input.cliRunner-combobox-input", $cliRunner.parent() ).click( function() {
-                $(this).val(``) ;
-            }) ;
+            $( "input.cliRunner-combobox-input", $cliRunner.parent() ).click( function () {
+                $( this ).val( `` ) ;
+            } ) ;
         } ) ;
 
 
@@ -128,8 +128,8 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
         $( "#close-all-explorer-tree" ).click( treeCloseAllOpen ) ;
 
     }
-    
-    
+
+
     function buildCommandCombo() {
 
         $.widget( "custom.cliComboBox", {
@@ -226,8 +226,8 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
 //                response( this.element.children( "option" ).map( function () {
                 response( $( "option", $cliRunner ).map( function () {
                     let optionText = $( this ).text() ;
-                    let optionValue = $( this ).attr("value") ;
-                    
+                    let optionValue = $( this ).attr( "value" ) ;
+
 //                    console.log( `build source: ${text}`) ;
                     if ( this.value && ( !request.term || matcher.test( optionValue ) ) ) {
                         return {
@@ -287,7 +287,7 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
             }
         } ) ;
 
-        $( "input.cliRunner-combobox-input", $explorerHeader ).val( $( "option:selected", $cliRunner ).attr("value") ) ;
+        $( "input.cliRunner-combobox-input", $explorerHeader ).val( $( "option:selected", $cliRunner ).attr( "value" ) ) ;
     }
 
     function navigationListener( lastNavigationClickedLabel ) {
@@ -2936,11 +2936,22 @@ define( hostExplorerImports, function ( utils, createContainerDialog, explorerOp
             let ingressFirstPath = jsonForms.getValue( "attributes.spec.rules.0.http.paths.0", configuration ) ;
             if ( ingressFirstPath ) {
                 // $portDiv.text( "route: " + ingressDef.serviceName + ":" + ingressDef.servicePort );
-                let description = ingressFirstPath.backend.serviceName + ":" + ingressFirstPath.backend.servicePort ;
+                let description = ingressFirstPath.backend.service.name + ":" + ingressFirstPath.backend.service.port.number ;
+
+                if ( !ingressFirstPath.backend.service
+                        && ingressFirstPath.backend.serviceName ) {
+                    description = ingressFirstPath.backend.serviceName + ":" + ingressFirstPath.backend.servicePort ;
+                }
+                
+                let ingressPath = ingressFirstPath.path ;
+                //ingressPath += "(/|$)(.*)" ;
+                if ( ingressPath ) {
+                    ingressPath = ingressPath.split("\(")[0] ;
+                }
 
                 let targetUrl = uiSettings.baseUrl
-                        + "location/ingress?path=" + ingressFirstPath.path
-                        + "&serviceName=" + ingressFirstPath.backend.serviceName + "&" ;
+                        + "location/ingress?path=" + ingressPath
+                        + "&serviceName=" + ingressFirstPath.backend.service.name + "&" ;
 
                 let $ingressLink = jQuery( '<a/>', {
                     title: "launch ingress",
