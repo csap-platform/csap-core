@@ -24,6 +24,8 @@ import org.csap.helpers.CSAP ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect ;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility ;
 import com.fasterxml.jackson.annotation.JsonIgnore ;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties ;
 import com.fasterxml.jackson.annotation.JsonProperty ;
@@ -48,6 +50,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode ;
  *         metrics are updated
  *
  */
+
 @JsonIgnoreProperties ( ignoreUnknown = true )
 public class ServiceInstance extends ServiceBaseParser {
 
@@ -101,6 +104,7 @@ public class ServiceInstance extends ServiceBaseParser {
 
 	}
 
+	@JsonIgnore
 	public Stream<String> getIds ( ) {
 
 		List<String> serviceIds = new ArrayList<>( ) ;

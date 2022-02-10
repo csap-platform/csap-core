@@ -1,4 +1,8 @@
 
+div.cache-blow {
+	opacity: 0.1 ;
+}
+
 
 #agent-tab-content #agent-tab-explorer #cli-runner {
 	max-width: 15em;

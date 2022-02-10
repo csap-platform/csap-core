@@ -13,13 +13,17 @@ import java.util.stream.Collectors ;
 
 import org.apache.commons.io.FileUtils ;
 import org.csap.agent.CsapBareTest ;
+import org.csap.agent.CsapConstants ;
 import org.csap.agent.api.ApplicationApi ;
 import org.csap.agent.api.ContainerApi ;
 import org.csap.agent.api.ModelApi ;
 import org.csap.agent.integration.container.KubernetesCsapTests ;
 import org.csap.agent.integrations.CsapEvents ;
 import org.csap.agent.model.Application ;
+import org.csap.agent.model.ProcessRuntime ;
 import org.csap.agent.model.ProjectLoader ;
+import org.csap.agent.model.ServiceAttributes ;
+import org.csap.agent.model.ServiceBase ;
 import org.csap.agent.model.ServiceInstance ;
 import org.csap.agent.services.ServiceOsManager ;
 import org.csap.helpers.CSAP ;
@@ -71,6 +75,22 @@ public class Rest_Service_Tests extends CsapBareTest {
 	}
 
 	@Test
+	void byName_tests ( ) {
+
+		var agentInstance = getApplication( ).flexFindFirstInstanceCurrentHost( CsapConstants.AGENT_NAME ) ;
+
+		var definitions = modelApi.serviceDefinitionsFilteredByName( CsapConstants.AGENT_NAME ) ;
+		logger.info( "definitions: {}", CSAP.jsonPrint( definitions ) ) ;
+
+		assertThat( definitions.size( ) ).isEqualTo( 1 ) ;
+
+		var firstAgentReport = definitions.path( 0 ) ;
+
+		assertThat( firstAgentReport.path( "serverQualifedType" ).asText( ) ).isEqualTo( agentInstance.getServerQualifedType( ) ) ;
+
+	}
+
+	@Test
 	void yamlSummary_tests ( ) throws Exception {
 
 		var testYaml = new File(
@@ -103,7 +123,7 @@ public class Rest_Service_Tests extends CsapBareTest {
 
 		logger.info( CsapApplication.testHeader( ) ) ;
 
-		ServiceInstance k8Service = getApplication( ).serviceNameToAllInstances( ).get( "k8s-spec-deploy-service" ).get(
+		var k8Service = getApplication( ).serviceNameToAllInstances( ).get( "k8s-spec-deploy-service" ).get(
 				0 ) ;
 
 		String k8sServices = getApplication( ).getServiceInstances( Application.ALL_PACKAGES, k8Service.getName( ) )

@@ -617,10 +617,12 @@ public class ModelApi {
 
 		}
 
-		List<ServiceInstance> filterInstances = application.getActiveProject( )
+		var filterInstances = application.getActiveProject( )
 				.getServicesOnHost( application.getCsapHostName( ) )
 				.filter( serviceInstance -> serviceInstance.getName( ).matches( serviceName ) )
 				.collect( Collectors.toList( ) ) ;
+		
+		logger.info( "{} matching instances: {}", serviceName, filterInstances.size( ) ) ;
 
 		return jacksonMapper.convertValue( filterInstances, ArrayNode.class ) ;
 

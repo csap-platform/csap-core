@@ -1,4 +1,9 @@
 
+div.cache-blow {
+	opacity: 0.1 ;
+}
+
+
 .capability {
 	background-image: url('../../images/32x32/applications-internet.png');
 	background-repeat: no-repeat; 

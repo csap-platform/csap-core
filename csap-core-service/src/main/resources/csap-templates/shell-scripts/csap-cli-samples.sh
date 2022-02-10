@@ -105,6 +105,18 @@ clean="no" ; # or clean="clean"
 stop_services csap-verify-service $clean $excludeServices;
 start_services csap-verify-service $excludeServices ;
 
+
+
+#
+# bypass cliu
+#
+curl  \
+	--silent \
+	--request GET \
+	http://localhost:8011/api/model/services/name
+
+
+
 #
 # patching autoplay
 #
