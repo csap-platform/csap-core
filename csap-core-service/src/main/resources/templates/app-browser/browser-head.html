@@ -1,158 +1,117 @@
 <!DOCTYPE html>
-<html
-	xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
 
 
 <head th:fragment="pageContent">
 
-<title th:inline="text">[[ ${ pageTitle } ]]</title>
-<link rel="icon" type="image/png" href="images/csap-icon.png">
-
-<script th:replace="~{ csap/fragments/csap-common-includes :: pageContent }"></script>
-
-<script th:replace="csap/fragments/jqplot-includes :: pageContent"></script>
-
-
-<script th:src="@{ ${csapApp.versionedUrl('/js/csapLibs/csap-misc.js')} }"></script>
-<script th:src="@{ ${csapApp.versionedUrl('/js/csapLibs/csapUtils/CsapUser.js')} }"></script>
-
-
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/csapLibs/qtip/jquery.qtip.min.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-<script th:src="@{ ${csapApp.versionedUrl('/js/csapLibs/qtip/jquery.qtip.min.js')} }"></script>
-
-
-<script th:replace="csap-constants-include :: includeSection"></script>
-
-
-<script th:inline="javascript">
-
-    const PREFERENCES = [[${ preferences }]];
-    const IS_FIRST_ACCESS = [[${ isFirstAccess }]]; 
-    const serviceFilterParam = [[ ${ serviceParam } ]];
-    
-    const uiSettings = {
-    	    baseUrl: BASE_URL,
-    	    appId: APP_ID,
-    		testHost: [[ ${ testHostOnDesktop } ]],
-    		isForceHostToLocalhost: [[ ${ testHostForceLocalHost } ]],
-    	    appIdParam: APP_ID,
-    	    life: HOST_ENVIRONMENT_NAME,
-    	    appGraphParam: "csap-agent",
-    	    lifeParam: HOST_ENVIRONMENT_NAME,
-    	    metricsDataUrl: SERVICE_URL + "/metricsApi/",
-    	    eventApiUrl: SERVICE_URL + "/eventApi",
-    		// eventMetricsUrl: [[ ${ eventMetricsUrl } ]],
-    		eventMetricsUrl: SERVICE_URL + "/metricsApi/",
-    	    projectParam : "Sensus Csap"
-    	}
-    
-</script>
-
-
-<link
-	th:href="@{/webjars/fancytree/2.30.0/dist/skin-win7/ui.fancytree.min.css}"
-	rel="stylesheet"
-	type="text/css" />
-
-<script th:src="@{/webjars/fancytree/2.30.0/dist/jquery.fancytree-all-deps.js}"></script>
-
-<script th:src="@{ ${csapApp.versionedUrl('/js/csapLibs/dropzone/dropzone.js')} }"></script>
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/csapLibs/dropzone/dropzone.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-
-
-
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/agent.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/agent-explorer.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/browser.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/services.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/projects.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/editor/dialog-cluster.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/editor/editor-dialog-service.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/editor/dialog-settings.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/editor/life-edit.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-
-
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/file/file-browser.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/file/file-monitor.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
+	<title th:inline="text">[[ ${ pageTitle } ]]</title>
 	
-	
+	<link rel="icon" type="image/png" href="images/csap-icon.png">
+
+
+	<script th:replace="csap-constants-include :: includeSection"></script>
+
+	<script th:replace="~{ csap/fragments/csap-module-includes :: pageContent }"></script>
+
+	<script th:inline="javascript">
+
+		const PREFERENCES = /*[[${ preferences }]]*/ null;
+		const IS_FIRST_ACCESS = /*[[${ isFirstAccess }]]*/ null;
+		const serviceFilterParam = /*[[ ${ serviceParam } ]]*/ null;
+
+		const uiSettings = {
+			baseUrl: BASE_URL,
+			appId: APP_ID,
+			testHost: /*[[ ${ testHostOnDesktop } ]]*/ null,
+			isForceHostToLocalhost: /*[[ ${ testHostForceLocalHost } ]]*/ null,
+			appIdParam: APP_ID,
+			life: HOST_ENVIRONMENT_NAME,
+			appGraphParam: "csap-agent",
+			lifeParam: HOST_ENVIRONMENT_NAME,
+			metricsDataUrl: SERVICE_URL + "/metricsApi/",
+			eventApiUrl: SERVICE_URL + "/eventApi",
+			// eventMetricsUrl: /*[[ ${ eventMetricsUrl } ]]*/ null,
+			eventMetricsUrl: SERVICE_URL + "/metricsApi/",
+			projectParam: "Sensus Csap"
+		}
+
+	</script>
+
+
+	<link th:href="@{/webjars/jqplot/1.0.8r1250/jquery.jqplot.min.css}"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+
+
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/agent.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/agent-explorer.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/browser.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/services.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/projects.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/editor/dialog-cluster.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+	<link th:href="@{ ${csapApp.versionedUrl('/css/editor/editor-dialog-service.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+	<link th:href="@{ ${csapApp.versionedUrl('/css/editor/dialog-settings.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/editor/life-edit.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+
+
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/file/file-browser.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/file/file-monitor.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
 
 
 
 
 
-<script
-	th:attr="data-main=@{ ${csapApp.requiresUrl('/js/app-browser/modules/browser-main.js')}   }"
-	th:src="@{/webjars/requirejs/2.1.20/require.min.js}"></script>
-	
-
+	<script type="module"
+			th:src=" @{ ${ @mvcResourceUrlProvider.getForLookupPath('/js/modules/browser/browser-main.js')} }"></script>
 
 </head>
 

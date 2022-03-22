@@ -1,406 +1,350 @@
 <!DOCTYPE html>
-<html
-	xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
 
 
 <head>
 
-<title th:inline="text">Service Editor Template</title>
-
-<script th:replace="~{ csap/fragments/csap-common-includes :: pageContent }"></script>
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/agent.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/agent-explorer.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/browser.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
+	<title th:inline="text">Service Editor Template</title>
 
 
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/services.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
+	<script th:replace="csap-constants-include :: includeSection"></script>
+	<script th:replace="~{ csap/fragments/csap-module-includes :: pageContent }"></script>
 
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/projects.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/agent.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
 
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/editor/editor-dialog-service.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/agent-explorer.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/browser.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/services.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/projects.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/editor/editor-dialog-service.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
 
 
 
-<script
-	th:attr="data-main=@{/js/editor/modules/service-test}"
-	th:src="@{/webjars/requirejs/2.1.20/require.min.js}"></script>
+	<script type="module"
+			th:src=" @{ ${ @mvcResourceUrlProvider.getForLookupPath('/js/modules/editor/service-test.js')} }"></script>
 
 
-<script th:src="@{ ${csapApp.versionedUrl('/js/csapLibs/csap-misc.js')} }"></script>
 
+	<script th:inline="javascript">
 
-<script th:replace="csap-constants-include :: includeSection"></script>
-
-
-<script th:inline="javascript">
-
- var serviceName = [[ ${param.serviceName } ]][0] ;
- var hostName = "*" ;
- </script>
+		var serviceNames = /*[[ ${param.serviceName } ]]*/ null;
+		var serviceName = serviceNames[ 0 ];
+		var hostName = "*";
+	</script>
 
 
 
 </head>
 
 
-<body
-	id=csap-main
-	class="csap-scrollable theme-dark agent">
+<body id=csap-main
+	  class="csap-scrollable theme-dark agent">
 
 	<header>
 		<label>Service Template Editor</label>
 		<label style="margin-right: 1em;">
 			Project:
-			<select
-				class="releasePackage"
-				style="width: 14em">
-				<option
-					th:each="name : ${packageNames}"
-					th:selected="${name == servicePackage }"
-					th:value="${name}"
-					th:text="${name}">package names updated here</option>
+			<select class="releasePackage"
+					style="width: 14em">
+				<option th:each="name : ${packageNames}"
+						th:selected="${name == servicePackage }"
+						th:value="${name}"
+						th:text="${name}">package names updated here</option>
 			</select>
 		</label>
-		<button
-			id="showServiceDialog"
-			class="csap-button">Open In Dialog</button>
-			
+		<button id="showServiceDialog"
+				class="csap-button">Open In Dialog</button>
+
 		<span></span>
 
 	</header>
 
-	<article id="loading-project-message">
-		<div class=loading-message-large>Loading Application</div>
-	</article>
 
-	<section
-		id='dialogContents'
-		class='editDialog'>
+	<article class=content>
+		<article id="loading-project-message">
+			<div class=loading-message-large>Loading Application</div>
+		</article>
 
-		<div
-			id="serviceTemplates"
-			style="display: none">
-			<select class="attType">
-				<option value="mbean">Java MBean</option>
-				<option value="http">REST</option>
-				<option value="config">HTTP Setup</option>
-			</select>
-			<select class="attUnit">
-				<option value="1000000">Milliseconds</option>
-				<option value="1000000000">Seconds</option>
-				<option value="60000000000">Minutes</option>
-			</select>
+		<section id='dialogContents'
+				 class='editDialog'>
+
+			<div id="serviceTemplates"
+				 style="display: none">
+				<select class="attType">
+					<option value="mbean">Java MBean</option>
+					<option value="http">REST</option>
+					<option value="config">HTTP Setup</option>
+				</select>
+				<select class="attUnit">
+					<option value="1000000">Milliseconds</option>
+					<option value="1000000000">Seconds</option>
+					<option value="60000000000">Minutes</option>
+				</select>
 
 
-		</div>
-
-		<div
-			id='dialogResult'
-			class='csap-info'>
-			<div>
-				Updated:
-				<div class="noteAlt"></div>
-				.
-				<br />
-				<br />
-				Changes will be loaded once they have been tested or checked in.
 			</div>
 
-		</div>
+			<div id='dialogResult'
+				 class='csap-info'>
+				<div>
+					Updated:
+					<div class="noteAlt"></div>
+					.
+					<br />
+					<br />
+					Changes will be loaded once they have been tested or checked in.
+				</div>
 
-		<div id="dialogOpsContainer">
+			</div>
 
-			<label class=csap>
-				<span> Service: </span>
-				<select
-					th:if="${ param.newService == null }"
-					id="dialogServiceSelect"
-					class="dialogServiceSelect"
-					style="width: 14em">
-					<option
-						th:each="nameFromList : ${ servicesInPackage }"
-						th:selected="${nameFromList == param.serviceName[0] }"
-						th:value="${nameFromList}"
-						th:text="${nameFromList}">Will be updated with service names</option>
-				</select>
-				<input
-					th:if="${ param.newService != null }"
-					id="dialogServiceSelect"
-					class="dialogServiceSelect"
-					style="width: 14em"
-					th:value=" ${ param.serviceName[0] } " />
-			</label>
-				
-				
-			<span>
-				<span th:if="${ ( infraRole != null) }">
-					<span th:if="${ (param.newService == null) }">
-						<button class="csap-button updateDefButton">Update</button>
+			<div id="dialogOpsContainer">
 
-						<button
-							id="rename"
-							class="csap-button renameDefButton">Rename</button>
+				<label class=csap>
+					<span> Service: </span>
+					<select th:if="${ param.newService == null }"
+							id="dialogServiceSelect"
+							class="dialogServiceSelect"
+							style="width: 14em">
+						<option th:each="nameFromList : ${ servicesInPackage }"
+								th:selected="${nameFromList == param.serviceName[0] }"
+								th:value="${nameFromList}"
+								th:text="${nameFromList}">Will be updated with service names</option>
+					</select>
+					<input th:if="${ param.newService != null }"
+						   id="dialogServiceSelect"
+						   class="dialogServiceSelect"
+						   style="width: 14em"
+						   th:value=" ${ param.serviceName[0] } " />
+				</label>
 
-						<button
-							id="copy"
-							class="csap-button copyDefButton">Copy</button>
 
-						<button class="csap-button deleteDefButton">Delete</button>
+				<span>
+					<span th:if="${ ( infraRole != null) }">
+						<span th:if="${ (param.newService == null) }">
+							<button class="csap-button updateDefButton">Update</button>
+
+							<button id="rename"
+									class="csap-button renameDefButton">Rename</button>
+
+							<button id="copy"
+									class="csap-button copyDefButton">Copy</button>
+
+							<button class="csap-button deleteDefButton">Delete</button>
+						</span>
+						<span th:if="${ param.newService != null }">
+							<button class="csap-button addDefButton">Add</button>
+						</span>
 					</span>
-					<span th:if="${ param.newService != null }">
-						<button class="csap-button addDefButton">Add</button>
-					</span>
+
+					<button class="csap-button notifyButton"
+							title="Send changes to infrastructure admin for review and provisioning.">Request</button>
+
+					<div th:if="${ ( infraRole == null) }"
+						 class="news"
+						 title="Your userid is not a member of infra admins, so request will be sent for review">Review
+						Required</div>
 				</span>
 
-				<button
-					class="csap-button notifyButton"
-					title="Send changes to infrastructure admin for review and provisioning.">Request</button>
 
-				<div
-					th:if="${ ( infraRole == null) }"
-					class="news"
-					title="Your userid is not a member of infra admins, so request will be sent for review">Review Required</div>
-			</span>
+				<span>
 
 
-			<span>
+					<label id="validateOnly"
+						   class=csap
+						   title="Changes will be validated, but not updated">
 
+						<input id="validateOnlyCheckbox"
+							   type="checkbox" />
+						Validate Only
 
-				<label
-					id="validateOnly"
-					class=csap
-					title="Changes will be validated, but not updated">
-					
-					<input
-						id="validateOnlyCheckbox"
-						type="checkbox" />
-					Validate Only
-
-				</label>
-
-				<label  class=csap style="margin-left: 1em">
-					<a
-						target="_blank"
-						title="Learn more about CSAP Service Definitions"
-						class="csap-link-icon csap-help"
-						th:href="${@applicationConfiguration.getHelpUrl('service-templates') }" >Templates</a>
-				</label>
-			</span>
-
-		</div>
-
-
-
-		<div id='serviceEditor'>
-			<ul>
-				<li><a
-					title=""
-					href="#jsonEditor">Spec Editor</a></li>
-					
-				<li><a
-					title="command parameters, environment variables, etc."
-					href="#process">OS Process</a></li>
-
-				<li class="service-tab-container"><a
-					title="Define docker and kubernetes settings"
-					href="#tab-container-content">Container</a></li>
-
-				<li><a
-					title="Extended runtime configuration for service profile, log locations, etc"
-					class="osPackagesTab"
-					href="#package">Packaging</a></li>
-
-				<li><a
-					title="Files: add/update/delete property files, deployment specifications, etc."
-					href="#props">Files</a></li>
-
-				<li><a
-					title="Log rotations, script executions, filesystem cleanup, etc."
-					href="#jobs">Jobs</a></li>
-
-				<li><a
-					title="Define source and binary repositories"
-					class="deployTab"
-					href="#deploy">Source</a></li>
-
-				<li><a
-					title="Define OS resource levels for alerting"
-					href="#alerts">Alerts</a></li>
-
-				<li><a
-					title="Http or JMX performance collection"
-					href="#performance">Performance</a></li>
-
-				<li><a
-					title="Optionally override configuration for target deployment"
-					href="#life">Env</a></li>
-
-			</ul>
-
-
-			<div
-				id="jsonEditor"
-				class="group serviceDef">
-
-
-				<div class=flex-container>
-					<label
-						class="flex-right-info"
-						title="Toggle folding of code - note alt-0, alt-shift-0 can be used as well"
-						>
-						<span>Fold
-						</span>
-						<input
-							class="editor-toggle-last"
-							type="checkbox"
-							/>
-						
-
-						<span>Json
-						</span>
-						<input
-							class=editor-toggle-json
-							type="checkbox"
-							/>
-						
 					</label>
-				</div>
-				<textarea
-					id="serviceJson"
-					name="serviceJson"
-					data-adjustwidth="-55"
-					data-convert_yaml="true"
-					spellcheck=false
-					data-path="ROOT">Loading</textarea>
+
+					<label class=csap
+						   style="margin-left: 1em">
+						<a target="_blank"
+						   title="Learn more about CSAP Service Definitions"
+						   class="csap-link-icon csap-help"
+						   th:href="${@applicationConfiguration.getHelpUrl('service-templates') }">Templates</a>
+					</label>
+				</span>
+
 			</div>
 
 
 
-			<div
-				id="process"
-				th:replace="editor/service/process"></div>
+			<div id='serviceEditor'>
+				<ul>
+					<li><a title=""
+						   href="#jsonEditor">Spec Editor</a></li>
 
-			<div
-				id="package"
-				th:replace="editor/service/packaging"></div>
+					<li><a title="command parameters, environment variables, etc."
+						   href="#process">OS Process</a></li>
 
-			<div
-				id="job"
-				th:replace="editor/service/job"></div>
+					<li class="service-tab-container"><a title="Define docker and kubernetes settings"
+						   href="#tab-container-content">Container</a></li>
 
-			<div
-				id="docker"
-				th:replace="editor/service/container/tabs"></div>
+					<li><a title="Extended runtime configuration for service profile, log locations, etc"
+						   class="osPackagesTab"
+						   href="#package">Packaging</a></li>
 
-			<div
-				id="deploy"
-				th:replace="editor/service/deploy"></div>
+					<li><a title="Files: add/update/delete property files, deployment specifications, etc."
+						   href="#props">Files</a></li>
+
+					<li><a title="Log rotations, script executions, filesystem cleanup, etc."
+						   href="#jobs">Jobs</a></li>
+
+					<li><a title="Define source and binary repositories"
+						   class="deployTab"
+						   href="#deploy">Source</a></li>
+
+					<li><a title="Define OS resource levels for alerting"
+						   href="#alerts">Alerts</a></li>
+
+					<li><a title="Http or JMX performance collection"
+						   href="#performance">Performance</a></li>
+
+					<li><a title="Optionally override configuration for target deployment"
+						   href="#life">Env</a></li>
+
+				</ul>
 
 
-			<div
-				id="alerts"
-				th:replace="editor/service/alerts"></div>
+				<div id="jsonEditor"
+					 class="group serviceDef">
 
 
-			<div
-				id="performance"
-				th:replace="editor/service/performance"></div>
+					<div class=flex-container>
+						<label class="flex-right-info"
+							   title="Toggle folding of code - note alt-0, alt-shift-0 can be used as well">
+							<span>Fold
+							</span>
+							<input class="editor-toggle-last"
+								   type="checkbox" />
 
-			<div
-				id="props"
-				class="group textGroup json-form-autosize-panel">
-				<div class="heading">
-					Service resources enable instance customization. Resources may also be edited using: <a
-						href="#open-service-files"
-						class="csap-link-button open-service-files"> <img th:src="@{/images/16x16/folder-open.svg}" /> File Manager
-					</a>
 
+							<span>Json
+							</span>
+							<input class=editor-toggle-json
+								   type="checkbox" />
+
+						</label>
+					</div>
+					<textarea id="serviceJson"
+							  name="serviceJson"
+							  data-adjustwidth="-55"
+							  data-convert_yaml="true"
+							  spellcheck=false
+							  data-path="ROOT">Loading</textarea>
 				</div>
 
-				<div>
-				<label
-					class=csap-form-inline
-					style=""
-					title="File will be copied to run time folder">
-					<span>View:</span>
-					<select
-						id="propertyFileSelect"
-						style="font-family: monospace">
-						<option></option>
-					</select>
-				</label>
-				<select
-					id="load-file-template-select"
-					style="margin-left: 3em; width: 9em;"
-					title="Click to load event template">
 
-					<option value="default">Add new file</option>
-					<option value="nginx-simple.yaml">Kubernetes Deployment (.yaml)</option>
-					<option value="csap-service.yaml">csap-service.yaml</option>
-					<option value="simple.properties">Properties</option>
-					<option value="csap-events.sh">CSAP Events (.sh)</option>
-					<option value="simple-docker-compose.yaml">Docker Compose(.yaml)</option>
-					<option value="simple.json">json</option>
-				</select>
 
-				<button
-					id="service-delete-file-button"
-					class="csap-button-icon csap-remove">
-					Delete
-				</button>
-				
-				</div>
+				<div id="process"
+					 th:replace="editor/service/process"></div>
 
- 
+				<div id="package"
+					 th:replace="editor/service/packaging"></div>
 
-				<div id=fileContainer>
+				<div id="job"
+					 th:replace="editor/service/job"></div>
 
-					<label
-						style=""
-						title="File will be copied to run time folder">
-						<span>File Name:</span>
-						<input
-							id="propFileName"
-							class=""
-							placeholder="name of file" />
-					</label>
-					<label
-						style=""
-						title="environment in which file will be used">
-						<span>Environment: </span>
-						<input
-							id="propLifecycle"
-							placeholder="common" />
-					</label>
-<!-- 					<label
+				<div id="docker"
+					 th:replace="editor/service/container/tabs"></div>
+
+				<div id="deploy"
+					 th:replace="editor/service/deploy"></div>
+
+
+				<div id="alerts"
+					 th:replace="editor/service/alerts"></div>
+
+
+				<div id="performance"
+					 th:replace="editor/service/performance"></div>
+
+				<div id="props"
+					 class="group textGroup json-form-autosize-panel">
+					<div class="heading">
+						Service resources enable instance customization. Resources may also be edited using: <a
+						   href="#open-service-files"
+						   class="csap-link-button open-service-files"> <img
+								 th:src="@{/images/16x16/folder-open.svg}" /> File Manager
+						</a>
+
+					</div>
+
+					<div>
+						<label class=csap-form-inline
+							   style=""
+							   title="File will be copied to run time folder">
+							<span>View:</span>
+							<select id="propertyFileSelect"
+									style="font-family: monospace">
+								<option></option>
+							</select>
+						</label>
+						<select id="load-file-template-select"
+								style="margin-left: 3em; width: 9em;"
+								title="Click to load event template">
+
+							<option value="default">Add new file</option>
+							<option value="nginx-simple.yaml">Kubernetes Deployment (.yaml)</option>
+							<option value="csap-service.yaml">csap-service.yaml</option>
+							<option value="simple.properties">Properties</option>
+							<option value="csap-events.sh">CSAP Events (.sh)</option>
+							<option value="simple-docker-compose.yaml">Docker Compose(.yaml)</option>
+							<option value="simple.json">json</option>
+						</select>
+
+						<button id="service-delete-file-button"
+								class="csap-button-icon csap-remove">
+							Delete
+						</button>
+
+					</div>
+
+
+
+					<div id=fileContainer>
+
+						<label style=""
+							   title="File will be copied to run time folder">
+							<span>File Name:</span>
+							<input id="propFileName"
+								   class=""
+								   placeholder="name of file" />
+						</label>
+						<label style=""
+							   title="environment in which file will be used">
+							<span>Environment: </span>
+							<input id="propLifecycle"
+								   placeholder="common" />
+						</label>
+						<!-- 					<label
 						style=""
 						title="Store as external file in properties override">
 						<span>External:</span>
@@ -410,45 +354,42 @@
 							placeholder="true"
 							data-path="files[0].external" />
 					</label> -->
-					<label
-						style=""
-						title="Store as external file in properties override">
-						<span>Modified:</span>
-						<input
-							id="propModified"
-							class="boolean"
-							placeholder="false"/>
-					</label>
-					<textarea
-						id="propFileText"
-						data-convert_lines="true"
-						data-adjustwidth="-35"
-						data-plain="true"
-						data-adjust="-60">loading template....</textarea>
+						<label style=""
+							   title="Store as external file in properties override">
+							<span>Modified:</span>
+							<input id="propModified"
+								   class="boolean"
+								   placeholder="false" />
+						</label>
+						<textarea id="propFileText"
+								  data-convert_lines="true"
+								  data-adjustwidth="-35"
+								  data-plain="true"
+								  data-adjust="-60">loading template....</textarea>
+
+					</div>
+
+				</div>
+
+
+
+
+				<div id="life"
+					 class="group textGroup json-form-autosize-panel">
+					<div class="heading">Environment Settings: values for environment will overload the global values
+					</div>
+
+					<textarea id="lifeAttributes"
+							  spellcheck=false
+							  data-adjust="-20"
+							  data-path="environment-overload"></textarea>
 
 				</div>
 
 			</div>
 
-
-
-
-			<div
-				id="life"
-				class="group textGroup json-form-autosize-panel">
-				<div class="heading">Environment Settings: values for environment will overload the global values</div>
-
-				<textarea
-					id="lifeAttributes"
-					spellcheck=false
-					data-adjust="-20"
-					data-path="environment-overload"></textarea>
-
-			</div>
-
-		</div>
-
-	</section>
+		</section>
+	</article>
 
 </body>
 

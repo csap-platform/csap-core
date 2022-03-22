@@ -169,6 +169,13 @@ Configuration:
         AppenderRef:  
         - ref: consoleAppender
         - ref: json-file-appender
+          
+#      - name: org.springframework.boot.devtools.livereload
+#        level: debug
+#        additivity: false
+#        AppenderRef:  
+#        - ref: consoleAppender
+#        - ref: json-file-appender
         
         
       

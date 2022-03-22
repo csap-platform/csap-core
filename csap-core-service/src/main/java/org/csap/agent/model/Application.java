@@ -620,6 +620,10 @@ public class Application {
 	int numRuns = 0 ;
 
 	public void checkNamespaces ( ) {
+		
+		if ( !csapApis.osManager( ).isProcessStatusInitialized( ) ) {
+			return ;
+		}
 
 		if ( isAgentProfile( )
 				&& ! csapApis.isKubernetesInstalledAndActive( ) ) {

@@ -32,6 +32,7 @@ import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
 import org.springframework.beans.factory.annotation.Autowired ;
 import org.springframework.beans.factory.annotation.Qualifier ;
+import org.springframework.boot.context.properties.ConfigurationProperties ;
 import org.springframework.http.ResponseEntity ;
 import org.springframework.stereotype.Service ;
 import org.springframework.util.LinkedMultiValueMap ;
@@ -46,13 +47,18 @@ import com.fasterxml.jackson.databind.node.ObjectNode ;
  * sends messages to csap event service
  */
 @Service
+@ConfigurationProperties ( prefix = "csap-core" )
 public class CsapEvents {
 
 	final Logger logger = LoggerFactory.getLogger( this.getClass( ) ) ;
+	
+	
 
 	EnvironmentSettings lifecycleSettings = new EnvironmentSettings( ) ;
 
 	private static int MAX_EVENT_BACKLOG = 2048 ;
+	
+	private int eventsClientShutdownAttempts = 40 ;
 
 	@Autowired
 	CsapMeterUtilities metricUtilities ;
@@ -118,6 +124,7 @@ public class CsapEvents {
 		logger.info( CSAP.buildDescription(
 				"Event Publishing Settings",
 				"primary enabled", lifecycleSettings.isEventPublishEnabled( ),
+				"eventsClientShutdownAttempts", eventsClientShutdownAttempts,
 				"user", lifecycleSettings.getEventDataUser( ),
 				"url", lifecycleSettings.getEventUrl( ),
 				"secondary enabled", lifecycleSettings.isSecondaryEventPublishEnabled( ),
@@ -153,15 +160,14 @@ public class CsapEvents {
 
 		logger.info( CsapApplication.header( "Flushing Event Cache: all collections will be uploaded to server" ) ) ;
 		var attempts = 0 ;
-		var maxAttempts = 40 ;
 
 		while ( getBacklogCount( ) > 0
-				&& attempts++ < maxAttempts ) {
+				&& attempts++ < eventsClientShutdownAttempts ) {
 
 			try {
 
 				logger.info( CsapApplication.highlightHeader( "attempt: " + attempts
-						+ " of " + maxAttempts
+						+ " of " + eventsClientShutdownAttempts
 						+ " to flush event backlog, remaining: " + getBacklogCount( ) ) ) ;
 
 				Thread.sleep( 1000 ) ;
@@ -909,6 +915,18 @@ public class CsapEvents {
 
 		return result.toString( ) ;
 
+	}
+
+	public int getEventsClientShutdownAttempts ( ) {
+	
+		return eventsClientShutdownAttempts ;
+	
+	}
+
+	public void setEventsClientShutdownAttempts ( int eventsClientShutdownAttempts ) {
+	
+		this.eventsClientShutdownAttempts = eventsClientShutdownAttempts ;
+	
 	}
 
 }

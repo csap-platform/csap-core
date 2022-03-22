@@ -1,75 +1,67 @@
 <!DOCTYPE html>
-<html
-	xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
 
 
 <head>
 
-<title th:inline="text">Settings Dialog</title>
-
-<script th:replace="~{ csap/fragments/csap-common-includes :: pageContent }"></script>
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/agent.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/agent-explorer.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/browser.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/services.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/projects.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
+	<title th:inline="text">Settings Dialog</title>
 
 
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/editor/dialog-settings.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
+	<script th:replace="csap-constants-include :: includeSection"></script>
+	<script th:replace="~{ csap/fragments/csap-module-includes :: pageContent }"></script>
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/agent.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/agent-explorer.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/browser.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/services.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/projects.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
 
 
-<script th:replace="csap-constants-include :: includeSection"></script>
+	<link th:href="@{ ${csapApp.versionedUrl('/css/editor/dialog-settings.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
 
-<script th:src="@{ ${csapApp.versionedUrl('/js/csapLibs/csap-misc.js')} }"></script>
 
 
-<script
-	th:attr="data-main=@{/js/editor/modules/settings-test}"
-	th:src="@{/webjars/requirejs/2.1.20/require.min.js}"></script>
+
+
+	<script type="module"
+			th:src=" @{ ${ @mvcResourceUrlProvider.getForLookupPath('/js/modules/editor/settings-test.js')} }"></script>
+
 
 </head>
 
 <style type="text/css">
-#csap-main #dialogContents {
-	min-height: 70em;
-}
+	#csap-main #dialogContents {
+		min-height: 70em;
+	}
 </style>
 
 
 
-<body
-	id=csap-main
-	class="csap-scrollable theme-dark agent">
+<body id=csap-main
+	  class="csap-scrollable theme-dark agent">
 
 
 
@@ -78,1362 +70,1182 @@
 
 		<label style="margin-right: 1em;">
 			Project:
-			<select
-				class="active-project"
-				style="width: 14em">
-				<option
-					th:each="name : ${packageNames}"
-					th:selected="${name == servicePackage }"
-					th:value="${name}"
-					th:text="${name}">package names updated here</option>
+			<select class="active-project"
+					style="width: 14em">
+				<option th:each="name : ${packageNames}"
+						th:selected="${name == servicePackage }"
+						th:value="${name}"
+						th:text="${name}">package names updated here</option>
 			</select>
 		</label>
-		<button
-			id="showButton"
-			class="csap-button">Show Settings Dialog</button>
+		<button id="showButton"
+				class="csap-button">Show Settings Dialog</button>
 
 		<span></span>
 
 	</header>
 
-	<article id="loading-project-message">
-		<div class=loading-message-large>Loading Application</div>
-	</article>
+
+	<article class=content>
+		<article id="loading-project-message">
+			<div class=loading-message-large>Loading Application</div>
+		</article>
 
 
 
-	<section
-		id='dialogContents'
-		class='editDialog'>
+		<section id='dialogContents'
+				 class='editDialog'>
 
-		<div
-			id="settingsTemplates"
-			style="display: none">
+			<div id="settingsTemplates"
+				 style="display: none">
 
-			<select class="services">
-				<option>Will be updated</option>
-			</select>
+				<select class="services">
+					<option>Will be updated</option>
+				</select>
 
-			<select class="trendType">
-				<option value="application">Application</option>
-				<option value="java">Java</option>
-				<option value="host">Host</option>
-				<option value="os-process">OS Process</option>
-				<option
-					value="custom/core"
-					title="attribute: coresUsed">Custom</option>
-				<option
-					value="custom/logRotate"
-					title="attribute: MeanSeconds,  log Rotation in seconds">Log</option>
-				<option
-					value="userid"
-					title="attribute: totActivity, csap user activity count">User</option>
-			</select>
+				<select class="trendType">
+					<option value="application">Application</option>
+					<option value="java">Java</option>
+					<option value="host">Host</option>
+					<option value="os-process">OS Process</option>
+					<option value="custom/core"
+							title="attribute: coresUsed">Custom</option>
+					<option value="custom/logRotate"
+							title="attribute: MeanSeconds,  log Rotation in seconds">Log</option>
+					<option value="userid"
+							title="attribute: totActivity, csap user activity count">User</option>
+				</select>
 
-			<select class="realtimeType">
-				<option value="application">Application</option>
-				<option value="java">Java</option>
-				<option value="host">Host</option>
-				<option value="os-process">OS</option>
-			</select>
+				<select class="realtimeType">
+					<option value="application">Application</option>
+					<option value="java">Java</option>
+					<option value="host">Host</option>
+					<option value="os-process">OS</option>
+				</select>
 
 
-		</div>
-
-
-		<div
-			id='dialogResult'
-			class='editDialog'>
-
-
-
-			<div>
-				Updated:
-				<div class="noteAlt"></div>
-				.
-				<br />
-				<br />
-				Changes will be loaded once they have been applied or checked in.
 			</div>
 
-		</div>
+
+			<div id='dialogResult'
+				 class='editDialog'>
 
 
 
-		<div id="dialogOpsContainer"  class=small-final>
+				<div>
+					Updated:
+					<div class="noteAlt"></div>
+					.
+					<br />
+					<br />
+					Changes will be loaded once they have been applied or checked in.
+				</div>
 
-			<label class=csap>
-				<span> Env:</span>
-				<select
-					id="dialogLifeSelect"
-					class="dialogLifeSelect"
-					style="width: 14em">
-					<option
-						th:each="lifeEntry : ${ csapApp.getActiveProject().getLifecycleToClusterMap() }"
-						th:selected="${lifeEntry.key == lifeToEdit }"
-						th:value="${lifeEntry.key}"
-						th:text="${lifeEntry.key}">Will be updated with dev/stage/lt/...</option>
-				</select>
-			</label>
-
-			<span>
-
-				<button
-					th:if="${ ( infraRole != null) }"
-					class="csap-button updateDefButton">Update</button>
-
-				<button
-					class="csap-button notifyButton"
-					title="Send changes to infrastructure admin for review and provisioning.">Request</button>
-				<div
-					th:if="${ ( infraRole == null) }"
-					class="news"
-					title="Your userid is not a member of infra admins, so request will be sent for review">Review Required</div>
+			</div>
 
 
 
-				<label
-					class=csap
-					title="Toggle folding of code - note alt-0, alt-shift-0 can be used as well"
-					style="width: 10em; margin-left: 3em;">
-					<input
-						class="editor-toggle-last"
-						type="checkbox"
-						style="margin-right: 0; vertical-align: middle" />
-					Fold
+			<div id="dialogOpsContainer"
+				 class=small-final>
+
+				<label class=csap>
+					<span> Env:</span>
+					<select id="dialogLifeSelect"
+							class="dialogLifeSelect"
+							style="width: 14em">
+						<option th:each="lifeEntry : ${ csapApp.getActiveProject().getLifecycleToClusterMap() }"
+								th:selected="${lifeEntry.key == lifeToEdit }"
+								th:value="${lifeEntry.key}"
+								th:text="${lifeEntry.key}">Will be updated with dev/stage/lt/...</option>
+					</select>
 				</label>
 
+				<span>
 
-			</span>
+					<button th:if="${ ( infraRole != null) }"
+							class="csap-button updateDefButton">Update</button>
 
-			<span>
-				<label
-					id="validateOnly"
-					class=csap
-					title="Changes will be validated, but not updated">
-					Validate Only:
-					<input
-						id="validateOnlyCheckbox"
-						type="checkbox" />
-				</label>
-			</span>
-
-		</div>
-
-		<div id='settingsEditor'>
-			<ul>
-				<li
-					class="root-view non-root-view"
-					title="Access to definition in json text editor"><a href="#jsonEditor">Specification Editor</a></li>
-
-				<li
-					class="root-view non-root-view"
-					title="Lifecycle references are used in service definitions to avoid multiple locations for configuration items such as passwords, etc">
-					<a href="#references">Config Maps</a>
-				</li>
-
-				<li class="root-view"><a href="#general">System</a></li>
-
-				<li
-					class="root-view non-root-view"
-					data-tab="landing"
-					title="Application real time performance meters are displayed on the Application Portal landing page."><a
-					href="#realtime">Landing Page</a></li>
-
-				<li
-					class="root-view non-root-view"
-					title="Application performance trends are displayed on the Application Portal landing page. "><a
-					href="#trending">Trends</a></li>
-				<li
-					class="root-view"
-					title="Defines the global alert defaults that can be selectively over-written on a per service basis"><a
-					href="#alerts">Alerts</a></li>
-
-				<li
-					class="root-view"
-					title="Configuration of the CSAP performance collections"><a href="#csap-collection">Collection Settings</a></li>
-
-				<li
-					class="root-view non-root-view"
-					title="CSAP Integrations with external systems"><a href="#csap-integrations">CSAP Integrations</a></li>
-			</ul>
+					<button class="csap-button notifyButton"
+							title="Send changes to infrastructure admin for review and provisioning.">Request</button>
+					<div th:if="${ ( infraRole == null) }"
+						 class="news"
+						 title="Your userid is not a member of infra admins, so request will be sent for review">Review
+						Required</div>
 
 
-			<div
-				id="jsonEditor"
-				class="group serviceDef">
-				
-				
 
-				
-				<div class=flex-container>
-					<label
-						class="flex-right-info"
-						title="Toggle folding of code - note alt-0, alt-shift-0 can be used as well"
-						>
-						
-<!--						<span>Fold
+					<label class=csap
+						   title="Toggle folding of code - note alt-0, alt-shift-0 can be used as well"
+						   style="width: 10em; margin-left: 3em;">
+						<input class="editor-toggle-last"
+							   type="checkbox"
+							   style="margin-right: 0; vertical-align: middle" />
+						Fold
+					</label>
+
+
+				</span>
+
+				<span>
+					<label id="validateOnly"
+						   class=csap
+						   title="Changes will be validated, but not updated">
+						Validate Only:
+						<input id="validateOnlyCheckbox"
+							   type="checkbox" />
+					</label>
+				</span>
+
+			</div>
+
+			<div id='settingsEditor'>
+				<ul>
+					<li class="root-view non-root-view"
+						title="Access to definition in json text editor"><a href="#jsonEditor">Specification Editor</a>
+					</li>
+
+					<li class="root-view non-root-view"
+						title="Lifecycle references are used in service definitions to avoid multiple locations for configuration items such as passwords, etc">
+						<a href="#references">Config Maps</a>
+					</li>
+
+					<li class="root-view"><a href="#general">System</a></li>
+
+					<li class="root-view non-root-view"
+						data-tab="landing"
+						title="Application real time performance meters are displayed on the Application Portal landing page.">
+						<a href="#realtime">Landing Page</a>
+					</li>
+
+					<li class="root-view non-root-view"
+						title="Application performance trends are displayed on the Application Portal landing page. "><a
+						   href="#trending">Trends</a></li>
+					<li class="root-view"
+						title="Defines the global alert defaults that can be selectively over-written on a per service basis">
+						<a href="#alerts">Alerts</a>
+					</li>
+
+					<li class="root-view"
+						title="Configuration of the CSAP performance collections"><a href="#csap-collection">Collection
+							Settings</a></li>
+
+					<li class="root-view non-root-view"
+						title="CSAP Integrations with external systems"><a href="#csap-integrations">CSAP
+							Integrations</a>
+					</li>
+				</ul>
+
+
+				<div id="jsonEditor"
+					 class="group serviceDef">
+
+
+
+
+					<div class=flex-container>
+						<label class="flex-right-info"
+							   title="Toggle folding of code - note alt-0, alt-shift-0 can be used as well">
+
+							<!--						<span>Fold
 						</span>
 						<input
 							class="editor-toggle-last"
 							type="checkbox"
 							/>-->
-						
 
-						<span>Json
-						</span>
-						<input
-							class=editor-toggle-json
-							type="checkbox"
-							/>
-						
-					</label>
+
+							<span>Json
+							</span>
+							<input class=editor-toggle-json
+								   type="checkbox" />
+
+						</label>
+					</div>
+
+					<textarea id="serviceJson"
+							  name="serviceJson"
+							  data-adjustwidth="-30"
+							  data-convert_yaml="true"
+							  spellcheck=false
+							  data-path="ROOT">Loading</textarea>
 				</div>
 
-				<textarea
-					id="serviceJson"
-					name="serviceJson"
-					data-adjustwidth="-30"
-					data-convert_yaml="true"
-					spellcheck=false
-					data-path="ROOT">Loading</textarea>
-			</div>
+				<div id="general"
+					 style="padding-top: 0"
+					 class="group json-form-autosize-panel">
 
-			<div
-				id="general"
-				style="padding-top: 0"
-				class="group json-form-autosize-panel">
+					<div id="system-env">
+						<span> </span>
 
-				<div id="system-env">
-					<span> </span>
-
-					<label class="lastModified">
-						<span>last modified:</span>
-						<div class="noteAlt">----</div>
-					</label>
-				</div>
-				
-
-				<div class="csap-purple">
-					<div class="heading">Application: general settings</div>
-					<label
-						class=csap-form
-						title="Appears on portal">
-						<span>Name:</span>
-						<input
-							placeholder="defaults"
-							data-path="application.name" />
-					</label>
-
-					<label 
-						class=csap-form
-						title="One or more imports, with items on the right over-riding previous imports.">
-						<span>Environment Imports:</span>
-						<input
-							placeholder="none"
-							data-json="true"
-							data-path="imports" />
-					</label>
+						<label class="lastModified">
+							<span>last modified:</span>
+							<div class="noteAlt">----</div>
+						</label>
+					</div>
 
 
-					<label 
-						class=csap-form
-						title="specified json files will be loaded as csap projects, using the base project settings as defaults">
-						<span>CSAP sub-projects:</span>
-						<input
-							placeholder="none"
-							data-json="true"
-							data-path="application.sub-projects" />
-					</label>
-	
+					<div class="csap-purple">
+						<div class="heading">Application: general settings</div>
+						<label class=csap-form
+							   title="Appears on portal">
+							<span>Name:</span>
+							<input placeholder="defaults"
+								   data-path="application.name" />
+						</label>
+
+						<label class=csap-form
+							   title="One or more imports, with items on the right over-riding previous imports.">
+							<span>Environment Imports:</span>
+							<input placeholder="none"
+								   data-json="true"
+								   data-path="imports" />
+						</label>
 
 
-					<label
-						class=csap-form
-						title="If set to true - the environment will not appear as an item on operational views">
-						<span>UI Filter:</span>
-						<input
-							placeholder="false"
-							data-path="base-env-only" />
-					</label>
-					
-					
-					<div class="heading">Git </div>
-					
-					<label 
-						class=csap-form
-						title="Git repo">
-						<span>Definition Git:</span>
-						<input
-							placeholder="none"
-							data-path="application.definition-repo-url" />
-					</label>
-					
-					<label
-						class=csap-form
-						title="If SSL cert is not registered, disable the verification checks">
-						<span>Git SSl Disabled:</span>
-							<input
-								placeholder="none"
-								data-json="true"
-								data-path="csap-host-agent.gitSslVerificationDisabledUrls" />
-					</label>
-					
-					
-					<label 
-						class=csap-form
-						title="Abort checkins if version of checked out definition mismatches active version">
-						<span>Abort Checkins</span>
-						<input
-							placeholder="false"
-							data-path="application.definition-abort-on-version" />
-					</label>
-					
-					<label
-						class=csap-form
-						title="Git repo">
-						<span>Branch:</span>
-						<input
-							placeholder="none"
-							data-path="application.definition-repo-branch" />
-					</label>
-					
-					
-					<label
-						class=csap-form
-						title="Git repo">
-						<span>Maven Url:</span>
-						<input
-							placeholder="defaults"
-							data-path="application.maven-url" />
-					</label>
-				</div>
+						<label class=csap-form
+							   title="specified json files will be loaded as csap projects, using the base project settings as defaults">
+							<span>CSAP sub-projects:</span>
+							<input placeholder="none"
+								   data-json="true"
+								   data-path="application.sub-projects" />
+						</label>
 
-				<div class="csap-green">
-				
-					<div class="heading">CSAP Management Agent Performance: review thoroughly prior to changing.</div>
-					<label
-						class=csap-form-inline
-						title="The number of concurrent threads used when running cluster wide commands">
-						<span>Threads:</span>
-						<input
-							placeholder="5"
-							data-path="csap-host-agent.numberWorkerThreads" />
-					</label>
-					
-					<label
-						class=csap-form-inline
-						title="The maximum time to wait for query response before marking host agent down">
-						<span>Time out (Ms):</span>
-						<input
-							placeholder="5000"
-							data-path="csap-host-agent.adminToAgentTimeoutInMs" />
-					</label>
-					
-					<label
-						class=csap-form-inline
-						title="The interval in minutes that logrotate is executed. Each service has its own policy (logrotate.config) to determine if/how logs are rotated">
-						<span>Log Rotation (Minutes):</span>
-						<input
-							placeholder="60"
-							data-path="csap-host-agent.logRotationMinutes" />
-					</label>
-					
-					<label
-						class=csap-form-inline
-						title="Used to filter devices when reporting reads/writes on host dashboard">
-						<span>iostat filter:</span>
-						<input
-							placeholder="^sd.*"
-							data-path="csap-host-agent.iostatFilter" />
-					</label>
+
+
+						<label class=csap-form
+							   title="If set to true - the environment will not appear as an item on operational views">
+							<span>UI Filter:</span>
+							<input placeholder="false"
+								   data-path="base-env-only" />
+						</label>
+
+
+						<div class="heading">Git </div>
+
+						<label class=csap-form
+							   title="Git repo">
+							<span>Definition Git:</span>
+							<input placeholder="none"
+								   data-path="application.definition-repo-url" />
+						</label>
+
+						<label class=csap-form
+							   title="If SSL cert is not registered, disable the verification checks">
+							<span>Git SSl Disabled:</span>
+							<input placeholder="none"
+								   data-json="true"
+								   data-path="csap-host-agent.gitSslVerificationDisabledUrls" />
+						</label>
+
+
+						<label class=csap-form
+							   title="Abort checkins if version of checked out definition mismatches active version">
+							<span>Abort Checkins</span>
+							<input placeholder="false"
+								   data-path="application.definition-abort-on-version" />
+						</label>
+
+						<label class=csap-form
+							   title="Git repo">
+							<span>Branch:</span>
+							<input placeholder="none"
+								   data-path="application.definition-repo-branch" />
+						</label>
+
+
+						<label class=csap-form
+							   title="Git repo">
+							<span>Maven Url:</span>
+							<input placeholder="defaults"
+								   data-path="application.maven-url" />
+						</label>
+					</div>
+
+					<div class="csap-green">
+
+						<div class="heading">CSAP Management Agent Performance: review thoroughly prior to changing.
+						</div>
+						<label class=csap-form-inline
+							   title="The number of concurrent threads used when running cluster wide commands">
+							<span>Threads:</span>
+							<input placeholder="5"
+								   data-path="csap-host-agent.numberWorkerThreads" />
+						</label>
+
+						<label class=csap-form-inline
+							   title="The maximum time to wait for query response before marking host agent down">
+							<span>Time out (Ms):</span>
+							<input placeholder="5000"
+								   data-path="csap-host-agent.adminToAgentTimeoutInMs" />
+						</label>
+
+						<label class=csap-form-inline
+							   title="The interval in minutes that logrotate is executed. Each service has its own policy (logrotate.config) to determine if/how logs are rotated">
+							<span>Log Rotation (Minutes):</span>
+							<input placeholder="60"
+								   data-path="csap-host-agent.logRotationMinutes" />
+						</label>
+
+						<label class=csap-form-inline
+							   title="Used to filter devices when reporting reads/writes on host dashboard">
+							<span>iostat filter:</span>
+							<input placeholder="^sd.*"
+								   data-path="csap-host-agent.iostatFilter" />
+						</label>
 
 
 
 
 
-					<div class="heading">Infrastructure health tests: More frequent testing will cause load, but increase
-						visibility to infrastructure</div>
-						
-					<label
-						class=csap-form-inline
-						title="Frequency of test in minutes">
-						<span>CPU Interval(m):</span>
-						<input
-							placeholder="30"
-							data-path="csap-host-agent.infraHealth.cpuIntervalMinutes" />
-					</label>
-					<label
-						class=csap-form-inline
-						title="The number of loops to perform in millions. 1 million takes ~6 seconds">
-						<span>Loops(millions):</span>
-						<input
-							placeholder="1"
-							data-path="csap-host-agent.infraHealth.cpuLoopsMillions" />
-					</label>
-					<label
-						class=csap-form-inline
-						title="Frequency of test in minutes">
-						<span>Disk Interval(m):</span>
-						<input
-							placeholder="30"
-							data-path="csap-host-agent.infraHealth.diskIntervalMinutes" />
-					</label>
-					<label
-						class=csap-form-inline
-						title="The number of MB to write then delete in the default CSAP disk.">
-						<span>Write(MB):</span>
-						<input
-							placeholder="500"
-							data-path="csap-host-agent.infraHealth.diskWriteMb" />
-					</label>
+						<div class="heading">Infrastructure health tests: More frequent testing will cause load, but
+							increase
+							visibility to infrastructure</div>
+
+						<label class=csap-form-inline
+							   title="Frequency of test in minutes">
+							<span>CPU Interval(m):</span>
+							<input placeholder="30"
+								   data-path="csap-host-agent.infraHealth.cpuIntervalMinutes" />
+						</label>
+						<label class=csap-form-inline
+							   title="The number of loops to perform in millions. 1 million takes ~6 seconds">
+							<span>Loops(millions):</span>
+							<input placeholder="1"
+								   data-path="csap-host-agent.infraHealth.cpuLoopsMillions" />
+						</label>
+						<label class=csap-form-inline
+							   title="Frequency of test in minutes">
+							<span>Disk Interval(m):</span>
+							<input placeholder="30"
+								   data-path="csap-host-agent.infraHealth.diskIntervalMinutes" />
+						</label>
+						<label class=csap-form-inline
+							   title="The number of MB to write then delete in the default CSAP disk.">
+							<span>Write(MB):</span>
+							<input placeholder="500"
+								   data-path="csap-host-agent.infraHealth.diskWriteMb" />
+						</label>
 
 
-					<div class="heading">CSAP Management Agent Access Controls</div>
+						<div class="heading">CSAP Management Agent Access Controls</div>
 
-					<label
-						class=csap-form-inline
-						title="Used to transfer files and service requests">
-						<span>User:</span>
-						<input
-							placeholder="apiUser"
-							data-path="csap-host-agent.apiUser" />
-					</label>
+						<label class=csap-form-inline
+							   title="Used to transfer files and service requests">
+							<span>User:</span>
+							<input placeholder="apiUser"
+								   data-path="csap-host-agent.apiUser" />
+						</label>
 
-					<label
-						class=csap-form-inline
-						title="Used to transfer files and service requests. Default is derived from Application.json and">
-						<span >Password:</span>
-						<input
-							placeholder="Default Encrypted"
-							data-path="csap-host-agent.apiPass" />
-					</label>
-					
-					<label
-						class=csap-form-inline
-						title="Uses a local token to validate API calls. If false, configured security will be used - ensure ROLES assigned includes admin.">
-						<span >Local Auth:</span>
-						<input
-							placeholder="true"
-							data-path="csap-host-agent.apiLocal" />
-					</label>
+						<label class=csap-form-inline
+							   title="Used to transfer files and service requests. Default is derived from Application.json and">
+							<span>Password:</span>
+							<input placeholder="Default Encrypted"
+								   data-path="csap-host-agent.apiPass" />
+						</label>
 
-				</div>
-				<div class="csap-blue">
-					<div class="heading">Applications are typically fronted with a network configuration to enable high
-						availability, and SSSL offload.</div>
+						<label class=csap-form-inline
+							   title="Uses a local token to validate API calls. If false, configured security will be used - ensure ROLES assigned includes admin.">
+							<span>Local Auth:</span>
+							<input placeholder="true"
+								   data-path="csap-host-agent.apiLocal" />
+						</label>
+
+					</div>
+					<div class="csap-blue">
+						<div class="heading">Applications are typically fronted with a network configuration to enable
+							high
+							availability, and SSSL offload.</div>
 
 
-					<label 
-						class=csap-form>
-						<span>Load Balancer:</span>
-						<input
-							
-							data-path="loadbalancer-url" />
-					</label>
-					
-					<label 
-						class=csap-form-inline >
-						<span>Auto LB Reloads:</span>
-						<input
-							placeholder="yes"
-							data-path="autoRestartHttpdOnClusterReload" />
-					</label>
-					<label 
-						class=csap-form-inline>
-						<span>Port Start:</span>
-						<input
-							placeholder="yes"
-							data-path="portRange.start" />
-					</label>
-					<label 
-						class=csap-form-inline>
-						<span>Port End</span>
-						<input
-							placeholder="yes"
-							data-path="portRange.end" />
-					</label>
+						<label class=csap-form>
+							<span>Load Balancer:</span>
+							<input data-path="loadbalancer-url" />
+						</label>
 
-					<div class="heading">Service Integrations</div>
-					<label 
-						class=csap-form>
-						<span>Monitoring Url:</span>
-						<input
-							
-							data-path="monitoringUrl" />
-					</label>
-					<label 
-						class=csap-form>
-						<span>Default Maven:</span>
-						<input
-							
-							data-path="mavenCommand" />
-					</label>
+						<label class=csap-form-inline>
+							<span>Auto LB Reloads:</span>
+							<input placeholder="yes"
+								   data-path="autoRestartHttpdOnClusterReload" />
+						</label>
+						<label class=csap-form-inline>
+							<span>Port Start:</span>
+							<input placeholder="yes"
+								   data-path="portRange.start" />
+						</label>
+						<label class=csap-form-inline>
+							<span>Port End</span>
+							<input placeholder="yes"
+								   data-path="portRange.end" />
+						</label>
+
+						<div class="heading">Service Integrations</div>
+						<label class=csap-form>
+							<span>Monitoring Url:</span>
+							<input data-path="monitoringUrl" />
+						</label>
+						<label class=csap-form>
+							<span>Default Maven:</span>
+							<input data-path="mavenCommand" />
+						</label>
 
 
-					<!--  
+						<!--  
                         acl support with limited ops: file-browser
                         -->
 
-					<div class="heading">ACL Disks</div>
-					<label
-						class=csap-form
-						title="Disks with acl protections for viewing specific filesystem">
-						<span>def: </span>
-						<input
-							
-							placeholder="none"
-							data-json="true"
-							data-path="file-browser" />
-					</label>
+						<div class="heading">ACL Disks</div>
+						<label class=csap-form
+							   title="Disks with acl protections for viewing specific filesystem">
+							<span>def: </span>
+							<input placeholder="none"
+								   data-json="true"
+								   data-path="file-browser" />
+						</label>
+
+					</div>
+
+					<div class="heading">Landing Page notes</div>
+
+					<div class="floating-ace-editor">
+						<textarea id="lifecycle-news"
+								  data-convert_lines="true"
+								  data-adjust="20"
+								  data-fit="true"
+								  spellcheck=false
+								  data-plain="true"
+								  data-path="newsItems"></textarea>
+					</div>
+
+
+					<div class="heading">Editor Notes</div>
+					<div class="floating-ace-editor">
+						<textarea id="lifecycle-editor-notes"
+								  data-convert_lines="true"
+								  data-adjust="20"
+								  data-fit="true"
+								  spellcheck=false
+								  data-plain="true"
+								  data-path="editor-notes"></textarea>
+					</div>
+
+					<div class="heading">Launch targets are uses in the service portal to verify routing alternatives
+					</div>
+					<div class="floating-ace-editor">
+						<textarea id="launchUrlItems"
+								  data-adjust="0"
+								  data-fit="true"
+								  spellcheck=false
+								  data-path="launchTargets"></textarea>
+					</div>
 
 				</div>
 
-				<div class="heading">Landing Page notes</div>
-
-				<div class="floating-ace-editor">
-					<textarea
-						id="lifecycle-news"
-						data-convert_lines="true"
-						data-adjust="20"
-						data-fit="true"
-						spellcheck=false
-						data-plain="true"
-						data-path="newsItems"></textarea>
-				</div>
 
 
-				<div class="heading">Editor Notes</div>
-				<div class="floating-ace-editor">
-					<textarea
-						id="lifecycle-editor-notes"
-						data-convert_lines="true"
-						data-adjust="20"
-						data-fit="true"
-						spellcheck=false
-						data-plain="true"
-						data-path="editor-notes"></textarea>
-				</div>
+				<div id="references"
+					 class="group textGroup">
+					<div class="heading"
+						 style="margin-top: 0">Configuration Maps enable environment variables to be shared across
+						multiple
+						services,
+						and customization on a per life cycle basis. The group named "global" will be applied to every
+						service. The service
+						editor can optionally specify 1 or more map names in the environment variables. eg.
+						"configuration-maps" : [
+						"map1", "map2" ],</div>
 
-				<div class="heading">Launch targets are uses in the service portal to verify routing alternatives</div>
-				<div class="floating-ace-editor">
-					<textarea
-						id="launchUrlItems"
-						data-adjust="0"
-						data-fit="true"
-						spellcheck=false
-						data-path="launchTargets"></textarea>
-				</div>
-
-			</div>
-
-
-
-			<div
-				id="references"
-				class="group textGroup">
-				<div
-					class="heading"
-					style="margin-top: 0">Configuration Maps enable environment variables to be shared across multiple services,
-					and customization on a per life cycle basis. The group named "global" will be applied to every service. The service
-					editor can optionally specify 1 or more map names in the environment variables. eg. "configuration-maps" : [
-					"map1", "map2" ],</div>
-
-				<div class="floating-ace-editor">
-					<textarea
-						id="refsText"
-						data-adjust="-40"
-						spellcheck=false
-						data-path="configuration-maps"></textarea>
-				</div>
-
-			</div>
-
-
-
-			<div
-				id="alerts"
-				class="group json-form-autosize-panel">
-
-				<div class="csap-green">
-					<div class="heading">Host Defaults</div>
-					<label
-						class=csap-form-inline
-						title="">
-						<span>Disk Full(%):</span>
-						<input
-							
-							class="number-only"
-							placeholder="90"
-							data-path="monitorDefaults.maxDiskPercent" />
-					</label>
-
-
-					<label
-						class=csap-form-inline
-						title="Alert level for devices, collected using iostat -x">
-						<span>Device IO (%):</span>
-						<input
-							
-							class="number-only"
-							placeholder="80"
-							data-path="monitorDefaults.maxDeviceIoPercent" />
-					</label>
-
-					<label
-						class=csap-form
-						title="Comma separated list of disks that will not trigger alerts. Regex supports">
-						<span>Disks Ignored:</span>
-						<input
-							
-							placeholder="eg. /auto/usrpattern.*"
-							data-path="monitorDefaults.maxDiskPercentIgnorePatterns" />
-					</label>
-					
-					<label
-						class=csap-form-inline
-						title="">
-						<span>Cpu (%):</span>
-						<input
-							
-							class="number-only"
-							placeholder="80"
-							data-path="monitorDefaults.maxHostCpu" />
-					</label>
-					<label
-						class=csap-form-inline
-						title="">
-						<span>Cpu Load:</span>
-						<input
-							
-							class="number-only"
-							placeholder="4"
-							data-path="monitorDefaults.maxHostCpuLoad" />
-					</label>
-					<label
-						class=csap-form-inline
-						title="">
-						<span>Cpu IO Wait:</span>
-						<input
-							
-							class="number-only"
-							placeholder="10"
-							data-path="monitorDefaults.maxHostCpuIoWait" />
-					</label>
-					<label
-						class=csap-form-inline
-						title="">
-						<span>Minimum Memory(MB):</span>
-						<input
-							
-							class="number-only"
-							placeholder="500"
-							data-path="monitorDefaults.minFreeMemoryMb" />
-					</label>
+					<div class="floating-ace-editor">
+						<textarea id="refsText"
+								  data-adjust="-40"
+								  spellcheck=false
+								  data-path="configuration-maps"></textarea>
+					</div>
 
 				</div>
 
-				<div class="csap-purple">
-					<div class="heading">Kubernetes Event Alerting: events newer then specified minutes trigger alerts unless the
-						involved object matches the specified filter. If TOTAL events in kubernetes exceeds max count - an alert will be
-						triggered</div>
 
-						<label
-						class=csap-form-inline
-							title="Only events NEWER then specified interval will be inspected">
+
+				<div id="alerts"
+					 class="group json-form-autosize-panel">
+
+					<div class="csap-green">
+						<div class="heading">Host Defaults</div>
+						<label class=csap-form-inline
+							   title="">
+							<span>Disk Full(%):</span>
+							<input class="number-only"
+								   placeholder="90"
+								   data-path="monitorDefaults.maxDiskPercent" />
+						</label>
+
+
+						<label class=csap-form-inline
+							   title="Alert level for devices, collected using iostat -x">
+							<span>Device IO (%):</span>
+							<input class="number-only"
+								   placeholder="80"
+								   data-path="monitorDefaults.maxDeviceIoPercent" />
+						</label>
+
+						<label class=csap-form
+							   title="Comma separated list of disks that will not trigger alerts. Regex supports">
+							<span>Disks Ignored:</span>
+							<input placeholder="eg. /auto/usrpattern.*"
+								   data-path="monitorDefaults.maxDiskPercentIgnorePatterns" />
+						</label>
+
+						<label class=csap-form-inline
+							   title="">
+							<span>Cpu (%):</span>
+							<input class="number-only"
+								   placeholder="80"
+								   data-path="monitorDefaults.maxHostCpu" />
+						</label>
+						<label class=csap-form-inline
+							   title="">
+							<span>Cpu Load:</span>
+							<input class="number-only"
+								   placeholder="4"
+								   data-path="monitorDefaults.maxHostCpuLoad" />
+						</label>
+						<label class=csap-form-inline
+							   title="">
+							<span>Cpu IO Wait:</span>
+							<input class="number-only"
+								   placeholder="10"
+								   data-path="monitorDefaults.maxHostCpuIoWait" />
+						</label>
+						<label class=csap-form-inline
+							   title="">
+							<span>Minimum Memory(MB):</span>
+							<input class="number-only"
+								   placeholder="500"
+								   data-path="monitorDefaults.minFreeMemoryMb" />
+						</label>
+
+					</div>
+
+					<div class="csap-purple">
+						<div class="heading">Kubernetes Event Alerting: events newer then specified minutes trigger
+							alerts
+							unless the
+							involved object matches the specified filter. If TOTAL events in kubernetes exceeds max
+							count -
+							an alert will be
+							triggered</div>
+
+						<label class=csap-form-inline
+							   title="Only events NEWER then specified interval will be inspected">
 							<span>Minutes:</span>
-							<input
-								
-								class="number-only"
-								placeholder="5"
-								data-path="kubernetes.event-inspect-minutes" />
+							<input class="number-only"
+								   placeholder="5"
+								   data-path="kubernetes.event-inspect-minutes" />
 						</label>
-						<label
-						class=csap-form-inline
-							title="If the TOTAL events stored(not just in the last ) in kubernetes excedes this number, a max event exceeded will be triggerd">
+						<label class=csap-form-inline
+							   title="If the TOTAL events stored(not just in the last ) in kubernetes excedes this number, a max event exceeded will be triggerd">
 							<span>Max Count:</span>
-							<input
-								
-								class="number-only"
-								placeholder="1000"
-								data-path="kubernetes.event-max-count" />
+							<input class="number-only"
+								   placeholder="1000"
+								   data-path="kubernetes.event-max-count" />
 						</label>
 
 
-					<label 
-						class=csap-form
-						title="Events with involved object patterns that will be ignored - java regex supported. eg. .*cron.*">
-						<span>Exclusions:</span>
-						<input
-							
-							placeholder='[ ".*cron" ]'
-							data-json="true"
-							data-path="kubernetes.event-inspect-excludes" />
-					</label>
-					
-					
-					<div class="heading">Kubernetes Certificate Expiration is required annually
-					(<a target="_blank" class="csap-link-icon csap-window" href="https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/#check-certificate-expiration">reference guide</a>)
-					</div>
-					<label 
-						class=csap-form-inline
-						title="All kubernetes masters require annual cert renewal. Kubelet will start failing health as expirations approach">
-						<span>Days To Warn:</span>
-						<input
-							class="number-only"
-							placeholder='60'
-							data-path="kubernetes.certificate-minimum-days" />
-					</label>
+						<label class=csap-form
+							   title="Events with involved object patterns that will be ignored - java regex supported. eg. .*cron.*">
+							<span>Exclusions:</span>
+							<input placeholder='[ ".*cron" ]'
+								   data-json="true"
+								   data-path="kubernetes.event-inspect-excludes" />
+						</label>
 
 
-					
-					<div class="heading">Docker Alerting: Exceeding limits will trigger alerts</div>
+						<div class="heading">Kubernetes Certificate Expiration is required annually
+							(<a target="_blank"
+							   class="csap-link-icon csap-window"
+							   href="https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/#check-certificate-expiration">reference
+								guide</a>)
+						</div>
+						<label class=csap-form-inline
+							   title="All kubernetes masters require annual cert renewal. Kubelet will start failing health as expirations approach">
+							<span>Days To Warn:</span>
+							<input class="number-only"
+								   placeholder='60'
+								   data-path="kubernetes.certificate-minimum-days" />
+						</label>
 
-						<label
-							class=csap-form-inline
-							title="">
+
+
+						<div class="heading">Docker Alerting: Exceeding limits will trigger alerts</div>
+
+						<label class=csap-form-inline
+							   title="">
 							<span>Containers:</span>
-							<input
-								
-								class="number-only"
-								placeholder="100"
-								data-path="docker.max-containers" />
+							<input class="number-only"
+								   placeholder="100"
+								   data-path="docker.max-containers" />
 						</label>
-						<label
-							class=csap-form-inline
-							title="">
+						<label class=csap-form-inline
+							   title="">
 							<span>Images:</span>
-							<input
-								
-								class="number-only"
-								placeholder="100"
-								data-path="docker.max-images" />
+							<input class="number-only"
+								   placeholder="100"
+								   data-path="docker.max-images" />
 						</label>
-						<label
-							class=csap-form-inline
-							title="">
+						<label class=csap-form-inline
+							   title="">
 							<span>Volumes:</span>
-							<input
-								
-								class="number-only"
-								placeholder="100"
-								data-path="docker.max-volumes" />
+							<input class="number-only"
+								   placeholder="100"
+								   data-path="docker.max-volumes" />
 						</label>
 
-				</div>
-
-				<div class="csap-red">
-					<div class="heading">The number of samples to collect and average when issuing alerts. Increasing will avoid
-						intermittent alerts, but note they will still be recorded in csap health reports.</div>
-					<label
-							class=csap-form-inline
-						title="The number of samples to collect and average when issuing alerts">
-						<span>Limit Sample Count: </span>
-						<input
-							
-							class="number-only"
-							placeholder="5"
-							data-path="monitorDefaults.limitSamples" />
-					</label>
-
-
-
-					<div class="heading">CSAP Host Saver: Runaway resource consumption by services can cause hosts to become
-						non-response or impact SLA. If current threads, disk, sockets, or files for a service exceeds the
-						maximum*threshold - the service will be killed.</div>
-					<label
-							class=csap-form-inline
-						title="">
-						<span>Auto Stop Threshold:</span>
-						<input
-							
-							class="number-only"
-							placeholder="2.0"
-							data-path="monitorDefaults.autoStopServiceThreshold" />
-					</label>
-				</div>
-
-				<div class="csap-blue">
-
-
-					<div class="heading">Service Threshold Defaults - the global defaults can selectively be overridden on a per
-						service basis</div>
-					<label
-						class=csap-form-inline
-						title="">
-						<span>Cpu (%):</span>
-						<input
-							
-							class="number-only"
-							data-path="monitorDefaults.max_topCpu" />
-					</label>
-					<label
-						class=csap-form-inline
-						title="">
-						<span>Thread Count:</span>
-						<input
-							
-							class="number-only"
-							data-path="monitorDefaults.max_threadCount" />
-					</label>
-					<label
-						class=csap-form-inline
-						title="Default unit is bytes. Add m for MB or g for GB">
-						<span>RSS Memory:</span>
-						<input
-							class=""
-							data-path="monitorDefaults.max_rssMemory" />
-					</label>
-					<label
-						class=csap-form-inline
-						title="">
-						<span>Disk Used (MB):</span>
-						<input
-							
-							class="number-only"
-							data-path="monitorDefaults.max_diskUtil" />
-					</label>
-					<label
-						class=csap-form-inline
-						title="">
-						<span>Disk Write (kb):</span>
-						<input
-							
-							class="number-only"
-							data-path="monitorDefaults.max_diskWriteKb" />
-					</label>
-					<label
-						class=csap-form-inline
-						title="">
-						<span>File Count:</span>
-						<input
-							
-							class="number-only"
-							data-path="monitorDefaults.max_fileCount" />
-					</label>
-					<label
-						class=csap-form-inline
-						title="">
-						<span>Socket Count:</span>
-						<input
-							
-							class="number-only"
-							data-path="monitorDefaults.max_socketCount" />
-					</label>
-					<label
-						class=csap-form-inline
-						title="">
-						<span>Tomcat Connections:</span>
-						<input
-							
-							class="number-only"
-							data-path="monitorDefaults.max_tomcatConnections" />
-					</label>
-
-
-
-					<label
-						class=csap-form-inline
-						title="">
-						<span>Heartbeat Enabled:</span>
-						<input
-							class=""
-							data-path="monitorDefaults.jvm_jmxHeartbeat" />
-					</label>
-					<label
-						class=csap-form-inline
-						title="">
-						<span>Ignore Stopped:</span>
-						<input
-							class=""
-							data-path="monitorDefaults.jvm_jmxHeartbeatIgnoreStopped" />
-					</label>
-
-				</div>
-
-			</div>
-
-			<div
-				id="csap-collection"
-				class="group json-form-autosize-panel">
-
-
-				<div class="csap-green">
-				
-					<div class="heading">CSAP agent running on every host performs collection of key OS (linux APIs) and
-						Application (JMX or HTTP) metrics</div>
-						
-					<label
-						class=csap-form-inline
-						title="Setting the max time prevents non-responsive/slow processes causing irregulage collection intervals">
-						<span>Max Collection (ms)</span>
-						<input
-							placeholder="2000"
-							
-							data-path="csap-host-agent.maxJmxCollectionMs" />
-					</label>
-
-					<label
-						class=csap-form-inline
-						title="Collecting disk usage can cause significant resource consumption.">
-						<span>Disk Collection (minutes):</span>
-						<input
-							placeholder="5"
-							
-							data-path="csap-host-agent.duIntervalMins" />
-					</label>
-
-					<label
-						class=csap-form-inline
-						title="Collecting open files can cause significant resource consumption.">
-						<span>Open Files (minutes):</span>
-						<input
-							placeholder="2"
-							
-							data-path="csap-host-agent.lsofIntervalMins" />
-					</label>
-
-
-					<div class="heading">Collection Intervals (in seconds)</div>
-					<label
-						class=csap-form-inline
-						title="Collection of global resource usage, such as mpstat, memory, disk">
-						<span>Host Shared:</span>
-						<input
-							class=""
-							placeholder="host default"
-							data-json="true"
-							data-path="csap-collection.host" />
-					</label>
-
-					<label
-						class=csap-form-inline
-						title="Collection of process level statistics">
-						<span>OS Process:</span>
-						<input
-							class=""
-							placeholder="os default"
-							data-json="true"
-							data-path="csap-collection.os-process" />
-					</label>
-
-					<label
-						class=csap-form-inline
-						title="Application metrics collected by http or jmx">
-						<span>Application:</span>
-						<input
-							class=""
-							placeholder="os default"
-							data-json="true"
-							data-path="csap-collection.application" />
-					</label>
-
-
-
-					<div class="heading">Collections cache size: Agent in memory cache is used to retain performance data and is
-						reflected in the CSAP real time graphs shown on Host Dashboard.</div>
-
-					<label
-						class=csap-form-inline
-						title="Number of collections stored in Java Heap.">
-						<span>Collections cache size:</span>
-						<input
-							placeholder="600"
-							
-							data-path="csap-collection.inMemoryCacheSize" />
-					</label>
-
-				</div>
-
-				<div class="csap-red">
-				<div class="heading"></div>
-					<div
-						title=""
-						style="display: inline-block; width: 470px; vertical-align: top">
-						<div class=heading>kubernetes container collection: container names (not pod)  collected: node count, total count, total cpu and total memory</div>
-						<div
-							class="floating-ace-editor"
-							style="min-height: 100px">
-							<textarea
-								id="collect-k8s-containers"
-								data-path="csap-collection.kubernetes"
-								data-fit="true"
-								data-fixedwidth="420"
-								spellcheck=false
-								placeholder="default from image"></textarea>
-
-						</div>
-
 					</div>
-					
-					<div
-						title=""
-						style="display: inline-block; width: 470px; vertical-align: top">
-						<div class=heading>kubernetes namespace monitoring (defaults to all) to disable - add: [ "disabled "].</div>
-						<div
-							class="floating-ace-editor"
-							style="min-height: 100px">
-							<textarea
-								id="collect-k8s-namespaces"
-								data-path="csap-collection.kubernetes-namespaces"
-								data-fit="true"
-								data-fixedwidth="420"
-								spellcheck=false
-								placeholder="all discovered namespaces"></textarea>
 
-						</div>
+					<div class="csap-red">
+						<div class="heading">The number of samples to collect and average when issuing alerts.
+							Increasing
+							will avoid
+							intermittent alerts, but note they will still be recorded in csap health reports.</div>
+						<label class=csap-form-inline
+							   title="The number of samples to collect and average when issuing alerts">
+							<span>Limit Sample Count: </span>
+							<input class="number-only"
+								   placeholder="5"
+								   data-path="monitorDefaults.limitSamples" />
+						</label>
+
+
+
+						<div class="heading">CSAP Host Saver: Runaway resource consumption by services can cause hosts
+							to
+							become
+							non-response or impact SLA. If current threads, disk, sockets, or files for a service
+							exceeds
+							the
+							maximum*threshold - the service will be killed.</div>
+						<label class=csap-form-inline
+							   title="">
+							<span>Auto Stop Threshold:</span>
+							<input class="number-only"
+								   placeholder="2.0"
+								   data-path="monitorDefaults.autoStopServiceThreshold" />
+						</label>
+					</div>
+
+					<div class="csap-blue">
+
+
+						<div class="heading">Service Threshold Defaults - the global defaults can selectively be
+							overridden
+							on a per
+							service basis</div>
+						<label class=csap-form-inline
+							   title="">
+							<span>Cpu (%):</span>
+							<input class="number-only"
+								   data-path="monitorDefaults.max_topCpu" />
+						</label>
+						<label class=csap-form-inline
+							   title="">
+							<span>Thread Count:</span>
+							<input class="number-only"
+								   data-path="monitorDefaults.max_threadCount" />
+						</label>
+						<label class=csap-form-inline
+							   title="Default unit is bytes. Add m for MB or g for GB">
+							<span>RSS Memory:</span>
+							<input class=""
+								   data-path="monitorDefaults.max_rssMemory" />
+						</label>
+						<label class=csap-form-inline
+							   title="">
+							<span>Disk Used (MB):</span>
+							<input class="number-only"
+								   data-path="monitorDefaults.max_diskUtil" />
+						</label>
+						<label class=csap-form-inline
+							   title="">
+							<span>Disk Write (kb):</span>
+							<input class="number-only"
+								   data-path="monitorDefaults.max_diskWriteKb" />
+						</label>
+						<label class=csap-form-inline
+							   title="">
+							<span>File Count:</span>
+							<input class="number-only"
+								   data-path="monitorDefaults.max_fileCount" />
+						</label>
+						<label class=csap-form-inline
+							   title="">
+							<span>Socket Count:</span>
+							<input class="number-only"
+								   data-path="monitorDefaults.max_socketCount" />
+						</label>
+						<label class=csap-form-inline
+							   title="">
+							<span>Tomcat Connections:</span>
+							<input class="number-only"
+								   data-path="monitorDefaults.max_tomcatConnections" />
+						</label>
+
+
+
+						<label class=csap-form-inline
+							   title="">
+							<span>Heartbeat Enabled:</span>
+							<input class=""
+								   data-path="monitorDefaults.jvm_jmxHeartbeat" />
+						</label>
+						<label class=csap-form-inline
+							   title="">
+							<span>Ignore Stopped:</span>
+							<input class=""
+								   data-path="monitorDefaults.jvm_jmxHeartbeatIgnoreStopped" />
+						</label>
 
 					</div>
 
-						<div class="heading">Optional Collection: Low memory trigger: initiates listing of all processes and sends
+				</div>
+
+				<div id="csap-collection"
+					 class="group json-form-autosize-panel">
+
+
+					<div class="csap-green">
+
+						<div class="heading">CSAP agent running on every host performs collection of key OS (linux APIs)
+							and
+							Application (JMX or HTTP) metrics</div>
+
+						<label class=csap-form-inline
+							   title="Setting the max time prevents non-responsive/slow processes causing irregulage collection intervals">
+							<span>Max Collection (ms)</span>
+							<input placeholder="2000"
+								   data-path="csap-host-agent.maxJmxCollectionMs" />
+						</label>
+
+						<label class=csap-form-inline
+							   title="Collecting disk usage can cause significant resource consumption.">
+							<span>Disk Collection (minutes):</span>
+							<input placeholder="5"
+								   data-path="csap-host-agent.duIntervalMins" />
+						</label>
+
+						<label class=csap-form-inline
+							   title="Collecting open files can cause significant resource consumption.">
+							<span>Open Files (minutes):</span>
+							<input placeholder="2"
+								   data-path="csap-host-agent.lsofIntervalMins" />
+						</label>
+
+
+						<div class="heading">Collection Intervals (in seconds)</div>
+						<label class=csap-form-inline
+							   title="Collection of global resource usage, such as mpstat, memory, disk">
+							<span>Host Shared:</span>
+							<input class=""
+								   placeholder="host default"
+								   data-json="true"
+								   data-path="csap-collection.host" />
+						</label>
+
+						<label class=csap-form-inline
+							   title="Collection of process level statistics">
+							<span>OS Process:</span>
+							<input class=""
+								   placeholder="os default"
+								   data-json="true"
+								   data-path="csap-collection.os-process" />
+						</label>
+
+						<label class=csap-form-inline
+							   title="Application metrics collected by http or jmx">
+							<span>Application:</span>
+							<input class=""
+								   placeholder="os default"
+								   data-json="true"
+								   data-path="csap-collection.application" />
+						</label>
+
+
+
+						<div class="heading">Collections cache size: Agent in memory cache is used to retain performance
+							data and is
+							reflected in the CSAP real time graphs shown on Host Dashboard.</div>
+
+						<label class=csap-form-inline
+							   title="Number of collections stored in Java Heap.">
+							<span>Collections cache size:</span>
+							<input placeholder="600"
+								   data-path="csap-collection.inMemoryCacheSize" />
+						</label>
+
+					</div>
+
+					<div class="csap-red">
+						<div class="heading"></div>
+						<div title=""
+							 style="display: inline-block; width: 470px; vertical-align: top">
+							<div class=heading>kubernetes container collection: container names (not pod) collected:
+								node
+								count, total count, total cpu and total memory</div>
+							<div class="floating-ace-editor"
+								 style="min-height: 100px">
+								<textarea id="collect-k8s-containers"
+										  data-path="csap-collection.kubernetes"
+										  data-fit="true"
+										  data-fixedwidth="420"
+										  spellcheck=false
+										  placeholder="default from image"></textarea>
+
+							</div>
+
+						</div>
+
+						<div title=""
+							 style="display: inline-block; width: 470px; vertical-align: top">
+							<div class=heading>kubernetes namespace monitoring (defaults to all) to disable - add: [
+								"disabled "].</div>
+							<div class="floating-ace-editor"
+								 style="min-height: 100px">
+								<textarea id="collect-k8s-namespaces"
+										  data-path="csap-collection.kubernetes-namespaces"
+										  data-fit="true"
+										  data-fixedwidth="420"
+										  spellcheck=false
+										  placeholder="all discovered namespaces"></textarea>
+
+							</div>
+
+						</div>
+
+						<div class="heading">Optional Collection: Low memory trigger: initiates listing of all processes
+							and
+							sends
 							/csap/system/memory/low event</div>
-					<div>
+						<div>
 
 
-						<label
-							class=csap-form-inline
-							title="Collecting open files can cause significant resource consumption.">
-							<span>When Memory less than (MB):</span>
-							<input
-								placeholder="2"
-								data-path="csap-collection.processDumps.lowMemoryInMb" />
-						</label>
+							<label class=csap-form-inline
+								   title="Collecting open files can cause significant resource consumption.">
+								<span>When Memory less than (MB):</span>
+								<input placeholder="2"
+									   data-path="csap-collection.processDumps.lowMemoryInMb" />
+							</label>
 
-						<label
-						class=csap-form-inline
-							title="Setting the max time prevents non-responsive/slow processes causing irregulage collection intervals">
-							<span>Interval to collect from:</span>
-							<input
-								placeholder="2000"
-								
-								data-path="csap-collection.processDumps.resouceInterval" />
-						</label>
+							<label class=csap-form-inline
+								   title="Setting the max time prevents non-responsive/slow processes causing irregulage collection intervals">
+								<span>Interval to collect from:</span>
+								<input placeholder="2000"
+									   data-path="csap-collection.processDumps.resouceInterval" />
+							</label>
 
-						<label
-						class=csap-form-inline
-							title="Collecting disk usage can cause significant resource consumption.">
-							<span>Max Captures Per Interval:</span>
-							<input
-								placeholder="5"
-								
-								data-path="csap-collection.processDumps.maxInInterval" />
+							<label class=csap-form-inline
+								   title="Collecting disk usage can cause significant resource consumption.">
+								<span>Max Captures Per Interval:</span>
+								<input placeholder="5"
+									   data-path="csap-collection.processDumps.maxInInterval" />
 
-						</label>
+							</label>
+						</div>
+
 					</div>
 
-				</div>
-
-				<div class="csap-blue">
-					<div class="heading">Events published to the Analytics Portal includes both system(operations, performance
-						data, ...) and user activity.</div>
-					<label
-						class=csap-form
-						title="Publication url, to disable, enter: disabled">
-						<span>service url:</span>
-						<input
-							placeholder="disabled"
-							data-path="csap-data.service-url" />
-					</label>
-						<label
-						class=csap-form-inline
-							title="">
+					<div class="csap-blue">
+						<div class="heading">Events published to the Analytics Portal includes both system(operations,
+							performance
+							data, ...) and user activity.</div>
+						<label class=csap-form
+							   title="Publication url, to disable, enter: disabled">
+							<span>service url:</span>
+							<input placeholder="disabled"
+								   data-path="csap-data.service-url" />
+						</label>
+						<label class=csap-form-inline
+							   title="">
 							<span>User:</span>
 							<input class=words
-								placeholder="disabled"
-								data-path="csap-data.user" />
+								   placeholder="disabled"
+								   data-path="csap-data.user" />
 						</label>
-						<label
-							class=csap-form-inline
-							title="">
+						<label class=csap-form-inline
+							   title="">
 							<span>Credential:</span>
-							<input
-								class=words
-								placeholder="disabled"
-								data-path="csap-data.credential" />
+							<input class=words
+								   placeholder="disabled"
+								   data-path="csap-data.credential" />
 						</label>
 
-					<label
-						class=csap-form
-						title="Performance Upload Intervals (in hours). Note: Shorter intervals will increase load on trending queries.">
-						<span>Upload Intervals:</span>
-						<input
-							
-							placeholder='{"30seconds": "0.5", "300seconds": "24", "3600seconds": "24"}'
-							data-json="true"
-							data-path="csap-collection.uploadIntervalsInHours" />
-					</label>
+						<label class=csap-form
+							   title="Performance Upload Intervals (in hours). Note: Shorter intervals will increase load on trending queries.">
+							<span>Upload Intervals:</span>
+							<input placeholder='{"30seconds": "0.5", "300seconds": "24", "3600seconds": "24"}'
+								   data-json="true"
+								   data-path="csap-collection.uploadIntervalsInHours" />
+						</label>
 
-					<!--<label class="" title="Collection of global resource usage, such as mpstat, memory, disk">
+						<!--<label class="" title="Collection of global resource usage, such as mpstat, memory, disk">
                                 <span>Process Audit:</span> <input  placeholder="os default" data-json="true" data-path="csap-collection.processDumps" />
                         </label> -->
 
 
-					<div
-						class="csap-purple"
-						style="margin-top: 3em">
+						<div class="csap-purple"
+							 style="margin-top: 3em">
 
-						<div class="heading">Optional: Secondary Publication to an additional analytics store</div>
-						<label
-							class=csap-form-inline
-							title="">
-							<span>Enabled:</span>
-							<input
-								placeholder="false"
-								data-path="csap-data.secondary-publish.enabled" />
-						</label>
-						<label
-							class=csap-form
-							title="Publication url, to disable, enter: no">
-							<span>Publish Url:</span>
-							<input
-								
-								placeholder="-"
-								data-path="csap-data.secondary-publish.url" />
-						</label>
+							<div class="heading">Optional: Secondary Publication to an additional analytics store</div>
+							<label class=csap-form-inline
+								   title="">
+								<span>Enabled:</span>
+								<input placeholder="false"
+									   data-path="csap-data.secondary-publish.enabled" />
+							</label>
+							<label class=csap-form
+								   title="Publication url, to disable, enter: no">
+								<span>Publish Url:</span>
+								<input placeholder="-"
+									   data-path="csap-data.secondary-publish.url" />
+							</label>
 
-							<label
-						class=csap-form-inline
-								title="">
+							<label class=csap-form-inline
+								   title="">
 								<span>Publish User:</span>
-								<input
-									class=words
-									placeholder="-"
-									data-path="csap-data.secondary-publish.user" />
+								<input class=words
+									   placeholder="-"
+									   data-path="csap-data.secondary-publish.user" />
 							</label>
-							<label
-						class=csap-form-inline
-								title="">
+							<label class=csap-form-inline
+								   title="">
 								<span>Publish Pass:</span>
-								<input
-									class=words
-									placeholder="-"
-									data-path="csap-data.secondary-publish.pass" />
+								<input class=words
+									   placeholder="-"
+									   data-path="csap-data.secondary-publish.pass" />
 							</label>
 
+						</div>
+
+
 					</div>
 
 
 				</div>
 
+				<div id="csap-integrations"
+					 class="group textGroup json-form-autosize-panel">
 
+					<div class="csap-green"
+						 style="display: inline-block; width: 470px; vertical-align: top"
+						 title=" Types: csap-health-report (csap-analytics portal) and nagios. Request others if desired.">
+						<div class="heading">CSAP agent publication of health information to external monitoring
+							systems.
+						</div>
+
+						<div class="floating-ace-editor">
+							<textarea id="metricsPublication"
+									  spellcheck=false
+									  data-fit="true"
+									  data-fixedheight="100"
+									  data-fixedwidth="450"
+									  data-path="metricsPublication"></textarea>
+						</div>
+					</div>
+
+
+
+
+					<div class="csap-grey"
+						 style="display: inline-block; width: 470px; vertical-align: top">
+
+						<div class="heading">Kubernetes YAML replacements: warning - this is replacement of all matches
+							in
+							all yaml files</div>
+
+						<div class="floating-ace-editor">
+							<textarea id="k8s-yaml-replace"
+									  spellcheck=false
+									  data-fit="true"
+									  data-fixedheight="100"
+									  data-fixedwidth="450"
+									  data-path="application.k8s-yaml-replacements"></textarea>
+						</div>
+					</div>
+
+
+
+
+					<div class="csap-purple"
+						 style="display: inline-block; width: 470px; vertical-align: top">
+
+						<div class="heading">Quick Launchers (Performance Tab landing page). If multiple service
+							instances -
+							first one that is running will be launched.</div>
+
+						<div class="floating-ace-editor">
+							<textarea id="appQlaunch"
+									  spellcheck=false
+									  data-fit="true"
+									  data-fixedheight="300"
+									  data-fixedwidth="450"
+									  data-path="application.quick-launches"></textarea>
+						</div>
+					</div>
+
+
+					<div class="csap-blue"
+						 style="display: inline-block; width: 470px; vertical-align: top">
+
+						<div class="heading">CSAP File Monitor: optional log parsers. The match and columns fields are
+							required, all others are optional</div>
+
+						<div class="floating-ace-editor">
+							<textarea id="app-log-parsers"
+									  spellcheck=false
+									  data-fit="true"
+									  data-fixedheight="300"
+									  data-fixedwidth="450"
+									  data-path="application.log-parsers"></textarea>
+						</div>
+					</div>
+
+
+
+					<div class="csap-blue">
+
+						<div class="heading">VSphere Integration enables vm and datastore management</div>
+
+						<div class="floating-ace-editor">
+							<textarea id="vsphere"
+									  spellcheck=false
+									  data-fit="true"
+									  adjust="-20"
+									  data-path="vsphere"></textarea>
+						</div>
+					</div>
+
+				</div>
+
+				<div id="realtime"
+					 class="group textGroup json-form-autosize-panel">
+
+					<div class="heading"
+						 style="margin-top: 0">
+						Real time meters: In-line edits and ordering are supported by clicking on links below. Notes:
+
+						<ul style="list-style-type: disc; padding-left: 3em">
+							<li>json editor may be used instead of inline:
+								<button title="toggle json editor"
+										class="csap-button toggleRealTimeButton">Json Editor</button>
+							</li>
+							<li>Health Icon: eg. [true, 2, 6 ] will display healthy icon instead of meter (if true);
+								warning
+								will be
+								display if less then 2 or greater then 6</li>
+							<li>optionSource: can be used in json editor mode if multiple release package filtering is
+								neede
+							</li>
+						</ul>
+
+					</div>
+
+
+					<div class="realTimeViewContainer">
+						<table class="csap simple realTimeTable">
+							<thead>
+
+								<tr>
+									<th title="*optional include ms">Landing Page Label</th>
+									<th>Service</th>
+									<th>Attribute</th>
+									<th>Type</th>
+									<th
+										title="Optional Array: boolean show Icon If Health, warningIfLessThan, warningIfMoreThan">
+										Health Icon</th>
+									<th title="Optional Array: green,red,yellow settings on meter">Meter Intervals</th>
+									<th title="Optional boolean: reverse color direction on meter">Rev</th>
+									<th title="host-count may be used to average out value">Divide</th>
+									<th title="Optional float: multiply value">Multiply</th>
+									<th title="Optional boolean: do not scale intervals">Disable Scaling</th>
+
+								</tr>
+							</thead>
+
+							<tbody></tbody>
+
+						</table>
+					</div>
+
+					<div class="realTimeViewContainer"
+						 style="display: none">
+						<div class="floating-ace-editor">
+							<textarea id="setting-real-time-text"
+									  data-adjust="-50"
+									  spellcheck=false
+									  data-path="reports.realTimeMeters"></textarea>
+						</div>
+					</div>
+
+
+
+					<div class="heading">Application Disks: appear on landing page</div>
+					<div class="floating-ace-editor">
+						<textarea id="application-disk-demos"
+								  data-adjust="50"
+								  data-fit="true"
+								  spellcheck=false
+								  data-path="application-disks"></textarea>
+					</div>
+
+				</div>
+
+				<div id="trending"
+					 class="group textGroup json-form-autosize-panel">
+
+					<div class="heading"
+						 style="margin-bottom: 1em">
+						In-line edits and ordering are supported by clicking on links below, alternately:
+						<button title="toggle json editor"
+								class="csap-button toggleTrendingButton">Json Editor</button>
+					</div>
+
+
+					<div class="trendingViewContainer">
+						<table class="csap simple trendingTable">
+							<thead>
+
+								<tr>
+									<th title="*optional include ms">Landing Page Label</th>
+									<th>Service</th>
+									<th>Attribute</th>
+									<th>Type</th>
+									<th title="All Vm Totals">Total</th>
+									<th>Divide</th>
+
+								</tr>
+							</thead>
+
+							<tbody></tbody>
+
+						</table>
+					</div>
+
+					<div class="trendingViewContainer"
+						 style="display: none">
+						<div class="floating-ace-editor">
+							<textarea id="settings-trends-text"
+									  data-adjust="-50"
+									  spellcheck=false
+									  data-path="reports.trending"></textarea>
+							<div class="floating-ace-editor"></div>
+
+						</div>
+
+
+
+
+					</div>
+				</div>
 			</div>
-
-			<div
-				id="csap-integrations"
-				class="group textGroup json-form-autosize-panel">
-
-				<div class="csap-green" style="display: inline-block; width: 470px; vertical-align: top"
-				title=" Types: csap-health-report (csap-analytics portal) and nagios. Request others if desired.">
-					<div class="heading">CSAP agent publication of health information to external monitoring systems.</div>
-
-					<div class="floating-ace-editor">
-						<textarea
-							id="metricsPublication"
-							spellcheck=false
-							data-fit="true"
-							data-fixedheight="100"
-							data-fixedwidth="450"
-							data-path="metricsPublication"></textarea>
-					</div>
-				</div>
-				
-				
-				
-				
-				<div class="csap-grey" style="display: inline-block; width: 470px; vertical-align: top">
-
-					<div class="heading">Kubernetes YAML replacements: warning - this is replacement of all matches in all yaml files</div>
-
-					<div class="floating-ace-editor">
-						<textarea
-							id="k8s-yaml-replace"
-							spellcheck=false
-							data-fit="true"
-							data-fixedheight="100"
-							data-fixedwidth="450"
-							data-path="application.k8s-yaml-replacements"></textarea>
-					</div>
-				</div>
-				
-				
-				
-				
-				<div class="csap-purple" style="display: inline-block; width: 470px; vertical-align: top">
-
-					<div class="heading">Quick Launchers (Performance Tab landing page). If multiple service instances - first one that is running will be launched.</div>
-
-					<div class="floating-ace-editor">
-						<textarea
-							id="appQlaunch"
-							spellcheck=false
-							data-fit="true"
-							data-fixedheight="300"
-							data-fixedwidth="450"
-							data-path="application.quick-launches"></textarea>
-					</div>
-				</div>
-				
-				
-				<div class="csap-blue" style="display: inline-block; width: 470px; vertical-align: top">
-
-					<div class="heading">CSAP File Monitor: optional log parsers. The match and columns fields are required, all others are optional</div>
-
-					<div class="floating-ace-editor">
-						<textarea
-							id="app-log-parsers"
-							spellcheck=false
-							data-fit="true"
-							data-fixedheight="300"
-							data-fixedwidth="450"
-							data-path="application.log-parsers"></textarea>
-					</div>
-				</div>
-
-
-
-				<div class="csap-blue">
-
-					<div class="heading">VSphere Integration enables vm and datastore management</div>
-
-					<div class="floating-ace-editor">
-						<textarea
-							id="vsphere"
-							spellcheck=false
-							data-fit="true"
-							adjust="-20"
-							data-path="vsphere"></textarea>
-					</div>
-				</div>
-
-			</div>
-
-			<div
-				id="realtime"
-				class="group textGroup json-form-autosize-panel">
-
-				<div
-					class="heading"
-					style="margin-top: 0">
-					Real time meters: In-line edits and ordering are supported by clicking on links below. Notes:
-
-					<ul style="list-style-type: disc; padding-left: 3em">
-						<li>json editor may be used instead of inline:
-							<button
-								title="toggle json editor"
-								class="csap-button toggleRealTimeButton">Json Editor</button>
-						</li>
-						<li>Health Icon: eg. [true, 2, 6 ] will display healthy icon instead of meter (if true); warning will be
-							display if less then 2 or greater then 6</li>
-						<li>optionSource: can be used in json editor mode if multiple release package filtering is neede</li>
-					</ul>
-
-				</div>
-
-
-				<div class="realTimeViewContainer">
-					<table class="csap simple realTimeTable">
-						<thead>
-
-							<tr>
-								<th title="*optional include ms">Landing Page Label</th>
-								<th>Service</th>
-								<th>Attribute</th>
-								<th>Type</th>
-								<th title="Optional Array: boolean show Icon If Health, warningIfLessThan, warningIfMoreThan">Health Icon</th>
-								<th title="Optional Array: green,red,yellow settings on meter">Meter Intervals</th>
-								<th title="Optional boolean: reverse color direction on meter">Rev</th>
-								<th title="host-count may be used to average out value">Divide</th>
-								<th title="Optional float: multiply value">Multiply</th>
-								<th title="Optional boolean: do not scale intervals">Disable Scaling</th>
-
-							</tr>
-						</thead>
-
-						<tbody></tbody>
-
-					</table>
-				</div>
-
-				<div
-					class="realTimeViewContainer"
-					style="display: none">
-					<div class="floating-ace-editor">
-						<textarea
-							id="setting-real-time-text"
-							data-adjust="-50"
-							spellcheck=false
-							data-path="reports.realTimeMeters"></textarea>
-					</div>
-				</div>
-
-
-
-				<div class="heading">Application Disks: appear on landing page</div>
-				<div class="floating-ace-editor">
-					<textarea
-						id="application-disk-demos"
-						data-adjust="50"
-						data-fit="true"
-						spellcheck=false
-						data-path="application-disks"></textarea>
-				</div>
-
-			</div>
-
-			<div
-				id="trending"
-				class="group textGroup json-form-autosize-panel">
-
-				<div
-					class="heading"
-					style="margin-bottom: 1em">
-					In-line edits and ordering are supported by clicking on links below, alternately:
-					<button
-						title="toggle json editor"
-						class="csap-button toggleTrendingButton">Json Editor</button>
-				</div>
-
-
-				<div class="trendingViewContainer">
-					<table class="csap simple trendingTable">
-						<thead>
-
-							<tr>
-								<th title="*optional include ms">Landing Page Label</th>
-								<th>Service</th>
-								<th>Attribute</th>
-								<th>Type</th>
-								<th title="All Vm Totals">Total</th>
-								<th>Divide</th>
-
-							</tr>
-						</thead>
-
-						<tbody></tbody>
-
-					</table>
-				</div>
-
-				<div
-					class="trendingViewContainer"
-					style="display: none">
-					<div class="floating-ace-editor">
-						<textarea
-							id="settings-trends-text"
-							data-adjust="-50"
-							spellcheck=false
-							data-path="reports.trending"></textarea>
-						<div class="floating-ace-editor"></div>
-
-					</div>
-
-
-
-
-				</div>
-			</div>
-		</div>
-	</section>
+		</section>
+	</article>
 
 </body>
 

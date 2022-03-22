@@ -1,183 +1,140 @@
+<hr />
+
+<table id="SpringMvc"
+	   class="csap">
+	<thead>
+
+		<tr>
+			<th>
+				<h3>Model View Controller</h3>
+			</th>
+			<th>returns</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+
+	<tbody>
 
 
-	<hr/>
+		<tr>
+			<td><a class="simple"
+				   href="testException">testException</a></td>
+			<td>text</td>
+			<td>Spring @RestController Exception Advice</td>
+		</tr>
 
-	<table id="SpringMvc" class="csap">
-		<thead>
+		<tr>
+			<td><a class="simple"
+				   href="testNullPointer">testNullPointer</a></td>
+			<td>text</td>
+			<td>Spring @Controller Null Pointer Exception Advice</td>
+		</tr>
 
-			<tr>
-				<th><div class="title">Model View Controller</div> Click to
-					test</th>
-				<th>returns</th>
-				<th>Description</th>
-			</tr>
-		</thead>
+		<tr>
+			<td><a class="simple"
+				   href="missingTemplate">missingTemplate</a></td>
+			<td>text</td>
+			<td>Missing thymeleaf template</td>
+		</tr>
 
-		<tbody>
+		<tr>
+			<td><a class="simple"
+				   href="malformedTemplate">malformedTemplate</a></td>
+			<td>text</td>
+			<td>malformedTemplate thymeleaf template. ALL elements must be terminated</td>
+		</tr>
 
-			<tr>
-				<td><a class="simple" href=".">LandingPage</a></td>
-				<td>html</td>
-				<td>This page: SpringBoot View using Thymeleaf html5 template
-				
-						<div class="news">
-						SpringBoot can easily be deployed as either jar or traditional
-						war file. Use of templates such as thymeleaf (boot default) or freemarker are
-						recommended. Thymeleaf is trivial to integrate and use in
-						SpringBoot (view links below).
-					</div>
-					
-						<a class="pushButton" target="_blank"
-							href="http://www.thymeleaf.org/doc/articles/thvsjsp.html">Compare
-							templates versus jsp</a>
-						<a class="pushButton" target="_blank"
-							href="http://www.thymeleaf.org/doc/articles/springmvcaccessdata.html">Learn
-							about Using html templates</a>
+		<tr>
+			<td><a class="simple"
+				   href="addSessionVar">addSessionVar</a></td>
+			<td>text</td>
+			<td>Spring MVC with session variable; note embedded tomcat can
+				optional persist over restarts, or distribute for stateless
+				containers via redis</td>
+		</tr>
 
-				</td>
-			</tr>
-
-			<tr>
-				<td><a class="simple" href="currentTime">currentTime</a></td>
-				<td>text</td>
-				<td>Spring MVC returning plain text</td>
-			</tr>
-			
-			<tr>
-				<td><a class="simple" href="currentUser">currentUser</a></td>
-				<td>text</td>
-				<td>Spring MVC returning plain text, and id of logged in user</td>
-			</tr>
-			
-			<tr>
-				<td><a class="simple" href="currentUserDetails">currentUserDetails</a></td>
-				<td>text</td>
-				<td>Spring MVC returning plain text, and id of logged in user</td>
-			</tr>
-
-			<tr>
-				<td><button id="currentTimeButton" class="pushButton">currentTime</button></td>
-				<td>html</td>
-				<td>Spring MVC via jquery and alertify</td>
-			</tr>
-			<tr>
-				<td><button id="themeTablesButton" class="pushButton">theme tables</button></td>
-				<td>html</td>
-				<td>JQuery tablesorter on tables</td>
-			</tr>
-
-			<tr>
-				<td><a class="simple" href="helloWithOptionalName">helloWithOptionalName</a></td>
-				<td>text</td>
-				<td>Spring @RestController with multiple @RequestMappings and Optional @PathVariable name</td>
-			</tr>
-
-			<tr>
-				<td><a class="simple" href="testException">testException</a></td>
-				<td>text</td>
-				<td>Spring @RestController Exception Advice</td>
-			</tr>
-			
-			<tr>
-				<td><a class="simple" href="testNullPointer">testNullPointer</a></td>
-				<td>text</td>
-				<td>Spring @Controller Null Pointer Exception Advice</td>
-			</tr>
-			
-			<tr>
-				<td><a class="simple" href="missingTemplate">missingTemplate</a></td>
-				<td>text</td>
-				<td>Missing thymeleaf template</td>
-			</tr>
-			
-			<tr>
-				<td><a class="simple" href="malformedTemplate">malformedTemplate</a></td>
-				<td>text</td>
-				<td>malformedTemplate thymeleaf template. ALL elements must be terminated</td>
-			</tr>
-
-			<tr>
-				<td><a class="simple" href="addSessionVar">addSessionVar</a></td>
-				<td>text</td>
-				<td>Spring MVC with session variable; note embedded tomcat can
-					optional persist over restarts, or distribute for stateless
-					containers via redis</td>
-			</tr>
-
-			<tr>
-				<td><a class="simple" href="testAclFailure">testAclFailure</a></td>
-				<td>html</td>
-				<td>Spring Security - verify ACL deny message</td>
-			</tr>
+		<tr>
+			<td><a class="simple"
+				   href="testAclFailure">testAclFailure</a></td>
+			<td>html</td>
+			<td>Spring Security - verify ACL deny message</td>
+		</tr>
 
 
-		</tbody>
+	</tbody>
 
-	</table>
+</table>
 
 
 
-	<table id="csapServiceLocator" class="csap" >
-		<thead>
+<table id="csapServiceLocator"
+	   class="csap">
+	<thead>
 
-			<tr>
-				<th><div class="title">CSAP Service Locator</div> Click to test</th>
-				<th>returns</th>
-				<th>Description</th>
-			</tr>
-		</thead>
+		<tr>
+			<th>
+				<h3>Service Locator</h3>
+			</th>
+			<th>returns</th>
+			<th>Description</th>
+		</tr>
+	</thead>
 
-		<tbody>
+	<tbody>
 
-			<tr>
-				<td><a class="simple" href="hello">hello</a></td>
-				<td>text</td>
-				<td>Invoke instance in current JVM</td>
-			</tr>
+		<tr>
+			<td><a class="simple"
+				   href="hello">hello</a></td>
+			<td>text</td>
+			<td>Invoke instance in current JVM</td>
+		</tr>
 
-			<tr>
-				<td><a class="simple" th:href="@{helloWithRestAcl(userid=someDeveloper,pass=replaceWithYours)}">helloWithRestAcl</a></td>
-				<td>text</td>
-				<td>Invoke instance in current JVM protected with userid and password</td>
-			</tr>
-
-
-			<tr>
-				<td><a class="simple" href="helloRemoteRandom">hello:
-						remote random</a></td>
-				<td>text</td>
-				<td>Invoke instance in remote JVM, *Best Distribution</td>
-			</tr>
+		<tr>
+			<td><a class="simple"
+				   th:href="@{helloWithRestAcl(userid=someDeveloper,pass=replaceWithYours)}">helloWithRestAcl</a></td>
+			<td>text</td>
+			<td>Invoke instance in current JVM protected with userid and password</td>
+		</tr>
 
 
-			<tr>
-				<td><a class="simple" href="helloRoundRobin">hello: remote
-						round robin</a></td>
-				<td>text</td>
-				<td>Invoke instance in remote JVM, iterates available instances</td>
-			</tr>
+		<tr>
+			<td><a class="simple"
+				   href="helloRemoteRandom">hello:
+					remote random</a></td>
+			<td>text</td>
+			<td>Invoke instance in remote JVM, *Best Distribution</td>
+		</tr>
 
 
-			<tr>
-				<td><a class="simple" href="hello/lowCpu">hello: remote low
-						Cpu</a></td>
-				<td>text</td>
-				<td>Invoke instance in remote JVM, lowest cpu usage of
-					available instances</td>
-			</tr>
+		<tr>
+			<td><a class="simple"
+				   href="helloRoundRobin">hello: remote
+					round robin</a></td>
+			<td>text</td>
+			<td>Invoke instance in remote JVM, iterates available instances</td>
+		</tr>
 
 
-			<tr>
-				<td><a class="simple" href="hello/lowLoad">hello: remote
-						low load</a></td>
-				<td>text</td>
-				<td>Invoke instance in remote JVM, lowest cpu load of available
-					instances</td>
-			</tr>
+		<tr>
+			<td><a class="simple"
+				   href="hello/lowCpu">hello: remote low
+					Cpu</a></td>
+			<td>text</td>
+			<td>Invoke instance in remote JVM, lowest cpu usage of
+				available instances</td>
+		</tr>
 
 
-		</tbody>
+		<tr>
+			<td><a class="simple"
+				   href="hello/lowLoad">hello: remote
+					low load</a></td>
+			<td>text</td>
+			<td>Invoke instance in remote JVM, lowest cpu load of available
+				instances</td>
+		</tr>
 
-	</table>
-	
-	
+
+	</tbody>
+
+</table>

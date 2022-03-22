@@ -380,6 +380,12 @@ public class OsManager {
 
 	public void resetAllCaches ( ) {
 
+		
+		if ( ! isProcessStatusInitialized( ) ) {
+
+			logger.info( "== skipping cache reset - initialization pending ==" ) ;
+			return ;
+		}
 		logger.info( "== process,disk, and memory caches reset ==" ) ;
 
 		if ( diskStatisticsCache != null ) {
@@ -3479,7 +3485,7 @@ public class OsManager {
 	private volatile CsapSimpleCache processStatisticsCache = null ;
 	AtomicInteger processScanCount = new AtomicInteger( 0 ) ;
 
-	private boolean isProcessStatusInitialized ( ) {
+	public boolean isProcessStatusInitialized ( ) {
 
 		return processScanCount.get( ) >= 2 ;
 

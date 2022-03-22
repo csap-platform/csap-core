@@ -1024,7 +1024,7 @@ public class CorePortals {
 
 		modelMap.addAttribute( "metricLabels", buildMetricLabels( ) ) ;
 
-		return new ModelAndView( "performance/perf-main" ) ;
+		return new ModelAndView( "analytics/analytics-main" ) ;
 
 	}
 

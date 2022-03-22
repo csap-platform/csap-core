@@ -5,7 +5,19 @@
 
 logging.config: classpath:log4j2-desktop.yml
 
+spring:
+  
+  devtools:
+    restart.additional-exclude: "**/*.jmx,**/*.csv,**/*.json,**/csap-templates/**"
+  
+#spring.web.resources:
+#  static-locations: file:src/main/resources/static/ #directly serve from src folder instead of target
+#  cache:
+#    period: 0
+
 csap-core:
+
+  events-client-shutdown-attempts: 4
 
   installation-folder: target/csap-platform
   

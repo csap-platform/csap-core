@@ -190,7 +190,8 @@ public class OsSharedResourcesCollector extends HostCollector implements Runnabl
 	public void buildTestData ( OsManager osManager , int intervalSeconds ) {
 
 		logger.info( CsapApplication.testHeader( "Generating test data." ) ) ;
-		csapApis.osManager( ).wait_for_initial_process_status_scan( 10 ) ;
+		
+		//csapApis.osManager( ).wait_for_initial_process_status_scan( 10 ) ;
 
 		long currMs = System.currentTimeMillis( ) ;
 		int collectionIndex = 0 ;

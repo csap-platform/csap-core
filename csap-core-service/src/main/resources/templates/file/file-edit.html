@@ -8,42 +8,39 @@
 
 <title th:inline="text">[[ ${ targetFile.getName() } ]] Edit [[ ${ host } ]]</title>
 
-<script th:replace="~{ csap/fragments/csap-common-includes :: pageContent }"></script>
-
-<script th:src="@{/js/csapLibs/csap-misc.js}"></script>
-<script th:src="@{/js/csapLibs/csapUtils/CsapUser.js}"></script>
 
 
 <script th:replace="csap-constants-include :: includeSection"></script>
+<script th:replace="~{ csap/fragments/csap-module-includes :: pageContent }"></script>
 
 <script th:inline="javascript">
 const FE_SETTINGS = {
-	serviceName: [[ ${ serviceName }  ]],
-	rootFile: [[ ${ rootFile } ]],
-	fromFolder: [[ ${ fromFolder }  ]],
+	serviceName: /*[[ ${ serviceName }  ]]*/ null ,
+	rootFile: /*[[ ${ rootFile } ]]*/ null ,
+	fromFolder: /*[[ ${ fromFolder }  ]]*/ null ,
 	hasResults: false,
 	saveResult: ""
 }
 
  var hasResults = false ;
  var saveResult = "" ;
- if ( [[ ${ result != null } ]] )  {
+ if ( /*[[ ${ result != null } ]]*/ null  )  {
   hasResults = true ;
-  saveResult = [[    ${ result }   ]] ;
+  saveResult = /*[[    ${ result }   ]]*/ null  ;
  }
 
  </script>
 
 
 <link
-	th:href="@{ ${csapApp.versionedUrl('/js/file/file-monitor.css')} }"
+	th:href="@{ ${csapApp.versionedUrl('/css/file/file-monitor.css')} }"
 	rel="stylesheet"
 	type="text/css"
 	media="screen" />
+	
 
-<script
-	th:attr="data-main=@{ ${csapApp.requiresUrl('/js/file/modules/file-edit.js')}   }"
-	th:src="@{/webjars/requirejs/2.1.20/require.min.js}"></script>
+	<script type="module"
+			th:src=" @{ ${ @mvcResourceUrlProvider.getForLookupPath('/js/modules/browser/file/host-file-edit.js')} }"></script>
 
 
 <style>
@@ -112,7 +109,7 @@ label {
 	<header style="">
 		CS-AP File Editor:
 		<div class="noteHighlight">
-			<span th:title="${ targetFile.getAbsolutePath() }"> [[ ${ targetFile.getName() } ]] </span>
+			<span th:title="${ targetFile.getAbsolutePath() }">[[ ${ targetFile.getName() } ]]</span>
 			<span th:if="${ rootFile != null }"> (system) </span>
 		</div>
 
@@ -214,7 +211,7 @@ label {
 					style="width: 100%; height: 20em; display: none;"></textarea>
 
 
-				<pre id="ace-editor">[[${contents}]]</pre>
+				<pre id="ace-editor">[[${contents}]] </pre>
 			</form>
 
 		</article>

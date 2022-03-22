@@ -46,3 +46,23 @@ Environment Variables:
 
 
 References: [Spring Boot Configuration](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html)
+
+
+### agent bootstrap
+
+1. 5s: JVM Load, spring early init
+1. 1s: http client pools
+1. 1s: http listener sockets
+1. 2s: load application definition(s) from *.json
+1. <1s: Event publisher  init, Agent Connection Pool init
+1. <1s: start resource collectors
+1. Application Init 1 completed
+	- note that NO kubernetes namespace mapping is available at this point. namespaces csap services
+	 will be dynamically added after initial ps scans determine which namespace pods are on the specific host
+1. Service Init loading
+	- 3s: getProcessStatus 1
+	- checkAndWaitFor initialscans
+	- 16s getProcessStatus 2
+	- namespace detection - application definition reload with dynamic services (namespace) added
+
+	

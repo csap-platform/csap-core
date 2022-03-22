@@ -1,68 +1,58 @@
 <!DOCTYPE html>
-<html
-	xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
 
 
 <head>
 
-<title th:inline="text">Cluster Editor Template</title>
-
-<script th:replace="~{ csap/fragments/csap-common-includes :: pageContent }"></script>
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/agent.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/agent-explorer.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/browser.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/services.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/projects.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
+	<title th:inline="text">Cluster Editor Template</title>
 
 
-<link
-	th:href="@{/js/editor/dialog-cluster.css}"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
+	<script th:replace="csap-constants-include :: includeSection"></script>
+	<script th:replace="~{ csap/fragments/csap-module-includes :: pageContent }"></script>
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/agent.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/agent-explorer.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/browser.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/services.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/projects.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+
+	<link th:href="@{/css/editor/dialog-cluster.css}"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
 
 
 
-<script th:replace="csap-constants-include :: includeSection"></script>
+	<script type="module"
+			th:src=" @{ ${ @mvcResourceUrlProvider.getForLookupPath('/js/modules/editor/dialog-cluster-test.js')} }"></script>
 
 
 
-<script th:src="@{ ${csapApp.versionedUrl('/js/csapLibs/csap-misc.js')} }"></script>
-
-<script
-	th:attr="data-main=@{ ${csapApp.requiresUrl('/js/editor/modules/dialog-cluster-test.js')}   }"
-	th:src="@{/webjars/requirejs/2.1.20/require.min.js}"></script>
 </head>
 
-<body
-	id=csap-main
-	class="csap-scrollable theme-dark agent">
+<body id=csap-main
+	  class="csap-scrollable theme-dark agent">
 
 
 	<header>
@@ -71,20 +61,17 @@
 
 		<label style="margin-right: 1em;">
 			Project:
-			<select
-				class="releasePackage"
-				style="width: 14em">
-				<option
-					th:each="name : ${packageNames}"
-					th:selected="${name == servicePackage }"
-					th:value="${name}"
-					th:text="${name}">package names updated here</option>
+			<select class="releasePackage"
+					style="width: 14em">
+				<option th:each="name : ${packageNames}"
+						th:selected="${name == servicePackage }"
+						th:value="${name}"
+						th:text="${name}">package names updated here</option>
 			</select>
 		</label>
 
-		<button
-			id="showButton"
-			class="csap-button">Show Cluster Dialog</button>
+		<button id="showButton"
+				class="csap-button">Show Cluster Dialog</button>
 
 		<span></span>
 
@@ -95,14 +82,13 @@
 	</article>
 
 
+	<article class=content>
 
-	<section
-		id='dialogContents'
-		class='editDialog'>
+	<section id='dialogContents'
+			 class='editDialog'>
 
-		<div
-			id='dialogResult'
-			class='editDialog'>
+		<div id='dialogResult'
+			 class='editDialog'>
 
 
 			<div>
@@ -116,28 +102,26 @@
 
 		</div>
 
-		<div id="dialogOpsContainer" class=small-final>
+		<div id="dialogOpsContainer"
+			 class=small-final>
 
 
 			<label class=csap>
 				<span> Cluster:</span>
-				<select
-					th:if="${ param.newService == null }"
-					id="dialogClusterSelect"
-					class="dialogClusterSelect"
-					style="width: 14em">
-					<option
-						th:each="cluster : ${ clusterNames  }"
-						th:selected="${ cluster == param.clusterName[0] }"
-						th:value="${ cluster }"
-						th:text="${ cluster }">Will be updated with cluster names</option>
+				<select th:if="${ param.newService == null }"
+						id="dialogClusterSelect"
+						class="dialogClusterSelect"
+						style="width: 14em">
+					<option th:each="cluster : ${ clusterNames  }"
+							th:selected="${ cluster == param.clusterName[0] }"
+							th:value="${ cluster }"
+							th:text="${ cluster }">Will be updated with cluster names</option>
 				</select>
-				<input
-					th:unless="${ param.newService == null }"
-					id="dialogClusterSelect"
-					class="dialogClusterSelect"
-					style="width: 14em"
-					th:value=" ${ param.clusterName[0] } " />
+				<input th:unless="${ param.newService == null }"
+					   id="dialogClusterSelect"
+					   class="dialogClusterSelect"
+					   style="width: 14em"
+					   th:value=" ${ param.clusterName[0] } " />
 
 			</label>
 
@@ -145,16 +129,13 @@
 				<span th:if="${ ( infraRole != null) }">
 					<span th:if="${ param.newService == null }">
 						<button class="csap-button updateDefButton">Update</button>
-						<button
-							title="Push cluster definition to base environment"
-							class="csap-button pushDefButton">Push Down</button>
-						<button
-							id="rename"
-							class="csap-button renameDefButton">Rename</button>
+						<button title="Push cluster definition to base environment"
+								class="csap-button pushDefButton">Push Down</button>
+						<button id="rename"
+								class="csap-button renameDefButton">Rename</button>
 
-						<button
-							id="copy"
-							class="csap-button copyDefButton">Copy</button>
+						<button id="copy"
+								class="csap-button copyDefButton">Copy</button>
 
 						<button class="csap-button deleteDefButton">Delete</button>
 					</span>
@@ -165,27 +146,24 @@
 
 
 
-				<button
-					class="csap-button notifyButton"
-					title="Send changes to infrastructure admin for review and provisioning.">Request</button>
+				<button class="csap-button notifyButton"
+						title="Send changes to infrastructure admin for review and provisioning.">Request</button>
 
-				<span
-					th:if="${ ( infraRole == null) }"
-					class="info"
-					title="Your userid is not a member of infra admins, so request will be sent for review">Review Required</span>
+				<span th:if="${ ( infraRole == null) }"
+					  class="info"
+					  title="Your userid is not a member of infra admins, so request will be sent for review">Review
+					Required</span>
 
 			</span>
 
 
 			<span>
-				<label
-					id="validateOnly"
-					class=csap
-					title="Changes will be validated, but not updated">
+				<label id="validateOnly"
+					   class=csap
+					   title="Changes will be validated, but not updated">
 					Validate Only:
-					<input
-						id="validateOnlyCheckbox"
-						type="checkbox" />
+					<input id="validateOnlyCheckbox"
+						   type="checkbox" />
 				</label>
 
 			</span>
@@ -199,82 +177,75 @@
 			</ul>
 
 
-			<div
-				id="jsonEditor"
-				class="group serviceDef">
+			<div id="jsonEditor"
+				 class="group serviceDef">
 
-				
+
 				<div class=flex-container>
-					<label
-						class="flex-right-info"
-						title="Toggle folding of code - note alt-0, alt-shift-0 can be used as well"
-						>
+					<label class="flex-right-info"
+						   title="Toggle folding of code - note alt-0, alt-shift-0 can be used as well">
 						<span>Fold
 						</span>
-						<input
-							class="editor-toggle-last"
-							type="checkbox"
-							/>
-						
+						<input class="editor-toggle-last"
+							   type="checkbox" />
+
 
 						<span>Json
 						</span>
-						<input
-							class=editor-toggle-json
-							type="checkbox"
-							/>
-						
+						<input class=editor-toggle-json
+							   type="checkbox" />
+
 					</label>
 				</div>
-				
-				
-				<textarea
-					id="serviceJson"
-					name="serviceJson"
-					data-adjustwidth="-30"
-					data-convert_yaml="true"
-					spellcheck=false
-					data-path="ROOT">Loading</textarea>
+
+
+				<textarea id="serviceJson"
+						  name="serviceJson"
+						  data-adjustwidth="-30"
+						  data-convert_yaml="true"
+						  spellcheck=false
+						  data-path="ROOT">Loading</textarea>
 			</div>
 
-			<div
-				id="assign"
-				class="group">
+			<div id="assign"
+				 class="group">
 
-				<div  class=csap-green>
-				
-					<div class=base-cluster-no-type style="display: none">
-					
+				<div class=csap-green>
+
+					<div class=base-cluster-no-type
+						 style="display: none">
+
 						<div class="heading">
-							The selected environment does not have the cluster type specified - likely because it is derived from settings in a base
-							environment. Typically only the hosts are modified in a derived env; but any of the attributes may be selectively overridden.
+							The selected environment does not have the cluster type specified - likely because it is
+							derived from settings in a base
+							environment. Typically only the hosts are modified in a derived env; but any of the
+							attributes may be selectively overridden.
 						</div>
-				
-						<button id=show-cluster-attributes class=csap-button>Show Attributes</button>
-						
+
+						<button id=show-cluster-attributes
+								class=csap-button>Show Attributes</button>
+
 					</div>
-				
+
 					<div class=base-cluster>
-				
+
 						<label class=csap-form-inline
-							 title="Display options: high, normal, low, ... are used to highlight on display">
+							   title="Display options: high, normal, low, ... are used to highlight on display">
 							<span>Display: </span>
-							<input
-								class=""
-								placeholder="normal"
-								data-path="display" />
+							<input class=""
+								   placeholder="normal"
+								   data-path="display" />
 						</label>
-	
-	
-	
+
+
+
 						<label class=csap-form-inline
-							title="Disabling the cluster allows it to be used as either a template, or for troubleshooting">
+							   title="Disabling the cluster allows it to be used as either a template, or for troubleshooting">
 							<span>Enabled:</span>
-							<input
-								class=""
-								placeholder="true"
-								data-path="enabled" />
-	
+							<input class=""
+								   placeholder="true"
+								   data-path="enabled" />
+
 							<!--
 							<select
 								id="cluster-is-template"
@@ -284,71 +255,64 @@
 								<option>true</option>
 							</select> -->
 						</label>
-	
-	
+
+
 						<label class=csap-form
-							title="Description">
+							   title="Description">
 							<span>Notes:</span>
-							<input
-								class="medium"
-								placeholder="add a short description of contacts, functions, etc"
-								data-path="notes" />
+							<input class="medium"
+								   placeholder="add a short description of contacts, functions, etc"
+								   data-path="notes" />
 						</label>
-	
-	
-							<label class=csap-form>
-								<span>Cluster Type: </span>
-								<select
-									class="clusterTypeSelect"
+
+
+						<label class=csap-form>
+							<span>Cluster Type: </span>
+							<select class="clusterTypeSelect"
 									data-path="type">
-									<option
-										th:each="clusterEntry : ${ clusterEntries }"
+								<option th:each="clusterEntry : ${ clusterEntries }"
 										th:value="${ clusterEntry.key }"
 										th:text="${ clusterEntry.value }">Will be updated cluster types</option>
-								</select>
-	
-							</label>
-	
-							<label 
-								class="cluster-k8-details csap-form"
-								title="kubernetes provider details: CSAP kubernetes cluster name and Kubernetes namespace">
-								<span>Provider:</span>
-								<input
-									class=""
-									placeholder="cluster: 1st found"
-									data-path="kubernetes-provider" />
-								<input
-									class=""
-									placeholder="namespace: default"
-									data-path="kubernetes-namespace" />
-							</label>
-	
-	
-	
+							</select>
+
+						</label>
+
+						<label class="cluster-k8-details csap-form"
+							   title="kubernetes provider details: CSAP kubernetes cluster name and Kubernetes namespace">
+							<span>Provider:</span>
+							<input class=""
+								   placeholder="cluster: 1st found"
+								   data-path="kubernetes-provider" />
+							<input class=""
+								   placeholder="namespace: default"
+								   data-path="kubernetes-namespace" />
+						</label>
+
+
+
 						<div class="cluster-k8-masters csap-purple">
-						
-							<div class="heading">Kubernetes master host(s). DNS HA alias is recommended if more then one master is
+
+							<div class="heading">Kubernetes master host(s). DNS HA alias is recommended if more then one
+								master is
 								specified</div>
-								
+
 							<label class=csap-form>
 								<span>Master Host(s): </span>
-								<input
-									class="medium"
-									data-json="true"
-									data-path="masters"
-									placeholder='["your-host"]' />
+								<input class="medium"
+									   data-json="true"
+									   data-path="masters"
+									   placeholder='["your-host"]' />
 							</label>
 							<label class=csap-form>
 								<span>DNS:</span>
-								<input
-									class="medium"
-									data-path="master-dns"
-									placeholder="master-dns-fqdn" />
+								<input class="medium"
+									   data-path="master-dns"
+									   placeholder="master-dns-fqdn" />
 							</label>
 						</div>
-					
-					
-					
+
+
+
 					</div>
 
 				</div>
@@ -356,82 +320,73 @@
 				<div class="cluster-editor-panes csap-red">
 
 					<div class="heading">
-						Hosts <img
-							style="float: right; padding-left: 5px; vertical-align: middle"
-							th:src="@{/images/16x16/help.png}"
-							title="Optional: host,pattern1,pattern2 may be used for templating.&#013; eg. my-host-1,desktop.*">
+						Hosts <img style="float: right; padding-left: 5px; vertical-align: middle"
+							 th:src="@{/images/16x16/help.png}"
+							 title="Optional: host,pattern1,pattern2 may be used for templating.&#013; eg. my-host-1,desktop.*">
 
 
 					</div>
 
 					<div>
 						Add:
-						<select
-							class="hostAddSelect"
-							style="width: 9em">
+						<select class="hostAddSelect"
+								style="width: 9em">
 							<option value="default">Existing Host</option>
-							<option
-								th:each="host : ${ hosts }"
-								th:value="${host}"
-								th:text="${host}">Will be updated with service names</option>
+							<option th:each="host : ${ hosts }"
+									th:value="${host}"
+									th:text="${host}">Will be updated with service names</option>
 						</select>
 						or
 
 						<button class="csap-button addHostButton dialog">New</button>
-						<a
-							id="reconfigureHosts"
-							th:if="${ csapApp.getRootProject().getInfraAddHost().startsWith('http')  }"
-							th:href="${ csapApp.getRootProject().getInfraAddHost()  }"
-							class="simple"
-							target="_blank">
+						<a id="reconfigureHosts"
+						   th:if="${ csapApp.getRootProject().getInfraAddHost().startsWith('http')  }"
+						   th:href="${ csapApp.getRootProject().getInfraAddHost()  }"
+						   class="simple"
+						   target="_blank">
 							<img th:src="@{/images/16x16/preferences-system.png}"> Manage Infrastructure
 						</a>
 
 					</div>
 					<div class="floating-ace-editor">
-						<textarea
-							id="hostText"
-							class="cluster-host-textarea"
-							rows="2"
-							spellcheck=false
-							data-fit="true"
-							data-fixedwidth="42%"
-							data-path="hosts"
-							data-sort="true"></textarea>
+						<textarea id="hostText"
+								  class="cluster-host-textarea"
+								  rows="2"
+								  spellcheck=false
+								  data-fit="true"
+								  data-fixedwidth="42%"
+								  data-path="hosts"
+								  data-sort="true"></textarea>
 					</div>
 
 
 				</div>
 
 
-				<div
-					class="cluster-editor-panes csap-grey"
-					style="">
+				<div class="cluster-editor-panes csap-grey"
+					 style="">
 					<div class="heading">Service Templates</div>
 					<div>
 						<label>
 							Add:
-							<select
-								class="osAddSelect"
-								style="width: 9em">
+							<select class="osAddSelect"
+									style="width: 9em">
 								<option value="default">template</option>
-								<option
-									th:each="osService : ${ osServices }"
-									th:value="${osService}"
-									th:text="${osService}">Will be updated with service names</option>
+								<option th:each="osService : ${ osServices }"
+										th:value="${osService}"
+										th:text="${osService}">Will be updated with service names</option>
 							</select>
 						</label>
 					</div>
 					<div class="floating-ace-editor">
-						<textarea
-							id="osClusterText"
-							rows="2"
-							spellcheck=false
-							data-fit="true"
-							data-fixedwidth="42%"
-							data-json="true"
-							data-path="template-references"
-							data-sort="true"></textarea>
+						<textarea id="osClusterText"
+								  rows="2"
+								  spellcheck=false
+								  data-fit="true"
+								  data-fixedwidth="42%"
+								  data-json="true"
+								  data-path="template-references"
+								  data-sort="true"></textarea>
 					</div>
 
 				</div>
@@ -440,18 +395,16 @@
 
 				<div class="heading">
 					Learn more about http clustering:
-					<a
-						class="simple"
-						href="https://github.com/csap-platform/csap-core/wiki#updateRefCSAP+Httpd+Package"
-						target="_blank"> CSAP Clustering Reference Guide </a>
+					<a class="simple"
+					   href="https://github.com/csap-platform/csap-core/wiki#updateRefCSAP+Httpd+Package"
+					   target="_blank"> CSAP Clustering Reference Guide </a>
 				</div>
 
 			</div>
 
 
-			<div
-				id="alerts"
-				class="group">
+			<div id="alerts"
+				 class="group">
 
 				<br />
 
@@ -459,7 +412,8 @@
 
 
 					<div class="hquote">
-						Cluster defaults can be used to selectively override the system defaults. System defaults are defined using
+						Cluster defaults can be used to selectively override the system defaults. System defaults are
+						defined using
 						<span>environment settings</span>
 						. Note: Service limits if specified override both cluster and system defaults.
 					</div>
@@ -468,72 +422,58 @@
 					<div class="heading">Cluster Host Defaults: Applies to ALL hosts in cluster</div>
 
 
-					<label
-						class="alerts csap-form-inline"
-						title="">
+					<label class="alerts csap-form-inline"
+						   title="">
 						<span>Disk Full(%):</span>
-						<input
-							class=""
-							placeholder="90"
-							data-path="monitors.maxDiskPercent" />
+						<input class=""
+							   placeholder="90"
+							   data-path="monitors.maxDiskPercent" />
 					</label>
 
 
-					<label
-						class="alerts csap-form-inline"
-						title="">
+					<label class="alerts csap-form-inline"
+						   title="">
 						<span>Device IO (%):</span>
-						<input
-							class=""
-							placeholder="80"
-							data-path="monitors.maxDeviceIoPercent" />
+						<input class=""
+							   placeholder="80"
+							   data-path="monitors.maxDeviceIoPercent" />
 					</label>
 
-					<label
-						class="csap-form"
-						title="Comma separated list of disks that will not trigger alerts. Regex supports">
+					<label class="csap-form"
+						   title="Comma separated list of disks that will not trigger alerts. Regex supports">
 						<span>Disks Ignored:</span>
-						<input
-							class="medium"
-							placeholder="eg. /auto/usrpattern.*"
-							data-path="monitors.maxDiskPercentIgnorePatterns" />
+						<input class="medium"
+							   placeholder="eg. /auto/usrpattern.*"
+							   data-path="monitors.maxDiskPercentIgnorePatterns" />
 					</label>
 
-					<label
-						class="alerts csap-form-inline"
-						title="">
+					<label class="alerts csap-form-inline"
+						   title="">
 						<span>Cpu (%):</span>
-						<input
-							class=""
-							placeholder=""
-							data-path="monitors.maxHostCpu" />
+						<input class=""
+							   placeholder=""
+							   data-path="monitors.maxHostCpu" />
 					</label>
-					<label
-						class="alerts csap-form-inline"
-						title="">
+					<label class="alerts csap-form-inline"
+						   title="">
 						<span>Cpu Load:</span>
-						<input
-							class=""
-							placeholder=""
-							data-path="monitors.maxHostCpuLoad" />
+						<input class=""
+							   placeholder=""
+							   data-path="monitors.maxHostCpuLoad" />
 					</label>
-					<label
-						class="alerts csap-form-inline"
-						title="">
+					<label class="alerts csap-form-inline"
+						   title="">
 						<span>Cpu IO Wait:</span>
-						<input
-							class=""
-							placeholder=""
-							data-path="monitors.maxHostCpuIoWait" />
+						<input class=""
+							   placeholder=""
+							   data-path="monitors.maxHostCpuIoWait" />
 					</label>
-					<label
-						class="alerts csap-form-inline"
-						title="">
+					<label class="alerts csap-form-inline"
+						   title="">
 						<span>Minimum Memory(MB):</span>
-						<input
-							class=""
-							placeholder=""
-							data-path="monitors.minFreeMemoryMb" />
+						<input class=""
+							   placeholder=""
+							   data-path="monitors.minFreeMemoryMb" />
 					</label>
 
 				</div>
@@ -541,82 +481,64 @@
 				<div class="csap-blue">
 
 					<div class="heading">Service Defaults: Applies ONLY to service instances in cluster</div>
-					<label
-						class="alerts csap-form-inline"
-						title="">
+					<label class="alerts csap-form-inline"
+						   title="">
 						<span>Cpu (%)</span>
-						<input
-							class=""
-							data-path="monitors.max_topCpu" />
+						<input class=""
+							   data-path="monitors.max_topCpu" />
 					</label>
-					<label
-						class="alerts csap-form-inline"
-						title="">
+					<label class="alerts csap-form-inline"
+						   title="">
 						<span>Thread Count:</span>
-						<input
-							class=""
-							data-path="monitors.max_threadCount" />
+						<input class=""
+							   data-path="monitors.max_threadCount" />
 					</label>
-					<label
-						class="alerts csap-form-inline"
-						title="Default unit is bytes. Add m for MB or g for GB">
+					<label class="alerts csap-form-inline"
+						   title="Default unit is bytes. Add m for MB or g for GB">
 						<span>RSS Memory:</span>
-						<input
-							class=""
-							data-path="monitors.max_rssMemory" />
+						<input class=""
+							   data-path="monitors.max_rssMemory" />
 					</label>
 
-					<label
-						class="alerts csap-form-inline"
-						title="">
+					<label class="alerts csap-form-inline"
+						   title="">
 						<span>Disk Used (MB):</span>
-						<input
-							class=""
-							data-path="monitors.max_diskUtil" />
+						<input class=""
+							   data-path="monitors.max_diskUtil" />
 					</label>
-					<label
-						class="alerts csap-form-inline"
-						title="">
+					<label class="alerts csap-form-inline"
+						   title="">
 						<span>File Count:</span>
-						<input
-							class=""
-							data-path="monitors.max_fileCount" />
+						<input class=""
+							   data-path="monitors.max_fileCount" />
 					</label>
-					<label
-						class="alerts csap-form-inline"
-						title="">
+					<label class="alerts csap-form-inline"
+						   title="">
 						<span>Socket Count:</span>
-						<input
-							class=""
-							data-path="monitors.max_socketCount" />
+						<input class=""
+							   data-path="monitors.max_socketCount" />
 					</label>
 
-					<label
-						class="alerts csap-form-inline"
-						title="applies to tomcat or springboot only">
+					<label class="alerts csap-form-inline"
+						   title="applies to tomcat or springboot only">
 						<span>Tomcat Connections:</span>
-						<input
-							class=""
-							data-path="monitors.max_tomcatConnections" />
+						<input class=""
+							   data-path="monitors.max_tomcatConnections" />
 					</label>
 
 
-					<label
-						class="alerts csap-form-inline"
-						title="">
+					<label class="alerts csap-form-inline"
+						   title="">
 						<span>Heartbeat Enabled:</span>
-						<input
-							class=""
-							data-path="monitorDefaults.jvm_jmxHeartbeat" />
+						<input class=""
+							   data-path="monitorDefaults.jvm_jmxHeartbeat" />
 					</label>
-					<label
-						class="alerts csap-form-inline"
-						title="Do not report health failures if service crashes. Strongly discouraged.">
+					<label class="alerts csap-form-inline"
+						   title="Do not report health failures if service crashes. Strongly discouraged.">
 						<span>Ignore Stopped:</span>
-						<input
-							class=""
-							data-path="monitorDefaults.jvm_jmxHeartbeatIgnoreStopped"
-							placeholder="false" />
+						<input class=""
+							   data-path="monitorDefaults.jvm_jmxHeartbeatIgnoreStopped"
+							   placeholder="false" />
 					</label>
 
 				</div>
@@ -627,6 +549,8 @@
 		</div>
 
 	</section>
+
+	</article>
 
 </body>
 

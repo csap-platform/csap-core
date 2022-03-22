@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="pageContent"
+      th:remove="tag">
+
+    <title th:inline="text"> [[ ${ title } ]] </title>
+
+
+
+    <script th:replace="csap-constants-include :: includeSection"></script>
+    <script th:replace="~{ csap/fragments/csap-module-includes :: pageContent }"></script>
+
+
+    <script th:inline="javascript">
+
+        var baseUrl = /*[[@{ / }]]*/ null;
+        var agentHostUrlPattern = /*[[${ agentHostUrlPattern }]]*/ null;
+        var common_scripts = /*[[ ${ common_scripts } ]]*/ null;
+        var isAdmin = /*[[ ${ adminRole } ]]*/ null;
+        var definitionFolder = "__root__/" + /*[[ ${csapApp.getDefinitionFolder().toURI().getPath()} ]]*/ null;
+
+        var clusterHostsMap = /*[[  ${ clusterHostsMap }  ]]*/ null;
+
+        var templateArray = /*[[  ${ templateArray }  ]]*/ null;
+
+        var allHostsArray = /*[[   ${ allHosts }   ]]*/ null;
+        var serviceHostsArray = /*[[   ${ serviceHosts }   ]]*/ null;
+
+
+        var personName = /*[[ ${ userid } ]]*/ null;
+        var defaultLocation = /*[[ ${ defaultLocation } ]]*/ null;
+        var hasContentsParam = false;
+
+        var SCRIPT_BASE = /*[[ ${ scriptBase } ]]*/ null;
+        var FROM_BASE = SCRIPT_BASE + personName;
+
+        // used for progress on single host scripts
+        var XFER_BASE = SCRIPT_BASE + "xfer_";
+
+        if (/*[[ ${ (contents != null && contents.length() > 0)  } ]]*/ null ) hasContentsParam = true;
+        var command = /*[[ ${ command } ]]*/ null;
+        var hostName = /*[[ ${ host } ]]*/ null;
+        var hasResult = false;
+        if (/*[[ ${ result } ]]*/ null != null ) hasResult = true;
+        var template = /*[[ ${ template } ]]*/ null;
+
+        var loadDefaultTemplate = false;
+        if (/*[[ ${ contents } ]]*/ null == "" ) loadDefaultTemplate = true;
+        var searchText = /*[[ ${ searchText } ]]*/ null;
+        var pidParam = /*[[ ${ pid } ]]*/ null;
+        var serviceNameParam = /*[[ ${ serviceName } ]]*/ null;
+        var currLife = /*[[ ${ life } ]]*/ null;
+
+
+    </script>
+
+
+    <link th:href="@{ ${csapApp.versionedUrl('/css/command-stand-alone.css')} }"
+          rel="stylesheet"
+          type="text/css"
+          media="screen" />
+
+    <script type="module"
+            th:src=" @{ ${ @mvcResourceUrlProvider.getForLookupPath('/js/modules/command-stand-alone/_command-main.js')} }"></script>
+
+
+</head>
+
+
+
+</html>

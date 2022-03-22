@@ -1,0 +1,988 @@
+
+div.cache-blow {
+	opacity: 0.1 ;
+}
+
+/*article.content {*/
+/*	background-color: green;*/
+/*}*/
+
+/*
+*
+*    Agent Layouts
+*	
+*/
+
+
+#agent-tab-content, #agent-tab-content #agent-tab-explorer {
+	height: 100% ;
+}
+
+#agent-tab-content #dfTableDiv, #agent-tab-content #process-tables-container {
+	height: 100% ;
+	overflow: auto;
+}
+
+#agent-tab-content table.sticky-header {
+	margin-right: 1em;
+}
+
+#agent-tab-content #agent-tab-explorer {
+	display: grid;
+	grid-template-rows: 1.5em auto;
+	height: 100%;
+}
+#agent-tab-content #agent-tab-files{
+	display: grid;
+	grid-template-rows: 2em auto;
+	height: 100%;
+	margin-bottom: 0.6em;
+}
+#agent-tab-content #agent-tab-files header.related {
+	margin-bottom: 0.5em;
+}
+
+
+
+#agent-tab-content #agent-tab-processes {
+	display: grid;
+	grid-template-rows: 3em auto;
+	height: 100%;
+}
+
+
+#agent-tab-content div.quote {
+	white-space: nowrap;
+	margin: 0;
+	margin-bottom: 1em;
+}
+
+#agent-tab-content div.quote a {
+	margin-left: 1em ;
+	margin-right: 1em;
+	font-size: 10pt;
+	
+}
+#agent-tab-content div.quote a:hover {
+	cursor: pointer;
+}
+
+#agent-tab-memory header.related, #agent-tab-processes header.related {
+	min-height: 1.4em ;
+	margin-bottom: 4px;
+}
+
+#memory-tables {
+	margin-top: 2em;
+}
+
+/*
+*
+*    kubernetes pod logs 
+*	
+*/
+
+article.navigation div.tab-menu>span.agent-pod-selected {
+	display: none
+}
+
+
+#agent-tab-explorer-pod-logs label.csap {
+	margin-right: 1em;
+}
+
+#agent-tab-explorer-pod-logs {
+	display: grid;
+	grid-template-rows: 1.5em auto;
+	align-items: flex-start;
+	height: 100%;
+}
+
+#agent-tab-explorer-pod-logs #kubernetes-log-viewer {
+	height: 100%;
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+}
+
+#agent-tab-explorer-pod-logs #k8s-logs-controls {
+	display: flex;
+	white-space: nowrap;
+	gap: 3em;
+	align-items: center ;
+}
+
+
+article.content #agent-tab-explorer-pod-logs a.csap-remove {
+	padding-left: 20px;
+	background-size: 16px 16px;
+}
+
+#agent-tab-explorer-pod-logs #k8s-logs-controls span.quote {
+	margin: 0;
+	
+}
+#agent-tab-explorer-pod-logs  #k8s-logs-controls button.clear-log-display {
+	background-position: 2px center;
+    background-image: url(../../images/16x16/edit-select-all.png);
+    background-color: white;
+    color: black;
+    background-size: 14px 14px;
+    padding-left: 0;
+    min-width: 20px;
+}
+
+
+
+
+/*
+*
+*    Editor - file browser ; scrolling via the included content
+*	
+*/
+
+#agent-tab-content #agent-tab-file-browser {
+	height: 100% ;
+}
+
+#agent-tab-content #agent-tab-file-browser .csap-scrollable article.content {
+	background-color: white;
+}
+
+
+
+
+/*
+*
+*    Agent commands: host selection
+*	
+*/
+
+.ajs-content #hostDialogContainer #hostDisplay {
+	display: block;
+	columns: 15em 5;
+}
+
+.ajs-content #hostDialogContainer #hostDisplay .hostCustom {
+	display: grid;
+	grid-template-columns: 2.5em auto;
+	align-items: start;
+	break-inside: avoid;
+}
+
+/*
+*
+*    Agent script
+*	
+*/
+article.navigation #command-output-nav {
+	display: none;
+}
+
+#agent-tab-content #agent-tab-script aside {
+	display: none;
+}
+
+#agent-tab-content #agent-tab-script {
+	height: 100%;
+}
+
+
+#agent-tab-content #agent-tab-script form {
+	display: grid;
+	grid-template-rows: 3em auto;
+	height: 100%;
+}
+
+#agent-tab-content #agent-tab-script form #scriptText, #agent-tab-content #agent-tab-script form #ace-editor {
+	height: 100%;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	display: none ;
+	
+}
+#agent-tab-script #command-header {
+	display: grid;
+	grid-template-rows: 1.3em 1.3em;
+	grid-template-columns: 6em 8em  minmax(30em,1fr) ;
+	grid-column-gap: 2em;
+	grid-row-gap: 2px;
+}
+
+
+#agent-tab-script #command-header #form-timeout {
+	width: 3em;
+	display: none;
+}
+
+#agent-tab-script #command-header #scriptName {
+	width: 18em;
+}
+
+#agent-tab-script #command-header .small{
+	font-size: 8pt;
+}
+
+#agent-tab-script #command-header button {
+	min-width: 8em;
+}
+
+#agent-tab-script #command-header #run-command-script {
+	grid-row: 1 / span 2;
+	grid-column: 1 ;
+	background-size: 20px 20px ;
+	font-size: 18pt;
+	margin-bottom: 2px;
+	min-width: 4em;
+}
+
+#hostButtonTarget {
+	grid-row: 1 ;
+	grid-column: 2 ;
+}
+
+#templates-panel {
+	grid-row: 2 ;
+	grid-column: 2 ;
+}
+
+#run-settings-panel {
+	grid-row: 1 ;
+	grid-column: 3 ;
+	white-space: nowrap;
+	position: relative;
+	align-self: center;
+	display: flex;
+	gap: 2em;
+}
+
+#run-settings-panel #ace-editor-settings label {
+	margin-right: 3em;
+}
+
+
+#run-info-panel  {
+	grid-row: 2 ;
+	grid-column: 3 ;
+	align-self: center;
+}
+
+#run-info-panel #script-source-name {
+	float: right ;
+	position: relative;
+	top: 10px;
+	margin-right: 4px;
+}
+
+#templatePrompt {
+	
+	display: grid;
+	grid-template-rows: 3em auto;
+	height: 100%;
+	
+}
+
+#templatePrompt #template-table-panel {
+	overflow: auto ;
+}
+
+#templatePrompt #template-table-panel tr:hover td {
+	cursor: pointer;
+	color: var(--nav-hover-color) ;
+}
+
+#hostCusomizeDialog #hostDisplay {
+	columns: 4;
+}
+
+#hostCusomizeDialog #hostDisplay .hostCustom {
+	
+	display: grid;
+	grid-template-columns: 1.4em auto;
+	align-items: baseline;
+}
+
+
+
+
+/*
+*
+*    Agent script output
+*	
+*/
+
+
+#agent-tab-content #agent-tab-command-output {
+	height: 100%;
+	position: relative;
+}
+
+
+
+#agent-tab-content #agent-tab-command-output #resultsContainer {
+	display: grid;
+	grid-template-rows: 1.5em auto;
+	height: 100%;
+}
+
+#agent-tab-command-output #command-output-header {
+	display: grid;
+	white-space: nowrap;
+	grid-template-columns: 8em auto;
+	align-items: first baseline;
+}
+
+#agent-tab-command-output #command-output-header label{
+	margin-left: 2em
+}
+
+#agent-tab-command-output #command-output-header select {
+	width: 14em;
+}
+
+#agent-tab-content #agent-tab-command-output #resultsContainer  #command-output-results {
+	height: 100% ;
+}
+
+#agent-tab-content #agent-tab-command-output #resultsContainer  #command-output-results > pre {
+		height: 100%;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+}
+#agent-tab-content #agent-tab-command-output #resultsContainer  #command-output-results > textarea {
+	height: 100% ;
+	width: 100% ;
+	overflow: auto;
+	
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: 10pt;
+	white-space: pre;
+	
+}
+
+#agent-tab-content #agent-tab-command-output #resultsContainer  #command-output-results > div {
+	height: 100% ;
+	width: 100% ;
+	display: none;
+	overflow: auto;
+}
+
+#agent-tab-content #agent-tab-command-output .hostColumn {
+	vertical-align: top;
+}
+
+#agent-tab-content #agent-tab-command-output .outputColumn {
+	white-space: pre ;
+	font-family: Menlo, Consolas, Monaco, monospace;
+}
+
+
+#agent-tab-command-output .progress {
+	width: 200px;
+	border: 1px solid black;
+	padding: 0px;
+	border-radius: 7px;
+	position: relative;
+	height: 15px;
+	margin-left: auto;
+}
+
+#agent-tab-command-output .bar {
+	background-color: red;
+	width: 0%;
+	height: 15px;
+	border-radius: 7px;
+}
+
+#agent-tab-command-output .percent {
+	padding: 0;
+	text-align: center;
+	width: 100%;
+	top: 2px;
+	font-weight: bold;
+	font-size: 0.6em;
+	position: absolute;
+}
+
+ #agent-tab-command-output #hide-output {
+	min-width: 8em;
+}
+
+#agent-tab-command-output #cancel-command {
+	position: absolute;
+	font-size: 14pt;
+	width: 6em;
+	top: -3px;
+}
+
+
+
+
+/*
+*
+*    Logs
+*	
+*/
+
+div#agent-tab-logs {
+    height: 100%;
+}
+div#agent-tab-logs .csap-scrollable article.content {
+    overflow: hidden;
+}
+
+/*
+*
+*    Graphs - scrolling on graphs only
+*	
+*/
+
+#agent-tab-content #agent-tab-service,  
+#agent-tab-content #agent-tab-system ,  
+#agent-tab-content #agent-tab-java ,  
+#agent-tab-content #agent-tab-application   {
+	display: grid;
+	grid-template-rows: var(--option-height) auto;
+	height: 100%;
+}
+
+#agent-tab-content #agent-tab-service header.related,  
+#agent-tab-content #agent-tab-system  header.related,  
+#agent-tab-content #agent-tab-java  header.related,  
+#agent-tab-content #agent-tab-application header.related   {
+	height: 1.4em ;
+	margin-bottom: 0.6em;
+}
+
+#agent-tab-content #agent-tab-java  header.related select,  
+#agent-tab-content #agent-tab-application header.related select  {
+	font-size: 10px;
+}
+
+
+#agent-tab-content #agent-tab-application .quote select, #agent-tab-content #agent-tab-java .quote select {
+	margin-left: 10em;
+}
+
+
+#agent-tab-content div.scrolling-graphs {
+	height: 100%;
+	padding: 0;
+	overflow: hidden ;
+}
+#agent-tab-content div.scrolling-graphs > div {
+	padding: 0;
+	height: 100%;
+	margin: 0;
+	display: grid;
+	grid-template-rows: 1.8em auto;
+}
+
+#agent-tab-content .hostContainer {
+	overflow: auto ;
+}
+
+
+
+
+#agent-tab-content #agent-tab-files table td:first-child a {
+	word-break: break-all;
+	word-wrap: break-word;
+	white-space: normal;
+}
+
+#agent-tab-content #agent-tab-files table td:nth-child(2) a.csap-link{
+	margin-left: 1em;
+}
+
+
+
+
+.ui-tabs-anchor img {
+	height: 10px;
+}
+
+div.about-host-info {
+	font-size: 11pt
+}
+
+div.about-host-info table thead {
+	display: block;
+}
+
+div.about-host-info table tbody {
+	max-height: 15em;
+	overflow-y: scroll;
+	display: block;
+}
+
+div.about-host-info table th {
+	width: 5em;
+	padding: 0.9em;
+}
+
+div.about-host-info table th:last-child {
+	width: 15em
+}
+
+div.about-host-info table td {
+	width: 5em;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	text-align: right;
+}
+
+div.about-host-info table td:last-child {
+	width: 16em;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	text-align: right;
+}
+
+#disk-exclude-pattern {
+	background-color: yellow;
+	width: 23em;
+}
+
+
+
+#initialMessage, #timeOutWarning {
+	position: absolute;
+	top: 10em;
+	z-index: 9999;
+	top: 2em;
+	left: 8em;
+	width: 50%;
+}
+
+.controls a.simple {
+	font-weight: normal;
+	border: 1px solid grey;
+	border-radius: 3px;
+	min-width: 3em;
+	text-align: center;
+}
+
+.controls a.simple:hover {
+	background-color: white;
+}
+
+span.port {
+	font-style: italic;
+	float: right;
+}
+
+header label {
+	margin-bottom: 0;
+}
+
+
+#loadRow td {
+	background-color: #aa0000;
+}
+
+.inlineDiv {
+	vertical-align: top;
+	margin: 0.5em;
+	margin-top: 1em;
+	display: inline-block
+}
+
+
+#agent-tab-content #agent-tab-processes #processFilter {
+	font-size: 10pt;
+	width: 16em;
+}
+
+.osProcess {
+	word-break: break-all;
+	word-wrap: break-word;
+}
+
+.template, .hostLaunch {
+	display: none;
+}
+
+a.formSmallButton {
+	margin: 0;
+	margin-left: 3px;
+}
+
+.but {
+	padding-left: 5px;
+}
+
+.tabHeader {
+	margin: 2em;
+}
+
+.pushButton {
+	height: 18px;
+	line-height: 20px;
+	font-size: 0.9em;
+}
+
+.ajs-message .pushButton {
+	height: auto;
+}
+
+#serviceTab .pushButton, #vmGraphs .pushButton {
+	height: auto;
+}
+
+.custAlert {
+	display: inline-block;
+	float: left;
+	font-weight: bold;
+	padding: 1em;
+	text-align: left;
+}
+
+
+
+#agent-tab-content #agent-tab-processes div.quote {
+	margin-bottom: 0.25em;
+}
+
+
+#agent-tab-content #agent-tab-processes  #processTable {
+	min-width: 80em;
+	margin-left: 0;
+}
+
+
+#agent-tab-content #agent-tab-processes #process-table-header {
+	gap: 2em;
+}
+
+#agent-tab-content #agent-tab-processes #processTable button.csap-button {
+	float: right;
+	font-size: 8pt;
+	font-weight: normal;
+	padding: 0;
+	padding-left: 4px;
+	padding-right: 4px;
+	margin-left: 5px
+}
+
+#agent-tab-content #agent-tab-processes #processTable a.formSmallButton {
+	margin: 0;
+	margin-left: 3px;
+}
+
+
+
+
+
+/*
+dmeo
+*/
+#agent-tab-content #agent-tab-processes #processTable td {
+	vertical-align: top;
+	position: relative;
+}
+
+#agent-tab-content #agent-tab-processes  #processTable td.numeric {
+	padding-right: 2em;
+}
+
+#agent-tab-content #agent-tab-processes #processTable td button.csap-icon {
+	position: absolute;
+	top: 2px;
+	right: 2px;
+	visibility: hidden;
+}
+
+#agent-tab-content #agent-tab-processes #processTable tr:hover td button.csap-icon {
+	
+	visibility: visible;
+}
+
+#agent-tab-content #agent-tab-processes #processTable td button.tree-pid-button {
+	
+	right: 22px;
+}
+
+
+#agent-tab-content #agent-tab-processes  #processTable td.processArgs {
+	/* word-break: break-all; 
+    min-width: 20em; */
+	text-align: left;
+}
+
+#agent-tab-content #agent-tab-processes  #processTable td:first-child, #agent-tab-content #agent-tab-processes  #processTable th:first-child {
+	max-width: 20em;
+	min-width: 8em;
+}
+
+#agent-tab-content #agent-tab-processes  #processTable td:first-child span {
+	white-space: nowrap;
+}
+
+
+
+#agent-tab-content #agent-tab-processes  #processTable span.ptab-name {
+	display: block;
+}
+
+#agent-tab-content #agent-tab-processes  #processTable td.ptab-params{
+	font-size: 10pt;
+	white-space: nowrap;
+}
+
+#agent-tab-content #agent-tab-processes  #processTable .ptab-container {
+	font-size: 10pt;
+	font-style: italic ;
+}
+
+
+
+#swapTableDiv table td, #swapTableDiv table th {
+	text-align: center;
+}
+
+
+
+
+
+/*
+*
+*    service live: main
+*	
+*/
+
+#agent-tab-content #agent-tab-live {
+    height: 100%;
+    display: grid;
+	grid-template-rows: 2em auto;
+}
+
+#agent-tab-content #agent-tab-live header.related {
+	margin-bottom: 0.5em;
+}
+
+#agent-tab-content #agent-tab-live #data-panel {
+	height: 100% ;
+	overflow: auto;
+}
+
+#agent-tab-content #agent-tab-live #health-service-names {
+	font-size: 10px;
+	width: 16em;
+}
+
+#agent-tab-content #agent-tab-live #meter-source {
+	position: absolute;
+	font-size: 10px;
+	left: 0.3em;
+	padding: 0;
+	border: none;
+	max-width: 14em;
+	overflow: hidden;
+	top: 2px;
+	color: black;
+}
+
+
+#agent-tab-content #agent-tab-live #service-live-header {
+	display: flex;
+	justify-content: space-between;
+	white-space: nowrap;
+}
+
+#agent-tab-content #agent-tab-live #service-live-header #healthStatus {
+	padding-left: 16px;
+	margin-right: 10px;
+}
+
+
+#agent-tab-content #agent-tab-live #service-live-header select {
+	font-size: 10px ;
+}
+#agent-tab-content #agent-tab-live #service-live-header label.csap {
+	margin-right: 1em;
+}
+
+#agent-tab-content #agent-tab-live #switch-table-view {
+	visibility: hidden;
+}
+
+#agent-tab-content #agent-tab-live #refreshMetrics, #agent-tab-content #agent-tab-live #switch-table-view {
+	width: 1.5em;
+	height: 18px;
+	background-position: center center;
+}
+
+#agent-tab-live  #meter-table-summary {
+	display: none;
+	position: relative;
+}
+#agent-tab-live  #meter-table-summary .csap-help{
+	margin-left: 2em ;
+}
+
+#agent-tab-live  #meter-filters {
+	position: absolute;
+	left: 7em;
+	top: 3px;
+	z-index: 2;
+}
+
+#agent-tab-live #metricFilter {
+	position: fixed ;
+}
+
+#agent-tab-live  #meter-tag-filter {
+	font-size: 11px;
+	padding: 0;
+	padding-left: 0px;
+	padding-left: 2px;
+	width: 8em;
+	z-index: 1;
+	display: none;
+}
+
+#agent-tab-live .noteHighlight label {
+	margin-right: 2em;
+}
+
+#agent-tab-live table button.csap-icon {
+	margin-right: 5px;
+	visibility: hidden	;
+}
+
+#agent-tab-live table tr:hover  button.csap-icon  {
+	visibility: visible	;
+}
+
+
+
+#agent-tab-live table span.meter-tag {
+	float: right;
+}
+
+#agent-tab-live table {
+	margin-bottom: 5em;
+}
+
+#agent-tab-content #agent-tab-live table#health {
+	display: none;
+}
+
+#agent-tab-live #metricTable th  {
+	text-align: center;
+}
+#agent-tab-live #metricTable td  {
+	text-align: right;
+}
+
+#agent-tab-live #metricTable td pre {
+	text-align: left;
+	font-family: Menlo, Consolas, Monaco, monospace;
+	color: white;
+	background-color: black;
+	padding: var(--small-padding);
+	margin:0;
+	border-radius: var(--border-radius-small);
+}
+
+#agent-tab-live #metricTable td span.status-red, #agent-tab-live #metricTable td span.status-green {
+	height: 16px;
+	padding-left: 2em;
+}
+
+#agent-tab-live #metricTable tbody {
+	font-size: 10pt;
+	font-family: Menlo, Consolas, Monaco, monospace;
+}
+
+#agent-tab-live #metricTable td {
+	text-align: right;
+	min-width: 6em;
+}
+
+#agent-tab-live #metricTable td:first-child, #agent-tab-live #metricTable th:first-child {
+	text-align: left;
+	font-weight: bold;
+	vertical-align: top;
+}
+
+#agent-tab-live #metricTable td span {
+	font-style: italic;
+	padding-left: 4px;
+	min-width: 2em;
+	display: inline-block;
+	text-align: left;
+}
+
+#agent-tab-live #metricTable td span.padZero {
+	padding-right: 0.6em;
+	font-style: normal;
+	min-width: 2em;
+}
+
+
+/*
+*
+*    service live: graphs
+*	
+*/
+
+#agent-tab-live  div.graph-selections input {
+	display: inline;
+	margin-right: 5px;
+	margin-left: 2em;
+}
+
+#agent-tab-live  div.graph-selections label {
+	font-weight: bold;
+	white-space: nowrap;
+	font-size: 10pt;
+	vertical-align: bottom;
+	color: black; 
+}
+
+#agent-tab-live  div.meter-panel {
+	background-color: white;
+	border: var(--theme-border);
+	border-radius: var(--border-radius-small);
+	margin-top: 1em;
+	padding: 0px;
+}
+
+#agent-tab-live  div.graph-controls {
+	background: var(--panel-header-bg);
+	color: var(--panel-header-color);
+	border-top-right-radius: var(--border-radius-small);
+	border-top-left-radius: var(--border-radius-small);
+	display: flex;
+	justify-content: space-between;
+	padding-right: 5px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+
+#agent-tab-live  span.graph-title {
+	margin-left: 2em;
+	font-weight: bold;
+}
+
+#agent-tab-live  #meter-plots {
+	display: none;
+	margin-bottom: 2em;
+	margin-right: 1em;
+}
+
+#agent-tab-live  #meter-plots svg.main-svggg {
+	position: relative;
+}
+
+#agent-tab-live  #meter-plots div.meter-graph {
+	max-height: 20em;
+	padding: 3px;
+}
+
+
+

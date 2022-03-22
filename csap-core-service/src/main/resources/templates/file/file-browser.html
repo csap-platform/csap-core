@@ -1,71 +1,41 @@
 <!DOCTYPE html>
-<html
-	xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
 
 <head>
 
-<title th:inline="text">[[ ${ host } ]] Files</title>
+	<title th:inline="text">[[ ${ host } ]] Files</title>
 
-<script th:replace="~{ csap/fragments/csap-common-includes :: pageContent }"></script>
+	<script th:replace="csap-constants-include :: includeSection"></script>
 
-<!-- https://github.com/mar10/fancytree/releases -->
-<link
-	th:href="@{/webjars/fancytree/2.30.0/dist/skin-win7/ui.fancytree.min.css}"
-	rel="stylesheet"
-	type="text/css" />
-<script th:src="@{/webjars/fancytree/2.30.0/dist/jquery.fancytree-all-deps.js}"></script>
+	<script th:replace="~{ csap/fragments/csap-module-includes :: pageContent }"></script>
+
+	<script th:inline="javascript"
+			type="module">
 
 
-<script th:src="@{ ${csapApp.versionedUrl('/js/csapLibs/dropzone/dropzone.js')} }"></script>
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/csapLibs/dropzone/dropzone.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
+				window.FM_SETTINGS = {
+					container: /*[[ ${ containerName } ]]*/ null,
+					docker: /*[[ ${ dockerBase } ]]*/ null,
+					user: /*[[ ${ user } ]]*/ null,
+					folder: /*[[ ${ fromFolder }  ]]*/ null
+				}
 
-<script th:src="@{ ${csapApp.versionedUrl('/js/csapLibs/csap-misc.js')} }"></script>
-<script th:src="@{ ${csapApp.versionedUrl('/js/csapLibs/csapUtils/CsapUser.js')} }"></script>
-
+			</script>
 
 
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/csapLibs/qtip/jquery.qtip.min.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-<script th:src="@{ ${csapApp.versionedUrl('/js/csapLibs/qtip/jquery.qtip.min.js')} }"></script>
-
-<script th:replace="csap-constants-include :: includeSection"></script>
+	<link th:href="@{ ${csapApp.versionedUrl('/js/file/file-browser.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
 
 
+	<script type="module"
+			th:src=" @{ ${ @mvcResourceUrlProvider.getForLookupPath('/js/modules/browser/file/host-file-manager.js')} }"></script>
 
-
-<script th:inline="javascript">
-
-
-     Dropzone.autoDiscover = false ;
-     
-     const FM_SETTINGS = {
-     	container: [[ ${ containerName } ]],
-     	docker: [[ ${ dockerBase } ]],
-     	user: [[ ${ user } ]],
-     	folder: [[ ${ fromFolder }  ]] 
-     }
-
- </script>
-
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/file/file-browser.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-
-<script
-	th:attr="data-main=@{ ${csapApp.requiresUrl('/js/file/modules/host-file-manager.js')}   }"
-	th:src="@{/webjars/requirejs/2.1.20/require.min.js}"></script>
+	<!-- <script
+	th:attr="data-main=@{ ${csapApp.requiresUrl('/js/modules/file/host-file-manager.js')}   }"
+	th:src="@{/webjars/requirejs/2.1.20/require.min.js}"></script> -->
 
 </head>
 
@@ -83,9 +53,8 @@
 		<header class=related>
 			<span>
 				<span class=fb-title></span>
-				<button
-					title="toggle display of editor"
-					class="csap-button-icon toggle-editor">&nbsp;</button>
+				<button title="toggle display of editor"
+						class="csap-button-icon toggle-editor">&nbsp;</button>
 			</span>
 
 
@@ -93,36 +62,30 @@
 
 				<label>Sort: </label>
 
-				<label
-					class="radio"
-					title="Sort using file name">
-					<input
-						class="file-sort-type"
-						type="radio"
-						name="sortRadio"
-						value="sort-by-name"
-						checked="checked" />
+				<label class="radio"
+					   title="Sort using file name">
+					<input class="file-sort-type"
+						   type="radio"
+						   name="sortRadio"
+						   value="sort-by-name"
+						   checked="checked" />
 					Name
 				</label>
 
-				<label
-					class="radio"
-					title="Sort using file size">
-					<input
-						class="file-sort-type"
-						type="radio"
-						name="sortRadio"
-						value="sort-by-size" />
+				<label class="radio"
+					   title="Sort using file size">
+					<input class="file-sort-type"
+						   type="radio"
+						   name="sortRadio"
+						   value="sort-by-size" />
 					Size
 				</label>
 
-				<label
-					style="margin-left: 2em"
-					title="issue linux du command to calculate disk usage for folders. Very large folders may time out - use CSAP shell to run command.">
+				<label style="margin-left: 2em"
+					   title="issue linux du command to calculate disk usage for folders. Very large folders may time out - use CSAP shell to run command.">
 					Folder Size:
-					<input
-						class="showDu"
-						type="checkbox" />
+					<input class="showDu"
+						   type="checkbox" />
 				</label>
 
 
@@ -146,11 +109,11 @@
 			</span>
 
 			<span class="browser-mode flex-right">
-				<label title="Use host ls command to view extended output. If permitted, root privilege to browse file system">
+				<label
+					   title="Use host ls command to view extended output. If permitted, root privilege to browse file system">
 					OS list:
-					<input
-						class="useRoot"
-						type="checkbox" />
+					<input class="useRoot"
+						   type="checkbox" />
 				</label>
 
 
@@ -163,10 +126,10 @@
 				<ul>
 					<li>After selecting a file or folder, select the menu icon to view commands</li>
 					<li>Double clicking on a file will open it in the editor</li>
-					<li>items not accessable using csap user permissions will be updated using <a
-							class="csap-link"
-							target="_blank"
-							href="https://www.computerhope.com/unix/usetfacl.htm">linux setfacl</a> . restore_filesystem_acls can be run
+					<li>items not accessable using csap user permissions will be updated using <a class="csap-link"
+						   target="_blank"
+						   href="https://www.computerhope.com/unix/usetfacl.htm">linux setfacl</a> .
+						restore_filesystem_acls can be run
 						using the csap script runner to remove if desired
 					</li>
 				</ul>
@@ -176,41 +139,34 @@
 
 			<span class=file-operations>
 
-				<button
-					class="csap-button-icon csap-download save-file-button file-mode"
-					title="(ctrl-s) save changes to file - enabled after changes are made">Save</button>
+				<button class="csap-button-icon csap-download save-file-button file-mode"
+						title="(ctrl-s) save changes to file - enabled after changes are made">Save</button>
 
-				<button
-					class="csap-button autoplay-file-button file-mode"
-					title="autoplay preview">&nbsp;</button>
+				<button class="csap-button autoplay-file-button file-mode"
+						title="autoplay preview">&nbsp;</button>
 
-				<select
-					id=files-in-editor
-					title="ctrl-r to reload, ctrl-e to open next file"
-					class=file-mode>
+				<select id=files-in-editor
+						title="ctrl-r to reload, ctrl-e to open next file"
+						class=file-mode>
 				</select>
 
 				<label class="file-mode">
 					User:
-					<select
-						class="edit-as-user"
-						title="File will be chowned to the selected user">
-						<option
-							th:each="osUser : ${osUsers}"
-							th:selected="${ osUser == user }"
-							th:value="${ osUser }"
-							th:text="${ osUser }">will be replaced</option>
+					<select class="edit-as-user"
+							title="File will be chowned to the selected user">
+						<option th:each="osUser : ${osUsers}"
+								th:selected="${ osUser == user }"
+								th:value="${ osUser }"
+								th:text="${ osUser }">will be replaced</option>
 
 					</select>
 				</label>
 
-				<label
-					class="file-mode"
-					title="Preserve permissions: content will be echo'ed into existing file">
+				<label class="file-mode"
+					   title="Preserve permissions: content will be echo'ed into existing file">
 					Perm:
-					<input
-						class="preserve-permissions"
-						type="checkbox" />
+					<input class="preserve-permissions"
+						   type="checkbox" />
 				</label>
 			</span>
 
@@ -220,15 +176,13 @@
 
 			<span class="flex-right file-mode">
 				<span id=file-size></span>
-				<button
-					class="csap-button-icon launch-window edit-in-new-window "
-					title="Edit in a new window">&nbsp;</button>
+				<button class="csap-button-icon launch-window edit-in-new-window "
+						title="Edit in a new window">&nbsp;</button>
 			</span>
 
 
-			<input
-				class="copy-buffer browser-mode"
-				title="last opened item (click to copy to clipboard" />
+			<input class="copy-buffer browser-mode"
+				   title="last opened item (click to copy to clipboard" />
 
 			<span class="copy-buffer-message">Copied path to clip board</span>
 
@@ -238,15 +192,14 @@
 
 		<section>
 			<article class="content">
-				
-				
-				<button
-					title="Add filesystem links to explore more of filesystem"
-					class="browser-mode csap-button-small-icon csap-list show-csap-shortcuts">add default shortcuts</button>
-					
-				<div
-					class="file-browser"
-					title="After selecting a file or folder, right mouse click on text to view command menu"></div>
+
+
+				<button title="Add filesystem links to explore more of filesystem"
+						class="browser-mode csap-button-small-icon csap-list show-csap-shortcuts">add default
+					shortcuts</button>
+
+				<div class="file-browser"
+					 title="After selecting a file or folder, right mouse click on text to view command menu"></div>
 
 				<pre class="file-viewer-text">loading</pre>
 
@@ -255,55 +208,42 @@
 
 		<div class="csap-button-menu file-menu">
 
-			<button
-				class="close-menu csap-icon csap-remove"
-				data-command="close"></button>
+			<button class="close-menu csap-icon csap-remove"
+					data-command="close"></button>
 
 			<span class=auto-play>
-				<a
-					class="csap-link"
-					target="_blank"
-					th:href="${@applicationConfiguration.getHelpUrl('autoplay-help') }">CSAP Autoplay</a>
+				<a class="csap-link"
+				   target="_blank"
+				   th:href="${@applicationConfiguration.getHelpUrl('autoplay-help') }">CSAP Autoplay</a>
 			</span>
-			<button
-				class="csap-button preview auto-play auto-preview"
-				title="creates a preview folder containing results of autoplay"
-				data-command="auto-play-preview">Preview</button>
-			<button
-				class="csap-button preview auto-play"
-				title="creates a preview folder containing results of autoplay"
-				data-command="auto-play-apply">Apply</button>
+			<button class="csap-button preview auto-play auto-preview"
+					title="creates a preview folder containing results of autoplay"
+					data-command="auto-play-preview">Preview</button>
+			<button class="csap-button preview auto-play"
+					title="creates a preview folder containing results of autoplay"
+					data-command="auto-play-apply">Apply</button>
 
 			<span>File Options</span>
-			<button
-				class="csap-button edit"
-				data-command="edit">Edit</button>
-			<button
-				class="csap-button download"
-				data-command="download">Download</button>
-			<button
-				class="csap-button monitor"
-				data-command="monitor">Monitor (tail -f)</button>
-			<button
-				class="csap-button browser"
-				data-command="browser">Open In Browser</button>
+			<button class="csap-button edit"
+					data-command="edit">Edit</button>
+			<button class="csap-button download"
+					data-command="download">Download</button>
+			<button class="csap-button monitor"
+					data-command="monitor">Monitor (tail -f)</button>
+			<button class="csap-button browser"
+					data-command="browser">Open In Browser</button>
 			<span>Commands</span>
-			<button
-				class="csap-button copy"
-				data-command="copy">Copy/Move/Rename ...</button>
-			<button
-				class="csap-button delete"
-				data-command="delete">Delete ...</button>
-			<button
-				class="csap-button run"
-				data-command="run">Run ...</button>
-			<button
-				class="csap-button search"
-				data-command="search">Search</button>
+			<button class="csap-button copy"
+					data-command="copy">Copy/Move/Rename ...</button>
+			<button class="csap-button delete"
+					data-command="delete">Delete ...</button>
+			<button class="csap-button run"
+					data-command="run">Run ...</button>
+			<button class="csap-button search"
+					data-command="search">Search</button>
 
-			<button
-				class="csap-button upload"
-				data-command="sync">Sync to hosts</button>
+			<button class="csap-button upload"
+					data-command="sync">Sync to hosts</button>
 
 		</div>
 
@@ -312,44 +252,34 @@
 
 		<div class="csap-button-menu folder-menu">
 
-			<button
-				class="close-menu csap-icon csap-remove"
-				data-command="close"></button>
+			<button class="close-menu csap-icon csap-remove"
+					data-command="close"></button>
 
 
 			<span>Folder Options</span>
-			<button
-				class="csap-button collapse"
-				title="selected folder will be moved to top level"
-				data-command="collapse">Collapse to folder</button>
-			<button
-				class="csap-button browser"
-				data-command="new-browser">Open new file browser</button>
+			<button class="csap-button collapse"
+					title="selected folder will be moved to top level"
+					data-command="collapse">Collapse to folder</button>
+			<button class="csap-button browser"
+					data-command="new-browser">Open new file browser</button>
 
 
 			<span>Commands</span>
-			<button
-				class="csap-button new"
-				data-command="new-item">New File/Folder ...</button>
-			<button
-				class="csap-button copy"
-				data-command="copy">Copy/Move/Rename ...</button>
-			<button
-				class="csap-button delete"
-				data-command="delete">Delete ...</button>
-			<button
-				class="csap-button run"
-				data-command="run">Run ...</button>
-			<button
-				class="csap-button search"
-				data-command="search">Search</button>
-			<button
-				class="csap-button upload"
-				data-command="upload">Upload</button>
+			<button class="csap-button new"
+					data-command="new-item">New File/Folder ...</button>
+			<button class="csap-button copy"
+					data-command="copy">Copy/Move/Rename ...</button>
+			<button class="csap-button delete"
+					data-command="delete">Delete ...</button>
+			<button class="csap-button run"
+					data-command="run">Run ...</button>
+			<button class="csap-button search"
+					data-command="search">Search</button>
+			<button class="csap-button upload"
+					data-command="upload">Upload</button>
 
-			<button
-				class="csap-button upload"
-				data-command="sync">Sync to hosts</button>
+			<button class="csap-button upload"
+					data-command="sync">Sync to hosts</button>
 
 		</div>
 
@@ -358,24 +288,25 @@
 		<aside>
 
 			<div class=disk-paths>
-				<input
-					th:each="pathEntry : ${ diskPathsForTips }"
-					th:class="${ pathEntry.key}"
-					th:value="${ pathEntry.value}" />
+				<input th:each="pathEntry : ${ diskPathsForTips }"
+					   th:class="${ pathEntry.key}"
+					   th:value="${ pathEntry.value}" />
 			</div>
 
 			<div id=auto-play-confirmation>
 				<div class=auto-play-header>
 					Applying autoplay can leave system in a unmanaged state. Verify configuration prior to applying.
 
-					<div class=quote>Autoplay configuration will be processed on the primary host, then editor apply will be done
+					<div class=quote>Autoplay configuration will be processed on the primary host, then editor apply
+						will be done
 						to sync across all application hosts</div>
 
 				</div>
 			</div>
 
 			<div id=auto-play-pass>
-				<div class=auto-play-header>No errors or warnings found - review output to ensure desired application was
+				<div class=auto-play-header>No errors or warnings found - review output to ensure desired application
+					was
 					created.</div>
 			</div>
 
@@ -386,19 +317,16 @@
 			<div class="jsTemplates">
 
 				<div class="filterControls"
-					title="one or more comma separated patterns to filter files">
-					<input
-						class="listing-filter"
-						placeholder="comma separated filter(s)" />
+					 title="one or more comma separated patterns to filter files">
+					<input class="listing-filter"
+						   placeholder="comma separated filter(s)" />
 				</div>
 
-				<button
-					class="csap-icon tool-menu csap-menu"
-					title="show operation menu: operations will be performed on selected items"></button>
+				<button class="csap-icon tool-menu csap-menu"
+						title="show operation menu: operations will be performed on selected items"></button>
 
-				<button
-					title="simple delete using default user"
-					class="csap-icon delete-items"></button>
+				<button title="simple delete using default user"
+						class="csap-icon delete-items"></button>
 
 
 
@@ -416,9 +344,8 @@
 					<div>
 						<label>
 							<span class="right"> Use root: </span>
-							<input
-								class="show-root-warning file-system-use-root"
-								type="checkbox" />
+							<input class="show-root-warning file-system-use-root"
+								   type="checkbox" />
 						</label>
 					</div>
 
@@ -428,15 +355,13 @@
 								<label>
 
 									<span class="right"> Target: </span>
-									<input
-										class="file-system-new-name"
-										placeholder="/path/to/folder-or-file" />
+									<input class="file-system-new-name"
+										   placeholder="/path/to/folder-or-file" />
 
 									<label>
 										Rename:
-										<input
-											class="file-system-use-rename"
-											type="checkbox" />
+										<input class="file-system-use-rename"
+											   type="checkbox" />
 									</label>
 
 								</label>
@@ -452,15 +377,13 @@
 								<label>
 
 									<span class="right"> Recursive: </span>
-									<input
-										class="file-system-delete-recursive"
-										type="checkbox" />
+									<input class="file-system-delete-recursive"
+										   type="checkbox" />
 
 								</label>
 								<div class="quote">
-									<button
-										class="csap-button"
-										title="Advanced Window">Advanced</button>
+									<button class="csap-button"
+											title="Advanced Window">Advanced</button>
 									enables item(s) to be deleted on one or more hosts in a single request
 								</div>
 							</div>
@@ -471,9 +394,8 @@
 								<label>
 
 									<span class="right"> Folder(s): </span>
-									<input
-										class="file-system-new-folder"
-										placeholder="path/from/parent/folder" />
+									<input class="file-system-new-folder"
+										   placeholder="path/from/parent/folder" />
 
 								</label>
 							</div>
@@ -482,9 +404,8 @@
 								<label>
 
 									<span class="right"> File: </span>
-									<input
-										class="file-system-new-file"
-										placeholder="file-name.yml" />
+									<input class="file-system-new-file"
+										   placeholder="file-name.yml" />
 
 								</label>
 							</div>
@@ -507,19 +428,16 @@
 						<span class="uploadToSpan"></span>
 					</label>
 					<label>
-						<input
-							class="custom overWriteFile"
-							type="checkbox"
-							title="Enable to overwrite existing file" />
+						<input class="custom overWriteFile"
+							   type="checkbox"
+							   title="Enable to overwrite existing file" />
 						Overwrite
 					</label>
 
-					<button
-						class="csap-button upload-advanced"
-						title="upload to one or more hosts, option to unzip">advanced</button>
-					<button
-						class="csap-icon csap-remove hideUpload"
-						title="Close upload dialog"></button>
+					<button class="csap-button upload-advanced"
+							title="upload to one or more hosts, option to unzip">advanced</button>
+					<button class="csap-icon csap-remove hideUpload"
+							title="Close upload dialog"></button>
 				</div>
 				<div class="dropzone"></div>
 			</div>
@@ -530,28 +448,24 @@
 						<div class="dz-filename">
 							<span data-dz-name></span>
 						</div>
-						<div
-							class="dz-size"
-							data-dz-size></div>
+						<div class="dz-size"
+							 data-dz-size></div>
 						<img data-dz-thumbnail />
 					</div>
 					<div class="dz-progress">
-						<span
-							class="dz-upload"
-							data-dz-uploadprogress></span>
+						<span class="dz-upload"
+							  data-dz-uploadprogress></span>
 					</div>
 					<div class="dz-success-mark">
 						<span>
-							<img
-								class="but"
-								th:src="@{/images/16x16/internet-web-browser.png}">
+							<img class="but"
+								 th:src="@{/images/16x16/internet-web-browser.png}">
 						</span>
 					</div>
 					<div class="dz-error-mark">
 						<span>
-							<img
-								class="but"
-								th:src="@{/images/16x16/internet-web-browser.png}">
+							<img class="but"
+								 th:src="@{/images/16x16/internet-web-browser.png}">
 						</span>
 					</div>
 					<div class="dz-error-message">
@@ -569,4 +483,5 @@
 
 
 </body>
+
 </html>

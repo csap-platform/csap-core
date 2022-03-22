@@ -39,6 +39,9 @@ class Default_Application extends CsapBareTest {
 		assertThat( getApplication( ).loadDefinitionForJunits( false, testDefinition ) )
 				.as( "No Errors or warnings" )
 				.isTrue( ) ;
+		
+
+		getOsManager( ).wait_for_initial_process_status_scan( 10 ) ;
 
 		CSAP.setLogToInfo( Project.class.getName( ) ) ;
 
@@ -91,6 +94,7 @@ class Default_Application extends CsapBareTest {
 
 		assertThat( getApplication( ).getServiceInstanceCurrentHost( TestServices.agent.idWithPort( ) ) )
 				.isNotNull( ) ;
+		
 
 		assertThat( getApplication( ).getServiceInstanceCurrentHost( TestServices.agent.idWithPort( ) ).toString( ) )
 				.isEqualTo( CsapConstants.AGENT_NAME + "_8011 on host: localhost cluster: base-os containers: 1" ) ;

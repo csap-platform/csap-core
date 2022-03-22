@@ -15,19 +15,19 @@
 		
 			- Common Graph template included when graphs are displayed
 		
-		-->
 
 	<script th:replace="csap/fragments/flot-includes :: pageContent"></script>
 
 
 	<script th:src="@{ ${csapApp.versionedUrl('/js/graphs/flot-navigate-enhanced.js')} }"></script>
+		-->
 	<!-- <script th:src="@{ ${csapApp.versionedUrl('/js/graphs/flot-legend-enhanced.js')} }"></script> -->
 	
 	
 
 
 	<link
-		th:href="@{ ${csapApp.versionedUrl('/js/graphs/graph.css')} }"
+		th:href="@{ ${csapApp.versionedUrl('/css/graph.css')} }"
 		rel="stylesheet"
 		type="text/css"
 		media="screen" />
@@ -126,6 +126,7 @@
 						class="meanFilteringSelect"
 						title="">
 						<option value="0">-</option>
+						<option>0.85</option>
 						<option>1.5</option>
 						<option>2</option>
 						<option>3</option>

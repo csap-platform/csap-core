@@ -1,0 +1,43 @@
+//
+//  vscode configuration
+//  - https://www.typescriptlang.org/tsconfig#rootDirs
+//  - https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping
+//
+//  - assume gits are the base folder
+//
+{
+  "compilerOptions": {
+    "module": "es6",
+    "target": "es6",
+    "rootDirs": [
+      ".",
+      "../../../../../../../oss-csap-starter/csap-starter/src/main/resources/public/js/"
+    ],
+    // "rootDirs": [ ".", "/Users/peter.nightingale/git/oss-csap-starter/csap-starter/src/main/resources/public/js/" ],
+    //  "baseUrl": "../../../../../../",
+    // "paths": {
+    //   "*": [
+    //     //"./csap-starter/src/main/resources/public/js/modules/utils/*",
+    //     "../../../../../../../../csap-starter/src/main/resources/public/js/modules/utils/*",
+    //     "*",
+    //     "/Users/peter.nightingale/git/oss-csap-starter/csap-starter/src/main/resources/public/js/*"
+    //   ]
+    // }
+    // "paths": {
+    //   "/js/modules/utils/*": [
+    //     //"./csap-starter/src/main/resources/public/js/modules/utils/*",
+    //     //"../../../../../../../../csap-starter/src/main/resources/public/js/modules/utils/*",
+    //     "/Users/peter.nightingale/git/oss-csap-starter/csap-starter/src/main/resources/public/js/modules/utils/*"
+    //   ]
+    // }
+  },
+  "exclude": [
+    "node_modules",
+    "**/node_modules/*"
+  ],
+  "typeAcquisition": {
+    "include": [
+      "jquery"
+    ]
+  }
+}

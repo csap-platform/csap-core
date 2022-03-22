@@ -1,7 +1,5 @@
 
 spring:
-  
-  devtools.restart.additional-exclude: "**/*.jmx,**/*.csv,**/*.json,**/csap-templates/**"
 
   servlet:
     multipart:

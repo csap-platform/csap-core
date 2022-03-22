@@ -1,85 +1,66 @@
 <!DOCTYPE html>
-<html
-	xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
 
 
 <head>
 
-<title th:inline="text">Environment Editor Template</title>
+	<title th:inline="text">Environment Editor Template</title>
 
-<script th:replace="~{ csap/fragments/csap-common-includes :: pageContent }"></script>
-
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/agent.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/agent-explorer.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/browser.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/services.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/app-browser/projects.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
+	<script th:replace="csap-constants-include :: includeSection"></script>
+	<script th:replace="~{ csap/fragments/csap-module-includes :: pageContent }"></script>
 
 
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/editor/dialog-cluster.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/editor/editor-dialog-service.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/editor/dialog-settings.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/agent.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
 
-<link
-	th:href="@{ ${csapApp.versionedUrl('/js/editor/life-edit.css')} }"
-	rel="stylesheet"
-	type="text/css"
-	media="screen" />
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/agent-explorer.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
 
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/browser.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
 
-<script th:replace="csap-constants-include :: includeSection"></script>
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/services.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
 
-<script th:src="@{ ${csapApp.versionedUrl('/js/csapLibs/csap-misc.js')} }"></script>
+	<link th:href="@{ ${csapApp.versionedUrl('/css/browser/projects.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
 
 
-<script
-	th:attr="data-main=@{ ${csapApp.requiresUrl('/js/editor/modules/life-test.js')}   }"
-	th:src="@{/webjars/requirejs/2.1.20/require.min.js}"></script>
+	<link th:href="@{ ${csapApp.versionedUrl('/css/editor/dialog-cluster.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+	<link th:href="@{ ${csapApp.versionedUrl('/css/editor/editor-dialog-service.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+	<link th:href="@{ ${csapApp.versionedUrl('/css/editor/dialog-settings.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
 
+	<link th:href="@{ ${csapApp.versionedUrl('/css/editor/life-edit.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
 
+	<script type="module"
+			th:src=" @{ ${ @mvcResourceUrlProvider.getForLookupPath('/js/modules/editor/life-test.js')} }"></script>
 </head>
 
-<body
-	id=csap-main
-	class="csap-scrollable theme-dark agent">
+<body id=csap-main
+	  class="csap-scrollable theme-dark agent">
 
 
 	<header>
@@ -87,24 +68,21 @@
 		<label>Template Editor</label>
 		<label style="margin-right: 1em;">
 			Project:
-			<select
-				class="releasePackage"
-				style="width: 14em">
-				<option
-					th:each="name : ${packageNames}"
-					th:selected="${name == servicePackage }"
-					th:value="${name}"
-					th:text="${name}">package names updated here</option>
+			<select class="releasePackage"
+					style="width: 14em">
+				<option th:each="name : ${packageNames}"
+						th:selected="${name == servicePackage }"
+						th:value="${name}"
+						th:text="${name}">package names updated here</option>
 			</select>
 		</label>
-		
+
 		<span></span>
 	</header>
-
-	<section
-		id='lifeEditorWrapper'
-		class='lifeContents'>
-		<!--
+	<article class=content>
+		<section id='lifeEditorWrapper'
+				 class='lifeContents'>
+			<!--
             <div class="info">
                     Note: After making changes, use the JSON Text tab to confirm and commit changes. 
                     
@@ -113,192 +91,176 @@
                     </span> 
             </div> -->
 
-		<div id="env-controls">
-			<span>
-				<label>
-					Environment:
-					<select
-						id="lifeEdit"
-						class="lifeSelection">
-						<option
-							th:each="environmentName : ${ environmentNames }"
-							th:selected="${ environmentName == lifeToEdit }"
-							th:value="${ environmentName }"
-							th:text="${ environmentName }">Will be updated with dev/stage/lt/...</option>
-					</select>
-					<a
-						th:if="${ ( infraRole != null) }"
-						title="Add a new application runtime environment"
-						href="#"
-						class="csap-link addNewLifeButton"> <img th:src="@{/images/16x16/newFolder.png}">
-					</a> <a
-						th:if="${ ( infraRole != null) }"
-						title="Remove application runtime environment"
-						href="#"
-						class="csap-link removeLifeButton"> <img th:src="@{/images/16x16/deleteFolder.png}">
-					</a>
+			<div id="env-controls">
+				<span>
+					<label>
+						Environment:
+						<select id="lifeEdit"
+								class="lifeSelection">
+							<option th:each="environmentName : ${ environmentNames }"
+									th:selected="${ environmentName == lifeToEdit }"
+									th:value="${ environmentName }"
+									th:text="${ environmentName }">Will be updated with dev/stage/lt/...</option>
+						</select>
+						<a th:if="${ ( infraRole != null) }"
+						   title="Add a new application runtime environment"
+						   href="#"
+						   class="csap-link addNewLifeButton"> <img th:src="@{/images/16x16/newFolder.png}">
+						</a> <a th:if="${ ( infraRole != null) }"
+						   title="Remove application runtime environment"
+						   href="#"
+						   class="csap-link removeLifeButton"> <img th:src="@{/images/16x16/deleteFolder.png}">
+						</a>
 
-				</label>
+					</label>
 
 
-				<button
-					id="editSettingsButton"
-					class="csap-button-icon csap-edit"
-					title="Click to modify service configuraion">Settings</button>
+					<button id="editSettingsButton"
+							class="csap-button-icon csap-edit"
+							title="Click to modify service configuraion">Settings</button>
 
-			</span>
-
-
-			<a
-				target="_blank"
-				title="Learn more about CSAP Environments"
-				class="csap-link-icon csap-help"
-				
-				th:href="${@applicationConfiguration.getHelpUrl('application-editor') }">
-				Editor</a>
-		</div>
-		
-		<div id=life-table-container>
-
-		<table
-			id="editLifeTable"
-			class="simple csap sticky-header">
+				</span>
 
 
-			<thead>
+				<a target="_blank"
+				   title="Learn more about CSAP Environments"
+				   class="csap-link-icon csap-help"
+				   th:href="${@applicationConfiguration.getHelpUrl('application-editor') }">
+					Editor</a>
+			</div>
 
-				<tr>
-					<th style=""><a
-						th:if="${ ( infraRole != null) }"
-						title="Create a new cluster"
-						href="#"
-						class="csap-link-button addNewClusterButton"> <img th:src="@{/images/16x16/newFolder.png}"> Add Cluster
-					</a></th>
+			<div id=life-table-container>
 
-					<th><span>
-							<span>
-								Cluster Definitions
-
-								<label>
-									<input
-										id="clusterFilter"
-										title="Filter by lifecycle, servicename, version, etc. Hit enter key to apply filter"
-										placeholder="Filter..."
-										value="" />
-								</label>
-							</span>
+				<table id="editLifeTable"
+					   class="simple csap sticky-header">
 
 
-							<a
-								th:if="${ ( infraRole != null) }"
-								href="#"
-								class="csap-link-button addServiceClusterButton"> <img th:src="@{/images/16x16/newFolder.png}"> Add
-								Service
-							</a>
-						</span></th>
-				</tr>
-			</thead>
+					<thead>
+
+						<tr>
+							<th style=""><a th:if="${ ( infraRole != null) }"
+								   title="Create a new cluster"
+								   href="#"
+								   class="csap-link-button addNewClusterButton"> <img
+										 th:src="@{/images/16x16/newFolder.png}"> Add Cluster
+								</a></th>
+
+							<th><span>
+									<span>
+										Cluster Definitions
+
+										<label>
+											<input id="clusterFilter"
+												   title="Filter by lifecycle, servicename, version, etc. Hit enter key to apply filter"
+												   placeholder="Filter..."
+												   value="" />
+										</label>
+									</span>
 
 
-			<tr th:if="${ clusterNames.size() == 0 }">
-				<td colspan="3">No clusters found.</td>
-
-			</tr>
-
-			<tbody>
-
-				<tr
-					class="low"
-					th:if="${ unusedServices != null && unusedServices.size() != 0 }">
-					<td>
-						<div class="heading">Not assigned to a cluster</div>
-					</td>
-
-					<td>
+									<a th:if="${ ( infraRole != null) }"
+									   href="#"
+									   class="csap-link-button addServiceClusterButton"> <img
+											 th:src="@{/images/16x16/newFolder.png}"> Add
+										Service
+									</a>
+								</span></th>
+						</tr>
+					</thead>
 
 
-						<div class="cluster-items">
-							<div>
-								<div
-									class="clusterHostName"
-									th:each="clusterServiceName : ${ unusedServices  }">
-									<a
-										class="csap-link editServiceButton"
-										th:title="${clusterServiceName}"
-										th:href="${'#' + jvm }">[[ ${ clusterServiceName } ]]</a>
+					<tr th:if="${ clusterNames.size() == 0 }">
+						<td colspan="3">No clusters found.</td>
+
+					</tr>
+
+					<tbody>
+
+						<tr class="low"
+							th:if="${ unusedServices != null && unusedServices.size() != 0 }">
+							<td>
+								<div class="heading">Not assigned to a cluster</div>
+							</td>
+
+							<td>
+
+
+								<div class="cluster-items">
+									<div>
+										<div class="clusterHostName"
+											 th:each="clusterServiceName : ${ unusedServices  }">
+											<a class="csap-link editServiceButton"
+											   th:title="${clusterServiceName}"
+											   th:href="${'#' + jvm }">[[ ${ clusterServiceName } ]]</a>
+										</div>
+
+									</div>
 								</div>
 
-							</div>
-						</div>
+							</td>
 
-					</td>
-
-				</tr>
-				<tr
-					th:each="cluster : ${ clusterNames  }"
-					th:class="${ clusterDisplayMap.get(cluster) }"
-					th:title="${ clusterNotesMap.get(cluster) }">
-					
-					
-					<td>
-					
-						<a
-						class="csap-link editClusterButton"
-						th:href="${'#' + jvm }"> [[ ${ cluster } ]] </a> <br />
-
-						<div class=heading>[[ ${clusterDescriptionMap.get(cluster) } ]]</div>
-						
-						<div th:if="${ clusterDisplayMap.get(cluster).equals( 'low' ) } "
-							class=heading>
-							<span class="csap-icon csap-info">cluster disabled</span> 
-						</div>
-					</td>
-
-					<td>
-						<div
-							class="cluster-items"
-							th:unless="${ clusterToType.get(cluster).equals('kubernetes') }">
-							<span class="cluster-details">Hosts:</span>
-							<div>
-								<div
-									class="clusterHostName"
-									th:each="clusterHostName : ${ hostsMap.get(cluster)  }">
-
-									[[ ${ clusterHostName } ]]
-									<span th:if="${ clusterHostName != null && masterHostNames.contains( clusterHostName )}">(master)</span>
+						</tr>
+						<tr th:each="cluster : ${ clusterNames  }"
+							th:class="${ clusterDisplayMap.get(cluster) }"
+							th:title="${ clusterNotesMap.get(cluster) }">
 
 
+							<td>
+
+								<a class="csap-link editClusterButton"
+								   th:href="${'#' + jvm }"> [[ ${ cluster } ]] </a> <br />
+
+								<div class=heading>[[ ${clusterDescriptionMap.get(cluster) } ]]</div>
+
+								<div th:if="${ clusterDisplayMap.get(cluster).equals( 'low' ) } "
+									 class=heading>
+									<span class="csap-icon csap-info">cluster disabled</span>
 								</div>
-							</div>
-						</div>
+							</td>
 
-						<div class="cluster-items">
-							<span
-								th:unless="${ clusterToType.get(cluster).equals('kubernetes') }"
-								class="cluster-details">Services:</span>
-							<div>
-								<div
-									class="clusterHostName"
-									th:each="clusterServiceName : ${ servicesMap.get(cluster)  }">
-									<a
-										class="csap-link editServiceButton"
-										th:title="${ 'Edit service definition: ' + clusterServiceName}"
-										th:href="${'#' + jvm }">[[ ${ clusterServiceName } ]]</a>
+							<td>
+								<div class="cluster-items"
+									 th:unless="${ clusterToType.get(cluster).equals('kubernetes') }">
+									<span class="cluster-details">Hosts:</span>
+									<div>
+										<div class="clusterHostName"
+											 th:each="clusterHostName : ${ hostsMap.get(cluster)  }">
+
+											[[ ${ clusterHostName } ]]
+											<span
+												  th:if="${ clusterHostName != null && masterHostNames.contains( clusterHostName )}">(master)</span>
+
+
+										</div>
+									</div>
 								</div>
-							</div>
-						</div>
-					</td>
 
-				</tr>
-			</tbody>
+								<div class="cluster-items">
+									<span th:unless="${ clusterToType.get(cluster).equals('kubernetes') }"
+										  class="cluster-details">Services:</span>
+									<div>
+										<div class="clusterHostName"
+											 th:each="clusterServiceName : ${ servicesMap.get(cluster)  }">
+											<a class="csap-link editServiceButton"
+											   th:title="${ 'Edit service definition: ' + clusterServiceName}"
+											   th:href="${'#' + jvm }">[[ ${ clusterServiceName } ]]</a>
+										</div>
+									</div>
+								</div>
+							</td>
+
+						</tr>
+					</tbody>
 
 
-		</table>
+				</table>
 
 
-		</div>
+			</div>
 
-	</section>
+		</section>
+
+	</article>
 
 </body>
 

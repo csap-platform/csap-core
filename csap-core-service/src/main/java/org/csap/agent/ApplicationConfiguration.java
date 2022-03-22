@@ -34,6 +34,7 @@ import org.csap.integations.micrometer.CsapMeterUtilities ;
 import org.csap.security.config.CsapSecurityRoles ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
+import org.springframework.beans.factory.InitializingBean ;
 import org.springframework.beans.factory.annotation.Autowired ;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty ;
 import org.springframework.boot.context.properties.ConfigurationProperties ;
@@ -41,6 +42,8 @@ import org.springframework.cache.interceptor.KeyGenerator ;
 import org.springframework.context.annotation.Bean ;
 import org.springframework.context.annotation.Configuration ;
 import org.springframework.context.annotation.Import ;
+import org.springframework.core.env.Environment ;
+import org.springframework.core.env.Profiles ;
 import org.springframework.core.task.TaskExecutor ;
 import org.springframework.http.HttpMethod ;
 import org.springframework.http.converter.FormHttpMessageConverter ;
@@ -50,6 +53,7 @@ import org.springframework.scheduling.TaskScheduler ;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor ;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler ;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity ;
+import org.springframework.stereotype.Component ;
 import org.springframework.web.client.RestTemplate ;
 import org.springframework.web.servlet.config.annotation.CorsRegistry ;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry ;
@@ -125,6 +129,18 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
 
 		this.csapWebServer = csapWebServer ;
 		this.csapEncrypt = csapEncrypt ;
+
+	}
+
+	@Component
+	public class DebugLiveServerChanges implements InitializingBean {
+
+		@Override
+		public void afterPropertiesSet ( ) throws Exception {
+
+			logger.info( "Properties changed" ) ;
+
+		}
 
 	}
 
@@ -245,11 +261,25 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
 
 	}
 
+	@Autowired
+	private Environment environment ;
+
 	@Override
 	public void addResourceHandlers ( ResourceHandlerRegistry registry ) {
 
+		var productionCaching = true ;
+
+		if ( environment.acceptsProfiles( Profiles.of( "desktop" ) )
+				&& System.getProperty( "testCache" ) == null ) {
+
+			productionCaching = false ;
+			logger.warn( CsapApplication.testHeader( "productionCaching set to {}" ), productionCaching ) ;
+
+		}
+
+		logger.info( "Web caching enabled" ) ;
 		// add common cache policies
-		CsapMvc.addResourceHandlers( registry ) ;
+		CsapMvc.addResourceHandlers( registry, productionCaching ) ;
 
 	}
 

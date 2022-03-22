@@ -1,116 +1,120 @@
 <!DOCTYPE html>
-<html
-	xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:th="http://www.thymeleaf.org">
-<head
-	th:fragment="includeSection"
-	th:remove="tag">
-<script th:inline="javaScript">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
 
-//
-//  csap-constants-include
-//
+<head th:fragment="includeSection"
+	  th:remove="tag">
+	<script th:inline="javaScript">
 
-const CSAP_USER = [[ ${ csapUser } ]]; 
-const CSAP_SCM_USER = [[ ${ scmUser } ]]; 
-
-const AGENT_ID =  [[@{ ${ viewConstants.get("AGENT_ID") }}]];   
-const AGENT_NAME = [[@{ ${ viewConstants.get("AGENT_NAME") }}]]; 
-const AGENT_ENDPOINT = [[ ${ @application.getAgentEndpoint() } ]]; 
-const AGENT_URL_PATTERN = [[ ${ csapHostAgentPattern } ]]; 
-
-const AGENT_MODE = [[ ${ agentProfile } ]]; 
+		//
+		//  csap-constants-include
+		//
 
 
-const CSAP_HOST_NAME = [[ ${csapHostName} ]] ;
+		window.CSAP_USER = /*[[ ${ csapUser } ]]*/ null;
+		window.CSAP_SCM_USER = /*[[ ${ scmUser } ]]*/ null;
 
-const addHostUrl = [[ ${ addHostUrl  }]] ;
+		window.AGENT_ID =  /*[[@{ ${ viewConstants.get("AGENT_ID") }}]]*/ null;
+		window.AGENT_NAME = /*[[@{ ${ viewConstants.get("AGENT_NAME") }}]]*/ null;
+		window.AGENT_ENDPOINT = /*[[ ${ @application.getAgentEndpoint() } ]]*/ null;
+		window.AGENT_URL_PATTERN = /*[[ ${ csapHostAgentPattern } ]]*/ null;
 
-const BASE_URL = [[@{ / }]];
-const IMAGES_URL = [[@{ /images }]];
-const APP_BROWSER_URL = [[@{ ${"/app-browser"} }]];
-const API_URL = [[@{ ${"/api"} }]];
-const HEALTH_REPORT_URL = [[@{ ${"/health/alerts"} }]];
-
-
-const DEFINITION_URL = [[ @{ ${ csapApp.getResourcePath("DEFINITION_URL") } } ]];
-
-const EXPLORER_URL = [[ @{ ${ csapApp.getResourcePath("EXPLORER_URL") } }  ]];
-
-const FILE_URL = [[ @{ ${ csapApp.getResourcePath("FILE_URL") } } ]]
-const OS_URL = [[ @{ ${ csapApp.getResourcePath("OS_URL") } } ]]
-
-// overloaded
-const IS_ADMIN = [[ ${ adminRole } ]] ;
-var isAdmin = [[ ${ adminRole } ]] ;
-
-const GET_FILES_URL = [[ @{/file/getFilesJson} ]] ;
-const MANAGER_URL = [[ @{/file/FileManager} ]] ;
-
-const ANALYTICS_URL = [[${ analyticsUrl }]] ;
-
-const APP_ID = [[ ${ applicationId } ]] ;
+		window.AGENT_MODE = /*[[ ${ agentProfile } ]]*/ null;
 
 
+		window.CSAP_HOST_NAME = /*[[ ${csapHostName} ]]*/ null;
 
-const HOST_ENVIRONMENT_NAME = [[ ${ csapHostEnvironmentName } ]];
-const LIFECYCLE = [[${lifecycle}]];
+		window.addHostUrl = /*[[ ${ addHostUrl  }]]*/ null;
 
-const SERVICE_URL = [[@{ ${ viewConstants.get("SERVICE_URL") }}]];
-
-const ACTIVITY_URL = SERVICE_URL + "/activityCount";
-
-const EDIT_URL = [[@{ ${ viewConstants.get("EDIT_URL") }}]]; 
-const SERVICE_DEF_URL = [[@{ ${ viewConstants.get("DEFINITION_URL") }}]] + '/service';
-const fileManagerUrl = [[@{ ${ viewConstants.get("FILE_MANAGER_URL") }}]];  
-
-
-const HISTORY_URL = [[ ${ HISTORY_URL } ]];
-const METRICS_URL = [[ ${ METRICS_URL } ]];
-const TREND_URL = SERVICE_URL + "/trend"; 
-
-const DEPLOY_PROGRESS = "service/query/deployProgress";
-
-//
-//  Collection keys for metrics data
-//
-const METRICS_HOST = [[ ${ collectionHost } ]] ;
-const METRICS_OS_PROCESS = [[ ${ collectionOsProcess } ]] ;
-const METRICS_JAVA = [[ ${ collectionJava } ]] ;
-const METRICS_APPLICATION = [[ ${ collectionApplication } ]] ;
+		window.BASE_URL = /*[[@{ / }]]*/ null;
+		window.IMAGES_URL = /*[[@{ /images }]]*/ null;
+		window.JS_URL = /*[[@{ /js }]]*/ null;
+		window.WEBJARS_URL = /*[[@{ /webjars }]]*/ null;
+		window.APP_BROWSER_URL = /*[[@{ ${"/app-browser"} }]]*/ null;
+		window.API_URL = /*[[@{ ${"/api"} }]]*/ null;
+		window.HEALTH_REPORT_URL = /*[[@{ ${"/health/alerts"} }]]*/ null;
 
 
-// agent urls for dashboard // OSEXPLORER versus kubernetes explorer
-const OS_EXPLORER_URL = [[ @{ ${explorerUrl} }  ]];
-const explorerUrl = [[ @{ ${explorerUrl} }  ]];
-const vsphereEnabled = [[ ${vsphereEnabled }  ]];
-const containerUrl = [[ @{ ${ containerUrl} }  ]];
-const kubernetesApiUrl = [[ ${ kubernetesApiUrl }  ]];
+		window.DEFINITION_URL = /*[[ @{ ${ csapApp.getResourcePath("DEFINITION_URL") } } ]]*/ null;
 
-//
-// legacy edit urls
-//
+		window.EXPLORER_URL = /*[[ @{ ${ csapApp.getResourcePath("EXPLORER_URL") } }  ]]*/ null;
 
-const reportUrl = SERVICE_URL + "/report";
-const trendUrl = SERVICE_URL + "/trend"; 
+		window.FILE_URL = /*[[ @{ ${ csapApp.getResourcePath("FILE_URL") } } ]]*/ null
+		window.OS_URL = /*[[ @{ ${ csapApp.getResourcePath("OS_URL") } } ]]*/ null
 
+		// overloaded
+		window.IS_ADMIN = /*[[ ${ adminRole } ]]*/ null;
+		window.isAdmin = /*[[ ${ adminRole } ]]*/ null;
 
-var baseUrl = [[ @{ ${ viewConstants.get("BASE_URL") }} ]]; 
+		window.GET_FILES_URL = /*[[ @{/file/getFilesJson} ]]*/ null;
+		window.MANAGER_URL = /*[[ @{/file/FileManager} ]]*/ null;
 
-const analyticsUrl = [[${analyticsUrl}]] ;
-const lifeEditUrl = EDIT_URL + '/lifecycle' ;
-var serviceEditUrl = EDIT_URL + '/serviceDialog' ;
-const settingsEditUrl = EDIT_URL + '/settingsDialog' ;
-const clusterEditUrl = EDIT_URL + '/clusterDialog' ;
+		window.ANALYTICS_URL = /*[[${ analyticsUrl }]]*/ null;
 
-var lifeUpdateUrl = [[@{ ${ viewConstants.get("DEFINITION_URL") }}]] + '/lifecycle' ;
-var settingsDefUrl = [[@{ ${ viewConstants.get("DEFINITION_URL") }}]] + '/settings' ;
-var clusterDefUrl = [[@{ ${ viewConstants.get("DEFINITION_URL") }}]] + '/cluster' ;
+		window.APP_ID = /*[[ ${ applicationId } ]]*/ null;
 
 
-var commandScreen = [[@{ ${ viewConstants.get("COMMAND_SCREEN_URL") }}]] ;
 
-</script>
+		window.HOST_ENVIRONMENT_NAME = /*[[ ${ csapHostEnvironmentName } ]]*/ null;
+		window.LIFECYCLE = /*[[${lifecycle}]]*/ null;
+
+		window.SERVICE_URL = /*[[@{ ${ viewConstants.get("SERVICE_URL") }}]]*/ null;
+
+		window.ACTIVITY_URL = SERVICE_URL + "/activityCount";
+
+		window.EDIT_URL = /*[[@{ ${ viewConstants.get("EDIT_URL") }}]]*/ null;
+		window.SERVICE_DEF_URL = DEFINITION_URL+ '/service';
+		window.fileManagerUrl = /*[[@{ ${ viewConstants.get("FILE_MANAGER_URL") }}]]*/ null;
+
+
+		window.HISTORY_URL = /*[[ ${ HISTORY_URL } ]]*/ null;
+		window.METRICS_URL = /*[[ ${ METRICS_URL } ]]*/ null;
+		window.TREND_URL = SERVICE_URL + "/trend";
+
+		window.DEPLOY_PROGRESS = "service/query/deployProgress";
+
+		//
+		//  Collection keys for metrics data
+		//
+		window.METRICS_HOST = /*[[ ${ collectionHost } ]]*/ null;
+		window.METRICS_OS_PROCESS = /*[[ ${ collectionOsProcess } ]]*/ null;
+		window.METRICS_JAVA = /*[[ ${ collectionJava } ]]*/ null;
+		window.METRICS_APPLICATION = /*[[ ${ collectionApplication } ]]*/ null;
+
+
+		// agent urls for dashboard // OSEXPLORER versus kubernetes explorer
+		window.OS_EXPLORER_URL = /*[[ @{ ${explorerUrl} }  ]]*/ null;
+		window.explorerUrl = /*[[ @{ ${explorerUrl} }  ]]*/ null;
+		window.vsphereEnabled = /*[[ ${vsphereEnabled }  ]]*/ null;
+		window.containerUrl = /*[[ @{ ${ containerUrl} }  ]]*/ null;
+		window.kubernetesApiUrl = /*[[ ${ kubernetesApiUrl }  ]]*/ null;
+
+		//
+		// legacy edit urls
+		//
+
+		window.reportUrl = SERVICE_URL + "/report";
+		window.trendUrl = SERVICE_URL + "/trend";
+
+
+		window.baseUrl = /*[[ @{ ${ viewConstants.get("BASE_URL") }} ]]*/ null;
+
+		window.analyticsUrl = /*[[${analyticsUrl}]]*/ null;
+		window.lifeEditUrl = EDIT_URL + '/lifecycle';
+		window.serviceEditUrl = EDIT_URL + '/serviceDialog';
+		window.settingsEditUrl = EDIT_URL + '/settingsDialog';
+		window.clusterEditUrl = EDIT_URL + '/clusterDialog';
+
+		window.lifeUpdateUrl = DEFINITION_URL  + "/lifecycle" ;
+		window.settingsDefUrl = DEFINITION_URL  +  '/settings';
+		window.clusterDefUrl = DEFINITION_URL  +  '/cluster';
+
+		
+
+
+		window.commandScreen = /*[[@{ ${ viewConstants.get("COMMAND_SCREEN_URL") }}]]*/ null;
+
+	</script>
 </head>
 
 </html>

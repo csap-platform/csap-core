@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
+
+
+<head>
+	<title>Sub page with templates</title>
+</head>
+
+<body th:fragment="pageContent"
+	  th:remove="tag">
+
+
+
+
+
+	<div id="catContainer"
+		 style="display: none">Needed for graph interface</div>
+
+
+	<div th:replace="/graphs/template :: pageContent"></div>
+
+	<div id="hostGraphDiv"
+		 class="graphsContainer"></div>
+	<div id="os-processGraphDiv"
+		 class="graphsContainer"></div>
+	<div id="javaGraphDiv"
+		 class="graphsContainer"></div>
+
+
+
+
+	<div id="appMetricsTemplate"
+		 style="display: none">
+		<div id="appMetricsSection"
+			 class=csap-white>
+			<div class="title">Application Metrics</div>
+
+			<div class="svcDiv">
+
+				<label class="">
+					<input data-servicename="standard"
+						   class="jmxRadio"
+						   type="radio"
+						   name="jmxMetricsRadio"
+						   checked="checked"
+						   title="Standard java and tomcat settings, including heap, cpu, http listeners, etc" />
+					Default Jmx Attributes
+				</label>
+				<div style="display: inline-block; font-size: 0.9em; margin-left: 2em; font-style: italic">or
+					Application
+					attributes for selected service:</div>
+			</div>
+
+			<div id="jmxCustomServicesDiv">
+				name
+				<input data-id=" name"
+					   class="jmxRadio"
+					   type="radio"
+					   name="jmxMetricsRadio"
+					   title="Custom JMX attributes specified in service definition" />
+			</div>
+
+			<span id="jmxCustomWhenClassSet"
+				  style="display: none"></span>
+		</div>
+
+	</div>
+
+
+	<div id="graphCustomizeDiv">
+
+		<span id="hostSelection">
+
+			<label id="applicationNameLabel"
+				   class=csap></label>
+
+			<label class=csap
+				   title="Select Host(s) for display. If multiple hosts are selected, graphs may be viewed per host or stacked into a single panel">
+				<button id="hostCustomize"
+						class="csap-link-button csap-button">
+					Select Hosts (
+					<span id="hostSelectCount">0</span>
+					)
+				</button>
+			</label>
+
+			<label class=csap
+				   id="multiHostCustomize"
+				   title="Graph display mode: separate each host into its own region, or combine host series">
+				Graph Merging:
+				<select id="isStackHosts">
+					<option value="-1">Separate by Host</option>
+					<option value="99">All Hosts, All Series</option>
+					<option value="0"
+							selected="selected">Series 1</option>
+					<option value="1">Series 2</option>
+					<option value="2">Series 3</option>
+					<option value="3">Series 4</option>
+					<option value="4">Series 5</option>
+					<option value="5">Series 6</option>
+				</select>
+
+			</label>
+			
+
+			<div id="hostDialogContainer"
+				 style="display: none">
+				<div id="hostCusomizeDialog">
+
+
+					<div class="info">
+
+						<label>
+							Select:
+
+							<a id="hostCheckAll"
+							   href="#"
+							   class="csap-link-button">All</a>
+
+							<a id="hostUnCheckAll"
+							   href="#"
+							   class="csap-link-button">Clear</a>
+						</label>
+
+						<label class="entry">
+							By Cluster:
+							<select id="lcSelect"
+									name="hosts"
+									style="margin: 0; padding: 0; width: 5em;">
+							</select>
+						</label>
+
+						<label title="Select hosts using one or more performance attributes">Smart Select:</label>
+
+
+						<select id="vmSelectAttribute"
+								title="Find hosts based on selected criteria">
+						</select>
+						<!-- Host attributes are always added-->
+						<select id="vmSelectTemplate"
+								style="display: none">
+							<option value="vm.coresActive">Host - Active Cpus</option>
+							<option value="vm.totalLoad">Host - Cpu Load</option>
+							<option value="vm.alertsCount">Host - Compute Alerts</option>
+							<option value="vm.totActivity">Host - User Activity</option>
+							<option value="vm.csapThreadsTotal">Host - Application Threads</option>
+							<option value="vm.socketTotal">Host - Open Sockets</option>
+							<option value="0"
+									selected="selected">Attribute ...</option>
+						</select>
+
+						<label title="Select by top consumers">
+							Top:
+							<select id="topVmSelect">
+								<option>0</option>
+								<option>1</option>
+								<option>2</option>
+								<option>3</option>
+								<option>4</option>
+								<option selected="selected">5</option>
+								<option>10</option>
+								<option>20</option>
+								<option value="999">All</option>
+							</select>
+
+						</label>
+						<label title="Select by lowest consumers">
+							Bottom:
+
+							<select id="lowVmSelect">
+								<option selected="selected">0</option>
+								<option>1</option>
+								<option>2</option>
+								<option>3</option>
+								<option>4</option>
+								<option>5</option>
+								<option>10</option>
+								<option>20</option>
+								<option value="999">All</option>
+							</select>
+
+						</label>
+					</div>
+
+					<div id="hostDisplay">
+						<input data-host=""
+							   class="instanceCheck"
+							   style="margin-right: 0.2em"
+							   type="checkbox"
+							   title="Select to include in operations" />
+					</div>
+				</div>
+
+			</div>
+		</span>
+
+		<div id="os-processGraphs"
+			 class="graphDiv"
+			 style="font-size: 1.0em"></div>
+		<div id="hostGraphs"
+			 class="graphDiv"
+			 style="font-size: 1.0em"></div>
+		<div id="javaGraphs"
+			 class="graphDiv"
+			 style="font-size: 1.0em"></div>
+
+	</div>
+
+
+
+
+
+
+
+
+</body>
+
+</html>

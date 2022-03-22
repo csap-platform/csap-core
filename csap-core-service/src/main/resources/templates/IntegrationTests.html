@@ -1,81 +1,36 @@
 <!DOCTYPE html>
-<html
-	xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
 
 
 
 <head>
 
-<title th:inline="text">[[ ${ pageName } ]]</title>
+	<title th:inline="text">[[ ${ pageName } ]]</title>
 
-<script th:replace="~{ csap/fragments/csap-common-includes :: pageContent }"></script>
+	<script th:replace="~{ csap/fragments/csap-module-includes :: pageContent }"></script>
 
 
 
-<script th:src="@{/js/simple.js}"></script>
+	<script th:src="@{/js/modules/utils/table-test-page.js}"
+			type="module"></script>
 
-<script th:replace="csap-constants-include :: includeSection"></script>
+	<script th:replace="csap-constants-include :: includeSection"></script>
 
-<style>
-table.csap div.code {
-	margin-top: 0.5em;
-	padding: 2px;
-}
 
-table.csap {
-	width: 80em;
-	margin-bottom: 3em;
-}
-
-table.csap a.csap-link {
-	display: block;
-	margin-bottom: 5px;
-}
-
-#index {
-	display: grid;
-	color: black;
-	grid-template-columns: repeat(auto-fit, 15em);
-	padding: 5px;
-	grid-column-gap: 20px;
-	grid-row-gap: 0.5em;
-	margin-bottom: 1em;
-	align-items: self-end;
-}
-
-table td:nth-child(1) {
-	width: 15em;
-}
-
-table td:nth-child(2) {
-	width: 5em;
-}
-
-header .noteAlt {
-	font-size: 0.7em;
-	margin: 0;
-	padding: 3px;
-}
-
-div.title {
-	width: 20em;
-	color: black;
-}
-</style>
 </head>
 
 
-<body
-	th:inline="text"
-	class="csap-scrollable theme-dark theme-aqua">
+<body th:inline="text"
+	  class="csap-scrollable theme-dark theme-metal test-page">
 
 	<header th:replace="csap/fragments/page :: header"></header>
 
 
 	<article class=content>
-	
-		<div class=csap-white id=index></div>
+
+		<div class=csap-white
+			 id=index></div>
 
 		<div th:replace="tests/agent :: pageContent"></div>
 

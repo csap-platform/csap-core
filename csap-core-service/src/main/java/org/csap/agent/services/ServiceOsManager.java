@@ -236,6 +236,8 @@ public class ServiceOsManager {
 	public void on_start_up ( ) {
 		// public void onSpringContextRefreshedEvent(ContextRefreshedEvent
 		// event) {
+		
+		logger.warn( CsapApplication.highlightHeader( "Service Loading Startup" ) );
 
 		if ( csapApis.application( ).isAdminProfile( ) ) {
 

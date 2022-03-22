@@ -364,7 +364,7 @@ public class HostPortal {
 
 		modelMap.addAttribute( "templateArray", buildTemplates( ) ) ;
 
-		return new ModelAndView( CsapConstants.OS_URL + "/command-body" ) ;
+		return new ModelAndView( "command-stand-alone/command-body" ) ;
 
 	}
 
