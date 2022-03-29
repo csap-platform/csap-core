@@ -26,7 +26,7 @@ import _dom from "../../utils/dom-utils.js";
 import utils from "../utils.js"
 
 
-import model from "../../performance/model.js"
+import model from "../../analytics/model.js"
 
 
 const osAppGraphs = os_app_graphs();

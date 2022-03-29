@@ -1,6 +1,9 @@
 
 import _dom from "../../utils/dom-utils.js";
 
+
+import { aceEditor, jsYaml } from "../../libs/file-editor.js"
+
 import utils from "../utils.js"
 
 import events from "./events.js"

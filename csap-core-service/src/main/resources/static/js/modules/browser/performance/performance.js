@@ -15,6 +15,7 @@ import meters from "./meters.js"
 
 import "../../libs/jqplot.js";
 import summaryTrends from "./summary-trends.js";
+import kubernetes from "../services/kubernetes.js"
 
 
 const performance = performance_views();
