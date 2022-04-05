@@ -4,8 +4,10 @@ import _dom from "../../utils/dom-utils.js";
 
 import utils from "../utils.js"
 
+import {aceEditor, jsYaml} from "../../libs/file-editor.js"
 
 const podLogs = explorer_pod_logs();
+import logFormatters from "../file/log-formatters.js"
 
 export default podLogs ;
 
@@ -225,7 +227,7 @@ function explorer_pod_logs() {
             $( "input#pod-previous-terminated", $podLogPanel ).parent().show();
 
             $logPodSelect.empty();
-            for ( podName of _relatedPods ) {
+            for ( let podName of _relatedPods ) {
                 jQuery( '<option/>', {
                     text: podName
                 } ).appendTo( $logPodSelect );

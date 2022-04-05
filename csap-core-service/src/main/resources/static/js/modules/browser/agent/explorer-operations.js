@@ -25,6 +25,7 @@ import jsonForms from "../../editor/json-forms.js";
 
 import utils from "../utils.js";
 
+import podLogs from "./explorer-pod-logs.js"
 import explorerProgress from "./explorer-progress.js"
 import hostOperations from "./host-operations.js"
 
