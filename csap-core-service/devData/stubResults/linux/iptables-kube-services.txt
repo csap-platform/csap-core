@@ -1,0 +1,8 @@
+
+
+
+iptables -t nat -L KUBE-SERVICES:
+
+target     prot opt source               destination
+KUBE-MARK-MASQ  tcp  -- !192.168.0.0/16       10.96.0.1            /* default/kubernetes:https cluster IP */ tcp dpt:https
+KUBE-SVC-NPX46M4PTMTKRN6Y  tcp  --  anywhere             10.96.0.1            /* default/kubernetes:https cluster IP */ tcp dpt:https
