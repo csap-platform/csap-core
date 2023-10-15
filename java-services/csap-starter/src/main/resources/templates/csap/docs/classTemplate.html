@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
+
+
+
+<head>
+
+	<title th:inline="text">[[ ${ title } ]]</title>
+
+
+	<script th:replace="~{ csap/fragments/csap-module-includes :: pageContent }"></script>
+
+	<link th:href="@{ ${@mvcResourceUrlProvider.getForLookupPath('/css/api-navigator.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+
+
+	<script type="module"
+			th:src=" @{ ${ @mvcResourceUrlProvider.getForLookupPath('/js/modules/api-navigator/api-navigator.js')} }"></script>
+
+</head>
+
+<body class="csap-full csap-scrollable theme-dark agent">
+
+	<header th:replace="csap/fragments/page :: header"></header>
+
+
+	<article class=content>
+
+		<div class="warning"
+			 th:if="${ error != null }">[[ ${ error } ]]</div>
+
+
+		<div class="csap-white">
+
+			<div class="header">
+				[[ ${ title } ]]
+				<div class="docIndex">
+					<a class="csap-link"
+					   href="nav"
+					   title="View complete listing of apis">Documentation Index</a>
+				</div>
+			</div>
+			<div class="">
+				Class:
+				<span class="highlight"
+					  th:text="${param.clazz[0] }"></span>
+				Base Url:
+				<span class="highlight">[[ ${ baseUrl } ]]</span>
+			</div>
+
+			<div class="infoBlock"
+				 th:each="docNote : ${ overview } "
+				 th:utext="${ docNote }"></div>
+
+		</div>
+
+		<table id="api"
+			   class="csap">
+			<thead>
+
+				<tr>
+					<th>
+						Api
+						<input id="api-filter"
+							   placeholder="enter filter" />
+					</th>
+					<th>Types</th>
+					<th>Notes</th>
+				</tr>
+			</thead>
+
+
+			<tbody>
+
+				<tr th:each="apiDoc : ${apiDocs} ">
+					<td>
+
+						<div class="info api-path"
+							 th:utext="${ apiDoc.getFirstPath() }"></div>
+
+						<div class="api-details">
+							<div th:each="link : ${ apiDoc.getTests()}">
+
+
+
+								<!--   GET apis -->
+								<div th:if=" ${ link.postParams == null} ">
+
+									<span th:if=" ${ apiDoc.getTests().size() > 1} "
+										  class="info"
+										  th:utext="${link.text}"></span>
+
+									<div class="get-test"
+										 th:unless=" ${ apiDoc.getHttpMethod() == 'DELETE'|| apiDoc.getHttpMethod() == 'PUT'} ">
+
+										<!-- thymeleaf pre processing -->
+										<a th:if="${ link.params != null }"
+										   class="simple"
+										   th:href="@{ ${link.url}(__${link.params}__)}"
+										   th:utext="'<span>HTTP: GET</span>'"></a>
+
+										<a th:if="${ link.params == null }"
+										   class="simple"
+										   th:href="@{ ${link.url} }"
+										   th:utext="'<span>HTTP: GET</span>'"></a>
+									</div>
+
+								</div>
+
+
+
+								<!--   POST apis -->
+								<div th:if=" ${ link.postParams != null && link.fileParams == null } ">
+
+
+									<span class="info"
+										  th:utext="${link.text}"></span>
+
+									<form method="post"
+										  th:action="@{ ${link.url} }">
+										<button class="smallSubmit csap-button">
+											<span>HTTP POST</span>
+										</button>
+										<label class="docLabel"
+											   th:each="postParamEntry : ${ link.postParams }  ">
+											[[ ${postParamEntry.key} ]]:
+											<textarea
+													  th:name="${postParamEntry.key}">[[ ${postParamEntry.value} ]]</textarea>
+										</label>
+
+									</form>
+
+								</div>
+
+
+								<!--   POST apis with file params, multipart requests -->
+								<div th:if=" ${ link.postParams != null && link.fileParams != null } ">
+
+
+									<span class="info"
+										  th:utext="${link.text}"></span>
+
+									<form method="post"
+										  th:action="@{ ${link.url} }"
+										  enctype="multipart/form-data">
+										<button class="smallSubmit csap-button">[[ ${link.url} ]] (MultiPart)</button>
+										<label class="docLabel"
+											   th:each="fileParam : ${ link.fileParams }  ">
+											[[ ${ fileParam } ]]:
+											<input type="file"
+												   th:name="${ fileParam }" />
+										</label>
+										<label class="docLabel"
+											   th:each="postParamEntry : ${ link.postParams }  ">
+											[[ ${postParamEntry.key} ]]:
+											<textarea
+													  th:name="${postParamEntry.key}">[[ ${postParamEntry.value} ]]</textarea>
+										</label>
+
+									</form>
+
+								</div>
+
+							</div>
+						</div>
+
+					</td>
+					<td>
+						<div th:class="${'info ' + apiDoc.getHttpMethod()}">[[ ${ apiDoc.getHttpMethod() } ]]</div>
+						<div class="api-details">
+							returns:
+							<div class="info produces">[[ ${ apiDoc.getProducesHtml() } ]]</div>
+						</div>
+					</td>
+					<td>
+
+
+						<div class="deprecated"
+							 th:if=" ${ apiDoc.isDeprecated() } ">Deprecated</div>
+
+						<div class="api-notes">
+							<div class="infoBlock"
+								 th:each="docNote : ${ apiDoc.getNotes() } "
+								 th:utext="${ docNote }"></div>
+						</div>
+
+						<div class="api-details">
+
+							<label class="java">Java Method Name:</label>
+							<span class="meth">[[ ${ apiDoc.getJavaMethodName() } ]]</span>
+							<br />
+							<label class="java">Returns:</label>
+							<span class="meth">[[ ${ apiDoc.getJavaReturnName() } ]]</span>
+
+							<div th:if=" ${ apiDoc.getApiParams().length != 0 } ">
+								<label class="java">Parameters:</label>
+								<div class="myCols">
+									<div style=""
+										 th:each="paramName : ${ apiDoc.getApiParams() }">[[ ${ paramName } ]]</div>
+								</div>
+							</div>
+						</div>
+					</td>
+				</tr>
+
+
+
+			</tbody>
+
+		</table>
+
+
+	</article>
+
+	<footer>Auto generated using @CsapDoc</footer>
+</body>
+
+</html>

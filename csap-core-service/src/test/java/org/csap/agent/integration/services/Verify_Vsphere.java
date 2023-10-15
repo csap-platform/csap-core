@@ -45,7 +45,7 @@ class Verify_Vsphere extends CsapThinTests {
 		assertThat( datastoreListCommand.size( ) )
 				.isEqualTo( 2 ) ;
 
-		var vmListCommand = getCsapApis( ).osManager( ).getOsCommands( ).getGovcVmList( "vm/RNIs/CSAP-DEV_p" ) ;
+		var vmListCommand = getCsapApis( ).osManager( ).getOsCommands( ).getGovcVmList( "vm/YOURAPPs/CSAP-DEV_p" ) ;
 		logger.info( "vmListCommand: {}", vmListCommand ) ;
 
 		assertThat( vmListCommand.size( ) )
@@ -58,7 +58,7 @@ class Verify_Vsphere extends CsapThinTests {
 		logger.info( "govcRun results: {}", commandResults ) ;
 
 		assertThat( commandResults )
-				.contains( "GOVC_DATACENTER=***REMOVED***" ) ;
+				.contains( "GOVC_DATACENTER=My Lab" ) ;
 
 	}
 
@@ -195,7 +195,7 @@ class Verify_Vsphere extends CsapThinTests {
 
 		logger.info( CsapApplication.testHeader( ) ) ;
 
-		var vms = vsphere.vm_find( "/***REMOVED***/vm" ) ;
+		var vms = vsphere.vm_find( "/My Lab/vm" ) ;
 		logger.debug( "vm: {}", CSAP.jsonPrint( vms ) ) ;
 		logger.info( "vm 0 : {}", CSAP.jsonPrint( vms.get( 0 ) ) ) ;
 		logger.info( "vm 1 : {}", CSAP.jsonPrint( vms.get( 1 ) ) ) ;
@@ -204,9 +204,9 @@ class Verify_Vsphere extends CsapThinTests {
 				.isEqualTo( 14 ) ;
 
 		assertThat( vms.get( 0 ).asText( ) )
-				.isEqualTo( "[govc, find, /***REMOVED***/vm, -type, m]" ) ;
+				.isEqualTo( "[govc, find, /My Lab/vm, -type, m]" ) ;
 
-		vms = vsphere.vm_find( "***REMOVED***/CSAP-DEV_p" ) ;
+		vms = vsphere.vm_find( "/My Lab/vm/YOURAPPs/CSAP-DEV_p" ) ;
 		logger.debug( "vm: {}", CSAP.jsonPrint( vms ) ) ;
 		logger.info( "vm 0 : {}", CSAP.jsonPrint( vms.get( 0 ) ) ) ;
 		logger.info( "vm 1 : {}", CSAP.jsonPrint( vms.get( 1 ) ) ) ;
@@ -215,7 +215,7 @@ class Verify_Vsphere extends CsapThinTests {
 				.isEqualTo( 14 ) ;
 
 		assertThat( vms.get( 0 ).asText( ) )
-				.isEqualTo( "[govc, find, ***REMOVED***/CSAP-DEV_p, -type, m]" ) ;
+				.isEqualTo( "[govc, find, /My Lab/vm/YOURAPPs/CSAP-DEV_p, -type, m]" ) ;
 
 	}
 
@@ -249,7 +249,7 @@ class Verify_Vsphere extends CsapThinTests {
 		// VM
 
 		assertThat( vms_folder_list.at( "/0/attributes/path" ).asText( ) )
-				.isEqualTo( "[govc, ls, -l=true, /***REMOVED***/vm]" ) ;
+				.isEqualTo( "[govc, ls, -l=true, /My Lab/vm]" ) ;
 
 		assertThat( vms_folder_list.at( "/1/attributes/folderUrl" ).asText( ) )
 				.isEqualTo( "vsphere/vm" ) ;
@@ -261,9 +261,9 @@ class Verify_Vsphere extends CsapThinTests {
 				.isEqualTo( "vsphere/vms/browse" ) ;
 
 		assertThat( vms_folder_list.at( "/39/attributes/path" ).asText( ) )
-				.isEqualTo( "/***REMOVED***/vm/Flex Net Sim/" ) ;
+				.isEqualTo( "/My Lab/vm/Flex Net Sim/" ) ;
 
-		var vms_folder_path_find = vsphereExplorer.vm_listing( false, "/***REMOVED***/vm/SecureCommandServer/" ) ;
+		var vms_folder_path_find = vsphereExplorer.vm_listing( false, "/My Lab/vm/SecureCommandServer/" ) ;
 		logger.debug( "vms_folder_list : {}", CSAP.jsonPrint( vms_folder_path_find ) ) ;
 
 		assertThat( vms_folder_path_find.size( ) )
@@ -276,12 +276,12 @@ class Verify_Vsphere extends CsapThinTests {
 
 		logger.info( CsapApplication.testHeader( ) ) ;
 
-		var vm = vsphere.vmInfo( "***REMOVED***/CSAP-DEV_p/csap-dev2/csap-dev07" ) ;
+		var vm = vsphere.vmInfo( "/My Lab/vm/YOURAPPs/CSAP-DEV_p/csap-dev2/csap-dev07" ) ;
 
 		logger.info( "vm: {}", CSAP.jsonPrint( vm ).substring( 0, 400 ) ) ;
 
 		assertThat( vm.at( "/details/command" ).asText( ) )
-				.isEqualTo( "[govc, vm.info, -json=true, ***REMOVED***/CSAP-DEV_p/csap-dev2/csap-dev07]" ) ;
+				.isEqualTo( "[govc, vm.info, -json=true, /My Lab/vm/YOURAPPs/CSAP-DEV_p/csap-dev2/csap-dev07]" ) ;
 
 		assertThat( vm.at( "/details/ConfigStatus" ).asText( ) ).isEqualTo( "green" ) ;
 

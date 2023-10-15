@@ -262,7 +262,7 @@ class Model_As_Agent extends CsapBareTest {
 					.getGitSslVerificationDisabledUrls( ) ) ;
 			assertThat( getApplication( ).rootProjectEnvSettings( ).getGitSslVerificationDisabledUrls( ) )
 					.as( "git urls" )
-					.contains( "https://moc-bb.***REMOVED***" ) ;
+					.contains( "https://moc-bb.yourcompany.org" ) ;
 
 			// assertThat (getApplication().checkGitSslVerificationSettings() )
 			// .contains( "\n[http \"https://sample.com/demo.git\"]\n\tsslVerify =
@@ -291,7 +291,7 @@ class Model_As_Agent extends CsapBareTest {
 			assertThat( httpdInstance.getUrl( ) )
 					.as( "url" )
 					.isEqualTo(
-							"http://localhost.***REMOVED***:8080/server-status,http://localhost:8080/status,http://localhost:8080" ) ;
+							"http://localhost.yourcompany.org:8080/server-status,http://localhost:8080/status,http://localhost:8080" ) ;
 
 			assertThat( httpdInstance.getMonitors( ).get( ServiceAlertsEnum.diskSpace.maxId( ) ).asText( ) )
 					.as( "disk limit" )

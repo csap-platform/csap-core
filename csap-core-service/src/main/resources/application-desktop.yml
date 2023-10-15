@@ -27,7 +27,7 @@ csap-core:
     
   disable-ssl-validation: false
   
-#  host-url-pattern: "https://CSAP_HOST.***REMOVED***:8011"
+#  host-url-pattern: "https://CSAP_HOST.yourcompany.org:8011"
 #  host-url-pattern: "${hostUrlPattern:auto}"
 
   
@@ -39,10 +39,10 @@ csap-core:
     #
     # testing only
     #
-    #test-credential-url: "http://csap-dev20.***REMOVED***:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet"
-    test-credential-url: "http://csap-dev04.***REMOVED***:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet"
-#    test-credential-url: "http://csap-dev07.***REMOVED***:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet-ha"
-#    test-credential-url: "http://centos1.***REMOVED***:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet" 
+    #test-credential-url: "http://csap-dev20.yourcompany.org:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet"
+    test-credential-url: "http://csap-dev04.yourcompany.org:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet"
+#    test-credential-url: "http://csap-dev07.yourcompany.org:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet-ha"
+#    test-credential-url: "http://centos1.yourcompany.org:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet" 
   
   definition-folder: "src/main/resources/csap-templates/application-definition/"  # "../../dev-definition"
 

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<title>fragment</title>
+</head>
+<body
+	th:fragment="pageContent"
+	th:remove="tag">
+
+
+	<header th:fragment="header">
+
+		<span id=page-info>
+			<span id="csap-page-title">
+				<span
+					id="csapPageLabel"
+					th:if="${ csapPageLabel != null }">[[ ${csapPageLabel} ]]</span>
+				<span
+					class=highlight
+					th:text="${ @csapInformation.name }"></span>
+				<span id="csapPageVersion">
+					version
+					<span
+						class=highlight
+						th:text="${ @csapInformation.version }"></span>
+				</span>
+			</span>
+			on
+			<span
+				class=highlight
+				th:text="${ @csapInformation.hostName }"></span>
+		</span>
+
+		<span class="csapOptions flex-right-info">
+
+
+
+			<select id="csapTools">
+				<option value="default">Dev Ops</option>
+				<option
+					th:each="toolEntry : ${ @csapInformation.buildToolsMap() }"
+					th:value="@{ ${toolEntry.value} }"
+					th:text="${ toolEntry.key }"></option>
+			</select>
+
+			<a
+				title="Learn more about csap"
+				target="_blank"
+				class="csap-link-icon csap-help"
+				href="https://github.com/csap-platform/csap-core/wiki">CSAP</a>
+
+		</span>
+
+	</header>
+
+	<footer th:fragment="footer">
+		<span>CSAP Opensource</span>
+		<span
+			class=the-date
+			th:text="${@csapInformation.time }"></span>
+
+	</footer>
+
+</body>
+</html>

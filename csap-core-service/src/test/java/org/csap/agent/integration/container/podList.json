@@ -201,7 +201,7 @@
       "dnsPolicy" : "ClusterFirst",
       "serviceAccountName" : "default",
       "serviceAccount" : "default",
-      "nodeName" : "csap-dev04.***REMOVED***",
+      "nodeName" : "csap-dev04.yourcompany.org",
       "securityContext" : { },
       "schedulerName" : "default-scheduler",
       "tolerations" : [ {

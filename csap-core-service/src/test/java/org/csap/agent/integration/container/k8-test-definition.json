@@ -95,13 +95,13 @@
 				"service-type": "NodePort",
 				"ingress-path": "/$$service-context",
 				"ingress-port": "$$service-primary-port",
-				"ingress-host": "csap-dev06.***REMOVED***",
+				"ingress-host": "csap-dev06.yourcompany.org",
 				"ingress-annotations": {
 					"nginx.ingress.kubernetes.io/affinity": "cookie"
 				},
 				"add-csap-tools": "true",
 				"node-selectors": {
-					"kubernetes.io/hostname": "csap-dev05.***REMOVED***"
+					"kubernetes.io/hostname": "csap-dev05.yourcompany.org"
 				},
 				"pod-annotations": {
 					"sample-annotation-1": "sample-value-1"
@@ -216,13 +216,13 @@
 				"service-type": "NodePort",
 				"ingress-path": "/$$service-context",
 				"ingress-port": "$$service-primary-port",
-				"ingress-host": "csap-dev06.***REMOVED***",
+				"ingress-host": "csap-dev06.yourcompany.org",
 				"ingress-annotations": {
 					"nginx.ingress.kubernetes.io/affinity": "cookie"
 				},
 				"add-csap-tools": "false",
 				"node-selectors": {
-					"kubernetes.io/hostname": "csap-dev05.***REMOVED***"
+					"kubernetes.io/hostname": "csap-dev05.yourcompany.org"
 				},
 				"pod-annotations": {
 					"sample-annotation-1": "sample-value-1"

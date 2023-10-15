@@ -68,7 +68,7 @@ function agent_file_browser() {
 
         if ( utils.adminHost() == "localhost" ) {
             location = "__root__/aaa";
-            location = "__home__/git/***REMOVED***-desktop-definition";
+            location = "__home__/git/yourcompany-desktop-definition";
         }
 
         let showShortCuts = true;

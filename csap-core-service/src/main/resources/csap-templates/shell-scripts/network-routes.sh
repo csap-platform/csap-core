@@ -40,7 +40,7 @@ if  is_process_running kubelet ; then
 		
 #	print_command \
 #		"docker nslookup" \
-#		"$(docker run csap/csap-tools nslookup ldap.davis.***REMOVED***.lab)"
+#		"$(docker run csap/csap-tools nslookup ldap.davis.yourcompany.lab)"
 fi
 
 

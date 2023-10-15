@@ -153,7 +153,7 @@ public class Application {
 	CsapSecuritySettings securitySettings ;
 	StandardPBEStringEncryptor encryptor ;
 
-	public static final String DESKTOP_STUB_HOST = "csap-dev01.***REMOVED***" ;
+	public static final String DESKTOP_STUB_HOST = "csap-dev01.yourcompany.org" ;
 	public static String DESKTOP_CLUSTER_HOST = "localhost" ; // localhost.fqdn.test
 
 	private String csapHostName = DESKTOP_CLUSTER_HOST ;

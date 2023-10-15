@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xsi:noNamespaceSchemaLocation="ehcache.xsd" >
+
+	<!-- refer to http://ehcache.org/ehcache.xml -->
+
+		
+	<!-- 
+		Used by CSAP client Side Loadbalancer
+	 -->
+	<cache name="lowResourceUrlCache" 
+		maxEntriesLocalHeap="100" 
+		memoryStoreEvictionPolicy="LRU"
+		timeToLiveSeconds="10" />
+		
+	<cache name="roundRobinUrlCache" 
+		maxEntriesLocalHeap="100" 
+		memoryStoreEvictionPolicy="LRU"
+		timeToLiveSeconds="30" />
+
+
+	
+	<!-- 
+		PlaceHolder for samples
+	 -->
+	<cache name="sampleCacheWithNoExpirations" 
+		maxEntriesLocalHeap="3" 
+		memoryStoreEvictionPolicy="LRU" />
+		
+		
+</ehcache>

@@ -410,7 +410,7 @@
 				"deployedArtifacts": "monitor",
 				"containers": [
 					{
-						"containerName": "/k8s_etcd_etcd-csap-dev04.***REMOVED***_kube-system_8b6a9ed512dd4423eedc23341dc791cf_0",
+						"containerName": "/k8s_etcd_etcd-csap-dev04.yourcompany.org_kube-system_8b6a9ed512dd4423eedc23341dc791cf_0",
 						"resourceViolations": [],
 						"pid": [
 							"13417"
@@ -452,7 +452,7 @@
 				"deployedArtifacts": "monitor",
 				"containers": [
 					{
-						"containerName": "/k8s_kube-apiserver_kube-apiserver-csap-dev04.***REMOVED***_kube-system_011a24763bbd655a5fa08aff5f3f6498_0",
+						"containerName": "/k8s_kube-apiserver_kube-apiserver-csap-dev04.yourcompany.org_kube-system_011a24763bbd655a5fa08aff5f3f6498_0",
 						"resourceViolations": [],
 						"pid": [
 							"13690"
@@ -586,7 +586,7 @@
 				"deployedArtifacts": "monitor",
 				"containers": [
 					{
-						"containerName": "/k8s_kube-controller-manager_kube-controller-manager-csap-dev04.***REMOVED***_kube-system_99a5e29772f3023f8170d572a3afc29f_0",
+						"containerName": "/k8s_kube-controller-manager_kube-controller-manager-csap-dev04.yourcompany.org_kube-system_99a5e29772f3023f8170d572a3afc29f_0",
 						"resourceViolations": [],
 						"pid": [
 							"13590"
@@ -755,7 +755,7 @@
 				"deployedArtifacts": "monitor",
 				"containers": [
 					{
-						"containerName": "/k8s_kube-scheduler_kube-scheduler-csap-dev04.***REMOVED***_kube-system_b734fcc86501dde5579ce80285c0bf0c_0",
+						"containerName": "/k8s_kube-scheduler_kube-scheduler-csap-dev04.yourcompany.org_kube-system_b734fcc86501dde5579ce80285c0bf0c_0",
 						"resourceViolations": [],
 						"pid": [
 							"13509"
@@ -4748,8 +4748,8 @@
 			"calico-kube-controllers,/k8s_calico-kube-controllers_calico-kube-controllers-7cfb8f4886-w82kt_kube-system_ea66e966-30aa-11e9-9024-005056953acb_0",
 			"install-cni,/k8s_install-cni_calico-node-hwmdm_kube-system_ea739cd7-30aa-11e9-9024-005056953acb_0",
 			"kube-proxy,/k8s_kube-proxy_kube-proxy-gkdw2_kube-system_ea74a0ce-30aa-11e9-9024-005056953acb_0",
-			"kube-controller-manager,/k8s_kube-controller-manager_kube-controller-manager-csap-dev07.***REMOVED***_kube-system_99a5e29772f3023f8170d572a3afc29f_0",
-			"kube-scheduler,/k8s_kube-scheduler_kube-scheduler-csap-dev07.***REMOVED***_kube-system_b734fcc86501dde5579ce80285c0bf0c_0"
+			"kube-controller-manager,/k8s_kube-controller-manager_kube-controller-manager-csap-dev07.yourcompany.org_kube-system_99a5e29772f3023f8170d572a3afc29f_0",
+			"kube-scheduler,/k8s_kube-scheduler_kube-scheduler-csap-dev07.yourcompany.org_kube-system_b734fcc86501dde5579ce80285c0bf0c_0"
 		],
 		"services": {
 			"csap-verify-service_7011": {
@@ -5236,7 +5236,7 @@
 				"deployedArtifacts": "monitor",
 				"containers": [
 					{
-						"containerName": "/k8s_etcd_etcd-csap-dev07.***REMOVED***_kube-system_c03fc7592049713532b527569b63a621_0",
+						"containerName": "/k8s_etcd_etcd-csap-dev07.yourcompany.org_kube-system_c03fc7592049713532b527569b63a621_0",
 						"resourceViolations": [],
 						"pid": [
 							"5768"
@@ -5278,7 +5278,7 @@
 				"deployedArtifacts": "monitor",
 				"containers": [
 					{
-						"containerName": "/k8s_kube-apiserver_kube-apiserver-csap-dev07.***REMOVED***_kube-system_3e04bb279e8cad3549c14be26fa90268_0",
+						"containerName": "/k8s_kube-apiserver_kube-apiserver-csap-dev07.yourcompany.org_kube-system_3e04bb279e8cad3549c14be26fa90268_0",
 						"resourceViolations": [],
 						"pid": [
 							"5560"
@@ -7987,8 +7987,8 @@
 			"calico-kube-controllers,/k8s_calico-kube-controllers_calico-kube-controllers-7cfb8f4886-vtjwq_kube-system_067fbab2-30ab-11e9-b7f4-00505695e130_0",
 			"install-cni,/k8s_install-cni_calico-node-hwkn8_kube-system_0683be53-30ab-11e9-b7f4-00505695e130_0",
 			"kube-proxy,/k8s_kube-proxy_kube-proxy-ld99w_kube-system_067ff947-30ab-11e9-b7f4-00505695e130_0",
-			"kube-scheduler,/k8s_kube-scheduler_kube-scheduler-csap-dev10.***REMOVED***_kube-system_b734fcc86501dde5579ce80285c0bf0c_0",
-			"kube-controller-manager,/k8s_kube-controller-manager_kube-controller-manager-csap-dev10.***REMOVED***_kube-system_99a5e29772f3023f8170d572a3afc29f_0"
+			"kube-scheduler,/k8s_kube-scheduler_kube-scheduler-csap-dev10.yourcompany.org_kube-system_b734fcc86501dde5579ce80285c0bf0c_0",
+			"kube-controller-manager,/k8s_kube-controller-manager_kube-controller-manager-csap-dev10.yourcompany.org_kube-system_99a5e29772f3023f8170d572a3afc29f_0"
 		],
 		"services": {
 			"csap-verify-service_7011": {
@@ -8223,7 +8223,7 @@
 				"deployedArtifacts": "monitor",
 				"containers": [
 					{
-						"containerName": "/k8s_etcd_etcd-csap-dev10.***REMOVED***_kube-system_5fe000056e695f58038307fb0869dce1_0",
+						"containerName": "/k8s_etcd_etcd-csap-dev10.yourcompany.org_kube-system_5fe000056e695f58038307fb0869dce1_0",
 						"resourceViolations": [],
 						"pid": [
 							"20741"
@@ -8265,7 +8265,7 @@
 				"deployedArtifacts": "monitor",
 				"containers": [
 					{
-						"containerName": "/k8s_kube-apiserver_kube-apiserver-csap-dev10.***REMOVED***_kube-system_67ee939dd4b3699d33e51019a97cbc68_0",
+						"containerName": "/k8s_kube-apiserver_kube-apiserver-csap-dev10.yourcompany.org_kube-system_67ee939dd4b3699d33e51019a97cbc68_0",
 						"resourceViolations": [],
 						"pid": [
 							"20593"

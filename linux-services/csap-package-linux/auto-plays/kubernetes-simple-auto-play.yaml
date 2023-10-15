@@ -1,0 +1,81 @@
+#
+#  NOTES:
+#
+#   1. confirm your integration environment (line 26)
+#   2. update integration hosts (line 49,52)
+#   3. Use admin/project/files to apply this file
+#   4. Go to Deploy -> batch operations -> select csap-events -> click deploy - then start
+#
+
+---
+# optional: delete previous defaults if they exist
+operator: modify
+target: default
+
+operations:
+  - deletes: 
+    - /environments/defaults/settings/configuration-maps/csap-kubelet-defaults
+    
+---
+
+operator: modify
+target: default
+
+
+environments:
+  base: dev # update with your integration lifecycle
+  remove-inactive: false
+  
+  default-settings:  # defaults for ALL envs
+    configuration-maps:
+      csap-kubelet-defaults:
+        clusterToken: "584t76.b0b7c7r75rbc0ml0"
+        kubernetesRepo: http://media.yourcompany.org/media/third_party/kubernetes/kubernetes-el7.repo
+        kubernetesAllInOne: true
+        #masterBackupFolder: "$$nfs-mount/kubernetes-backups"
+        #singleMasterUntaint: "no"
+        #kubernetesRepo: "https://packages.cloud.google.com/yum"
+#      docker:
+#        dockerRepo: http://media.yourcompany.org/media/third_party/linux/CentOS/docker-ce.repo
+        
+      kubelet:
+  
+  clusters:
+  
+    kubernetes-provider: 
+      type: kubernetes-provider
+
+      masters:
+        - your-masters
+        
+      hosts:
+        - master-and-workers
+        
+      template-references: 
+        - kubelet
+    
+    kubernetes-system-services: 
+      type: kubernetes
+      kubernetes-provider: kubernetes-provider
+      kubernetes-namespace: kube-system
+      template-references: 
+        - calico-kube-controllers
+        - calico-node
+        - coredns
+        - etcd
+        - kube-apiserver
+        - kube-controller-manager
+        - kube-proxy
+        - kube-scheduler
+        - kubernetes-dashboard
+        - metrics-server
+        - nginx-ingress-controller
+        # Note: only enable client provisioner if nfs configured
+        # - nfs-client-provisioner
+        
+
+operations: 
+  - inserts:
+    - path: /environments/defaults/base-os/template-references
+      value: docker
+        

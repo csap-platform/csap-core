@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
+
+
+<head>
+
+	<title>simple-landing</title>
+
+	<script th:replace="~{ csap/fragments/csap-module-includes :: pageContent }"></script>
+
+	<!--  testing only, not used 
+	<script th:replace="~{ csap/fragments/jqplot-includes :: pageContent }"></script>
+	<script th:replace="~{ csap/fragments/misc :: pageContent }"></script>-->
+
+	<link th:href="@{ ${@mvcResourceUrlProvider.getForLookupPath('/css/simple.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+
+	<script th:inline="javaScript"
+			type="module">
+
+				const settings = {
+
+					JQUERY_URL: /*[[ @{ /webjars/jquery/3.6.0/jquery.min.js } ]]*/ 'tbd',
+					BASE_URL: /*[[ @{ / } ]]*/ 'tbd',
+					JS_URL: /*[[ @{ /js } ]]*/ 'tbd',
+
+				}
+
+				globalThis.settings = settings;
+
+			</script>
+
+	<script type="module"
+			th:src=" @{ ${ @mvcResourceUrlProvider.getForLookupPath('/js/modules/simple/_simple-main.js')} }"></script>
+
+</head>
+
+<body class="csap-scrollable theme-dark theme-apple test-page">
+
+	<header th:replace="~{ csap/fragments/page :: header } "></header>
+
+	<article class=content>
+
+
+		<div class=csap-white
+			 id=index></div>
+
+		<table id="SpringMvc"
+			   class="csap">
+			<thead>
+
+				<tr>
+					<th>
+						<h3>Csap Starter tests</h3>
+					</th>
+					<th>returns</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+
+			<tbody>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   href=".">LandingPage</a>
+
+						<br />
+						<a class="csap-link"
+						   href="styles-only">styles-only page</a>
+
+					</td>
+					<td>html</td>
+					<td>
+						This page: SpringBoot View using Thymeleaf html5 template
+						<br />
+						<a class="csap-link-icon csap-window"
+						   target="_blank"
+						   href="http://www.thymeleaf.org/doc/articles/thvsjsp.html"> Compare thymeleaf templates versus
+							jsp </a>
+						<br />
+						<a class="csap-link-icon csap-window"
+						   target="_blank"
+						   href="http://www.thymeleaf.org/doc/articles/springmvcaccessdata.html"> Learn about Using html
+							templates </a>
+
+					</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   th:href="@{${ docsController }(clazz=${ helpPageExample })}"> @CsapDoc example</a>
+					</td>
+					<td>html</td>
+					<td>CSAP API Test page Generator</td>
+				</tr>
+				<tr>
+					<td>
+						<a class="csap-link"
+						   th:href="@{ /csap/health(testCount=200)}"> CsapHealth Test Page</a>
+					</td>
+					<td>html</td>
+					<td>Health report with 200 fake items</td>
+				</tr>
+
+				<tr>
+					<td>
+						test java encrypt - run test based on jvm configuration
+						</a>
+					</td>
+					<td>html</td>
+					<td>
+
+						<form th:action="@{/encode}"
+							  style="">
+							<input type="submit"
+								   value="encode" />
+							Item to decode:
+							<input id=string-to-decode
+								   name="stringToEncode"
+								   value="Simple string to encode" />
+							(Current JVM)
+						</form>
+						<form th:action="@{/decode}"
+							  style="">
+							<input type="submit"
+								   value="decode" />
+							Item to decode:
+							<input name="stringToDecode"
+								   value="kMp1cwWZ/4H5qQHxtbSX7rZU790Sr1HUYZDApx4FVqA=" />
+							(JDK default weak encoding)
+						</form>
+
+						<form th:action="@{/decode}"
+							  style="">
+							<input type="submit"
+								   value="decode" />
+							Item to decode:
+							<input name="stringToDecode"
+								   value="5E2Bh0SeZ55EYi89qMSwcpIQbwtgNfikBDDAoU6aYcX6VDi7w7eYkA==" />
+							(JDK strong encoding)
+						</form>
+
+					</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   th:href="@{testAsync(delaySeconds=5)}">test @async</a>
+					</td>
+					<td>html</td>
+					<td>verify async thread pool</td>
+				</tr>
+
+
+
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   href="currentTime">currentTime</a>
+						<br>
+
+						<a class="csap-link"
+						   th:href="@{/currentTime(callback='peter')}">currentTime callback</a>
+
+					</td>
+					<td>text</td>
+					<td>Spring MVC returning plain text</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   href="currentUser">currentUser</a>
+
+						<br>
+
+						<a class="csap-link"
+						   href="currentUserDetails">currentUserDetails</a>
+
+						<br>
+
+						<a class="csap-link"
+						   th:href="@{ /CsapUser(apiUrl='http://csap-dev01.yourcompany.org/csap-admin/api/application/')}">
+							/CsapUser Test Page</a>
+					</td>
+					<td>json, json, html</td>
+					<td>Spring MVC returning plain text, and id of logged in user</td>
+				</tr>
+
+
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   href="helloWithOptionalName">helloWithOptionalName</a>
+						<br />
+						<a class="csap-link"
+						   href="helloWithOptionalName/sampleName">helloWithOptionalName/sampleName</a>
+
+					</td>
+					<td>json</td>
+					<td>Spring @GetMapping with Optional @PathVariable</td>
+				</tr>
+
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   href="addSessionVar">addSessionVar</a>
+					</td>
+					<td>text</td>
+					<td>Spring MVC with session variable; note embedded tomcat can optional persist over restarts, or
+						distribute
+						for stateless containers via redis</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   href="testAclFailure">testAclFailure</a>
+					</td>
+					<td>html</td>
+					<td>Spring Security - verify ACL deny message</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   href="maxConnections">maxConnections test</a>
+					</td>
+					<td>json</td>
+					<td>Sleep method for testing servlet accept count limits and threads</td>
+				</tr>
+
+
+			</tbody>
+
+		</table>
+
+
+		<table class="csap">
+			<thead>
+
+				<tr>
+					<th>
+						<h3>UI Tests</h3>
+					</th>
+					<th>returns</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+
+			<tbody>
+
+				<tr>
+					<td>
+						<a class="csap-link-icon csap-window"
+						   target="_blank"
+						   th:href="@{/swagger-ui/index.html}">Swagger UI</a>
+
+
+						<br>
+
+						<a class="csap-link-icon csap-window"
+						   target="_blank"
+						   th:href="@{/v3/api-docs}">OpenApi Docs</a>
+
+
+					</td>
+					<td>web app</td>
+					<td>
+						<a class="csap-link-icon csap-window"
+						   target="_blank"
+						   href="https://springdoc.org/">springdoc reference guide</a>
+						<br>
+					</td>
+				</tr>
+
+				<tr>
+					<td>
+						<button id=demo-csap-info
+								class="csap-button">dialog.csapInfo demo</button>
+
+						<button id=demo-csap-warning
+								class="csap-button">dialog.csapWarning demo</button>
+					</td>
+					<td>html</td>
+					<td>demo csap dialogs</td>
+				</tr>
+				<tr>
+					<td>
+						<button id="currentTimeButton"
+								class="pushButton">currentTime</button>
+
+						<button id="time-cors-button"
+								class="pushButton">currentTime CORS</button>
+					</td>
+					<td>html</td>
+					<td>Spring MVC via jquery and alertify</td>
+				</tr>
+				<tr>
+					<td>
+						<button id="themeTablesButton"
+								class="pushButton">theme tables</button>
+					</td>
+					<td>html</td>
+					<td>JQuery tablesorter on tables</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<table class="csap">
+			<thead>
+
+				<tr>
+					<th>
+						<h3>Error Tests</h3>
+					</th>
+					<th>returns</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+
+			<tbody>
+				<tr>
+					<td>
+						<a class="csap-link"
+						   href="testException">testException</a>
+					</td>
+					<td>text</td>
+					<td>Spring @RestController Exception Advice</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   href="testNullPointer">testNullPointer</a>
+					</td>
+					<td>text</td>
+					<td>Spring @Controller Null Pointer Exception Advice</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   href="missingTemplate">missingTemplate</a>
+					</td>
+					<td>text</td>
+					<td>Missing thymeleaf template</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   href="malformedTemplate">malformedTemplate</a>
+					</td>
+					<td>text</td>
+					<td>malformedTemplate thymeleaf template. ALL elements must be terminated</td>
+				</tr>
+			</tbody>
+		</table>
+
+
+		<table id="csapServiceLocator"
+			   class="csap">
+			<thead>
+
+				<tr>
+					<th>
+						<h3>Locator Tests</h3>
+					</th>
+					<th>returns</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+
+			<tbody>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   href="hello">hello</a>
+					</td>
+					<td>text</td>
+					<td>Invoke instance in current JVM</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   th:href="@{helloWithRestAcl(userid=pnightingale,pass=replaceWithYours)}">helloWithRestAcl</a>
+					</td>
+					<td>text</td>
+					<td>Invoke instance in current JVM protected with userid and password</td>
+				</tr>
+
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   href="helloRemoteRandom">hello: remote random</a>
+					</td>
+					<td>text</td>
+					<td>Invoke instance in remote JVM, *Best Distribution</td>
+				</tr>
+
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   href="helloRoundRobin">hello: remote round robin</a>
+					</td>
+					<td>text</td>
+					<td>Invoke instance in remote JVM, iterates available instances</td>
+				</tr>
+
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   href="hello/lowCpu">hello: remote low Cpu</a>
+					</td>
+					<td>text</td>
+					<td>Invoke instance in remote JVM, lowest cpu usage of available instances</td>
+				</tr>
+
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   href="hello/lowLoad">hello: remote low load</a>
+					</td>
+					<td>text</td>
+					<td>Invoke instance in remote JVM, lowest cpu load of available instances</td>
+				</tr>
+
+
+			</tbody>
+
+		</table>
+
+
+	</article>
+
+
+	<aside>
+		<div id="loading-project-message">
+			<div class=loading-message-large>Loading Application</div>
+		</div>
+	</aside>
+
+
+	<footer th:replace="csap/fragments/page :: footer"></footer>
+</body>
+
+</html>

@@ -191,7 +191,7 @@ public class Host_Status_Manager_Test extends CsapThinTests {
 
 		// ArrayList<String> hostList = new ArrayList<>( Arrays.asList( testAdminHost1,
 		// testAdminHost1 ) ) ;
-		var testHosts = new ArrayList<>( Arrays.asList( "csap-dev01.***REMOVED***" ) ) ;
+		var testHosts = new ArrayList<>( Arrays.asList( "csap-dev01.yourcompany.org" ) ) ;
 
 		HostStatusManager hostStatusManager = new HostStatusManager( getCsapApis( ), 2, testHosts ) ;
 

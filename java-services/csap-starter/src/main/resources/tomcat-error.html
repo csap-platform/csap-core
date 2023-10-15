@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+<title>Error Page</title>
+
+
+<script th:replace="csap/fragments/libsAndStyles"></script>
+
+
+<style>
+html, body {
+	height: 100%;
+	margin: 0px;
+    font-size: 20pt;
+    font-weight: bold;
+    font-family: helvetica, arial, sans-serif;
+    background-color: #ddeeff;
+}
+
+.box {
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.box div {
+	width: 30em;
+    background-color: white;
+    border-radius: 1em;
+    padding: 2em;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+	<div class="box">
+		<div>$message</div>
+	</div>
+
+
+</body>
+
+</html>

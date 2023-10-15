@@ -32,7 +32,7 @@ spec:
         
     spec:
 #      nodeSelector:
-#        "kubernetes.io/hostname": "csap-dev01.***REMOVED***"
+#        "kubernetes.io/hostname": "csap-dev01.yourcompany.org"
       containers:
       
       - name: csap-test-container
@@ -108,7 +108,7 @@ metadata:
   
 spec:
   rules:
-  - host: "your-host.***REMOVED***"
+  - host: "your-host.yourcompany.org"
     http:
       paths:
         - path: /

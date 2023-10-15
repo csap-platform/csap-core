@@ -308,7 +308,7 @@ function projects_loader() {
         let showAll = $( "#include-all-appids", utils.findContent( "#preferences-tab-content" ) ).is( ":checked" ) ;
         let testAppId = "netMetAppId" ;
         testAppId = null ;
-        if ( utils.getAppId() === "SensusCsap" ) {
+        if ( utils.getAppId() === "yourcompanyCsap" ) {
             showAll = true ;
         }
         if ( discovery ) {

@@ -1,0 +1,133 @@
+
+#
+# update xxxHost to be the host of the dcib services
+# - updated base environment reference if the target environment is NOT named dev
+#
+
+operator: modify
+target: default
+
+
+environments:
+  base: dev
+  remove-inactive: false
+    
+  clusters:
+    dcib-services:
+      type: simple
+      hosts:
+        - xxxHost
+        
+      template-references: 
+        - nfs-server
+        - ldap-server
+        - ldap-ui
+        - gitea
+
+service-templates: 
+
+  #
+  #  SAMPLE: data center services; temp
+  #
+  nfs-server: 
+    server: docker
+    autoStart: 80
+    description: demo of docker run command and others
+    
+    url: $$csap-agent-url
+    docUrl: https://hub.docker.com/r/itsthenetwork/nfs-server-alpine/
+    
+    scheduledJobs:
+      scripts:
+        - description: run script on demand
+          frequency: event-pre-start
+          script: mkdir --verbose $HOME/docker-nfs-export;
+          
+    docker:
+      image: 'itsthenetwork/nfs-server-alpine:12'
+      run: >-
+        -d --name $$service-name --publish 2049:2049 --privileged -v $HOME/docker-nfs-export:/nfsshare
+        -e SHARED_DIRECTORY=/nfsshare $$service-image
+
+  ldap-server: 
+  
+    server: docker
+    autoStart: 81
+    description: open ldap sample with test users
+    
+    url: $$csap-agent-url
+    docUrl: https://github.com/csap-platform/csap-core/wiki/Docker-Images
+
+    docker:
+      image: 'csapplatform/ldap-server:latest'
+      portMappings: 
+        - PrivatePort: 1389
+          PublicPort: 389
+      
+
+  ldap-ui: 
+    server: docker
+    port: 8090
+    
+    autoStart: 82
+    description: open ldap sample with test users
+    
+    url: "http://$$service-fqdn-host:$$service-primary-port"
+    docUrl: https://github.com/csap-platform/csap-core/wiki/Docker-Images
+    
+    alerts:
+      max_threadCount: 200
+
+    docker:
+    
+      image: osixia/phpldapadmin:latest
+      
+      
+      environmentVariables:
+        - PHPLDAPADMIN_HTTPS=false
+        - PHPLDAPADMIN_LDAP_HOSTS=$managerHost
+ 
+      
+      portMappings: 
+        - PrivatePort: 80
+          PublicPort: $$service-primary-port
+
+  gitea: 
+    server: docker
+    port: 3000
+    
+    autoStart: 83
+    
+    description: gitea service
+    docUrl: 'https://hub.docker.com/r/gitea/gitea'
+    
+    url: "http://$$service-fqdn-host:$$service-primary-port"
+
+    alerts:
+      max_threadCount: 200
+      max_socketCount: '100'
+      max_diskWriteKb: '4000'
+      
+    docker:
+    
+      image: osixia/phpldapadmin:latest
+      
+      portMappings: 
+        - about: "http port for ui"
+          PrivatePort: $$service-primary-port
+          PublicPort: 3000
+          
+      volumes:
+        - containerMount: /data
+          readOnly: false
+          sharedUser: false
+          hostPath: /opt/csap/gitea-volume
+          createPersistent:
+            enabled: true
+            driver: local
+      environmentVariables:
+        - USER=git
+        - USER_UID=1000
+        - USER_GID=1000
+
+  

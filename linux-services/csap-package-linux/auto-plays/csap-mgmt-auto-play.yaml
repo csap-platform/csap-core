@@ -1,0 +1,40 @@
+#
+#  NOTES:
+#
+#   1. confirm your integration environment (line 29)
+#   2. update integration host (line 47)
+#   3. Use admin/project/files to apply this file
+#   4. Go to Deploy -> batch operations -> select csap-events -> click deploy - then start
+#
+
+---    
+
+operator: modify
+target: default
+
+
+environments:
+  base: dev # update with your integration lifecycle
+  remove-inactive: false
+  
+  settings:
+    #
+    # Preferred: use ssl offload to route to :8080 on management hosts. If not available - use first host
+    #
+    loadbalancer-url: http://xxx-dev01.yourcompany.org:8080
+  
+  clusters:
+  
+    csap-management: 
+      notes: "For production clusters, 2 hosts are recommended. All others - a single host is sufficient"
+      type: modjk
+
+      hosts:
+        - update-me
+        
+      template-references: 
+        - csap-admin
+        - httpd
+        
+    
+---

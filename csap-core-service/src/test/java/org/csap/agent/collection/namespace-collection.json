@@ -75,7 +75,7 @@
 			},
 			"source": {
 				"scm": "git",
-				"path": "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-starter.git",
+				"path": "https://moc-bb.yourcompany.org/bitbucket/scm/csap/csap-starter.git",
 				"branch": "HEAD",
 				"buildLocation": "/csap-starter-tester"
 			},
@@ -113,7 +113,7 @@
 					"ingress-port": "$$service-primary-port",
 					"add-csap-tools": "true",
 					"node-selectors": {
-						"kubernetes.io/hostname": "csap-dev04.***REMOVED***"
+						"kubernetes.io/hostname": "csap-dev04.yourcompany.org"
 					}
 				},
 				"runUser": "$csapUser",
@@ -143,7 +143,7 @@
 			},
 			"performance": {
 				"config": {
-					"live-httpCollectionUrl": "http://csap-dev06.***REMOVED***:30080/test-k8s-csap-reference/csap/metrics/simon",
+					"live-httpCollectionUrl": "http://csap-dev06.yourcompany.org:30080/test-k8s-csap-reference/csap/metrics/simon",
 					"httpCollectionUrl": "classpath:/httpCollect/csap-reference-app.json",
 					"javaCollectionUrl": "classpath:/httpCollect/csap-reference-java.json",
 					"healthCollectionUrl": "classpath:/httpCollect/csap-reference-java.json",

@@ -1,0 +1,126 @@
+#
+# https://github.com/elastic/kibana
+#  Release notes: https://www.elastic.co/guide/en/kibana/current/release-notes.html
+#  https://www.elastic.co/guide/en/kibana/current/docker.html
+
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: $$service-name
+  namespace: $$service-namespace
+  labels:
+    k8s-app: $$service-name
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: $$service-name
+  template:
+    metadata:
+      labels:
+        k8s-app: $$service-name
+      annotations:
+        seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
+        
+    spec:
+      containers:
+      - name: $$service-name-container
+        image: $$service-image
+        
+        # crio support: https://cri-o.github.io/cri-o/v1.18.0.html
+#        securityContext:
+#          privileged: true
+#          capabilities:
+#            add:
+#            - SYS_CHROOT
+#            - NET_RAW
+        
+        resources:
+          # need more cpu upon initialization, therefore burstable class
+          limits:
+            cpu: 1000m
+          requests:
+            cpu: 100m
+        
+        #    
+        # https://www.elastic.co/guide/en/kibana/current/docker.html
+        #
+        env:
+          - name: ELASTICSEARCH_HOSTS
+            value: http://elastic-search.$$service-namespace.svc.cluster.local:9200
+            
+            # simplify ingress configuration
+          - name: SERVER_BASEPATH
+            value: /$$service-name
+            
+          - name: SERVER_REWRITEBASEPATH
+            value: "true"
+            
+          - name: LOGGING_ROOT_LEVEL
+            value: "INFO"
+            
+          - name: XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY
+            value: "fhjskloppd678ehkdfdlliverpoolfcr"
+            
+        ports:
+        - containerPort: 5601
+          name: ui
+          protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: $$service-name-service
+  namespace: $$service-namespace
+  labels:
+    k8s-app: $$service-name
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    kubernetes.io/name: "Kibana"
+spec:
+  ports:
+  - port: 5601
+    protocol: TCP
+    targetPort: ui
+  selector:
+    k8s-app: $$service-name
+
+---
+apiVersion: networking.k8s.io/v1
+# apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+#    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  name: $$service-name-ingress
+  namespace: $$service-namespace
+  labels:
+    app: $$service-name
+    
+
+spec:
+  rules:
+  - host: '$$ingress-host'
+    http:
+      paths:
+      - path: /$$service-name
+        pathType: Prefix
+        #pathType: ImplementationSpecific
+        backend:
+          service:
+            name: $$service-name-service
+            port: 
+              number: 5601
+
+
+#        path: /$$service-name(/|$)(.*)
+        
+
+
+

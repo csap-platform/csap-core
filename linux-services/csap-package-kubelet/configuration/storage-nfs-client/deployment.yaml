@@ -1,0 +1,69 @@
+#
+# latest:
+#   source: https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner
+#   https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner/issues
+# 
+# deprecated, but working:
+# Sourced fom: https://github.com/kubernetes-incubator/external-storage/tree/master/nfs-client
+#  https://github.com/helm/charts/tree/master/stable/nfs-client-provisioner
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nfs-client-provisioner
+  namespace: $$service-namespace
+---
+
+
+kind: Deployment
+apiVersion: apps/v1
+
+metadata:
+  name: nfs-client-provisioner
+  namespace: $$service-namespace
+  labels:
+    run: run-$$service-name
+    
+spec:
+
+  replicas: 1
+  
+  strategy:
+    type: Recreate
+    
+  selector:
+    matchLabels:
+      run: run-$$service-name
+    
+  template:
+  
+    metadata:
+      labels:
+        app: nfs-client-provisioner
+        run: run-$$service-name
+        
+    spec:
+    
+      serviceAccountName: nfs-client-provisioner
+      
+      containers:
+        - name:  $$service-name
+          image: $$service-image
+          
+          volumeMounts:
+            - name: nfs-client-root
+              mountPath: /persistentvolumes
+              
+          env:
+            - name: PROVISIONER_NAME
+              value: $$nfs-provisioner
+            - name: NFS_SERVER
+              value: $$nfs-server
+            - name: NFS_PATH
+              value: $$nfs-path/$$nfs-provisioner
+              
+      volumes:
+        - name: nfs-client-root
+          nfs:
+            server: $$nfs-server
+            path: $$nfs-path/$$nfs-provisioner

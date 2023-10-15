@@ -1,0 +1,23 @@
+#
+# Target file
+#
+operator: modify
+target: default
+
+
+environments:
+  # environment name; required for environment processing
+  base: $csapLife
+  remove-inactive: false
+  
+  clusters:
+    csap-logging-cluster:
+      delete: true
+    
+operations:
+  - deletes: 
+#    - /environments/defaults/settings/configuration-maps/csap-logging-defaults
+    - /service-templates/elastic-search
+    - /service-templates/elastic-hq
+    - /service-templates/fluentd
+    - /service-templates/kibana

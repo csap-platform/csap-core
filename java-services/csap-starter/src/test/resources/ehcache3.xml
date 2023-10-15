@@ -1,0 +1,40 @@
+<config xmlns='http://www.ehcache.org/v3'
+	xmlns:jcache='http://www.ehcache.org/v3/jsr107'>
+
+	<!-- 
+		- refer to:  http://www.ehcache.org/documentation/3.0/examples.html#xml-with-107-extension
+		- tti: time to idle - useful for dropping data rarely/never change
+		- ttl: time to live - useful for items getting updated frequently
+		- WARNING: known issue: xml is ORDER sensitive
+	 -->
+	<service>
+		<jcache:defaults enable-management="true" enable-statistics="true"/>
+	</service>
+
+
+		
+	<!-- 
+		Used by CSAP client Side Loadbalancer. 
+	 -->
+	<cache alias="lowResourceUrlCache" uses-template="low-resource"/>
+	<cache-template name="low-resource">
+		<expiry>
+			<ttl unit="seconds">10</ttl>
+		</expiry>
+		<heap unit="entries">100</heap>
+	</cache-template>
+	
+	<cache alias="roundRobinUrlCache" uses-template="round-robin"/>
+	<cache-template name="round-robin">
+		<expiry>
+			<ttl unit="seconds">30</ttl>
+		</expiry>
+		<heap unit="entries">100</heap>
+	</cache-template>
+	
+	<cache alias="sampleCacheWithNoExpirations" uses-template="sample-cache"/>
+	<cache-template name="sample-cache">
+		<heap unit="entries">3</heap>
+	</cache-template>
+	
+</config>

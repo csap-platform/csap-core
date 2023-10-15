@@ -1,0 +1,13 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: $$storage-class
+  namespace: $$service-namespace
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: $$nfs-provisioner # or choose another name, must match deployment's env PROVISIONER_NAME'
+parameters:
+  archiveOnDelete: "false"
+mountOptions:
+  - rsize=4096
+  - wsize=4096

@@ -1,0 +1,28 @@
+#
+# refer to https://www.devdungeon.com/content/creating-systemd-service-files
+#
+
+[Install]
+WantedBy=multi-user.target
+
+[Unit]
+Description=Csap Agent Service
+After=network.target
+ 
+[Service]
+
+Type=oneshot
+# vi /etc/systemd/system/csap.service
+# Type=fork
+# PIDFile=/opt/csapUser/staging/agent.pid 
+
+
+RemainAfterExit=yes
+#
+# Updated by installFunctions
+User=CSAP_USER
+ExecStart=CSAP_START_FILE -d
+
+
+[Install]
+WantedBy=multi-user.target

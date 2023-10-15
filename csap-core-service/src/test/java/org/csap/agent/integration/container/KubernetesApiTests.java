@@ -791,7 +791,7 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 			V1PodSpec podSpec = new V1PodSpec( ) ;
 
 			Map<String, String> nodeSelector = new HashMap<>( ) ;
-			// nodeSelector.put( "kubernetes.io/hostname", "csap-dev04.***REMOVED***" ) ;
+			// nodeSelector.put( "kubernetes.io/hostname", "csap-dev04.yourcompany.org" ) ;
 			podSpec.setNodeSelector( nodeSelector ) ;
 
 			V1PodSecurityContext securityContext = new V1PodSecurityContext( ) ;
@@ -1591,7 +1591,7 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 					.as( "initial name spaces" )
 					.isGreaterThan( 0 ) ;
 
-			V1Node dev4 = apiV1.readNodeStatus( "csap-dev04.***REMOVED***", null ) ;
+			V1Node dev4 = apiV1.readNodeStatus( "csap-dev04.yourcompany.org", null ) ;
 			// s.getStatus().
 			// dev4.getStatus().al
 
@@ -2040,7 +2040,7 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 		public void field_selectors ( )
 			throws Exception {
 
-			var podFieldSelector = "spec.nodeName=csap-dev04.***REMOVED***" ;
+			var podFieldSelector = "spec.nodeName=csap-dev04.yourcompany.org" ;
 			var dev4PodCountRunning = apiV1.listPodForAllNamespaces(
 					null, null, podFieldSelector + ",status.phase==Running", null, null, null, null, null, null, null )
 					.getItems( ).size( ) ;
@@ -2056,7 +2056,7 @@ public class KubernetesApiTests extends CsapThinNoProfile {
 					dev4PodCountRunning,
 					dev4PodCountNotRunning ) ;
 
-			// var eventFieldSelector = "source.host=csap-dev04.***REMOVED***" ;
+			// var eventFieldSelector = "source.host=csap-dev04.yourcompany.org" ;
 			// var dev4EventCount = apiV1.listEventForAllNamespaces( null,
 			// eventFieldSelector, null, null, null, null, null, null, null
 			// ).getItems().size() ;

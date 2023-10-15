@@ -1,0 +1,51 @@
+#
+#  ================ profile: junit
+#
+#   - Note: references used in code base
+#
+
+spring: 
+  cache:
+    jcache:
+      config: "classpath:ehcache3.xml"
+    #type: none   
+    
+  autoconfigure.exclude: org.springframework.boot.autoconfigure.jms.JmsAutoConfiguration
+  
+  activemq:
+    in-memory: true
+    
+  
+  jpa: 
+    database-platform: org.hibernate.dialect.HSQLDialect
+    show-sql: true
+    
+    hibernate:
+      ddl-auto: create # create | update | validate | create-drop
+      
+      
+    
+
+  
+      
+csap:
+  web-server.enabled: false
+  performance.enabled: false
+  security: 
+    enabled: false  # verify integration
+  
+
+my-service-configuration:
+
+  db:
+    driver-class-name: org.hsqldb.jdbcDriver
+    username: sa
+    password: 
+    max-active: 5
+    url: jdbc:hsqldb:mem:testdb
+    
+  jms:
+    enabled: false
+    server-url: vm://localhost?broker.persistent=false
+
+    

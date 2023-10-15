@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+
+	<title th:text="${ @csapInformation.name }"></title>
+
+
+	<script th:replace="~{ csap/fragments/csap-module-includes :: pageContent }"></script>
+
+	<script type="module"
+			th:src=" @{ ${ @mvcResourceUrlProvider.getForLookupPath('/js/modules/core/_core-test-main.js')} }"></script>
+
+</head>
+
+<body class="csap-scrollable theme-dark theme-apple test-page">
+
+	<header th:replace="~{ csap/fragments/page :: header } "></header>
+
+
+	<article class=content>
+
+
+
+		<div class=csap-white
+			 id=index></div>
+
+		<table id="middleware"
+			   class="csap">
+			<thead>
+
+				<tr>
+					<th>
+						<h3>Integration Tests </h3>
+					</th>
+					<th>returns</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+
+			<tbody>
+
+				<tr>
+					<td>
+						<button id="dbConnectionTest"
+						   class="csap-button">Database Connection</button>
+					</td>
+					<td>test results</td>
+					<td>
+						<form id="dbConnectionForm"
+							  th:action="@{/spring-rest/testOracle}"
+							  method="POST">
+
+							<label class="csap-form">
+
+								<span>
+									Users:
+								</span>
+								<input name="user"
+									   class="words"
+									   size="12"
+									   th:value="${dataSource.username}" />
+							</label>
+							<label class="csap-form">
+
+								<span>
+									Pass:
+								</span>
+								<input name="pass"
+									   class="words"
+									   type="password"
+									   th:value="${dataSource.password}" />
+							</label>
+							<label class="csap-form">
+
+								<span>
+									query:
+								</span>
+								<input name="query"
+									   class="words"
+									   th:value="${query}" />
+							</label>
+							<label class="csap-form">
+
+								<span>
+									url:
+								</span>
+								<input name="url"
+									   class="words"
+									   th:value="${dataSource.url}" />
+							</label>
+						</form>
+
+
+
+					</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   th:href="@{/spring-app/spring}">JMS &amp; JPA Tests</a>
+					</td>
+					<td>html</td>
+					<td>
+						Connection:
+						<div class="noteAlt"
+							 th:text="${broker}"></div>
+						<br />
+						Queue:
+						<div class="noteAlt"
+							 th:text="${queue}"></div>
+
+					</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   th:href="@{/csap/metrics/db/postgress}"> DB Statistics </a>
+					</td>
+					<td>HTML</td>
+					<td>DB Stats for collection performance</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   th:href="@{/jms/stats}"> JMS Stats </a>
+					</td>
+					<td>HTML</td>
+					<td>Jms Statistics Checker</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   th:href="@{/spring-rest/csAgentSampleRest}">csap-agent api</a>
+					</td>
+					<td>JSON</td>
+					<td>Invoke cvsap-agent rest api</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   th:href="@{/secure/hello?userid=pnightingale&pass=replaceWithYours}">helloWithRestAcl</a>
+					</td>
+					<td>JSON</td>
+					<td>Protected Rest</td>
+				</tr>
+
+			</tbody>
+
+		</table>
+
+
+
+
+		<table id="jersey"
+			   class="csap">
+			<thead>
+
+				<tr>
+					<th>
+						<h3>Jersey REST Tests </h3>
+					</th>
+					<th>returns</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+
+			<tbody>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   th:href="@{/jersey/csap-linkSpringRest}">jersey/csap-linkSpringRest</a>
+					</td>
+					<td>json</td>
+					<td>Spring Jersey REST framework w. Spring JPA injected</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   th:href="@{/jersey/helloworld}">jersey/helloworld</a>
+					</td>
+					<td>JSON</td>
+					<td>Jersey hello world</td>
+				</tr>
+
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   th:href="@{/jersey/csap-linkSpringRest/testJerseyException}">testJerseyException</a>
+					</td>
+					<td>json</td>
+					<td>Jersey with exception mapper</td>
+				</tr>
+
+
+			</tbody>
+
+		</table>
+
+
+		<table id="resourceLimits"
+			   class="csap">
+			<thead>
+
+				<tr>
+					<th>
+						<h3>Host Resource Tests</h3>
+					</th>
+					<th>returns</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+
+			<tbody>
+
+				<tr>
+					<td>Disk Read/Write Test</td>
+
+					<td>text</td>
+					<td>
+						<div class="note">Trigger write and read of file</div>
+						<br />
+
+
+						<form th:action="@{/spring-rest/diskTest}"
+							  style="display: inline-block">
+							<input type="submit"
+								   class="csap-button"
+								   value="Start" />
+							KB to Write:
+							<input name="numberOfKb"
+								   value="500"
+								   type="number"
+								   style="width: 4em" />
+							Iterations:
+							<input name="numberOfIterations"
+								   value="100"
+								   type="number"
+								   style="width: 4em" />
+						</form>
+
+					</td>
+				</tr>
+
+				<tr>
+					<td>
+						Test Open File Limits:
+						<br />
+						<a class="csap-link"
+						   th:href="@{/spring-rest/cleanFileDescriptors}">close previously opened files</a>
+					</td>
+
+					<td>text</td>
+					<td>
+						<div class="note">Set the number of files to open. Limited by ulimit -n. UI will report back how
+							many it
+							could actually open before running out. Do not forget to run the close operation to release
+							them back to OS.</div>
+						<br />
+
+
+						<form th:action="@{/spring-rest/leakFileDescriptors}"
+							  style="display: inline-block">
+							<input type="submit"
+								   class="csap-button"
+								   value="Open" />
+							Number Of Files:
+							<input name="numberToLeak"
+								   value="100"
+								   type="number" />
+						</form>
+
+					</td>
+				</tr>
+
+
+				<tr>
+					<td>
+						Test Open Thread Limits:
+						<br />
+						<a class="csap-link"
+						   th:href="@{/spring-rest/cleanThread}">stop previously opened threads</a>
+					</td>
+
+					<td>text</td>
+
+					<td>
+						<div class="note">Set the number of threads to start. Limited by ulimit -u. UI will report back
+							how many it
+							could actually open before running out. Do not forget to run the close operation to release
+							them back to OS.</div>
+						<br />
+
+						<form th:action="@{/spring-rest/startThreads}"
+							  style="display: inline-block">
+							<input type="submit"
+								   class="csap-button"
+								   value="Open" />
+							Number of Threads:
+							<input name="numberToLeak"
+								   value="100"
+								   type="number" />
+						</form>
+					</td>
+				</tr>
+
+
+				<tr>
+					<td>
+						Test Memory Limits:
+						<br />
+						<a class="csap-link"
+						   th:href="@{/spring-rest/freeMemory}">release Memory</a>
+					</td>
+					<td>text</td>
+					<td>
+						<div class="note">Set the amount of memory to allocate as strings in a heap. Limited by jvm -XMs
+							and MX. Do
+							not forget to run the close operation to release them back to OS.</div>
+						<br />
+
+
+						<form th:action="@{/spring-rest/leakMemory}"
+							  style="display: inline-block">
+							<input type="submit"
+								   class="csap-button"
+								   value="Allocate" />
+							MB on heap:
+							<input name="mbToLeak"
+								   value="10"
+								   type="number" />
+							Kb on heap:
+							<input name="kbToLeak"
+								   value="0"
+								   type="number" />
+						</form>
+					</td>
+				</tr>
+
+
+				<tr>
+					<td>Oracle Connection leaks: JVM Must be restarted to clear</td>
+					<td>text</td>
+					<td>
+						<form th:action="@{/spring-rest/testOracleHangConnection}">
+							<input type="submit"
+								   class="csap-button"
+								   value="Leak Connection" />
+							User:
+							<input name="user"
+								   value="your-user"
+								   size="12" />
+							Pass:
+							<input name="pass"
+								   value="your-pass"
+								   type="password"
+								   size="12" />
+							url:
+							<input name="url"
+								   value="jdbc:oracle:oci8:@local_factory"
+								   size="28" />
+							query:
+							<input name="query"
+								   value="select 1 from dual"
+								   size="18" />
+						</form>
+
+					</td>
+				</tr>
+
+			</tbody>
+
+		</table>
+
+		<table id="cache"
+			   class="csap">
+			<thead>
+
+				<tr>
+					<th>
+						<h3>@Cacheable Tests</div>
+					</th>
+					<th>returns</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+
+			<tbody>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   th:href="@{/admin/info}">tbd</a>
+					</td>
+					<td>text</td>
+					<td>SpringBoot Info</td>
+				</tr>
+
+			</tbody>
+
+		</table>
+
+		<table id="encryt"
+			   class="csap">
+			<thead>
+
+				<tr>
+					<th>
+						<h3>Encryption tests</h3>
+					</th>
+					<th>returns</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+
+			<tbody>
+
+				<tr>
+					<td>
+						test java encrypt - run test based on jvm configuration
+						</a>
+					</td>
+					<td>html</td>
+					<td>
+
+						<form th:action="@{/encode}"
+							  style="">
+							<input type="submit"
+								   class="submit"
+								   value="encode" />
+							Item to decode:
+							<input name="stringToEncode"
+								   value="Simple string to encode" />
+							(Current JVM)
+						</form>
+						<form th:action="@{/decode}"
+							  style="">
+							<input type="submit"
+								   class="csap-button"
+								   value="decode" />
+							Item to decode:
+							<input name="stringToDecode"
+								   value="kMp1cwWZ/4H5qQHxtbSX7rZU790Sr1HUYZDApx4FVqA=" />
+							(JDK default weak encoding)
+						</form>
+
+						<form th:action="@{/decode}"
+							  style="">
+							<input type="submit"
+								   class="csap-button"
+								   value="decode" />
+							Item to decode:
+							<input name="stringToDecode"
+								   value="5E2Bh0SeZ55EYi89qMSwcpIQbwtgNfikBDDAoU6aYcX6VDi7w7eYkA==" />
+							(JDK strong encoding)
+						</form>
+
+					</td>
+				</tr>
+
+			</tbody>
+
+		</table>
+
+
+
+
+		<table id="SpringMvc"
+			   class="csap">
+			<thead>
+
+				<tr>
+					<th>
+						<h3 class="title">SpringMvc Tests</div>
+					</th>
+					<th>returns</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+
+			<tbody>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   th:href="@{/.}">Landing Page</a>
+					</td>
+					<td>html</td>
+					<td>SpringBoot View using Thymeleaf html5 template</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   th:href="@{/missingTemplate}">Missing Template</a>
+					</td>
+					<td>html</td>
+					<td>Thymeleaf exception for missing templatee</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   th:href="@{/currentTime}">currentTime</a>
+						<br />
+						<a class="csap-link"
+						   th:href="@{/time-using-cache(key=red)}">time-using-cache?key=red</a>
+					</td>
+					<td>text</td>
+					<td>JCache example using ehcache3 provider, cache: sampleCacheWithNoExpirations</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   th:href="@{/helloJson}">helloJson</a>
+
+						<br />
+						<a class="csap-link"
+						   th:href="@{/helloJson(callback=my_test_function)}">helloJson JSONP LEGACY callback</a>
+					</td>
+					<td>json</td>
+					<td>Legacy Backport of Deprecated JSONP support. JS needs to migrate to CORS</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   th:href="@{/testException}">testException</a>
+					</td>
+					<td>text</td>
+					<td>Spring MVC Exception Advice</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   th:href="@{/addSessionVar}">addSessionVar</a>
+					</td>
+					<td>text</td>
+					<td>Spring MVC with session variable; note embedded tomcat can optional persist over restarts, or
+						distribute
+						for stateless containers via redis</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   th:href="@{/spring-rest/sampleProtectedMethod}">sampleProtectedMethod</a>
+					</td>
+					<td>html</td>
+					<td>Spring Security - verify ACL access using CSAP SSO admin role</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   th:href="@{/testAclFailure}">testAclFailure</a>
+					</td>
+					<td>html</td>
+					<td>Spring Security - verify ACL deny message</td>
+				</tr>
+
+				<tr>
+					<td>
+						Tomcat default post limit: 2MB.
+						<a class="csap-link"
+						   href="http://stackoverflow.com/questions/33232849/increase-http-post-maxpostsize-in-spring-boot">To
+							modify</a>
+					</td>
+					<td>html</td>
+					<td>
+
+						<form th:action="@{/spring-rest/restParamPost}"
+							  method="post">
+
+							<textarea class="wide"
+									  name="doc">0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789</textarea>
+							<br />
+							Count:
+							<input name="count"
+								   value="10240" />
+							<input type="submit"
+								   class="csap-button"
+								   value="Build Large Object to param post" />
+						</form>
+
+					</td>
+				</tr>
+
+				<tr>
+					<td>SpringMvc template posting an object to Jersey Rest Resource</td>
+					<td>html</td>
+					<td>
+
+						<form th:action="@{/spring-rest/restBodyPost}"
+							  method="post">
+
+							<textarea
+									  name="doc">0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789</textarea>
+							<br />
+							Count:
+							<input name="count"
+								   value="10240" />
+							<input type="submit"
+								   class="csap-button"
+								   value="Build Large Object to body post" />
+						</form>
+
+
+					</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   target="_blank"
+						   th:href="@{/spring-rest/showSecureConfiguration}"> Secure Properties</a>
+					</td>
+					<td>json</td>
+					<td>Show contents of secure property</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a class="csap-link"
+						   target="_blank"
+						   th:href="@{/sleep/4}"> Sleep 4 seconds </a>
+					</td>
+					<td>json</td>
+					<td>Test long running requests</td>
+				</tr>
+
+			</tbody>
+
+		</table>
+
+
+	</article>
+
+
+	<footer th:replace="csap/fragments/page :: footer"></footer>
+</body>
+
+</html>

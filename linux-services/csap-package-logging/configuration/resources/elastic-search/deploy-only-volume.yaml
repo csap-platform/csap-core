@@ -1,0 +1,239 @@
+
+---
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: $$service-namespace
+  labels:
+    name: test
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+
+metadata:
+  name: "$$service-name-pv-0"
+  namespace: $$service-namespace
+  labels:
+    disk: "monitoring-$$service-name-disk-0"
+  
+spec: 
+  capacity: 
+    storage: 3Gi
+    
+  accessModes:
+    - ReadWriteOnce
+    
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions: 
+  - rsize=65536
+  - wsize=65536
+  - noatime
+  - nolock
+
+  
+  volumeMode: Filesystem
+  
+  nfs: 
+    server: $$nfs-server
+    path: $$volume-pv-0
+    
+---
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+
+metadata:
+  name: "esdata-$$service-name-cluster-0"
+  namespace: $$service-namespace
+
+  
+spec:
+  # must be explictly blanked out or default class will be used
+  storageClassName: ""
+  
+  selector:
+      matchLabels:
+        disk: "monitoring-$$service-name-disk-0"
+  
+  accessModes:
+    - ReadWriteOnce
+    
+  resources:
+    requests:
+      storage: 3Gi
+
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+
+metadata:
+  name: "$$service-name-pv-1"
+  namespace: $$service-namespace
+  labels:
+    disk: "monitoring-$$service-name-disk-1"
+  
+spec: 
+  capacity: 
+    storage: 3Gi
+    
+  accessModes:
+    - ReadWriteOnce
+    
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions: 
+  - rsize=4096
+  - wsize=4096
+  - noatime
+  - nolock
+
+  
+  volumeMode: Filesystem
+  
+  nfs: 
+    server: $$nfs-server
+    path: $$volume-pv-1
+    
+---
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+
+metadata:
+  name: "esdata-$$service-name-cluster-1"
+  namespace: $$service-namespace
+
+  
+spec:
+  # must be explictly blanked out or default class will be used
+  storageClassName: ""
+  
+  selector:
+      matchLabels:
+        disk: "monitoring-$$service-name-disk-1"
+  
+  accessModes:
+    - ReadWriteOnce
+    
+  resources:
+    requests:
+      storage: 3Gi
+
+---
+apiVersion: v1
+kind: PersistentVolume
+
+metadata:
+  name: "$$service-name-pv-2"
+  namespace: $$service-namespace
+  labels:
+    disk: "monitoring-$$service-name-disk-2"
+  
+spec: 
+  capacity: 
+    storage: 3Gi
+    
+  accessModes:
+    - ReadWriteOnce
+    
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions: 
+  - rsize=4096
+  - wsize=4096
+  - noatime
+  - nolock
+
+  
+  volumeMode: Filesystem
+  
+  nfs: 
+    server: $$nfs-server
+    path: $$volume-pv-2
+    
+---
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+
+metadata:
+  name: "esdata-$$service-name-cluster-2"
+  namespace: $$service-namespace
+
+  
+spec:
+  # must be explictly blanked out or default class will be used
+  storageClassName: ""
+  
+  selector:
+      matchLabels:
+        disk: "monitoring-$$service-name-disk-2"
+  
+  accessModes:
+    - ReadWriteOnce
+    
+  resources:
+    requests:
+      storage: 3Gi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

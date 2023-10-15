@@ -34,7 +34,7 @@ function service_config() {
             "failureThreshold": "5"
         },
         "nodeSelector": {
-            "kubernetes.io/hostname": "YOURHOST.***REMOVED***"
+            "kubernetes.io/hostname": "YOURHOST.yourcompany.org"
         },
 
         "scheduledJobs": {
@@ -251,7 +251,7 @@ function service_config() {
         },
 
         "nodeSelector": {
-            "kubernetes.io/hostname": "YOURHOST.***REMOVED***"
+            "kubernetes.io/hostname": "YOURHOST.yourcompany.org"
         },
 
         "scheduledJobs": {
@@ -357,7 +357,7 @@ function service_config() {
 
             "kubernetes-settings": {
                 "node-selectors": {
-                    "kubernetes.io/hostname": "YOURHOST.***REMOVED***"
+                    "kubernetes.io/hostname": "YOURHOST.yourcompany.org"
                 },
                 "pod-annotations": {
                     "sample-annotation-1": "sample-value-1"

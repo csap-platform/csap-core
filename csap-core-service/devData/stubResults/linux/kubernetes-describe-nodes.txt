@@ -1,5 +1,5 @@
 
-Name:               csap-dev04.***REMOVED***
+Name:               csap-dev04.yourcompany.org
 Capacity:
   cpu:                16
   memory:             32778740Ki
@@ -9,7 +9,7 @@ Allocatable:
 Allocated resources:
   cpu                1700m (10%)  4 (25%)
   memory             600Mi (1%)   2112Mi (6%)
-Name:               csap-dev05.***REMOVED***
+Name:               csap-dev05.yourcompany.org
 Capacity:
   cpu:                16
   memory:             257782140Ki
@@ -19,7 +19,7 @@ Allocatable:
 Allocated resources:
   cpu                14050m (87%)    44750m (279%)
   memory             111624Mi (44%)  512Mi (0%)
-Name:               csap-dev06.***REMOVED***
+Name:               csap-dev06.yourcompany.org
 Capacity:
   cpu:                16
   memory:             257782140Ki

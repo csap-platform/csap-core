@@ -249,7 +249,7 @@ KiB Swap:        0 total,        0 free,        0 used. 26321844 avail Mem
  1819 root      20   0       0      0      0 S   0.0  0.0   0:00.00 [lockd]
  1833 root      20   0   25904    948    748 S   0.0  0.0   0:00.04 /usr/sbin/atd -f
  1834 root      20   0  126280   1592    968 S   0.0  0.0   0:17.02 /usr/sbin/crond -n
- 1962 root      20   0  311572  17932   8652 S   0.0  0.1   0:01.21 /usr/bin/Xvnc :1 -auth /root/.Xauthority -desktop csap-dev05.davis.***REMOVED***.lab:1 (root) -fp catalogue:/etc/X11/fontpath.d -geometry 1024x768 -pn -rfbauth /root/.vnc/passwd -rfbport 5901 -rfbwait 30000 -nolisten tcp
+ 1962 root      20   0  311572  17932   8652 S   0.0  0.1   0:01.21 /usr/bin/Xvnc :1 -auth /root/.Xauthority -desktop csap-dev05.davis.yourcompany.lab:1 (root) -fp catalogue:/etc/X11/fontpath.d -geometry 1024x768 -pn -rfbauth /root/.vnc/passwd -rfbport 5901 -rfbwait 30000 -nolisten tcp
  3661 root       0 -20       0      0      0 S   0.0  0.0   0:09.87 [kworker/2:1H]
  4074 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 [kdmflush]
  4075 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 [bioset]

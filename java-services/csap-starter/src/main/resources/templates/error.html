@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+	<title>Error Page</title>
+
+
+	<script th:replace="~{ csap/fragments/csap-module-includes :: pageContent }"></script>
+
+
+	<style>
+		input {
+			margin-right: 1em;
+		}
+
+		#summary .noteAlt {
+			display: inline;
+			font-size: 0.8em;
+			margin-right: 2em;
+			padding: 3px;
+		}
+
+		div.title {
+			line-height: 1em
+		}
+
+		#summary {
+			line-height: 2em
+		}
+
+		header,
+		section {
+			margin-bottom: 1em;
+		}
+	</style>
+</head>
+
+<body class="csap-scrollable theme-dark theme-apple">
+
+	<header>
+		Csap Error Page:
+		<span class=""
+			  th:text="${timestamp }"></span>
+	</header>
+
+	<article class=content>
+
+
+
+
+
+		<div class="csap-white"
+			 id="summary"
+			 style="margin:1em">
+
+
+			 <label class="csap-form">
+				<span>Request:</span>
+				<input type="text"
+					   readonly
+					   th:value="${path }">
+			</label>
+
+			<label class="csap-form-inline">
+				<span>Http Status:</span>
+				<input type="text"
+					   readonly
+					   th:value="${status }">
+			</label>
+
+			<label class="csap-form-inline">
+				<span>Reason:</span>
+				<input type="text" class="words"
+					   readonly
+					   th:value="${error }">
+			</label>
+
+			<label class="csap-form">
+				<span>Message:</span>
+				<textarea type="text"
+					   readonly
+					   th:text="${message }"></textarea>
+					   
+			</label>
+
+		</div>
+
+		<div th:if="${ csapFiltered }"
+			 style="margin: 1em; font-size: 10pt">
+			Stack trace (Hide using server.error include-stacktrace.never)
+			<pre class="code"
+				 th:text="${ csapFiltered }"></pre>
+		</div>
+
+		<div th:unless="${csapFiltered}"
+			 style="margin: 1em; font-size: 10pt">
+			Stack trace (Hide using server.error include-stacktrace.never)
+			<pre class="code"
+				 th:text="${ trace }"></pre>
+		</div>
+	</article>
+
+
+	<footer th:replace="csap/fragments/page :: footer"></footer>
+
+</body>
+
+</html>

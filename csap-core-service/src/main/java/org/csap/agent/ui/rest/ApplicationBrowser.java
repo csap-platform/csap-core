@@ -295,17 +295,17 @@ public class ApplicationBrowser {
 
 				mav.getModelMap( ).addAttribute( "testHostOnDesktop", testHost ) ;
 				mav.getModelMap( ).addAttribute( "testHostForceLocalHost", true ) ;
-				mav.getModelMap( ).addAttribute( "kubernetesApiUrl", "http://" + testHost + ".***REMOVED***:8014" ) ;
+				mav.getModelMap( ).addAttribute( "kubernetesApiUrl", "http://" + testHost + ".yourcompany.org:8014" ) ;
 
 			} else {
 
 				mav.getModelMap( ).addAttribute( "analyticsUrl",
-						"http://localhost.***REMOVED***:8021/csap-admin/os/performance"
+						"http://localhost.yourcompany.org:8021/csap-admin/os/performance"
 								+ "?life=" + csapApis.application( ).getCsapHostEnvironmentName( ) ) ;
 
 			}
 
-			mav.getModelMap( ).addAttribute( "applicationId", "SensusCsap" ) ;
+			mav.getModelMap( ).addAttribute( "applicationId", "yourcompanyCsap" ) ;
 			mav.getModelMap( ).addAttribute( "graphReleasePackage", "CSAP Platform" ) ;
 
 			logger.info( CsapApplication.testHeader( "desktop simulate active" ) ) ;
@@ -2059,7 +2059,7 @@ public class ApplicationBrowser {
 
 			if ( csapApis.application( ).isRunningOnDesktop( ) ) {
 
-				appId = "SensusCsap" ;
+				appId = "yourcompanyCsap" ;
 
 			}
 

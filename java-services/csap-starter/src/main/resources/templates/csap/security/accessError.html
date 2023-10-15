@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+<meta
+	http-equiv="Cache-Control"
+	content="no-cache" />
+<!--  insane hack for IE to support html5 -->
+<meta
+	http-equiv="X-UA-Compatible"
+	content="IE=Edge" />
+
+
+
+<title>Authorization Error</title>
+
+
+<script th:replace="~{ csap/fragments/csap-module-includes :: pageContent }"></script>
+
+
+
+<style>
+article.content {
+	padding: 2em;
+	border: none;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: black ;
+}
+
+article.content>div.csap-red {
+	width: 40em;
+	margin-top: -20%;
+	padding: 2em;
+}
+
+body.theme-dark {
+	background: black;
+	background-image: none;
+}
+
+</style>
+</head>
+
+
+<body class="csap-full csap-scrollable theme-dark">
+
+	<header>
+		<span th:text="${serviceName}"></span>
+		Access Denied
+		<span>
+			Version:
+			<span th:text="${serviceVersion}"></span>
+		</span>
+	</header>
+
+	<article class=content>
+
+
+		<div class=csap-red>
+
+			<div class="note">An access exception was thrown, your userid needs to get additional groups.</div>
+
+
+		</div>
+
+	</article>
+
+	<footer th:replace="csap/fragments/page :: footer"></footer>
+
+
+</body>
+</html>

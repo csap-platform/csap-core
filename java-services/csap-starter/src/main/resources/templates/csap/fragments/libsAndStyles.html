@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+
+<head th:fragment="pageContent" th:remove="tag">
+
+<!-- requirejs can have side effects -->
+<!--  <script th:src="@{/webjars/requirejs/2.1.20/require.min.js}"  ></script>-->
+
+<script th:src="@{/webjars/jquery/3.5.1/jquery.min.js}"></script>
+
+<!-- menus and several other items break in jqueryui, which are used extensively. Test post update jqueryui release 
+<script th:src="@{ ${@mvcResourceUrlProvider.getForLookupPath('/js/csapLibs/jquery-migrate-3.0.0.min.js')} }"></script>
+-->
+
+<!--
+<script th:src="@{ ${@mvcResourceUrlProvider.getForLookupPath('/js/csapLibs/jquery-ui-1.12.0-rc.2/jquery-ui.min.js')} }"></script>
+<link  th:href="@{ ${@mvcResourceUrlProvider.getForLookupPath('/js/csapLibs/jquery-ui-1.12.0-rc.2/jquery-ui.min.css')} }" rel="stylesheet" type="text/css" media="screen" />
+-->
+
+<!-- -->
+<link th:href="@{/webjars/jquery-ui/1.13.0/jquery-ui.min.css}" rel="stylesheet" type="text/css" media="screen" />
+<script th:src="@{/webjars/jquery-ui/1.13.0/jquery-ui.min.js}"></script>
+
+<!--  webjar not available with latest fixes -->
+<script th:src="@{/webjars/tablesorter/2.31.3/js/jquery.tablesorter.js}"></script>
+<script th:src="@{/webjars/tablesorter/2.31.3/js/jquery.tablesorter.widgets.js}"></script>
+<script th:src="@{/webjars/tablesorter/2.31.3/js/widgets/widget-math.js}"></script>
+<script th:src="@{/webjars/tablesorter/2.31.3/js/widgets/widget-columnSelector.js}"></script>
+
+<link th:href="@{ ${@mvcResourceUrlProvider.getForLookupPath('/css/tablesorter/theme.csap.css')} }" rel="stylesheet"
+	type="text/css" media="screen" />
+<link th:href="@{ ${@mvcResourceUrlProvider.getForLookupPath('/css/tablesorter/theme.csapSummary.css')} }"
+	rel="stylesheet" type="text/css" media="screen" />
+<link th:href="@{/webjars/tablesorter/2.31.3/css/theme.blue.css}" rel="stylesheet" type="text/css" media="screen" />
+<link th:href="@{/webjars/tablesorter/2.31.3/css/theme.metro-dark.css}" rel="stylesheet" type="text/css" media="screen" />
+
+<!-- <script src="/js/csapLibs/jquery-iframe-transport.js"></script> -->
+
+<script th:src="@{/webjars/jquery-form/4.2.2/jquery.form.min.js}"></script>
+
+<!-- <script th:src="@{/js/csapLibs/csap-misc.js}" ></script>  -->
+
+
+<!--  alertify  
+<link th:href="@{/webjars/alertifyjs/1.4.1/build/css/alertify.min.css}"  rel="stylesheet" type="text/css" media="screen" />
+<link th:href="@{/webjars/alertifyjs/1.4.1/build/css/themes/semantic.min.css}"  rel="stylesheet" type="text/css" media="screen" />
+<script th:src="@{/webjars/alertifyjs/1.4.1/build/alertify.min.js}" ></script> 
+-->
+
+<link th:href="@{ ${@mvcResourceUrlProvider.getForLookupPath('/js/csapLibs/alertifyjs/css/alertify.min.css')} }"
+	rel="stylesheet" type="text/css" media="screen" />
+<link th:href="@{ ${@mvcResourceUrlProvider.getForLookupPath('/js/csapLibs/alertifyjs/css/themes/semantic.min.css')} }"
+	rel="stylesheet" type="text/css" media="screen" />
+<link th:href="@{ ${@mvcResourceUrlProvider.getForLookupPath('/css/csap-alertify-theme.css')} }" rel="stylesheet"
+	type="text/css" media="screen" />
+	
+	
+<!--  seems to be missing quite a bit, add the follow to get buttons, etc 
+<link  th:href="@{ ${@mvcResourceUrlProvider.getForLookupPath('/css/csap.alertify.css')} }" rel="stylesheet" type="text/css" media="screen" />-->
+<script th:src="@{ ${@mvcResourceUrlProvider.getForLookupPath('/js/csapLibs/alertifyjs/alertify.min.js')} }"></script>
+
+<!--  last: use csap styles to overwrite any of the above if needed -->
+<link th:href="@{ ${@mvcResourceUrlProvider.getForLookupPath('/css/csap.css')} }" rel="stylesheet" type="text/css"
+	media="screen" />
+
+
+<script th:src="@{ ${@mvcResourceUrlProvider.getForLookupPath('/js/csapLibs/csap-common.js')} }"></script>
+
+
+</head>
+</html>

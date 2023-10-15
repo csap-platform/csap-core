@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
+
+
+<head>
+	<title th:text=${browserTitle}></title>
+
+
+	<script th:replace="~{ csap/fragments/csap-module-includes :: pageContent }"></script>
+
+	<link th:href="@{ ${@mvcResourceUrlProvider.getForLookupPath('/css/alerts/alerts.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+	<script th:inline="javaScript"
+			type="module">
+
+
+				window.baseUrl = /*[[@{ health }]]*/ 'tbd';
+				window.imagesBase = /*[[@{ /images }]]*/ 'tbd';
+				window.testCountParam = /*[[ ${ #httpServletRequest.getParameter( 'testCount' ) } ]]*/ 'tbd';
+				window.paramPattern = /*[[ ${ #httpServletRequest.getParameter( 'pattern' ) } ]]*/ 'tbd';
+
+				const settings = {
+
+					JQUERY_URL: /*[[ @{ /webjars/jquery/3.6.0/jquery.min.js } ]]*/ 'tbd',
+					BASE_URL: /*[[ @{ / } ]]*/ 'tbd',
+					JS_URL: /*[[ @{ /js } ]]*/ 'tbd',
+
+				}
+
+				globalThis.settings = settings;
+
+			</script>
+
+	<script type="module"
+			th:src=" @{ ${ @mvcResourceUrlProvider.getForLookupPath('/js/modules/alerts/alert-main.js')} }"></script>
+
+</head>
+
+<body class="csap-full csap-scrollable theme-dark agent">
+
+	<header th:replace="~{ csap/fragments/page :: header } "></header>
+
+	<section>
+		<article class="content">
+			<div id="metricDetails"
+				 style="display: none">
+
+
+				<div class="name"></div>
+				<div class="noteHighlight">
+					<label>
+						First:
+						<span id="firstTime"></span>
+						Last:
+						<span id="lastTime"></span>
+						Max:
+						<span id="maxTime"></span>
+					</label>
+				</div>
+
+				<table id="metricItems"
+					   class="csap">
+					<thead>
+						<tr>
+							<th class="sorter-raw">Item</th>
+							<th>Value</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Item</td>
+							<td>Value</td>
+						</tr>
+
+					</tbody>
+
+				</table>
+
+
+
+			</div>
+
+			<div id="tabs">
+				<ul>
+					<li data-tab="simonTab">
+						<a id=""
+						   href="#simonTab"
+						   title="Metrics">Performance</a>
+					</li>
+					<li class="simon-only"
+						data-tab="alertsTab">
+						<a id=""
+						   href="#alertsTab"
+						   title="Alerts Recorded">Alert History</a>
+					</li>
+					<li class="simon-only"
+						data-tab="definitionsTab">
+						<a id=""
+						   href="#definitionsTab"
+						   title="Alert Definitions">Alert Definitions</a>
+					</li>
+					<li class="simon-only"
+						data-tab="settingsTab">
+						<a id=""
+						   href="#settingsTab"
+						   title="Settings">Settings</a>
+					</li>
+				</ul>
+
+
+				<div id="alertsTab"
+					 style="display: block">
+
+
+					<div id="config">
+
+						<button id="refreshAlerts"
+								class="pushButton"
+								title="Refresh Alerts">
+							<img style="width: 12px"
+								 th:src="@{/images/16x16/view-refresh.png}" />
+						</button>
+
+						<div style="display: inline-block; min-width: 2em">
+							<div class="loadingPanel"></div>
+						</div>
+
+						Show Alerts from:
+						<label>
+							<select id="numberHoursSelect"
+									style="padding-right: 0">
+								<option>1</option>
+								<option>2</option>
+								<option>3</option>
+								<option>4</option>
+								<option>8</option>
+								<option>12</option>
+								<option selected="selected">24</option>
+								<option>48</option>
+								<option value="-1">all</option>
+							</select>
+							Hours
+						</label>
+
+						<span style="font-style: italic; padding-left: 3em;">
+							Maximum items stored:
+							<span> [[ ${ maxBacklog } ]]</span>
+						</span>
+					</div>
+
+					<table id="health"
+						   style="margin-top: 5px;"
+						   class="csap">
+						<thead>
+							<tr>
+								<th class="sorter-raw"
+									style="width: 10em">Time</th>
+								<th>Alert Id</th>
+								<th>Type</th>
+								<th>Description</th>
+							</tr>
+						</thead>
+
+						<tbody id="alertsBody">
+
+						</tbody>
+
+					</table>
+
+
+				</div>
+
+				<div id="definitionsTab"
+					 style="display: block">
+
+
+					<table id="definition"
+						   class="csap">
+						<thead>
+							<tr>
+								<th>Alert Definition</th>
+								<th>Collected</th>
+								<th>occurencesMax</th>
+								<th>occurencesMin</th>
+								<th>meanTime</th>
+								<th>maxTime</th>
+							</tr>
+						</thead>
+						<tbody id="defBody">
+
+
+						</tbody>
+
+					</table>
+
+				</div>
+
+				<div id="settingsTab"
+					 style="display: block">
+
+
+					<table class="csap">
+						<thead>
+							<tr>
+								<th class="sorter-raw">Item</th>
+								<th>Setting</th>
+							</tr>
+						</thead>
+						<tbody id="defBody">
+							<tr th:each="setting : ${ settings } ">
+								<td>[[ ${ setting.key } ]]</td>
+								<td>[[ ${ setting.value } ]]</td>
+							</tr>
+
+						</tbody>
+
+					</table>
+
+				</div>
+
+				<div id="simonTab"
+					 style="display: block">
+
+
+					<div style="position: relative;">
+
+						<div class="noteHighlight"
+							 style="min-width: 16em">
+							<label>
+								Current Status:
+								<span id="healthStatus">pending</span>
+								<button id="show-health-issues"
+										title="View Health Report"
+										class="csap-button-icon">&nbsp;
+								</button>
+							</label>
+
+							<label id="uptime"> </label>
+						</div>
+
+						<div style="display: inline-block; min-width: 2em">
+							<div class="loadingPanel"></div>
+						</div>
+
+						<button id="refreshMetrics"
+								class="csap-button"
+								title="Get values since latest reset">
+							<img style="width: 12px"
+								 th:src="@{/images/16x16/view-refresh.png}" />
+							Refresh
+						</button>
+
+						<button id="clearMetrics"
+								class="csap-button simon-only"
+								title="Experimental: Deletes all meters(should auto reregister); excluding gauges, jvm*, system*">
+							<img style="width: 12px"
+								 th:src="@{/images/16x16/deleteFolder.png}" />
+							Clear (Exp)
+						</button>
+
+						<label title="Data refresh interval">
+							Auto:
+							<select id="refreshData">
+								<option title="Auto refresh disabled"
+										value="-1">-</option>
+								<option value="1">1s</option>
+								<option value="2">2s</option>
+								<option value="5"
+										selected="selected">5s</option>
+								<option value="5">10s</option>
+								<option value="30">30s</option>
+							</select>
+						</label>
+
+
+						<label title="Select meter type and detail level">
+							View:
+							<select id="meter-view">
+								<option title="meters tagged with csap-collection"
+										value="starter"
+										selected="selected">Alarms View</option>
+								<option title="all exported meters"
+										value="api">All Available</option>
+								<option title="all exported meters with titles, tags, etc"
+										value="apiDetails">Include Details</option>
+								<option title="all meters with option to specify tag"
+										value="apiAggregated">Specified tag</option>
+								<option title="Switch to meter only view"
+										value="meter-only">Meter Only View</option>
+							</select>
+						</label>
+
+
+					</div>
+
+
+					<div id="meter-plot-template"
+						 class="meter-panel">
+						<div class="graph-controls">
+							<span class="graph-title"></span>
+							<button title="close panel"
+									class="csap-button-icon close-panel">
+								<img th:src="@{ /images/16x16/close.png }"
+									 style="" />
+							</button>
+						</div>
+						<div class="graph-selections">
+
+							<label title="count of items since last restart">
+								<input class="select-count"
+									   data-type="count"
+									   type="checkbox">
+								Count
+							</label>
+
+							<label title="count in interval">
+								<input class="select-change"
+									   data-type="change"
+									   type="checkbox">
+								Change
+							</label>
+
+							<label title="count in interval / interval time">
+								<input class="select-rate"
+									   data-type="rate"
+									   type="checkbox">
+								Rate
+							</label>
+
+							<label title="count in interval / server time">
+								<input class="select-throughput"
+									   data-type="throughput"
+									   type="checkbox">
+								Throughput
+							</label>
+
+							<label title="mean, max, and distribution">
+								<input class="select-distribution"
+									   data-type="distribution"
+									   type="checkbox">
+								Time Distribution
+							</label>
+
+							<label title="delta in total time; useful for java garbage collection">
+								<input class="select-timechange"
+									   data-type="timechange"
+									   type="checkbox">
+								Time Change
+							</label>
+						</div>
+						<div class="meter-graph"></div>
+					</div>
+
+					<div id="meter-plots"></div>
+
+					<div style="position: relative">
+						<div id="meter-filters">
+							<input id="metricFilter"
+								   placeholder="filter meters"
+								   value="" />
+
+							<input title="filter tag"
+								   id="meter-tag-filter"
+								   type="text"
+								   th:value="${ defaultTagFilter }">
+
+						</div>
+					</div>
+
+					<table id="metricTable"
+						   class="csap">
+
+						<thead>
+							<tr>
+								<th style="min-width: 30em">Name</th>
+
+								<th title="CSAP Micro Alerts defined in service limits"
+									class="sorter-raw simon-only">Alerts</th>
+
+								<th class="sorter-raw">Count</th>
+								<th title="Mean of every sample since process started"
+									class="sorter-raw">Mean</th>
+								<th title="50th percentile of recent samples"
+									class="sorter-raw">Snap50</th>
+								<th title="95th percentile of recent samples"
+									class="sorter-raw">Snap95</th>
+								<th title="Maximum of recent samples"
+									class="sorter-raw">SnapMax</th>
+								<th class="sorter-raw"
+									style="position: relative">
+									Total:
+									<label id="meter-count">
+										Displaying:
+										<span>-</span>
+										Meter(s)
+									</label>
+								</th>
+							</tr>
+						</thead>
+
+						<tbody id="metricBody">
+						</tbody>
+					</table>
+				</div>
+
+			</div>
+		</article>
+	</section>
+
+
+
+
+	<footer th:replace="csap/fragments/page :: footer"></footer>
+</body>
+
+</html>

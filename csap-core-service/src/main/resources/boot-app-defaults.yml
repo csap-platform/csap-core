@@ -40,7 +40,7 @@ csap-core:
   min-version-docker: "19.03."
   min-version-csap: "2.1.1"
 
-  screen-cast-server-url: "http://csap-dev01.***REMOVED***:7080/"
+  screen-cast-server-url: "http://csap-dev01.yourcompany.org:7080/"
 
   # http://CSAP_HOST.yourcompany.com:8011
 #  host-url-pattern: "${hostUrlPattern:auto}"

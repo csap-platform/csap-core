@@ -1,0 +1,282 @@
+#
+# for this demo - a singe csap mgmt admin and single kubernetes master are used. Both can be multiple bosts for ha.
+#
+# Update:
+#   $managerHost - k8s master, csap-admin
+#   $hostDomain -  hostDomain
+#   $appName - name of application
+#   $apiToken - rest apis betweem csap-agents - csap-admin - csap events
+#   $appId - used for event and project ids (lowercase hyphenated)
+#
+#
+
+operator: modify
+target: default
+
+
+environments:
+
+  #
+  # derive: from "default" application, which defines a "dev" environment
+  #
+  base: dev
+  
+  #
+  # Cluster host assignment:
+  #   - use host short name
+  #   - optional: specify short name everywhere; or use index of hostname from base-os cluster
+  #                
+  hosts: 
+    base-os: [ $managerHost  ]
+    csap-management: [ 1 ]
+    kubernetes-provider: [ 1 ]
+    kubernetes-masters:  [ 1 ]
+  
+
+  application-name: "$appName"
+  project-name: "$appId"
+  project-contact: "xxx.xxx@$hostDomain"
+  
+  git: https://github.com/xxx/xxx-definition.git
+
+
+  #
+  # update target env
+  #
+  settings:
+  
+    loadbalancer-url: http://$managerHost.$hostDomain:8080
+    
+    configuration-maps: 
+    
+      docker:
+        allowRemote: true
+        
+      kubelet:
+        # master and worker combined, with swap enabled
+        kubernetesAllInOne: true
+        
+      ingress-nginx:
+        $$ingress-host: "*.$hostDomain" # used to determine ingress launch urls and routing rules
+        $$ingress-node-selector: "\"kubernetes.io/os\": linux"
+        $$ingress-http-port: 7080
+        $$ingress-https-port: 7443
+    
+  default-settings:  # defaults for ALL envs
+  
+    application:
+      name: "$appName"
+  
+    csap-data:
+      user: events-disabled
+      # user: $appId
+      credential: "$apiToken"
+      service-url: "http://$managerHost.$hostDomain:8080/events-service"
+        
+#    configuration-maps:
+#    
+#      docker:
+#        dockerRepo: http://media.$hostDomain/media/third_party/linux/CentOS/docker-ce.repo
+#        
+#      kubelet:
+#        kubernetesRepo: http://media.$hostDomain/media/third_party/kubernetes/kubernetes-el7.repo
+        
+
+
+  #
+  # adding in csap-management and kubernetes
+  #
+  clusters: 
+  
+    #
+    # csap-admin provide core cluster management
+    #
+    csap-management: 
+      notes: "For production clusters, 2 hosts are recommended. All others - a single host is sufficient"
+      type: modjk
+
+      hosts:
+        - updated-in-hosts
+        
+      template-references: 
+        - csap-admin
+        - httpd
+
+    #
+    # singe master clusters are ok for non-prod; generally 3 nodes
+    #  
+    kubernetes-provider: 
+      type: kubernetes-provider
+
+      masters:
+        - updated-in-hosts
+        
+      hosts:
+        - updated-in-hosts
+        
+      template-references: 
+        - kubelet
+    
+    kubernetes-system-services: 
+      type: kubernetes
+      kubernetes-provider: kubernetes-provider
+      kubernetes-namespace: kube-system
+      template-references: 
+        - calico-kube-controllers
+        - calico-node
+        - coredns
+        - etcd
+        - kube-apiserver
+        - kube-controller-manager
+        - kube-proxy
+        - kube-scheduler
+        - kubernetes-dashboard
+        - metrics-server
+        - ingress-nginx
+        # Note: only enable client provisioner if nfs configured
+        # - nfs-client-provisioner
+
+
+
+service-templates:
+  csap-demo-nginx.docker.image: "nginx:latest"
+  
+
+operations: 
+  - inserts:
+    - path: /environments/defaults/base-os/template-references
+      value: docker
+
+      
+
+---
+#
+# Core csap settings: yourcompany yourtown Security(LDAP)
+#
+operator: create
+target: application-company.yml
+
+#
+# Global settings for applications - test
+#
+
+
+
+     
+csap-core:
+
+  kubernetes: 
+    enabled: true
+
+  docker: 
+    enabled: true
+    
+
+#
+# health and data services
+#
+#csap-events: 
+#
+#  health-monitoring: 
+#    appIds:
+#      - xxx
+#    lifes:
+#      - dev
+
+
+#spring: 
+#  mail: 
+#    host: "${mailServer:myrelay.yourcompany.com}"
+#    port: "${mailPort:25}"
+
+csap.security: 
+    rest-api-filter.token: "$apiToken"
+    provider:
+            
+      type: memory
+      memory-users:
+      - admin,password,AUTHENTICATED,dummy1,dummy2
+      - user,password,AUTHENTICATED,dummy3,dummy4
+      
+      #
+      # LDAP: https://github.com/csap-platform/csap-core/wiki/Access-Control
+      #
+      
+        #
+        #  docker caspplatform/csap:ldap ,https://github.com/bitnami/bitnami-docker-openldap
+        #
+        #  test openldap: docker run --rm --detach --name=ldap-server --publish 389:1389 csapplatform/ldap-server
+        #  web user: admin/admin
+        #  
+        #  test ldap browser: docker run --rm --detach --name=ldap-ui --publish 8080:80 --env PHPLDAPADMIN_LDAP_HOSTS=$(hostname --long)  --env PHPLDAPADMIN_HTTPS=false osixia/phpldapadmin:latest
+        #  ldap admin: cn=admin,dc=example,dc=org, pass: admin
+        #
+        
+        # type: ldap
+        # url: ldap://your-host.yourdomain.com:389
+        # directory-dn: search:uid={0}
+        # search-user: ou=people,dc=example,dc=org
+        # search-groups: ou=groups,dc=example,dc=org
+        # search-group-filter: "(uniquemember={0})"
+      
+      
+      #
+      # typical ldap
+      #
+#      type: ldap 
+#      url: ldap://ldap.yourcompany.lab:389
+#      directory-dn: search:uid={0} # search will be a search binding. If omitted - binds direct
+#      search-user: ou=People,dc=yourdc,dc=net
+#      search-groups: ou=Groups,dc=yourdc,dc=net
+#
+# Typically - LDAP/AD groups are used for group management
+# - alternately, roles can be explictly assigned 
+#
+#      additional-ldap-roles:
+#        pnightingale:
+#          - ${view_role:AUTHENTICATED}
+#          - ${admin_role:AUTHENTICATED}
+#          - ${build_role:AUTHENTICATED}
+#          - ${infra_role:AUTHENTICATED}
+
+
+
+
+#---
+#
+# Sample: Creating a file, path is relative to csap-platfrom/definition
+#
+#operator: create
+#target: scripts/hi.sh
+#
+#content: |
+#  #!/bin/bash
+#  echo "hi"
+
+
+#---
+#
+# custom Docker Repository
+#
+
+
+#operator: create
+#
+#target: resources/docker/common/configuration/daemon.json
+#
+#exec-opts: ["native.cgroupdriver=systemd"]
+#  
+#registry-mirrors: ["http://docker.yourcompany.org"]
+#insecure-registries: [ "yourcompany-docker.$hostDomain", "docker.$hostDomain" ]
+#storage-driver: "overlay2"
+#data-root: "/var/lib/docker"
+#hosts: [ "unix:///var/run/docker.sock" ]
+#log-driver: "json-file"
+#log-opts: 
+#  max-size: "44m"
+#  max-file: "1"
+#  
+#
+#
+
+

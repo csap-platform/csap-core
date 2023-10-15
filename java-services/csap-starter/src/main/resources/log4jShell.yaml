@@ -1,0 +1,37 @@
+# why yaml http://jessenoller.com/blog/2009/04/13/yaml-aint-markup-language-completely-different
+
+status: warn
+
+monitorInterval: 10
+
+appenders:
+  
+  console:
+    name: consoleAppender
+    target: SYSTEM_OUT
+    PatternLayout:
+      Pattern: "%d ==== %F ==== thread: %t ==== %-8p>%n%C.%M() => %x (line: %L)%n\t%m%n%n"
+        
+  RollingFile: 
+    name: errorsAppender
+    fileName: logs/warnings.log
+    filePattern: "logs/warning-%i.log.gz"
+    append: true
+    DefaultRolloverStrategy:
+      max: 3
+    policies:
+      SizeBasedTriggeringPolicy:
+        size: "5 MB"
+    PatternLayout:
+      Pattern: "%d ==== %F ==== thread: %t ==== %-8p>%n%C.%M() => %x (line: %L)%n\t%m%n%n"
+        
+        
+#        Pattern: "%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"
+
+loggers:
+      
+  root: 
+    level: WARN
+    AppenderRef:
+    - ref: consoleAppender
+    - ref: errorsAppender

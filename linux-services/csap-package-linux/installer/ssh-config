@@ -1,0 +1,3 @@
+Host centos1.root
+	HostName centos1
+	User root

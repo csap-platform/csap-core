@@ -14,15 +14,15 @@
           "definition-repo-branch" : "",
           "maven-url" : "https://repo.maven.apache.org/maven2/",
           "help-menu-items" : {
-            "User Guide" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP",
-            "Release Notes" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211856/Release+Notes",
-            "Quick Install" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/395282580/CSAP+Quick+Install",
-            "Health Status" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211861/CSAP+Health",
-            "Application Editor" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211875/CSAP+Application+Editor",
-            "FAQ" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/347177032/CSAP+FAQ"
+            "User Guide" : "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP",
+            "Release Notes" : "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/258211856/Release+Notes",
+            "Quick Install" : "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/395282580/CSAP+Quick+Install",
+            "Health Status" : "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/258211861/CSAP+Health",
+            "Application Editor" : "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/258211875/CSAP+Application+Editor",
+            "FAQ" : "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/347177032/CSAP+FAQ"
           }
         },
-        "operatorNotifications" : [ "monitoring@na.***REMOVED***.net" ],
+        "operatorNotifications" : [ "monitoring@na.yourcompany.net" ],
         "csap-host-agent" : {
           "test" : "yes",
           "maxJmxCollectionMs" : 3000,
@@ -39,7 +39,7 @@
             "cpuLoopsMillions" : "1",
             "diskWriteMb" : "600"
           },
-          "gitSslVerificationDisabledUrls" : [ "https://moc-bb.***REMOVED***" ]
+          "gitSslVerificationDisabledUrls" : [ "https://moc-bb.yourcompany.org" ]
         },
         "csap-data" : {
           "user" : "$user",
@@ -144,21 +144,21 @@
           } ]
         },
         "loadBalanceVmFilter" : [ "none" ],
-        "monitoringUrl" : "http://monitoring.na.***REMOVED***.net",
+        "monitoringUrl" : "http://monitoring.na.yourcompany.net",
         "mavenCommand" : "-B -Dmaven.test.skip=true clean package",
         "newsItems" : [ "<a href=\"https://github.com/csap-platform/csap-core/wiki\" class=\"simple\" target=\"_blank\">CSAP Project Documentation</a> ", "_noteIcon_ <a href=\"https://github.com/csap-platform/csap-core/wiki#updateRefCSAP+Event+Service\" class=\"simple\" target=\"_blank\">CSAP Event Service</a> " ],
         "portRange" : {
           "start" : 8200,
           "end" : 9300
         },
-        "secureUrl" : "https://csap-secure.na.***REMOVED***.net/admin",
+        "secureUrl" : "https://csap-secure.na.yourcompany.net/admin",
         "autoRestartHttpdOnClusterReload" : "yes",
         "launchUrls" : [ {
           "description" : "1) http(Tomcat Embed)",
           "url" : "default"
         }, {
           "description" : "2) ajp(LB - Internal)",
-          "url" : "http://yourlb.na.***REMOVED***.net"
+          "url" : "http://yourlb.na.yourcompany.net"
         } ],
         "metricsPublication" : [ {
           "type" : "csapCallHome",
@@ -178,7 +178,7 @@
       },
       "settings" : {
         "imports" : [ "defaults" ],
-        "loadbalancer-url" : "http://yourlb.na.***REMOVED***.net",
+        "loadbalancer-url" : "http://yourlb.na.yourcompany.net",
         "configuration-maps" : {
           "global" : {
             "test-global-1" : "test-global-value-1"
@@ -193,15 +193,15 @@
         },
         "vsphere" : {
           "filters" : {
-            "vm-path" : "RNIs/CSAP-DEV_p",
+            "vm-path" : "YOURAPPs/CSAP-DEV_p",
             "resource-pool-path" : "BLDCluster/Resources/CSAP",
             "datastore-regex" : "(.*)CSAP(.*)"
           },
           "env" : {
             "GOVC_USERNAME" : "lab\\csapstorage",
             "GOVC_PASSWORD" : "iEQoM1eTsrVNKjJh5Z28",
-            "GOVC_URL" : "vcenter6.***REMOVED***",
-            "GOVC_DATACENTER" : "***REMOVED***",
+            "GOVC_URL" : "vcenter6.yourcompany.org",
+            "GOVC_DATACENTER" : "My Lab",
             "GOVC_DATASTORE" : "CSAP_DS1_NFS",
             "GOVC_INSECURE" : "1"
           }
@@ -216,7 +216,7 @@
       },
       "settings" : {
         "imports" : [ "defaults" ],
-        "loadbalancer-url" : "http://yourlb.na.***REMOVED***.net",
+        "loadbalancer-url" : "http://yourlb.na.yourcompany.net",
         "configuration-maps" : {
           "global" : {
             "test-global-1" : "test-global-value-1"
@@ -231,15 +231,15 @@
         },
         "vsphere" : {
           "filters" : {
-            "vm-path" : "RNIs/CSAP-DEV_p",
+            "vm-path" : "YOURAPPs/CSAP-DEV_p",
             "resource-pool-path" : "BLDCluster/Resources/CSAP",
             "datastore-regex" : "(.*)CSAP(.*)"
           },
           "env" : {
             "GOVC_USERNAME" : "lab\\csapstorage",
             "GOVC_PASSWORD" : "iEQoM1eTsrVNKjJh5Z28",
-            "GOVC_URL" : "vcenter6.***REMOVED***",
-            "GOVC_DATACENTER" : "***REMOVED***",
+            "GOVC_URL" : "vcenter6.yourcompany.org",
+            "GOVC_DATACENTER" : "My Lab",
             "GOVC_DATASTORE" : "CSAP_DS1_NFS",
             "GOVC_INSECURE" : "1"
           }

@@ -30,7 +30,7 @@
 	"logJournalServices": "docker",
 	"mavenId": "",
 	"mavenSecondary": null,
-	"mavenRepo": "http://***REMOVED***.***REMOVED***:8081/artifactory/csap-release",
+	"mavenRepo": "http://my-server-01.yourcompany.org:8081/artifactory/csap-release",
 	"metaData": "",
 	"platformVersion": "sandbox",
 	"port": "0",

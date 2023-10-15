@@ -1,0 +1,194 @@
+
+
+spring:
+
+  config:
+    import:
+      - boot-csap-defaults.yml
+
+---
+spring:
+  
+#  main.allow-circular-references: false  
+
+  config:
+    activate:
+      on-profile: "test"
+     
+#  profiles: 
+#    include:
+#    - csap-defaults
+#    - test-defaults
+    
+  cache:
+    type: none    
+
+csap: 
+  web-server:
+    max-connections-ajp: 99
+    
+    ssl:
+      # port: 8088
+      keystore-file: ""
+  
+  encryptable-properties: 
+      algorithm: PBEWITHMD5ANDDES
+
+# PrometheusMetricsExportAutoConfiguration
+management.metrics.export.prometheus.enabled: true         
+---
+#
+#  ================ profile: test-defaults
+#
+#spring.profiles: test-defaults
+
+spring:
+
+  config:
+    activate:
+      on-profile: "test-defaults"
+     
+    
+#  profiles: 
+#    include:
+#    - csap-defaults
+    
+  cache:
+    type: none    
+
+csap: 
+  web-server:
+    max-connections-ajp: 99
+  encryptable-properties: 
+      algorithm: PBEWITHMD5ANDDES
+        
+---
+#
+#  ================ profile: no-security
+#
+#spring.profiles: 
+
+spring:
+
+  config:
+    activate:
+      on-profile: "no-security"
+
+csap:
+  security:
+    enabled: false
+  performance:
+    enabled: true
+    
+    monitor-urls: 
+        - /*
+
+
+---
+#
+#    cache
+#
+
+spring:
+  config:
+    activate:
+      on-profile: "cache"
+      
+  cache:
+    type: JCACHE
+    jcache:
+      config: "classpath:ehcache3.xml"
+
+csap:
+  performance:
+    enabled: false
+  locator:
+    enabled: false
+    
+
+---
+#
+#    ldap-test
+#
+
+spring:
+  config:
+    activate:
+      on-profile: "ldap-test"
+
+csap:
+  security:
+    enabled: true
+    provider:
+      #
+      #  yourcompany Morrisville LDAP
+      #
+      type: ldap
+      url: ldap://ldap.davis.yourcompany.lab:389
+      directory-dn: search:uid={0}
+      search-user: ou=People,dc=flexnet,dc=net
+      search-groups: ou=Groups,dc=flexnet,dc=net
+     
+
+---
+#
+#    in-memory
+#
+
+spring:
+  config:
+    activate:
+      on-profile: "in-memory"
+
+csap:
+  security:
+    enabled: true
+    provider:
+      type: memory
+      
+      #
+      #  username,pass,<role-1>,<role-n>
+      #  junituser pass is encrypted: userpass
+      #
+      memory-users:
+        - junitadmin,adminpass,AUTHENTICATED,dummy1,dummy2
+        - junituser,vHRI2IvH+/QEoW0UkJF8KVpV5GnkVNZ7,AUTHENTICATED,dummy3,dummy4
+
+---
+#
+#  ssl tests
+#
+spring:
+
+  config:
+    activate:
+      on-profile: junit-ssl
+
+csap:
+
+  security:
+    enabled: false
+
+  web-server:
+    
+    ajp-connection-port:  0
+    
+    #
+    #  csap managed ssl
+    #
+    ssl:
+      port: 8088
+      keystore-file: classpath:csap-junit.p12
+      test-domain: yourcompany.org
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      

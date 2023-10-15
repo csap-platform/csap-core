@@ -790,7 +790,7 @@ public class ServiceRequests {
 
 		if ( Application.isRunningOnDesktop( ) && appId.equals( "DesktopCsap" ) ) {
 
-			appId = "SensusCsap" ;
+			appId = "yourcompanyCsap" ;
 
 		}
 

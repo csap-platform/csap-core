@@ -192,17 +192,17 @@ public class KubernetesIntegration {
 
 			File extractFile = new File( extractDir, "config" ) ;
 
-			if ( credentialUrl.contains( "centos1.***REMOVED***" ) ) {
+			if ( credentialUrl.contains( "centos1.yourcompany.org" ) ) {
 
 				String kubernetesCredentials = FileUtils.readFileToString( extractFile ) ;
 				var updatedCredentials = kubernetesCredentials.replaceAll( "server: https.*",
-						"server: https://centos1.***REMOVED***:6443" ) ;
+						"server: https://centos1.yourcompany.org:6443" ) ;
 				logger.warn( CsapApplication.testHeader(
-						"Found centos1.lab - replacing ip with centos1.lab.***REMOVED***" ) ) ;
+						"Found centos1.lab - replacing ip with centos1.lab.yourcompany" ) ) ;
 				// FileUtils.deleteQuietly( extractFile ) ;
 				FileUtils.write( extractFile, updatedCredentials, false ) ;
 				logger.debug( CsapApplication.testHeader(
-						"Found centos1.lab - replacing ip with centos1.lab.***REMOVED***: \n {}" ), updatedCredentials ) ;
+						"Found centos1.lab - replacing ip with centos1.lab.yourcompany: \n {}" ), updatedCredentials ) ;
 
 			}
 

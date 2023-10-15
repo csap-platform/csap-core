@@ -36,10 +36,10 @@ u_str  ESTAB      0      0       * -1397918389           * -1397918390          
 u_str  ESTAB      0      0       * -1397918403           * -1397918404           users:(("nginx",pid=12965,fd=183),("nginx",pid=12754,fd=183))
 tcp    ESTAB      0      0      localhost:2379                 localhost:12754                 users:(("etcd",pid=29565,fd=77))
 tcp    ESTAB      0      0      localhost:18080                localhost:21055                 users:(("nginx",pid=13076,fd=3))
-tcp    ESTAB      0      0      netmet-sandbox01.***REMOVED***:57263                10.96.0.1:https                 users:(("nginx-ingress-c",pid=12397,fd=3))
+tcp    ESTAB      0      0      netmet-sandbox01.yourcompany.org:57263                10.96.0.1:https                 users:(("nginx-ingress-c",pid=12397,fd=3))
 tcp    ESTAB      0      0      localhost:21055                localhost:18080                 users:(("nginx-ingress-c",pid=12397,fd=41))
 tcp    ESTAB      0      0      localhost:12754                localhost:2379                  users:(("kube-apiserver",pid=29534,fd=65))
-tcp    ESTAB      0      0         netmet-sandbox01.***REMOVED***:10254                   netmet-sandbox04.***REMOVED***:58682                 users:(("nginx-ingress-c",pid=12397,fd=40))
+tcp    ESTAB      0      0         netmet-sandbox01.yourcompany.org:10254                   netmet-sandbox04.yourcompany.org:58682                 users:(("nginx-ingress-c",pid=12397,fd=40))
 
 u_str  ESTAB      0      0         * 44322                 * 36278               users:(("dbus-daemon",pid=7053,fd=2),("dbus-daemon",pid=7053,fd=1))
 u_str  ESTAB      0      0         * 36290                 * 36308               users:(("systemd-logind",pid=7049,fd=12))

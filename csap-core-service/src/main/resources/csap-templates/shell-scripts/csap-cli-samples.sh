@@ -160,7 +160,7 @@ curl  \
 #
 #agent service/log/download \
 #	--params "$(csap_credentials),serviceName=csap-verify-service"
-curl -d "$(echo $(csap_credentials) | tr ',' '&')&serviceName=csap-verify-service&fileName=console.log"  http://centos1.***REMOVED***:8011/api/agent/service/log/download
+curl -d "$(echo $(csap_credentials) | tr ',' '&')&serviceName=csap-verify-service&fileName=console.log"  http://centos1.yourcompany.org:8011/api/agent/service/log/download
 
 
 testCluster="base-os"

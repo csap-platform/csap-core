@@ -1,0 +1,31 @@
+#
+# init configuration: loaded on primary master
+# Refer to: https://godoc.org/k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm/v1beta2
+#
+
+apiVersion: kubeadm.k8s.io/v1beta3
+
+kind: InitConfiguration
+
+bootstrapTokens:
+- groups:
+  - system:bootstrappers:kubeadm:default-node-token
+  token: "JOIN_TOKEN"
+  ttl: 4h0m0s
+#  ttl: 24h0m0s
+#  usages:
+#  - signing
+#  - authentication
+  
+#api.advertiseAddress: 10.1.165.22
+
+nodeRegistration:
+  kubeletExtraArgs:
+    root-dir: "KUBERNETES_STORAGE"
+    #cloud-provider: "openstack"
+    #cloud-config: "/etc/kubernetes/cloud.conf"
+    #cgroup-driver: "systemd"
+    #logtostderr: "false"
+    #log-dir: "/opt/csap/processing/kubelet_8014/logs"
+
+    

@@ -1,0 +1,335 @@
+#
+# Update csap-01 to your host and yyyDomain to your domain
+#
+
+operator: modify
+target: default
+
+
+environments:
+
+  #
+  # derive: from "default" application, which defines a "dev" environment
+  #
+  base: dev
+  
+  #
+  # Cluster host assignment:
+  #   - use host short name
+  #   - optional: specify short name everywhere; or use index of hostname from base-os cluster
+  #                
+  hosts: 
+    base-os: [ csap-01  ]
+    kubernetes-provider: [ 1 ]
+    kubernetes-masters:  [ 1 ]
+  
+
+  application-name: "podman-demo"
+  project-name: "podman-demo"
+  project-contact: "xxx.xxx@yyyDomain"
+  
+  git: https://github.com/xxx/xxx-definition.git
+
+
+  #
+  # update target env
+  #
+  settings:
+  
+    loadbalancer-url: http://csap-01.yyyDomain:8080
+    
+    configuration-maps: 
+      kubelet:
+        # master and worker combined, with swap enabled
+        kubernetesAllInOne: true
+    
+  default-settings:  # defaults for ALL envs
+  
+    application:
+      name: "all-in-one"
+  
+    csap-data:
+      user: events-disabled
+      # user: xxx-myapp
+      credential: "change-me-xxx"
+      service-url: "http://csap-01.yyyDomain:8080/events-service"
+        
+    configuration-maps:
+    
+#      docker:
+#        dockerRepo: http://media.yyyDomain/media/third_party/linux/CentOS/docker-ce.repo
+#        
+#      kubelet:
+#        kubernetesRepo: http://media.yyyDomain/media/third_party/kubernetes/kubernetes-el7.repo
+        
+      nginx-ingress:
+        $$ingress-host: "*.yyyDomain" # used to determine ingress launch urls and routing rules
+        $$ingress-node-selector: "\"kubernetes.io/os\": linux"
+        $$ingress-http-port: 7080
+        $$ingress-https-port: 7443
+
+
+  #
+  # adding in csap-management and kubernetes
+  #
+  clusters: 
+  
+    #
+    # singe master clusters are ok for non-prod; generally 3 nodes
+    #  
+    kubernetes-provider: 
+      type: kubernetes-provider
+
+      masters:
+        - updated-in-hosts
+        
+      hosts:
+        - updated-in-hosts
+        
+      template-references: 
+        - kubelet
+    
+    kubernetes-system-services: 
+      type: kubernetes
+      kubernetes-provider: kubernetes-provider
+      kubernetes-namespace: kube-system
+      template-references: 
+        - calico-kube-controllers
+        - calico-node
+        - coredns
+        - etcd
+        - kube-apiserver
+        - kube-controller-manager
+        - kube-proxy
+        - kube-scheduler
+#        - kubernetes-dashboard
+#        - metrics-server
+#        - nginx-ingress-controller
+        # Note: only enable client provisioner if nfs configured
+        # - nfs-client-provisioner
+
+
+
+service-templates:
+  csap-demo-nginx.docker.image: "nginx:latest"
+  
+
+operations: 
+  - inserts:
+    - path: /environments/defaults/base-os/template-references
+      value: podman-system-service
+    - path: /environments/dev/kubernetes-provider/template-references
+      value: crio
+
+
+---
+#
+# Core csap settings: yourcompany yourtown Security(LDAP)
+#
+operator: create
+target: application-company.yml
+
+#
+# Global settings for applications - test
+#
+
+
+
+     
+csap-core:
+
+  kubernetes: 
+    enabled: true
+
+  docker: 
+    enabled: true
+
+  source-overrides:
+    csap-admin: https://bitbucket.org/yourcompanyinc/oss-csap-core.git
+    csap-agent: https://bitbucket.org/yourcompanyinc/oss-csap-core.git
+    
+    events-service: https://bitbucket.org/yourcompanyinc/csap-event-services.git
+    
+    csap-verify-service: https://bitbucket.org/yourcompanyinc/oss-csap-starter.git
+    
+    docker: https://bitbucket.org/yourcompanyinc/oss-csap-packages.git
+    kubelet: https://bitbucket.org/yourcompanyinc/oss-csap-packages.git
+    podman-system-service: https://bitbucket.org/yourcompanyinc/oss-csap-packages.git
+    csap-package-java: https://bitbucket.org/yourcompanyinc/oss-csap-packages.git
+    csap-package-linux: https://bitbucket.org/yourcompanyinc/oss-csap-packages.git
+    csap-package-tomcat: https://bitbucket.org/yourcompanyinc/oss-csap-packages.git
+    httpd: https://bitbucket.org/yourcompanyinc/oss-csap-packages.git    
+
+#
+# health and data services
+#
+#csap-events: 
+#
+#  health-monitoring: 
+#    appIds:
+#      - xxx
+#    lifes:
+#      - dev
+
+
+#spring: 
+#  mail: 
+#    host: "${mailServer:myrelay.yourcompany.com}"
+#    port: "${mailPort:25}"
+
+csap.security: 
+    rest-api-filter.token: "k16ljSCT5UnF8o1fCyshcD3+VZtrWm2c"
+    provider:
+            
+      type: memory
+      memory-users:
+      - admin,password,AUTHENTICATED,dummy1,dummy2
+      - user,password,AUTHENTICATED,dummy3,dummy4
+
+---
+
+#
+# Core csap settings: note the podman socket definition
+#
+operator: create
+target: application-company.yml
+
+csap-core:
+  kubernetes:
+    enabled: true
+  docker:
+    enabled: true
+    url: "unix:///var/run/podman/podman.sock"
+  source-overrides:
+    csap-admin: "https://bitbucket.org/yourcompanyinc/oss-csap-core.git"
+    csap-agent: "https://bitbucket.org/yourcompanyinc/oss-csap-core.git"
+    events-service: "https://bitbucket.org/yourcompanyinc/csap-event-services.git"
+    csap-verify-service: "https://bitbucket.org/yourcompanyinc/oss-csap-starter.git"
+    docker: "https://bitbucket.org/yourcompanyinc/oss-csap-packages.git"
+    kubelet: "https://bitbucket.org/yourcompanyinc/oss-csap-packages.git"
+    podman-system-service: "https://bitbucket.org/yourcompanyinc/oss-csap-packages.git"
+    csap-package-java: "https://bitbucket.org/yourcompanyinc/oss-csap-packages.git"
+    csap-package-linux: "https://bitbucket.org/yourcompanyinc/oss-csap-packages.git"
+    csap-package-tomcat: "https://bitbucket.org/yourcompanyinc/oss-csap-packages.git"
+    httpd: "https://bitbucket.org/yourcompanyinc/oss-csap-packages.git"
+csap.security:
+  rest-api-filter.token: "k16ljSCT5UnF8o1fCyshcD3+VZtrWm2c"
+  provider:
+    type: "memory"
+    memory-users:
+    - "admin,password,AUTHENTICATED,dummy1,dummy2"
+    - "user,password,AUTHENTICATED,dummy3,dummy4"
+    
+---
+#
+# Optional: yourcompany yourtown Artifactory Repository
+#
+operator: create
+target: resources/settings.xml
+
+content: |
+  <?xml version="1.0" encoding="UTF-8"?>
+  <settings
+    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd"
+    xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  
+    <localRepository>${CSAP_FOLDER}/maven-repository</localRepository>
+  
+    <servers>
+  
+      <server>
+        <id>yourcompany-artifactory-community</id>
+        <username>pnightingale</username>
+        <password>update-me</password>
+      </server>
+      <server>
+        <id>csap-release-repo</id>
+        <username>pnightingale</username>
+        <password>update-me</password>
+      </server>
+  
+      <server>
+        <id>csap-snapshot-repo</id>
+        <username>pnightingale</username>
+        <password>update-me</password>
+      </server>
+  
+    </servers>
+    <mirrors>
+      <mirror>
+        <id>yourcompany-artifactory-community</id>
+        <mirrorOf>*</mirrorOf>
+        <url>http://my-server-01.yourcompany.org:8081/artifactory/maven</url>
+      </mirror>
+    </mirrors>
+    <profiles>
+      <profile>
+        <id>yourcompany-artifactory-community</id>
+  
+        <properties>
+          <csapReleaseUrl>http://my-server-01.yourcompany.org:8081/artifactory/csap-release</csapReleaseUrl>
+          <csapSnapUrl>http://my-server-01.yourcompany.org:8081/artifactory/csap-snapshots</csapSnapUrl>
+          <artifactoryCnameFqdn>yourcompany-artifactory-community.yourcompany.org</artifactoryCnameFqdn>
+        </properties>
+  
+        <repositories>
+          <repository>
+            <snapshots>
+              <enabled>true</enabled>
+              <updatePolicy>always</updatePolicy>
+            </snapshots>
+            <id>yourcompany-artifactory-community</id>
+            <name>central</name>
+            <url>http://central</url>
+            <releases>
+              <enabled>true</enabled>
+              <updatePolicy>always</updatePolicy>
+            </releases>
+          </repository>
+        </repositories>
+        <pluginRepositories>
+          <pluginRepository>
+            <id>central</id>
+            <url>http://central</url>
+            <snapshots>
+              <enabled>true</enabled>
+            </snapshots>
+            <releases>
+              <enabled>true</enabled>
+            </releases>
+          </pluginRepository>
+        </pluginRepositories>
+      </profile>
+      
+      
+      <!-- USED in java spring boot build manifest -->
+      <profile>
+        <id>jenkins-node-name-default</id>
+        <activation>
+          <property>
+            <name>!env.NODE_NAME</name>
+          </property>
+        </activation>
+        <properties>
+          <build.node>built-on-unofficial-host</build.node>
+        </properties>
+      </profile>
+  
+      <profile>
+        <id>jenkins-node-name-from-env</id>
+        <activation>
+          <property>
+            <name>env.NODE_NAME</name>
+          </property>
+        </activation>
+        <properties>
+          <build.node>${env.NODE_NAME}</build.node>
+        </properties>
+      </profile>
+      
+    </profiles>
+    <activeProfiles>
+      <activeProfile>yourcompany-artifactory-community</activeProfile>
+    </activeProfiles>
+  </settings>

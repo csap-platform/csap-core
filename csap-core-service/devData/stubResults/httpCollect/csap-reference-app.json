@@ -1,7 +1,7 @@
 {
 	"source": {
 		"host": "csap-test-k8s-service-6090-5c6d674b8d-l5cmx",
-		"url": "http://csap-dev06.***REMOVED***:30080/test-k8s-csap-reference/csap/metrics/simon",
+		"url": "http://csap-dev06.yourcompany.org:30080/test-k8s-csap-reference/csap/metrics/simon",
 		"collected": "16:49:31, December 28 2018"
 	},
 	"http.csap-test-k8s-service.GET": {

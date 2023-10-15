@@ -1,0 +1,80 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+	<!--This sends everything else to /public -->
+
+	<mirrors>
+		<mirror>
+		  <id>central</id>
+		  <name>Local proxy of central repo</name>
+		  <url>http://maven.yourcompany.com/artifactory/yourgroup/</url>
+		  <mirrorOf>central</mirrorOf>
+		</mirror>
+
+		<!-- <mirror> 
+			<id>csap</id> <mirrorOf>*</mirrorOf> <url>http://repository.sonatype.org/content/groups/public 
+			</url> </mirror> -->
+
+	</mirrors>
+
+	<servers>
+		<server>
+			<id>csap-release-repo</id>
+			<username>deployRepoUser</username>
+			<password>deployRepoPass</password>
+		</server>
+		<server>
+			<id>csap-snapshot-repo</id>
+			<username>deployRepoUser</username>
+			<password>deployRepoPass</password>
+		</server>
+	</servers>
+
+
+
+	<profiles>
+		<profile>
+			<id>csap</id>
+			<properties>
+				<csapReleaseUrl>http://maven.yourcompany.com/artifactory/csap-release</csapReleaseUrl>
+				<csapSnapUrl>http://maven.yourcompany.com/artifactory/csap-snapshots</csapSnapUrl>
+			</properties>
+			<repositories>
+				<repository>
+					<releases>
+						<enabled />
+						<updatePolicy>always</updatePolicy>
+						<checksumPolicy />
+					</releases>
+					<snapshots>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+					<id>yourgroup</id>
+					<url>http://maven.yourcompany.com/artifactory/yourgroup/</url>
+				</repository>
+				
+
+				<!-- Note the reverse order rule for settings to xml, last repo is the 
+					priority - this is temporay until spring 3.0.7 to get propogated to central 
+					<repository> <releases> <enabled /> <updatePolicy>interval:1</updatePolicy> 
+					<checksumPolicy /> </releases> <id>springsource repo</id> <url>http://maven.springframework.org/release/</url> 
+					</repository> -->
+			</repositories>
+
+			<pluginRepositories>
+
+				<pluginRepository>
+					<id>yourgroup</id>
+					<url>http://maven.yourcompany.com/artifactory/yourgroup/</url>
+				</pluginRepository>
+
+			</pluginRepositories>
+		</profile>
+	</profiles>
+	<activeProfiles>
+		<activeProfile>csap</activeProfile>
+	</activeProfiles>
+
+</settings>

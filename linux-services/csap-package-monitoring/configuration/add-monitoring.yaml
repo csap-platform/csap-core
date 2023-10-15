@@ -1,0 +1,139 @@
+#
+# source: https://github.com/prometheus-operator/kube-prometheus
+#
+
+operator: modify
+target: default
+
+
+environments:
+  base: $csapLife
+  remove-inactive: false
+  
+  clusters:
+    csap-monitoring:
+      type: kubernetes
+      kubernetes-provider: kubernetes-provider
+      kubernetes-namespace: csap-monitoring
+      template-references: 
+        - alertmanager
+        - grafana
+        - prometheus
+        - monitoring-tools
+
+
+service-templates: 
+
+  #
+  #   prometheus: collector and storage of performance data
+  #  
+  prometheus:
+    server: os
+    scmVersion: os
+    runUsingDocker: true
+    isDataStore: true
+    
+    appDirectory: /
+    propDirectory: /etc
+    
+    description: collector and storage of performance data for kube-prometheus components
+    url: "$$kubernetes-nodeport?serviceName=$$service-name&path=/"
+    docUrl: "https://github.com/prometheus-operator/kube-prometheus"
+        
+    alerts: 
+      max_socketCount: 60
+      max_diskUtil: 30g
+      max_diskWriteKb: 500
+      max_rssMemory: 800m
+      
+    docker: 
+      container-count: 1
+      locator: 
+        type: io.kubernetes.container.name
+        value: $$service-name
+        
+    logJournalServices: "kubelet,docker"
+
+  #
+  #   grafana
+  #  
+  grafana:
+    server: os
+    scmVersion: os
+    runUsingDocker: true
+    
+    appDirectory: /
+    propDirectory: /etc/grafana
+    
+    description: user interface for kube-prometheus prometheus component
+    url: "$$kubernetes-nodeport?serviceName=$$service-name&path=/"
+    docUrl: "https://github.com/prometheus-operator/kube-prometheus"
+        
+    alerts: 
+      max_socketCount: 10
+      max_diskUtil: 10m
+      
+    docker: 
+      container-count: 1
+      locator: 
+        type: io.kubernetes.container.name
+        value: $$service-name
+        
+    logJournalServices: "kubelet,docker"
+
+
+  #
+  #   alertmanager
+  #  
+  alertmanager:
+    server: os
+    scmVersion: os
+    runUsingDocker: true
+    
+    appDirectory: /
+    propDirectory: /etc
+    
+    description: alert ui for kube-prometheus prometheus component
+    url: "$$kubernetes-nodeport?serviceName=$$service-name&path=/"
+    docUrl: "https://github.com/prometheus-operator/kube-prometheus"
+        
+    alerts: 
+      max_socketCount: 10
+      max_diskUtil: 10m
+      
+    docker: 
+      container-count: 1
+      locator: 
+        type: io.kubernetes.container.name
+        value: $$service-name
+        
+    logJournalServices: "kubelet,docker"
+
+
+  #
+  #   monitoring-tools: maps helper containers so they are resource tracked
+  #  
+  monitoring-tools:
+    server: os
+    scmVersion: os
+    runUsingDocker: true
+    
+    appDirectory: /
+    propDirectory: /etc
+    
+    description: maps helper containers so they are resource tracked
+    url: "$$kubernetes-nodeport?serviceName=$$service-name&path=/"
+    docUrl: "https://github.com/prometheus-operator/kube-prometheus"
+        
+    alerts: 
+      max_socketCount: 800
+      
+    docker: 
+      container-count: 1
+      locator: 
+        type: io.kubernetes.container.name
+        value: "(prometheus-config-reloader|prometheus-adapter|prometheus-operator|kube-rbac-proxy-self|kube-rbac-proxy-main|rules-configmap-reloader|config-reloader|kube-rbac-proxy|node-exporter|kube-state-metrics)"
+        
+    logJournalServices: "kubelet,docker"
+
+   

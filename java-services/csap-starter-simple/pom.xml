@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>csap-starter-simple</artifactId>
+	<packaging>jar</packaging>
+
+	<name>${project.groupId}:${project.artifactId}</name>
+	<description>Simple csap starter sample project - useful for getting started or new projects</description>
+	<url>https://github.com/csap-platform/csap-core/wiki</url>
+
+	<parent>
+		<groupId>org.csap</groupId>
+		<artifactId>csap-starter-parent</artifactId>
+		<version>2-SNAPSHOT</version>
+		<relativePath>../csap-starter/csap-starter-parent</relativePath>
+		<!-- ../csap-starter/csap-starter-parent</relativePath> for use on desktop -->
+	</parent>
+
+
+	<properties>
+		<!-- Defaults from csap-starter to java 8 <java.version>9</java.version> -->
+	</properties>
+
+	<dependencies>
+
+		<!-- <dependency> <groupId>org.springframework.boot</groupId> <artifactId>spring-boot-properties-migrator</artifactId> 
+			</dependency> -->
+
+		<!-- Build your own, or use managed. Managed includes log4j2 with yaml, 
+			security integration with active directory ldap, etc. -->
+		<dependency>
+			<groupId>org.csap</groupId>
+			<artifactId>csap-starter</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-ui</artifactId>
+			<version>1.6.4</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+
+		<!-- test: htmlunit http://htmlunit.sourceforge.net/dependencies.html -->
+		<dependency>
+			<groupId>net.sourceforge.htmlunit</groupId>
+			<artifactId>htmlunit</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+	</dependencies>
+
+
+	<build>
+
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+			</testResource>
+		</testResources>
+
+	</build>
+
+</project>

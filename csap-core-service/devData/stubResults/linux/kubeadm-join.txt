@@ -14,12 +14,12 @@ ________________________________________________________________________________
 
 _______________________________________________________________________________________________
 
-  joinWorkerCommand: kubeadm join csap-dev07.***REMOVED***:6443 --token rv1m9c.avwrdnphodrii2bi     --discovery-token-ca-cert-hash sha256:28735d1455941ade911b3d594205f1f06731295a7332d67930e8b7f1b1d2f3ea
+  joinWorkerCommand: kubeadm join csap-dev07.yourcompany.org:6443 --token rv1m9c.avwrdnphodrii2bi     --discovery-token-ca-cert-hash sha256:28735d1455941ade911b3d594205f1f06731295a7332d67930e8b7f1b1d2f3ea
 _______________________________________________________________________________________________
 
 
 _______________________________________________________________________________________________
 
-  joinControlCommand: kubeadm join csap-dev07.***REMOVED***:6443 --token rv1m9c.avwrdnphodrii2bi     --discovery-token-ca-cert-hash sha256:28735d1455941ade911b3d594205f1f06731295a7332d67930e8b7f1b1d2f3ea  --experimental-control-plane --certificate-key 06a59b5c1a26eeefb71b1e1faf18f5f60178144854f6cc75f7c325516370c98d
+  joinControlCommand: kubeadm join csap-dev07.yourcompany.org:6443 --token rv1m9c.avwrdnphodrii2bi     --discovery-token-ca-cert-hash sha256:28735d1455941ade911b3d594205f1f06731295a7332d67930e8b7f1b1d2f3ea  --experimental-control-plane --certificate-key 06a59b5c1a26eeefb71b1e1faf18f5f60178144854f6cc75f7c325516370c98d
 _______________________________________________________________________________________________
 

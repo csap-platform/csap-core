@@ -1,0 +1,804 @@
+#
+#  NOTES:
+#
+#   1. confirm your integration environment (line 29)
+#   2. update integration host (line 47)
+#   3. Use admin/project/files to apply this file
+#   4. Go to Deploy -> batch operations -> select csap-events -> click deploy - then start
+#
+
+---
+# optional: delete previous defaults if they exist
+operator: modify
+target: default
+
+operations:
+  - deletes: 
+    - /environments/defaults/settings/configuration-maps/csap-event-defaults
+
+---    
+
+operator: modify
+target: default
+
+
+environments:
+  base: dev # update with your integration lifecycle
+  remove-inactive: false
+  
+  default-settings:  # defaults for ALL envs
+    configuration-maps:
+      csap-events-defaults: 
+        # mongoUserNeeded: ForImageAndBoot
+        mongoUser: dataBaseReadWriteUser
+        mongoPassword: "ikS+e8JgH07FPqGIprwwawHHId9i4+K2"
+        mongoHosts: "$$csap-hosts:events-mongo"
+        $$mongo-storage: "/opt/csap/$$service-name-volume"
+        # $$mongo-storage: "$$nfs-mount/$$nfs-sub-folder/$$service-name-volume"
+        # dataServiceUrl "http://csap-dev01.yourcompany.org:8080/events-service/api/event"
+        restToken: "_yourcompanyIntegration"
+        dataServiceUser: dataUser
+        dataServicePass: _yourcompanyIntegration
+        metricDbSizeInGb: 50
+        eventDbSizeInGb: 10
+        MONGO_UTIL: "csap/csap-mongo:4.0.13"
+        MONGO_INITDB_ROOT_USERNAME: dataBaseReadWriteUser
+        MONGO_INITDB_ROOT_PASSWORD: "doDecode:ikS+e8JgH07FPqGIprwwawHHId9i4+K2"
+  
+  clusters:
+  
+    csap-events: 
+    
+      type: modjk
+      
+      hosts:
+        - xxx-dev01
+        
+      template-references: 
+        - events-mongo
+        - events-service
+
+---
+#
+# use docker hub hosted image. Note: json suffix triggers json output generation from yaml input
+#
+operator: create
+target: resources/events-mongo/common/csap-service.json
+
+docker: 
+    image: "csapplatform/csap:mongo"
+
+
+
+---
+
+operator: create
+target: resources/events-mongo/common/eventSamples.js
+
+content: |
+  print("\n\n Setting slave ok") ;
+  rs.slaveOk() ;
+  
+  
+  print("\n\n First 2 records in a date range") ;
+  printjson( db.eventRecords.find({"createdOn.date":{$gte:"2019-03-02",$lt:"2019-09-01"}}).limit(2).toArray() );
+  
+  
+  print("\n\n Exiting") ;
+  quit() ;
+  
+  
+  print("\n\n First 5 records starting with /csap" ) ;
+  printjson(
+    db.eventRecords.find({ 
+        category: { $regex: /^\/csap\/ui/ }, 
+        "metaData.uiUser": "pnightin", 
+        "createdOn.date": { $gte: "2016-04-04", $lt: "2016-04-12" }
+        })
+     .limit(5)
+    .toArray()
+  ) ;
+  
+  
+  print("\n\n Explain plan for query" ) ;
+  
+  printjson( db.eventRecords
+    .find({ 
+        category: { $regex: /^\/csap\/ui/ }, 
+        "metaData.uiUser": "pnightin", 
+        "createdOn.date": { $gte: "2016-04-04", $lt: "2016-04-12" }
+        })
+    .explain("executionStats")
+  ) ;
+  
+  
+  
+  
+  
+  print("\n\n Trending query" ) ;
+  
+  printjson( db.eventRecords
+    .find({ 
+        category: { $regex: /^\/csap\/ui/ }, 
+        "metaData.uiUser": "pnightin", 
+        "createdOn.date": { $gte: "2016-04-04", $lt: "2016-04-12" }
+        })
+    .explain("executionStats")
+  ) ;
+
+
+
+---
+
+operator: create
+target: resources/events-mongo/common/events-dump.sh
+
+content: |
+  #!/bin/bash
+  
+  source $CSAP_FOLDER/bin/csap-environment.sh
+  
+  NOW=$(date +"%h-%d-%I-%M-%S")
+  mongoBackupFolder=${mongoBackupFolder:-$csap_def_nfs_mount/csap-events-migrate-latest}
+  mongoSourceHost=${mongoSourceHost:-$(hostname)}
+  mongoDestHost=${mongoDestHost:-$(hostname):${csapPrimaryPort}}
+  
+  
+  print_with_head "Creating migration storage location: '$mongoBackupFolder'"
+  run_using_root mkdir --parents $mongoBackupFolder --verbose
+  run_using_root chown -R $USER $mongoBackupFolder
+  
+  function mongo_run() {
+    uid=$(id --user $USER) ; gid=$(id --group $USER) ; 
+    docker run --user=$uid:$gid --rm -v $mongoBackupFolder:/workdir/ -w /workdir/ $MONGO_UTIL $*
+  }
+  
+  print_with_head "Backing up '$mongoSourceHost'"
+  mongo_run mongodump \
+    --host $mongoSourceHost -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD \
+    --authenticationDatabase admin \
+    --db event  --out /workdir/dump_event/
+  
+  mongo_run mongodump \
+    --host $mongoSourceHost -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD \
+    --authenticationDatabase admin \
+    --db metricsDb --out /workdir/dump_metricsDb/
+
+
+---
+
+operator: create
+target: resources/events-mongo/common/events-migrate.sh
+
+content: |
+  #!/bin/bash
+  
+  source $CSAP_FOLDER/bin/csap-environment.sh
+  
+  NOW=$(date +"%h-%d-%I-%M-%S")
+  mongoBackupFolder=${mongoBackupFolder:-$csap_def_nfs_mount/csap-events-migrate-$NOW}
+  mongoSourceHost=${mongoSourceHost:-$(hostname)}
+  mongoDestHost=${mongoDestHost:-$(hostname):${csapPrimaryPort}}
+  
+  
+  print_with_head "Creating migration storage location: '$mongoBackupFolder'"
+  run_using_root mkdir --parents $mongoBackupFolder --verbose
+  run_using_root chown -R $USER $mongoBackupFolder
+  
+  function mongo_run() {
+    uid=$(id --user $USER) ; gid=$(id --group $USER) ; 
+    docker run --user=$uid:$gid --rm -v $mongoBackupFolder:/workdir/ -w /workdir/ $MONGO_UTIL $*
+  }
+  
+  print_with_head "Backing up '$mongoSourceHost'"
+  mongo_run mongodump \
+    --host $mongoSourceHost -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD \
+    --authenticationDatabase admin \
+    --db event  --out /workdir/dump_event/
+  
+  mongo_run mongodump \
+    --host $mongoSourceHost -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD \
+    --authenticationDatabase admin \
+    --db metricsDb --out /workdir/dump_metricsDb/
+  
+  
+  print_with_head "Restoring to '$mongoDestHost'"
+  mongo_run mongorestore --host $mongoDestHost \
+    -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin \
+    --dir /workdir/dump_event/
+  
+  mongo_run mongorestore --host $mongoDestHost \
+    -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin \
+    --dir /workdir/dump_metricsDb/
+  
+  #run_using_root rm -rf $mongoBackupFolder
+
+
+
+
+---
+
+operator: create
+target: resources/events-mongo/common/events-restore.sh
+
+content: |
+  #!/bin/bash
+  
+  source $CSAP_FOLDER/bin/csap-environment.sh
+  
+  NOW=$(date +"%h-%d-%I-%M-%S")
+  mongoBackupFolder=${mongoBackupFolder:-$csap_def_nfs_mount/csap-events-migrate-latest}
+  mongoSourceHost=${mongoSourceHost:-$(hostname)}
+  mongoDestHost=${mongoDestHost:-$(hostname):${csapPrimaryPort}}
+  
+  
+  print_with_head "Verifying migration storage location: '$mongoBackupFolder'"
+  
+  if [ ! -e $mongoBackupFolder ] ; then 
+    print_with_head "Failed to find: $mongoBackupFolder"
+    exit  ;
+  fi;
+  
+  function mongo_run() {
+    uid=$(id --user $USER) ; gid=$(id --group $USER) ; 
+    docker run --user=$uid:$gid --rm -v $mongoBackupFolder:/workdir/ -w /workdir/ $MONGO_UTIL $*
+  }
+  
+  
+  
+  print_with_head "Restoring to '$mongoDestHost'"
+  mongo_run mongorestore --host $mongoDestHost \
+    -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin \
+    --dir /workdir/dump_event/
+  
+  mongo_run mongorestore --host $mongoDestHost \
+    -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin \
+    --dir /workdir/dump_metricsDb/
+  
+  #run_using_root rm -rf $mongoBackupFolder
+
+
+
+
+---
+
+operator: create
+target: resources/events-mongo/common/events-summary.sh
+
+content: |
+  #!/bin/bash
+  
+  source $CSAP_FOLDER/bin/csap-environment.sh
+  
+  mongoHost=${EVENTS_HOST-$(hostname):${csapPrimaryPort}}
+  
+  print_separator "mongoHost: $mongoHost"
+  
+  source $csapResourceFolder/common/mongo-helpers.sh
+  
+  print_command \
+    'CSAP Event count using filter: {$gte:"2019-01-22",$lt:"2019-01-23"}' \
+    "$(mongo_run_command 'event' 'db.eventRecords.count({"createdOn.date":{$gte:"2019-01-22",$lt:"2019-01-23"}})')"
+  
+  
+  
+  today=$(date +%Y-%m-%d)
+  yesterday=$(date --date="1 day ago" +%Y-%m-%d)
+  
+  command='db.eventRecords.count({"createdOn.date":{$gte:"'$yesterday'",$lt:"'$today'"}})'
+  print_command \
+    "CSAP Event count yesterday: '$yesterday'" \
+    "$(mongo_run_command 'event' $command)"
+   
+   
+   
+  print_command \
+    "mongo server status (20 lines)" \
+    "$(mongo_run_command 'event' "printjson(db.serverStatus())" | head -20)"
+    
+  
+  #scriptFolder=$csapResourceFolder/common ;
+  scriptToRun=$csapResourceFolder/common/eventSamples.js;
+  
+  print_command \
+    "Running script $scriptToRun in event db" \
+    "$(mongo_run_script $scriptToRun event)"
+    
+  exit
+  
+  # print event records on day
+  mongo_run_command 'event' 'printjson( db.eventRecords.find({"createdOn.date":{$gte:"2019-01-22",$lt:"2019-01-23"}}).toArray() )'
+  
+  # sample dump
+  mongo_run -q "{\"createdOn.date\":{\$gt:\"$targetFrom\"}}" 
+
+
+
+---
+
+operator: create
+target: resources/events-mongo/common/events-warmup.sh
+
+content: |
+  #!/bin/bash
+  
+  source $CSAP_FOLDER/bin/csap-environment.sh
+  
+  HOST=${EVENTS_HOST-$(hostname):${csapPrimaryPort}}
+  
+  scriptFolder=$csapResourceFolder/common ;
+  scriptToRun=postRestartWarmup.js;
+  
+  print_with_head "Mounting: '$scriptFolder' in image: '$MONGO_UTIL', running: '$scriptToRun'"
+  
+  function mongo_run() {
+    uid=$(id --user $USER) ; gid=$(id --group $USER) ; 
+    docker run --user=$uid:$gid --rm $*
+  }
+  
+  mongo_run -v $scriptFolder:/scripts $MONGO_UTIL \
+    mongo event --host $HOST \
+    -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin \
+    /scripts/$scriptToRun
+
+
+
+
+---
+
+operator: create
+target: resources/events-mongo/common/mongo-helpers.sh
+
+content: |
+  #!/bin/bash
+  mongoHost=${EVENTS_HOST-$(hostname):${csapPrimaryPort}}
+  
+  print_separator "mongoHost: $mongoHost"
+  
+  function mongo_run() {
+    
+    
+    local mongoDb="$1" ;
+    shift 1 ;
+    local mongoCommand="$*" ;
+    
+    print_line "mongoDb: '$mongoDb', mongoCommand: '$mongoCommand',  image: '$MONGO_UTIL'"
+    
+    uid=$(id --user $USER) ; gid=$(id --group $USER) ; 
+    docker run --user=$uid:$gid --rm $MONGO_UTIL \
+      mongo $mongoDb --host $mongoHost \
+      -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin \
+      $mongoCommand
+  }
+  
+  function mongo_run_command() {
+    
+    
+    local mongoDb="$1" ;
+    shift 1 ;
+    local mongoCommand="$*" ;
+    
+    mongo_run $mongoDb --eval $mongoCommand
+  }
+  
+  
+  function mongo_run_script() {
+    
+    local scriptToRun=${1:-$csapResourceFolder/common/eventSamples.js}
+    local dbName=${2:-event}
+    
+    print_line "Mounting: '$scriptToRun' in image: '$MONGO_UTIL'"
+    
+    docker run --rm -v $scriptToRun:/scriptToRun $MONGO_UTIL \
+      mongo $dbName \
+      --host $mongoHost -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin \
+      /scriptToRun
+  }
+
+
+
+
+
+---
+
+operator: create
+target: resources/events-mongo/common/mongo-summary.sh
+
+content: |
+  #!/bin/bash
+  
+  source $CSAP_FOLDER/bin/csap-environment.sh
+  source $csapResourceFolder/common/mongo-helpers.sh
+  
+  print_command \
+    "CSAP Metric count" \
+    "$(mongo_run_command 'metricsDb' 'db.metrics.count()')"
+  
+  print_command \
+    "CSAP Event count" \
+    "$(mongo_run_command 'event' 'db.eventRecords.count()')"
+  
+  
+  today=$(date +%Y-%m-%d)
+  yesterday=$(date --date="1 day ago" +%Y-%m-%d)
+  
+  command='db.eventRecords.count({"createdOn.date":{$gte:"'$yesterday'",$lt:"'$today'"}})'
+  print_command \
+    "CSAP Event count yesterday: '$yesterday'" \
+    "$(mongo_run_command 'event' $command)"
+    
+  
+  command='db.metrics.count({"createdOn.date":{$gte:"'$yesterday'",$lt:"'$today'"}})'
+  print_command \
+    "CSAP Metric count yesterday: '$yesterday'" \
+    "$(mongo_run_command 'metricsDb' $command)"
+  
+
+
+
+
+---
+
+operator: create
+target: resources/events-mongo/common/postRestartWarmup.js
+
+content: |
+  print( "-\n-\n ============== Events Warmup to load indexes after restart" );
+  
+  print("\n\n Setting slave ok") ;
+  rs.slaveOk() ;
+  
+  db = db.getSiblingDB( "event" );
+  
+  // limited javascript date support
+  function dateFormated( daysAgo ) {
+  
+    var now = new Date();
+    var then = new Date( new Date().setDate( now.getDate() - daysAgo ) )
+  
+    // 2016-09-20T18:21:43
+    var yyymmdd = then.toISOString().substr( 0, 10 )
+  
+    return yyymmdd;
+  }
+  
+  var startDate = dateFormated( 28 );
+  var endDate = dateFormated( 1 );
+  var today = dateFormated( 0 );
+  
+  var appIds = db.eventRecords.distinct(
+      "appId", {
+        'createdOn.date': {
+          $gte: startDate,
+          $lte: endDate
+        }
+      } );
+  
+  print( "Found Appids: ", appIds );
+  print( "\t\t startDate:", startDate, "\t\t endDate:", endDate );
+  
+  var allUsers = db.eventRecords.distinct(
+      "metaData.uiUser", {
+        'createdOn.date': {
+          $gte: startDate,
+          $lte: endDate
+        }
+      } );
+  
+  print( "Found allUsers: ", allUsers.length );
+  
+  for ( var appIndex = 0; appIndex < appIds.length; appIndex++ ) {
+  
+    // count appids
+    var appCount = db.eventRecords.count( {
+      "createdOn.date": {
+        $gte: startDate,
+        $lt: endDate
+      },
+      "appId": appIds[appIndex]
+    } );
+  
+    print( "-\n-\n ============== Appid: " + appIds[appIndex]
+        + " Document Count: " + appCount );
+  
+    var lifes = db.eventRecords.distinct(
+        "lifecycle", {
+          'createdOn.date': {
+            $gte: startDate,
+            $lte: endDate
+          },
+          "appId": appIds[appIndex]
+        } );
+  
+    // printjson( lifes );
+  
+    for ( var lifeIndex = 0; lifeIndex < lifes.length; lifeIndex++ ) {
+      // count appids
+      var lifeCount = db.eventRecords.count( {
+        "createdOn.date": {
+          $gte: startDate,
+          $lt: endDate
+        },
+        "appId": appIds[appIndex],
+        "lifecycle": lifes[lifeIndex]
+      } );
+  
+      var users = db.eventRecords.distinct(
+          "metaData.uiUser", {
+            "createdOn.date": {
+              $gte: startDate,
+              $lte: endDate
+            },
+            "appId": appIds[appIndex],
+            "lifecycle": lifes[lifeIndex]
+          } );
+  
+      var categorys = db.eventRecords.distinct(
+          "category", {
+            "createdOn.date": {
+              $gte: startDate,
+              $lte: endDate
+            },
+            "appId": appIds[appIndex],
+            "lifecycle": lifes[lifeIndex]
+          } );
+  
+      var projects = db.eventRecords.distinct(
+          "project", {
+            "createdOn.date": {
+              $gte: startDate,
+              $lte: endDate
+            },
+            "appId": appIds[appIndex],
+            "lifecycle": lifes[lifeIndex]
+          } );
+  
+      print( "\t\t Life: " + lifes[lifeIndex], "\t\t Events: " + lifeCount
+          + "\t\t Users: ", users.length,
+          "\t\t categorys: ", categorys.length,
+          "\t\t projects: ", projects.length );
+  
+      for ( var projIndex = 0; projIndex < projects.length; projIndex++ ) {
+        var projectEventCount = db.eventRecords.count( {
+          "createdOn.date": {
+            $gte: startDate,
+            $lt: endDate
+          },
+          "appId": appIds[appIndex],
+          "lifecycle": lifes[lifeIndex],
+          "project": projects[projIndex]
+        } );
+        print( "\t\t appId: ", appIds[appIndex],
+            "\t\t lifecycle: " + lifes[lifeIndex],
+            "\t\t project: " + projects[projIndex],
+            "\t\t projectEventCount: " + projectEventCount );
+      }
+  
+    }
+  
+  }
+  
+  print( "-\n-\n ============== Metrics Warmup to load indexes after restart" );
+  
+  metricsDb = db.getSiblingDB( "metricsDb" );
+  
+  var metricsCount = metricsDb.metrics.count( {
+    'createdOn.date': {
+      $gte: startDate,
+      $lte: endDate
+    }
+  } );
+  //  use run command to get stats for commands
+  //db.runCommand(
+  //        {
+  //            distinct: 'metrics',
+  //            key: 'attributes.hostName',
+  //            query: { 'createdOn.date': "2016-09-20" } 
+  //        } ) ;
+  var hostNames = metricsDb.metrics.distinct(
+      "attributes.hostName", {
+        'createdOn.date': today
+      } );
+  
+  print( "Found metrics collection size: ", metricsCount,
+      "\t\t unique hosts: ", hostNames.length );
+  
+  for ( var hostIndex = 0; hostIndex < hostNames.length; hostIndex++ ) {
+  
+    if ( hostIndex % 20 !== 0 )
+      continue;
+  
+    var graphIds = metricsDb.metrics.distinct(
+        "attributes.id", {
+          "attributes.hostName": hostNames[hostIndex],
+          'createdOn.date': today
+        } );
+  
+    print( "\t\t attributes.hostName: ", hostNames[hostIndex], " unique attributes.id: ", graphIds.length );
+  }
+
+
+
+---
+
+operator: create
+target: resources/events-mongo/common/resize-metrics.js
+
+content: |
+  print("\n\n renaming collection" ) ;
+  
+  db.metrics.renameCollection("oldMetrics", true);
+  
+  var numGb=500
+  var GBytes=1024*1024*1024 ;
+  print("\n\n creating metricCappedCollectionSizeInBytes: " + numGb*GBytes) ;
+  db.createCollection( "metrics", { capped: true, size: numGb*GBytes } );
+  
+  
+  print("\n\n Adding indexes" ) ;
+  //creates index with specified values. background true helps in not stopping all other operations
+  db.metrics.createIndex({"attributes.hostName":1,"attributes.id":1,"createdOn.lastUpdatedOn":-1},{ background: true });
+  db.metrics.createIndex({"attributes.hostName":1,"createdOn.date":1},{ background: true });
+  db.metrics.createIndex({"createdOn.date":1},{ background: true });
+  
+  
+  print("\n\n Copying in data from oldMetrics to new metrics" ) ;
+  db.oldMetrics.find().forEach(function (doc) {db.metrics.insert(doc)});
+  
+  print("\n\n USER MUST DELETE oldMeterics \n\n" ) ;
+  //  db.oldMetrics.drop() ;
+
+
+
+---
+
+operator: create
+target: resources/events-mongo/common/resize-metrics.sh
+
+content: |
+  source $CSAP_FOLDER/bin/csap-environment.sh
+  source $csapResourceFolder/common/mongo-helpers.sh
+  
+  
+  print_with_head "edit $csapResourceFolder/common/resize-metrics.sh and resize-metrics.js on $(hostname --short)" ;
+  print_line "Note: shutdown events service - process will take 30 minutes for 100gb" ;
+  
+  exit 
+  
+  scriptToRun=$csapResourceFolder/common/resize-metrics.js;
+  print_command \
+    "Running script $scriptToRun " \
+    "$(mongo_run_script $scriptToRun 'metricsDb')"
+    
+  print_with_head "Delete oldMetrics " ; 
+  
+    
+  exit ;  
+  
+  #
+  #   Running from bash is complicated
+  #
+  
+  
+  print_command \
+    "CSAP Metrics Collections" \
+    "$(mongo_run_command 'metricsDb' 'db.getCollectionNames() ')"
+    
+  
+  metricCappedCollectionSizeInGb=500 ;
+  metricCappedCollectionSizeInBytes=$(( $metricCappedCollectionSizeInGb * 1024 * 1024 * 1024 ))
+  
+  print_with_head "Specified db is $metricCappedCollectionSizeInGb gb, and in bytes: $metricCappedCollectionSizeInBytes"
+  
+  print_with_head "edit $csapResourceFolder/common/events-increase-size.sh on $(hostname --short)" ;
+  print_line "Note: shutdown events service - process will take 30 minutes for 100gb" ;
+  
+  #exit ;
+  
+  
+  
+  command="db.metrics.renameCollection('oldMetrics', true)"
+  print_command \
+    "renaming metrics" \
+    "$(mongo_run_command 'metricsDb' 'db.metrics.renameCollection("oldMetrics", true)' )"
+  exit
+    
+  command='db.createCollection("metrics",{capped:true,size:'$metricCappedCollectionSizeInBytes'})'
+  print_command \
+    "creating larger collection" \
+    "$(mongo_run_command 'metricsDb' $command )"
+  
+  
+  command='db.oldMetrics.find().forEach(function (doc) {db.metrics.insert(doc)});'
+  print_command \
+    "copying in old data" \
+    "$(mongo_run_command 'metricsDb' $command )"
+    
+  
+  print_command \
+    "CSAP Metrics Collections" \
+    "$(mongo_run_command 'metricsDb' 'db.getCollectionNames()')" 
+    
+  print_with_head "Delete oldMetrics, and indexes" ; 
+  
+  
+  exit
+
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
+
+
+
+<head>
+
+	<title th:inline="text">@CsapDoc [[ ${ @csapInformation.name } ]]</title>
+
+	<script th:replace="~{ csap/fragments/csap-module-includes :: pageContent }"></script>
+
+	<link th:href="@{ ${@mvcResourceUrlProvider.getForLookupPath('/css/api-navigator.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+
+	<script type="module"
+			th:src=" @{ ${ @mvcResourceUrlProvider.getForLookupPath('/js/modules/api-navigator/api-navigator.js')} }"></script>
+
+
+</head>
+
+<body class="csap-full 	csap-scrollable theme-dark agent">
+
+	<header th:replace="csap/fragments/page :: header"></header>
+
+	<article class=content>
+
+		<div class="warning"
+			 th:if="${ error != null }">[[ ${ error } ]]</div>
+
+
+		<div class="csap-white">
+
+			<div class="header">[[ ${ @csapInformation.name } ]] Documentation</div>
+			<div class="">
+				All classes annotated with
+				<span class="highlight">@Controller</span>
+				or
+				<span class="highlight">@RestController</span>
+				are shown.
+				<br />
+				Optional use of
+				<span class="highlight">@CsapDoc</span>
+				enables custom notes and integration tests to be added.
+				<span class="highlight"> Click on API column to browse and test.</span>
+			</div>
+
+		</div>
+
+		<div class="info"
+			 th:if="${ publicCsapDocs == null}">
+
+			<div class="header">No apis have been marked with @CsapDoc.PUBLIC</div>
+
+		</div>
+
+
+		<table id="navigator-public"
+			   class="navigator csap"
+			   th:if="${ publicCsapDocs != null}">
+			<thead>
+
+				<tr>
+					<th title="Apis are backwards compatible per SLA">Public Apis</th>
+					<th>Type</th>
+					<th>Package</th>
+					<th>Notes</th>
+				</tr>
+			</thead>
+
+			<tbody>
+
+				<tr th:each="doc : ${publicCsapDocs.values() } ">
+					<td>
+						<a class="simple"
+						   th:href='@{${baseUrl+"/class"}(clazz=${doc.get("clazz")} )}'>[[ ${ doc.get("name") } ]]</a>
+					</td>
+					<td>[[ ${ doc.get("type") } ]]</td>
+					<td th:utext='${doc.get("package")}'></td>
+					<td th:utext='${doc.get("notes")}'></td>
+				</tr>
+
+			</tbody>
+
+		</table>
+
+
+
+		<table id="navigator-private"
+			   class="navigator csap"
+			   th:if="${ privateCsapDocs != null}">
+			<thead>
+
+				<tr>
+					<th title="Apis are subject to change without notice">Private Apis</th>
+					<th>Type</th>
+					<th>Package</th>
+					<th>Notes</th>
+				</tr>
+			</thead>
+
+			<tbody>
+
+				<tr th:each="doc : ${privateCsapDocs.values() } ">
+					<td>
+						<a class="simple"
+						   th:href='@{${baseUrl+"/class"}(clazz=${doc.get("clazz")} )}'>[[ ${ doc.get("name") } ]]</a>
+					</td>
+					<td>[[ ${ doc.get("type") } ]]</td>
+					<td th:utext='${doc.get("package")}'></td>
+					<td th:utext='${doc.get("notes")}'></td>
+				</tr>
+
+			</tbody>
+
+		</table>
+
+
+		<table id="navigator-provider"
+			   class="navigator csap"
+			   th:if="${ otherDocs != null}">
+			<thead>
+
+				<tr>
+					<th title="Apis are subject to change per provider SLA">Provider Apis</th>
+					<th>Type</th>
+					<th>Package</th>
+					<th>Notes</th>
+				</tr>
+			</thead>
+
+			<tbody>
+
+				<tr th:each="doc : ${otherDocs.values() } ">
+					<td>
+						<a class="simple"
+						   th:href='@{${baseUrl+"/class"}(clazz=${doc.get("clazz")} )}'>[[ ${ doc.get("name") } ]]</a>
+					</td>
+					<td>[[ ${ doc.get("type") } ]]</td>
+					<td th:utext='${doc.get("package")}'></td>
+					<td th:utext='${doc.get("notes")}'></td>
+				</tr>
+
+			</tbody>
+
+		</table>
+
+
+	</article>
+
+
+
+	<footer>Auto generated using @CsapDoc</footer>
+</body>
+
+</html>

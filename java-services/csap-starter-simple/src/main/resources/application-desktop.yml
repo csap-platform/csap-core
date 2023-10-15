@@ -1,0 +1,33 @@
+
+
+#
+#  Desktop Settings
+#
+
+#spring.devtools.add-properties: false 
+#spring.mvc.pathmatch.matching-strategy: ant-path-matcher
+
+logging.config: classpath:log4j2-desktop.yml
+
+csap:
+
+  encryption:
+    enabled: true
+    token: "Will be overwritten by env var"
+    algorithm: PBEWITHMD5ANDDES 
+
+#  web-server:
+#  
+#    ssl:
+#      # port: xxxx  # defaults to http port + 2, agent is 8013
+#      keystore-type: PKCS12
+#      keystore-file: classpath:csap-lab.p12
+#      keystore-password: "v8IguDAmcJpsqofXt/RhlmjS5YR2agmN" # csap1234
+#      key-alias: csap
+#      test-domain: yourcompany.org
+
+#  web-server:
+#  
+#    ssl:
+#      client: false     # disable server side ssl client
+#      keystore-file: "" # disable embedded ssl server

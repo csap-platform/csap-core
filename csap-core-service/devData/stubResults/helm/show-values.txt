@@ -1,6 +1,6 @@
 
 
- 10/13/2021 12:35:55  csap@scs-dev01.***REMOVED***  Running: cli_runner-1634142955454.sh
+ 10/13/2021 12:35:55  csap@scs-dev01.yourcompany.org  Running: cli_runner-1634142955454.sh
 
 ## @section Global parameters
 ## Global Docker image parameters

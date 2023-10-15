@@ -78,7 +78,7 @@ csap-core:
     enabled: true
     url: "unix:///var/run/docker.sock" # "tcp://localhost:4243"
     connection-pool: 5
-    template-repository: "${dockerRepo:docker.***REMOVED***}"
+    template-repository: "${dockerRepo:docker.yourcompany.org}"
     
   docker-ui-default-images:
     - csapplatform/demo

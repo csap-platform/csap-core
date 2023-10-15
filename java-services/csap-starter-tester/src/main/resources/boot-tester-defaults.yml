@@ -1,0 +1,62 @@
+
+
+spring:
+  cache:
+    jcache:
+      config: "classpath:ehcache3.xml"
+          
+csap:
+
+  security:
+    rest-api-filter:
+      enabled: true
+      urls:
+        - "/demoUrl1/*"
+        - "/demoUrl2/*"
+        - "/secure/*"
+      group: "$CSAP_ADMIN_GROUP"
+      cache-seconds: 300
+  
+  performance:
+  
+    monitor-urls: 
+        - /
+        - /hello
+        - /spring-app/*
+        - /spring-rest/*
+        - /api/*
+        - /jersey/*
+        
+    alert:
+         
+      limits: 
+        - 
+          id: csap.exceptions
+          ignore-null: true
+          occurences-max: 1
+          collect-time: 1
+          collect-units: MINUTES
+          
+        - 
+          id: csap.db.add-item
+          ignore-null: true
+          mean-time:  50
+          mean-units: MILLISECONDS
+          max-time: 100
+          max-units: MILLISECONDS
+          
+        - 
+          id: csap.jms.default-payload
+          ignore-null: true
+          occurences-max: 10
+          mean-time:  50
+          mean-units: MILLISECONDS
+          max-time: 100
+          max-units: MILLISECONDS
+          
+  locator:
+    enabled: true
+    active-urls-locator: "${csapLbUrl:https://csap-secure.yourcompany.com}/admin/api/service/urls/active/"
+    low-resources-url-locator: "${csapLbUrl:https://csap-secure.yourcompany.com}/admin/api/service/url/low/"
+    low-resource: "lowCpu"  #lowLoad, lowCpu, ...
+        

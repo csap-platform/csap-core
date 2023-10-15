@@ -1,0 +1,5 @@
+
+echo == Past the below into the shell window
+1) ssh cstgtools
+2) cd dist
+3) find * -name "*.*" -exec dos2unix '{}' '{}' \;

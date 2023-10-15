@@ -1,0 +1,27 @@
+#
+# this is added to template.yaml for workers
+#
+# https://godoc.org/k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm/v1beta2
+
+apiVersion: kubeadm.k8s.io/v1beta3
+
+kind: JoinConfiguration
+
+discovery:
+  bootstrapToken: 
+    token: "JOIN_TOKEN"
+    apiServerEndpoint: "MASTER_HOST:6443"
+    unsafeSkipCAVerification: true
+  tlsBootstrapToken: "JOIN_TOKEN"
+
+nodeRegistration:
+  kubeletExtraArgs:
+    root-dir: "KUBERNETES_STORAGE"
+    # cloud-provider: "vsphere"
+    # cloud-config: "/etc/kubernetes/vsphere.conf"
+    # cgroupDriver: "cgroupfs"
+    # logtostderr: "false"
+    # log-dir: "/opt/csap/processing/kubelet_8014/logs"
+    
+# controlPlane:
+#   certificateKey: "MASTER_CONTROL_KEY"

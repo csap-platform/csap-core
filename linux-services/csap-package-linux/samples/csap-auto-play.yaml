@@ -1,0 +1,92 @@
+#
+# Target file
+#
+operator: modify
+target: default
+#
+# shortcut: deletes all environments but specified and its bases
+#
+active-environment: dev
+
+#
+# sets hosts names for base-os, and shorthand for all clusters; require active-environment is set
+#
+cluster-hosts:
+  base-os: 
+    - centos1
+  csap-management: [ 1 ]
+  
+#
+# General Purpose modifications using json paths to target operation
+#
+deletes: 
+  - /project/architect
+  - /environments/defaults/settings/application/sub-projects
+  
+
+updates:
+  - path: /environments/defaults/settings/application/name
+    value: auto-play-demo-application
+      
+inserts:
+  - path: /environments/dev/settings/configuration-maps/generated-map
+    value:
+      PROCESSING: $$csap-working
+      STAGING: $$csap-base
+  - path: /environments/test/settings/configuration-maps/global
+    value:
+      key-1: value-1
+      key-2: value-2
+    
+---
+operator: delete
+target: test-delete.yaml
+
+---
+
+operator: create
+target: application-company.yml
+
+#
+# Global settings for applications - test
+#
+
+spring: 
+  mail: 
+    host: "${mailServer:myrelay.yourcompany.com}"
+    port: "${mailPort:25}"
+
+csap.security: 
+    rest-api-filter.token: "k16ljSCT5UnF8o1fCyshcD3+VZtrWm2c"
+    roles:
+      view-group: ROLE_${csap_view_role:AUTHENTICATED}
+      admin-group: ROLE_${csap_admin_role:AUTHENTICATED}
+      build-group: ROLE_${csap_build_role:AUTHENTICATED}
+      infra-group: ROLE_${csap_infra_role:AUTHENTICATED}
+      
+    provider:
+      type: ldap
+      url: ldap://ldap.davis.yourcompany.lab:389
+      directory-dn: search:uid={0}
+      search-user: ou=People,dc=flexnet,dc=net
+      search-groups: ou=Groups,dc=flexnet,dc=net
+      
+csap-core:
+
+  kubernetes: 
+    enabled: true
+
+  docker: 
+    enabled: true
+    
+
+#
+# health and data services
+#
+csap-events: 
+
+  health-monitoring: 
+    appIds:
+      - desktop
+    lifes:
+      - dev

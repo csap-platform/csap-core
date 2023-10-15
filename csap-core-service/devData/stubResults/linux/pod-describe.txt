@@ -2,7 +2,7 @@ Name:                 calico-node-bkx6t
 Namespace:            kube-system
 Priority:             2000001000
 Priority Class Name:  system-node-critical
-Node:                 csap-dev05.***REMOVED***/10.22.14.247
+Node:                 csap-dev05.yourcompany.org/10.22.14.247
 Start Time:           Wed, 01 Jul 2020 10:36:45 -0400
 Labels:               controller-revision-hash=5896745775
                       k8s-app=calico-node

@@ -53,19 +53,19 @@
 				"replicaSetCount": 11,
 				"metrics": {
 					"nodes": {
-						"csap-dev04.***REMOVED***": {
+						"csap-dev04.yourcompany.org": {
 							"cores": 0.75,
 							"memoryInMb": 25384,
 							"podsRunning": 15,
 							"podsNotRunning": 0
 						},
-						"csap-dev06.***REMOVED***": {
+						"csap-dev06.yourcompany.org": {
 							"cores": 0.15,
 							"memoryInMb": 17362,
 							"podsRunning": 7,
 							"podsNotRunning": 0
 						},
-						"csap-dev05.***REMOVED***": {
+						"csap-dev05.yourcompany.org": {
 							"cores": 0.25,
 							"memoryInMb": 18906,
 							"podsRunning": 9,
@@ -197,7 +197,7 @@
 							"cores": 0.01,
 							"memoryInMb": 593
 						},
-						"etcd-csap-dev04.***REMOVED***": {
+						"etcd-csap-dev04.yourcompany.org": {
 							"cores": 0.02,
 							"memoryInMb": 139
 						},
@@ -221,7 +221,7 @@
 							"cores": 0.0,
 							"memoryInMb": 15
 						},
-						"kube-controller-manager-csap-dev04.***REMOVED***": {
+						"kube-controller-manager-csap-dev04.yourcompany.org": {
 							"cores": 0.01,
 							"memoryInMb": 43
 						},
@@ -245,7 +245,7 @@
 							"cores": 0.01,
 							"memoryInMb": 256
 						},
-						"kube-scheduler-csap-dev04.***REMOVED***": {
+						"kube-scheduler-csap-dev04.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 16
 						},
@@ -253,7 +253,7 @@
 							"cores": 0.0,
 							"memoryInMb": 10
 						},
-						"kube-apiserver-csap-dev04.***REMOVED***": {
+						"kube-apiserver-csap-dev04.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 412
 						},
@@ -605,7 +605,7 @@
 							"errors": [],
 							"source": {
 								"collected-at": "09:33:05, January 10 2020",
-								"hostName": "csap-dev04.***REMOVED***"
+								"hostName": "csap-dev04.yourcompany.org"
 							}
 						},
 						"running": true,
@@ -878,7 +878,7 @@
 				"user": "root",
 				"containers": [
 					{
-						"containerName": "/k8s_etcd_etcd-csap-dev04.***REMOVED***_kube-system_94e76cd297d0db696b007a4060d192d6_0",
+						"containerName": "/k8s_etcd_etcd-csap-dev04.yourcompany.org_kube-system_94e76cd297d0db696b007a4060d192d6_0",
 						"podNamespace": "kube-system",
 						"podIp": "10.22.14.244",
 						"resourceViolations": [],
@@ -926,7 +926,7 @@
 				"user": "root",
 				"containers": [
 					{
-						"containerName": "/k8s_kube-apiserver_kube-apiserver-csap-dev04.***REMOVED***_kube-system_cb83aa088d11e16de9a20363ea900a1a_0",
+						"containerName": "/k8s_kube-apiserver_kube-apiserver-csap-dev04.yourcompany.org_kube-system_cb83aa088d11e16de9a20363ea900a1a_0",
 						"podNamespace": "kube-system",
 						"podIp": "10.22.14.244",
 						"resourceViolations": [],
@@ -974,7 +974,7 @@
 				"user": "root",
 				"containers": [
 					{
-						"containerName": "/k8s_kube-controller-manager_kube-controller-manager-csap-dev04.***REMOVED***_kube-system_742f69e58a857306ab908816add89450_0",
+						"containerName": "/k8s_kube-controller-manager_kube-controller-manager-csap-dev04.yourcompany.org_kube-system_742f69e58a857306ab908816add89450_0",
 						"podNamespace": "kube-system",
 						"podIp": "10.22.14.244",
 						"resourceViolations": [],
@@ -1070,7 +1070,7 @@
 				"user": "root",
 				"containers": [
 					{
-						"containerName": "/k8s_kube-scheduler_kube-scheduler-csap-dev04.***REMOVED***_kube-system_732be3f14f79b5c85c2b9fc7df90d045_0",
+						"containerName": "/k8s_kube-scheduler_kube-scheduler-csap-dev04.yourcompany.org_kube-system_732be3f14f79b5c85c2b9fc7df90d045_0",
 						"podNamespace": "kube-system",
 						"podIp": "10.22.14.244",
 						"resourceViolations": [],
@@ -1979,7 +1979,7 @@
 							"errors": [],
 							"source": {
 								"collected-at": "09:32:57, January 10 2020",
-								"hostName": "csap-dev03.***REMOVED***"
+								"hostName": "csap-dev03.yourcompany.org"
 							}
 						},
 						"running": true,
@@ -2721,7 +2721,7 @@
 							"errors": [],
 							"source": {
 								"collected-at": "09:33:03, January 10 2020",
-								"hostName": "csap-dev02.***REMOVED***"
+								"hostName": "csap-dev02.yourcompany.org"
 							}
 						},
 						"running": true,
@@ -3123,37 +3123,37 @@
 				"replicaSetCount": 9,
 				"metrics": {
 					"nodes": {
-						"csap-dev07.***REMOVED***": {
+						"csap-dev07.yourcompany.org": {
 							"cores": 0.87,
 							"memoryInMb": 17301,
 							"podsRunning": 9,
 							"podsNotRunning": 0
 						},
-						"csap-dev09.***REMOVED***": {
+						"csap-dev09.yourcompany.org": {
 							"cores": 0.36,
 							"memoryInMb": 13894,
 							"podsRunning": 8,
 							"podsNotRunning": 0
 						},
-						"csap-dev08.***REMOVED***": {
+						"csap-dev08.yourcompany.org": {
 							"cores": 0.39,
 							"memoryInMb": 13878,
 							"podsRunning": 6,
 							"podsNotRunning": 0
 						},
-						"csap-dev10.***REMOVED***": {
+						"csap-dev10.yourcompany.org": {
 							"cores": 0.17,
 							"memoryInMb": 13023,
 							"podsRunning": 5,
 							"podsNotRunning": 0
 						},
-						"csap-dev12.***REMOVED***": {
+						"csap-dev12.yourcompany.org": {
 							"cores": 0.4,
 							"memoryInMb": 13446,
 							"podsRunning": 7,
 							"podsNotRunning": 0
 						},
-						"csap-dev11.***REMOVED***": {
+						"csap-dev11.yourcompany.org": {
 							"cores": 0.24,
 							"memoryInMb": 13581,
 							"podsRunning": 8,
@@ -3245,7 +3245,7 @@
 							"cores": 0.03,
 							"memoryInMb": 23
 						},
-						"etcd-csap-dev08.***REMOVED***": {
+						"etcd-csap-dev08.yourcompany.org": {
 							"cores": 0.03,
 							"memoryInMb": 211
 						},
@@ -3253,15 +3253,15 @@
 							"cores": 0.0,
 							"memoryInMb": 229
 						},
-						"etcd-csap-dev09.***REMOVED***": {
+						"etcd-csap-dev09.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 204
 						},
-						"kube-apiserver-csap-dev07.***REMOVED***": {
+						"kube-apiserver-csap-dev07.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 386
 						},
-						"kube-scheduler-csap-dev07.***REMOVED***": {
+						"kube-scheduler-csap-dev07.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 14
 						},
@@ -3269,7 +3269,7 @@
 							"cores": 0.01,
 							"memoryInMb": 239
 						},
-						"kube-scheduler-csap-dev08.***REMOVED***": {
+						"kube-scheduler-csap-dev08.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
@@ -3285,19 +3285,19 @@
 							"cores": 0.0,
 							"memoryInMb": 8
 						},
-						"etcd-csap-dev07.***REMOVED***": {
+						"etcd-csap-dev07.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 222
 						},
-						"kube-apiserver-csap-dev08.***REMOVED***": {
+						"kube-apiserver-csap-dev08.yourcompany.org": {
 							"cores": 0.03,
 							"memoryInMb": 335
 						},
-						"kube-controller-manager-csap-dev07.***REMOVED***": {
+						"kube-controller-manager-csap-dev07.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
-						"kube-controller-manager-csap-dev09.***REMOVED***": {
+						"kube-controller-manager-csap-dev09.yourcompany.org": {
 							"cores": 0.02,
 							"memoryInMb": 47
 						},
@@ -3313,11 +3313,11 @@
 							"cores": 0.02,
 							"memoryInMb": 22
 						},
-						"kube-controller-manager-csap-dev08.***REMOVED***": {
+						"kube-controller-manager-csap-dev08.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
-						"kube-scheduler-csap-dev09.***REMOVED***": {
+						"kube-scheduler-csap-dev09.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
@@ -3333,7 +3333,7 @@
 							"cores": 0.02,
 							"memoryInMb": 22
 						},
-						"kube-apiserver-csap-dev09.***REMOVED***": {
+						"kube-apiserver-csap-dev09.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 357
 						},
@@ -3663,7 +3663,7 @@
 							"errors": [],
 							"source": {
 								"collected-at": "09:33:09, January 10 2020",
-								"hostName": "csap-dev12.***REMOVED***"
+								"hostName": "csap-dev12.yourcompany.org"
 							}
 						},
 						"running": true,
@@ -4497,7 +4497,7 @@
 							"errors": [],
 							"source": {
 								"collected-at": "09:32:51, January 10 2020",
-								"hostName": "csap-dev01.***REMOVED***"
+								"hostName": "csap-dev01.yourcompany.org"
 							}
 						},
 						"running": true,
@@ -5178,37 +5178,37 @@
 				"replicaSetCount": 9,
 				"metrics": {
 					"nodes": {
-						"csap-dev11.***REMOVED***": {
+						"csap-dev11.yourcompany.org": {
 							"cores": 0.24,
 							"memoryInMb": 13581,
 							"podsRunning": 8,
 							"podsNotRunning": 0
 						},
-						"csap-dev07.***REMOVED***": {
+						"csap-dev07.yourcompany.org": {
 							"cores": 0.87,
 							"memoryInMb": 17301,
 							"podsRunning": 9,
 							"podsNotRunning": 0
 						},
-						"csap-dev09.***REMOVED***": {
+						"csap-dev09.yourcompany.org": {
 							"cores": 0.36,
 							"memoryInMb": 13894,
 							"podsRunning": 8,
 							"podsNotRunning": 0
 						},
-						"csap-dev08.***REMOVED***": {
+						"csap-dev08.yourcompany.org": {
 							"cores": 0.39,
 							"memoryInMb": 13878,
 							"podsRunning": 6,
 							"podsNotRunning": 0
 						},
-						"csap-dev10.***REMOVED***": {
+						"csap-dev10.yourcompany.org": {
 							"cores": 0.17,
 							"memoryInMb": 13023,
 							"podsRunning": 5,
 							"podsNotRunning": 0
 						},
-						"csap-dev12.***REMOVED***": {
+						"csap-dev12.yourcompany.org": {
 							"cores": 0.4,
 							"memoryInMb": 13446,
 							"podsRunning": 7,
@@ -5312,7 +5312,7 @@
 							"cores": 0.03,
 							"memoryInMb": 23
 						},
-						"etcd-csap-dev08.***REMOVED***": {
+						"etcd-csap-dev08.yourcompany.org": {
 							"cores": 0.03,
 							"memoryInMb": 211
 						},
@@ -5324,11 +5324,11 @@
 							"cores": 0.03,
 							"memoryInMb": 22
 						},
-						"kube-apiserver-csap-dev07.***REMOVED***": {
+						"kube-apiserver-csap-dev07.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 386
 						},
-						"kube-scheduler-csap-dev07.***REMOVED***": {
+						"kube-scheduler-csap-dev07.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 14
 						},
@@ -5336,7 +5336,7 @@
 							"cores": 0.01,
 							"memoryInMb": 239
 						},
-						"etcd-csap-dev09.***REMOVED***": {
+						"etcd-csap-dev09.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 204
 						},
@@ -5344,15 +5344,15 @@
 							"cores": 0.0,
 							"memoryInMb": 8
 						},
-						"etcd-csap-dev07.***REMOVED***": {
+						"etcd-csap-dev07.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 222
 						},
-						"kube-apiserver-csap-dev08.***REMOVED***": {
+						"kube-apiserver-csap-dev08.yourcompany.org": {
 							"cores": 0.03,
 							"memoryInMb": 335
 						},
-						"kube-scheduler-csap-dev08.***REMOVED***": {
+						"kube-scheduler-csap-dev08.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
@@ -5372,15 +5372,15 @@
 							"cores": 0.02,
 							"memoryInMb": 22
 						},
-						"kube-controller-manager-csap-dev08.***REMOVED***": {
+						"kube-controller-manager-csap-dev08.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
-						"kube-controller-manager-csap-dev07.***REMOVED***": {
+						"kube-controller-manager-csap-dev07.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
-						"kube-controller-manager-csap-dev09.***REMOVED***": {
+						"kube-controller-manager-csap-dev09.yourcompany.org": {
 							"cores": 0.02,
 							"memoryInMb": 47
 						},
@@ -5392,7 +5392,7 @@
 							"cores": 0.02,
 							"memoryInMb": 22
 						},
-						"kube-apiserver-csap-dev09.***REMOVED***": {
+						"kube-apiserver-csap-dev09.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 357
 						},
@@ -5400,7 +5400,7 @@
 							"cores": 0.0,
 							"memoryInMb": 10
 						},
-						"kube-scheduler-csap-dev09.***REMOVED***": {
+						"kube-scheduler-csap-dev09.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
@@ -5705,7 +5705,7 @@
 							"errors": [],
 							"source": {
 								"collected-at": "09:32:51, January 10 2020",
-								"hostName": "csap-dev08.***REMOVED***"
+								"hostName": "csap-dev08.yourcompany.org"
 							}
 						},
 						"running": true,
@@ -6152,7 +6152,7 @@
 				"user": "root",
 				"containers": [
 					{
-						"containerName": "/k8s_etcd_etcd-csap-dev08.***REMOVED***_kube-system_758dc9bf61d9283053567602b424cbbb_0",
+						"containerName": "/k8s_etcd_etcd-csap-dev08.yourcompany.org_kube-system_758dc9bf61d9283053567602b424cbbb_0",
 						"podNamespace": "kube-system",
 						"podIp": "10.22.14.184",
 						"resourceViolations": [],
@@ -6202,7 +6202,7 @@
 				"user": "root",
 				"containers": [
 					{
-						"containerName": "/k8s_kube-apiserver_kube-apiserver-csap-dev08.***REMOVED***_kube-system_8740da20b798afc019aa44965ec67b98_0",
+						"containerName": "/k8s_kube-apiserver_kube-apiserver-csap-dev08.yourcompany.org_kube-system_8740da20b798afc019aa44965ec67b98_0",
 						"podNamespace": "kube-system",
 						"podIp": "10.22.14.184",
 						"resourceViolations": [],
@@ -6252,7 +6252,7 @@
 				"user": "root",
 				"containers": [
 					{
-						"containerName": "/k8s_kube-controller-manager_kube-controller-manager-csap-dev08.***REMOVED***_kube-system_f271be44277a399f84189d98055b1bcc_0",
+						"containerName": "/k8s_kube-controller-manager_kube-controller-manager-csap-dev08.yourcompany.org_kube-system_f271be44277a399f84189d98055b1bcc_0",
 						"podNamespace": "kube-system",
 						"podIp": "10.22.14.184",
 						"resourceViolations": [],
@@ -6352,7 +6352,7 @@
 				"user": "root",
 				"containers": [
 					{
-						"containerName": "/k8s_kube-scheduler_kube-scheduler-csap-dev08.***REMOVED***_kube-system_732be3f14f79b5c85c2b9fc7df90d045_0",
+						"containerName": "/k8s_kube-scheduler_kube-scheduler-csap-dev08.yourcompany.org_kube-system_732be3f14f79b5c85c2b9fc7df90d045_0",
 						"podNamespace": "kube-system",
 						"podIp": "10.22.14.184",
 						"resourceViolations": [],
@@ -6706,37 +6706,37 @@
 				"replicaSetCount": 9,
 				"metrics": {
 					"nodes": {
-						"csap-dev12.***REMOVED***": {
+						"csap-dev12.yourcompany.org": {
 							"cores": 0.4,
 							"memoryInMb": 13446,
 							"podsRunning": 7,
 							"podsNotRunning": 0
 						},
-						"csap-dev11.***REMOVED***": {
+						"csap-dev11.yourcompany.org": {
 							"cores": 0.24,
 							"memoryInMb": 13581,
 							"podsRunning": 8,
 							"podsNotRunning": 0
 						},
-						"csap-dev07.***REMOVED***": {
+						"csap-dev07.yourcompany.org": {
 							"cores": 0.87,
 							"memoryInMb": 17301,
 							"podsRunning": 9,
 							"podsNotRunning": 0
 						},
-						"csap-dev09.***REMOVED***": {
+						"csap-dev09.yourcompany.org": {
 							"cores": 0.36,
 							"memoryInMb": 13894,
 							"podsRunning": 8,
 							"podsNotRunning": 0
 						},
-						"csap-dev08.***REMOVED***": {
+						"csap-dev08.yourcompany.org": {
 							"cores": 0.39,
 							"memoryInMb": 13878,
 							"podsRunning": 6,
 							"podsNotRunning": 0
 						},
-						"csap-dev10.***REMOVED***": {
+						"csap-dev10.yourcompany.org": {
 							"cores": 0.17,
 							"memoryInMb": 13023,
 							"podsRunning": 5,
@@ -6828,15 +6828,15 @@
 							"cores": 0.0,
 							"memoryInMb": 8
 						},
-						"etcd-csap-dev07.***REMOVED***": {
+						"etcd-csap-dev07.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 222
 						},
-						"kube-apiserver-csap-dev08.***REMOVED***": {
+						"kube-apiserver-csap-dev08.yourcompany.org": {
 							"cores": 0.03,
 							"memoryInMb": 335
 						},
-						"kube-scheduler-csap-dev08.***REMOVED***": {
+						"kube-scheduler-csap-dev08.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
@@ -6856,15 +6856,15 @@
 							"cores": 0.02,
 							"memoryInMb": 22
 						},
-						"kube-controller-manager-csap-dev08.***REMOVED***": {
+						"kube-controller-manager-csap-dev08.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
-						"kube-controller-manager-csap-dev07.***REMOVED***": {
+						"kube-controller-manager-csap-dev07.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
-						"kube-controller-manager-csap-dev09.***REMOVED***": {
+						"kube-controller-manager-csap-dev09.yourcompany.org": {
 							"cores": 0.02,
 							"memoryInMb": 47
 						},
@@ -6876,7 +6876,7 @@
 							"cores": 0.02,
 							"memoryInMb": 22
 						},
-						"kube-apiserver-csap-dev09.***REMOVED***": {
+						"kube-apiserver-csap-dev09.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 357
 						},
@@ -6884,7 +6884,7 @@
 							"cores": 0.0,
 							"memoryInMb": 10
 						},
-						"kube-scheduler-csap-dev09.***REMOVED***": {
+						"kube-scheduler-csap-dev09.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
@@ -6964,7 +6964,7 @@
 							"cores": 0.03,
 							"memoryInMb": 23
 						},
-						"etcd-csap-dev08.***REMOVED***": {
+						"etcd-csap-dev08.yourcompany.org": {
 							"cores": 0.03,
 							"memoryInMb": 211
 						},
@@ -6976,11 +6976,11 @@
 							"cores": 0.03,
 							"memoryInMb": 22
 						},
-						"kube-apiserver-csap-dev07.***REMOVED***": {
+						"kube-apiserver-csap-dev07.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 386
 						},
-						"kube-scheduler-csap-dev07.***REMOVED***": {
+						"kube-scheduler-csap-dev07.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 14
 						},
@@ -6988,7 +6988,7 @@
 							"cores": 0.01,
 							"memoryInMb": 239
 						},
-						"etcd-csap-dev09.***REMOVED***": {
+						"etcd-csap-dev09.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 204
 						}
@@ -7245,7 +7245,7 @@
 							"errors": [],
 							"source": {
 								"collected-at": "09:32:46, January 10 2020",
-								"hostName": "csap-dev07.***REMOVED***"
+								"hostName": "csap-dev07.yourcompany.org"
 							}
 						},
 						"running": true,
@@ -7724,7 +7724,7 @@
 				"user": "root",
 				"containers": [
 					{
-						"containerName": "/k8s_etcd_etcd-csap-dev07.***REMOVED***_kube-system_0088bf2d45a04d211e1c312e35a5e376_0",
+						"containerName": "/k8s_etcd_etcd-csap-dev07.yourcompany.org_kube-system_0088bf2d45a04d211e1c312e35a5e376_0",
 						"podNamespace": "kube-system",
 						"podIp": "10.22.14.10",
 						"resourceViolations": [],
@@ -7774,7 +7774,7 @@
 				"user": "root",
 				"containers": [
 					{
-						"containerName": "/k8s_kube-apiserver_kube-apiserver-csap-dev07.***REMOVED***_kube-system_8eb73e28de3e8caf801dadda8196385e_0",
+						"containerName": "/k8s_kube-apiserver_kube-apiserver-csap-dev07.yourcompany.org_kube-system_8eb73e28de3e8caf801dadda8196385e_0",
 						"podNamespace": "kube-system",
 						"podIp": "10.22.14.10",
 						"resourceViolations": [],
@@ -7824,7 +7824,7 @@
 				"user": "root",
 				"containers": [
 					{
-						"containerName": "/k8s_kube-controller-manager_kube-controller-manager-csap-dev07.***REMOVED***_kube-system_f271be44277a399f84189d98055b1bcc_1",
+						"containerName": "/k8s_kube-controller-manager_kube-controller-manager-csap-dev07.yourcompany.org_kube-system_f271be44277a399f84189d98055b1bcc_1",
 						"podNamespace": "kube-system",
 						"podIp": "10.22.14.10",
 						"resourceViolations": [],
@@ -7924,7 +7924,7 @@
 				"user": "root",
 				"containers": [
 					{
-						"containerName": "/k8s_kube-scheduler_kube-scheduler-csap-dev07.***REMOVED***_kube-system_732be3f14f79b5c85c2b9fc7df90d045_1",
+						"containerName": "/k8s_kube-scheduler_kube-scheduler-csap-dev07.yourcompany.org_kube-system_732be3f14f79b5c85c2b9fc7df90d045_1",
 						"podNamespace": "kube-system",
 						"podIp": "10.22.14.10",
 						"resourceViolations": [],
@@ -8278,19 +8278,19 @@
 				"replicaSetCount": 11,
 				"metrics": {
 					"nodes": {
-						"csap-dev04.***REMOVED***": {
+						"csap-dev04.yourcompany.org": {
 							"cores": 0.75,
 							"memoryInMb": 25384,
 							"podsRunning": 15,
 							"podsNotRunning": 0
 						},
-						"csap-dev06.***REMOVED***": {
+						"csap-dev06.yourcompany.org": {
 							"cores": 0.15,
 							"memoryInMb": 17362,
 							"podsRunning": 7,
 							"podsNotRunning": 0
 						},
-						"csap-dev05.***REMOVED***": {
+						"csap-dev05.yourcompany.org": {
 							"cores": 0.25,
 							"memoryInMb": 18906,
 							"podsRunning": 9,
@@ -8386,7 +8386,7 @@
 							"cores": 0.0,
 							"memoryInMb": 15
 						},
-						"kube-controller-manager-csap-dev04.***REMOVED***": {
+						"kube-controller-manager-csap-dev04.yourcompany.org": {
 							"cores": 0.01,
 							"memoryInMb": 43
 						},
@@ -8410,7 +8410,7 @@
 							"cores": 0.0,
 							"memoryInMb": 8
 						},
-						"kube-scheduler-csap-dev04.***REMOVED***": {
+						"kube-scheduler-csap-dev04.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 16
 						},
@@ -8418,7 +8418,7 @@
 							"cores": 0.0,
 							"memoryInMb": 10
 						},
-						"kube-apiserver-csap-dev04.***REMOVED***": {
+						"kube-apiserver-csap-dev04.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 412
 						},
@@ -8486,7 +8486,7 @@
 							"cores": 0.01,
 							"memoryInMb": 22
 						},
-						"etcd-csap-dev04.***REMOVED***": {
+						"etcd-csap-dev04.yourcompany.org": {
 							"cores": 0.02,
 							"memoryInMb": 139
 						},
@@ -8800,7 +8800,7 @@
 							"errors": [],
 							"source": {
 								"collected-at": "09:32:47, January 10 2020",
-								"hostName": "csap-dev06.***REMOVED***"
+								"hostName": "csap-dev06.yourcompany.org"
 							}
 						},
 						"running": true,
@@ -9383,19 +9383,19 @@
 				"replicaSetCount": 11,
 				"metrics": {
 					"nodes": {
-						"csap-dev04.***REMOVED***": {
+						"csap-dev04.yourcompany.org": {
 							"cores": 0.75,
 							"memoryInMb": 25384,
 							"podsRunning": 15,
 							"podsNotRunning": 0
 						},
-						"csap-dev06.***REMOVED***": {
+						"csap-dev06.yourcompany.org": {
 							"cores": 0.15,
 							"memoryInMb": 17362,
 							"podsRunning": 7,
 							"podsNotRunning": 0
 						},
-						"csap-dev05.***REMOVED***": {
+						"csap-dev05.yourcompany.org": {
 							"cores": 0.25,
 							"memoryInMb": 18906,
 							"podsRunning": 9,
@@ -9531,7 +9531,7 @@
 							"cores": 0.01,
 							"memoryInMb": 22
 						},
-						"etcd-csap-dev04.***REMOVED***": {
+						"etcd-csap-dev04.yourcompany.org": {
 							"cores": 0.02,
 							"memoryInMb": 139
 						},
@@ -9555,7 +9555,7 @@
 							"cores": 0.0,
 							"memoryInMb": 15
 						},
-						"kube-controller-manager-csap-dev04.***REMOVED***": {
+						"kube-controller-manager-csap-dev04.yourcompany.org": {
 							"cores": 0.01,
 							"memoryInMb": 43
 						},
@@ -9579,7 +9579,7 @@
 							"cores": 0.0,
 							"memoryInMb": 8
 						},
-						"kube-scheduler-csap-dev04.***REMOVED***": {
+						"kube-scheduler-csap-dev04.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 16
 						},
@@ -9587,7 +9587,7 @@
 							"cores": 0.0,
 							"memoryInMb": 10
 						},
-						"kube-apiserver-csap-dev04.***REMOVED***": {
+						"kube-apiserver-csap-dev04.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 412
 						},
@@ -9916,7 +9916,7 @@
 							"errors": [],
 							"source": {
 								"collected-at": "09:32:45, January 10 2020",
-								"hostName": "csap-dev05.***REMOVED***"
+								"hostName": "csap-dev05.yourcompany.org"
 							}
 						},
 						"running": true,
@@ -10544,37 +10544,37 @@
 				"replicaSetCount": 9,
 				"metrics": {
 					"nodes": {
-						"csap-dev11.***REMOVED***": {
+						"csap-dev11.yourcompany.org": {
 							"cores": 0.24,
 							"memoryInMb": 13581,
 							"podsRunning": 8,
 							"podsNotRunning": 0
 						},
-						"csap-dev07.***REMOVED***": {
+						"csap-dev07.yourcompany.org": {
 							"cores": 0.87,
 							"memoryInMb": 17301,
 							"podsRunning": 9,
 							"podsNotRunning": 0
 						},
-						"csap-dev09.***REMOVED***": {
+						"csap-dev09.yourcompany.org": {
 							"cores": 0.36,
 							"memoryInMb": 13894,
 							"podsRunning": 8,
 							"podsNotRunning": 0
 						},
-						"csap-dev08.***REMOVED***": {
+						"csap-dev08.yourcompany.org": {
 							"cores": 0.39,
 							"memoryInMb": 13878,
 							"podsRunning": 6,
 							"podsNotRunning": 0
 						},
-						"csap-dev10.***REMOVED***": {
+						"csap-dev10.yourcompany.org": {
 							"cores": 0.17,
 							"memoryInMb": 13023,
 							"podsRunning": 5,
 							"podsNotRunning": 0
 						},
-						"csap-dev12.***REMOVED***": {
+						"csap-dev12.yourcompany.org": {
 							"cores": 0.4,
 							"memoryInMb": 13446,
 							"podsRunning": 7,
@@ -10694,7 +10694,7 @@
 							"cores": 0.03,
 							"memoryInMb": 23
 						},
-						"etcd-csap-dev08.***REMOVED***": {
+						"etcd-csap-dev08.yourcompany.org": {
 							"cores": 0.03,
 							"memoryInMb": 211
 						},
@@ -10706,11 +10706,11 @@
 							"cores": 0.03,
 							"memoryInMb": 22
 						},
-						"kube-apiserver-csap-dev07.***REMOVED***": {
+						"kube-apiserver-csap-dev07.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 386
 						},
-						"kube-scheduler-csap-dev07.***REMOVED***": {
+						"kube-scheduler-csap-dev07.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 14
 						},
@@ -10718,7 +10718,7 @@
 							"cores": 0.01,
 							"memoryInMb": 239
 						},
-						"etcd-csap-dev09.***REMOVED***": {
+						"etcd-csap-dev09.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 204
 						},
@@ -10726,15 +10726,15 @@
 							"cores": 0.0,
 							"memoryInMb": 8
 						},
-						"etcd-csap-dev07.***REMOVED***": {
+						"etcd-csap-dev07.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 222
 						},
-						"kube-apiserver-csap-dev08.***REMOVED***": {
+						"kube-apiserver-csap-dev08.yourcompany.org": {
 							"cores": 0.03,
 							"memoryInMb": 335
 						},
-						"kube-scheduler-csap-dev08.***REMOVED***": {
+						"kube-scheduler-csap-dev08.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
@@ -10754,15 +10754,15 @@
 							"cores": 0.02,
 							"memoryInMb": 22
 						},
-						"kube-controller-manager-csap-dev08.***REMOVED***": {
+						"kube-controller-manager-csap-dev08.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
-						"kube-controller-manager-csap-dev07.***REMOVED***": {
+						"kube-controller-manager-csap-dev07.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
-						"kube-controller-manager-csap-dev09.***REMOVED***": {
+						"kube-controller-manager-csap-dev09.yourcompany.org": {
 							"cores": 0.02,
 							"memoryInMb": 47
 						},
@@ -10774,7 +10774,7 @@
 							"cores": 0.02,
 							"memoryInMb": 22
 						},
-						"kube-apiserver-csap-dev09.***REMOVED***": {
+						"kube-apiserver-csap-dev09.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 357
 						},
@@ -10782,7 +10782,7 @@
 							"cores": 0.0,
 							"memoryInMb": 10
 						},
-						"kube-scheduler-csap-dev09.***REMOVED***": {
+						"kube-scheduler-csap-dev09.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
@@ -11102,7 +11102,7 @@
 							"errors": [],
 							"source": {
 								"collected-at": "09:33:05, January 10 2020",
-								"hostName": "csap-dev11.***REMOVED***"
+								"hostName": "csap-dev11.yourcompany.org"
 							}
 						},
 						"running": true,
@@ -11756,37 +11756,37 @@
 				"replicaSetCount": 9,
 				"metrics": {
 					"nodes": {
-						"csap-dev12.***REMOVED***": {
+						"csap-dev12.yourcompany.org": {
 							"cores": 0.4,
 							"memoryInMb": 13446,
 							"podsRunning": 7,
 							"podsNotRunning": 0
 						},
-						"csap-dev11.***REMOVED***": {
+						"csap-dev11.yourcompany.org": {
 							"cores": 0.24,
 							"memoryInMb": 13581,
 							"podsRunning": 8,
 							"podsNotRunning": 0
 						},
-						"csap-dev07.***REMOVED***": {
+						"csap-dev07.yourcompany.org": {
 							"cores": 0.87,
 							"memoryInMb": 17301,
 							"podsRunning": 9,
 							"podsNotRunning": 0
 						},
-						"csap-dev09.***REMOVED***": {
+						"csap-dev09.yourcompany.org": {
 							"cores": 0.36,
 							"memoryInMb": 13894,
 							"podsRunning": 8,
 							"podsNotRunning": 0
 						},
-						"csap-dev08.***REMOVED***": {
+						"csap-dev08.yourcompany.org": {
 							"cores": 0.39,
 							"memoryInMb": 13878,
 							"podsRunning": 6,
 							"podsNotRunning": 0
 						},
-						"csap-dev10.***REMOVED***": {
+						"csap-dev10.yourcompany.org": {
 							"cores": 0.17,
 							"memoryInMb": 13023,
 							"podsRunning": 5,
@@ -11946,7 +11946,7 @@
 							"cores": 0.03,
 							"memoryInMb": 23
 						},
-						"etcd-csap-dev08.***REMOVED***": {
+						"etcd-csap-dev08.yourcompany.org": {
 							"cores": 0.03,
 							"memoryInMb": 211
 						},
@@ -11954,15 +11954,15 @@
 							"cores": 0.0,
 							"memoryInMb": 229
 						},
-						"etcd-csap-dev09.***REMOVED***": {
+						"etcd-csap-dev09.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 204
 						},
-						"kube-apiserver-csap-dev07.***REMOVED***": {
+						"kube-apiserver-csap-dev07.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 386
 						},
-						"kube-scheduler-csap-dev07.***REMOVED***": {
+						"kube-scheduler-csap-dev07.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 14
 						},
@@ -11970,7 +11970,7 @@
 							"cores": 0.01,
 							"memoryInMb": 239
 						},
-						"kube-scheduler-csap-dev08.***REMOVED***": {
+						"kube-scheduler-csap-dev08.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
@@ -11986,19 +11986,19 @@
 							"cores": 0.0,
 							"memoryInMb": 8
 						},
-						"etcd-csap-dev07.***REMOVED***": {
+						"etcd-csap-dev07.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 222
 						},
-						"kube-apiserver-csap-dev08.***REMOVED***": {
+						"kube-apiserver-csap-dev08.yourcompany.org": {
 							"cores": 0.03,
 							"memoryInMb": 335
 						},
-						"kube-controller-manager-csap-dev07.***REMOVED***": {
+						"kube-controller-manager-csap-dev07.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
-						"kube-controller-manager-csap-dev09.***REMOVED***": {
+						"kube-controller-manager-csap-dev09.yourcompany.org": {
 							"cores": 0.02,
 							"memoryInMb": 47
 						},
@@ -12014,11 +12014,11 @@
 							"cores": 0.02,
 							"memoryInMb": 22
 						},
-						"kube-controller-manager-csap-dev08.***REMOVED***": {
+						"kube-controller-manager-csap-dev08.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
-						"kube-scheduler-csap-dev09.***REMOVED***": {
+						"kube-scheduler-csap-dev09.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
@@ -12034,7 +12034,7 @@
 							"cores": 0.02,
 							"memoryInMb": 22
 						},
-						"kube-apiserver-csap-dev09.***REMOVED***": {
+						"kube-apiserver-csap-dev09.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 357
 						},
@@ -12283,7 +12283,7 @@
 							"errors": [],
 							"source": {
 								"collected-at": "09:33:04, January 10 2020",
-								"hostName": "csap-dev10.***REMOVED***"
+								"hostName": "csap-dev10.yourcompany.org"
 							}
 						},
 						"running": true,
@@ -13001,7 +13001,7 @@
 							"errors": [],
 							"source": {
 								"collected-at": "09:33:09, January 10 2020",
-								"hostName": "csap-dev20.***REMOVED***"
+								"hostName": "csap-dev20.yourcompany.org"
 							}
 						},
 						"running": true,
@@ -13150,37 +13150,37 @@
 				"replicaSetCount": 9,
 				"metrics": {
 					"nodes": {
-						"csap-dev07.***REMOVED***": {
+						"csap-dev07.yourcompany.org": {
 							"cores": 0.87,
 							"memoryInMb": 17301,
 							"podsRunning": 9,
 							"podsNotRunning": 0
 						},
-						"csap-dev09.***REMOVED***": {
+						"csap-dev09.yourcompany.org": {
 							"cores": 0.36,
 							"memoryInMb": 13894,
 							"podsRunning": 8,
 							"podsNotRunning": 0
 						},
-						"csap-dev08.***REMOVED***": {
+						"csap-dev08.yourcompany.org": {
 							"cores": 0.39,
 							"memoryInMb": 13878,
 							"podsRunning": 6,
 							"podsNotRunning": 0
 						},
-						"csap-dev10.***REMOVED***": {
+						"csap-dev10.yourcompany.org": {
 							"cores": 0.17,
 							"memoryInMb": 13023,
 							"podsRunning": 5,
 							"podsNotRunning": 0
 						},
-						"csap-dev12.***REMOVED***": {
+						"csap-dev12.yourcompany.org": {
 							"cores": 0.4,
 							"memoryInMb": 13446,
 							"podsRunning": 7,
 							"podsNotRunning": 0
 						},
-						"csap-dev11.***REMOVED***": {
+						"csap-dev11.yourcompany.org": {
 							"cores": 0.24,
 							"memoryInMb": 13581,
 							"podsRunning": 8,
@@ -13276,7 +13276,7 @@
 							"cores": 0.02,
 							"memoryInMb": 22
 						},
-						"kube-apiserver-csap-dev09.***REMOVED***": {
+						"kube-apiserver-csap-dev09.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 357
 						},
@@ -13284,7 +13284,7 @@
 							"cores": 0.0,
 							"memoryInMb": 10
 						},
-						"kube-scheduler-csap-dev09.***REMOVED***": {
+						"kube-scheduler-csap-dev09.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
@@ -13360,7 +13360,7 @@
 							"cores": 0.03,
 							"memoryInMb": 23
 						},
-						"etcd-csap-dev08.***REMOVED***": {
+						"etcd-csap-dev08.yourcompany.org": {
 							"cores": 0.03,
 							"memoryInMb": 211
 						},
@@ -13372,11 +13372,11 @@
 							"cores": 0.03,
 							"memoryInMb": 22
 						},
-						"kube-apiserver-csap-dev07.***REMOVED***": {
+						"kube-apiserver-csap-dev07.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 386
 						},
-						"kube-scheduler-csap-dev07.***REMOVED***": {
+						"kube-scheduler-csap-dev07.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 14
 						},
@@ -13384,7 +13384,7 @@
 							"cores": 0.01,
 							"memoryInMb": 239
 						},
-						"etcd-csap-dev09.***REMOVED***": {
+						"etcd-csap-dev09.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 204
 						},
@@ -13400,19 +13400,19 @@
 							"cores": 0.0,
 							"memoryInMb": 8
 						},
-						"etcd-csap-dev07.***REMOVED***": {
+						"etcd-csap-dev07.yourcompany.org": {
 							"cores": 0.04,
 							"memoryInMb": 222
 						},
-						"kube-apiserver-csap-dev08.***REMOVED***": {
+						"kube-apiserver-csap-dev08.yourcompany.org": {
 							"cores": 0.03,
 							"memoryInMb": 335
 						},
-						"kube-scheduler-csap-dev08.***REMOVED***": {
+						"kube-scheduler-csap-dev08.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
-						"kube-controller-manager-csap-dev09.***REMOVED***": {
+						"kube-controller-manager-csap-dev09.yourcompany.org": {
 							"cores": 0.02,
 							"memoryInMb": 47
 						},
@@ -13428,11 +13428,11 @@
 							"cores": 0.02,
 							"memoryInMb": 22
 						},
-						"kube-controller-manager-csap-dev08.***REMOVED***": {
+						"kube-controller-manager-csap-dev08.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						},
-						"kube-controller-manager-csap-dev07.***REMOVED***": {
+						"kube-controller-manager-csap-dev07.yourcompany.org": {
 							"cores": 0.0,
 							"memoryInMb": 11
 						}
@@ -13688,7 +13688,7 @@
 							"errors": [],
 							"source": {
 								"collected-at": "09:32:57, January 10 2020",
-								"hostName": "csap-dev09.***REMOVED***"
+								"hostName": "csap-dev09.yourcompany.org"
 							}
 						},
 						"running": true,
@@ -14135,7 +14135,7 @@
 				"user": "root",
 				"containers": [
 					{
-						"containerName": "/k8s_etcd_etcd-csap-dev09.***REMOVED***_kube-system_105f00a7d75030a6d47fe4a8630f862f_0",
+						"containerName": "/k8s_etcd_etcd-csap-dev09.yourcompany.org_kube-system_105f00a7d75030a6d47fe4a8630f862f_0",
 						"podNamespace": "kube-system",
 						"podIp": "10.22.14.197",
 						"resourceViolations": [],
@@ -14185,7 +14185,7 @@
 				"user": "root",
 				"containers": [
 					{
-						"containerName": "/k8s_kube-apiserver_kube-apiserver-csap-dev09.***REMOVED***_kube-system_5045fa267099d5d7f6a84124852fec2a_0",
+						"containerName": "/k8s_kube-apiserver_kube-apiserver-csap-dev09.yourcompany.org_kube-system_5045fa267099d5d7f6a84124852fec2a_0",
 						"podNamespace": "kube-system",
 						"podIp": "10.22.14.197",
 						"resourceViolations": [],
@@ -14235,7 +14235,7 @@
 				"user": "root",
 				"containers": [
 					{
-						"containerName": "/k8s_kube-controller-manager_kube-controller-manager-csap-dev09.***REMOVED***_kube-system_f271be44277a399f84189d98055b1bcc_0",
+						"containerName": "/k8s_kube-controller-manager_kube-controller-manager-csap-dev09.yourcompany.org_kube-system_f271be44277a399f84189d98055b1bcc_0",
 						"podNamespace": "kube-system",
 						"podIp": "10.22.14.197",
 						"resourceViolations": [],
@@ -14335,7 +14335,7 @@
 				"user": "root",
 				"containers": [
 					{
-						"containerName": "/k8s_kube-scheduler_kube-scheduler-csap-dev09.***REMOVED***_kube-system_732be3f14f79b5c85c2b9fc7df90d045_0",
+						"containerName": "/k8s_kube-scheduler_kube-scheduler-csap-dev09.yourcompany.org_kube-system_732be3f14f79b5c85c2b9fc7df90d045_0",
 						"podNamespace": "kube-system",
 						"podIp": "10.22.14.197",
 						"resourceViolations": [],

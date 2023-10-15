@@ -3,22 +3,22 @@
 		"api-version": 2.1,
 		"project-version": 1,
 		"name": "CSAP Platform",
-		"architect": "peter.nightingale@***REMOVED***.com",
+		"architect": "peter.nightingale@yourcompanyinc.com",
 		"description": "Includes: CSAP test services, CSAP integration environment",
-		"emailNotifications": "peter.nightingale@***REMOVED***.com",
+		"emailNotifications": "peter.nightingale@yourcompanyinc.com",
 		"test": "for xxx"
 	},
 	"environments": {
 		"defaults": {
 			"settings": {
 				"csap-data": {
-					"user": "SensusCsap",
+					"user": "yourcompanyCsap",
 					"credential": "pAH+tsfwU/kgW+34WPXQW/8Z0a9SJpXq8dNOirMmUxM=",
-					"service-url": "http://csap-dev01.***REMOVED***:8080/events-service",
+					"service-url": "http://csap-dev01.yourcompany.org:8080/events-service",
 					"secondary-publish": {
 						"enabled": "true",
-						"url": "http://csap-dev03.***REMOVED***:7021/events-service-beta/api/event",
-						"user": "SensusCsap",
+						"url": "http://csap-dev03.yourcompany.org:7021/events-service-beta/api/event",
+						"user": "yourcompanyCsap",
 						"pass": "pAH+tsfwU/kgW+34WPXQW/8Z0a9SJpXq8dNOirMmUxM="
 					}
 				}

@@ -1,0 +1,8 @@
+
+/*
+demo of css override
+*/
+
+article.content div#index {
+	border: 1px solid white ;
+}

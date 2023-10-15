@@ -1,0 +1,35 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>csap-package-httpd</artifactId>
+	<version>2-SNAPSHOT</version> <!-- add -CMCS for custom installs -->
+	<packaging>pom</packaging>
+
+	<name>${project.groupId}:${project.artifactId}</name>
+	<description>Apache Web Server Package</description>
+	<url>https://github.com/csap-platform/csap-core/wiki</url>
+
+	<parent>
+		<groupId>org.csap</groupId>
+                <artifactId>csap-package-parent</artifactId>
+		<version>2-SNAPSHOT</version>
+	</parent>
+
+	<!-- This will grab all required binaries from maven -->
+
+	<dependencies>
+
+
+	</dependencies>
+	<build>
+		<defaultGoal>clean package</defaultGoal>
+		<plugins>
+			<plugin>
+             	<artifactId>maven-assembly-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

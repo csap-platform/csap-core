@@ -25,7 +25,7 @@ ________________________________________________________________________________
 
 _______________________________________________________________________________________________
  
- 07/25/2019 13:04:16 690833274ms host: 'csap-dev01.***REMOVED***' user: 'csap' 
+ 07/25/2019 13:04:16 690833274ms host: 'csap-dev01.yourcompany.org' user: 'csap'
  tmp-csap-deploy-sh1564074256 
 _______________________________________________________________________________________________
 
@@ -38,7 +38,7 @@ ________________________________________________________________________________
        csapName: CsAgent              csapPrimaryPort: 8011                                :                      
    csapHttpPort: 8011                     csapJmxPort: 8016                                :                      
      csapServer: SpringBoot                csapTomcat:                      csapHttpPerHost:                      
-    csapPackage: CSAP Platform               csapLife: dev                        csapLbUrl: http://csap-dev01.***REMOVED***:8080 
+    csapPackage: CSAP Platform               csapLife: dev                        csapLbUrl: http://csap-dev01.yourcompany.org:8080
    csapArtifact: org.csap:csap-core-service:2-SNAPSHOT:jar csapRelicaCount:                                     :                      
     csapVersion: 2-SNAPSHOT           csapServiceLife: dev-base-os                         :                      
   csapProcessId: CsAgent_8011                csapPids: 18616                     csapParams: -Dcsap.security.rest-api-filter.token=k16ljSCT5UnF8o1fCyshcD3+VZtrWm2c -Dspring.profiles.active=CSAP_LIFE,agent,limits,company -Dsun.rmi.transport.tcp.responseTimeout=3000 -XX:MaxMetaspaceSize=144M -Xms256M -Xmx256M 
@@ -53,7 +53,7 @@ Csap Encryption:                       CSAP_ALGORITHM: PBEWITHMD5ANDTRIPLEDES   
   notifications: -                      csapAddresses: disabled               csapFrequency:                      
  csapMaxBacklog:                                     :                                     :                      
         STAGING: /opt/csap/staging         PROCESSING: /opt/csap/processing      CLUSTERDEF:                      
- hostUrlPattern: http://CSAP_HOST.***REMOVED***:8011/CsAgent      mailServer: myrelay.***REMOVED***.com   csapDockerRepository:                      
+ hostUrlPattern: http://CSAP_HOST.yourcompany.org:8011/CsAgent      mailServer: myrelay.yourcompany.com   csapDockerRepository:
    
 
 _______________________________________________________________________________________________
@@ -69,7 +69,7 @@ ________________________________________________________________________________
 
             artifact: org.csap:csap-core-service:2-SNAPSHOT:jar
             location: /opt/csap/staging/mavenRepo/org/csap/csap-core-service/2-SNAPSHOT
-             command: -B org.apache.maven.plugins:maven-dependency-plugin:3.1.1:get -DremoteRepositories=1_repo::::file:////opt/csap/staging/mavenRepo,http://***REMOVED***.***REMOVED***:8081/artifactory/csap-release -Dtransitive=false -Dartifact=org.csap:csap-core-service:2-SNAPSHOT:jar
+             command: -B org.apache.maven.plugins:maven-dependency-plugin:3.1.1:get -DremoteRepositories=1_repo::::file:////opt/csap/staging/mavenRepo,http://my-server-01.yourcompany.org:8081/artifactory/csap-release -Dtransitive=false -Dartifact=org.csap:csap-core-service:2-SNAPSHOT:jar
 
 _______________________________________________________________________________________________
  
@@ -77,16 +77,16 @@ ________________________________________________________________________________
 _______________________________________________________________________________________________
 
             location: /opt/csap/staging/build/CsAgent_8011/csap-core-service
-   mavenBuildCommand: -B org.apache.maven.plugins:maven-dependency-plugin:3.1.1:get -DremoteRepositories=1_repo::::file:////opt/csap/staging/mavenRepo,http://***REMOVED***.***REMOVED***:8081/artifactory/csap-release -Dtransitive=false -Dartifact=org.csap:csap-core-service:2-SNAPSHOT:jar
-       Build Command: mvn -s /opt/csap/staging/conf/propertyOverride/settings.xml  -B org.apache.maven.plugins:maven-dependency-plugin:3.1.1:get -DremoteRepositories=1_repo::::file:////opt/csap/staging/mavenRepo,http://***REMOVED***.***REMOVED***:8081/artifactory/csap-release -Dtransitive=false -Dartifact=org.csap:csap-core-service:2-SNAPSHOT:jar
+   mavenBuildCommand: -B org.apache.maven.plugins:maven-dependency-plugin:3.1.1:get -DremoteRepositories=1_repo::::file:////opt/csap/staging/mavenRepo,http://my-server-01.yourcompany.org:8081/artifactory/csap-release -Dtransitive=false -Dartifact=org.csap:csap-core-service:2-SNAPSHOT:jar
+       Build Command: mvn -s /opt/csap/staging/conf/propertyOverride/settings.xml  -B org.apache.maven.plugins:maven-dependency-plugin:3.1.1:get -DremoteRepositories=1_repo::::file:////opt/csap/staging/mavenRepo,http://my-server-01.yourcompany.org:8081/artifactory/csap-release -Dtransitive=false -Dartifact=org.csap:csap-core-service:2-SNAPSHOT:jar
    
 
 
 Java HotSpot(TM) 64-Bit Server VM warning: Ignoring option PermSize; support was removed in 8.0
 Java HotSpot(TM) 64-Bit Server VM warning: Ignoring option MaxPermSize; support was removed in 8.0
 [INFO] Scanning for projects...
-[INFO] Downloading from ***REMOVED***-artifactory-community: http://***REMOVED***.***REMOVED***:8081/artifactory/maven/org/csap/csap-starter-parent/2-SNAPSHOT/maven-metadata.xml
-[INFO] Downloaded from ***REMOVED***-artifactory-community: http://***REMOVED***.***REMOVED***:8081/artifactory/maven/org/csap/csap-starter-parent/2-SNAPSHOT/maven-metadata.xml (598 B at 4.0 kB/s)
+[INFO] Downloading from yourcompany-artifactory-community: http://my-server-01.yourcompany.org:8081/artifactory/maven/org/csap/csap-starter-parent/2-SNAPSHOT/maven-metadata.xml
+[INFO] Downloaded from yourcompany-artifactory-community: http://my-server-01.yourcompany.org:8081/artifactory/maven/org/csap/csap-starter-parent/2-SNAPSHOT/maven-metadata.xml (598 B at 4.0 kB/s)
 [INFO] 
 [INFO] ------------------------------------------------------------------------
 [INFO] Building csap-core-service 2-SNAPSHOT
@@ -94,12 +94,12 @@ Java HotSpot(TM) 64-Bit Server VM warning: Ignoring option MaxPermSize; support 
 [INFO] 
 [INFO] --- maven-dependency-plugin:3.1.1:get (default-cli) @ csap-core-service ---
 [INFO] Resolving org.csap:csap-core-service:jar:2-SNAPSHOT
-[INFO] Downloading from temp: http://***REMOVED***.***REMOVED***:8081/artifactory/csap-release/org/csap/csap-core-service/2-SNAPSHOT/maven-metadata.xml
-[INFO] Downloading from ***REMOVED***-artifactory-community: http://***REMOVED***.***REMOVED***:8081/artifactory/maven/org/csap/csap-core-service/2-SNAPSHOT/maven-metadata.xml
+[INFO] Downloading from temp: http://my-server-01.yourcompany.org:8081/artifactory/csap-release/org/csap/csap-core-service/2-SNAPSHOT/maven-metadata.xml
+[INFO] Downloading from yourcompany-artifactory-community: http://my-server-01.yourcompany.org:8081/artifactory/maven/org/csap/csap-core-service/2-SNAPSHOT/maven-metadata.xml
 [INFO] Downloading from 1_repo: file:////opt/csap/staging/mavenRepo/org/csap/csap-core-service/2-SNAPSHOT/maven-metadata.xml
-[INFO] Downloaded from ***REMOVED***-artifactory-community: http://***REMOVED***.***REMOVED***:8081/artifactory/maven/org/csap/csap-core-service/2-SNAPSHOT/maven-metadata.xml (981 B at 16 kB/s)
-[INFO] Downloading from ***REMOVED***-artifactory-community: http://***REMOVED***.***REMOVED***:8081/artifactory/maven/org/csap/csap-core-service/2-SNAPSHOT/csap-core-service-2-20190725.170253-122.jar
-[INFO] Downloaded from ***REMOVED***-artifactory-community: http://***REMOVED***.***REMOVED***:8081/artifactory/maven/org/csap/csap-core-service/2-SNAPSHOT/csap-core-service-2-20190725.170253-122.jar (136 MB at 71 MB/s)
+[INFO] Downloaded from yourcompany-artifactory-community: http://my-server-01.yourcompany.org:8081/artifactory/maven/org/csap/csap-core-service/2-SNAPSHOT/maven-metadata.xml (981 B at 16 kB/s)
+[INFO] Downloading from yourcompany-artifactory-community: http://my-server-01.yourcompany.org:8081/artifactory/maven/org/csap/csap-core-service/2-SNAPSHOT/csap-core-service-2-20190725.170253-122.jar
+[INFO] Downloaded from yourcompany-artifactory-community: http://my-server-01.yourcompany.org:8081/artifactory/maven/org/csap/csap-core-service/2-SNAPSHOT/csap-core-service-2-20190725.170253-122.jar (136 MB at 71 MB/s)
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------

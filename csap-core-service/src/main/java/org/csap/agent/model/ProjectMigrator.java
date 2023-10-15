@@ -247,16 +247,16 @@ public class ProjectMigrator {
 			// application.set( "helpMenuItems", legacyCapability.path( "helpMenuItems" ) )
 			// ;
 			var helpMenu = application.putObject( "help-menu-items" ) ;
-			helpMenu.put( "User Guide", "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP" ) ;
+			helpMenu.put( "User Guide", "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP" ) ;
 			helpMenu.put( "Release Notes",
-					"https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211856/Release+Notes" ) ;
+					"https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/258211856/Release+Notes" ) ;
 			helpMenu.put( "Quick Install",
-					"https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/395282580/CSAP+Quick+Install" ) ;
+					"https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/395282580/CSAP+Quick+Install" ) ;
 			helpMenu.put( "Health Status",
-					"https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211861/CSAP+Health" ) ;
+					"https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/258211861/CSAP+Health" ) ;
 			helpMenu.put( "Application Editor",
-					"https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211875/CSAP+Application+Editor" ) ;
-			helpMenu.put( "FAQ", "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/347177032/CSAP+FAQ" ) ;
+					"https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/258211875/CSAP+Application+Editor" ) ;
+			helpMenu.put( "FAQ", "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/347177032/CSAP+FAQ" ) ;
 
 			// defaultSettings.set( DEFINITION_APPLICATION, legacyCapability ) ;
 			info.append( CSAP.padLine( fileName ) + CSAP.pad( APPLICATION ) + "moved into defaults" ) ;

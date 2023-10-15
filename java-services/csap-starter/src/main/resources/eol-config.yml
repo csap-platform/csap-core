@@ -1,0 +1,225 @@
+#
+#  CSAP Default configuration
+#
+
+#
+#  Servlet & Tomcat
+#
+server:
+  port: 8080
+  tomcat:
+    mbeanregistry:
+      enabled: true
+    max-threads: 50
+  servlet:
+    context-path: /
+    session:
+      persistent: false
+      cookie:
+        name: ${csapCookieSession:JSESSIONID}
+  error:
+    include-stacktrace: always
+    
+  compression:
+    enabled: true
+    mime-types:
+      - application/json
+      - application/xml
+      - text/html
+      - text/xml
+      - text/plain
+
+#
+#  spring actuator endpoints
+# 
+management: 
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      base-path: /devOps
+      exposure:
+        include: "*"
+      
+info:
+  build.profile: ${spring.profiles.active}
+  build.artifact: "Maven: @project.artifactId@"
+  build.name: "@project.name@"
+  build.description: "@project.description@"
+  build.version: "@project.version@"
+ 
+#
+#  Core Spring
+#
+spring:
+
+  devtools.restart.additional-exclude: "**/*.jmx,**/*.csv,**/*.json"
+  
+  mail:
+    host: "${mailServer:smtp.yourcompany.com}"
+    port: "${mailPort:25}"
+    
+  output:
+    ansi:
+      enabled: never 
+  resources: 
+    cache:
+      period: 32000000
+
+  aop:
+    proxy-target-class: true
+  thymeleaf:
+    mode: HTML
+
+
+      
+#
+# csap core
+#    
+csap:
+
+  baseContext: /csap
+  
+  info:
+    name: "${csapName:MyDesktop}"
+    load-balancer-url: "${csapLbUrl:http://csap-secure.yourcompany.com}"
+    lifecycle: "${csapLife:dev}"
+    version: "${csapVersion:1.0-Desktop}"
+    http-port: "${csapHttpPort:8090}" 
+    working-dir: "${csapWorkingDir:/the/path/to/app}" 
+    cluster: "${csapName:dev-desktop-1}"
+    
+  debug:
+    show-web-params:
+        enabled: true
+        include-headers: true
+        urls:
+        - "/hello"
+      
+  documentation:
+    enabled: true
+      
+  
+  encryption:
+    enabled: true
+      
+  web-server:    
+    enabled: true
+    max-connections-ajp: 50
+    max-connections-http: 50
+    backlog: 2
+    ajp-host: ${csapHost:}
+    ajp-secret: ${csapAjp:ThisWillBeReplaced}
+    ajp-secure: false
+    ajp-scheme: http
+    ajp-proxy-port: 443
+    ajp-redirect-port: 443
+  
+  security:
+    enabled: true
+    
+    cookie:
+      name: "${csapCookieSSO:CSAP_SSO}"
+    
+    roles:
+      view-group: ROLE_AUTHENTICATED
+      admin-group: ROLE_AUTHENTICATED
+      build-group: ROLE_AUTHENTICATED
+      infra-group: ROLE_AUTHENTICATED
+    
+    provider:
+      type: memory
+           
+#      additional-ldap-roles: 
+#        pnightingale: 
+#          - a1
+#          - a2
+#          - a3
+          
+#      memory-users:
+#        - admin,password,AUTHENTICATED,dummy1,dummy2
+#        - user,password,AUTHENTICATED,dummy3,dummy4
+#      url: notUsed
+#      directory-dn: notUsed
+#      directory-dn-generic: notUsed 
+#      directory-user: notUsed
+#      directory-password: notUsed
+#      domain: notUsed
+#      generic-userid-tree: notUsed
+#      search-user: notUsed
+#      search-groups: notUsed
+
+#    rest-api-filter:
+#      enabled: false
+#      urls:
+#        - "/demoUrl1/*"
+#        - "/demoUrl2/*"
+#        - "/helloWithRestAcl"
+#      group: "$CSAP_ADMIN_GROUP"
+#      cache-seconds: 300
+
+  performance:
+    enabled: true
+    
+#    monitor-urls: 
+#        - /
+#        - /admin/*
+#        - /security/*
+        
+    
+    alert:
+    
+      debug: false
+      
+      report:
+        frequency: 30
+        time-unit: SECONDS 
+      
+      remember-count: ${csapMaxBacklog:1000}
+      
+      throttle: 
+        count: 5
+        frequency: 1
+        time-unit: HOURS 
+      
+      notify: 
+        # addresses: "${csapAddresses:yourid@yourcompany.com}"
+        frequency: "${csapFrequency:4}"
+        time-unit: "${csapTimeUnit:HOURS}"
+        
+#      limits: 
+#        - 
+#          id: health.exceptions
+#          ignore-null: true
+#          occurences-max: 0
+#          collect-time: 30
+#          collect-units: SECONDS
+#        - 
+#          id: health.nullPointer
+#          ignore-null: true
+#          occurences-max: 0
+#        - 
+#          id: controller.LandingPage.get()
+#          ignore-null: true
+#          occurences-max: 10
+#          mean-time:  100
+#          mean-units: SECONDS
+#          max-time: 1
+#          max-units: SECONDS
+#        - 
+#          id: http..GET
+#          ignore-null: true
+#          occurences-min: 0
+#          occurences-max: 10
+#          mean-time:  100
+#          max-time: 1
+#          max-units: SECONDS
+        
+#  locator:
+#    enabled: true
+#    active-urls-locator: "${csapLbUrl:https://csap-secure.yourcompany.com}/admin/api/service/urls/active/"
+#    low-resources-url-locator: "${csapLbUrl:https://csap-secure.yourcompany.com}/admin/api/service/url/low/"
+#    low-resource: "lowCpu"  #lowLoad, lowCpu, ...
+    
+      

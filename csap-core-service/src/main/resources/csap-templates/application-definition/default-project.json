@@ -18,7 +18,7 @@
 					"definition-repo-branch": "master",
 					"maven-url": "http://repo.spring.io/libs-release",
 			        "help-menu": {
-			      		"Local Login": "http://csap-dev01.***REMOVED***:8011/login?local=true",
+			      		"Local Login": "http://csap-dev01.yourcompany.org:8011/login?local=true",
 			       	    "Container Architecture": "https://www.tutorialworks.com/difference-docker-containerd-runc-crio-oci/",
 			    		"Rocky Linux": "https://rockylinux.org/"
 			        }
@@ -48,7 +48,7 @@
 				"csap-data": {
 					"user": "events-disabled",
 					"credential": "pAH+tsfwU/kgW+34WPXQW/8Z0a9SJpXq8dNOirMmUxM=",
-					"service-url": "http://csap-dev01.***REMOVED***:8080/events-service"
+					"service-url": "http://csap-dev01.yourcompany.org:8080/events-service"
 				},
 				"monitorDefaults": {
 					"jvm_jmxHeartbeat": true,
@@ -267,7 +267,7 @@
 					},
 					{
 						"description": "ajp(LB - Internal)",
-						"url": "http://yourlb.na.***REMOVED***.net"
+						"url": "http://yourlb.na.yourcompany.net"
 					}
 				],
 				"metricsPublication": [

@@ -1,0 +1,56 @@
+#
+#
+#  download latest oracle instant driver, configure environment variables
+#  - set ORACLE_HOME,TNS_ADMIN, LD_LIBRARY_PATH env to install folder
+#  - set CLASS_PATH to $ORACLE_HOME/*jdbc.jar
+#  - set dbPass to be password
+#  - get working ldap.ora and sqlnet.ora for your infra. Set TNS_ADMIN env
+#  
+#  Windows: use PATH instead of LD_LIBRARY_PATH
+#
+
+# In memory authentication uses csapSecurityMemory.txt 
+csap:
+  security: 
+    enabled: false
+    ldap-enabled: false 
+
+
+server:
+  context-path: /
+  
+# Embedded JMS & orace oci DB
+spring:
+  
+  activemq:
+    in-memory: true
+    pooled: false
+    
+  
+  jpa:
+    database-platform: org.hibernate.dialect.Oracle10gDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: false
+
+my-service-configuration:
+  db:
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+    username: ${dbUser:CHANGE_ME}
+    password: ${dbPass:CHANGE_ME}
+    max-active: 50
+    url: ${dbUrl:CHANGE_ME}
+  jms:
+    enabled: true
+    server-url: vm://localhost?broker.persistent=false
+
+    
+# auto timing and performance, use: org.javasimon.jdbc4.Driver: 
+# jdbc:simon:oracle:thin:@csapdb-dev02.yourcompany.com:1521:dev02;SIMON_REAL_DRV=oracle.jdbc.driver.OracleDriver;SIMON_PREFIX=oracle.jdbc
+# jdbc:simon:oracle:thin:@csapdb-dev01.yourcompany.com:1521:dev01;SIMON_REAL_DRV=oracle.jdbc.driver.OracleDriver;SIMON_PREFIX=oracle.jdbc
+# oci: jdbc:simon:oracle:oci8:@local_factory;SIMON_REAL_DRV=oracle.jdbc.driver.OracleDriver;SIMON_PREFIX=oracle.jdbc
+#
+#
+# standard jdbc: oracle.jdbc.driver.OracleDriver:
+# jdbc:oracle:thin:@csapdb-dev01.yourcompany.com:1521:dev01 , jdbc:oracle:thin:@csapdb-dev02.yourcompany.com:1521:dev02
+# oci: jdbc:simon:oracle:oci8:@local_factory    

@@ -346,7 +346,7 @@
             },
             "source": {
                 "scm": "git",
-                "path": "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-packages.git",
+                "path": "https://moc-bb.yourcompany.org/bitbucket/scm/csap/csap-packages.git",
                 "branch": "HEAD",
                 "buildLocation": "/csap-package-docker"
             },

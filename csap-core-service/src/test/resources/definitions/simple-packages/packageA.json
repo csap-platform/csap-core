@@ -76,7 +76,7 @@
       },
       "settings" : {
         "imports" : [ "defaults" ],
-        "loadbalancer-url" : "http://yourlb.na.***REMOVED***.net",
+        "loadbalancer-url" : "http://yourlb.na.yourcompany.net",
         "configuration-maps" : {
           "global" : {
             "test-global-1" : "test-global-value-1"
@@ -91,15 +91,15 @@
         },
         "vsphere" : {
           "filters" : {
-            "vm-path" : "RNIs/CSAP-DEV_p",
+            "vm-path" : "YOURAPPs/CSAP-DEV_p",
             "resource-pool-path" : "BLDCluster/Resources/CSAP",
             "datastore-regex" : "(.*)CSAP(.*)"
           },
           "env" : {
             "GOVC_USERNAME" : "lab\\csapstorage",
             "GOVC_PASSWORD" : "iEQoM1eTsrVNKjJh5Z28",
-            "GOVC_URL" : "vcenter6.***REMOVED***",
-            "GOVC_DATACENTER" : "***REMOVED***",
+            "GOVC_URL" : "vcenter6.yourcompany.org",
+            "GOVC_DATACENTER" : "My Lab",
             "GOVC_DATASTORE" : "CSAP_DS1_NFS",
             "GOVC_INSECURE" : "1"
           }

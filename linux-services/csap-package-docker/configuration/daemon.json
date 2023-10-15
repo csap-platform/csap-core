@@ -1,0 +1,15 @@
+{
+	"exec-opts": ["native.cgroupdriver=systemd"],
+	
+	"storage-driver": "_CSAP_DRIVER_",
+	"data-root": "_CSAP_STORAGE_",
+	"hosts": [
+		"unix:///var/run/docker.sock",
+		"_CSAP_ALLOW_REMOTE_"
+	],
+	"log-driver": "json-file",
+	"log-opts": {
+		"max-size": "30m",
+		"max-file": "1"
+	}
+}

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org">
+
+
+	<head>
+		<title>Reference App2</title>
+		<script th:replace="csap/fragments/libsAndStyles :: pageContent"></script>
+
+		<!--  testing only, not used -->
+		<script th:replace="csap/fragments/jqplot-includes :: pageContent"></script>
+		<script th:replace="csap/fragments/misc :: pageContent"></script>
+ 
+		<script th:src="@{ ${@mvcResourceUrlProvider.getForLookupPath('/js/simple.js')} }"></script>
+		<!--
+		<script th:src="@{/js/simple.js}"></script>
+		-->
+		<style>
+			table.simple {
+				width: 80em;
+				margin-bottom: 3em;
+			}
+
+			table td:nth-child(1) {
+				width: 15em;
+			}
+
+			table td:nth-child(2) {
+				width: 5em;
+			}
+
+			header .noteAlt {
+				font-size: 0.7em;
+				margin: 0;
+				padding: 3px;
+			}
+
+			div.title {
+				width: 20em;
+				color: black;
+			}
+			
+			#count, #sleep {
+				width: 3em;
+				margin-right: 3em
+			}
+			
+			.info h1 {
+				font-weight: bold;
+				font-size: 2em;
+				margin-bottom: 10px;
+			}
+			div.info {
+				margin-bottom: 2em;
+			}
+		</style>
+		
+			<script th:inline="javascript">
+			/*<![CDATA[*/
+
+           $(document).ready( function() {
+        	   
+        	   $("#startMultiple").click(function() {
+        		   
+        		   $("#results").text("\nNumber of requests being sent: " + $("#count").val()) ;
+        		 
+        		   for ( let count=1; count<= $("#count").val(); count++ ) {
+		        		 
+        			   var url = "sleep/" + $("#sleep").val() ;
+
+		        		$("#results").append("\n\n Request (" + count + ") to: " + url ) ;
+		        		
+		        		var jobCompleted = function( jsonResult ) {
+		        			// $("#results").append( "\n\nCompleted (" + count + ") " + JSON.stringify(jsonResult) );
+		        			$("#results").append( "\n\nCompleted (" + count + ") " + jsonResult.done );
+		        		}
+		
+		       			$.getJSON( url )
+		       				.done( jobCompleted )
+		       				.fail( function ( jqXHR, textStatus, errorThrown ) {
+		       					$("#results").append( "\n\n Failed (" + count + ") " + jqXHR.statusText );
+		    				} );
+        		   }
+
+        	   	})
+        	   	
+        	   
+           }) ;
+			/*]]>*/
+		</script>
+	</head>
+
+	<body>
+
+		<header th:replace="csap/fragments/page :: header"></header>
+
+		
+		
+		
+		
+		<div style="margin: 2em">
+		
+			<div class="info">
+				<h1>Spring Boot Request Throttling</h1>
+				Update the max-threads and account-count in application.yml to throttle requests. Note that most browsers will
+				limit the number of ajax calls to 8 or fewer - so they need to be set below that to verify behaviour.
+				<br/><br/>Single Request: <a class="simple" href="sleep/3">sleep 3 seconds</a><br/>
+			</div>
+		
+			
+			<button class="pushButton" id="startMultiple">Send Requests
+			</button>
+			
+			Count:<input id="count" value="5" /> Sleep(seconds): <input id="sleep" value="2" />
+			
+			<div style="margin-top: 2em; font-weight: bold">Results</div>
+			
+			
+			<textarea id="results" style="width: 80%; height: 400px"></textarea>
+		
+		</div>
+	
+		<footer th:replace="csap/fragments/page :: footer"></footer>
+	</body>
+
+</html>

@@ -3,7 +3,7 @@
 		"api-version": 2.1,
 		"project-version": 1,
 		"name": "CSAP HA Demo",
-		"architect": "ricky.west@***REMOVED***.com",
+		"architect": "ricky.west@yourcompanyinc.com",
 		"description": "Kubernetes HA cluster: reference implementation",
 		"emailNotifications": "support@notConfigured.com"
 	},
@@ -53,7 +53,7 @@
 					"csap-dev12"
 				],
 				"monitors": {},
-				"master-dns": "csap-dev01.***REMOVED***:6443",
+				"master-dns": "csap-dev01.yourcompany.org:6443",
 				"template-references": [
 					"csap-package-monitoring",
 					"kubelet-ha"
@@ -64,18 +64,18 @@
 				"imports": [
 					"defaults"
 				],
-				"loadbalancer-url": "http://csap-dev01.***REMOVED***",
+				"loadbalancer-url": "http://csap-dev01.yourcompany.org",
 				"vsphere": {
 					"filters": {
 						"datastore-regex": "(.*)CSAP(.*)",
-						"vm-path": "RNIs/CSAP-DEV_p/csap-dev2",
+						"vm-path": "YOURAPPs/CSAP-DEV_p/csap-dev2",
 						"resource-pool-path": "BLDCluster/Resources/CSAP"
 					},
 					"env": {
 						"GOVC_USERNAME": "lab\\csapstorage",
 						"GOVC_PASSWORD": "4O6EmXt6RCQ0f8W5DTqPcCMC1fp1rWKy3o6rZICEgdk=",
-						"GOVC_URL": "vcenter6.***REMOVED***",
-						"GOVC_DATACENTER": "***REMOVED***",
+						"GOVC_URL": "vcenter6.yourcompany.org",
+						"GOVC_DATACENTER": "My Lab",
 						"GOVC_DATASTORE": "CSAP_DS1_NFS",
 						"GOVC_INSECURE": "1"
 					}
@@ -86,16 +86,16 @@
 						"test-global-ga": "test-global-ha-1"
 					},
 					"docker": {
-						"dockerRepo": "http://media.***REMOVED***/media/third_party/linux/CentOS/docker-ce.repo"
+						"dockerRepo": "http://media.yourcompany.org/media/third_party/linux/CentOS/docker-ce.repo"
 					},
 					"csap-sso": {
 						"csapUserSecret": "d437dcbe-d37d-422b-9039-b6705e4cf8fa",
 						"csapServiceSecret": "8dd6d776-d071-496c-9e51-3fbdfb547c6e",
-						"oathHostPort": "csap-dev01.***REMOVED***:8090",
-						"openIdIssuerUri": "http://csap-dev01.***REMOVED***:8090/auth/realms/csap-default"
+						"oathHostPort": "csap-dev01.yourcompany.org:8090",
+						"openIdIssuerUri": "http://csap-dev01.yourcompany.org:8090/auth/realms/csap-default"
 					},
 					"ingress-nginx": {
-						"$$ingress-host": "*.***REMOVED***",
+						"$$ingress-host": "*.yourcompany.org",
 						"$$ingress-node-selector": "\"kubernetes.io/os\": linux",
 						"$$ingress-http-port": 80,
 						"$$ingress-https-port": 443
@@ -105,7 +105,7 @@
 						"masterBackupFolder": "/opt/csap/kubernetes-backups",
 						"kubernetesAllInOne": "false",
 						"cipherSuites": "default-secure",
-						"kubernetesRepo": "http://media.***REMOVED***/media/third_party/kubernetes/kubernetes-el7.repo"
+						"kubernetesRepo": "http://media.yourcompany.org/media/third_party/kubernetes/kubernetes-el7.repo"
 					},
 					"storage-settings": {
 						"about-type": "vsphere or nfs can be used",
@@ -204,7 +204,7 @@
 				"monitors": {
 					"max_socketCount": "400"
 				},
-				"master-dns": "csap-dev01.***REMOVED***:6443",
+				"master-dns": "csap-dev01.yourcompany.org:6443",
 				"template-references": [
 					"kubelet-ha"
 				]
@@ -217,22 +217,22 @@
 				"configuration-maps": {
 					"global": {
 						"test-global-ga": "test-global-ha-1",
-						"$$ingress-host": "csap-dev10.***REMOVED***",
+						"$$ingress-host": "csap-dev10.yourcompany.org",
 						"csapUserSecret": "d437dcbe-d37d-422b-9039-b6705e4cf8fa",
 						"csapServiceSecret": "8dd6d776-d071-496c-9e51-3fbdfb547c6e",
-						"oathHostPort": "csap-dev01.***REMOVED***:8090"
+						"oathHostPort": "csap-dev01.yourcompany.org:8090"
 					},
 					"csap-sso": {
 						"csapUserSecret": "d437dcbe-d37d-422b-9039-b6705e4cf8fa",
 						"csapServiceSecret": "8dd6d776-d071-496c-9e51-3fbdfb547c6e",
-						"oathHostPort": "csap-dev01.***REMOVED***:8090",
-						"openIdIssuerUri": "http://csap-dev01.***REMOVED***:8090/auth/realms/csap-default"
+						"oathHostPort": "csap-dev01.yourcompany.org:8090",
+						"openIdIssuerUri": "http://csap-dev01.yourcompany.org:8090/auth/realms/csap-default"
 					},
 					"kubelet": {
 						"clusterToken": "584t76.b0b7c7r75rbc0ml0",
 						"masterBackupFolder": "/opt/csap/kubernetes-backups",
-						"kubernetesRepo": "http://media.***REMOVED***/media/third_party/kubernetes/kubernetes-el7.repo",
-						"kubernetesRepoSensus": "http://media.***REMOVED***/media/third_party/kubernetes/kubernetes-el7.repo",
+						"kubernetesRepo": "http://media.yourcompany.org/media/third_party/kubernetes/kubernetes-el7.repo",
+						"kubernetesRepoyourcompany": "http://media.yourcompany.org/media/third_party/kubernetes/kubernetes-el7.repo",
 						"kubernetesRepoGoogle": "https://packages.cloud.google.com/yum"
 					}
 				},
@@ -439,7 +439,7 @@
 			},
 			"performance": {
 				"config": {
-					"httpCollectionUrl": "http://csap-dev10.***REMOVED***/test-k8s-csap-reference/csap/metrics/db/postgress",
+					"httpCollectionUrl": "http://csap-dev10.yourcompany.org/test-k8s-csap-reference/csap/metrics/db/postgress",
 					"patternMatch": "JSON",
 					"notes": "db stats are published via test service"
 				},
@@ -519,7 +519,7 @@
 			"server": "csap-api",
 			"autoStart": 200,
 			"description": "Deploys kubernetes monitoring components generated using kube-promethius opensource project",
-			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/1058572066/csap-package-monitoring",
+			"docUrl": "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/1058572066/csap-package-monitoring",
 			"processFilter": "none",
 			"alerts": {
 				"max_socketCount": 60,
@@ -534,14 +534,14 @@
 			},
 			"source": {
 				"scm": "git",
-				"path": "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-packages.git",
+				"path": "https://moc-bb.yourcompany.org/bitbucket/scm/csap/csap-packages.git",
 				"branch": "HEAD",
 				"buildLocation": "/csap-package-monitoring"
 			},
 			"maven": {
 				"dependency": "org.csap:csap-package-monitoring:2-SNAPSHOT:zip"
 			},
-			"url": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/1058572066/csap-package-monitoring",
+			"url": "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/1058572066/csap-package-monitoring",
 			"deploymentNotes": "All kube-prometheseus components will be deployed. Note: only occurs on primary master",
 			"lastModifiedBy": "pnightingale"
 		},

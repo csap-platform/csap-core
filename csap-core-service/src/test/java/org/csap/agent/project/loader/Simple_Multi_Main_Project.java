@@ -346,7 +346,7 @@ public class Simple_Multi_Main_Project extends CsapBareTest {
 		//
 
 		assertThat( generatedProject.at( "/project/name" ).asText( ) ).isEqualTo( "XXX Project" ) ;
-		assertThat( generatedProject.at( "/project/architect" ).asText( ) ).isEqualTo( "xxx.xxx@***REMOVED***.com" ) ;
+		assertThat( generatedProject.at( "/project/architect" ).asText( ) ).isEqualTo( "xxx.xxx@yourcompanyinc.com" ) ;
 
 		//
 		// environments - defaults
@@ -388,7 +388,7 @@ public class Simple_Multi_Main_Project extends CsapBareTest {
 				.isEqualTo( "auto-play-demo-application" ) ;
 
 		assertThat( generatedProject.at( myNewEnv + "settings/application/definition-repo-url" ).asText( ) )
-				.isEqualTo( "https://moc-bb.***REMOVED***/bitbucket/update-with-your-repo" ) ;
+				.isEqualTo( "https://moc-bb.yourcompany.org/bitbucket/update-with-your-repo" ) ;
 
 		assertThat( generatedProject.at( myNewEnv + "settings/application/definition-repo-branch" ).asText( ) )
 				.isEqualTo( "my-branch-name" ) ;

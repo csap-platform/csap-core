@@ -129,7 +129,7 @@ function kubernetes_describe() {
         }
 
         let selectedHost = $selectedAttribute.data( "host" ) ;
-        //selectedHost = `csap-dev05.***REMOVED***` ;
+        //selectedHost = `csap-dev05.yourcompany.org` ;
         console.log( `loadAttributeDetails() host: ${ selectedHost }, selectedService ${ selectedPodName }, selectedId: ${ selectedId }` ) ;
 
 

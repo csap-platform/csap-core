@@ -1,0 +1,146 @@
+
+#
+#  ref https://logging.apache.org/log4j/2.x/manual/layouts.html
+#  
+
+
+Configuration: 
+  status: warn
+  
+  skipJansi: false
+  
+  monitorInterval: 10
+  
+  appenders:
+    
+    Console:
+      name: consoleAppender
+      target: SYSTEM_OUT
+      PatternLayout:
+        #Pattern: "--- %-11p %-60logger{5.9.~} (%file:%line).%method()   %n%-15date{ABSOLUTE} %-55thread %n%n%message%n---%n%n"
+        # %d is preferred for full output; but for desktop 
+        # https://logging.apache.org/log4j/2.x/log4j-core/apidocs/org/apache/logging/log4j/core/pattern/AnsiEscape.html#BG_GREEN
+        disableAnsi: false
+        Pattern: "%highlight{--- %-11p %-60logger{5.9.~} (%file:%line).%method()   %n%-15date{ABSOLUTE} %-55thread %n%n%message%n---%n%n}{ERROR=bright red bg_white, WARN=bright red, INFO=black, DEBUG=green, TRACE=BRIGHT YELLOW}"
+     
+          
+    RollingFile: 
+    
+      - name: errorsAppender
+        fileName: logs/warnings.log
+        filePattern: "logs/warning-%i.log.gz"
+        append: true
+        
+        DefaultRolloverStrategy:
+          max: 3
+        policies:
+          SizeBasedTriggeringPolicy:
+            size: "5 MB"    
+        JSONLayout:
+          compact: true
+          includeTimeMillis: true 
+          locationInfo: true # expensive operation
+          complete: false
+          eventEol: true
+          KeyValuePair:
+          - key: "timestamp"
+            value: "$${date:yyyy-MM-dd'T'HH:mm:ss.SSSZ}"
+          - key: "friendlyDate"
+            value: "$${date:MMM dd' 'HH:mm:ss}"
+
+  loggers: 
+  
+    root:
+      level: warn
+      AppenderRef:  
+      - ref: consoleAppender
+      - ref : errorsAppender
+  
+  
+    logger:
+    
+      - name: org.sample
+        level: info
+        additivity: false
+        AppenderRef:  
+        - ref: consoleAppender
+        - ref : errorsAppender
+          level: warn
+        
+      - name: org.csap
+        level: info
+        additivity: false
+        AppenderRef:  
+        - ref: consoleAppender
+        - ref : errorsAppender
+          level: warn
+        
+    #
+    #  Spring BOOT: Show application yaml files, and boot messages
+    #
+          
+      - name: org.springframework.boot.context.config.ConfigDataLoaders
+        level: trace
+        additivity: false
+        AppenderRef:  
+        - ref: consoleAppender
+        - ref : errorsAppender
+          
+      - name: org.springframework.boot.context.config.ConfigDataLoaders
+        level: trace
+        additivity: false
+        AppenderRef:  
+        - ref: consoleAppender
+        - ref : errorsAppender
+          
+#      - name: org.springframework.boot
+#        level: debug
+#        additivity: false
+#        AppenderRef:  
+#        - ref: consoleAppender
+#        - ref : errorsAppender
+        
+
+        
+    #
+    #  JPA Troubleshooting
+    #
+          
+        
+      - name: org.hibernate.jpa.internal.util.LogHelper
+        level: debug
+        additivity: false
+        AppenderRef:  
+        - ref: consoleAppender
+        - ref : errorsAppender
+          level: warn
+          
+#      - name: org.springframework.data
+#        level: debug
+#        additivity: false
+#        AppenderRef:  
+#        - ref: consoleAppender
+#        - ref: json-file-appender
+#        - ref : errorsAppender
+#          
+#      - name: org.springframework.orm
+#        level: debug
+#        additivity: false
+#        AppenderRef:  
+#        - ref: consoleAppender
+#        - ref: json-file-appender
+#        - ref : errorsAppender
+#          
+#      - name: org.hibernate
+#        level: debug
+#        additivity: false
+#        AppenderRef:  
+#        - ref: consoleAppender
+#        - ref: json-file-appender
+#        - ref : errorsAppender
+        
+
+        
+
+      
+   

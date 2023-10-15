@@ -102,7 +102,7 @@
 					"podsRunning": 16,
 					"podsNotRunning": 0,
 					"version": "v1.20.7",
-					"name": "csap-dev04.***REMOVED***",
+					"name": "csap-dev04.yourcompany.org",
 					"healthy": true,
 					"resources": {
 						"requests": {

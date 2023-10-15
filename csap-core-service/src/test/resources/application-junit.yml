@@ -20,10 +20,10 @@ csap-core:
   
   docker:
     enabled: true 
-    url: "tcp://csap-dev03.***REMOVED***:4243"
+    url: "tcp://csap-dev03.yourcompany.org:4243"
 #    url: "tcp://csap-01.csap.org:4243"
     connection-pool: 5
-    template-repository: "${csapDockerRepository:***REMOVED***-docker.davis.***REMOVED***.lab}"
+    template-repository: "${csapDockerRepository:yourcompany-docker.davis.yourcompany.lab}"
     
   kubernetes:
       enabled: true
@@ -35,7 +35,7 @@ csap-core:
       max-session-seconds: 15
       event-max-backlog: 900 
       
-      test-credential-url: "http://csap-dev04.***REMOVED***:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet"
+      test-credential-url: "http://csap-dev04.yourcompany.org:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet"
     
     
 csap:
@@ -52,35 +52,35 @@ test:
   junit:
     kubernetes:
     #     Note: must delete both entries in home dir 
-      config-url: "http://csap-dev04.***REMOVED***:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet_8014"
-#      config-url: "http://csap-dev20.***REMOVED***:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet_8014"
-#      config-url: "http://csap-dev07.***REMOVED***:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet-ha_8014"
+      config-url: "http://csap-dev04.yourcompany.org:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet_8014"
+#      config-url: "http://csap-dev20.yourcompany.org:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet_8014"
+#      config-url: "http://csap-dev07.yourcompany.org:8011/os/folderZip?path=.kube/config&token=584t76.b0b7c7r75rbc0ml0&service=kubelet-ha_8014"
       
     docker:
       enabled: true 
-      url: "tcp://csap-dev03.***REMOVED***:4243"
-#      url: "tcp://scs-dev01.***REMOVED***:4243"
+      url: "tcp://csap-dev03.yourcompany.org:4243"
+#      url: "tcp://scs-dev01.yourcompany.org:4243"
 #      url: "tcp://csap-01.csap.org:4243"
       connection-pool: 5
-      template-repository: "${csapDockerRepository:***REMOVED***-docker.davis.***REMOVED***.lab}"
+      template-repository: "${csapDockerRepository:yourcompany-docker.davis.yourcompany.lab}"
       
 test.variables:
   test-service: test-docker-csap-reference_8261
   verify-service: csap-verify-service_7011
   test-db-service: test-docker-csap-reference_8261
-  test-admin-host1: "csap-dev01.***REMOVED***"
-  test-admin-host2: "csap-dev02.***REMOVED***"
-  test-db-host: "csap-dev03.***REMOVED***"
+  test-admin-host1: "csap-dev01.yourcompany.org"
+  test-admin-host2: "csap-dev02.yourcompany.org"
+  test-db-host: "csap-dev03.yourcompany.org"
   
   user: "junit"
-  pass: "_***REMOVED***Integration"
+  pass: "_yourcompanyIntegration"
   
   # analytics server
-  testAppId: "SensusCsap"
+  testAppId: "yourcompanyCsap"
   
-  eventServiceUrl: "http://csap-dev01.***REMOVED***:8080/events-service"
-#  eventUrl: "http://csap-dev01.***REMOVED***:8080/events-service/api/event"
-#  eventApiUrl: "http://csap-dev01.***REMOVED***:8080/events-service/api/event"
-#  historyUiUrl: "http://csap-dev01.***REMOVED***:8080/events-service?appId={appId}&life={life}&category={category}&"
-#  eventMetricsUrl: "http://csap-dev01.***REMOVED***:8080/events-service/api/metrics/"
-#  analyticsUiUrl: "http://csap-dev01.***REMOVED***:8080/admin/os/performance"
+  eventServiceUrl: "http://csap-dev01.yourcompany.org:8080/events-service"
+#  eventUrl: "http://csap-dev01.yourcompany.org:8080/events-service/api/event"
+#  eventApiUrl: "http://csap-dev01.yourcompany.org:8080/events-service/api/event"
+#  historyUiUrl: "http://csap-dev01.yourcompany.org:8080/events-service?appId={appId}&life={life}&category={category}&"
+#  eventMetricsUrl: "http://csap-dev01.yourcompany.org:8080/events-service/api/metrics/"
+#  analyticsUiUrl: "http://csap-dev01.yourcompany.org:8080/admin/os/performance"

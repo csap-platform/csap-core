@@ -1,0 +1,20 @@
+
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+
+  name: $$service-name-parse-config
+
+  namespace: $$service-namespace
+  
+data:
+
+  # ref: https://github.com/fluent/fluent-plugin-parser-cri#log-and-configuration-example
+  tail_container_parse.conf: |-
+    <parse>
+      @type cri
+    </parse>
+
+
+---

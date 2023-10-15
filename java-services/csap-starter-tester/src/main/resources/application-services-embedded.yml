@@ -1,0 +1,74 @@
+
+#
+#  ================ profile: embedded
+#
+
+
+
+
+#
+#  Embedded Services configuration: activemq and hsql db, uses in memory security
+#  Provides 100% isolation
+#
+
+server:
+  servlet:
+    context-path: /
+#  port: 8080
+#  tomcat:
+#    max-threads: 50
+    
+    
+# Embedded JMS & DB
+spring:
+
+  activemq:
+    in-memory: true
+    pool:
+      enabled: false
+    
+  
+  jpa: 
+    database-platform: org.hibernate.dialect.HSQLDialect
+    show-sql: false
+    hibernate:
+      ddl-auto: create-drop
+
+#
+# Default - use embedded db and jms
+#
+
+my-service-configuration:
+  db:
+    driver-class-name: org.hsqldb.jdbcDriver
+    username: sa
+    password: 
+    max-active: 25
+    max-idle: 25
+    idle-eviction-ms: 10000
+    url: jdbc:hsqldb:mem:testdb
+    
+
+  jms:
+    enabled: true
+    server-url: vm://localhost?broker.persistent=false
+    max-messages-per-task: 1
+    concurrency: "1-30"
+    receive-timeout: 5000
+    burn-db-iterations: 20
+    burn-db-inserts: 1000
+    
+  locator: 
+    hello-provider: "BootEurekaDemo"
+    hello-api: "hello"
+
+  jms-backlog-health:
+    #  host: yourhost
+    base-url: "http://HOST.yourcompany.com:8011/CsAgent/api/agent/collection/application/activemq_8161/30/"
+    backlogQ: /data/DeviceQBackloq
+    processedQ: /data/DeviceDispatched
+    sampleCount: 30
+    expression: "isQueueHung(#backlog, #processed)"  
+
+    
+    

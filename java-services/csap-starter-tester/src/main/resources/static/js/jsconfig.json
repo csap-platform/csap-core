@@ -1,0 +1,21 @@
+//
+//  vscode configuration
+//  - https://www.typescriptlang.org/tsconfig#rootDirs
+//  - https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping
+//
+//  - assume gits are the base folder
+//
+{
+  "compilerOptions": {
+    "module": "es6",
+    "target": "es6",
+    "rootDirs": [
+      ".",
+      "../../../../../../csap-starter/src/main/resources/public/js/"
+    ],
+  },
+  "exclude": [
+    "node_modules",
+    "**/node_modules/*"
+  ]
+}

@@ -1,0 +1,3 @@
+#
+# If Junits call CsapApplication.init in a static section: this should NOT be required
+# 

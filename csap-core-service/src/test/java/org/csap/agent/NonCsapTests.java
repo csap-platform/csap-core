@@ -169,7 +169,7 @@ public class NonCsapTests {
 
 		var jobYamlFile = new File(
 				Rest_Service_Tests.class.getResource(
-						"create-rni-job.yaml" )
+						"create-yourapp-job.yaml" )
 						.getPath( ) ) ;
 		var jobYamlContent = FileUtils.readFileToString( jobYamlFile ) ;
 
@@ -704,7 +704,7 @@ public class NonCsapTests {
 
 		RestTemplate restTemplate = new RestTemplate( ) ;
 
-		String url = "http://saasrni-csap01.***REMOVED***:8011/CsAgent/api/agent/kubernetes/pods?namespace=all" ;
+		String url = "http://saasyourapp-csap01.yourcompany.org:8011/CsAgent/api/agent/kubernetes/pods?namespace=all" ;
 
 		ArrayNode status_of_all_pods = restTemplate.getForObject( url, ArrayNode.class ) ;
 
@@ -750,12 +750,12 @@ public class NonCsapTests {
 
 		RestTemplate restTemplate = new RestTemplate( ) ;
 
-		String url = "http://csap-dev04.***REMOVED***:8011/api/agent/kubernetes/specification" ;
+		String url = "http://csap-dev04.yourcompany.org:8011/api/agent/kubernetes/specification" ;
 		// url =
-		// "http://saasrni-csap01.***REMOVED***:8011/CsAgent/api/agent/kubernetes/specification"
+		// "http://saasyourapp-csap01.yourcompany.org:8011/CsAgent/api/agent/kubernetes/specification"
 		// ;
 		// url =
-		// "http://localhost.***REMOVED***:8011/CsAgent/api/agent/kubernetes/specification"
+		// "http://localhost.yourcompany.org:8011/CsAgent/api/agent/kubernetes/specification"
 		// ;
 
 		//

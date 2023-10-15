@@ -1,0 +1,19 @@
+{
+	"attributes": {
+		"title": "errorFilter",
+		"description": "",
+		"hits": 0,
+		"columns": [
+			"kubernetes.pod_name",
+			"log"
+		],
+		"sort": [
+			"@timestamp",
+			"desc"
+		],
+		"version": 1,
+		"kibanaSavedObjectMeta": {
+			"searchSourceJSON": "{\"index\":\"logstash-*\",\"highlightAll\":true,\"version\":true,\"query\":{\"language\":\"lucene\",\"query\":\"\"},\"filter\":[{\"meta\":{\"index\":\"logstash-*\",\"negate\":false,\"disabled\":false,\"alias\":\"errorFilter\",\"type\":\"phrase\",\"key\":\"log\",\"value\":\"error\",\"params\":{\"query\":\"error\",\"type\":\"phrase\"}},\"query\":{\"match\":{\"log\":{\"query\":\"error\",\"type\":\"phrase\"}}},\"$state\":{\"store\":\"appState\"}}]}"
+		}
+	}
+}

@@ -307,7 +307,7 @@ class Csap_Reference_Tests extends CsapBareTest {
 			throws Exception {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
-			var hostNameForEnvResolution = "csap-dev01.***REMOVED***" ;
+			var hostNameForEnvResolution = "csap-dev01.yourcompany.org" ;
 
 			getApplication( ).setHostNameForDefinitionMapping( hostNameForEnvResolution ) ;
 
@@ -380,7 +380,7 @@ class Csap_Reference_Tests extends CsapBareTest {
 
 			logger.info( CsapApplication.testHeader( ) ) ;
 
-			assertThat( getAppEnv( ).getApplicationName( ) ).isEqualTo( "Sensus Integration" ) ;
+			assertThat( getAppEnv( ).getApplicationName( ) ).isEqualTo( "yourcompany Integration" ) ;
 
 			var baseOsDefinition = getApplication( ).getActiveProject( ).getCluster( "dev", "base-os" ) ;
 
@@ -391,7 +391,7 @@ class Csap_Reference_Tests extends CsapBareTest {
 			var haLifes = getApplication( ).getProject( "CSAP HA Demo" ).getEnvironmentNameToSettings( ) ;
 			logger.info( "ha lifes: {}", haLifes.keySet( ) ) ;
 			var packageEnvSettings = haLifes.get( "dev" ) ;
-			assertThat( packageEnvSettings.getApplicationName( ) ).isEqualTo( "Sensus Integration" ) ;
+			assertThat( packageEnvSettings.getApplicationName( ) ).isEqualTo( "yourcompany Integration" ) ;
 
 			assertThat( getApplication( ).getActiveProject( )
 					.getSourceDefinition( )
@@ -601,7 +601,7 @@ class Csap_Reference_Tests extends CsapBareTest {
 			logger.info( "url: {} ", service.getUrl( ) ) ;
 
 			assertThat( service.getUrl( ) ).as( "url with port" ).contains(
-					"http://csap-dev01.***REMOVED***:6444/stats" ) ;
+					"http://csap-dev01.yourcompany.org:6444/stats" ) ;
 
 		}
 
@@ -762,7 +762,7 @@ class Csap_Reference_Tests extends CsapBareTest {
 
 			assertThat( firstPostgres.getUrl( ) )
 					.isEqualTo(
-							"http://csap-dev04.***REMOVED***:8014/api/v1/namespaces/csap-test/services/test-k8s-postgres-service" ) ;
+							"http://csap-dev04.yourcompany.org:8014/api/v1/namespaces/csap-test/services/test-k8s-postgres-service" ) ;
 
 		}
 

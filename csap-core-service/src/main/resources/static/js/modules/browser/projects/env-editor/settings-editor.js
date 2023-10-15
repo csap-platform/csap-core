@@ -141,15 +141,15 @@ function settings_editor() {
         "vsphere": {
 
             "filters": {
-                "vm-path": "vm/RNIs/CSAP-DEV_p",
+                "vm-path": "vm/YOURAPPs/CSAP-DEV_p",
                 "datastore-regex": "(.*)CSAP(.*)"
             },
 
             "env": {
                 "GOVC_USERNAME": "lab\\csapstorage",
                 "GOVC_PASSWORD": "xxxxxxx",
-                "GOVC_URL": "vcenter6.***REMOVED***",
-                "GOVC_DATACENTER": "***REMOVED***",
+                "GOVC_URL": "vcenter6.yourcompany.org",
+                "GOVC_DATACENTER": "My Lab",
                 "GOVC_INSECURE": "1"
             }
         },

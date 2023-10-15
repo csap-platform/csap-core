@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
+
+
+<head th:fragment="pageContent"
+	  th:remove="tag">
+
+	<!-- requirejs can have side effects -->
+	<!--  <script th:src="@{/webjars/requirejs/2.1.20/require.min.js}"  ></script>-->
+
+	<script th:src="@{/webjars/jquery/3.6.0/jquery.min.js}"></script>
+
+	<!-- ensure no timeouts are happening by trying jquery again -->
+	<script th:inline="javascript">
+		const fallBackRoot = /*[[@{ /webjars/jquery/3.6.0/jquery.min.js }]]*/ null;
+		window.jQuery || document.write( `<script src="${ fallBackRoot }"><\/script>` )
+	</script>
+
+
+	<!-- -->
+	<link th:href="@{/webjars/jquery-ui/1.13.0/jquery-ui.min.css}"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+	<script th:src="@{/webjars/jquery-ui/1.13.0/jquery-ui.min.js}"></script>
+
+	<!--  webjar not available with latest fixes -->
+	<script th:src="@{/webjars/tablesorter/2.31.3/js/jquery.tablesorter.js}"></script>
+	<script th:src="@{/webjars/tablesorter/2.31.3/js/jquery.tablesorter.widgets.js}"></script>
+	<script th:src="@{/webjars/tablesorter/2.31.3/js/widgets/widget-math.js}"></script>
+	<script th:src="@{/webjars/tablesorter/2.31.3/js/widgets/widget-scroller.js}"></script>
+	<script th:src="@{/webjars/tablesorter/2.31.3/js/widgets/widget-columnSelector.js}"></script>
+	<link class="theme default"
+		  rel="stylesheet"
+		  th:href="@{/webjars/tablesorter/2.31.3/css/theme.default.css}">
+	<link th:href="@{ ${@mvcResourceUrlProvider.getForLookupPath('/css/tablesorter/theme.csap.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+	<link th:href="@{ ${@mvcResourceUrlProvider.getForLookupPath('/css/tablesorter/theme.csapSummary.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+	<link th:href="@{/webjars/tablesorter/2.31.3/css/theme.blue.css}"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+	<link th:href="@{/webjars/tablesorter/2.31.3/css/theme.metro-dark.css}"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+	<!-- <script src="/js/csapLibs/jquery-iframe-transport.js"></script> -->
+
+	<script th:src="@{/webjars/jquery-form/4.2.2/jquery.form.min.js}"></script>
+
+	<!-- <script th:src="@{/js/csapLibs/csap-misc.js}" ></script>  -->
+
+
+	<!--  alertify   -->
+	<link th:href="@{/webjars/alertifyjs/1.13.1/css/alertify.min.css}"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+	<link th:href="@{/webjars/alertifyjs/1.13.1/css/themes/semantic.min.css}"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+	<script th:src="@{/webjars/alertifyjs/1.13.1/alertify.js}"></script>
+
+	<link th:href="@{ ${@mvcResourceUrlProvider.getForLookupPath('/css/csap-alertify-theme.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+
+
+	<!--  last: use csap styles to overwrite any of the above if needed -->
+	<link th:href="@{ ${@mvcResourceUrlProvider.getForLookupPath('/css/csap-2.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+
+	<script th:src="@{ ${@mvcResourceUrlProvider.getForLookupPath('/js/csapLibs/csap-common.js')} }"></script>
+
+
+</head>
+
+</html>

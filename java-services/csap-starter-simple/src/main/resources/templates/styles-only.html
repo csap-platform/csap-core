@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
+
+
+<head>
+	<title>styles-only</title>
+	<!--  last: use csap styles to overwrite any of the above if needed -->
+	<link th:href="@{ ${@mvcResourceUrlProvider.getForLookupPath('/css/csap.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+	<link th:href="@{ ${@mvcResourceUrlProvider.getForLookupPath('/css/simple.css')} }"
+		  rel="stylesheet"
+		  type="text/css"
+		  media="screen" />
+
+
+	<!--
+    <script th:src="@{ ${@mvcResourceUrlProvider.getForLookupPath('/js/simple.js')} }"></script>
+    -->
+</head>
+
+<body class="csap-scrollable theme-dark theme-apple">
+
+	<header th:replace="~{ csap/fragments/page :: header } "></header>
+
+
+	<article class=content>
+		<div id=test-time
+			 class=csap-white
+			 th:text="${simpleTime}">
+			</section>
+	</article>
+
+
+
+</body>

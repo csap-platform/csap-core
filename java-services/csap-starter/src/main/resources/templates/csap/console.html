@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+
+    <head>
+        <title 
+            th:text="${ @csapInformation.name }">
+        </title>
+
+        <script th:replace="~{ csap/fragments/libsAndStyles :: pageContent }"></script>
+
+        <!--  testing only, not used -->
+        <script th:replace="~{ csap/fragments/jqplot-includes :: pageContent }"></script>
+        <script th:replace="~{ csap/fragments/misc :: pageContent }"></script>
+
+        <style>
+            table.simple, section {
+                margin: auto;
+                width: 90%;
+                margin-top: 3em;
+                margin-bottom: 2em;
+            }
+
+            table td:nth-child(1) {
+                width: 15em;
+            }
+
+            table td:nth-child(2) {
+                width: 5em;
+            }
+
+
+            div.title {
+                width: 20em;
+                color: black;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <header th:replace="~{ csap/fragments/page :: header } "></header>
+
+        <table id="SpringMvc" class="simple">
+            <thead>
+
+                <tr>
+                    <th>
+                        <div class="title">Service Tests</div>
+                        Click to test
+                    </th>
+                    <th>returns</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr>
+                    <td>
+                        <a class="simple" th:href="@{/your/link}"> /add/your/test/link</a>
+                    </td>
+                    <td>json/text/html</td>
+                    <td>Update this</td>
+                </tr>
+
+
+
+            </tbody>
+
+        </table>
+
+
+        <table id="csapServiceLocator" class="simple">
+            <thead>
+
+                <tr>
+                    <th>
+                        <div class="title">
+                            csap-starter tests
+                        </div>
+                        Click to test
+                    </th>
+                    <th>returns</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr>
+                    <td>
+                        <a class="simple" th:href="@{csapInfo}" >
+                            /csap/csapInfo
+                        </a>
+                    </td>
+                    <td>json</td>
+                    <td>csap.information: provides core csap information</td>
+                </tr>
+
+
+                <tr>
+                    <td>
+                        <a class="simple" th:href="@{/devOps/env}" >
+                            /devOps/env
+                        </a>
+                    </td>
+                    <td>json</td>
+                    <td>
+                        management.*(Spring Actuator): shows runtime configuration
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <a class="simple" th:href="@{docs/nav}" >
+                            api dashboard
+                        </a>
+                    </td>
+                    <td>html</td>
+                    <td>
+                        csap.documentation: runtime is scanned for spring mvc annotations, @csapdoc to build comprehensive documentation
+                    </td>
+                </tr>
+
+
+
+                <tr>
+                    <td>
+                        <a class="simple" th:href="@{health}" >
+                            performance dashboard
+                        </a>
+                    </td>
+                    <td>html</td>
+                    <td>
+                        csap.performance: all monitored apis, application health, ...
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td colspan="99">
+                        <div class="hquote">
+                            Use the <span>Dev Ops menu</span>  to browse the other apis
+                        </div>
+                    </td>
+                </tr>
+
+           
+
+            </tbody>
+
+        </table>
+
+        <section>
+            <div class="quote">
+                This is the default console page; copy from csap-starter templates into your 
+                own project, and add project integration tests.
+
+                <br/>Thymeleaf is the default SpringBoot html markup engine.
+                <a class="pushButton" target="_blank"
+                   href="http://www.thymeleaf.org/doc/articles/springmvcaccessdata.html">
+                    Learn more about using thymeleaf
+                </a>
+            </div>
+        </section>
+
+        <footer th:replace="csap/fragments/page :: footer"></footer>
+    </body>
+
+</html>

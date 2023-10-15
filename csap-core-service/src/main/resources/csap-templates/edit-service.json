@@ -24,7 +24,7 @@
 		"-Dcom.sun.management.jmxremote.ssl=false"
 	],
 	"java9DockerMinimal": {
-		"image": "docker.***REMOVED***/csap/csap-java9:latest",
+		"image": "docker.yourcompany.org/csap/csap-java9:latest",
 		"entryPoint": [
 			"/bin/sh",
 			"-c",
@@ -58,7 +58,7 @@
 		]
 	},
 	"java9DockerMore": {
-		"image": "docker.***REMOVED***/csap/csap-java9:latest",
+		"image": "docker.yourcompany.org/csap/csap-java9:latest",
 		"entryPoint": [
 			"/bin/sh",
 			"-c",
@@ -1176,7 +1176,7 @@
 		"logJournalServices": "docker,kubelet",
 		"source": {
 			"scm": "git",
-			"path": "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-starter.git",
+			"path": "https://moc-bb.yourcompany.org/bitbucket/scm/csap/csap-starter.git",
 			"branch": "HEAD",
 			"buildLocation": "/csap-starter-tester"
 		},
@@ -1193,7 +1193,7 @@
 			"max_topCpu": "150"
 		},
 		"docker": {
-			"image": "docker.***REMOVED***/csap/csap-test-app:latest",
+			"image": "docker.yourcompany.org/csap/csap-test-app:latest",
 			"entryPoint": [
 				"/bin/sh",
 				"-c",

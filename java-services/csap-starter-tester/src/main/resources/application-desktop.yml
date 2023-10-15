@@ -1,0 +1,13 @@
+
+#
+#  ================ profile: desktop
+#   - disable security, and use reduce encryption
+#
+
+logging.config: classpath:log4j2-desktop.yml
+
+#csap:
+#  security:
+#    enabled: true
+#  encryptable-properties: 
+#    algorithm: PBEWITHMD5ANDDES

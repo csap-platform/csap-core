@@ -1,0 +1,319 @@
+
+article.content {
+	padding: 2em;
+	padding-top: 1em;
+}
+
+table.csap {
+	width: 100%;
+	margin-top: 1em;
+	margin-bottom: 2em;
+}
+
+
+
+button.csap-button {
+	word-break: break-all;
+	width: 18em;
+}
+
+a.pushButton {
+	font-weight: bold;
+}
+
+div.api-details {
+	opacity: 0; 
+    max-height: 0;
+    overflow: hidden;
+}
+table#api tr:hover  div.api-details {
+	transition: opacity 3s ease-out 500ms, max-height 3s ease-out 500ms;
+    opacity: 1;
+    max-height: 500px;
+}
+
+
+table#api div.api-notes div {
+    opacity: 0; 
+    max-height: 0;
+    overflow: hidden;
+}
+table#api div.api-notes div:first-child {
+    opacity: 1;
+    max-height: 500px;
+}
+table#api tr:hover div.api-notes div {
+	transition: opacity 3s ease-out 500ms, max-height 3s ease-out 500ms;
+    opacity: 1;
+    max-height: 500px;
+}
+ 
+div.deprecated {
+	display: inline-block;
+	border: 1px solid black;
+	color: black;
+	margin: 0em;
+	padding: 3px;
+	min-width: 10em;
+	border-radius: 2px;
+	background-color: lightgoldenrodyellow;
+	text-align: center;
+}
+
+div.infoBlock {
+	padding: 0.25em;
+}
+
+div.infoBlock span.indent {
+	margin-left: 2em;
+}
+
+table#api .tableLabel {
+	position: relative;
+	top: 4px;
+}
+
+table#api, div.info, a.simple, a.simple:hover {
+	font-family: "Source Code Pro", Menlo, Consolas, Monaco, monospace;
+	font-size: 11pt;
+}
+
+table#api td:nth-child(1) {
+	width: 20em;
+}
+
+table#api td:nth-child(1) a.simple {
+	display: inline;
+	margin-bottom: 1em;
+}
+
+table#api td:nth-child(2) {
+	width: 8em;
+}
+
+table#api td:nth-child(3) {
+	min-width: 20em;
+}
+
+#api-filter {
+	display: inline ;
+	width: 10em; 
+	margin-left: 3em;	
+}
+
+div.myCols {
+
+	display: grid;
+	color: red; 
+    grid-template-columns: repeat( auto-fit, minmax(300px, 1fr) );
+}
+
+header .noteAlt {
+	font-size: 11pt;
+	margin: 0;
+	padding: 3px;
+}
+
+header {
+	padding-top: 0.5em
+}
+
+.docLabel {
+	margin-top: 5px;
+	display: inline-block;
+}
+
+.docLabel textarea, input {
+	margin: 0;
+	height: 1.2em;
+	font-size: 11pt;
+	width: 16em;
+	display: block;
+	padding: 3px;
+	font-family: arial;
+}
+
+.docLabel input {
+	line-height: 1em;
+	height: 2em;
+	overflow: visible;
+}
+
+label.java {
+	display: inline-block;
+	font-weight: bold;
+	margin-left: 0;
+	margin-top: 0.5em;
+}
+
+form {
+	margin-bottom: 2em;
+}
+
+.meth {
+	margin-left: 2em;
+}
+
+
+div.info div.header {
+	font-weight: bold;
+	font-size: 1.4em;
+}
+
+div.info div.noteHighlight {
+	margin-right: 5em;
+}
+
+img.csapDocImage, img.csapDocImageEnlarged {
+	border: 2px solid lightgray;
+	border-radius: 5px;
+	cursor: pointer;
+	margin: 1em;
+	padding: 0.5em;
+	width: 300px;
+	transition: all 1s;
+}
+
+img.csapDocImage:hover {
+	background-color: black;
+}
+
+img.csapDocImageEnlarged {
+	background-color: black;
+	position: absolute;
+	width: 800px;
+	z-index: 9999;
+	left: 2em;
+}
+
+div.autogen {
+	font-size: 0.7em;
+	font-style: italic;
+}
+
+div.docIndex {
+	float: right;
+	margin-right: 1em;
+	font-size: 0.6em;
+}
+
+#api div.info {
+	margin: 0;
+	margin-bottom: 1em;
+	box-shadow: none;
+	min-width: 8em;
+	box-shadow: none;
+	border: 1px solid lightgray;
+	box-shadow: none;
+	min-width: 6em;
+	box-shadow: none;
+	min-width: 6em;
+	box-shadow: none;
+	display: inline-block;
+}
+
+table#api td:nth-child(1) div.info {
+	width: 15em;
+	padding-left: 1.5em;
+	text-indent: -1.0em;
+}
+
+table#api td:nth-child(2) div.info {
+	padding-left: 0;
+	text-align: center ;
+	min-width: 8em;
+	font-weight: bold ;
+}
+
+#api div.produces {
+	background-color: #DAE1E3;
+}
+
+#api div.GET {
+	background-color: #E6F2DA;
+}
+
+#api div.PUT {
+	background-color: #F0CBF2;
+}
+
+#api div.POST {
+	background-color: #a5d6f9;
+}
+
+#api div.DELETE {
+	background-color: #F2DADA;
+}
+
+div.get-test {
+	margin-bottom: 2em;
+	text-indent: 1em;
+}
+
+div.infoBlock {
+	padding: 0.25em;
+}
+
+table.simple, div.info, a.simple, a.simple:hover {
+	font-family: "Source Code Pro", Menlo, Consolas, Monaco, monospace;
+	font-size: 11pt;
+}
+
+table.navigator td:nth-child(1) {
+	width: 15em;
+}
+
+table.navigator td:nth-child(1) a.simple {
+	display: block;
+	margin-bottom: 1em;
+}
+
+table.navigator td:nth-child(2), table.navigator th:nth-child(2) {
+	width: 3em;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+}
+
+table.navigator td:nth-child(3), table.navigator th:nth-child(3) {
+	width: 14em;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+}
+
+.meth {
+	margin-left: 2em;
+}
+
+
+div.info div.header {
+	font-weight: bold;
+	font-size: 1.4em;
+}
+
+img.csapDocImage, img.csapDocImageEnlarged {
+	border: 2px solid lightgray;
+	border-radius: 5px;
+	cursor: pointer;
+	margin: 1em;
+	padding: 0.5em;
+	width: 300px;
+	transition: all 1s;
+}
+
+img.csapDocImage:hover {
+	background-color: black;
+}
+
+img.csapDocImageEnlarged {
+	background-color: black;
+	position: absolute;
+	width: 800px;
+	z-index: 9999;
+	left: 2em;
+}
+
+span.highlight {
+	background-color: yellow;
+	margin-bottom: 3px;
+	line-height: 1.4em;
+}

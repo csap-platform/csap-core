@@ -1,0 +1,281 @@
+#
+# Notes: 
+#   1. search and replace all entries marked xxx
+#   2. Updated hosts on 24
+#
+operator: modify
+target: default
+
+
+environments:
+
+
+  #
+  # derive: from "default" application, which defines a "dev" environment
+  #
+  base: dev
+ 
+  #
+  # Cluster host assingment:
+  #   - use host short name
+  #   - optional: specify short name everywhere; or use index of hostname from base-os cluster
+  #         
+  hosts: 
+    base-os: [ xxx-dev01, xxx-dev02, xxx-dev03  ]
+    csap-management: [ 1 ]
+  #
+  # Application definition
+  #
+  application-name: "xxx Application"
+  project-name: "xxx Project"
+  project-contact: "xxx.xxx@yourcompanyinc.com"
+  
+  git: https://moc-bb.yourcompany.org/bitbucket/scm/xxx/xxx-csap.git
+
+  settings: # specified env
+  
+    loadbalancer-url: http://xxx-dev01.yourcompany.org:8080
+    
+    #
+    # NFS Integration: xxx : request NFS store from jeff W - uncomment all and update
+    #
+    
+#    configuration-maps:
+#      storage-settings: 
+#        $$storage-type : nfs
+#        $$nfs-server : YOURAPP-SAN-vlan2224NFS.yourcompany.org
+#        $$nfs-path : /Containerization_NFS/SCS
+#        $$nfs-mount : /mnt/SCS
+#        $$storage-folder : scs-dev-platform-storage
+#        $$nfs-sub-folder : $$csap-environment
+#        $$nfs-provisioner : kubernetes-pvcs-scs
+
+  default-settings:  # defaults for ALL envs
+    application:
+      name: "xxx Application"
+  
+    csap-data:
+      # integration with csap-events provider: user and pass from provider
+      user: xxx
+      credential: "pAH+tsfwU/kgW+34WPXQW/8Z0a9SJpXq8dNOirMmUxM="
+      service-url: "http://csap-dev01.yourcompany.org:8080/events-service"
+
+
+
+  #
+  # adding in csap-management and kubernetes
+  #        
+  clusters: 
+  
+    #
+    # csap-admin provide core cluster management
+    #
+    csap-management: 
+      notes: "For production clusters, 2 hosts are recommended. All others - a single host is sufficient"
+      type: modjk
+
+      hosts:
+        - updated-in-hosts
+        
+      template-references: 
+        - csap-admin
+        - httpd
+
+
+---
+#
+# Sample: Creating a file, path is relative to csap-platfrom/definition
+#
+operator: create
+target: scripts/hi.sh
+
+content: |
+  #!/bin/bash
+  echo "hi"
+
+
+---
+#
+# yourcompany yourtown Docker Repository
+#
+operator: create
+
+target: resources/docker/common/configuration/daemon.json
+
+exec-opts: ["native.cgroupdriver=systemd"]
+  
+registry-mirrors: ["http://docker.yourcompany.org"]
+insecure-registries: [ "yourcompany-docker.yourcompany.org", "docker.yourcompany.org" ]
+storage-driver: "overlay2"
+data-root: "/var/lib/docker"
+hosts: [ "unix:///var/run/docker.sock" ]
+log-driver: "json-file"
+log-opts: 
+  max-size: "44m"
+  max-file: "1"
+  
+
+
+
+
+
+
+---
+#
+# Core csap settings: yourcompany yourtown Security(LDAP)
+#
+operator: create
+target: application-company.yml
+
+#
+# Global settings for applications - test
+#
+
+spring: 
+  mail: 
+    host: "${mailServer:myrelay.yourcompany.com}"
+    port: "${mailPort:25}"
+
+csap.security: 
+    rest-api-filter.token: "k16ljSCT5UnF8o1fCyshcD3+VZtrWm2c"
+    provider:
+      type: ldap
+      url: ldap://ldap.davis.yourcompany.lab:389
+      directory-dn: search:uid={0}
+      search-user: ou=People,dc=flexnet,dc=net
+      search-groups: ou=Groups,dc=flexnet,dc=net
+            
+#      type: memory
+#      memory-users:
+#      - admin,password,AUTHENTICATED,dummy1,dummy2
+#      - user,password,AUTHENTICATED,dummy3,dummy4
+      
+csap-core:
+
+  kubernetes: 
+    enabled: false
+
+  docker: 
+    enabled: true
+    
+
+
+---
+#
+# Optional: yourcompany yourtown Artifactory Repository
+#
+operator: create
+target: resources/settings.xml
+
+content: |
+  <?xml version="1.0" encoding="UTF-8"?>
+  <settings
+    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd"
+    xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  
+    <localRepository>${CSAP_FOLDER}/maven-repository</localRepository>
+  
+    <servers>
+  
+      <server>
+        <id>yourcompany-artifactory-community</id>
+        <username>pnightingale</username>
+        <password>update-me</password>
+      </server>
+      <server>
+        <id>csap-release-repo</id>
+        <username>pnightingale</username>
+        <password>update-me</password>
+      </server>
+  
+      <server>
+        <id>csap-snapshot-repo</id>
+        <username>pnightingale</username>
+        <password>update-me</password>
+      </server>
+  
+    </servers>
+    <mirrors>
+      <mirror>
+        <id>yourcompany-artifactory-community</id>
+        <mirrorOf>*</mirrorOf>
+        <url>http://my-server-01.yourcompany.org:8081/artifactory/maven</url>
+      </mirror>
+    </mirrors>
+    <profiles>
+      <profile>
+        <id>yourcompany-artifactory-community</id>
+  
+        <properties>
+          <csapReleaseUrl>http://my-server-01.yourcompany.org:8081/artifactory/csap-release</csapReleaseUrl>
+          <csapSnapUrl>http://my-server-01.yourcompany.org:8081/artifactory/csap-snapshots</csapSnapUrl>
+          <artifactoryCnameFqdn>yourcompany-artifactory-community.yourcompany.org</artifactoryCnameFqdn>
+        </properties>
+  
+        <repositories>
+          <repository>
+            <snapshots>
+              <enabled>true</enabled>
+              <updatePolicy>always</updatePolicy>
+            </snapshots>
+            <id>yourcompany-artifactory-community</id>
+            <name>central</name>
+            <url>http://central</url>
+            <releases>
+              <enabled>true</enabled>
+              <updatePolicy>always</updatePolicy>
+            </releases>
+          </repository>
+        </repositories>
+        <pluginRepositories>
+          <pluginRepository>
+            <id>central</id>
+            <url>http://central</url>
+            <snapshots>
+              <enabled>true</enabled>
+            </snapshots>
+            <releases>
+              <enabled>true</enabled>
+            </releases>
+          </pluginRepository>
+        </pluginRepositories>
+      </profile>
+      
+      
+      <!-- USED in java spring boot build manifest -->
+      <profile>
+        <id>jenkins-node-name-default</id>
+        <activation>
+          <property>
+            <name>!env.NODE_NAME</name>
+          </property>
+        </activation>
+        <properties>
+          <build.node>built-on-unofficial-host</build.node>
+        </properties>
+      </profile>
+  
+      <profile>
+        <id>jenkins-node-name-from-env</id>
+        <activation>
+          <property>
+            <name>env.NODE_NAME</name>
+          </property>
+        </activation>
+        <properties>
+          <build.node>${env.NODE_NAME}</build.node>
+        </properties>
+      </profile>
+      
+    </profiles>
+    <activeProfiles>
+      <activeProfile>yourcompany-artifactory-community</activeProfile>
+    </activeProfiles>
+  </settings>
+
+
+
+
+
+

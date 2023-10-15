@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $$service-name
+  namespace: $$service-namespace
+  labels:
+    k8s-app: $$service-name
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: $$service-name
+  template:
+    metadata:
+      labels:
+        k8s-app: $$service-name
+      annotations:
+        seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
+    spec:
+      containers:
+      - name: $$service-name-container
+        image: $$service-image
+        resources:
+          # need more cpu upon initialization, therefore burstable class
+          limits:
+            cpu: 1000m
+          requests:
+            cpu: 100m
+        env:
+          - name: HQ_DEFAULT_URL
+            value: http://elastic-search.$$service-namespace:9200
+        ports:
+        - containerPort: 5000
+          name: ui
+          protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: $$service-name-service
+  namespace: $$service-namespace
+  labels:
+    k8s-app: $$service-name
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    kubernetes.io/name: "Kibana"
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 5000
+    protocol: TCP
+  selector:
+    k8s-app: $$service-name
+
+
+
+
+
+
+
+
+
+
+
+

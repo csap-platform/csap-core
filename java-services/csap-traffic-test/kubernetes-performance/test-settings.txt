@@ -1,0 +1,2 @@
+host,context,port,user,pass
+csap-dev06.yourcompany.org,/test-k8s-csap-reference,80,admin,password

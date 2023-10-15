@@ -1,0 +1,266 @@
+#
+# Update xxx to your host and yyyDomain to your domain
+#
+
+operator: modify
+target: default
+
+
+environments:
+
+  #
+  # derive: from "default" application, which defines a "dev" environment
+  #
+  base: dev
+  
+  #
+  # Cluster host assignment:
+  #   - use host short name
+  #   - optional: specify short name everywhere; or use index of hostname from base-os cluster
+  #                
+  hosts: 
+    base-os: [ xxx-dev01,  xxx-dev02, xxx-dev03 ]
+    csap-management: [ 1 ]
+    kubernetes-masters:  [ 1, 2, 3 ]
+    kubernetes-provider: [ 1 ]
+  
+
+  application-name: "all-in-three"
+  project-name: "all-in-three"
+  project-contact: "xxx.xxx@yyyDomain"
+  
+  git: https://github.com/xxx/xxx-definition.git
+
+
+  #
+  # update target env
+  #
+  settings:
+  
+    loadbalancer-url: http://xxxHost.yyyDomain:8080
+    
+  default-settings:  # defaults for ALL envs
+  
+    application:
+      name: "all-in-one"
+  
+    csap-data:
+      user: events-disabled
+      # user: xxx-myapp
+      credential: "change-me-xxx"
+      service-url: "http://xxxHost.yyyDomain:8080/events-service"
+        
+    configuration-maps:
+
+    
+#      docker:
+#        dockerRepo: http://media.yyyDomain/media/third_party/linux/CentOS/docker-ce.repo
+#        
+#      kubelet:
+#        kubernetesRepo: http://media.yyyDomain/media/third_party/kubernetes/kubernetes-el7.repo
+        
+      nginx-ingress:
+        $$ingress-host: "*.yyyDomain" # used to determine ingress launch urls and routing rules
+        $$ingress-node-selector: "\"kubernetes.io/os\": linux"
+        $$ingress-http-port: 7080
+        $$ingress-https-port: 7443
+
+
+  #
+  # adding in csap-management and kubernetes
+  #
+  clusters: 
+  
+    #
+    # csap-admin provide core cluster management
+    #
+    csap-management: 
+      notes: "For production clusters, 2 hosts are recommended. All others - a single host is sufficient"
+      type: modjk
+
+      hosts:
+        - updated-above-in-hosts
+        
+      template-references: 
+        - csap-admin
+        - httpd
+
+    #
+    # singe master clusters are ok for non-prod; generally 3 nodes
+    #  
+    kubernetes-provider: 
+      type: kubernetes-provider
+
+      masters:
+        - updated-above-in-hosts
+        
+      hosts:
+        - updated-above-in-hosts
+        
+      template-references: 
+        - kubelet
+    
+    kubernetes-system-services: 
+      type: kubernetes
+      kubernetes-provider: kubernetes-provider
+      kubernetes-namespace: kube-system
+      template-references: 
+        - calico-kube-controllers
+        - calico-node
+        - coredns
+        - etcd
+        - kube-apiserver
+        - kube-controller-manager
+        - kube-proxy
+        - kube-scheduler
+        - kubernetes-dashboard
+        - metrics-server
+        - nginx-ingress-controller
+        # Note: only enable client provisioner if nfs configured
+        # - nfs-client-provisioner
+
+
+
+service-templates:
+  csap-demo-nginx.docker.image: "nginx:latest"
+  
+
+operations: 
+  - inserts:
+    - path: /environments/defaults/base-os/template-references
+      value: docker
+
+      
+
+
+---
+#
+# Core csap settings: yourcompany yourtown Security(LDAP)
+#
+operator: create
+target: application-company.yml
+
+#
+# Global settings for applications - test
+#
+
+
+
+     
+csap-core:
+
+  kubernetes: 
+    enabled: true
+
+  docker: 
+    enabled: true
+    
+
+#
+# health and data services
+#
+#csap-events: 
+#
+#  health-monitoring: 
+#    appIds:
+#      - xxx
+#    lifes:
+#      - dev
+
+
+#spring: 
+#  mail: 
+#    host: "${mailServer:myrelay.yourcompany.com}"
+#    port: "${mailPort:25}"
+
+csap.security: 
+    rest-api-filter.token: "k16ljSCT5UnF8o1fCyshcD3+VZtrWm2c"
+    provider:
+            
+      type: memory
+      memory-users:
+      - admin,password,AUTHENTICATED,dummy1,dummy2
+      - user,password,AUTHENTICATED,dummy3,dummy4
+      
+      #
+      # LDAP: https://github.com/csap-platform/csap-core/wiki/Access-Control
+      #
+      
+        #
+        #  docker caspplatform/csap:ldap ,https://github.com/bitnami/bitnami-docker-openldap
+        #
+        #  test openldap: docker run --rm --detach --name=ldap-server --publish 389:1389 csapplatform/ldap-server
+        #  web user: admin/admin
+        #  
+        #  test ldap browser: docker run --rm --detach --name=ldap-ui --publish 8080:80 --env PHPLDAPADMIN_LDAP_HOSTS=$(hostname --long)  --env PHPLDAPADMIN_HTTPS=false osixia/phpldapadmin:latest
+        #  ldap admin: cn=admin,dc=example,dc=org, pass: admin
+        #
+        
+        # type: ldap
+        # url: ldap://your-host.yourdomain.com:389
+        # directory-dn: search:uid={0}
+        # search-user: ou=people,dc=example,dc=org
+        # search-groups: ou=groups,dc=example,dc=org
+        # search-group-filter: "(uniquemember={0})"
+      
+      
+      #
+      # typical ldap
+      #
+#      type: ldap 
+#      url: ldap://ldap.yourcompany.lab:389
+#      directory-dn: search:uid={0} # search will be a search binding. If omitted - binds direct
+#      search-user: ou=People,dc=yourdc,dc=net
+#      search-groups: ou=Groups,dc=yourdc,dc=net
+#
+# Typically - LDAP/AD groups are used for group management
+# - alternately, roles can be explictly assigned 
+#
+#      additional-ldap-roles:
+#        pnightingale:
+#          - ${view_role:AUTHENTICATED}
+#          - ${admin_role:AUTHENTICATED}
+#          - ${build_role:AUTHENTICATED}
+#          - ${infra_role:AUTHENTICATED}
+
+
+
+
+#---
+#
+# Sample: Creating a file, path is relative to csap-platfrom/definition
+#
+#operator: create
+#target: scripts/hi.sh
+#
+#content: |
+#  #!/bin/bash
+#  echo "hi"
+
+
+#---
+#
+# custom Docker Repository
+#
+
+
+#operator: create
+#
+#target: resources/docker/common/configuration/daemon.json
+#
+#exec-opts: ["native.cgroupdriver=systemd"]
+#  
+#registry-mirrors: ["http://docker.yourcompany.org"]
+#insecure-registries: [ "yourcompany-docker.yyyDomain", "docker.yyyDomain" ]
+#storage-driver: "overlay2"
+#data-root: "/var/lib/docker"
+#hosts: [ "unix:///var/run/docker.sock" ]
+#log-driver: "json-file"
+#log-opts: 
+#  max-size: "44m"
+#  max-file: "1"
+#  
+#
+#
+
+

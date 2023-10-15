@@ -3,9 +3,9 @@
 		"api-version": 2.1,
 		"project-version": 1,
 		"name": "CSAP Platform",
-		"architect": "peter.nightingale@***REMOVED***.com",
+		"architect": "peter.nightingale@yourcompanyinc.com",
 		"description": "Includes: CSAP test services, CSAP integration environment",
-		"emailNotifications": "peter.nightingale@***REMOVED***.com",
+		"emailNotifications": "peter.nightingale@yourcompanyinc.com",
 		"test": "for y"
 	},
 	"environments": {
@@ -13,21 +13,21 @@
 			"settings": {
 				"base-env-only": true,
 				"application": {
-					"name": "Sensus Integration",
+					"name": "yourcompany Integration",
 					"sub-projects": [
 						"data-center-ha.json"
 					],
-					"definition-repo-url": "https://bitbucket.org/***REMOVED***/***REMOVED***-integration-definition.git",
+					"definition-repo-url": "https://bitbucket.org/yourcompanyinc/yourcompany-integration-definition.git",
 					"definition-repo-branch": "master",
-					"maven-url": "http://***REMOVED***.***REMOVED***:8081/artifactory/csap-release",
+					"maven-url": "http://my-server-01.yourcompany.org:8081/artifactory/csap-release",
 					"help-menu-items": {
-						"User Guide": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP",
-						"Release Notes": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211856/Release+Notes",
-						"Quick Install": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/395282580/CSAP+Quick+Install",
-						"Health Status": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211861/CSAP+Health",
-						"Application Editor": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211875/CSAP+Application+Editor",
-						"FAQ": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/347177032/CSAP+FAQ",
-						"Local Login": "http://csap-dev01.***REMOVED***:8011/login?local=true"
+						"User Guide": "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP",
+						"Release Notes": "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/258211856/Release+Notes",
+						"Quick Install": "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/395282580/CSAP+Quick+Install",
+						"Health Status": "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/258211861/CSAP+Health",
+						"Application Editor": "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/258211875/CSAP+Application+Editor",
+						"FAQ": "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/347177032/CSAP+FAQ",
+						"Local Login": "http://csap-dev01.yourcompany.org:8011/login?local=true"
 					}
 				},
 				"operatorNotifications": [
@@ -48,18 +48,18 @@
 					]
 				},
 				"csap-data": {
-					"user": "SensusCsap",
+					"user": "yourcompanyCsap",
 					"credential": "pAH+tsfwU/kgW+34WPXQW/8Z0a9SJpXq8dNOirMmUxM=",
 					"service-url": "events-disabled"
 				},
 				"csap-data-orig": {
-					"user": "SensusCsap",
+					"user": "yourcompanyCsap",
 					"credential": "pAH+tsfwU/kgW+34WPXQW/8Z0a9SJpXq8dNOirMmUxM=",
-					"service-url": "http://csap-dev01.***REMOVED***:8080/events-service",
+					"service-url": "http://csap-dev01.yourcompany.org:8080/events-service",
 					"secondary-publish": {
 						"enabled": "true",
-						"url": "http://csap-dev03.***REMOVED***:7021/events-service-beta/api/event",
-						"user": "SensusCsap",
+						"url": "http://csap-dev03.yourcompany.org:7021/events-service-beta/api/event",
+						"user": "yourcompanyCsap",
 						"pass": "pAH+tsfwU/kgW+34WPXQW/8Z0a9SJpXq8dNOirMmUxM="
 					}
 				},
@@ -518,15 +518,15 @@
 					"none"
 				],
 				"old-csapData": {
-					"eventUrl": "http://csap-dev01.***REMOVED***:8080/events-data-service/api/event",
-					"eventApiUrl": "http://csap-dev01.***REMOVED***:8080/events-data-service/eventApi",
-					"eventMetricsUrl": "http://csap-dev01.***REMOVED***:8080/events-analytics-service/api/metrics/",
-					"analyticsUiUrl": "http://csap-dev01.***REMOVED***:8080/admin/os/performance",
-					"historyUiUrl": "http://csap-dev01.***REMOVED***:8080/events-data-service?appId={appId}\u0026life={life}\u0026category={category}\u0026",
-					"user": "SensusCsap",
+					"eventUrl": "http://csap-dev01.yourcompany.org:8080/events-data-service/api/event",
+					"eventApiUrl": "http://csap-dev01.yourcompany.org:8080/events-data-service/eventApi",
+					"eventMetricsUrl": "http://csap-dev01.yourcompany.org:8080/events-analytics-service/api/metrics/",
+					"analyticsUiUrl": "http://csap-dev01.yourcompany.org:8080/admin/os/performance",
+					"historyUiUrl": "http://csap-dev01.yourcompany.org:8080/events-data-service?appId={appId}\u0026life={life}\u0026category={category}\u0026",
+					"user": "yourcompanyCsap",
 					"pass": "pAH+tsfwU/kgW+34WPXQW/8Z0a9SJpXq8dNOirMmUxM="
 				},
-				"monitoringUrl": "http://csap-dev01.***REMOVED***/events-service/analytics",
+				"monitoringUrl": "http://csap-dev01.yourcompany.org/events-service/analytics",
 				"mavenCommand": "-B -Dmaven.test.skip=true clean package",
 				"newsItems": [
 					"News items may be added using Application Editor."
@@ -535,7 +535,7 @@
 					"start": 8200,
 					"end": 9300
 				},
-				"secureUrl": "https://csap-secure.***REMOVED***/admin",
+				"secureUrl": "https://csap-secure.yourcompany.org/admin",
 				"autoRestartHttpdOnClusterReload": "yes",
 				"launchUrls": [
 					{
@@ -544,7 +544,7 @@
 					},
 					{
 						"description": "ajp(LB - Internal)",
-						"url": "http://csap-dev01.***REMOVED***"
+						"url": "http://csap-dev01.yourcompany.org"
 					}
 				],
 				"metricsPublication": [
@@ -563,7 +563,7 @@
 						"path": "/mnt/CSAP_DEV01_NFS"
 					}
 				],
-				"loadbalancer-url": "http://csap-dev01.***REMOVED***:8080"
+				"loadbalancer-url": "http://csap-dev01.yourcompany.org:8080"
 			},
 			"base-os": {
 				"description": "core services installed on every host",
@@ -586,7 +586,7 @@
 				"imports": [
 					"defaults"
 				],
-				"loadbalancer-url": "http://csap-dev01.***REMOVED***:8080",
+				"loadbalancer-url": "http://csap-dev01.yourcompany.org:8080",
 				"configuration-maps": {
 					"global": {
 						"allowRemoteJmx": "true",
@@ -609,8 +609,8 @@
 					"csap-sso": {
 						"csapUserSecret": "d437dcbe-d37d-422b-9039-b6705e4cf8fa",
 						"csapServiceSecret": "8dd6d776-d071-496c-9e51-3fbdfb547c6e",
-						"oathHostPort": "csap-dev01.***REMOVED***:8090",
-						"openIdIssuerUri": "http://csap-dev01.***REMOVED***:8090/auth/realms/csap-default",
+						"oathHostPort": "csap-dev01.yourcompany.org:8090",
+						"openIdIssuerUri": "http://csap-dev01.yourcompany.org:8090/auth/realms/csap-default",
 						"csap_view_role": "AUTHENTICATED",
 						"csap_admin_role": "AUTHENTICATED",
 						"csap_build_role": "AUTHENTICATED",
@@ -626,7 +626,7 @@
 						"allowRemote": "true",
 						"neverRemoteHosts": "csap-dev01,csap-dev02",
 						"dockerGcHours": "24",
-						"dockerRepo": "http://media.***REMOVED***/media/third_party/linux/CentOS/docker-ce.repo",
+						"dockerRepo": "http://media.yourcompany.org/media/third_party/linux/CentOS/docker-ce.repo",
 						"found-in": [
 							"docker"
 						]
@@ -635,15 +635,15 @@
 						"clusterToken": "584t76.b0b7c7r75rbc0ml0",
 						"masterBackupFolder": "$$nfs-mount/kubernetes-backups",
 						"default-yes-singleMasterUntaint": "no",
-						"kubernetesRepo": "http://media.***REMOVED***/media/third_party/kubernetes/kubernetes-el7.repo",
-						"kubernetesRepoSensus": "http://media.***REMOVED***/media/third_party/kubernetes/kubernetes-el7.repo",
+						"kubernetesRepo": "http://media.yourcompany.org/media/third_party/kubernetes/kubernetes-el7.repo",
+						"kubernetesRepoyourcompany": "http://media.yourcompany.org/media/third_party/kubernetes/kubernetes-el7.repo",
 						"kubernetesRepoGoogle": "https://packages.cloud.google.com/yum",
 						"found-in": [
 							"kubelet"
 						]
 					},
 					"ingress-nginx": {
-						"$$ingress-host": "*.***REMOVED***",
+						"$$ingress-host": "*.yourcompany.org",
 						"$$ingress-node-selector": "\"kubernetes.io/os\": linux",
 						"$$ingress-http-port": 80,
 						"$$ingress-https-port": 443,
@@ -690,10 +690,10 @@
 						"mongoHosts": "$$csap-hosts:events-mongo-beta",
 						"use-for-localmongo-storage": "/opt/csap/$$service-name-volume",
 						"MONGO_UTIL": "csap/csap-mongo:latest",
-						"mongoSourceHost": "csap-dev02.***REMOVED***",
+						"mongoSourceHost": "csap-dev02.yourcompany.org",
 						"metricDbSizeInGb": "30",
 						"eventDbSizeInGb": "10",
-						"dataServiceUrl": "http://csap-dev03.***REMOVED***:7011/events-service/api/event",
+						"dataServiceUrl": "http://csap-dev03.yourcompany.org:7011/events-service/api/event",
 						"found-in": [
 							"events-mongo-beta",
 							"events-service-beta"
@@ -705,10 +705,10 @@
 						"mongoPassword": "ikS+e8JgH07FPqGIprwwawHHId9i4+K2",
 						"mongoHosts": "$$csap-hosts:events-mongo",
 						"$$mongo-storage": "$$nfs-mount/$$service-name-volume",
-						"notUsed_dataServiceUrl": "http://csap-dev01.***REMOVED***:8080/events-service/api/event",
-						"restToken": "_***REMOVED***Integration",
+						"notUsed_dataServiceUrl": "http://csap-dev01.yourcompany.org:8080/events-service/api/event",
+						"restToken": "_yourcompanyIntegration",
 						"dataServiceUser": "dataUser",
-						"dataServicePass": "_***REMOVED***Integration",
+						"dataServicePass": "_yourcompanyIntegration",
 						"metricDbSizeInGb": "50",
 						"eventDbSizeInGb": "10",
 						"MONGO_UTIL": "csap/csap-mongo:latest",
@@ -728,14 +728,14 @@
 				},
 				"vsphere": {
 					"filters": {
-						"vm-path": "RNIs/CSAP-DEV_p/csap-dev/",
+						"vm-path": "YOURAPPs/CSAP-DEV_p/csap-dev/",
 						"datastore-regex": "(.*)CSAP(.*)"
 					},
 					"env": {
 						"GOVC_USERNAME": "lab\\csapstorage",
 						"GOVC_PASSWORD": "4O6EmXt6RCQ0f8W5DTqPcCMC1fp1rWKy3o6rZICEgdk=",
-						"GOVC_URL": "vcenter6.***REMOVED***",
-						"GOVC_DATACENTER": "***REMOVED***",
+						"GOVC_URL": "vcenter6.yourcompany.org",
+						"GOVC_DATACENTER": "My Lab",
 						"GOVC_DATASTORE": "CSAP_DS1_NFS",
 						"GOVC_INSECURE": "1"
 					}
@@ -947,10 +947,10 @@
 					"csap-package-logging"
 				]
 			},
-			"rni-monitor": {
+			"yourapp-monitor": {
 				"type": "kubernetes",
 				"template-references": [
-					"rni-1"
+					"yourapp-1"
 				],
 				"hosts": [],
 				"lastModifiedBy": "pnightingale"
@@ -1113,7 +1113,7 @@
 		"csap-test-docker-traffic": {
 			"server": "csap-api",
 			"description": "runs nightly and on demand docker load tests",
-			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211854/Docker+Integration+Tests",
+			"docUrl": "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/258211854/Docker+Integration+Tests",
 			"propDirectory": "$$service-working/docker-performance",
 			"processFilter": ".*$$service-name.*",
 			"alerts": {
@@ -1126,7 +1126,7 @@
 			},
 			"source": {
 				"scm": "git",
-				"path": "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-starter.git",
+				"path": "https://moc-bb.yourcompany.org/bitbucket/scm/csap/csap-starter.git",
 				"branch": "HEAD",
 				"buildLocation": "/csap-traffic-test"
 			},
@@ -1164,7 +1164,7 @@
 		"csap-test-k8s-traffic": {
 			"server": "csap-api",
 			"description": "runs nightly and on demand kubernetes load tests",
-			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/347079099/Kubernetes+Integration+Tests",
+			"docUrl": "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/347079099/Kubernetes+Integration+Tests",
 			"propDirectory": "$$service-working/kubernetes-performance",
 			"processFilter": ".*$$service-name.*",
 			"alerts": {
@@ -1177,7 +1177,7 @@
 			},
 			"source": {
 				"scm": "git",
-				"path": "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-starter.git",
+				"path": "https://moc-bb.yourcompany.org/bitbucket/scm/csap/csap-starter.git",
 				"branch": "HEAD",
 				"buildLocation": "/csap-traffic-test"
 			},
@@ -1548,7 +1548,7 @@
 			"autoStart": 84,
 			"port": "8261",
 			"description": "csap docker test service for messaging a",
-			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211854/Docker+Integration+Tests",
+			"docUrl": "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/258211854/Docker+Integration+Tests",
 			"alerts": {
 				"max_diskUtil": "1g",
 				"max_threadCount": "200",
@@ -1587,7 +1587,7 @@
 			"jmxPort": "8266",
 			"source": {
 				"scm": "git",
-				"path": "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-starter.git",
+				"path": "https://moc-bb.yourcompany.org/bitbucket/scm/csap/csap-starter.git",
 				"branch": "HEAD",
 				"buildLocation": "/csap-starter-tester"
 			},
@@ -2095,7 +2095,7 @@
 			"autoStart": 400,
 			"port": 8161,
 			"description": "test messaging service for csap-reference load tests ",
-			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/347079099/Kubernetes+Integration+Tests",
+			"docUrl": "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/347079099/Kubernetes+Integration+Tests",
 			"alerts": {
 				"max_socketCount": "40"
 			},
@@ -2120,7 +2120,7 @@
 					"service-type": "NodePort",
 					"add-csap-tools": "false",
 					"node-selectors": {
-						"kubernetes.io/hostname": "csap-dev05.***REMOVED***"
+						"kubernetes.io/hostname": "csap-dev05.yourcompany.org"
 					}
 				},
 				"portMappings": [
@@ -2170,7 +2170,7 @@
 			"autoStart": 430,
 			"port": 7080,
 			"description": "csap reference java service deployed via spec  to kubernetes",
-			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/347079099/Kubernetes+Integration+Tests",
+			"docUrl": "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/347079099/Kubernetes+Integration+Tests",
 			"parameters": "-Xms256M -Xmx256M -Duser.timezone=America/New_York -Dcsap.security.enabled=true -Dserver.servlet.context-path=/$$service-name -Dspring.profiles.active=services-embedded -DcsapJmxPort=$$service-jmx-port -Dserver.port=$$service-primary-port",
 			"environmentVariables": {
 				"configuration-maps": [
@@ -2295,7 +2295,7 @@
 			"autoStart": 420,
 			"port": 6090,
 			"description": "csap reference java service deployed via generated spec to kubernetes",
-			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/347079099/Kubernetes+Integration+Tests",
+			"docUrl": "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/347079099/Kubernetes+Integration+Tests",
 			"alerts": {
 				"max_diskUtil": "200",
 				"max_threadCount": "200",
@@ -2315,7 +2315,7 @@
 			},
 			"source": {
 				"scm": "git",
-				"path": "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-starter.git",
+				"path": "https://moc-bb.yourcompany.org/bitbucket/scm/csap/csap-starter.git",
 				"branch": "HEAD",
 				"buildLocation": "/csap-starter-tester"
 			},
@@ -2514,7 +2514,7 @@
 			"autoStart": 410,
 			"port": 5432,
 			"description": "csap reference db deployed to kubernetes",
-			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/347079099/Kubernetes+Integration+Tests",
+			"docUrl": "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/347079099/Kubernetes+Integration+Tests",
 			"url": "http://$$service-fqdn-host:8014/api/v1/namespaces/$$service-namespace/services/$$service-name-service",
 			"alerts": {
 				"max_diskUtil": "500g",
@@ -2543,7 +2543,7 @@
 					"replica-count": "1",
 					"add-csap-tools": "false",
 					"node-selectors": {
-						"kubernetes.io/hostname": "csap-dev06.***REMOVED***"
+						"kubernetes.io/hostname": "csap-dev06.yourcompany.org"
 					}
 				},
 				"container-count": "1",
@@ -2660,8 +2660,8 @@
 			"isDataStore": true,
 			"autoStart": "do-not-restart",
 			"description": "Deploys kubernetes logging components",
-			"url": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/1058572066/csap-package-logging",
-			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/1058572066/csap-package-logging",
+			"url": "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/1058572066/csap-package-logging",
+			"docUrl": "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/1058572066/csap-package-logging",
 			"deploymentNotes": "Create all required kubernetes artifacts",
 			"processFilter": "none",
 			"environmentVariables": {
@@ -2677,7 +2677,7 @@
 			},
 			"source": {
 				"scm": "git",
-				"path": "https://bitbucket.org/***REMOVED***/oss-csap-packages.git",
+				"path": "https://bitbucket.org/yourcompanyinc/oss-csap-packages.git",
 				"branch": "HEAD",
 				"buildLocation": "/csap-package-logging"
 			},
@@ -2689,7 +2689,7 @@
 			"server": "csap-api",
 			"autoStart": 200,
 			"description": "Deploys kubernetes monitoring components generated using kube-promethius opensource project",
-			"docUrl": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/1548714073/csap-package-monitoring",
+			"docUrl": "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/1548714073/csap-package-monitoring",
 			"processFilter": "none",
 			"alerts": {
 				"max_socketCount": 60,
@@ -2704,25 +2704,25 @@
 			},
 			"source": {
 				"scm": "git",
-				"path": "https://bitbucket.org/***REMOVED***/oss-csap-packages.git",
+				"path": "https://bitbucket.org/yourcompanyinc/oss-csap-packages.git",
 				"branch": "HEAD",
 				"buildLocation": "/csap-package-monitoring"
 			},
 			"maven": {
 				"dependency": "org.csap:csap-package-monitoring:21.06:zip"
 			},
-			"url": "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/1548714073/csap-package-monitoring",
+			"url": "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/1548714073/csap-package-monitoring",
 			"deploymentNotes": "All kube-prometheseus components will be deployed. Note: only occurs on primary master",
 			"lastModifiedBy": "pnightingale"
 		},
-		"rni-1": {
+		"yourapp-1": {
 			"server": "os",
 			"description": "kubernetes monitors for csap",
 			"runUsingDocker": "true",
 			"docker": {
 				"locator": {
-					"podNamespace": "rni-1",
-					"value-old": "(api-gateway-app|auth-app|authz-app|batch-engine-app|broker-app|cce-app|configdownload-app|db-monitor-app|de-runner-app|epc-app|esm-app|flexapps-app|flexmessaging-app|fnp-server-app|fwdl-electric-app|fwdl-na2w-app|gateway-app|grafana-app|han-app|httpd-app|httpd-monitor-app|loadprofile-tools-app|mdmif-app|meterread-app|msgarchiver-app|nextgenbackfill-app|notifications-app|pg-app|pg-monitor-app|prometheus-app|redis-app|redis-monitor-app|rni-file-browser-app|rniapiengine-app|scheduler-app|sdc-app|spooler-app|tgblistener-app|touread-app|web-app|websites-app)",
+					"podNamespace": "yourapp-1",
+					"value-old": "(api-gateway-app|auth-app|authz-app|batch-engine-app|broker-app|cce-app|configdownload-app|db-monitor-app|de-runner-app|epc-app|esm-app|flexapps-app|flexmessaging-app|fnp-server-app|fwdl-electric-app|fwdl-na2w-app|gateway-app|grafana-app|han-app|httpd-app|httpd-monitor-app|loadprofile-tools-app|mdmif-app|meterread-app|msgarchiver-app|nextgenbackfill-app|notifications-app|pg-app|pg-monitor-app|prometheus-app|redis-app|redis-monitor-app|yourapp-file-browser-app|rniapiengine-app|scheduler-app|sdc-app|spooler-app|tgblistener-app|touread-app|web-app|websites-app)",
 					"value": "*"
 				},
 				"aggregateContainers": "true"
@@ -3014,9 +3014,9 @@
 						"script": "wait_for_pod_conditions $$service-name"
 					},
 					{
-						"description": "load ***REMOVED*** dashboards",
+						"description": "load yourcompany dashboards",
 						"frequency": "event-post-deploy",
-						"script": "$$service-resources/load-***REMOVED***-dashboards.sh"
+						"script": "$$service-resources/load-yourcompany-dashboards.sh"
 					},
 					{
 						"description": "wait for kibana shutdown",

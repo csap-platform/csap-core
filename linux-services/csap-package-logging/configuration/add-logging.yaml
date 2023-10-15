@@ -1,0 +1,239 @@
+#
+#  Source: https://www.digitalocean.com/community/tutorials/how-to-set-up-an-elasticsearch-fluentd-and-kibana-efk-logging-stack-on-kubernetes
+#  ref: XXX
+#  Notes
+#   - elastic-search and kibana versions must be consistent
+#
+# updated to release 2.1.3
+
+operator: modify
+target: default
+
+
+environments:
+  base: $csapLife
+  remove-inactive: false
+  
+  clusters:
+    csap-logging-cluster:
+      type: kubernetes
+      kubernetes-provider: kubernetes-provider
+      kubernetes-namespace: csap-logging
+      template-references: 
+        - elastic-search
+        - elastic-hq
+        - fluentd
+        - kibana
+
+service-templates: 
+
+  #
+  #   Elastic Search
+  #  
+  elastic-search:
+    server: docker
+    isDataStore: true
+    autoStart: 502
+    description: elastic search persists and indexes logs captures by fluentd
+    deploymentNotes: "Volumes are created during deployment; remove csap-package-logging to delete"
+    url: "http://$$service-fqdn-host:8014/api/v1/namespaces/$$service-namespace/services/$$service-name:rest/proxy/_cluster/state?pretty"
+    docUrl: "https://hub.docker.com/_/elasticsearch,https://www.digitalocean.com/community/tutorials/how-to-set-up-an-elasticsearch-fluentd-and-kibana-efk-logging-stack-on-kubernetes"
+    
+    environmentVariables: 
+      configuration-maps:
+        - storage-settings
+        - csap-logging-defaults
+        - csap-logging
+        
+    alerts: 
+      max_socketCount: 100
+      max_diskUtil: 50g
+      max_diskWriteKb: 5000
+      max_fileCount: 1000
+      max_rssMemory: 3g
+      
+    docker: 
+      image: elasticsearch:7.13.4
+#      image: docker.elastic.co/elasticsearch/elasticsearch:7.13.0
+      locator: 
+        type: io.kubernetes.container.name
+        value: $$service-name-container
+      container-count: 3
+      deployment-files-use: true
+      deployment-file-names: 
+        - SEARCH_FOR_RESOURCE:deploy-only-volume.yaml
+        - SEARCH_FOR_RESOURCE:curator-config-map.yaml
+        - SEARCH_FOR_RESOURCE:elastic-search.yaml
+        
+    scheduledJobs: 
+      scripts:
+      
+        - description: show indexes
+          frequency: on-demand
+          script: $$service-resources/rest-commands.sh showIndexes
+      
+        - description: wipe kibana dashboards and settings. kibana deployment should be removed prior to running.
+          frequency: on-demand
+          script: $$service-resources/rest-commands.sh wipeKibana
+      
+        - description: wipe ALL data
+          frequency: on-demand
+          script: $$service-resources/rest-commands.sh wipeAllData
+          
+      
+        - description: run curator clean up
+          frequency: on-demand
+          script:  "kubectl delete job --namespace=$$service-namespace $$service-name-cleanup-on-demand; kubectl create job --namespace=$$service-namespace --from=cronjob/curator-cron $$service-name-cleanup-on-demand;"
+      
+        - description: create mount points
+          frequency: event-pre-deploy
+          script: $$service-resources/create-mount-points.sh
+      
+        - description: wait for pod conditions
+          frequency: event-post-deploy
+          script: wait_for_pod_conditions $$service-name $$service-replica-count
+          
+        - description: wait for pod shutdown
+          frequency: event-post-stop
+          script: wait_for_pod_removed $$service-name
+
+    
+    
+  #
+  #   Elastic Search Manager
+  #  
+  elastic-hq: 
+    server: docker
+    autoStart: 504
+    description: Manager for elastic-search
+    url: "http://$$service-fqdn-host:8014/api/v1/namespaces/$$service-namespace/services/$$service-name-service:http/proxy/#!/clusters"
+
+    environmentVariables:
+      configuration-maps:
+        - storage-settings
+        - csap-logging-defaults
+        - csap-logging
+        
+    docker: 
+      image: elastichq/elasticsearch-hq
+      container-count: 1
+      locator: 
+        type: io.kubernetes.container.name
+        value: $$service-name-container
+      deployment-files-use: true
+      deployment-file-names: 
+        - SEARCH_FOR_RESOURCE:elastic-hq.yaml
+        
+    scheduledJobs: 
+      scripts:
+      
+        - description: wait for pod conditions
+          frequency: event-post-deploy
+          script: wait_for_pod_conditions $$service-name
+          
+        - description: wait for pod shutdown
+          frequency: event-post-stop
+          script: wait_for_pod_removed $$service-name
+
+    
+  #
+  #   Host Collector
+  #      
+  fluentd:
+    server: docker
+    autoStart: 508
+    description: fluentd scrapes logs off of filesystem to uploads to storage (elastic)
+    docUrl: https://github.com/fluent/fluentd-kubernetes-daemonset
+    
+    appDirectory: /fluentd
+    propDirectory: /fluentd/etc
+
+    alerts: 
+      max_diskUtil: 300m
+      max_socketCount: 20
+      
+    environmentVariables:
+      configuration-maps:
+        - storage-settings
+        - csap-logging-defaults
+        - csap-logging
+        
+    docker:
+      # runaway cpu on flush d 
+      #image: fluent/fluentd-kubernetes-daemonset:v1.12.4-debian-elasticsearch7-1.0
+#      image: fluent/fluentd-kubernetes-daemonset:v1.11-debian-elasticsearch7-1 
+      image: fluent/fluentd-kubernetes-daemonset:v1.14.0-debian-elasticsearch7-1.1
+      locator: 
+        type: io.kubernetes.container.name
+        value: $$service-name-container
+      deployment-files-use: true
+      
+      #
+      # fluentd-docker-config-map.yaml or fluentd-crio-config-map.yaml 
+      #
+      deployment-file-names: 
+        - SEARCH_FOR_RESOURCE:fluentd-docker-config-map.yaml
+        - SEARCH_FOR_RESOURCE:fluentd.yaml
+        
+    scheduledJobs: 
+      scripts:
+      
+        - description: wait for pod conditions
+          frequency: event-post-deploy
+          script: wait_for_pod_conditions $$service-name
+          
+        - description: wait for pod shutdown
+          frequency: event-post-stop
+          script: wait_for_pod_removed $$service-name
+    
+  
+    
+    
+  #
+  #   User interface: https://www.docker.elastic.co/r/elasticsearch/elasticsearch-oss
+  #    
+  kibana: 
+    server: docker
+    autoStart: 506
+    description: User Interfaces for elastic-search
+    url: "$$kubernetes-ingress?path=/$$service-name/app/kibana#/discover"
+    docUrl: "https://www.elastic.co/guide/en/kibana/current/whats-new.html"
+    
+    
+    alerts: 
+      max_diskUtil: 200m
+      max_socketCount: 100
+
+    environmentVariables:
+      configuration-maps:
+        - storage-settings
+        - csap-logging-defaults
+        - csap-logging
+        - nginx-ingress
+        
+    docker: 
+      image: kibana:7.13.4
+#      image: docker.elastic.co/kibana/kibana:7.14.1
+      container-count: 1
+      locator: 
+        type: io.kubernetes.container.name
+        value: $$service-name-container
+      deployment-files-use: true
+      deployment-file-names: 
+        - SEARCH_FOR_RESOURCE:kibana.yaml
+        
+    scheduledJobs: 
+      scripts:
+      
+        - description: wait for kibana running
+          frequency: event-post-deploy
+          script: "wait_for_pod_conditions $$service-name"
+      
+        - description: load yourcompany dashboards
+          frequency: event-post-deploy
+          script: $$service-resources/load-sample-dashboards.sh
+          
+        - description: wait for kibana shutdown
+          frequency: event-post-stop
+          script: wait_for_pod_removed $$service-name
+

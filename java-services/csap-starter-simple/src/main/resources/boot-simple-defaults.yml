@@ -1,0 +1,85 @@
+
+
+spring:
+
+  cache:
+    
+    
+    jcache:
+    
+      config: "classpath:ehcache3.xml"
+
+#management:
+#  metrics:
+#    distribution:
+#      percentiles-histogram[http.server.requests]: true
+#management.metrics.web.server.auto-time-requests: false
+
+#
+#  ================ profile: app-defaults
+#
+
+# Service Settings
+my-service-configuration:
+  locator:
+    hello-provider: "csap-verify-service"
+    hello-api: "/jersey/helloworld"
+    
+  
+server:
+#  tomcat:
+#    accesslog:
+#      enabled: true
+#      buffered: false
+#      
+      
+#  port: 8090 
+  servlet:
+    context-path: /
+      
+    
+csap:
+  security: 
+#    enabled: false
+    
+    rest-api-filter:
+      
+      enabled: true
+      token: ${restToken:demoTokenOver}
+      urls: 
+      - /helloWithRestAcl
+
+  locator:
+    enabled: true
+    active-urls-locator: "${csapLbUrl:https://csap-secure.yourcompany.com}/admin/api/application/service/urls/active/"
+    low-resources-url-locator: "${csapLbUrl:https://csap-secure.yourcompany.com}/admin/api/application/service/url/low/"
+    low-resource: "lowCpu"  #lowLoad, lowCpu, ...
+    
+  performance:
+    enabled: true
+    monitor-urls: 
+        - /
+
+    alert:
+     
+      debug: true
+      
+      remember-count: ${csapMaxBacklog:1000}
+      
+      limits:
+        - 
+          id: csap.exception
+          ignore-null: true
+          occurences-max: 0
+          collect-time: 1
+          collect-units: MINUTES
+          
+        - 
+          id: csap.ui.page.landing
+          ignore-null: true
+          occurences-max: 2
+          max-time: 7
+          max-units: MILLISECONDS
+          collect-time: 30
+          collect-units: SECONDS
+    

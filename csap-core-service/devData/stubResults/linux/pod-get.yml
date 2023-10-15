@@ -367,7 +367,7 @@ spec:
   dnsPolicy: ClusterFirst
   enableServiceLinks: true
   hostname: alertmanager-main-0
-  nodeName: csap-dev06.***REMOVED***
+  nodeName: csap-dev06.yourcompany.org
   nodeSelector:
     kubernetes.io/os: linux
   preemptionPolicy: PreemptLowerPriority

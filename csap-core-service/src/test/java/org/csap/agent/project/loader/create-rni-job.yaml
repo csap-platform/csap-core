@@ -23,21 +23,21 @@ spec:
           args: ['-AdHoc', 'false', '-CustomerId', 'ACME', '-Output', '/output/{1}_{2}{3}.txt']
           volumeMounts:
             - mountPath: /opt/flexnet/install
-              name: rni-data
+              name: yourapp-data
               subPath: opt/flexnet/install
             - mountPath: /opt/flexnet/security
-              name: rni-data
+              name: yourapp-data
               subPath: opt/flexnet/security
               readOnly: true
             - mountPath: /output
-              name: rni-data
+              name: yourapp-data
               subPath: data/data-extraction
             - mountPath: /var/log/flexnet
-              name: rni-data
+              name: yourapp-data
               subPath: data/logs
           terminationMessagePath: /tmp/job_results.txt
       restartPolicy: Never
       volumes:
-        - name: rni-data
+        - name: yourapp-data
           persistentVolumeClaim:
             claimName: punisher-pvc

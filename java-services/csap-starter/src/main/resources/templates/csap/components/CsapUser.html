@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <title>CsapUser.js Test Page</title>
+
+
+    <script th:replace="~{ csap/fragments/csap-module-includes :: pageContent }"></script>
+
+    <script type="module"
+            th:src=" @{ ${ @mvcResourceUrlProvider.getForLookupPath('/js/modules/utils/CsapUser.js')} }"></script>
+
+</head>
+
+<body class="csap-full csap-scrollable theme-dark agent">
+
+    <header th:replace="~{ csap/fragments/page :: header } "></header>
+
+    <section>
+        <article class="content">
+
+            <section>
+                <div class="quote">Api Tester</div>
+                <br />
+                <button id=test-get-user-names>getUserNames</button>
+                <input id="userids"
+                       value="pnightingale,nonExistUserid"
+                       style="width: 30em" />
+
+                <br />
+
+                <button id="getUserInfo">getUserInfo</button>
+                <input id="userid"
+                       value="pnightingale"
+                       style="width: 10em" />
+                <br />
+
+                <button id="getUserInfoHtml">getUserInfoHtml</button>
+                <input id="useridHtml"
+                       value="pnightingale"
+                       style="width: 10em" />
+                <br />
+
+                <div id=api-results-panel
+                    style="margin: 1em"
+                     class=csap-white>
+                    Select an operation above
+                </div>
+            </section>
+
+            <section>
+                <div class="quote">Tables With Hover</div>
+                <button id="updateUserCol" class="csap-button">update userid Column</button>
+                
+                <table class="csap" style="margin: 2em;">
+                    <thead>
+
+                        <tr>
+                            <th class="col1">item</th>
+                            <th>userid</th>
+                            <th>description</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>pnightingale</td>
+                            <td>some notes</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>peter.nightingale</td>
+                            <td>some notes</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>nonExistUserid</td>
+                            <td>some notes</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>System</td>
+                            <td>some notes</td>
+                        </tr>
+                    </tbody>
+
+                </table>
+            </section>
+        </article>
+    </section>
+
+
+
+
+    <footer th:replace="csap/fragments/page :: footer"></footer>
+</body>
+
+</html>

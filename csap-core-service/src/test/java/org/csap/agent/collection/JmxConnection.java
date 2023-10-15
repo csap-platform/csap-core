@@ -74,7 +74,7 @@ public class JmxConnection {
 	@Test
 	public void jmx_api_connect ( ) {
 
-		String opHost = "csap-dev03.***REMOVED***" ;
+		String opHost = "csap-dev03.yourcompany.org" ;
 		String opPort = "8266" ; // 8016
 									// =
 									// CsAgent,

@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
       - name: $$service-name-container
-        image: docker.***REMOVED***/csap/csap-test-app:latest
+        image: docker.yourcompany.org/csap/csap-test-app:latest
         ports:
         - containerPort: $$service-primary-port
         env:
@@ -86,7 +86,7 @@ metadata:
   
 spec:
   rules:
-  - host: "*.***REMOVED***"
+  - host: "*.yourcompany.org"
     http:
       paths:
         - backend: 

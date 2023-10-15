@@ -705,7 +705,7 @@
 				"dependency": "org.csap:csap-java-servlet:2-SNAPSHOT:war"
 			},
 			"docker": {
-				"image": "containers.na.***REMOVED***.net/someUser/csap-tomcat-oracle:latest",
+				"image": "containers.na.yourcompany.net/someUser/csap-tomcat-oracle:latest",
 				"entryPoint": [
 					"/bin/sh",
 					"-c",

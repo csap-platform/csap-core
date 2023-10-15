@@ -1,0 +1,168 @@
+
+#
+#  Order of precedence: Lower overrides upper: regardless of order in @ActiveProfiles
+#
+
+---
+#
+#  Common definition for all test
+#
+spring:
+
+  config:
+    activate:
+      on-profile: junit
+      
+  cache:
+    type: none  # cachemanager lifecycles will impact, so disable
+  
+server:
+  servlet:
+    context-path: /
+  
+      
+csap:
+
+  web-server.enabled: false
+  
+  security.enabled: false
+  
+  performance.enabled: true
+  
+  encryption:
+    enabled: true
+    token: "Will be overwritten by env var"
+    algorithm: PBEWITHMD5ANDDES 
+    
+    
+---
+#
+#  Security tests
+#
+spring:
+
+  config:
+    activate:
+      on-profile: junit-security
+      
+  cache:
+    type: none  # cachemanager lifecycles will impact, so disable
+  
+server:
+  servlet:
+    context-path: /
+  
+      
+csap:
+
+  web-server:
+    enabled: false
+  
+  security:
+    enabled: true
+    roles:
+      view-group: ROLE_${view_role:ViewRole}
+      admin-group: ROLE_${admin_role:AdminRole}
+  
+  performance.enabled: true
+  
+  encryption:
+    enabled: true
+    token: "Will be overwritten by env var"
+    algorithm: PBEWITHMD5ANDDES 
+
+ 
+---
+#
+#  ssl tests
+#
+spring:
+
+  config:
+    activate:
+      on-profile: junit-ssl
+
+csap:
+
+  web-server:
+  
+    enabled: true
+    
+    ajp-connection-port:  8089
+    
+    #
+    #  csap managed ssl
+    #
+    ssl:
+      port: 8088
+      keystore-file: classpath:csap-junit.p12
+      test-domain: yourcompany.org
+
+
+
+#
+#  spring managed ssl
+#
+
+#server:    
+#  ssl:
+#    key-store-type: PKCS12
+#    key-store: classpath:csap.p12
+#    key-store-password: csap1234
+#    key-alias: csap
+         
+
+---
+#
+#  Junit tests: different profiles will force application context caching
+#
+spring:
+
+  config:
+    activate:
+      on-profile: mockJunit
+      
+  cache:
+    type: none  # cachemanager lifecycles will impact, so disable
+    
+server:
+  servlet:
+    context-path: /
+  
+      
+csap:
+  web-server.enabled: false
+  security.enabled: false
+  performance.enabled: true
+  encryption:
+    enabled: true
+    token: "Will be overwritten by env var"
+    algorithm: PBEWITHMD5ANDDES 
+
+---
+#
+#  Junit tests: different profiles will force application context caching
+#
+spring:
+
+  config:
+    activate:
+      on-profile: htmlUnit
+      
+  cache:
+    type: none  # cachemanager lifecycles will impact, so disable
+    
+server:
+  servlet:
+    context-path: /
+  
+      
+csap:
+  web-server.enabled: false
+  security.enabled: false
+  performance.enabled: false
+  encryption:
+    enabled: true
+    token: "Will be overwritten by env var"
+    algorithm: PBEWITHMD5ANDDES 
+    

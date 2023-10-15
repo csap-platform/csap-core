@@ -14,12 +14,12 @@
           "definition-repo-branch" : "",
           "maven-url" : "https://repo.maven.apache.org/maven2/",
           "help-menu-items" : {
-            "User Guide" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP",
-            "Release Notes" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211856/Release+Notes",
-            "Quick Install" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/395282580/CSAP+Quick+Install",
-            "Health Status" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211861/CSAP+Health",
-            "Application Editor" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211875/CSAP+Application+Editor",
-            "FAQ" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/347177032/CSAP+FAQ"
+            "User Guide" : "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP",
+            "Release Notes" : "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/258211856/Release+Notes",
+            "Quick Install" : "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/395282580/CSAP+Quick+Install",
+            "Health Status" : "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/258211861/CSAP+Health",
+            "Application Editor" : "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/258211875/CSAP+Application+Editor",
+            "FAQ" : "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/347177032/CSAP+FAQ"
           }
         },
         "operatorNotifications" : [ "someUser@yourCompany.com", "asdfsd@sdfsd.com" ],

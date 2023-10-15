@@ -1238,24 +1238,24 @@ function File_Monitor() {
 
                     numColMatches++;
                     if ( numColMatches > 3 ) {
-                        console.log( `checkLogParsers() - hardcoded matcher crni-field6Colon` );
-                        return checkParsers( "crni-field6Colon" );
+                        console.log( `checkLogParsers() - hardcoded matcher cyourapp-field6Colon` );
+                        return checkParsers( "cyourapp-field6Colon" );
                     }
                 } else if ( fields.length == 10
                     && fields[ 8 ] === "|~" ) {
 
                     numColMatches++;
                     if ( numColMatches > 3 ) {
-                        console.log( `checkLogParsers() - hardcoded matcher crni-field9Tilde` );
-                        return checkParsers( "crni-field9Tilde" );
+                        console.log( `checkLogParsers() - hardcoded matcher cyourapp-field9Tilde` );
+                        return checkParsers( "cyourapp-field9Tilde" );
                     }
                 } else if ( fields.length == 10
                     && fields[ 4 ] === "---" ) {
 
                     numColMatches++;
                     if ( numColMatches > 3 ) {
-                        console.log( `checkLogParsers() - hardcoded matcher crni-field5Dash` );
-                        return checkParsers( "crni-field5Dash" );
+                        console.log( `checkLogParsers() - hardcoded matcher cyourapp-field5Dash` );
+                        return checkParsers( "cyourapp-field5Dash" );
                     }
                 } else if ( fields.length == 10
                     && fields[ 5 ] === "---" ) {
@@ -1384,13 +1384,13 @@ function File_Monitor() {
         } else if ( currentFormat === "kubelet" ) {
             //
             // format 1: typical
-            // Mar 22 09:41:42 csap-dev07.***REMOVED*** kubelet[650075]: E0322 09:41:42.876820  650075 reflector.go:138] object-"kube-system"/"kubernetes-services-endpoint":
+            // Mar 22 09:41:42 csap-dev07.yourcompany.org kubelet[650075]: E0322 09:41:42.876820  650075 reflector.go:138] object-"kube-system"/"kubernetes-services-endpoint":
             // format 2: wrapped
-            // Mar 31 09:00:36 csap-dev05.***REMOVED*** kubelet[8146]: 2021-03-31 09:00:36.536 [INFO][19709] k8s.go 569: Teardown processing complete. ContainerID="xxx"
+            // Mar 31 09:00:36 csap-dev05.yourcompany.org kubelet[8146]: 2021-03-31 09:00:36.536 [INFO][19709] k8s.go 569: Teardown processing complete. ContainerID="xxx"
             // fromat 3:
-            // Mar 31 09:00:36 csap-dev05.***REMOVED*** kubelet[8146]: time="2021-03-31T09:00:36-04:00" level=info msg="Released host-wide IPAM lock." source="ipam_plugin.go:369"
+            // Mar 31 09:00:36 csap-dev05.yourcompany.org kubelet[8146]: time="2021-03-31T09:00:36-04:00" level=info msg="Released host-wide IPAM lock." source="ipam_plugin.go:369"
             //
-            // Mar 31 15:35:55 csap-dev07.***REMOVED*** systemd[1]: Stopping kubelet: The Kubernetes Node Agent...
+            // Mar 31 15:35:55 csap-dev07.yourcompany.org systemd[1]: Stopping kubelet: The Kubernetes Node Agent...
 
             outputLineSeparator = "\n\n---";
 

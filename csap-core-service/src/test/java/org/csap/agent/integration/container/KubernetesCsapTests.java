@@ -1578,7 +1578,7 @@ public class KubernetesCsapTests extends CsapThinNoProfile {
 
 		ServiceInstance serviceInstance = new ServiceInstance( ) ;
 		serviceInstance.setName( name ) ;
-		serviceInstance.setHostName( "centos1.na.***REMOVED***.net" ) ;
+		serviceInstance.setHostName( "centos1.na.yourcompany.net" ) ;
 		serviceInstance.parseDefinition( "junit-package", serviceDefinition, new StringBuilder( ) ) ;
 		serviceInstance.setKubernetesNamespace( namespace ) ;
 		// serviceInstance.setPort( "1234" );

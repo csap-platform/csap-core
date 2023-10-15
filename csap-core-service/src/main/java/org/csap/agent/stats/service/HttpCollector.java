@@ -443,20 +443,20 @@ public class HttpCollector {
 			desktopTest = true ;
 
 			httpCollectionUrl = httpCollectionUrl.replaceAll(
-					Matcher.quoteReplacement( "localhost.***REMOVED***:7011/api" ),
-					Matcher.quoteReplacement( "csap-dev01.***REMOVED***:8011/api" ) ) ;
+					Matcher.quoteReplacement( "localhost.yourcompany.org:7011/api" ),
+					Matcher.quoteReplacement( "csap-dev01.yourcompany.org:8011/api" ) ) ;
 
 			httpCollectionUrl = httpCollectionUrl.replaceAll(
-					Matcher.quoteReplacement( "localhost.***REMOVED***" ),
-					Matcher.quoteReplacement( "csap-dev01.***REMOVED***" ) ) ;
+					Matcher.quoteReplacement( "localhost.yourcompany.org" ),
+					Matcher.quoteReplacement( "csap-dev01.yourcompany.org" ) ) ;
 
 			httpCollectionUrl = httpCollectionUrl.replaceAll(
 					Matcher.quoteReplacement( "localhost." + CsapConstants.DEFAULT_DOMAIN ),
-					Matcher.quoteReplacement( "csap-dev01.***REMOVED***" ) ) ;
+					Matcher.quoteReplacement( "csap-dev01.yourcompany.org" ) ) ;
 
 			if ( httpCollectionUrl.contains( "server-status" ) ) {
 
-				httpCollectionUrl = "http://csap-dev01.***REMOVED***:8011/service/httpd?auto" ;
+				httpCollectionUrl = "http://csap-dev01.yourcompany.org:8011/service/httpd?auto" ;
 
 			}
 

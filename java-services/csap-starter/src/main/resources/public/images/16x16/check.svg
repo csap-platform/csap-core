@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="svg0" viewBox="0 0 62 62" height="620" width="620" version="1.0">
+  <title id="title5751">Approve icon</title>
+  <metadata id="metadata2478">
+    <rdf:RDF>
+      <cc:Work rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+        <dc:title>Approve icon</dc:title>
+        <cc:license rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/"/>
+        <dc:date>2019-03-01</dc:date>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Ineligible for copyright</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:contributor>
+          <cc:Agent>
+            <dc:title>Based on https://commons.wikimedia.org/wiki/File:Deletion_icon.svg by https://commons.wikimedia.org/wiki/User:Edokter and https://commons.wikimedia.org/wiki/File:White_check.svg by https://commons.wikimedia.org/wiki/User:Sarang</dc:title>
+          </cc:Agent>
+        </dc:contributor>
+        <dc:description>Green circle with a white checkmark: A round icon indicating approval</dc:description>
+      </cc:Work>
+      <cc:License rdf:about="http://creativecommons.org/publicdomain/zero/1.0/">
+        <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+        <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+        <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <defs id="defs4">
+    <radialGradient id="shadowGradient">
+      <stop offset="0" style="stop-color:#c0c0c0;stop-opacity:1" id="stop17"/>
+      <stop offset="0.88" style="stop-color:#c0c0c0;stop-opacity:1" id="stop19"/>
+      <stop offset="1" style="stop-color:#c0c0c0;stop-opacity:0" id="stop21"/>
+    </radialGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" id="fieldGradient" y2="51.987099" x2="22.0144" y1="7.0127001" x1="42.986301">
+      <stop offset="0" style="stop-color:#00dd00;stop-opacity:1;" id="stop7"/>
+      <stop offset="1" style="stop-color:#008000;stop-opacity:1;" id="stop9"/>
+    </linearGradient>
+    <linearGradient xlink:href="#fieldGradient" gradientUnits="userSpaceOnUse" id="edgeGradient" y2="16.248501" x2="9.5471001" y1="41.179295" x1="54.509937">
+      <stop offset="0" style="stop-color:#004000;stop-opacity:1;" id="stop12"/>
+      <stop offset="1" style="stop-color:#007000;stop-opacity:1;" id="stop14"/>
+    </linearGradient>
+  </defs>
+  <circle transform="matrix(1.0648,0,0,1.064822,-2.1,1.0864)" style="fill:url(#shadowGradient);stroke:none" id="shadow" r="26.5" cy="29.5" cx="32.5"/>
+  <circle style="fill:url(#fieldGradient);fill-opacity:1;stroke:url(#edgeGradient);stroke-width:2" id="field" r="25.8" cy="31" cx="31"/>
+  <path style="fill:#ffffff;stroke-width:0.09999999" d="m 10.5,39.12552 c 0,0 7.488176,8.430698 8.983212,11.87448 h 6.435151 C 28.615927,42.764306 39.094173,23.107841 48.078685,16.21768 49.93773,13.825623 45.26412,12.837599 41.490781,14.422337 35.803146,16.807893 25.077893,35.040823 23.075846,39.424527 20.23528,40.172044 17.238708,34.633914 17.23611,34.633914 Z" id="path1460"/>
+</svg>

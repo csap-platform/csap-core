@@ -150,11 +150,11 @@ csap.security:
 #        provider:
 #        
 #          keycloak-user-auth:
-#            issuer-uri: http://csap-dev03.***REMOVED***:8095/auth/realms/csap-default
+#            issuer-uri: http://csap-dev03.yourcompany.org:8095/auth/realms/csap-default
 #            user-name-attribute: preferred_username
 #            
 #          keycloak-service-auth:
-#            issuer-uri: http://csap-dev03.***REMOVED***:8095/auth/realms/csap-default
+#            issuer-uri: http://csap-dev03.yourcompany.org:8095/auth/realms/csap-default
 #            
 #            # authorization-uri: ${openIdUrl}/auth
 #            # token-uri: ${openIdUrl}/token

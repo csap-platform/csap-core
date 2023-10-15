@@ -2,13 +2,13 @@
 	"Healthy": false,
 	"errors": {
 		"csap-dev04": [
-			"csap-dev04: kubelet: failure:  (1 of 1) events-increased, view: service live: http://csap-dev04.***REMOVED***:8011/CsAgent/api/agent/health/kubernetes?csapui=true"
+			"csap-dev04: kubelet: failure:  (1 of 1) events-increased, view: service live: http://csap-dev04.yourcompany.org:8011/CsAgent/api/agent/health/kubernetes?csapui=true"
 		],
 		"csap-dev05": [
-			"csap-dev05: kubelet: failure:  (1 of 1) events-increased, view: service live: http://csap-dev05.***REMOVED***:8011/CsAgent/api/agent/health/kubernetes?csapui=true"
+			"csap-dev05: kubelet: failure:  (1 of 1) events-increased, view: service live: http://csap-dev05.yourcompany.org:8011/CsAgent/api/agent/health/kubernetes?csapui=true"
 		],
 		"csap-dev06": [
-			"csap-dev06: kubelet: failure:  (1 of 1) events-increased, view: service live: http://csap-dev06.***REMOVED***:8011/CsAgent/api/agent/health/kubernetes?csapui=true"
+			"csap-dev06: kubelet: failure:  (1 of 1) events-increased, view: service live: http://csap-dev06.yourcompany.org:8011/CsAgent/api/agent/health/kubernetes?csapui=true"
 		],
 		"csap-dev07": [
 			"csap-dev07: k8s-api-etcd-1: Network Connections: 429 sockets, Alert threshold: 400",
@@ -35,7 +35,7 @@
 			"csap-dev09: k8s-scheduler-1: Network Connections: 439 sockets, Alert threshold: 400"
 		],
 		"csap-dev12": [
-			"csap-dev12: CsAgent: failure:  (1 of 1) collector.http.failures, view: service live: http://csap-dev12.***REMOVED***:8011/CsAgent/csap/health"
+			"csap-dev12: CsAgent: failure:  (1 of 1) collector.http.failures, view: service live: http://csap-dev12.yourcompany.org:8011/CsAgent/csap/health"
 		]
 	}
 }

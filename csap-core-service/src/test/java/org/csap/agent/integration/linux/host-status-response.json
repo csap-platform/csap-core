@@ -1894,7 +1894,7 @@
 			],
 			"lastOp": "agentUser invoked: csap-start.sh on: linux_0 time: Tue Feb 13 11:24:30 EST 2018",
 			"vmLoggedIn": [
-				"root pts/0 2018-02-13 11:27 (mocl-h2l6mh2.na.***REMOVED***.net)"
+				"root pts/0 2018-02-13 11:27 (mocl-h2l6mh2.na.yourcompany.net)"
 			],
 			"motd": "CsAgent restart: Mon Feb 12,  16:43",
 			"timeStamp": "12:01:39",

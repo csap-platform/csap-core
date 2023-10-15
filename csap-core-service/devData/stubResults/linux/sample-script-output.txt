@@ -2,7 +2,7 @@ Executing OS command on host csap-dev04:[bash, -c, /opt/csap/csap-platform/bin/c
 
 
 
-04/13/2021 10:07:12  csap@csap-dev04.***REMOVED*** Running: csap-run-as-root.sh
+04/13/2021 10:07:12  csap@csap-dev04.yourcompany.org Running: csap-run-as-root.sh
 
                     script: /opt/csap/csap-platform/saved/scripts-run/pnightingale-network-socket-pid.sh_04.13-14.07.11
                     user: csap
@@ -36,15 +36,15 @@ u_str  ESTAB      0      0       * 1631523205            * 1631530913           
 u_str  ESTAB      0      0       * 1608651998            * 0                     users:(("java",pid=18462,fd=6))
 u_str  ESTAB      0      0       * 1608652009            * 0                     users:(("java",pid=18462,fd=193))
 u_str  ESTAB      0      0       * 1631651622            * 1631654407            users:(("java",pid=18462,fd=330))
-tcp    ESTAB      0      0       csap-dev04.***REMOVED***:8011                  csap-dev02.***REMOVED***:29593                 users:(("java",pid=18462,fd=305))
-tcp    ESTAB      0      0       csap-dev04.***REMOVED***:8011                  csap-dev01.***REMOVED***:39033                 users:(("java",pid=18462,fd=348))
-tcp    ESTAB      0      0       csap-dev04.***REMOVED***:8011                  localhost:63358                 users:(("java",pid=18462,fd=346))
-tcp    ESTAB      0      0       csap-dev04.***REMOVED***:8011                 [::ffff:172.16.130.92]:63316                 users:(("java",pid=18462,fd=322))
-tcp    ESTAB      0      0       csap-dev04.***REMOVED***:8011                 [::ffff:172.16.130.92]:63192                 users:(("java",pid=18462,fd=362))
-tcp    ESTAB      0      0       csap-dev04.***REMOVED***:8011                 [::ffff:172.16.130.92]:63195                 users:(("java",pid=18462,fd=278))
-tcp    ESTAB      0      0       csap-dev04.***REMOVED***:12715                 csap-dev04.***REMOVED***:sun-sr-https          users:(("java",pid=18462,fd=221))
-tcp    ESTAB      0      0       localhost:63358                 csap-dev04.***REMOVED***:8011                  users:(("java",pid=18462,fd=321))
-tcp    ESTAB      0      0       csap-dev04.***REMOVED***:40822                 csap-dev03.***REMOVED***:dpserveadmin          users:(("java",pid=18462,fd=307))
+tcp    ESTAB      0      0       csap-dev04.yourcompany.org:8011                  csap-dev02.yourcompany.org:29593                 users:(("java",pid=18462,fd=305))
+tcp    ESTAB      0      0       csap-dev04.yourcompany.org:8011                  csap-dev01.yourcompany.org:39033                 users:(("java",pid=18462,fd=348))
+tcp    ESTAB      0      0       csap-dev04.yourcompany.org:8011                  localhost:63358                 users:(("java",pid=18462,fd=346))
+tcp    ESTAB      0      0       csap-dev04.yourcompany.org:8011                 [::ffff:172.16.130.92]:63316                 users:(("java",pid=18462,fd=322))
+tcp    ESTAB      0      0       csap-dev04.yourcompany.org:8011                 [::ffff:172.16.130.92]:63192                 users:(("java",pid=18462,fd=362))
+tcp    ESTAB      0      0       csap-dev04.yourcompany.org:8011                 [::ffff:172.16.130.92]:63195                 users:(("java",pid=18462,fd=278))
+tcp    ESTAB      0      0       csap-dev04.yourcompany.org:12715                 csap-dev04.yourcompany.org:sun-sr-https          users:(("java",pid=18462,fd=221))
+tcp    ESTAB      0      0       localhost:63358                 csap-dev04.yourcompany.org:8011                  users:(("java",pid=18462,fd=321))
+tcp    ESTAB      0      0       csap-dev04.yourcompany.org:40822                 csap-dev03.yourcompany.org:dpserveadmin          users:(("java",pid=18462,fd=307))
 _______________________________________________________________________________________________
 
 

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+
+<head>
+
+<title>Login</title>
+
+
+<script th:replace="~{ csap/fragments/csap-module-includes :: pageContent }"></script>
+
+
+<style>
+
+
+header#head, body.csap-scrollable footer {
+	justify-content: space-between;
+}
+
+header#head span.title {
+	display: inline-block;
+	min-width: 20em;
+}
+article.content {
+	padding: 2em;
+	border: 1px solid #2d2d2d;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: transparent;
+	border: none;
+}
+
+article.content div.csap-blue {
+	width: 40em;
+	margin-top: -5em;
+	padding: 2em;
+}
+
+input {
+	margin-right: 1em;
+	min-width: 8em;
+}
+
+div.info, div.warning {
+	display: block;
+	white-space: normal;
+	margin: 2em;
+	font-size: 10pt;
+	background-position: 0.5em 0.75em;
+}
+
+div.warning {
+	padding-left: 3em;
+	font-weight: bolder;
+	font-style: italic;
+}
+
+div.access-control {
+	display: grid;
+	font-size: 10pt;
+	grid-template-columns: 10em auto;
+	grid-column-gap: 10px;
+	grid-row-gap: 5px;
+	padding-top: 15px;
+	padding-bottom: 15px;
+	margin-bottom: 5em;
+}
+
+div.access-control label {
+	text-align: right;
+}
+
+div.access-control span {
+	font-weight: bold;
+	color: green;
+}
+
+#ldapLayout {
+	white-space: nowrap;
+	width: 22em;
+	overflow: hidden;
+	display: inline-block;
+	vertical-align: middle;
+}
+
+#login-line {
+	margin-top: 2em;
+	margin-bottom: 2em;
+	margin-left: 5px;
+	display: flex;
+	justify-content: space-between;
+}
+
+#login-line label {
+	font-weight: bold;
+}
+
+span.quote {
+	margin-left: 0;
+}
+
+input, select {
+	margin-left: 0;
+}
+
+body.theme-dark {
+	background: black;
+	background-image: none;
+}
+
+
+</style>
+</head>
+
+<body class="csap-full csap-scrollable theme-dark">
+
+	<header id=head>
+		<span>
+			Version:
+			<span th:text="${serviceVersion}"></span>
+		</span>
+		
+		<span class=title>CSAP Login Page</span>
+		
+		<a
+			title="Learn more about csap"
+			target="_blank"
+			class="csap-link-icon csap-help"
+			href="https://github.com/csap-platform/csap-core/wiki">CSAP</a>
+
+
+	</header>
+
+
+	<article class=content>
+
+		<div class=csap-blue>
+
+			<span
+				class="quote"
+				th:text="${serviceName}"></span>
+				
+				
+		
+			<label th:if="${ secureUrl != null }" title="https connection available">
+				<a class="csap-link-icon csap-lock" th:href="${ secureUrl }">
+					secure connection available</a>
+			</label>
+
+
+
+			<form
+				method="POST"
+				name="myForm"
+				action="login">
+
+				<div id="login-line">
+					<label>
+						Userid:
+						<input
+							name="username"
+							value=""
+							size="12" />
+					</label>
+					<label>
+						Password:
+						<input
+							name="password"
+							value=""
+							type="password"
+							size="12" />
+					</label>
+
+					<label>
+						<input
+							type="submit"
+							class="csap-button"
+							value="login" />
+					</label>
+				</div>
+
+				<div class="info access-control">
+					<label>Provider:</label>
+					<span
+						id="ldapLayout"
+						th:title="${ ldap }">[[ ${ ldap } ]]</span>
+
+						<label th:if="${adDomain != null}" >AD Domain:</label>
+						<span th:if="${adDomain != null}" th:title="${ ldap }">[[ ${ adDomain } ]]</span>
+
+					<label>view:</label>
+					<span>[[ ${ view } ]]</span>
+
+					<label>admin:</label>
+					<span>[[ ${ admin } ]]</span>
+
+					<label>build:</label>
+					<span>[[ ${ build } ]]</span>
+
+					<label>infra:</label>
+					<span>[[ ${ infra } ]]</span>
+
+
+				</div>
+
+				<label>
+
+					<a
+						style="display: inline"
+						target="_blank"
+						class="csap-link"
+						href="https://github.com/csap-platform/csap-core/wiki/Access-Control"> CSAP Access Control </a>
+				</label>
+
+				<input
+					style="opacity: 0"
+					th:if="${_csrf != null}"
+					th:name="${_csrf.parameterName}"
+					th:value="${_csrf.token}" />
+
+				<span th:if="${oauthAlternateLogin != null }">
+
+					<a
+						class="csap-link"
+						th:href="${oauthAlternateLogin}"> Use Oauth2 Login Page </a>
+
+				</span>
+			</form>
+
+		</div>
+
+	</article>
+
+
+	<footer th:replace="csap/fragments/page :: footer"></footer>
+
+
+</body>
+
+</html>

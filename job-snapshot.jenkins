@@ -1,3 +1,0 @@
-template poms: 'csap-core-service/pom.xml', 
-    skipTests: false
-

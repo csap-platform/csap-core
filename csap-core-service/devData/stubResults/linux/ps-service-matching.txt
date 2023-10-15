@@ -115,14 +115,14 @@
 # test-docker-csap-reference
 #
 0.0  1480  11684    1 csap      7460   0  7443 /bin/bash /java-local/runJava.sh
-13.9 1234980 9466476 82 csap     7587   0  7460 java -Dspring.profiles.active=CSAP_LIFE,services -XX:+UseG1GC -Xms64M -Xmx256M -XX:MaxMetaspaceSize=128M -XX:+ExitOnOutOfMemoryError -Djava.rmi.server.hostname=csap-dev03.***REMOVED*** -Dcom.sun.management.jmxremote.port=8266 -Dcom.sun.management.jmxremote.rmi.port=8266 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -DcsapProcessId=test-docker-csap-reference_8261 -Djava.security.egd=file:/dev/./urandom -DcsapDockerJava org.springframework.boot.loader.JarLauncher --server.servlet.context-path=/test-docker-csap-reference --server.port=8261
+13.9 1234980 9466476 82 csap     7587   0  7460 java -Dspring.profiles.active=CSAP_LIFE,services -XX:+UseG1GC -Xms64M -Xmx256M -XX:MaxMetaspaceSize=128M -XX:+ExitOnOutOfMemoryError -Djava.rmi.server.hostname=csap-dev03.yourcompany.org -Dcom.sun.management.jmxremote.port=8266 -Dcom.sun.management.jmxremote.rmi.port=8266 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -DcsapProcessId=test-docker-csap-reference_8261 -Djava.security.egd=file:/dev/./urandom -DcsapDockerJava org.springframework.boot.loader.JarLauncher --server.servlet.context-path=/test-docker-csap-reference --server.port=8261
 
 
 #
 # test-docker-nginx
 #
 0.0  1480  11684    1 csap      7777   0  7443 /bin/bash /java-local/runJava.sh
-13.9 1234980 9466476 82 csap     7587   0  7777 java -Dspring.profiles.active=CSAP_LIFE,services -XX:+UseG1GC -Xms64M -Xmx256M -XX:MaxMetaspaceSize=128M -XX:+ExitOnOutOfMemoryError -Djava.rmi.server.hostname=csap-dev03.***REMOVED*** -Dcom.sun.management.jmxremote.port=8266 -Dcom.sun.management.jmxremote.rmi.port=8266 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -DcsapProcessId=test-docker-csap-reference_8261 -Djava.security.egd=file:/dev/./urandom -DcsapDockerJava org.springframework.boot.loader.JarLauncher --server.servlet.context-path=/test-docker-csap-reference --server.port=8261
+13.9 1234980 9466476 82 csap     7587   0  7777 java -Dspring.profiles.active=CSAP_LIFE,services -XX:+UseG1GC -Xms64M -Xmx256M -XX:MaxMetaspaceSize=128M -XX:+ExitOnOutOfMemoryError -Djava.rmi.server.hostname=csap-dev03.yourcompany.org -Dcom.sun.management.jmxremote.port=8266 -Dcom.sun.management.jmxremote.rmi.port=8266 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -DcsapProcessId=test-docker-csap-reference_8261 -Djava.security.egd=file:/dev/./urandom -DcsapDockerJava org.springframework.boot.loader.JarLauncher --server.servlet.context-path=/test-docker-csap-reference --server.port=8261
 
 
 #

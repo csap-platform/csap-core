@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+
+<meta
+	http-equiv="Cache-Control"
+	content="no-cache" />
+<!--  insane hack for IE to support html5 -->
+<meta
+	http-equiv="X-UA-Compatible"
+	content="IE=Edge" />
+
+
+
+<title>Session Manager</title>
+
+
+<script th:replace="~{ csap/fragments/csap-module-includes :: pageContent }"></script>
+
+
+
+
+<style>
+input {
+	margin-right: 1em;
+}
+
+</style>
+</head>
+<body>
+
+	<header>
+		<span th:text="${serviceName}"></span>
+		Session Expired
+		<div>
+			Version:
+			<span th:text="${serviceVersion}"></span>
+		</div>
+	</header>
+
+	<br />
+
+	<section style="position: absolute; left: 50%; top: 50%; margin-left: -15em; width: 30em; margin-top: -5em;">
+		<div class="title">Session Expired</div>
+
+
+		<div class="info">Your application has been configured to restrict the number of concurrent sessions allowed per
+			user. A newer session has terminated the current session. Contact your support team for further assistance.</div>
+		<br />
+		<a
+			class="formButton"
+			href="login">Login Page</a>
+
+
+
+	</section>
+
+
+
+</body>
+</html>

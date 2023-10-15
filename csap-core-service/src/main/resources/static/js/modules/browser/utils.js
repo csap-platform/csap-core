@@ -77,21 +77,21 @@ function browser_utils() {
         },
 
         {
-            match: "crni-field6Colon",
+            match: "cyourapp-field6Colon",
             about: "checks 10 fields: if field 6 is a colon",
             columns: [ "   # level: ", 4, "time:", 1, 2, "source:", 3, 5, "message:", 7, 8, 9, 10, "\n" ],
             newLineWords: []
         },
 
         {
-            match: "crni-field5Dash",
+            match: "cyourapp-field5Dash",
             about: "checks 10 fields: if field 5 is ---",
             columns: [ "   # level: ", 3, "time:", 1, 2, "source:", 6, 7, "message:", 8, 9, 10, "\n" ],
             newLineWords: []
         },
 
         {
-            match: "crni-field9Tilde",
+            match: "cyourapp-field9Tilde",
             about: "checks 10 fields: if field 9 is |~",
             columns: [ "   # level: ", 6, "time:", 1, 2, "source:", 8, "message:", 10, "\n\n" ],
             newLineWords: []
@@ -137,7 +137,7 @@ function browser_utils() {
             newLineWords: [ "error:" ]
         },
         {
-            match: "rni-mgmt-mongo",
+            match: "yourapp-mgmt-mongo",
             columns: [ "   # level: ", 2, "time:", 1, "source:", 3, 4, "message:", 5, "\n" ],
             throttleWords: [ "end connection", "connection accepted", "Successfully authenticated", "received client metadata" ],
             newLineWords: [ "command:", "error:", "pipeline:" ]
@@ -1255,7 +1255,7 @@ function browser_utils() {
             || clusterName.includes( "kubernetes-dashboard" ) ) {
             clusterName = "autoplays";
 
-        } else if ( clusterName.startsWith( "rni-" ) ) {
+        } else if ( clusterName.startsWith( "yourapp-" ) ) {
             clusterName = "rni";
 
         } else if ( clusterName.includes( "monitor" )

@@ -2154,7 +2154,7 @@ public class EnvironmentSettings {
 
 	}
 
-	// searchText=appId=SensusCsap,project=CSAP
+	// searchText=appId=yourcompanyCsap,project=CSAP
 	// Platform,lifecycle=dev,from=5/20/2020,to=5/27/2020,simpleSearchText=/csap/ui/*,eventReceivedOn=false,isDataRequired=false
 	public String getEventQueryUrl ( ) {
 

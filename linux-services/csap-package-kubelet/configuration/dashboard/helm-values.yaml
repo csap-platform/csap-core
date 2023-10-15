@@ -1,0 +1,17 @@
+#
+#  Simple deployement using https://artifacthub.io/packages/helm/k8s-dashboard/kubernetes-dashboard
+#
+metricsScraper: 
+  enabled: true
+  
+
+service:
+  type: NodePort  
+  
+serviceAccount:
+  create: true 
+  name: csap-dash-user
+  
+extraArgs:
+  - --system-banner="Welcome to CSAP Kubernetes"
+  

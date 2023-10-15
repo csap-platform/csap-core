@@ -18,9 +18,9 @@ environments:
   #
   application-name: auto-play-demo-application
   project-name: "XXX Project"
-  contact: "xxx.xxx@***REMOVED***.com"
+  contact: "xxx.xxx@yourcompanyinc.com"
   
-  git: https://moc-bb.***REMOVED***/bitbucket/update-with-your-repo
+  git: https://moc-bb.yourcompany.org/bitbucket/update-with-your-repo
   branch: my-branch-name
   
   default-settings:
@@ -28,7 +28,7 @@ environments:
     csap-data:
       user: xxx
       credential: "pAH+tsfwU/kgW+34WPXQW/8Z0a9SJpXq8dNOirMmUxM="
-      service-url: "http://csap-dev01.***REMOVED***:8080/events-service"
+      service-url: "http://csap-dev01.yourcompany.org:8080/events-service"
       
     configuration-maps:
       global:
@@ -181,8 +181,8 @@ target: resources/docker/common/configuration/daemon.json
 
 exec-opts: ["native.cgroupdriver=systemd"]
   
-registry-mirrors: ["http://docker.***REMOVED***"]
-insecure-registries: [ "***REMOVED***-docker.***REMOVED***", "docker.***REMOVED***" ]
+registry-mirrors: ["http://docker.yourcompany.org"]
+insecure-registries: [ "yourcompany-docker.yourcompany.org", "docker.yourcompany.org" ]
 storage-driver: "_CSAP_DRIVER_"
 data-root: "_CSAP_STORAGE_"
 hosts: [ "unix:///var/run/docker.sock", "_CSAP_ALLOW_REMOTE_" ]
@@ -202,7 +202,7 @@ target: application-company.yml
 
 spring: 
   mail: 
-    host: "${mailServer:myrelay.***REMOVED***.com}"
+    host: "${mailServer:myrelay.yourcompany.com}"
     port: "${mailPort:25}"
 
 csap.security: 
@@ -215,7 +215,7 @@ csap.security:
       
     provider:
       type: ldap
-      url: ldap://ldap.davis.***REMOVED***.lab:389
+      url: ldap://ldap.davis.yourcompany.lab:389
       directory-dn: search:uid={0}
       search-user: ou=People,dc=flexnet,dc=net
       search-groups: ou=Groups,dc=flexnet,dc=net

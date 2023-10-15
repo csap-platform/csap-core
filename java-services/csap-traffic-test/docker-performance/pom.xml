@@ -1,0 +1,142 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>csap-verify-docker-jmeter-test</artifactId>
+	<name>csap-verify-service docker Performance Test</name>
+	<packaging>pom</packaging>
+
+	<parent>
+		<groupId>org.csap</groupId>
+		<artifactId>csap-starter-parent</artifactId>
+		<version>2-SNAPSHOT</version>
+		<relativePath />
+		<!-- ../csap-starter/csap-starter-parent</relativePath> for use on desktop -->
+	</parent>
+
+	<description>CS-AP Performance tests to validate open source technology stacks</description>
+	<url>https://github.com/csap-platform/csap-core/wiki</url>
+
+	<properties>
+		<jmeterMavenVersion>3.5.0</jmeterMavenVersion>
+
+		<testFolder>.</testFolder>
+		<testToRun>test-definition.jmx</testToRun>           <!-- Test Plans: _jmeter1End2End.jmx, _jmeter1End2End.jmx , _jmeter3Messaging.jmx -->
+
+		<timeToRunInSeconds>${env.time_in_seconds}</timeToRunInSeconds>          <!-- 3600 = 1 hour, 36000=10 hours, 86400=24 hours, 172800=48 hours -->
+
+		<queryThreads>15</queryThreads>                      <!-- More threads = more traffic, assuming resources available -->
+
+		<threadRampInSeconds>30</threadRampInSeconds>
+
+		<sendWaitInMs>10</sendWaitInMs>  <!-- on kubernetes: sending at 15 or lower causes test failures -->
+
+		<perMinuteAcrossQueryThreads>120</perMinuteAcrossQueryThreads> <!-- _jmeter4_PerMinute.jmx, ignored, you need to edit jmx file -->
+
+		<burnThreads>0</burnThreads>                                    <!-- creates many,many temporary objects causing excessive GC -->
+		<logFolder>${env.jmeterLogFolder}</logFolder>
+
+	</properties>
+
+
+	<build>
+		<defaultGoal>clean package install</defaultGoal>
+		
+		<directory>${env.csapWorkingDir}/jmeter-working</directory>
+		
+		<plugins>
+			<plugin>
+
+				<!-- https://github.com/jmeter-maven-plugin/jmeter-maven-plugin -->
+				<groupId>com.lazerycode.jmeter</groupId>
+				<artifactId>jmeter-maven-plugin</artifactId>
+
+				<version>${jmeterMavenVersion}</version>
+
+
+
+			    <executions>
+			        <!-- Generate JMeter configuration -->
+			        <execution>
+			            <id>configuration</id>
+			            <goals>
+			                <goal>configure</goal>
+			            </goals>
+			        </execution>
+			        <!-- Run JMeter tests -->
+			        <execution>
+			            <id>jmeter-tests</id>
+			            <goals>
+			                <goal>jmeter</goal>
+			            </goals>
+			        </execution>
+			        <!-- Fail build on errors in test -->
+			        <execution>
+			            <id>jmeter-check-results</id>
+			            <goals>
+			                <goal>results</goal>
+			            </goals>
+			        </execution>
+			    </executions>
+
+				<!-- https://github.com/jmeter-maven-plugin/jmeter-maven-plugin/wiki/Advanced-Configuration -->
+				<configuration>
+
+					<generateReports>true</generateReports>
+					<testResultsTimestamp>false</testResultsTimestamp>
+
+					<propertiesJMeter>
+						<log_level.jmeter>INFO</log_level.jmeter>
+
+						<!-- Clients go stale -->
+						<hc.parameters.file>/opt/csap/hc.parameters</hc.parameters.file>
+
+					</propertiesJMeter>
+					<!-- <ignoreResultFailures>true</ignoreResultFailures> -->
+					<errorRateThresholdInPercent>1</errorRateThresholdInPercent>
+
+					<jMeterProcessJVMSettings>
+						<xms>512</xms>
+						<xmx>2048</xmx>
+						<arguments>
+							<argument>-Dnashorn.args=--no-deprecation-warning</argument>
+						</arguments>
+					</jMeterProcessJVMSettings>
+
+					<propertiesFilesDirectory>.</propertiesFilesDirectory>
+
+					<testFilesDirectory>${testFolder}</testFilesDirectory>
+
+					<testFilesIncluded>
+						<jMeterTestFile>${testToRun}</jMeterTestFile>
+					</testFilesIncluded>
+
+					<!-- https://github.com/jmeter-maven-plugin/jmeter-maven-plugin/wiki/Modifying-Properties -->
+					<propertiesUser>
+						<!-- Clients go stale -->
+						<httpclient4.retrycount>1</httpclient4.retrycount>
+						<httpclient4.idletimeout>0</httpclient4.idletimeout>
+						<httpclient4.validate_after_inactivity>1700</httpclient4.validate_after_inactivity>
+						<httpclient4.time_to_live>5000</httpclient4.time_to_live>
+
+						<!-- CSAP test parameters -->
+						<timeToRunInSeconds>${timeToRunInSeconds}</timeToRunInSeconds>
+						<sendWaitInMs>${sendWaitInMs}</sendWaitInMs>
+						<threadRampInSeconds>${threadRampInSeconds}</threadRampInSeconds>
+						<burnThreads>${burnThreads}</burnThreads>
+						<queryThreads>${queryThreads}</queryThreads>
+						<logFolder>${logFolder}</logFolder>
+					</propertiesUser>
+
+				</configuration>
+
+			</plugin>
+
+		</plugins>
+	</build>
+
+
+
+</project>

@@ -1,0 +1,356 @@
+{
+	"groups": 
+	[
+		{
+			"name": "csap",
+			"description": "CSAP Enterprise Integrations",
+			"type": "java.util.Map<String>",
+			"sourceType": "org.csap.integations.CsapBootApplication"
+		},
+
+		{
+			"name": "csap.encryption",
+			"description": "Support for Jasypt",
+			"type": "java.util.Map<String>",
+			"sourceType": "org.csap.integations.CsapEncryptionConfiguration"
+		},
+
+		{
+			"name": "csap.info",
+			"description": "Provides CSAP info integration",
+			"type": "java.util.Map<String>",
+			"sourceType": "org.csap.integations.CsapInformation"
+		},
+
+		{
+			"name": "csap.security",
+			"description": "Provides LDAP integration",
+			"type": "java.util.Map<String>",
+			"sourceType": "org.csap.integations.CsapSecurityConfiguration"
+		},
+
+		{
+			"name": "csap.security.rest-api-filter",
+			"description": "Provides http access control",
+			"type": "java.util.Map<String>",
+			"sourceType": "org.csap.integations.CsapSecurityConfiguration"
+		},
+
+		{
+			"name": "csap.performance",
+			"description": "Environment variable support",
+			"type": "java.util.Map<String>",
+			"sourceType": "org.csap.integations.CsapPerformance"
+		}
+	],
+
+	"properties": 
+	[
+		{
+			"name": "csap.baseContext",
+			"description": "Base url for all csap urls. eg /csap/heath /csap/information, etc.",
+			"type": "java.lang.String",
+			"sourceType": "org.csap.integations.CsapInformation",
+			"defaultValue": "/csap"
+		},
+		{
+			"name": "csap.info",
+			"description": "Provides CSAP info integration",
+			"type": "java.util.Map<String>",
+			"sourceType": "org.csap.integations.CsapInformation",
+			"defaultValue": "none"
+		},
+		{
+			"name": "csap.debug",
+			"description": "Enables debug of http requests",
+			"type": "java.util.Map<String>",
+			"sourceType": "org.csap.integations.CsapInformation",
+			"defaultValue": "none"
+		},
+		{
+			"name": "csap.locator.enabled",
+			"description": "Provides client side service name resolution",
+			"type": "java.lang.Boolean",
+			"sourceType": "org.csap.integations.CsapServiceLocator",
+			"defaultValue": "false"
+		},
+
+		{
+			"name": "csap.locator.active-urls-locator",
+			"description": "Lookup url for retrieving endpoint urls. refresh is from ehcache.xml",
+			"type": "java.lang.String",
+			"sourceType": "org.csap.integations.CsapServiceLocator",
+			"defaultValue": "none"
+		},
+
+		{
+			"name": "csap.locator.low-resources-url-locator",
+			"description": "Lookup url for retrieving endpoint urls. refresh is from ehcache.xml",
+			"type": "java.lang.String",
+			"sourceType": "org.csap.integations.CsapServiceLocator",
+			"defaultValue": "none"
+		},
+
+		{
+			"name": "csap.locator.low-resource",
+			"description": "Resource type for selection. lowLoad, lowCpu,...",
+			"type": "java.lang.String",
+			"sourceType": "org.csap.integations.CsapServiceLocator",
+			"defaultValue": "none"
+		},
+
+		{
+			"name": "csap.documentation.enabled",
+			"description": "Provides CSAP Api Navigator based on annotations",
+			"type": "java.lang.Boolean",
+			"sourceType": "org.csap.docs.DocumentController",
+			"defaultValue": "false"
+		},
+
+		{
+			"name": "csap.performance.enabled",
+			"description": "Provides JavaSimon Integration, including console",
+			"type": "java.lang.Boolean",
+			"sourceType": "org.csap.integations.CsapPerformance",
+			"defaultValue": "false"
+		},
+
+		{
+			"name": "csap.performance.monitor-urls",
+			"description": "Url patterns to  be timed and tracked",
+			"type": "java.util.List<String>",
+			"sourceType": "org.csap.integations.CsapPerformance",
+			"defaultValue": "none"
+		},
+
+		{
+			"name": "csap.performance.alert.debug",
+			"description": "By default success reports will not be output in logs. Set to true to enable.",
+			"type": "java.lang.Boolean",
+			"sourceType": "org.csap.alerts.AlertSettings",
+			"defaultValue": "false"
+		},
+		
+		{
+			"name": "csap.performance.alert.notify.frequency",
+			"description": "Frequency of email notifications",
+			"type": "java.lang.Integer",
+			"sourceType": "org.csap.alerts.AlertSettings",
+			"defaultValue": "4"
+		},
+		{
+			"name": "csap.performance.alert.notify.time-unit",
+			"description": "hours or minutes",
+			"type": "java.lang.String",
+			"sourceType": "org.csap.alerts.AlertSettings",
+			"defaultValue": "hours"
+		},
+
+		{
+			"name": "csap.performance.alert.notify.addresses",
+			"description": "email addresses comma separated",
+			"type": "java.lang.String",
+			"sourceType": "org.csap.alerts.AlertSettings",
+			"defaultValue": "disabled"
+		},
+
+		{
+			"name": "csap.performance.alert.notify.email-host",
+			"description": "Host to send email",
+			"type": "java.lang.String",
+			"sourceType": "org.csap.alerts.AlertSettings",
+			"defaultValue": "outgoing.yourCompany.com"
+		},
+		{
+			"name": "csap.performance.alert.notify.email-time-out-ms",
+			"description": "Timeout to send email",
+			"type": "java.lang.Integer",
+			"sourceType": "org.csap.alerts.AlertSettings",
+			"defaultValue": "1000"
+		},
+		{
+			"name": "csap.performance.alert.notify.max-backlog",
+			"description": "maximum number of items to store in memory",
+			"type": "java.lang.Integer",
+			"sourceType": "org.csap.alerts.AlertSettings",
+			"defaultValue": "1000"
+		},
+
+		{
+			"name": "csap.performance.alert.limits",
+			"description": "Java Simon counters and stopwatches specified by id will be validated against specified values",
+			"type": "java.util.List<AlertInstance>",
+			"sourceType": "org.csap.alerts.AlertSettings",
+			"defaultValue": "none"
+		},
+
+		{
+			"name": "csap.security.enabled",
+			"description": "Spring Security is enabled using either LDAP or file based security",
+			"type": "java.lang.Boolean",
+			"sourceType": "org.csap.integations.CsapSecurityConfiguration",
+			"defaultValue": "false"
+		},
+
+		{
+			"name": "csap.security.ldap-enabled",
+			"description": "Provides active directory integration",
+			"type": "java.lang.Boolean",
+			"sourceType": "org.csap.integations.CsapSecurityConfiguration",
+			"defaultValue": "false"
+		},
+
+		{
+			"name": "csap.security.rest-api-filter.enabled",
+			"description": "Provides http access control",
+			"type": "java.lang.Boolean",
+			"sourceType": "org.csap.integations.CsapSecurityRestFilter",
+			"defaultValue": "false"
+		},
+
+		{
+			"name": "csap.security.rest-api-filter.token",
+			"description": "token based authentication",
+			"type": "java.lang.String",
+			"sourceType": "org.csap.integations.CsapSecurityRestFilter",
+			"defaultValue": "not used"
+		},
+
+		{
+			"name": "csap.security.rest-api-filter.urls",
+			"description": "Servlet filter patterns",
+			"type": "java.util.List<String>",
+			"sourceType": "org.csap.integations.CsapSecurityRestFilter",
+			"defaultValue": "false"
+		},
+
+		{
+			"name": "csap.security.rest-api-filter.group",
+			"description": "LDAP group. $CSAP_ADMIN_GROUP will be replaced with group in csapSecurity.properties",
+			"type": "java.lang.String",
+			"sourceType": "org.csap.integations.CsapSecurityRestFilter",
+			"defaultValue": "none"
+		},
+
+		{
+			"name": "csap.security.rest-api-filter.cache-seconds",
+			"description": "Time between re-athentication",
+			"type": "java.lang.Integer",
+			"sourceType": "org.csap.integations.CsapSecurityRestFilter",
+			"defaultValue": "60"
+		},
+
+		{
+			"name": "csap.web-server.enabled",
+			"description": "Adds tomcat AJP listener for integration with Apache load balancer",
+			"type": "java.lang.Boolean",
+			"sourceType": "org.csap.integations.CsapWebServerConfig",
+			"defaultValue": "false"
+		},
+
+		{
+			"name": "csap.web-server.ajp-secret",
+			"description": "Adds tomcat AJP secret to be required",
+			"type": "java.lang.String",
+			"sourceType": "org.csap.integations.CsapWebServerConfig",
+			"defaultValue": "not used"
+		},
+
+		{
+			"name": "csap.web-server.max-connections-ajp",
+			"description": "Throttles sevlet connections to both ajp  connectors",
+			"type": "java.lang.Integer",
+			"sourceType": "org.csap.integations.CsapWebServerConfig",
+			"defaultValue": "10000"
+		},
+
+		{
+			"name": "csap.web-server.max-connections-http",
+			"description": "Throttles sevlet connections to both  http connectors",
+			"type": "java.lang.Integer",
+			"sourceType": "org.csap.integations.CsapWebServerConfig",
+			"defaultValue": "10000"
+		},
+		
+
+		{
+			"name": "csap.web-server.backlog",
+			"description": "Throttles sevlet connections to both ajp and http connectors, limits the queued requests",
+			"type": "java.lang.Integer",
+			"sourceType": "org.csap.integations.CsapWebServerConfig",
+			"defaultValue": "100"
+		},
+		
+		{
+			"name": "csap.web-server.ajp-secure",
+			"description": "Forces ajp to be configured in secure mode",
+			"type": "java.lang.Boolean",
+			"sourceType": "org.csap.integations.CsapWebServerConfig",
+			"defaultValue": "false"
+		},
+		
+		{
+			"name": "csap.web-server.ajp-scheme",
+			"description": "http or https",
+			"type": "java.lang.String",
+			"sourceType": "org.csap.integations.CsapWebServerConfig",
+			"defaultValue": "http"
+		},
+		
+		
+		{
+			"name": "csap.web-server.ajp-host",
+			"description": "host assigned to ajp cookie route. Note docker hosts need to specify: -Dcsap.web-server.ajp-host=$host.",
+			"type": "java.lang.String",
+			"sourceType": "org.csap.integations.CsapWebServerConfig",
+			"defaultValue": "Output from hostname"
+		},
+		
+		
+		{
+			"name": "csap.web-server.ajp-proxy-port",
+			"description": "port for proxy",
+			"type": "java.lang.Integer",
+			"sourceType": "org.csap.integations.CsapWebServerConfig",
+			"defaultValue": "443"
+		},
+		
+		{
+			"name": "csap.web-server.ajp-redirect-port",
+			"description": "port for redirect",
+			"type": "java.lang.Integer",
+			"sourceType": "org.csap.integations.CsapWebServerConfig",
+			"defaultValue": "443"
+		},
+		
+
+		{
+			"name": "csap.encryption.enabled",
+			"description": "Supports loading of both normal encrypted properties files with filenames specified in application.yml",
+			"type": "java.lang.Boolean",
+			"sourceType": "org.csap.integations.CsapEncryptionConfiguration",
+			"defaultValue": "false"
+		},
+
+		{
+			"name": "csap.encryption.token",
+			"description": "The seed used for encoding/decoding, overridden by environment variable CSAP_ID is set",
+			"type": "java.lang.String",
+			"sourceType": "org.csap.integations.CsapEncryptionConfiguration",
+			"defaultValue": "Auto configured by CSAP"
+		},
+
+		{
+			"name": "csap.encryption.algorithm",
+			"description": "The algorithm used for encoding/decoding; it is typically autoconfigured by CSAP. By default it uses JDK Strong encryption. On desktop, either install JCE on desktop or set to PBEWITHMD5ANDDES",
+			"type": "java.lang.String",
+			"sourceType": "org.csap.integations.CsapEncryptionConfiguration",
+			"defaultValue": "PBEWITHMD5ANDTRIPLEDES"
+		}
+	],
+
+	"hints": 
+	[
+		
+	]
+}

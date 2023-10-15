@@ -1,6 +1,0 @@
-template poms: 'csap-core-service/pom.xml', 
-    enableParentVersion: true,
-    enableVersion: true,
-    enableTag: true,
-    defaultTag: 'csap-core'
-

@@ -21,7 +21,7 @@ metadata:
 spec:
 
 #  nodeSelector: 
-#    kubernetes.io/hostname: csap-dev06.***REMOVED***
+#    kubernetes.io/hostname: csap-dev06.yourcompany.org
         
   containers:
   

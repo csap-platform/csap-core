@@ -1,0 +1,1 @@
+{ "level": "WARN", "friendlyDate": "Now", "loggerFqcn": "org.SpringBoot", "message": "Service Started: Application: ${application.formatted-version} Boot: ${spring-boot.version}" }

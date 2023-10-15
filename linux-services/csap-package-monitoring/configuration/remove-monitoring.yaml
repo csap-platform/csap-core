@@ -1,0 +1,22 @@
+#
+# Target file
+#
+operator: modify
+target: default
+
+
+environments:
+  # environment name; required for environment processing
+  base: $csapLife
+  remove-inactive: false
+  
+  clusters:
+    csap-monitoring:
+      delete: true
+    
+operations:
+  - deletes: 
+    - /service-templates/alertmanager
+    - /service-templates/grafana
+    - /service-templates/prometheus
+    - /service-templates/monitoring-tools

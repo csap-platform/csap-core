@@ -50,28 +50,28 @@
 	{
 		"pid": "3364",
 		"matchName": "flexmessaging-app",
-		"containerName": "/k8s_flexmessaging-app_backend-pod-5b7cd9d995-z97kf_rni-5_5062bc33-cb14-493b-b0d7-c2a79bb95bff_0",
+		"containerName": "/k8s_flexmessaging-app_backend-pod-5b7cd9d995-z97kf_yourapp-5_5062bc33-cb14-493b-b0d7-c2a79bb95bff_0",
 		"podName": "backend-pod-5b7cd9d995-z97kf",
 		"podIp": null,
-		"podNamespace": "rni-5",
+		"podNamespace": "yourapp-5",
 		"inDefinition": false
 	},
 	{
 		"pid": "3330",
 		"matchName": "fnp-server-app",
-		"containerName": "/k8s_fnp-server-app_backend-pod-5b7cd9d995-z97kf_rni-5_5062bc33-cb14-493b-b0d7-c2a79bb95bff_0",
+		"containerName": "/k8s_fnp-server-app_backend-pod-5b7cd9d995-z97kf_yourapp-5_5062bc33-cb14-493b-b0d7-c2a79bb95bff_0",
 		"podName": "backend-pod-5b7cd9d995-z97kf",
 		"podIp": null,
-		"podNamespace": "rni-5",
+		"podNamespace": "yourapp-5",
 		"inDefinition": false
 	},
 	{
 		"pid": "3291",
 		"matchName": "flexapps-app",
-		"containerName": "/k8s_flexapps-app_backend-pod-5b7cd9d995-z97kf_rni-5_5062bc33-cb14-493b-b0d7-c2a79bb95bff_0",
+		"containerName": "/k8s_flexapps-app_backend-pod-5b7cd9d995-z97kf_yourapp-5_5062bc33-cb14-493b-b0d7-c2a79bb95bff_0",
 		"podName": "backend-pod-5b7cd9d995-z97kf",
 		"podIp": null,
-		"podNamespace": "rni-5",
+		"podNamespace": "yourapp-5",
 		"inDefinition": false
 	},
 	{
@@ -273,7 +273,7 @@
 		"pid": "13729",
 		"matchName": "kube-apiserver",
 		"containerName": "/k8s_kube-apiserver_kube-apiserver-centos1_kube-system_505d8ac5ad31f1f31936890a53b5fee2_1",
-		"podName": "kube-apiserver-csap-dev04.***REMOVED***",
+		"podName": "kube-apiserver-csap-dev04.yourcompany.org",
 		"podNamespace": "kube-system"
 	},
 	{

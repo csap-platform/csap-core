@@ -249,7 +249,7 @@ public class ServiceCollector extends HostCollector implements Runnable {
 	private int maxCollectionMillis = 10 * 1000 ;
 
 	// private static String TEST_HOST="csapdb-dev01" ;
-	public static String TEST_HOST = "csap-dev01.***REMOVED***" ;
+	public static String TEST_HOST = "csap-dev01.yourcompany.org" ;
 
 	public void testJmxCollection ( String testHost ) {
 

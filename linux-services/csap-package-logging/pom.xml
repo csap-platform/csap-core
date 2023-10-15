@@ -1,0 +1,33 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+
+
+	<modelVersion>4.0.0</modelVersion>
+	<packaging>pom</packaging>
+	<artifactId>csap-package-logging</artifactId>
+	<version>2-SNAPSHOT</version>
+
+
+	<name>${project.groupId}:${project.artifactId}</name>
+	<description>linux package for csap</description>
+	<url>https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/overview</url>
+
+	<parent>
+		<groupId>org.csap</groupId>
+		<artifactId>csap-package-parent</artifactId>
+		<version>2-SNAPSHOT</version>
+	</parent>
+
+	<build>
+		<defaultGoal>clean package</defaultGoal>
+		<plugins>
+
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+			</plugin>
+
+		</plugins>
+	</build>
+</project>

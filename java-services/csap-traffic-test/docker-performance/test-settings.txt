@@ -1,0 +1,2 @@
+host,context,port,user,pass
+csap-dev01.yourcompany.org,/test-docker-csap-reference,8080,admin,password

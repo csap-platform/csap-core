@@ -1,0 +1,19 @@
+
+apiVersion: apps/v1
+kind: Ingress
+
+metadata:
+
+  name: csap-ingress
+  
+  annotations: 
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "route"
+    nginx.ingress.kubernetes.io/session-cookie-hash: "sha1"
+  
+spec:
+  rules:
+  - http:
+      paths:
+        - backend:
+            serviceName: test-app-router

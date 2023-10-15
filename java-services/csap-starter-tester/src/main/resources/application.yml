@@ -1,0 +1,22 @@
+#
+# Loads default settings for spring services and csap
+# Profiles:
+#   - services-embedded: runs with hsql and activeMq embedded
+#   - services: runs with postgress and active mq (default: localhost, ususally in docker)
+#   - monitoring-sql: provides for monitoring of db (default postgres)
+#    
+spring:
+
+  profiles:
+  
+    active: services-embedded,localhost,desktop  # services,localhost services-embedded,localhost  Override using --spring.profiles.active=xxx,yyy,zzz
+#    include: 
+#    - csap-defaults
+#    - app-defaults
+#    - services-embedded
+    
+  config:
+    import:
+      - boot-csap-defaults.yml
+      - boot-tester-defaults.yml
+      

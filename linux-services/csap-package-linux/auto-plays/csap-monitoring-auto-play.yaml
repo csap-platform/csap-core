@@ -1,0 +1,73 @@
+#
+#  NOTES:
+#
+#   1. confirm your integration environment (line 28 & 44)
+#   3. Use admin/project/files to apply this file
+#   4. Go to Deploy -> kubernetes-provider -> start csap-package-monitoring. View progress via kubernetes pods/events
+#   5. launch grafana -> verify logs
+#
+
+
+---
+# optional: delete previous defaults if they exist
+operator: modify
+target: default
+
+operations:
+  - deletes: 
+    - /environments/defaults/settings/configuration-maps/csap-monitoring-defaults
+
+---    
+
+operator: modify
+target: default
+
+
+environments:
+  base: dev # update with your integration lifecycle
+  remove-inactive: false
+  
+  default-settings:  # defaults for ALL envs
+    configuration-maps:
+      csap-monitoring-defaults:
+        ui_anonymous: true
+        data_retention: 3d
+        data_volume_size: 5Gi
+        data_storage_class: $$storage-class
+
+#
+# add monitoring package to kubernetes provider
+#
+operations: 
+  - inserts: 
+    - path: /environments/dev/kubernetes-provider/template-references
+      value: csap-package-monitoring
+  
+service-templates: 
+
+  csap-package-monitoring: 
+    
+    description: Deploys kubernetes monitoring components generated using kube-promethius opensource project
+    url: https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/1548714073/csap-package-monitoring
+    docUrl: https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/1548714073/csap-package-monitoring
+    deploymentNotes: "All kube-prometheseus components will be deployed. Note: only occurs on primary master"
+    propDirectory: $$service-working/scripts
+    
+    server: csap-api
+    processFilter: none
+    autoStart: 200
+    
+    environmentVariables: 
+      configuration-maps:
+        - storage-settings
+        - csap-monitoring-defaults
+        - csap-monitoring
+      
+    source: 
+      scm: git
+      path: "https://bitbucket.org/yourcompanyinc/oss-csap-packages.git"
+      branch: "HEAD"
+      buildLocation: "/csap-package-monitoring"
+    
+    maven: 
+      dependency: "org.csap:csap-package-monitoring:21.10:zip"

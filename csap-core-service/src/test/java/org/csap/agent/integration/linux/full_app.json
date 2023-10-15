@@ -11,21 +11,21 @@
       "settings" : {
         "base-env-only" : true,
         "application" : {
-          "name" : "Sensus Desktop",
+          "name" : "yourcompany Desktop",
           "sub-projects" : [ ],
-          "definition-repo-url" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/***REMOVED***-desktop-definition",
+          "definition-repo-url" : "https://moc-bb.yourcompany.org/bitbucket/scm/csap/yourcompany-desktop-definition",
           "definition-repo-branch" : "master",
           "maven-url" : "http://repo.spring.io/libs-release",
           "help-menu-items" : {
-            "User Guide" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP",
-            "Release Notes" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211856/Release+Notes",
-            "Quick Install" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/395282580/CSAP+Quick+Install",
-            "Health Status" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211861/CSAP+Health",
-            "Application Editor" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/258211875/CSAP+Application+Editor",
-            "FAQ" : "https://***REMOVED***.atlassian.net/wiki/spaces/CSAP/pages/347177032/CSAP+FAQ"
+            "User Guide" : "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP",
+            "Release Notes" : "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/258211856/Release+Notes",
+            "Quick Install" : "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/395282580/CSAP+Quick+Install",
+            "Health Status" : "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/258211861/CSAP+Health",
+            "Application Editor" : "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/258211875/CSAP+Application+Editor",
+            "FAQ" : "https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/347177032/CSAP+FAQ"
           }
         },
-        "operatorNotifications" : [ "monitoring@na.***REMOVED***.net" ],
+        "operatorNotifications" : [ "monitoring@na.yourcompany.net" ],
         "csap-host-agent" : {
           "test" : "yes",
           "maxJmxCollectionMs" : 3000,
@@ -42,7 +42,7 @@
             "cpuLoopsMillions" : "1",
             "diskWriteMb" : "600"
           },
-          "gitSslVerificationDisabledUrls" : [ "https://moc-bb.***REMOVED***" ]
+          "gitSslVerificationDisabledUrls" : [ "https://moc-bb.yourcompany.org" ]
         },
         "csap-data" : {
           "user" : "$user",
@@ -147,21 +147,21 @@
           } ]
         },
         "loadBalanceVmFilter" : [ "none" ],
-        "monitoringUrl" : "http://monitoring.na.***REMOVED***.net",
+        "monitoringUrl" : "http://monitoring.na.yourcompany.net",
         "mavenCommand" : "-B -Dmaven.test.skip=true clean package",
         "newsItems" : [ "\u003Ca href=\"https://github.com/csap-platform/csap-core/wiki\" class=\"simple\" target=\"_blank\"\u003ECSAP Project Documentation\u003C/a\u003E ", "_noteIcon_ \u003Ca href=\"https://github.com/csap-platform/csap-core/wiki#updateRefCSAP+Event+Service\" class=\"simple\" target=\"_blank\"\u003ECSAP Event Service\u003C/a\u003E " ],
         "portRange" : {
           "start" : 8200,
           "end" : 9300
         },
-        "secureUrl" : "https://csap-secure.na.***REMOVED***.net/admin",
+        "secureUrl" : "https://csap-secure.na.yourcompany.net/admin",
         "autoRestartHttpdOnClusterReload" : "yes",
         "launchUrls" : [ {
           "description" : "1) http(Tomcat Embed)",
           "url" : "default"
         }, {
           "description" : "2) ajp(LB - Internal)",
-          "url" : "http://yourlb.na.***REMOVED***.net"
+          "url" : "http://yourlb.na.yourcompany.net"
         } ],
         "metricsPublication" : [ {
           "type" : "csapCallHome",
@@ -176,7 +176,7 @@
     "dev" : {
       "ApplicationPortal" : {
         "type" : "modjk",
-        "hosts" : [ "localhost", "nightingale-one.davis.***REMOVED***.lab", "nightingale-two.davis.***REMOVED***.lab" ],
+        "hosts" : [ "localhost", "nightingale-one.davis.yourcompany.lab", "nightingale-two.davis.yourcompany.lab" ],
         "notes" : "CSAP admin service and httpd provide the application portal and http loadbalancing",
         "monitors" : {
           "maxDiskPercentIgnorePatterns" : "/mnt/.*",
@@ -201,13 +201,13 @@
       },
       "ApplicationShared" : {
         "type" : "simple",
-        "hosts" : [ "localhost", "nightingale-one.davis.***REMOVED***.lab", "nightingale-two.davis.***REMOVED***.lab" ],
+        "hosts" : [ "localhost", "nightingale-one.davis.yourcompany.lab", "nightingale-two.davis.yourcompany.lab" ],
         "notes" : "For ease of management - common services are typically placed in a single  cluster.",
         "template-references" : [ "httpd", "ActiveMq", "CsapStarter", "Fabric8", "Java", "PostGresDb", "SimpleDocker", "docker", "etcd", "peter", "linux", "mpstatMonitor", "nginx", "tomcat", "CsapTest", "CsapTestDocker", "SimpleServlet" ]
       },
       "settings" : {
         "imports" : [ "defaults" ],
-        "loadbalancer-url" : "http://yourlb.na.***REMOVED***.net",
+        "loadbalancer-url" : "http://yourlb.na.yourcompany.net",
         "configuration-maps" : {
           "global" : {
             "test-global-1" : "test-global-value-1"
@@ -222,15 +222,15 @@
         },
         "vsphere" : {
           "filters" : {
-            "vm-path" : "RNIs/CSAP-DEV_p",
+            "vm-path" : "YOURAPPs/CSAP-DEV_p",
             "resource-pool-path" : "BLDCluster/Resources/CSAP",
             "datastore-regex" : "(.*)CSAP(.*)"
           },
           "env" : {
             "GOVC_USERNAME" : "lab\\csapstorage",
             "GOVC_PASSWORD" : "iEQoM1eTsrVNKjJh5Z28",
-            "GOVC_URL" : "vcenter6.***REMOVED***",
-            "GOVC_DATACENTER" : "***REMOVED***",
+            "GOVC_URL" : "vcenter6.yourcompany.org",
+            "GOVC_DATACENTER" : "My Lab",
             "GOVC_DATASTORE" : "CSAP_DS1_NFS",
             "GOVC_INSECURE" : "1"
           }
@@ -257,7 +257,7 @@
       "logDirectory" : "/var/log/activemq",
       "defaultLogToShow" : "activemq.log",
       "docker" : {
-        "image" : "docker.***REMOVED***/csap/csap-activemq:latest",
+        "image" : "docker.yourcompany.org/csap/csap-activemq:latest",
         "entryPoint" : [ "" ],
         "command" : [ "/app/run.sh" ],
         "containerName" : "$$service-name",
@@ -381,7 +381,7 @@
       },
       "source" : {
         "scm" : "git",
-        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-starter.git",
+        "path" : "https://moc-bb.yourcompany.org/bitbucket/scm/csap/csap-starter.git",
         "branch" : "HEAD",
         "buildLocation" : "/csap-starter-simple"
       },
@@ -435,7 +435,7 @@
       },
       "source" : {
         "scm" : "git",
-        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-starter.git",
+        "path" : "https://moc-bb.yourcompany.org/bitbucket/scm/csap/csap-starter.git",
         "branch" : "HEAD",
         "buildLocation" : "/csap-starter"
       },
@@ -465,7 +465,7 @@
       "parameters" : "-DcsapJava8  -Dspring.profiles.active=desktop,embedded,CSAP_LIFE -Xms256M -Xmx256M -XX:MaxMetaspaceSize=96M -XX:+ExitOnOutOfMemoryError",
       "source" : {
         "scm" : "git",
-        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-starter.git",
+        "path" : "https://moc-bb.yourcompany.org/bitbucket/scm/csap/csap-starter.git",
         "branch" : "HEAD",
         "buildLocation" : "/csap-starter-tester"
       },
@@ -567,7 +567,7 @@
       "parameters" : "-DcsapJava8  -Dspring.profiles.active=CSAP_LIFE -XX:+UseG1GC  -Xms64M -Xmx256M -XX:MaxMetaspaceSize=96M -XX:+ExitOnOutOfMemoryError",
       "source" : {
         "scm" : "git",
-        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-starter.git",
+        "path" : "https://moc-bb.yourcompany.org/bitbucket/scm/csap/csap-starter.git",
         "branch" : "HEAD",
         "buildLocation" : "/csap-starter-tester"
       },
@@ -614,7 +614,7 @@
       },
       "runUsingDocker" : "true",
       "docker" : {
-        "image" : "docker.***REMOVED***/csap/csap-base:latest",
+        "image" : "docker.yourcompany.org/csap/csap-base:latest",
         "entryPoint" : [ "/bin/sh", "-c", "echo use csap service log viewer, running as `id`; java -version ;java $$service-parameters -DcsapDockerJava org.springframework.boot.loader.JarLauncher --spring.profiles.active=$$service-environment --server.context-path=/$$service-context --server.port=$$service-primary-port \u003E\u003E logs/consoleLogs.txt 2\u003E\u00261" ],
         "versionCommand" : "echo 1.2.3",
         "command" : [ ],
@@ -735,7 +735,7 @@
         "dependency" : "org.csap:csap-starter-tester:1.0.3:jar"
       },
       "docker" : {
-        "image" : "docker.***REMOVED***/csap/***REMOVED***/openjdk8-jdk:latest",
+        "image" : "docker.yourcompany.org/csap/yourcompany/openjdk8-jdk:latest",
         "entryPoint" : [ ],
         "command" : [ "/deployments/run-java.sh" ],
         "workingDirectory" : "",
@@ -773,7 +773,7 @@
       "processFilter" : "none",
       "source" : {
         "scm" : "git",
-        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-packages.git",
+        "path" : "https://moc-bb.yourcompany.org/bitbucket/scm/csap/csap-packages.git",
         "branch" : "HEAD",
         "buildLocation" : "/csap-package-java"
       },
@@ -799,7 +799,7 @@
       },
       "source" : {
         "scm" : "git",
-        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-packages.git",
+        "path" : "https://moc-bb.yourcompany.org/bitbucket/scm/csap/csap-packages.git",
         "branch" : "HEAD",
         "buildLocation" : "/csap-package-java"
       },
@@ -901,7 +901,7 @@
       },
       "runUsingDocker" : "false",
       "docker" : {
-        "image" : "containers.na.***REMOVED***.net/someUser/csap-tomcat-oracle:latest",
+        "image" : "containers.na.yourcompany.net/someUser/csap-tomcat-oracle:latest",
         "entryPoint" : [ "/bin/sh", "-c", "echo use csap service log viewer, id is `id`; java -version ; catalina.sh run  \u003E\u003E logs/catalina.out 2\u003E\u00261", "" ],
         "command" : [ ],
         "runUser" : "$csapUser",
@@ -951,7 +951,7 @@
       "parameters" : "-DcsapJava8 -Dspring.profiles.active=CSAP_LIFE,admin -XX:MaxMetaspaceSize=96M -Xms512M -Xmx512M",
       "source" : {
         "scm" : "git",
-        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-core.git",
+        "path" : "https://moc-bb.yourcompany.org/bitbucket/scm/csap/csap-core.git",
         "buildLocation" : "/csap-core-service",
         "branch" : "HEAD"
       },
@@ -1036,13 +1036,13 @@
       "osProcessPriority" : -12,
       "parameters" : "-DcsapJava8 -Dspring.profiles.active=CSAP_LIFE,agent,limits -Dsun.rmi.transport.tcp.responseTimeout=3000 -XX:MaxMetaspaceSize=96M -Xms256M -Xmx256M",
       "environmentVariables" : {
-        "hostUrlPattern" : "http://CSAP_HOST.na.***REMOVED***.net:8011/CsAgent",
+        "hostUrlPattern" : "http://CSAP_HOST.na.yourcompany.net:8011/CsAgent",
         "mailServer" : "outbound.yourMail.com",
         "csapDockerRepository" : "docker.io"
       },
       "source" : {
         "scm" : "git",
-        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-core.git",
+        "path" : "https://moc-bb.yourcompany.org/bitbucket/scm/csap/csap-core.git",
         "buildLocation" : "/csap-core-service",
         "branch" : "HEAD"
       },
@@ -1237,7 +1237,7 @@
       },
       "source" : {
         "scm" : "git",
-        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-packages.git",
+        "path" : "https://moc-bb.yourcompany.org/bitbucket/scm/csap/csap-packages.git",
         "branch" : "HEAD",
         "buildLocation" : "/csap-package-docker"
       },
@@ -1301,7 +1301,7 @@
       "deployTimeoutMinutes" : "10",
       "source" : {
         "scm" : "git",
-        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-packages.git",
+        "path" : "https://moc-bb.yourcompany.org/bitbucket/scm/csap/csap-packages.git",
         "branch" : "HEAD",
         "buildLocation" : "/csap-package-httpd"
       },
@@ -1311,7 +1311,7 @@
       "defaultLogToShow" : "error_log",
       "performance" : {
         "config" : {
-          "httpCollectionUrl" : "http://nightingale-one.davis.***REMOVED***.lab:8011/CsAgent/service/httpd?auto",
+          "httpCollectionUrl" : "http://nightingale-one.davis.yourcompany.lab:8011/CsAgent/service/httpd?auto",
           "patternMatch" : ": ([^\n]*)",
           "title" : "CSAP Collection Url"
         },
@@ -1358,14 +1358,14 @@
       "processFilter" : ".*jstatd.*",
       "source" : {
         "scm" : "git",
-        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-packages.git",
+        "path" : "https://moc-bb.yourcompany.org/bitbucket/scm/csap/csap-packages.git",
         "branch" : "HEAD",
         "buildLocation" : "/csap-package-java-statd"
       },
       "maven" : {
         "dependency" : "org.csap:csap-package-java-statd:1.0.0:zip"
       },
-      "url" : "https://wiki.na.***REMOVED***.net/display/SFAECSAP/CSAP+Java+Stats+Package"
+      "url" : "https://wiki.na.yourcompany.net/display/SFAECSAP/CSAP+Java+Stats+Package"
     },
     "k8s-api-server" : {
       "server" : "os",
@@ -1458,7 +1458,7 @@
       },
       "source" : {
         "scm" : "git",
-        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-packages.git",
+        "path" : "https://moc-bb.yourcompany.org/bitbucket/scm/csap/csap-packages.git",
         "branch" : "HEAD",
         "buildLocation" : "/csap-package-kubelet"
       },
@@ -1480,7 +1480,7 @@
       },
       "source" : {
         "scm" : "git",
-        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-packages.git",
+        "path" : "https://moc-bb.yourcompany.org/bitbucket/scm/csap/csap-packages.git",
         "branch" : "HEAD",
         "buildLocation" : "/csap-package-linux"
       },
@@ -1632,7 +1632,7 @@
       },
       "runUsingDocker" : "false",
       "docker" : {
-        "image" : "docker.***REMOVED***/csap/csap-test-app:latest",
+        "image" : "docker.yourcompany.org/csap/csap-test-app:latest",
         "entryPoint" : [ "/bin/sh", "-c", "/java-local/runJava.sh" ],
         "command" : [ ],
         "runUser" : "",
@@ -1752,7 +1752,7 @@
       },
       "source" : {
         "scm" : "git",
-        "path" : "https://moc-bb.***REMOVED***/bitbucket/scm/csap/csap-packages.git",
+        "path" : "https://moc-bb.yourcompany.org/bitbucket/scm/csap/csap-packages.git",
         "branch" : "HEAD",
         "buildLocation" : "/csap-package-tomcat"
       },

@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId> 
+		<version>2.6.6</version> <!-- 2.3.4.RELEASE -->
+		<relativePath /> <!-- lookup parent from repository -->
+	</parent>
+
+	<groupId>org.csap</groupId>
+	<artifactId>csap-starter-parent</artifactId>
+	<version>2-SNAPSHOT</version>
+
+	<packaging>pom</packaging>
+	<name>csap-starter-parent</name>
+	<description>Spring Boot Starter Parent</description>
+	<url>https://github.com/csap-platform/csap-starter</url>
+	<organization>
+		<name>org.csap</name>
+		<url>https://github.com/csap-platform/csap-starter</url>
+	</organization>
+
+
+	<properties>
+		<!-- PARENT_VERSION can be overridden via the Jenkins build parameters -->
+		<PARENT_VERSION>2-SNAPSHOT</PARENT_VERSION>
+
+		<!-- 5.4.30.Final, 5.4.31.Final break entity discovery for named queries 
+			<hibernate.version>5.4.30.Final</hibernate.version> -->
+
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<java.version>17</java.version>
+		
+		<!-- until 2.6 or later  -->
+		<log4j2.version>2.17.1</log4j2.version> 
+
+		<!-- eclipse 2019-09 -->
+		<!-- <tomcat.version>9.0.30</tomcat.version> -->
+		<jasyptVersion>1.9.2</jasyptVersion>
+		<commonsLangVersion>3.4</commonsLangVersion>
+		<commonsIoVersion>2.4</commonsIoVersion>
+
+
+		<htmlunit.version>2.48.0</htmlunit.version>
+
+		<!-- Boot overrides <thymeleaf.version>3.0.7.RELEASE</thymeleaf.version> 
+			<thymeleaf-extras-springsecurity4.version>3.0.2.RELEASE </thymeleaf-extras-springsecurity4.version> 
+			<thymeleaf-layout-dialect.version>2.0.4</thymeleaf-layout-dialect.version> -->
+
+		<!-- optional -->
+		<mongoVersion>3.6.1</mongoVersion>
+
+		<!-- java script frameworks : will need to update libsAndStyles template -->
+		<requirejsVersion>2.1.20</requirejsVersion>
+		<jqueryVersion>3.6.0</jqueryVersion>
+		<jqueryUiVersion>1.13.0</jqueryUiVersion>
+		<alertifyVersion>1.13.1</alertifyVersion>
+
+		<plotlyVersion>2.9.0</plotlyVersion>  <!-- 1.45.2 https://github.com/plotly/plotly.js/releases -->
+
+		<jqueryContextVersion>2.8.0</jqueryContextVersion>
+		<jqueryFormVersion>4.2.2</jqueryFormVersion>
+		<!-- <alertifyVersion>1.8.0</alertifyVersion> -->
+		<tableSorterVersion>2.31.3</tableSorterVersion>
+		<!-- <flotVersion>0.8.3-1</flotVersion> -->
+		<flotVersion>4.2.2</flotVersion>
+		<mathJsVersion>9.4.4</mathJsVersion>
+		<jqplotVersion>1.0.8r1250</jqplotVersion>
+
+		<!-- https://github.com/mar10/fancytree/wiki -->
+		<ftreeVersion>2.30.0</ftreeVersion>
+
+		<datatablesVersion>1.10.21</datatablesVersion>
+		<aceVersion>1.4.11</aceVersion>
+		<jsYamlVersion>4.1.0</jsYamlVersion>
+
+	</properties>
+	<!-- Spring boot jar builder - includes 3rd party jars -->
+	<!-- http://docs.spring.io/spring-boot/docs/current/maven-plugin/repackage-mojo.html -->
+	<build>
+
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.codehaus.mojo
+										</groupId>
+										<artifactId>
+											build-helper-maven-plugin
+										</artifactId>
+										<versionRange>
+											[3.3.0,)
+										</versionRange>
+										<goals>
+											<goal>hostname</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<execute>
+											<runOnIncremental>true</runOnIncremental>
+										</execute>
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.springframework.boot
+										</groupId>
+										<artifactId>
+											spring-boot-maven-plugin
+										</artifactId>
+										<versionRange>
+											[2.6.2,)
+										</versionRange>
+										<goals>
+											<goal>build-info</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<execute>
+											<runOnIncremental>false</runOnIncremental>
+										</execute>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
+
+		<plugins>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.3.0</version>
+				<executions>
+					<execution>
+						<id>get-hostname</id>
+						<goals>
+							<goal>hostname</goal>
+						</goals>
+						<phase>
+				              initialize
+				            </phase>
+						<configuration>
+							<hostnameProperty>my.buildHost</hostnameProperty>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>build-info</goal>
+						</goals>
+						<configuration>
+							<additionalProperties>
+								<host>${my.buildHost}</host>
+								<os.user>${user.name}</os.user>
+								<os.name>${os.name}</os.name>
+								<os.version>${os.version}</os.version>
+								<os.path>${env.PATH}</os.path>
+								<notes>https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/258211856/Release+Notes</notes>
+								<java.jdk>${java.version}</java.jdk>
+							</additionalProperties>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<compilerArgs>
+						<arg>-parameters</arg>
+					</compilerArgs>
+				</configuration>
+			</plugin>
+
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<outputDirectory>${project.build.directory}/srcZip</outputDirectory>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<additionalClasspathElements>
+						<additionalClasspathElement>${project.basedir}/src/test/java</additionalClasspathElement>
+					</additionalClasspathElements>
+					<includes>
+						<include>**/*.java</include>
+					</includes>
+
+				</configuration>
+			</plugin>
+		</plugins>
+
+		<!-- support for eclipse and maven junit -->
+		<testResources>
+			<testResource>
+				<directory>${project.basedir}/src/test/java</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</testResource>
+
+		</testResources>
+
+	</build>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.csap</groupId>
+				<artifactId>csap-starter</artifactId>
+				<version>${PARENT_VERSION}</version>
+			</dependency>
+
+
+			<dependency>
+				<groupId>org.jasypt</groupId>
+				<artifactId>jasypt</artifactId>
+				<version>${jasyptVersion}</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jasypt</groupId>
+				<artifactId>jasypt-spring31</artifactId>
+				<version>${jasyptVersion}</version>
+				<scope>compile</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.mongodb</groupId>
+				<artifactId>mongo-java-driver</artifactId>
+				<version>${mongoVersion}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-lang3</artifactId>
+				<version>${commonsLangVersion}</version>
+			</dependency>
+
+
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>${commonsIoVersion}</version>
+			</dependency>
+
+
+			<!-- ============= WEB JARS http://www.webjars.org/ =================== -->
+			<dependency>
+				<groupId>org.webjars</groupId>
+				<artifactId>requirejs</artifactId>
+				<version>${requirejsVersion}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.webjars</groupId>
+				<artifactId>jquery</artifactId>
+				<version>${jqueryVersion}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.webjars</groupId>
+				<artifactId>jquery-ui</artifactId>
+				<version>${jqueryUiVersion}</version>
+			</dependency>
+			
+			
+
+			<dependency>
+			    <groupId>org.webjars</groupId>
+			    <artifactId>alertifyjs</artifactId>
+			    <version>${alertifyVersion}</version>
+			</dependency>
+			
+
+			<dependency>
+				<groupId>org.webjars.bower</groupId>
+				<artifactId>jQuery-contextMenu</artifactId>
+				<version>${jqueryContextVersion}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.webjars</groupId>
+				<artifactId>jquery-form</artifactId>
+				<version>${jqueryFormVersion}</version>
+			</dependency>
+
+			<!-- alertify new version not in repo <dependency> <groupId>org.webjars.npm</groupId> 
+				<artifactId>alertifyjs</artifactId> <version>${alertifyVersion}</version> 
+				</dependency> -->
+
+			<dependency>
+				<groupId>org.webjars</groupId>
+				<artifactId>tablesorter</artifactId>
+				<version>${tableSorterVersion}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.webjars.npm</groupId>
+				<artifactId>flot</artifactId>
+				<version>${flotVersion}</version>
+			</dependency>
+			
+			
+	
+
+			<dependency>
+			    <groupId>org.webjars.npm</groupId>
+			    <artifactId>mathjs</artifactId>
+			    <version>${mathJsVersion}</version>
+			</dependency>
+
+			
+
+
+
+			<dependency>
+				<groupId>org.webjars.npm</groupId>
+				<artifactId>plotly.js-dist-min</artifactId>
+				<version>${plotlyVersion}</version>
+			</dependency>
+
+
+
+			<dependency>
+				<groupId>org.webjars</groupId>
+				<artifactId>jqplot</artifactId>
+				<version>${jqplotVersion}</version>
+			</dependency>
+
+			<!-- Note that bower dependencies will pull in second jquery transitive 
+				dependencies, so exclude -->
+			<dependency>
+				<groupId>org.webjars.bower</groupId>
+				<artifactId>fancytree</artifactId>
+				<version>${ftreeVersion}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.webjars.bower</groupId>
+						<artifactId>jquery</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.webjars.bower</groupId>
+						<artifactId>jquery-ui</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+
+			<dependency>
+				<groupId>org.webjars</groupId>
+				<artifactId>datatables</artifactId>
+				<version>${datatablesVersion}</version>
+			</dependency>
+
+
+			<dependency>
+				<groupId>org.webjars.npm</groupId>
+				<artifactId>ace-builds</artifactId>
+				<version>${aceVersion}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.webjars.npm</groupId>
+				<artifactId>js-yaml</artifactId>
+				<version>${jsYamlVersion}</version>
+			</dependency>
+
+		</dependencies>
+	</dependencyManagement>
+
+
+	<!-- Refer to sample from maven-sample-settings.xml for repo setup -->
+	<distributionManagement>
+		<repository>
+			<id>csap-release-repo</id>
+			<url>${csapReleaseUrl}</url>
+		</repository>
+
+		<snapshotRepository>
+			<id>csap-snapshot-repo</id>
+			<url>${csapSnapUrl}</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+</project>

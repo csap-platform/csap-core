@@ -13,9 +13,9 @@
 		"source": {
 			"collected-at": "17:16:51, March 13 2019",
 			"hostName": "test-k8s-csap-reference-76db754cbd-4bgt4",
-			"url-requested": "http://csap-dev06.***REMOVED***:30080/test-k8s-csap-reference/csap/health/report",
-			"sample-params": "http://csap-dev06.***REMOVED***:30080/test-k8s-csap-reference/csap/health/report?aggregate=true&nameFilter=jvm.*&details=false&precision=2&tagFilter=state&tagFilter=csap-collection",
-			"sample-http": "http://csap-dev06.***REMOVED***:30080/test-k8s-csap-reference/csap/health/report?nameFilter=http.server.*&details=true&encode=true&precision=2&"
+			"url-requested": "http://csap-dev06.yourcompany.org:30080/test-k8s-csap-reference/csap/health/report",
+			"sample-params": "http://csap-dev06.yourcompany.org:30080/test-k8s-csap-reference/csap/health/report?aggregate=true&nameFilter=jvm.*&details=false&precision=2&tagFilter=state&tagFilter=csap-collection",
+			"sample-http": "http://csap-dev06.yourcompany.org:30080/test-k8s-csap-reference/csap/health/report?nameFilter=http.server.*&details=true&encode=true&precision=2&"
 		}
 	},
 	"jvm.buffer.memory.used.mb[id=direct]": 0.08,

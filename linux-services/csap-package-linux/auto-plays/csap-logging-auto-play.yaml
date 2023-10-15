@@ -1,0 +1,79 @@
+#
+#  NOTES:
+#
+#   1. confirm your integration environment (line 29)
+#   2. update integration host (line 47)
+#   3. Use admin/project/files to apply this file
+#   4. Go to Deploy -> csap-autoplays -> deploy csap-package-logging
+#   5. Assuming success in logs: batch deploy csap-logging cluster
+#   6. launch kibana -> verify logs
+#
+
+
+---
+# optional: delete previous defaults if they exist
+operator: modify
+target: default
+
+operations:
+  - deletes: 
+    - /environments/defaults/settings/configuration-maps/csap-logging-defaults
+
+---    
+
+operator: modify
+target: default
+
+
+environments:
+  base: dev # update with your integration lifecycle
+  remove-inactive: false
+  
+  default-settings:  # defaults for ALL envs
+    configuration-maps:
+      csap-logging-defaults:
+        $$volume-os: $$nfs-mount/$$nfs-sub-folder/csap-logging-elastic
+        $$volume-pv: $$nfs-path/$$nfs-sub-folder/csap-logging-elastic
+        $$clean-disk-gb: 20
+        $$clean-disk-days: 1
+        $$clean-schedule: "@hourly"
+        # @monthly, @weekly, @daily, @hourly, every minute: * * * * *, every 2 hours: 0 */2 * * * 
+  
+  clusters:
+    csap-autoplays: 
+      type: simple
+      # update -> use only 1 host - convention is first host in integration environment. No need for multiple envs.
+      hosts:
+        - update-me
+      template-references: 
+        - csap-package-logging
+  
+service-templates: 
+
+  csap-package-logging:
+    server: csap-api
+    isDataStore: true
+    autoStart: do-not-restart
+    description: Deploys kubernetes logging components
+    url: https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/1058572066/csap-package-logging
+    docUrl: https://yourcompanyinc.atlassian.net/wiki/spaces/CSAP/pages/1058572066/csap-package-logging
+    deploymentNotes: "Create all required kubernetes artifacts"
+    processFilter: none
+    environmentVariables:
+      configuration-maps:
+        - storage-settings
+        - csap-logging-defaults
+        - csap-logging
+        
+    alerts: 
+      max_socketCount: 60
+      max_diskUtil: 10g
+      
+    source: 
+      scm: git
+      path: "https://bitbucket.org/yourcompanyinc/oss-csap-packages.git"
+      branch: "HEAD"
+      buildLocation: "/csap-package-logging"
+    
+    maven: 
+      dependency: "org.csap:csap-package-logging:21.08:zip"

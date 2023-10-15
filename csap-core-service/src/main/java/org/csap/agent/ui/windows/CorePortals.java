@@ -540,7 +540,7 @@ public class CorePortals {
 				configuredUrl = nonK8Service.getHttpCollectionSettings( ).path( "httpCollectionUrl" ).asText( ) ;
 				configuredUrl = nonK8Service.resolveRuntimeVariables( configuredUrl ) ;
 //				if (  Application.isRunningOnDesktop() && serviceid.equals( CsapCore.AGENT_NAME )) {
-//					configuredUrl = "http://csap-dev01.***REMOVED***:8011/csap/metrics/micrometers" ;
+//					configuredUrl = "http://csap-dev01.yourcompany.org:8011/csap/metrics/micrometers" ;
 //				}
 
 			} else {
@@ -879,14 +879,14 @@ public class CorePortals {
 				} else {
 
 //					modelMap.addAttribute( "analyticsUrl",
-//							"http://localhost.***REMOVED***:8021/csap-admin/os/performance"
+//							"http://localhost.yourcompany.org:8021/csap-admin/os/performance"
 //									+ "?life=" +  csapApis.application().getCsapHostEnvironmentName( ) ) ;
 					modelMap.addAttribute( "analyticsUrl",
-							"http://localhost.***REMOVED***:8021/csap-admin/os/performance" ) ;
+							"http://localhost.yourcompany.org:8021/csap-admin/os/performance" ) ;
 
 				}
 
-				modelMap.addAttribute( "eventUser", "SensusCsap" ) ;
+				modelMap.addAttribute( "eventUser", "yourcompanyCsap" ) ;
 				modelMap.addAttribute( "graphReleasePackage", "CSAP Platform" ) ;
 
 			}

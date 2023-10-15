@@ -17,20 +17,20 @@
 				"diskWriteMb": "600"
 			},
 			"gitSslVerificationDisabledUrls": [
-				"https://moc-bb.***REMOVED***"
+				"https://moc-bb.yourcompany.org"
 			]
 		},
 		"vsphere": {
 			"filters": {
-				"vm-path": "RNIs/CSAP-DEV_p",
+				"vm-path": "YOURAPPs/CSAP-DEV_p",
 				"resource-pool-path": "BLDCluster/Resources/CSAP",
 				"datastore-regex": "(.*)CSAP(.*)"
 			},
 			"env": {
 				"GOVC_USERNAME": "lab\\csapstorage",
 				"GOVC_PASSWORD": "iEQoM1eTsrVNKjJh5Z28",
-				"GOVC_URL": "vcenter6.***REMOVED***",
-				"GOVC_DATACENTER": "***REMOVED***",
+				"GOVC_URL": "vcenter6.yourcompany.org",
+				"GOVC_DATACENTER": "My Lab",
 				"GOVC_DATASTORE": "CSAP_DS1_NFS",
 				"GOVC_INSECURE": "1"
 			}
@@ -55,10 +55,10 @@
 			"pass": "$pass",
 			"service-url": "$eventServiceUrl"
 		},
-		"monitoringUrl": "http://monitoring.na.***REMOVED***.net",
+		"monitoringUrl": "http://monitoring.na.yourcompany.net",
 		"mavenCommand": "-B -Dmaven.test.skip=true clean package",
 		"operatorNotifications": [
-			"monitoring@na.***REMOVED***.net"
+			"monitoring@na.yourcompany.net"
 		],
 		"newsItems": [
 			"<a href=\"https://github.com/csap-platform/csap-core/wiki\" class=\"simple\" target=\"_blank\">CSAP Project Documentation</a> ",
@@ -68,8 +68,8 @@
 			"start": 8200,
 			"end": 9300
 		},
-		"lbUrl": "http://yourlb.na.***REMOVED***.net",
-		"secureUrl": "https://csap-secure.na.***REMOVED***.net/admin",
+		"lbUrl": "http://yourlb.na.yourcompany.net",
+		"secureUrl": "https://csap-secure.na.yourcompany.net/admin",
 		"autoRestartHttpdOnClusterReload": "yes",
 		"launchUrls": [
 			{
@@ -78,7 +78,7 @@
 			},
 			{
 				"description": "2) ajp(LB - Internal)",
-				"url": "http://yourlb.na.***REMOVED***.net"
+				"url": "http://yourlb.na.yourcompany.net"
 			}
 		],
 		"monitorDefaults": {

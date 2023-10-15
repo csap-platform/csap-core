@@ -106,7 +106,7 @@ public class Rest_Service_Tests extends CsapBareTest {
 
 		var jobYamlFile = new File(
 				getClass( ).getResource(
-						"create-rni-job.yaml" )
+						"create-yourapp-job.yaml" )
 						.getPath( ) ) ;
 		var jobYamlContent = FileUtils.readFileToString( jobYamlFile ) ;
 

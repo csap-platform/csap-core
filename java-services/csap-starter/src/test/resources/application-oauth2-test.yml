@@ -1,0 +1,70 @@
+#
+# oauth2 integration
+#
+
+
+csap:
+  security:
+    enabled: true
+    provider:
+      type: oauth2
+      oauth-login-page: /oauth2/authorization/keycloak-user-auth
+      oauth-user-token-name: csap-service-claim
+      oauth-service-claim-name: "csap-service" 
+      oauth-client-service-name: "keycloak-service-auth"
+
+      #
+      # used by BOTH oauth and memory providers
+      # - oauth2 only uses IF login local is specified and not "notUsed"
+      #
+      oauth-login-local: /login
+      memory-users:
+        - admin,yourcompany123,AUTHENTICATED,ViewRole,AdminRole,BuildRole,InfraRole
+
+
+spring.security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost
+#          jwk-set-uri: ${openIdUrl:http://csap-dev01.yourcompany.org:8090/auth/realms/csap-default/protocol/openid-connect}/certs
+          #jwk-set-uri: ${openIdUrl:http://csap-dev03.yourcompany.org:8095/auth/realms/csap-default/protocol/openid-connect}/certs
+          
+      client:
+      
+        registration:
+        
+          keycloak-user-auth: # user logins
+            client-id: csap-ui
+            client-secret: ${csapUserSecret:d437dcbe-d37d-422b-9039-b6705e4cf8fa}
+            clientName: "Keycloak: User authentication and Authorization"
+            authorization-grant-type: authorization_code
+            redirectUri: '{baseUrl}/login/oauth2/code/{registrationId}'
+            scope: [ openid, profile,email, csap-roles-scope ]
+          
+          keycloak-service-auth: #service logins
+            client-id: csap-service
+            client-secret: ${csapServiceSecret:8dd6d776-d071-496c-9e51-3fbdfb547c6e}
+            clientName: "Keycloak: client_credentials"
+            authorization-grant-type: client_credentials
+            redirectUri: '{baseUrl}/login/oauth2/code/{registrationId}'
+            scope: [ openid, profile,email, csap-roles-scope ]
+           
+        provider:
+        
+          keycloak-user-auth:
+            issuer-uri: ${openIdIssuerUri:http://csap-dev01.yourcompany.org:8090/auth/realms/csap-default}
+            #issuer-uri: ${openIdIssuerUri:http://csap-dev03.yourcompany.org:8095/auth/realms/csap-default}
+            
+          keycloak-service-auth:
+            issuer-uri: ${openIdIssuerUri:http://csap-dev01.yourcompany.org:8090/auth/realms/csap-default}
+            #issuer-uri: ${openIdIssuerUri:http://csap-dev03.yourcompany.org:8095/auth/realms/csap-default}
+      
+
+#            authorization-uri: ${openIdUrl:http://csap-dev01.yourcompany.org:8090/auth/realms/csap-default/protocol/openid-connect}/auth
+#            token-uri: ${openIdUrl:http://csap-dev01.yourcompany.org:8090/auth/realms/csap-default/protocol/openid-connect}/token
+#            user-info-uri: ${openIdUrl:http://csap-dev01.yourcompany.org:8090/auth/realms/csap-default/protocol/openid-connect}/userinfo
+#            jwk-set-uri: ${openIdUrl:http://csap-dev01.yourcompany.org:8090/auth/realms/csap-default/protocol/openid-connect}/certs
+#            user-name-attribute: preferred_username
+
+

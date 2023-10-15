@@ -2216,7 +2216,7 @@ public class ContainerIntegration {
 		if ( Application.isRunningOnDesktop( ) ) {
 
 			logger.debug( "Swapping hostname to csap-dev04" ) ;
-			hostname = "csap-dev04.***REMOVED***" ;
+			hostname = "csap-dev04.yourcompany.org" ;
 
 		}
 

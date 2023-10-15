@@ -787,7 +787,7 @@ public class SpecBuilder {
 			if ( nodeSelectorDef.isObject( ) ) {
 
 				Map<String, String> nodeSelector = jsonMapper.convertValue( nodeSelectorDef, Map.class ) ;
-				// nodeSelector.put( "kubernetes.io/hostname", "csap-dev04.***REMOVED***" ) ;
+				// nodeSelector.put( "kubernetes.io/hostname", "csap-dev04.yourcompany.org" ) ;
 				podSpec.setNodeSelector( nodeSelector ) ;
 
 			}

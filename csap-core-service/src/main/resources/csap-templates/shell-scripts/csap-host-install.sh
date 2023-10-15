@@ -39,8 +39,8 @@ function configure() {
 	# install media: using the csap-host.zip used to install current host, alternately use maven repo
 	#
 	csapZipUrl="http://${csapFqdn:-$(hostname --long)}:${agentPort:-8011}/api/agent/installer"
-	# csapZipUrl="http://***REMOVED***.***REMOVED***:8081/artifactory/csap-snapshots/org/csap/csap-host/2-SNAPSHOT/csap-host-2-SNAPSHOT.zip"
-	# csapZipUrl="http://***REMOVED***.***REMOVED***:8081/artifactory/csap-release/org/csap/csap-host/22.03/csap-host-22.03.zip"
+	# csapZipUrl="http://my-server-01.yourcompany.org:8081/artifactory/csap-snapshots/org/csap/csap-host/2-SNAPSHOT/csap-host-2-SNAPSHOT.zip"
+	# csapZipUrl="http://my-server-01.yourcompany.org:8081/artifactory/csap-release/org/csap/csap-host/22.03/csap-host-22.03.zip"
 	
 
 }

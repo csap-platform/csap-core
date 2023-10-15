@@ -1,0 +1,2 @@
+host,context,port,user,pass
+csap-dev01.yourcompany.org,/csap-test-service,8080,admin,password
